@@ -463,7 +463,17 @@
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",
         "columnSalesChannel": "Verkaufskanal",
-        "columnEmailAddress": "E-Mail-Adresse"
+        "columnEmailAddress": "E-Mail-Adresse",
+        "titleSelectSalesChannel": "Verkaufskanal auswählen",
+        "descriptionSelectSalesChannel": "Der ausgewählte Kunde hat Zugang zu mehreren Verkaufskanälen. Bitte wähle den Verkaufskanal aus, den Du für die Bestellung verwenden möchtest.",
+        "alertSelectSalesChannel": "Da der ausgewählte Vertriebskanal die verfügbaren Produkte und Optionen bestimmt, werden bei einer Änderung des Kanals die Produkte entfernt und die Optionen zurückgesetzt.",
+        "labelSalesChannel": "Verkaufskanal verwenden",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal ...",
+        "buttonSelectSalesChannel": "Auswählen",
+        "labelAllChannel": "Alle Kanäle",
+        "titleCustomerChanges": "Kunden ändern",
+        "descriptionCustomerChanges": "Bist Du sicher, dass Du den Kunden für diese Bestellung ändern möchtest? Dieser Kunde verwendet einen anderen Verkaufskanal. Dadurch werden die Produkte entfernt und die Optionen zurückgesetzt.",
+        "buttonChangeCustomer": "Kunden ändern"
       },
       "options": {
         "textHeadlineOrder": "Bestellung",
@@ -473,6 +483,9 @@
         "labelSameAsBillingAddress": "Lieferadresse ist gleich Rechnungsadresse",
         "textSameAsBillingAddress": "Wie Rechnungsadresse",
         "labelShippingCosts": "Versandkosten"
+      },
+      "tooltip": {
+        "customerUnavailable": "Dieser Kunde kann nur einen Verkaufskanal verwenden. Der Verkaufskanal ist derzeit inaktiv oder existiert nicht mehr."
       }
     },
     "filters": {
@@ -519,6 +532,14 @@
       "salesChannelFilter": {
         "label": "Verkaufskanäle",
         "placeholder": "Verkaufskanäle auswählen ..."
+      },
+      "orderNumberFilter": {
+        "label": "Bestellnummer",
+        "placeholder": "Bestellnummer eingeben ..."
+      },
+      "customerNumberFilter": {
+        "label": "Kundenummer",
+        "placeholder": "Kundenummer eingeben ..."
       },
       "billingCountryFilter": {
         "label": "Rechnungsland",

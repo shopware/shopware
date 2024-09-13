@@ -18,9 +18,14 @@ const { Component } = Shopware;
  */
 Component.register('sw-button-process', {
     template,
+
+    compatConfig: Shopware.disableCompat,
+
     inheritAttrs: false,
 
     inject: ['feature'],
+
+    emits: ['update:processSuccess'],
 
     props: {
         processSuccess: {
@@ -40,6 +45,14 @@ Component.register('sw-button-process', {
             return {
                 'is--hidden': this.processSuccess,
             };
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

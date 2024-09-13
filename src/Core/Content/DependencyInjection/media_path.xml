@@ -7,9 +7,20 @@
     <services>
         <service id="Shopware\Core\Content\Media\Core\Application\MediaUrlLoader">
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\RemoteThumbnailLoader"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
 
             <tag name="kernel.event_listener" event="media.loaded" method="loaded" priority="20" />
             <tag name="kernel.event_listener" event="media.partial_loaded" method="loaded" priority="19" />
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Core\Application\RemoteThumbnailLoader">
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument>%shopware.media.remote_thumbnails.pattern%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder" id="Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder">

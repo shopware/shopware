@@ -41,6 +41,11 @@ describe('AddressEditorPlugin test', () => {
 
         const element = document.querySelector('.btn');
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         addressEditor = new AddressEditorPlugin(element, {
             url: '/widgets/account/address-book',
             changeShipping: true,

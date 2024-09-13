@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
@@ -324,6 +327,13 @@ async function createWrapper() {
                     'sw-ignore-class': {
                         template: '<div></div>',
                     },
+                    'sw-product-variant-info': true,
+                    'sw-label': true,
+                    'sw-filter-panel': true,
+                    'sw-context-menu': true,
+                    'sw-entity-advanced-selection-modal-grid': true,
+                    'mt-card': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         }),

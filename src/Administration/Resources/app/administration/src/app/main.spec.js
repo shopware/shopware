@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 describe('src/app/main.ts', () => {
     let VueAdapter;
 
@@ -198,9 +201,10 @@ describe('src/app/main.ts', () => {
     it('should add all initializer to Application', () => {
         const initializers = Shopware.Application.getContainer('init').$list();
 
-        expect(initializers).toHaveLength(32);
+        expect(initializers).toHaveLength(34);
         expect(initializers).toContain('apiServices');
         expect(initializers).toContain('state');
+        expect(initializers).toContain('store');
         expect(initializers).toContain('coreMixin');
         expect(initializers).toContain('coreDirectives');
         expect(initializers).toContain('coreFilter');
@@ -231,6 +235,7 @@ describe('src/app/main.ts', () => {
         expect(initializers).toContain('userInformation');
         expect(initializers).toContain('worker');
         expect(initializers).toContain('usageData');
+        expect(initializers).toContain('topbarButton');
     });
 
     it('should add all services to Application', () => {

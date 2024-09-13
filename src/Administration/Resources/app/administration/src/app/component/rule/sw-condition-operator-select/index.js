@@ -10,6 +10,8 @@ const { Component } = Shopware;
 Component.register('sw-condition-operator-select', {
     template: template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         operators: {
             type: Array,

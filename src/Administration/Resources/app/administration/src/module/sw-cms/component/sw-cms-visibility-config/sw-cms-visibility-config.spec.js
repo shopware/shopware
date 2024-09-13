@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package buyers-experience
+ * @package buyers-experience#
  */
 
 async function createWrapper() {
@@ -18,14 +18,11 @@ async function createWrapper() {
         provide: {
             cmsService: {},
         },
-        stubs: {
-            'sw-icon': await wrapTestComponent('sw-icon'),
-            'icons-regular-tablet': true,
-            'icons-regular-mobile': true,
-            'icons-regular-desktop': true,
-            'icons-regular-tablet-slash': true,
-            'icons-regular-mobile-slash': true,
-            'icons-regular-desktop-slash': true,
+        global: {
+            stubs: {
+                'sw-icon': await wrapTestComponent('sw-icon'),
+                'sw-icon-deprecated': true,
+            },
         },
     });
 }
@@ -39,14 +36,15 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
 
     it('should be visible in all devices', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        const mobileIcon = wrapper.findAll('sw-icon')[0];
+        const mobileIcon = wrapper.findAll('sw-icon-deprecated-stub')[0];
         expect(mobileIcon.attributes('name')).toContain('regular-mobile');
 
-        const tabletIcon = wrapper.findAll('sw-icon')[1];
+        const tabletIcon = wrapper.findAll('sw-icon-deprecated-stub')[1];
         expect(tabletIcon.attributes('name')).toContain('regular-tablet');
 
-        const desktopIcon = wrapper.findAll('sw-icon')[2];
+        const desktopIcon = wrapper.findAll('sw-icon-deprecated-stub')[2];
         expect(desktopIcon.attributes('name')).toContain('regular-desktop');
     });
 
@@ -59,14 +57,15 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
                 desktop: false,
             },
         });
+        await flushPromises();
 
-        const mobileIcon = wrapper.findAll('sw-icon')[0];
+        const mobileIcon = wrapper.findAll('sw-icon-deprecated-stub')[0];
         expect(mobileIcon.attributes('name')).toContain('regular-mobile-slash');
 
-        const tabletIcon = wrapper.findAll('sw-icon')[1];
+        const tabletIcon = wrapper.findAll('sw-icon-deprecated-stub')[1];
         expect(tabletIcon.attributes('name')).toContain('regular-tablet-slash');
 
-        const desktopIcon = wrapper.findAll('sw-icon')[2];
+        const desktopIcon = wrapper.findAll('sw-icon-deprecated-stub')[2];
         expect(desktopIcon.attributes('name')).toContain('regular-desktop-slash');
     });
 

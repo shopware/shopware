@@ -11,6 +11,8 @@ const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
@@ -46,7 +48,7 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPageState').currentPage;
         },
 
         isLayoutSet() {

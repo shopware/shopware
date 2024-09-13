@@ -15,6 +15,6 @@ class DeleteCascadeAppsTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86400; // 1 Day
+        return self::DAILY;
     }
 }

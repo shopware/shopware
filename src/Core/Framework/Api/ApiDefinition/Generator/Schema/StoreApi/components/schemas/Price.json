@@ -1,0 +1,88 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Price": {
+                "type": "object",
+                "description": "Price object",
+                "properties": {
+                    "currencyId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "gross": {
+                        "description": "",
+                        "type": "number"
+                    },
+                    "net": {
+                        "description": "",
+                        "type": "number"
+                    },
+                    "linked": {
+                        "description": "",
+                        "type": "boolean"
+                    },
+                    "listPrice": {
+                        "description": "",
+                        "type": "object",
+                        "properties": {
+                            "currencyId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "gross": {
+                                "description": "",
+                                "type": "number"
+                            },
+                            "net": {
+                                "description": "",
+                                "type": "number"
+                            },
+                            "linked": {
+                                "description": "",
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "gross",
+                            "net"
+                        ]
+                    },
+                    "regulationPrice": {
+                        "description": "",
+                        "type": "object",
+                        "properties": {
+                            "currencyId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "gross": {
+                                "description": "",
+                                "type": "number"
+                            },
+                            "net": {
+                                "description": "",
+                                "type": "number"
+                            },
+                            "linked": {
+                                "description": "",
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "gross",
+                            "net"
+                        ]
+                    }
+                },
+                "required": [
+                    "currencyId",
+                    "gross",
+                    "net"
+                ]
+            }
+        }
+    }
+}

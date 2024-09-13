@@ -23,6 +23,10 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                     'sw-textarea-field': {
                         template: '<textarea></textarea>',
                     },
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
             props: {

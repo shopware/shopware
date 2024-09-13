@@ -20,6 +20,8 @@ async function createWrapper(props) {
                     template: '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
                     props: ['title'],
                 },
+                'router-link': true,
+                'sw-loader': true,
             },
         },
         props: {

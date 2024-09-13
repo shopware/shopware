@@ -69,9 +69,14 @@ const { types } = Shopware.Utils;
  */
 Component.register('sw-form-field-renderer', {
     template,
+
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'feature'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -110,8 +115,23 @@ Component.register('sw-form-field-renderer', {
 
     computed: {
         bind() {
-            const bind = {
-                ...this.$attrs,
+            let bind = {};
+
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                // Filter all listeners from the $attrs object
+                Object.keys(this.$attrs).forEach((key) => {
+                    if (!['onUpdate:value'].includes(key)) {
+                        bind[key] = this.$attrs[key];
+                    }
+                });
+            } else {
+                bind = {
+                    ...this.$attrs,
+                };
+            }
+
+            bind = {
+                ...bind,
                 ...this.config,
                 ...this.swFieldType,
                 ...this.translations,
@@ -323,6 +343,16 @@ Component.register('sw-form-field-renderer', {
             this.createRepository('currency').get(systemCurrencyId).then(response => {
                 this.currency = response;
             });
+        },
+
+        getScopedSlots() {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$scopedSlots,
+                };
+            }
+
+            return this.$slots;
         },
     },
 });

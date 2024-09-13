@@ -10,6 +10,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['loading-document', 'loading-preview'],
+
     data() {
         return {
             documentConfig: {

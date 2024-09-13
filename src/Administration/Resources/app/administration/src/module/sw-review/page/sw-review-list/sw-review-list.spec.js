@@ -56,6 +56,11 @@ async function createWrapper() {
                 'sw-language-switch': true,
                 'sw-empty-state': true,
                 'sw-context-menu-item': true,
+                'sw-data-grid-column-boolean': true,
+                'router-link': true,
+                'sw-rating-stars': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
             },
         },
     });

@@ -14,11 +14,7 @@ class DaysSinceLastLoginRule extends DaysSinceRule
 
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return null;
-        }
-
-        return $customer->getLastLogin();
+        return $scope->getSalesChannelContext()->getCustomer()?->getLastLogin();
     }
 
     protected function supportsScope(RuleScope $scope): bool

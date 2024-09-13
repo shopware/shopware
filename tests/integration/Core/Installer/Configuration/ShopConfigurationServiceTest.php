@@ -11,8 +11,6 @@ use Shopware\Core\Installer\Configuration\ShopConfigurationService;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ShopConfigurationServiceTest extends TestCase
 {

@@ -79,48 +79,42 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
     private function invalidateUsingSession(string $customerId): ?string
     {
-        $master = $this->requestStack->getMainRequest();
-
-        if (!$master) {
+        $mainRequest = $this->requestStack->getMainRequest();
+        if ($mainRequest === null) {
             return null;
         }
 
-        // Is not a storefront request
-        if (!$master->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
+        $context = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        // Not a storefront request
+        if (!$context instanceof SalesChannelContext) {
             return null;
         }
 
-        /** @var SalesChannelContext $context */
-        $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        // Not loggedin skip
-        if ($context->getCustomer() === null) {
+        // The context customer is not the same as logged-in. We don't modify the user session
+        if ($context->getCustomer()?->getId() !== $customerId) {
             return null;
         }
 
-        // The written customer is not the same as logged-in. We don't modify the user session
-        if ($context->getCustomer()->getId() !== $customerId) {
-            return null;
-        }
-
-        $token = $context->getToken();
-
-        $newToken = $this->contextPersister->replace($token, $context);
+        $newToken = $this->contextPersister->replace(
+            $context->getToken(),
+            $context,
+        );
 
         $context->assign([
             'token' => $newToken,
         ]);
 
-        if (!$master->hasSession()) {
+        if (!$mainRequest->hasSession()) {
             return null;
         }
 
-        $session = $master->getSession();
+        $session = $mainRequest->getSession();
         $session->migrate();
         $session->set('sessionId', $session->getId());
 
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
-        $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
 
         return $newToken;
     }

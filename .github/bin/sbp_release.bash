@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+set -o pipefail
+
 if [ -n "${DEBUG:-}" ]; then
     set -x
 fi

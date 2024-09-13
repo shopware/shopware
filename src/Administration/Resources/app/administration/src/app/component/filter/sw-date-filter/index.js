@@ -10,7 +10,14 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-date-filter', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: [
+        'filter-reset',
+        'filter-update',
+    ],
 
     props: {
         filter: {

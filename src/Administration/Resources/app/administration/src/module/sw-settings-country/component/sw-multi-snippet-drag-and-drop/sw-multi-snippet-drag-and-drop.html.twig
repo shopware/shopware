@@ -10,7 +10,7 @@
         :is-loading="isLoading"
         :error="errorObject"
         v-bind="$attrs"
-        v-on="$listeners"
+        v-on="listeners"
     >
         <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
             <ul

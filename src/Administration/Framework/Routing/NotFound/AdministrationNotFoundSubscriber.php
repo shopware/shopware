@@ -2,8 +2,8 @@
 
 namespace Shopware\Administration\Framework\Routing\NotFound;
 
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -14,14 +14,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('administration')]
-class AdministrationNotFoundSubscriber implements EventSubscriberInterface
+readonly class AdministrationNotFoundSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly string $adminPath,
-        private readonly TemplateController $templateController
+        private string $adminPath,
+        private ContainerInterface $container,
     ) {
     }
 
@@ -43,8 +43,8 @@ class AdministrationNotFoundSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $response = $this->templateController->templateAction('@Administration/administration/error-404.html.twig');
-
-        $event->setResponse($response);
+        $event->setResponse(
+            new Response($this->container->get('twig')->render('@Administration/administration/error-404.html.twig'))
+        );
     }
 }

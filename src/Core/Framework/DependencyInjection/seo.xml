@@ -40,7 +40,7 @@
             <argument type="service" id="event_dispatcher" />
         </service>
 
-        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry">
+        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry" lazy="true">
             <argument type="tagged" tag="shopware.seo_url.route"/>
         </service>
 

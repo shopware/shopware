@@ -2,12 +2,19 @@
  * @package admin
  */
 
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 describe('components/base/sw-button-deprecated', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-button-deprecated', { sync: true }));
+        const wrapper = mount(await wrapTestComponent('sw-button-deprecated', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-loader': true,
+                    'router-link': true,
+                },
+            },
+        });
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -20,6 +27,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -35,6 +44,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -55,6 +66,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -72,8 +85,11 @@ describe('components/base/sw-button-deprecated', () => {
             slots: { default: 'Router-link text' },
             global: {
                 stubs: {
-                    RouterLink: RouterLinkStub,
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': {
+                        template: '<a><slot></slot></a>',
+                    },
+                    'sw-loader': true,
                 },
             },
         });
@@ -90,6 +106,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -113,6 +131,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -123,6 +143,7 @@ describe('components/base/sw-button-deprecated', () => {
 
     it('should not trigger an event if html5 disabled is removed', async () => {
         const onClick = jest.fn();
+
         const wrapper = mount({
             template: '<sw-button-deprecated :disabled="disabled" @click="onClick">I am clickable</sw-button-deprecated>',
             components: {
@@ -140,6 +161,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -151,6 +174,7 @@ describe('components/base/sw-button-deprecated', () => {
 
         expect(button.attributes('disabled')).toBeFalsy();
 
+        expect(onClick).not.toHaveBeenCalled();
         await button.trigger('click');
         expect(onClick).not.toHaveBeenCalled();
     });
@@ -161,10 +185,12 @@ describe('components/base/sw-button-deprecated', () => {
                 {
                     name: 'sw.dashboard.index',
                     path: '/sw/dashboard/index',
+                    component: {},
                 },
                 {
                     name: 'sw.order.index',
                     path: '/sw/order/list',
+                    component: {},
                 },
             ],
             history: createWebHashHistory(),
@@ -178,6 +204,8 @@ describe('components/base/sw-button-deprecated', () => {
             global: {
                 stubs: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
                 },
                 plugins: [
                     router,

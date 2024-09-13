@@ -72,6 +72,17 @@ abstract class Error extends \Exception implements \JsonSerializable
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
         $data['messageKey'] = $this->getMessageKey();
+        $data['parameters'] = $this->getParameters();
+        $data['block'] = $this->blockOrder();
+        $data['blockResubmit'] = $this->blockResubmit();
+
+        if ($route = $this->getRoute()) {
+            $data['route'] = [
+                'key' => $route->getKey(),
+                'params' => $route->getParams(),
+            ];
+        }
+
         unset($data['file'], $data['line']);
 
         return $data;

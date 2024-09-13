@@ -14,12 +14,16 @@ const format = Shopware.Utils.format;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'customSnippetApiService',
         'orderService',
         'repositoryFactory',
         'feature',
     ],
+
+    emits: ['error', 'order-change', 'onEditDeliveryAddress', 'order-reset'],
 
     mixins: [
         Mixin.getByName('salutation'),

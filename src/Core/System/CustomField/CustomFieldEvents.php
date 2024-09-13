@@ -4,7 +4,7 @@ namespace Shopware\Core\System\CustomField;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CustomFieldEvents
 {
     final public const CUSTOM_FIELD_WRITTEN_EVENT = 'custom_field.written';

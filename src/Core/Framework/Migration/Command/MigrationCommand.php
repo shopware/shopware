@@ -138,12 +138,12 @@ class MigrationCommand extends Command
 
     private function runMigrationForIdentifier(InputInterface $input, string $identifier, int $limit, ?int $until): int
     {
-        $this->io->writeln(sprintf('Get collection for identifier: "%s"', $identifier));
+        $this->io->writeln(\sprintf('Get collection for identifier: "%s"', $identifier));
 
         try {
             $collection = $this->collectMigrations($input, $identifier);
         } catch (UnknownMigrationSourceException $e) {
-            $this->io->note(sprintf('No collection found for identifier: "%s", continuing', $identifier));
+            $this->io->note(\sprintf('No collection found for identifier: "%s", continuing', $identifier));
 
             return self::SUCCESS;
         }
@@ -168,7 +168,7 @@ class MigrationCommand extends Command
         }
 
         $this->finishProgress($migratedCounter, $migrationCount);
-        $this->io->writeln(sprintf('all migrations for identifier: "%s" executed', $identifier));
+        $this->io->writeln(\sprintf('all migrations for identifier: "%s" executed', $identifier));
 
         return $migrationCount;
     }

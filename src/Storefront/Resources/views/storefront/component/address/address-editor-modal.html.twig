@@ -278,11 +278,11 @@
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_edit` instead. #}
                             {% block component_address_address_editor_modal_accordion_action_edit %}
                                 <div class="col-12 col-md-4">
-                                    <div class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
+                                    <button class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
                                          data-bs-toggle="collapse"
                                          data-bs-target="#{{ typePrefix }}address-create-edit">
                                         {{ 'account.addressEditBtn'|trans|sw_sanitize }}
-                                    </div>
+                                    </button>
                                 </div>
                             {% endblock %}
 
@@ -290,11 +290,11 @@
                             {% block component_address_address_editor_modal_accordion_action_list %}
                                 {% if AvailableAddressCount > 0 %}
                                     <div class="col-12 col-md-4">
-                                        <div class="btn btn-outline-primary btn-block address-editor-select"
+                                        <button class="btn btn-outline-primary btn-block address-editor-select"
                                              data-bs-toggle="collapse"
                                              data-bs-target="#{{ typePrefix }}address-list">
                                             {{ 'account.selectAddress'|trans|sw_sanitize }}
-                                        </div>
+                                        </button>
                                     </div>
                                 {% endif %}
                             {% endblock %}
@@ -302,11 +302,11 @@
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_create` instead. #}
                             {% block component_address_address_editor_modal_accordion_action_create %}
                                 <div class="col-12 col-md-4">
-                                    <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
+                                    <button class="btn btn-outline-primary btn-block address-editor-create collapsed"
                                          data-bs-toggle="collapse"
                                          data-bs-target="#{{ typePrefix }}address-create-new">
                                         {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
-                                    </div>
+                                    </button>
                                 </div>
                             {% endblock %}
                         </div>

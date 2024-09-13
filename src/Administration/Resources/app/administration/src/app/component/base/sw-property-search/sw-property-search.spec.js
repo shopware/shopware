@@ -4,6 +4,12 @@
 
 import { mount } from '@vue/test-utils';
 
+Shopware.Utils.debounce = function debounce(fn) {
+    return function execFunction(...args) {
+        fn.apply(this, args);
+    };
+};
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-property-search', { sync: true }),
@@ -27,7 +33,7 @@ async function createWrapper() {
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-grid': await wrapTestComponent('sw-grid'),
+                    'sw-grid': await wrapTestComponent('sw-grid', { sync: true }),
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                     'sw-grid-column': await wrapTestComponent('sw-grid-column'),
@@ -39,6 +45,16 @@ async function createWrapper() {
                     'sw-checkbox-field': {
                         template: '<div class="checkbox"></div>',
                     },
+                    'sw-empty-state': true,
+                    'mt-text-field': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'mt-button': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-select-field': true,
                 },
                 provide: {
                     validationService: {},
@@ -113,6 +129,7 @@ async function createWrapper() {
                                                 description: null,
                                                 displayType: 'text',
                                                 sortingType: 'alphanumeric',
+                                                translated: { name: 'Dunkelgrün', position: 1, customFields: [] },
                                             },
                                             productConfiguratorSettings: [],
                                             productProperties: [],
@@ -290,7 +307,7 @@ describe('components/base/sw-property-search', () => {
         let groupOptions = wrapper.findAll('.sw-property-search__tree-selection__option_grid--option-value').length;
 
         expect(wrapper.vm.optionPage).toBe(1);
-        expect(groupOptions).toBe(10);
+        expect(groupOptions).toBe(12);
 
         // eslint-disable-next-line max-len
         const nextPageButton = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)');
@@ -301,7 +318,7 @@ describe('components/base/sw-property-search', () => {
         groupOptions = wrapper.findAll('.sw-property-search__tree-selection__option_grid--option-value').length;
 
         expect(wrapper.vm.optionPage).toBe(2);
-        expect(groupOptions).toBe(2);
+        expect(groupOptions).toBe(12);
     });
 
     it('should display translated property groups and property group options', async () => {
@@ -320,5 +337,22 @@ describe('components/base/sw-property-search', () => {
 
         expect(groupElement.find('.sw-grid__cell-content').text()).toBe('Länge');
         expect(groupOptionElement.find('.sw-grid__cell-content').text()).toBe('Dunkelgrün');
+    });
+
+    it('should display the option list of searching', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.useFakeTimers();
+
+        const searchInput = wrapper.find('.sw-block-field__block input');
+        await searchInput.setValue('test');
+        await searchInput.trigger('input');
+
+        jest.runAllTimers();
+
+        const groupOptions = wrapper.findAll('div[class*="sw-grid__row"]').length;
+
+        expect(groupOptions).toBe(12);
     });
 });

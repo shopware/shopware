@@ -26,6 +26,9 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-condition-tree-node': true,
+                'sw-loader': true,
+                'router-link': true,
+                'mt-button': true,
             },
             provide: {
                 conditionDataProviderService: {

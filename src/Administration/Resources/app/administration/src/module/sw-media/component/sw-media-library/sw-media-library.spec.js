@@ -57,6 +57,8 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                 'sw-empty-state': true,
                 'sw-skeleton': true,
                 'sw-button': true,
+                'sw-media-folder-item': true,
+                'router-link': true,
             },
 
             provide: {

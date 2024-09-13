@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { reactive } from 'vue';
 
 /**
  * @private
@@ -98,7 +98,7 @@ type NavigationMenuEntry = {
  * @package content
  */
 export default class CustomEntityDefinitionService {
-    #state = Vue.observable({
+    #state = reactive({
         customEntityDefinitions: [] as CustomEntityDefinition[],
     });
 

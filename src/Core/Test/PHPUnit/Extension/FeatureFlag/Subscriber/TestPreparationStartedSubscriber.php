@@ -31,7 +31,7 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
         $class = $test->className();
         $method = $test->methodName();
 
-        if (!str_starts_with($class, FeatureFlagExtension::NAMESPACE_PREFIX)) {
+        if (!$this->namespaceIsAllowed($class)) {
             return;
         }
 
@@ -68,5 +68,16 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
             $flag = Feature::normalizeName($flag);
             $_SERVER[$flag] = !\array_key_exists($flag, $disabledFlags);
         }
+    }
+
+    private function namespaceIsAllowed(string $className): bool
+    {
+        foreach (FeatureFlagExtension::getTestNamespaces() as $namespace) {
+            if (str_starts_with($className, $namespace)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -13,6 +13,9 @@ async function createWrapper(customOptions = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-icon': true,
                 'sw-field-error': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         ...customOptions,
@@ -22,18 +25,14 @@ async function createWrapper(customOptions = {}) {
 
 describe('src/app/component/form/sw-datepicker', () => {
     let wrapper;
+    const currentUser = Shopware.State.get('session').currentUser;
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'UTC',
-        };
+        Shopware.State.commit('setCurrentUser', { timeZone: 'UTC' });
     });
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
+    afterAll(() => {
+        Shopware.State.commit('setCurrentUser', currentUser);
     });
 
     it('should have enabled links', async () => {
@@ -57,17 +56,17 @@ describe('src/app/component/form/sw-datepicker', () => {
     });
 
     it('should show the placeholderText, when provided', async () => {
-        const placeholderText = 'Stop! Hammertime!';
+        const placeholder = 'Stop! Hammertime!';
         wrapper = await createWrapper({
             props: {
-                placeholderText,
+                placeholder,
             },
         });
         await flushPromises();
 
         const flatpickrInput = wrapper.find('.flatpickr-input');
 
-        expect(flatpickrInput.attributes().placeholder).toBe(placeholderText);
+        expect(flatpickrInput.attributes().placeholder).toBe(placeholder);
     });
 
     it('should use the admin locale', async () => {
@@ -111,6 +110,9 @@ describe('src/app/component/form/sw-datepicker', () => {
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                     'sw-icon': true,
                     'sw-field-error': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });
@@ -119,23 +121,20 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
-    it('should not show the actual user timezone as a hint when it is not a datetime', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it.each([
+        { dateType: 'date', timeZone: 'UTC', expectedTimeZone: 'UTC' },
+        { dateType: 'date', timeZone: 'Europe/Berlin', expectedTimeZone: 'UTC' },
+        { dateType: 'time', timeZone: 'UTC', expectedTimeZone: 'UTC' },
+        { dateType: 'time', timeZone: 'Europe/Berlin', expectedTimeZone: 'UTC' },
+        { dateType: 'datetime', timeZone: 'UTC', expectedTimeZone: 'UTC' },
+        { dateType: 'datetime', timeZone: 'Europe/Berlin', expectedTimeZone: 'Europe/Berlin' },
+    ])('should show the $expectedTimeZone timezone as a hint when the $timeZone timezone was selected and dateType is $dateType and hideHint is false', async ({ dateType, timeZone, expectedTimeZone }) => {
+        Shopware.State.commit('setCurrentUser', { timeZone: timeZone });
 
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        const hint = wrapper.find('.sw-field__hint');
-
-        expect(hint.exists()).toBe(false);
-    });
-
-    it('should show the UTC timezone as a hint when no timezone was selected and when datetime is datetime', async () => {
         wrapper = await createWrapper({
             props: {
-                dateType: 'datetime',
+                dateType,
+                hideHint: false,
             },
         });
         await flushPromises();
@@ -143,64 +142,33 @@ describe('src/app/component/form/sw-datepicker', () => {
         const hint = wrapper.find('.sw-field__hint');
         const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');
 
-        expect(hint.text()).toContain('UTC');
+        expect(hint.text()).toContain(expectedTimeZone);
         expect(clockIcon.isVisible()).toBe(true);
     });
 
-    it('should show the actual user timezone as a hint when datetime is datetime', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it.each([
+        { dateType: 'date', timeZone: 'UTC' },
+        { dateType: 'date', timeZone: 'Europe/Berlin' },
+        { dateType: 'time', timeZone: 'UTC' },
+        { dateType: 'time', timeZone: 'Europe/Berlin' },
+        { dateType: 'datetime', timeZone: 'UTC' },
+        { dateType: 'datetime', timeZone: 'Europe/Berlin' },
+    ])('should show no timezone as a hint when the $timeZone timezone was selected and dateType is $dateType and hideHint is true', async ({ dateType, timeZone }) => {
+        Shopware.State.commit('setCurrentUser', { timeZone: timeZone });
 
         wrapper = await createWrapper({
             props: {
-                dateType: 'datetime',
-            },
-        });
-        await flushPromises();
-
-        const hint = wrapper.find('.sw-field__hint');
-        const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');
-
-        expect(hint.text()).toContain('Europe/Berlin');
-        expect(clockIcon.isVisible()).toBe(true);
-    });
-
-    it('should not show the actual user timezone as a hint when the hideHint property is set to true', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
-
-        wrapper = await createWrapper({
-            props: {
-                dateType: 'datetime',
+                dateType,
                 hideHint: true,
             },
         });
         await flushPromises();
 
-        const hint = wrapper.find('.sw-field__hint');
-
-        expect(hint.exists()).toBe(false);
+        expect(wrapper.find('.sw-field__hint').exists()).toBe(false);
     });
 
-    it('should not show the actual user timezone as a hint when hideHint is false and dateType is not dateTime', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
-
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        const hint = wrapper.find('.sw-field__hint');
-
-        expect(hint.exists()).toBe(false);
-    });
-
-    it('should not convert the date when a timezone is set (type=date)', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it('should not convert the date when a timezone is set and dateType is date', async () => {
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         wrapper = await createWrapper({
             props: {
@@ -214,10 +182,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.vm.timezoneFormattedValue).toBe('2023-03-27T00:00:00.000+00:00');
     });
 
-    it('should not emit a converted date when a timezone is set (type=date)', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it('should not emit a converted date when a timezone is set and dateType is date', async () => {
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         wrapper = await createWrapper({
             props: {
@@ -233,10 +199,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-22T00:00:00.000+00:00']);
     });
 
-    it('should not convert the date when a timezone is set (type=time)', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it('should not convert the date when a timezone is set and dateType is time', async () => {
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         wrapper = await createWrapper({
             props: {
@@ -250,10 +214,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.vm.timezoneFormattedValue).toBe('2023-03-27T00:00:00.000+00:00');
     });
 
-    it('should not emit a converted date when a timezone is set (type=time)', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it('should not emit a converted date when a timezone is set and dateType is time', async () => {
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         wrapper = await createWrapper({
             props: {
@@ -269,10 +231,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-22T00:00:00.000+00:00']);
     });
 
-    it('should convert the date when a timezone is set (type=datetime)', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it('should convert the date when a timezone is set and dateType is dateTime', async () => {
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         wrapper = await createWrapper({
             props: {
@@ -286,10 +246,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.vm.timezoneFormattedValue).toBe('2023-03-27T02:00:00.000Z');
     });
 
-    it('should emit a converted date when a timezone is set (type=datetime)', async () => {
-        Shopware.State.get('session').currentUser = {
-            timeZone: 'Europe/Berlin',
-        };
+    it('should emit a converted date when a timezone is set and dateType is dateTime', async () => {
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         wrapper = await createWrapper({
             props: {
@@ -303,5 +261,20 @@ describe('src/app/component/form/sw-datepicker', () => {
         wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
 
         expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-21T23:00:00.000Z']);
+    });
+
+
+    it('should emit a date when is typed', async () => {
+        wrapper = await createWrapper({});
+        await flushPromises();
+
+        const input = wrapper.find('.form-control.input');
+
+        await input.trigger('focus');
+        input.element.value = '2023-03-27';
+        await input.trigger('input');
+        await input.trigger('blur');
+
+        expect(wrapper.emitted('update:value')).toHaveLength(1);
     });
 });

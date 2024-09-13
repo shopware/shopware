@@ -90,6 +90,9 @@ async function createWrapper() {
                         },
                     },
                 },
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {

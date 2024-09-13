@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -34,6 +37,8 @@ async function createWrapper() {
                     template: '<div class="sw-button-process"></div>',
                     props: ['disabled'],
                 },
+                'sw-promotion-v2-individual-codes-behavior': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 repositoryFactory: {

@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
 
     mixins: [
@@ -33,6 +35,7 @@ export default {
             availableCampaignCodes: [],
             filterCriteria: [],
             defaultFilters: [
+                'customer-number-filter',
                 'affiliate-code-filter',
                 'campaign-code-filter',
                 'customer-group-request-filter',
@@ -81,7 +84,12 @@ export default {
                 .addAssociation('defaultBillingAddress')
                 .addAssociation('group')
                 .addAssociation('requestedGroup')
-                .addAssociation('salesChannel');
+                .addAssociation('boundSalesChannel');
+
+            // @deprecated tag:v6.7.0 - Will be removed, because it's unused
+            if (!Shopware.Feature.isActive('v6.7.0.0')) {
+                defaultCriteria.addAssociation('salesChannel');
+            }
 
             this.filterCriteria.forEach(filter => {
                 defaultCriteria.addFilter(filter);
@@ -103,7 +111,16 @@ export default {
         },
 
         listFilterOptions() {
-            return {
+            const options = {
+                'customer-number-filter': {
+                    property: 'customerNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-customer.filter.customerNumber.label'),
+                    placeholder: this.$tc('sw-customer.filter.customerNumber.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',
@@ -141,11 +158,6 @@ export default {
                     label: this.$tc('sw-customer.filter.status.label'),
                     placeholder: this.$tc('sw-customer.filter.status.placeholder'),
                 },
-                'default-payment-method-filter': {
-                    property: 'defaultPaymentMethod',
-                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
-                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
-                },
                 'group-filter': {
                     property: 'group',
                     label: this.$tc('sw-customer.filter.customerGroup.label'),
@@ -167,6 +179,16 @@ export default {
                     placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
                 },
             };
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                options['default-payment-method-filter'] = {
+                    property: 'defaultPaymentMethod',
+                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
+                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
+                };
+            }
+
+            return options;
         },
 
         listFilters() {
@@ -175,6 +197,10 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
         },
     },
 

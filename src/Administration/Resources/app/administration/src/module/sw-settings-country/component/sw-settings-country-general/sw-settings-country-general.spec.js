@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -76,6 +76,9 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                 'sw-settings-country-currency-dependent-modal': true,
                 'sw-entity-single-select': true,
                 'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
             },
         },
     });
@@ -100,7 +103,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
             enabled: true,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const countryNameField = wrapper.find(
             'sw-text-field-stub[label="sw-settings-country.detail.labelName"]',
@@ -136,6 +139,10 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
             'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]',
         );
 
+        const countryIsEuField = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelIsEu"]',
+        );
+
         expect(countryNameField.attributes().disabled).toBeUndefined();
         expect(countryPositionField.attributes().disabled).toBeUndefined();
         expect(countryIsoField.attributes().disabled).toBeUndefined();
@@ -147,6 +154,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         expect(countryCheckVatIdFormatField.attributes().disabled).toBeUndefined();
         expect(countryTaxFreeFromField.attributes()).toBeDefined();
         expect(countryVatIdRequiredField.attributes().disabled).toBeUndefined();
+        expect(countryIsEuField.attributes().disabled).toBeUndefined();
     });
 
     it('should not able to show the tax free from', async () => {
@@ -190,6 +198,10 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
             'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]',
         );
 
+        const countryIsEuField = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelIsEu"]',
+        );
+
         expect(countryNameField.attributes().disabled).toBeTruthy();
         expect(countryPositionField.attributes().disabled).toBeTruthy();
         expect(countryIsoField.attributes().disabled).toBeTruthy();
@@ -202,5 +214,6 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         expect(countryTaxFreeFromField.exists()).toBe(false);
         expect(currencyDropdownList.exists()).toBe(false);
         expect(countryVatIdRequiredField.attributes().disabled).toBeTruthy();
+        expect(countryIsEuField.attributes().disabled).toBeTruthy();
     });
 });

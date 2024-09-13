@@ -10,7 +10,7 @@
         v-if="operators"
         v-bind="{ operators, condition }"
         :plural="matchesAll"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -27,11 +27,11 @@
             >
                 <sw-form-field-renderer
                     v-bind="getBind(field)"
-                    :disabled="disabled"
+                    :disabled="disabled || undefined"
                     :value="getVisibleValue(field.name)"
                     size="medium"
                     show-clearable-button
-                    :hide-hint="field.type === 'datetime'"
+                    :placeholder="getPlaceholder(field.type)"
                     @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
                 />
 

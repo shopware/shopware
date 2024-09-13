@@ -4,6 +4,10 @@ import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 
+/**
+ * @package inventory
+ */
+
 const { Utils } = Shopware;
 describe('module/sw-product/component/sw-product-deliverability-downloadable-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
@@ -90,6 +94,8 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-help-text': true,
+                    'sw-field-copyable': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         });

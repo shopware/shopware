@@ -15,7 +15,7 @@
                 type="checkbox"
                 :name="formFieldName || identification"
                 :checked="inputState"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @change="onChange"
             >
             <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
@@ -26,13 +26,13 @@
         <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
             v-bind="{
-                ...$attrs,
+                ...attrsWithoutClass,
                 ...inheritanceAttrs
             }"
             :is-inheritance-field="inheritanceAttrs.isInheritanceField"
             :is-inherited="inheritanceAttrs.isInherited"
             :name="formFieldName || identification"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             :label="label"
             @inheritance-restore="onInheritanceRestore($event)"
             @inheritance-remove="$emit('inheritance-remove', $event)"

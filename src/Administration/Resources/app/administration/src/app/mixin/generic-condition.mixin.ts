@@ -195,15 +195,28 @@ export default Mixin.register('generic-condition', defineComponent({
 
         updateFieldValue(fieldName: string, value: number, to = undefined, from = undefined) {
             if (!from || !to || from === to) {
-                this.$set(this.values, fieldName, value);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.values, fieldName, value);
+                } else {
+                    // @ts-expect-error
+                    this.values[fieldName] = value;
+                }
 
                 return;
             }
 
-            this.$set(this.values, fieldName, convertUnit(value, {
-                from,
-                to,
-            }));
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.values, fieldName, convertUnit(value, {
+                    from,
+                    to,
+                }));
+            } else {
+                // @ts-expect-error
+                this.values[fieldName] = convertUnit(value, {
+                    from,
+                    to,
+                });
+            }
         },
 
         updateVisibleValue(value: number) {

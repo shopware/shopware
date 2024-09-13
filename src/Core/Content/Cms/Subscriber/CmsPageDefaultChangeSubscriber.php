@@ -51,6 +51,11 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
      */
     public function beforeDeletion(EntityDeleteEvent $event): void
     {
+        // validate only deletions on the live version
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         /** @var array<string> $cmsPageIds */
         $cmsPageIds = $event->getIds(CmsPageDefinition::ENTITY_NAME);
 
@@ -73,13 +78,14 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
      */
     public function validateChangeOfDefaultCmsPage(BeforeSystemConfigChangedEvent $event): void
     {
-        $newDefaultCmsPageId = $event->getValue();
         $systemConfigKey = $event->getKey();
-        $salesChannelId = $event->getSalesChannelId();
 
         if (!\in_array($systemConfigKey, self::$defaultCmsPageConfigKeys, true)) {
             return;
         }
+
+        $newDefaultCmsPageId = $event->getValue();
+        $salesChannelId = $event->getSalesChannelId();
 
         // prevent deleting the overall default (salesChannelId === null)
         // a sales channel specific default can still be deleted (salesChannelId !== null)

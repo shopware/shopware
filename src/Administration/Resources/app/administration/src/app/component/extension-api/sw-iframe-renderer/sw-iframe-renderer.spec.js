@@ -2,7 +2,6 @@
  * @package admin
  */
 
-import Vue from 'vue';
 import { mount } from '@vue/test-utils';
 import { location } from '@shopware-ag/meteor-admin-sdk';
 
@@ -63,12 +62,12 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         // Clear extension store
         Object.keys(Shopware.State.get('extensions')).forEach((key) => {
-            Vue.delete(Shopware.State.get('extensions'), key);
+            delete Shopware.State.get('extensions')[key];
         });
 
         // Clear sdkLocation store
         Object.keys(Shopware.State.get('sdkLocation').locations).forEach((key) => {
-            Vue.delete(Shopware.State.get('sdkLocation').locations, key);
+            delete Shopware.State.get('sdkLocation').locations[key];
         });
 
         // Reset route mock

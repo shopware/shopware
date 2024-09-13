@@ -33,7 +33,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      * @internal
      *
      * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
-     * @param SalesChannelRepository<ProductCollection>    $productRepository
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,

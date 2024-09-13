@@ -46,7 +46,7 @@
                 showOnDisabledElements: true
             }"
             class="sw-settings-custom-field-set-list__button-create"
-            :disabled="!acl.can('custom_field.creator')"
+            :disabled="!acl.can('custom_field.creator') || undefined"
             :router-link="{ name: 'sw.settings.custom.field.create' }"
             variant="primary"
         >
@@ -121,7 +121,7 @@
                                             showOnDisabledElements: true,
                                             disabled: !item.global
                                         }"
-                                        :disabled="item.global || !acl.can('custom_field.editor')"
+                                        :disabled="item.global || !acl.can('custom_field.editor') || undefined"
                                         class="sw-custom-field-set-list__edit-action"
                                         :router-link="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
                                     >
@@ -131,7 +131,7 @@
                                     <template v-if="!item.global">
                                         <sw-context-menu-item
                                             class="sw-settings-custom-field-set-list__delete-action"
-                                            :disabled="!acl.can('custom_field.deleter')"
+                                            :disabled="!acl.can('custom_field.deleter') || undefined"
                                             variant="danger"
                                             @click="onDelete(item.id)"
                                         >

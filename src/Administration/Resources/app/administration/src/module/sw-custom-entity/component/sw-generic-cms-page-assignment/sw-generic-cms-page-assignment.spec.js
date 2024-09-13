@@ -26,7 +26,9 @@ const pageMock = {
     type: 'product_list',
 };
 
-
+/**
+ * @package content
+ */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-cms-page-assignment', { sync: true }), {
         global: {
@@ -39,6 +41,7 @@ async function createWrapper() {
                     props: ['page'],
                 },
                 'sw-button': {
+                    emits: ['click'],
                     template: '<div class="sw-button" @click="$emit(`click`)"></div>',
                 },
                 'sw-cms-layout-modal': {
@@ -48,6 +51,7 @@ async function createWrapper() {
                     template: '<div class="sw-cms-page-form"></div>',
                     props: ['page'],
                 },
+                'sw-icon': true,
             },
             provide: {
                 cmsPageTypeService: {
@@ -79,17 +83,15 @@ async function createWrapper() {
  */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 currentPage: null,
-            },
-            mutations: {
-                setCurrentPage(state, page) {
-                    state.currentPage = page;
+            }),
+            actions: {
+                setCurrentPage(page) {
+                    this.currentPage = page;
                 },
             },
         });
@@ -98,7 +100,8 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
     it('should allow creating a cmsPage', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-generic-cms-page-assignment__create-layout').trigger('click');
+        await wrapper.find('.sw-generic-cms-page-assignment__create-layout')
+            .trigger('click');
 
         const updateCmsPageIdEvents = wrapper.emitted('create-layout');
         expect(updateCmsPageIdEvents).toHaveLength(1);
@@ -278,7 +281,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         });
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.$set(wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content, 'value', '<h1>TEST2<h1>');
+        wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content.value = '<h1>TEST2<h1>';
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('update:slot-overrides')).toHaveLength(1);

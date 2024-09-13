@@ -15,10 +15,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'mailService',
         'repositoryFactory',
     ],
+
+    emits: ['modal-close', 'document-sent'],
 
     mixins: [
         'notification',

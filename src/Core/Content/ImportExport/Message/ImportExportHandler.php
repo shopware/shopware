@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent;
+use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -62,12 +63,12 @@ final class ImportExportHandler
 
             $exception = $event->getException();
 
-            if ($exception && isset($importExport)) {
+            if ($exception && $importExport instanceof ImportExport) {
                 $progress = $importExport->exportExceptions($context, [['_error' => mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8')]]);
             }
         }
 
-        if (isset($logEntity, $progress) && !$progress->isFinished()) {
+        if ($logEntity instanceof ImportExportLogEntity && $progress instanceof Progress && !$progress->isFinished()) {
             $nextMessage = new ImportExportMessage(
                 $context,
                 $logEntity->getId(),

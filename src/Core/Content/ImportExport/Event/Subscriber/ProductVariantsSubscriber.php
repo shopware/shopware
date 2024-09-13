@@ -157,7 +157,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 $this->throwExceptionFailedParsingVariants($variantsString);
             }
 
-            $options = array_map(fn ($option) => sprintf('%s|%s', $groupName, $option), $options);
+            $options = array_map(fn ($option) => \sprintf('%s|%s', $groupName, $option), $options);
 
             $result[] = $options;
         }
@@ -167,7 +167,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     private function throwExceptionFailedParsingVariants(string $variantsString): void
     {
-        throw new ProcessingException(sprintf(
+        throw new ProcessingException(\sprintf(
             'Failed parsing variants from string "%s", valid format is: "size: L, XL, | color: Green, White"',
             $variantsString
         ));
@@ -206,8 +206,8 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 ];
             }
 
-            $variantId = Uuid::fromStringToHex(sprintf('%s.%s', $parentId, $key));
-            $variantProductNumber = sprintf('%s.%s', $productNumber, $key);
+            $variantId = Uuid::fromStringToHex(\sprintf('%s.%s', $parentId, $key));
+            $variantProductNumber = \sprintf('%s.%s', $productNumber, $key);
 
             $payload[] = [
                 'id' => $variantId,
@@ -268,7 +268,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         foreach ($optionIds as $optionId) {
             $payload[] = [
-                'id' => Uuid::fromStringToHex(sprintf('%s_configurator', $optionId)),
+                'id' => Uuid::fromStringToHex(\sprintf('%s_configurator', $optionId)),
                 'optionId' => $optionId,
                 'productId' => $parentId,
             ];
@@ -298,7 +298,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     private function getOptionId(string $groupName, string $optionName, Context $context): string
     {
-        $optionId = Uuid::fromStringToHex(sprintf('%s.%s', $groupName, $optionName));
+        $optionId = Uuid::fromStringToHex(\sprintf('%s.%s', $groupName, $optionName));
 
         if (isset($this->optionIdCache[$optionId])) {
             return $this->optionIdCache[$optionId];

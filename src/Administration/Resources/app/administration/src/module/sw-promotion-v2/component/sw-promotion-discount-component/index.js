@@ -15,12 +15,16 @@ const discountHandler = new DiscountHandler();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
         'feature',
         'ruleConditionDataProviderService',
     ],
+
+    emits: ['discount-delete'],
 
     mixins: [
         Mixin.getByName('placeholder'),

@@ -17,6 +17,13 @@ const { Component } = Shopware;
 Component.register('sw-label', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'selected',
+        'dismiss',
+    ],
+
     props: {
         variant: {
             type: String,
@@ -64,6 +71,16 @@ Component.register('sw-label', {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+        light: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        onDismiss: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {
@@ -81,7 +98,11 @@ Component.register('sw-label', {
             ];
         },
         showDismissable() {
-            return !!this.$listeners.dismiss && this.dismissable;
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return !!this.$listeners.dismiss && this.dismissable;
+            }
+
+            return !!this.$props.onDismiss && this.dismissable;
         },
     },
 });

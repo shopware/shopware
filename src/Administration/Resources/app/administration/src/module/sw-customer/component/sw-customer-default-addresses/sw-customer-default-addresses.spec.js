@@ -24,6 +24,7 @@ async function createWrapper(defaultShippingAddress = testAddress, defaultBillin
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-address': await wrapTestComponent('sw-address', { sync: true }),
+                'router-link': true,
             },
             provide: {
                 customSnippetApiService: {

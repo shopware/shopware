@@ -8,7 +8,13 @@ import { defineComponent } from 'vue';
  * @module app/mixin/validation
  */
 export default Shopware.Mixin.register('validation', defineComponent({
-    inject: ['validationService'],
+    inject: {
+        validationService: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+    },
 
     props: {
         validation: {

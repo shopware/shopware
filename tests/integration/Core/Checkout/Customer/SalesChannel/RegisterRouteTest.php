@@ -18,6 +18,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -1224,6 +1225,25 @@ class RegisterRouteTest extends TestCase
                 json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testRegistrationWithoutAnyAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['billingAddress']);
+        unset($registrationData['shippingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($response['errors']);
@@ -1289,6 +1309,35 @@ class RegisterRouteTest extends TestCase
         static::assertNull($response['salutationId'], (string) $this->browser->getResponse()->getContent());
     }
 
+    public function testRegistrationWithIdnEmail(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $registrationData = $this->getRegistrationData();
+        $registrationData['email'] = 'teg-reg@exämple.com';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $fetchMail = $connection->fetchOne(
+            'SELECT email FROM customer WHERE id = UNHEX(:customerId)',
+            ['customerId' => $response['id']]
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        static::assertSame('teg-reg@xn--exmple-cua.com', $fetchMail);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -1347,7 +1396,6 @@ class RegisterRouteTest extends TestCase
             'customerNumber' => '1337',
             'email' => $email,
             'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'boundSalesChannelId' => $boundSalesChannel ? $salesChannelId : null,
@@ -1367,6 +1415,10 @@ class RegisterRouteTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $this->getContainer()
             ->get('customer.repository')

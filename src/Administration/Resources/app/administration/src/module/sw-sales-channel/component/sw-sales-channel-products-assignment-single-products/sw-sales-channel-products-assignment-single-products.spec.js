@@ -63,6 +63,14 @@ async function createWrapper() {
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,
                 'sw-data-grid-settings': true,
+                'sw-text-field-deprecated': true,
+                'sw-bulk-edit-modal': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {

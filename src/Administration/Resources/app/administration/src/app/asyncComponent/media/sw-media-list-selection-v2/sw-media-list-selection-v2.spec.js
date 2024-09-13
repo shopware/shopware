@@ -44,6 +44,7 @@ async function createWrapper() {
                 },
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
+                'sw-loader': true,
             },
         },
     });

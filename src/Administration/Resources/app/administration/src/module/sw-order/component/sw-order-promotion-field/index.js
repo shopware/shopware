@@ -13,11 +13,36 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderService',
-        'acl',
-    ],
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        swOrderDetailOnLoadingChange: {
+            from: 'swOrderDetailOnLoadingChange',
+            default: null,
+        },
+        swOrderDetailOnError: {
+            from: 'swOrderDetailOnError',
+            default: null,
+        },
+        swOrderDetailOnReloadEntityData: {
+            from: 'swOrderDetailOnReloadEntityData',
+            default: null,
+        },
+        repositoryFactory: {
+            from: 'repositoryFactory',
+            default: null,
+        },
+        orderService: {
+            from: 'orderService',
+            default: null,
+        },
+        acl: {
+            from: 'acl',
+            default: null,
+        },
+    },
+
+    emits: ['loading-change', 'error', 'reload-entity-data'],
 
     mixins: [
         'notification',
@@ -123,6 +148,7 @@ export default {
         this.createdComponent();
     },
 
+
     methods: {
         createdComponent() {
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
@@ -133,28 +159,47 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.orderLineItemRepository
-                .syncDeleted(this.automaticPromotions.map(promotion => promotion.id), this.versionContext)
-                .then(() => {
-                    this.automaticPromotions.forEach((promotion) => {
-                        this.createNotificationSuccess({
-                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
-                                promotion: promotion.label,
-                            }),
-                        });
+            const deletionPromises = [];
+
+            this.automaticPromotions.forEach((promotion) => {
+                deletionPromises.push(
+                    this.orderLineItemRepository.delete(promotion.id, this.versionContext),
+                );
+            });
+
+            return Promise.all(deletionPromises).then(() => {
+                this.automaticPromotions.forEach((promotion) => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
+                            promotion: promotion.label,
+                        }),
                     });
-                }).catch((error) => {
-                    this.$emit('loading-change', false);
-                    this.$emit('error', error);
                 });
+            }).catch((error) => {
+                this.$emit('loading-change', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
+
+                this.$emit('error', error);
+                if (this.swOrderDetailOnError) {
+                    this.swOrderDetailOnError(error);
+                }
+            });
         },
 
         toggleAutomaticPromotions(state) {
             this.$emit('loading-change', true);
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(true);
+            }
 
             // Throw notification warning and reset switch state
             if (this.hasOrderUnsavedChanges) {
                 this.$emit('loading-change', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
                 this.handleUnsavedOrderChangesResponse();
                 this.$nextTick(() => {
                     this.disabledAutoPromotions = !state;
@@ -171,17 +216,32 @@ export default {
             }).then((response) => {
                 this.handlePromotionResponse(response);
                 this.$emit('reload-entity-data');
+                if (this.swOrderDetailOnReloadEntityData) {
+                    this.swOrderDetailOnReloadEntityData();
+                }
             }).catch((error) => {
                 this.$emit('loading-change', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
                 this.$emit('error', error);
+                if (this.swOrderDetailOnError) {
+                    this.swOrderDetailOnError(error);
+                }
             });
         },
 
         onSubmitCode(code) {
             this.$emit('loading-change', true);
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(true);
+            }
 
             if (this.hasOrderUnsavedChanges) {
                 this.$emit('loading-change', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
                 this.handleUnsavedOrderChangesResponse();
                 return;
             }
@@ -193,9 +253,18 @@ export default {
             ).then((response) => {
                 this.handlePromotionResponse(response);
                 this.$emit('reload-entity-data');
+                if (this.swOrderDetailOnReloadEntityData) {
+                    this.swOrderDetailOnReloadEntityData();
+                }
             }).catch((error) => {
                 this.$emit('loading-change', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
                 this.$emit('error', error);
+                if (this.swOrderDetailOnError) {
+                    this.swOrderDetailOnError(error);
+                }
             });
         },
 
@@ -237,6 +306,9 @@ export default {
 
             if (this.hasOrderUnsavedChanges) {
                 this.$emit('loading-change', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
                 this.handleUnsavedOrderChangesResponse();
                 return;
             }
@@ -249,10 +321,19 @@ export default {
                 .delete(lineItem.id, this.versionContext)
                 .then(() => {
                     this.$emit('reload-entity-data');
+                    if (this.swOrderDetailOnReloadEntityData) {
+                        this.swOrderDetailOnReloadEntityData();
+                    }
                 })
                 .catch((error) => {
                     this.$emit('loading-change', false);
+                    if (this.swOrderDetailOnLoadingChange) {
+                        this.swOrderDetailOnLoadingChange(false);
+                    }
                     this.$emit('error', error);
+                    if (this.swOrderDetailOnError) {
+                        this.swOrderDetailOnError(error);
+                    }
                 });
         },
 

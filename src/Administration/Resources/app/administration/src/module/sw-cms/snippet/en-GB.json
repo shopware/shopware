@@ -25,7 +25,7 @@
       "gridHeaderName": "Name",
       "gridHeaderType": "Type",
       "gridHeaderAssignment": "Assigned categories",
-      "gridHeaderAssignments": "Assignments",
+      "gridHeaderAssignments": "Assigned",
       "gridHeaderAssignedPages": "Assigned pages",
       "gridHeaderCreated": "Created",
       "gridHeaderUpdated": "Updated date"
@@ -722,7 +722,7 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Assign default layout",
-        "infoText": "Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created category will automatically be assigned to it as well. Do you really want to use this layout as default?"
+        "infoText": "Please note that all products that are currently assigned to a default layout will be reassigned to this layout and newly created products will automatically be assigned to it as well. Do you really want to use this layout as default? | Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created categories will automatically be assigned to it as well. Do you really want to use this layout as default?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Cancel",

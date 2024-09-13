@@ -78,6 +78,13 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-media-media-item': true,
+                    'sw-checkbox-field': true,
+                    'mt-button': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         });

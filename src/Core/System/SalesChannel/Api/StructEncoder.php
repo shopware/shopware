@@ -46,7 +46,7 @@ class StructEncoder
     }
 
     /**
-     * @param array<array-key, mixed>          $array
+     * @param array<array-key, mixed> $array
      *
      * @return array<array<string, mixed>|mixed>
      */

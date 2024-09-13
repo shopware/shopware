@@ -17,6 +17,8 @@ MtCard.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(
 Shopware.Component.register('mt-card', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-card-original': MtCard,
@@ -30,18 +32,41 @@ Shopware.Component.register('mt-card', {
         },
     },
 
+    computed: {
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+    },
+
     methods: {
         getFilteredSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            let allSlots: {
+                [key: string]: unknown;
+            } = {};
 
-            // Remove already used slots
-            delete allSlots['before-card'];
-            delete allSlots['after-card'];
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                allSlots = {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            } else {
+                allSlots = this.$slots;
+            }
 
-            return allSlots;
+            // Create a new object with the slots we want to keep as deleting is not possible because of read only protection
+            const filteredSlots = Object.entries(allSlots).reduce((acc, [key, value]) => {
+                if (key !== 'before-card' && key !== 'after-card') {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {} as {[key: string]: unknown});
+
+            return filteredSlots;
         },
     },
 });

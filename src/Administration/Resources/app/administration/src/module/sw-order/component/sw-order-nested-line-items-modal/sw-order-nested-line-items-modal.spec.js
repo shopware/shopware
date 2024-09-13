@@ -103,6 +103,9 @@ async function createWrapper() {
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', { sync: true }),
+                'sw-icon': true,
+                'sw-loader-deprecated': true,
+                'router-link': true,
             },
             mocks: {
                 $tc: snippet => snippet,
@@ -235,5 +238,4 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
             expect(currentTax.text()).toContain(`${data.taxRate} %`);
         });
     });
-    resetFilters();
 });

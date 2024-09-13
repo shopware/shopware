@@ -10,7 +10,7 @@
         :order="order"
         :entity="transaction"
         :state-label="$tc('sw-order.stateCard.headlineTransactionState')"
-        :disabled="!acl.can('order.editor')"
+        :disabled="!acl.can('order.editor') || undefined"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
@@ -22,7 +22,7 @@
             type="billing"
             :address="billingAddress"
             :address-id="selectedBillingAddressId"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
             @change-address="onChangeOrderAddress"
         />
@@ -53,7 +53,7 @@
         :order="order"
         :entity="delivery"
         :state-label="$tc('sw-order.stateCard.headlineDeliveryState')"
-        :disabled="!acl.can('order.editor')"
+        :disabled="!acl.can('order.editor') || undefined"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
@@ -65,7 +65,7 @@
             type="shipping"
             :address="shippingAddress"
             :address-id="selectedShippingAddressId"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
             @change-address="onChangeOrderAddress"
         />
@@ -104,6 +104,7 @@
         <sw-datepicker
             v-model:value="delivery.shippingDateEarliest"
             disabled
+            hide-hint
             :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
         />
         {% endblock %}
@@ -113,7 +114,7 @@
         <sw-multi-tag-select
             v-model:value="delivery.trackingCodes"
             class="sw-order-user-card__tracking-code-select"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$tc('sw-order.detailBase.labelTrackingCodes')"
             :validate="validateTrackingCode"
@@ -137,7 +138,7 @@
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
         :order="order"
         :entity="order"
-        :disabled="!acl.can('order.editor')"
+        :disabled="!acl.can('order.editor') || undefined"
         :state-label="$tc('sw-order.stateCard.headlineOrderState')"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
@@ -148,7 +149,7 @@
         <sw-text-field
             v-model:value="order.orderCustomer.email"
             class="sw-order-detail-details__email"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
             :error="orderOrderCustomerEmailError"
@@ -161,7 +162,7 @@
         <sw-text-field
             v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
             class="sw-order-detail-details__phone-number"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
         />
@@ -197,7 +198,7 @@
         <sw-text-field
             v-model:value="order.affiliateCode"
             class="sw-order-detail-details__affiliate-code"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
         />
         {% endblock %}
@@ -207,7 +208,7 @@
         <sw-text-field
             v-model:value="order.campaignCode"
             class="sw-order-detail-details__campaign-code"
-            :disabled="!acl.can('order.editor')"
+            :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"
         />
         {% endblock %}

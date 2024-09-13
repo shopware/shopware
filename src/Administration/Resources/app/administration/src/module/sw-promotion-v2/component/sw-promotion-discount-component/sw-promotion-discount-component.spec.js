@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
@@ -46,6 +49,7 @@ async function createWrapper() {
                 'sw-one-to-many-grid': {
                     template: '<div class="sw-one-to-many-grid"></div>',
                 },
+                'sw-button': true,
             },
             provide: {
                 repositoryFactory: {

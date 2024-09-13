@@ -39,6 +39,17 @@ async function createWrapper(loginSuccessfull) {
                             reject(response);
                         });
                     },
+                    setRememberMe: (active = true) => {
+                        if (!active) {
+                            localStorage.removeItem('rememberMe');
+                            return;
+                        }
+
+                        const duration = new Date();
+                        duration.setDate(duration.getDate() + 14);
+
+                        localStorage.setItem('rememberMe', `${+duration}`);
+                    },
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -62,6 +73,10 @@ async function createWrapper(loginSuccessfull) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-icon': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });

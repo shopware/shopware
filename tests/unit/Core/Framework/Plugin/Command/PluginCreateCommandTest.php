@@ -105,7 +105,7 @@ class PluginCreateCommandTest extends TestCase
     }
 
     /**
-     * @param array<int, string>  $inputs
+     * @param array<int, string> $inputs
      */
     #[DataProvider('invalidInputsProvider')]
     public function testInvalidInputs(array $inputs, string $expectedErrorMessage): void

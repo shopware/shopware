@@ -25,14 +25,20 @@ const debounce = Shopware.Utils.debounce;
 Component.register('sw-colorpicker-deprecated', {
     template,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
     ],
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         value: {

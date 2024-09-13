@@ -20,9 +20,17 @@ const { get } = Shopware.Utils;
 Component.register('sw-multi-tag-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['feature'],
+
+    emits: [
+        'add-item-is-valid',
+        'update:value',
+        'display-values-expand',
+    ],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -124,6 +132,15 @@ Component.register('sw-multi-tag-select', {
             }
 
             return Math.max(0, this.totalValuesCount - this.limit);
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

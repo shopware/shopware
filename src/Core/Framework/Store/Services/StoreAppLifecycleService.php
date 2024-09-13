@@ -42,7 +42,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $manifests = $this->appLoader->load();
 
         if (!isset($manifests[$technicalName])) {
-            throw StoreException::extensionInstallException(sprintf('Cannot find app by name %s', $technicalName));
+            throw StoreException::extensionInstallException(\sprintf('Cannot find app by name %s', $technicalName));
         }
 
         $this->appLifecycle->install($manifests[$technicalName], false, $context);

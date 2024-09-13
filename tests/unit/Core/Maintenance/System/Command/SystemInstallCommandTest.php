@@ -23,8 +23,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[CoversClass(SystemInstallCommand::class)]
@@ -53,7 +51,7 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
 
-        static::assertEquals($result, Command::FAILURE);
+        static::assertSame(Command::FAILURE, $result);
     }
 
     public static function dataProviderTestExecuteWhenInstallLockExists(): \Generator
@@ -93,7 +91,7 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput([]), new BufferedOutput());
 
-        static::assertEquals(0, $result);
+        static::assertSame(0, $result);
     }
 
     public function testBasicSetupFlow(): void
@@ -116,7 +114,7 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput(['--basic-setup' => true]), new BufferedOutput());
 
-        static::assertEquals(0, $result);
+        static::assertSame(0, $result);
     }
 
     public function testJwtGenerationCanBeSkipped(): void
@@ -136,7 +134,7 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput(['--skip-jwt-keys-generation' => true]), new BufferedOutput());
 
-        static::assertEquals(0, $result);
+        static::assertSame(0, $result);
     }
 
     public function testAssetsInstallCanBeSkipped(): void
@@ -155,7 +153,7 @@ class SystemInstallCommandTest extends TestCase
 
         $result = $command->run(new ArrayInput(['--skip-assets-install' => true]), new BufferedOutput());
 
-        static::assertEquals(0, $result);
+        static::assertSame(0, $result);
     }
 
     /**
@@ -171,7 +169,7 @@ class SystemInstallCommandTest extends TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ConsoleEvents::TERMINATE, $listener = new class() {
+        $dispatcher->addListener(ConsoleEvents::TERMINATE, $listener = new class {
             public bool $terminateCalledForSubCommand = false;
 
             public function __invoke(ConsoleTerminateEvent $event): void

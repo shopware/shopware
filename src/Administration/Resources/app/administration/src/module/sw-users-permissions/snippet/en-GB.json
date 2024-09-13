@@ -223,6 +223,7 @@
         "api_info_ping": "Refresh auth token",
         "system:clear:cache": "Clear cache",
         "api_proxy_switch-customer": "Act on behalf of a customer",
+        "api_proxy_imitate-customer": "Imitate a customer login",
         "api_feature_flag_toggle": "Toggle feature flags"
       },
       "app": {

@@ -74,7 +74,7 @@ class PluginCreateCommand extends Command
             $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
 
             if ($this->filesystem->exists($directory)) {
-                $io->error(sprintf('Plugin directory %s already exists', $directory));
+                $io->error(\sprintf('Plugin directory %s already exists', $directory));
 
                 return self::FAILURE;
             }

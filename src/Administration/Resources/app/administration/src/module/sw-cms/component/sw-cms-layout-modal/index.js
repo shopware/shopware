@@ -11,12 +11,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'systemConfigApiService',
         'acl',
         'cmsPageTypeService',
     ],
+
+    emits: ['modal-layout-select', 'modal-close'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -77,9 +81,7 @@ export default {
                 criteria.addFilter(Criteria.equalsAny('type', this.cmsPageTypes));
             }
 
-            if (this.term !== null) {
-                criteria.setTerm(this.term);
-            }
+            criteria.setTerm(this.term);
 
             return criteria;
         },
@@ -130,7 +132,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (this.acl.can('system_config.read')) {
+            if (this.acl.can('system_config:read')) {
                 this.getDefaultLayouts();
             }
         },
@@ -141,8 +143,7 @@ export default {
             return this.pageRepository.search(this.cmsPageCriteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
-                this.isLoading = false;
-            }).catch(() => {
+            }).finally(() => {
                 this.isLoading = false;
             });
         },

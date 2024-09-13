@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
 describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', () => {
     function getProductSortings() {
         return [
@@ -148,6 +151,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                     'sw-language-switch': true,
                     'sw-settings-listing-option-general-info': true,
                     'sw-settings-listing-option-criteria-grid': true,
+                    'sw-settings-listing-delete-modal': true,
                 },
             },
         });

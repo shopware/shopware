@@ -11,12 +11,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
         'searchRankingService',
         'feature',
     ],
+
+    emits: ['update:selection', 'media-folder-change'],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),

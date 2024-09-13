@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
@@ -94,6 +94,10 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-icon': true,
                 'sw-loader': true,
+                'sw-time-ago': true,
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                },
             },
         },
     });
@@ -130,6 +134,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         await wrapper.setData({
             offset: 0,
         });
+
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
         await rebuildButton.trigger('click');
         await flushPromises();

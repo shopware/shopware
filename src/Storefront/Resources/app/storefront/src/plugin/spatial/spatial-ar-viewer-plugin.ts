@@ -27,7 +27,8 @@ export default class SpatialArViewerPlugin extends Plugin {
     async init() {
         await loadThreeJs();
 
-        this.modelUrl = this.el.dataset.spatialModelUrl;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        this.modelUrl = this.options.modelUrl;
         this.supportsAr = await supportsAr();
 
         if (!this.modelUrl) {

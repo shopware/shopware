@@ -21,6 +21,7 @@ async function createWrapper(customProps = {}) {
                     template: '<div class="sw-entity-single-select"></div>',
                     props: ['disabled'],
                 },
+                'sw-icon': true,
             },
         },
         props: {

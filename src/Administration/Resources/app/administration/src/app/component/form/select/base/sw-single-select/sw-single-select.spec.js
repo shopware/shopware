@@ -20,6 +20,11 @@ async function createSingleSelect(customOptions) {
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
+                'mt-floating-ui': true,
             },
         },
         props: {

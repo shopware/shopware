@@ -33,11 +33,16 @@ async function createWrapper(plugin, showDescription) {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
+                'router-link': true,
+                'sw-loader-deprecated': true,
             },
         },
     });
 }
 
+/**
+ * @package checkout
+ */
 describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
     it('displays correct icon and basic information', async () => {
         const pluginConfig = {

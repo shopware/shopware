@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -47,6 +47,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     'sw-media-url-form': true,
                     'sw-media-preview-v2': true,
                     'sw-upload-listener': true,
+                    'sw-media-modal-v2': true,
+                    'sw-image-preview-modal': true,
+                    'router-link': true,
                 },
                 mocks: {
                     $t: v => v,
@@ -75,6 +78,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                         removeByTag: () => null,
                         removeListener: () => null,
                     },
+                    fileValidationService: {},
                 },
             },
         });
@@ -284,6 +288,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         wrapper.vm.createdComponent();
 
         expect(wrapper.vm.mediaDefaultFolderId).toBe('id');
+        expect(wrapper.vm.defaultFolderId).toBe('id');
         wrapper.vm.getMediaDefaultFolderId.mockRestore();
     });
 

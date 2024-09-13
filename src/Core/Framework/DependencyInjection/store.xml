@@ -58,6 +58,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" />
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">

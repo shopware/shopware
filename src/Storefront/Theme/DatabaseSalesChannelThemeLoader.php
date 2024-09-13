@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -19,17 +18,38 @@ final class DatabaseSalesChannelThemeLoader
     final public const CACHE_KEY = 'sales-channel-themes';
 
     /**
+     * @var array<string, array<int, string>>
+     */
+    private array $themes = [];
+
+    /**
      * @internal
      */
-    public function __construct(
-        private readonly Connection $connection
-    ) {
+    public function __construct(private readonly Connection $connection)
+    {
     }
 
     /**
      * @return array<int, string>
      */
     public function load(string $salesChannelId): array
+    {
+        if (!empty($this->themes[$salesChannelId])) {
+            return $this->themes[$salesChannelId];
+        }
+
+        return $this->readFromDB($salesChannelId);
+    }
+
+    public function reset(): void
+    {
+        $this->themes = [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function readFromDB(string $salesChannelId): array
     {
         $themes = $this->connection->fetchAssociative('
             SELECT LOWER(HEX(theme.id)) themeId, theme.technical_name as themeName, parentTheme.technical_name as parentThemeName, LOWER(HEX(parentTheme.parent_theme_id)) as grandParentThemeId
@@ -55,18 +75,7 @@ final class DatabaseSalesChannelThemeLoader
             $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
         }
 
-        return $usedThemes;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed in 6.7.0 as it does not do anything anymore
-     */
-    public function reset(): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
-        );
+        return $this->themes[$salesChannelId] = $usedThemes ?: [];
     }
 
     /**

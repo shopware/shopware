@@ -12,6 +12,8 @@ Component.register('sw-range-filter', {
 
     inject: ['feature'],
 
+    emits: ['filter-update'],
+
     props: {
         value: {
             type: Object,
@@ -28,6 +30,17 @@ Component.register('sw-range-filter', {
             required: false,
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+    },
+
+    computed: {
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

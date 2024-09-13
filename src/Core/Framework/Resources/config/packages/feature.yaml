@@ -27,3 +27,13 @@ shopware:
         major: false
         toggleable: false
         description: "Experimental! Uses Vite instead of webpack to built and serve the administration. Plugins are not yet supported!"
+      - name: TELEMETRY_METRICS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Enable OpenTelemetry metrics"
+      - name: cache_rework
+        default: false
+        major: true
+        toggleable: false
+        description: "Rework of http cache and store api cache"

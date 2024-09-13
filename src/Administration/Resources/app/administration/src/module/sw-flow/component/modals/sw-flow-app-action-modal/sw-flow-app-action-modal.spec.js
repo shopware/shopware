@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package services-settings
+ */
+
 const sequence = {
     sequence: {
         propsAppFlowAction: {
@@ -79,6 +83,13 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-label': true,
                 'sw-icon': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},
@@ -96,7 +107,7 @@ async function createWrapper() {
     });
 }
 
-describe('module/sw-flow/component/sw-flow-tag-modal', () => {
+describe('module/sw-flow/component/sw-flow-app-action-modal', () => {
     it('should show these fields on modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

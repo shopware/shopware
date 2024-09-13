@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -37,6 +37,8 @@ async function createWrapper() {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'router-link': true,
+                'sw-grid-column': true,
             },
             provide: {
                 repositoryFactory: {

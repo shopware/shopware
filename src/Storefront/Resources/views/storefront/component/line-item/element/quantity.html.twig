@@ -25,7 +25,7 @@
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
             {% block component_line_item_quantity_label %}
-                <div class="line-item-quantity-label">
+                <div class="line-item-quantity-label" aria-hidden="true">
                     {{ 'checkout.cartHeaderQuantity'|trans|sw_sanitize }}
                 </div>
             {% endblock %}
@@ -61,11 +61,13 @@
                                 {% block component_line_item_quantity_select %}
                                     {% block component_line_item_quantity_select_input %}
                                         <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
+                                            <label class="form-label visually-hidden">{{ 'component.product.quantitySelect.label'|trans|striptags }}</label>
                                             <button
                                                 {% if isDigital %}disabled="disabled"{% endif %}
                                                 type="button"
                                                 class="btn btn-outline-light btn-minus js-btn-minus"
                                                 aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}"
+                                                data-focus-id="line-item-{{ displayMode }}-quantity-down-{{ lineItem.id }}"
                                             >
                                                 {% sw_icon 'minus' style {size: 'xs'} %}
                                             </button>
@@ -79,12 +81,14 @@
                                                 step="{{ quantityInformation.purchaseSteps }}"
                                                 value="{{ lineItem.quantity }}"
                                                 aria-label="{{ 'component.product.quantitySelect.label'|trans|striptags }}"
+                                                data-focus-id="line-item-{{ displayMode }}-quantity-{{ lineItem.id }}"
                                             />
                                             <button
                                                 {% if isDigital %}disabled="disabled"{% endif %}
                                                 type="button"
                                                 class="btn btn-outline-light btn-plus js-btn-plus"
                                                 aria-label="{{ 'component.product.quantitySelect.increase'|trans|striptags }}"
+                                                data-focus-id="line-item-{{ displayMode }}-quantity-up-{{ lineItem.id }}"
                                             >
                                                 {% sw_icon 'plus' style {size: 'xs'} %}
                                             </button>

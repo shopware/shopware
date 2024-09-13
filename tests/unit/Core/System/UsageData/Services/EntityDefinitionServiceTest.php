@@ -134,7 +134,7 @@ class EntityDefinitionServiceTest extends TestCase
             $result[] = [
                 new $class(),
                 $isPuid,
-                sprintf('Entity "%s" should %sbe a PUID entity', $class, $isPuid ? '' : 'not '),
+                \sprintf('Entity "%s" should %sbe a PUID entity', $class, $isPuid ? '' : 'not '),
             ];
         }
 

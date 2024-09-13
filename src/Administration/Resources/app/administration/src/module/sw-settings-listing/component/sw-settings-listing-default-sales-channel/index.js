@@ -1,6 +1,10 @@
 import template from './sw-settings-listing-default-sales-channel.html.twig';
 import './sw-settings-listing-default-sales-channel.scss';
 
+/**
+ * @package inventory
+ */
+
 const { EntityCollection } = Shopware.Data;
 const { isEmpty } = Shopware.Utils.types;
 const { cloneDeep } = Shopware.Utils.object;
@@ -8,6 +12,8 @@ const { cloneDeep } = Shopware.Utils.object;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory', 'systemConfigApiService'],
 

@@ -50,6 +50,12 @@ async function createWrapper() {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-contextual-field': true,
+                'mt-text-field': true,
+                'sw-textarea-field': true,
+                'mt-button': true,
+                'router-link': true,
+                'sw-field-copyable': true,
             },
             provide: {
                 validationService: {},
@@ -93,8 +99,17 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
 
         const [firstInput, secondInput] = wrapper.findAll('.sw-snippet-field-edit-modal__translation-field');
 
-        expect(firstInput.wrapperElement).toBeEnabled();
-        expect(secondInput.wrapperElement).toBeEnabled();
+        if (firstInput.attributes().hasOwnProperty('disabled')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(firstInput.attributes('disabled')).toBe('false');
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(secondInput.attributes('disabled')).toBe('false');
+        } else {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(firstInput.wrapperElement).toBeEnabled();
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(secondInput.wrapperElement).toBeEnabled();
+        }
     });
 
     it('should have a disabled save button', async () => {

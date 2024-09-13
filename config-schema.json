@@ -110,6 +110,9 @@
                 },
                 "system_config": {
                     "type": "object"
+                },
+                "feature_toggle": {
+                    "$ref": "#/definitions/feature_toggle"
                 }
             },
             "title": "Shopware"
@@ -230,6 +233,16 @@
             },
             "title": "Staging"
         },
+        "feature_toggle": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Feature toggle"
+        },
         "twig": {
             "type": "object",
             "additionalProperties": false,
@@ -274,6 +287,21 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "enforce_message_size": {
+                    "type": "boolean",
+                    "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
+                    "default": false
+                }
+            }
+        },
+        "search": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "term_max_length": {
+                    "type": "integer",
+                    "title": "The maximum length of the search term"
                 }
             }
         },
@@ -1103,6 +1131,18 @@
                 },
                 "url_upload_max_size": {
                     "type": "string"
+                },
+                "remote_thumbnails": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        },
+                        "pattern": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Media"

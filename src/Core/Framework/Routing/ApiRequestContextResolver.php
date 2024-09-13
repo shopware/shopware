@@ -327,7 +327,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
         if ($rounding === false) {
-            throw new \RuntimeException(sprintf('No cash rounding for currency "%s" found', $currencyId));
+            throw new \RuntimeException(\sprintf('No cash rounding for currency "%s" found', $currencyId));
         }
 
         $rounding = json_decode((string) $rounding['item_rounding'], true, 512, \JSON_THROW_ON_ERROR);

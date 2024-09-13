@@ -1,7 +1,6 @@
-/*
+/**
  * @package inventory
  */
-
 import { mount } from '@vue/test-utils';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
@@ -44,6 +43,8 @@ async function createWrapper(privileges = []) {
                 'sw-text-editor': true,
                 'sw-entity-single-select': true,
                 'sw-skeleton': true,
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
             },
         },
     });

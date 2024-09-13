@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -106,6 +106,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                     'sw-grid-column': await wrapTestComponent('sw-grid-column'),
                     'router-link': true,
                     'sw-popover': true,
+                    'sw-search-bar': true,
                 },
             },
         });

@@ -1,12 +1,21 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const remindPaymentMock = jest.fn(() => {
     return Promise.resolve();
 });
+
+const contextState = {
+    namespaced: true,
+    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    mutations: {
+        setLanguageId: jest.fn(),
+        resetLanguageToDefault: jest.fn(),
+    },
+};
 
 describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
@@ -80,6 +89,12 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                     </div>
                 `,
             },
+            'sw-order-create-invalid-promotion-modal': true,
+            'sw-app-topbar-button': true,
+            'sw-help-center-v2': true,
+            'router-link': true,
+            'sw-error-summary': true,
+            'sw-tabs-deprecated': true,
         };
     });
 
@@ -127,6 +142,12 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                 remindPayment: remindPaymentMock,
             },
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', contextState);
     });
 
     it('should be a Vue.js component', async () => {
@@ -173,5 +194,15 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isSaveSuccessful).toBeTruthy();
         expect(wrapper.vm.showRemindPaymentModal).not.toBeTruthy();
+    });
+
+    it('should be set context language after the process is successful', async () => {
+        const buttonProcess = wrapper.find('.sw-button-process');
+        await buttonProcess.trigger('click');
+
+        await wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess');
+        await flushPromises();
+
+        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });
 });

@@ -28,6 +28,7 @@ async function createWrapper() {
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-icon': true,
                 'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 numberRangeService: {},

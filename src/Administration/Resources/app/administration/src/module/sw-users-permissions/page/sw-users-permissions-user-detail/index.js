@@ -14,6 +14,8 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'userService',
         'loginService',
@@ -437,11 +439,19 @@ export default {
 
         setPassword(password) {
             if (typeof password === 'string' && password.length <= 0) {
-                this.$delete(this.user, 'password');
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.user, 'password');
+                } else {
+                    delete this.user.password;
+                }
                 return;
             }
 
-            this.$set(this.user, 'password', password);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.user, 'password', password);
+            } else {
+                this.user.password = password;
+            }
         },
 
         onShowDetailModal(id) {

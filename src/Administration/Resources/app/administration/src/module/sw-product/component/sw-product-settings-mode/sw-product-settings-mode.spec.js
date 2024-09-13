@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -29,7 +29,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
             global: {
                 directives: {
                     tooltip: {
-                        bind(el, binding) {
+                        beforeMount(el, binding) {
                             el.setAttribute('tooltip-message', binding.value.message);
                         },
                     },
@@ -56,6 +56,10 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-loader': true,
+                    'router-link': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });

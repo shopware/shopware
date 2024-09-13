@@ -31,6 +31,10 @@ const { Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['image-change'],
+
     props: {
         images: {
             type: Array,

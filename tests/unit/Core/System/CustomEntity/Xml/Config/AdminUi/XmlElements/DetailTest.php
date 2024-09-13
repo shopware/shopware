@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Detail::class)]

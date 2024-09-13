@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-form-field-renderer.html.twig';
 

@@ -7,4 +7,6 @@ import './sw-cms-preview-product-slider.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

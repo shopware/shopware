@@ -77,7 +77,7 @@ class FilterTagIdsService
 
         $total = (new QueryBuilder($this->connection))
             ->select(['COUNT(*)'])
-            ->from(sprintf('(%s) total', $query->getSQL()))
+            ->from(\sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return (int) $total->executeQuery()->fetchOne();
@@ -96,7 +96,7 @@ class FilterTagIdsService
                 ->select([$mappingLocalColumn])
                 ->from($mappingTable);
 
-            $query->andWhere($query->expr()->notIn('`tag`.`id`', sprintf('(%s)', $subQuery->getSQL())));
+            $query->andWhere($query->expr()->notIn('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL())));
         }
     }
 
@@ -110,7 +110,7 @@ class FilterTagIdsService
 
         $query->innerJoin(
             '`tag`',
-            sprintf('(%s)', $subQuery->getSQL()),
+            \sprintf('(%s)', $subQuery->getSQL()),
             'duplicate',
             'duplicate.`name` = `tag`.`name`'
         );
@@ -138,7 +138,7 @@ class FilterTagIdsService
                 ->select([$mappingLocalColumn])
                 ->from($mappingTable);
 
-            $expressions = $expressions->with($query->expr()->in('`tag`.`id`', sprintf('(%s)', $subQuery->getSQL())));
+            $expressions = $expressions->with($query->expr()->in('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL())));
         }
 
         $query->andWhere($expressions);

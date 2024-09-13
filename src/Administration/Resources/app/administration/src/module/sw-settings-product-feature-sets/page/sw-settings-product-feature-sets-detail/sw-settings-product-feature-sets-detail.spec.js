@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
+
 const classes = {
     componentRoot: 'sw-settings-product-feature-sets-detail',
     fieldLabel: 'sw-field__label',
@@ -53,6 +57,14 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                 'sw-extension-component-section': true,
                 'sw-skeleton': true,
                 i18n: true,
+                'sw-language-switch': true,
+                'sw-error-summary': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
             },
             provide: {
                 acl: {

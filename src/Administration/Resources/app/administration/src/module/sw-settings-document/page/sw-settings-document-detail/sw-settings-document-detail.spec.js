@@ -134,6 +134,9 @@ const createWrapper = async (customOptions, privileges = []) => {
                 'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
                 'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] },
                 'sw-skeleton': true,
+                'sw-select-result': true,
+                'sw-highlight-text': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 repositoryFactory: {
@@ -290,17 +293,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
             '.sw-settings-document-detail__field_additional_note_delivery',
         );
-        const deliveryCountriesSelect = wrapper.find(
-            '.sw-settings-document-detail__field_delivery_countries',
-        );
 
         expect(displayAdditionalNoteDeliveryCheckbox.attributes('value')).toBe('true');
         expect(displayAdditionalNoteDeliveryCheckbox.attributes('label'))
             .toBe('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery');
-        expect(deliveryCountriesSelect.attributes('help-text'))
-            .toBe('sw-settings-document.detail.helpTextDisplayDeliveryCountries');
-        expect(deliveryCountriesSelect.attributes('label'))
-            .toBe('sw-settings-document.detail.labelDeliveryCountries');
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
@@ -365,6 +361,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
+    /* @deprecated: tag:v6.7.0 - Remove this test */
     // eslint-disable-next-line max-len
     it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);

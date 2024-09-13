@@ -1,8 +1,9 @@
+import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
+
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
-
-import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const { Application, State } = Shopware;
 const { debug } = Shopware.Utils;
@@ -212,16 +213,17 @@ export default {
                 return;
             }
 
-            Application.view.setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
+
+            state.growlNotifications[notificationUpdate.uuid] = notificationUpdate;
 
             const growlKeys = Object.keys(state.growlNotifications);
             if (growlKeys.length > state.threshold) {
-                Application.view.deleteReactive(state.growlNotifications, growlKeys[0]);
+                delete state.growlNotifications[growlKeys[0]];
             }
         },
 
         removeGrowlNotification(state, notification) {
-            Application.view.deleteReactive(state.growlNotifications, notification.uuid);
+            delete state.growlNotifications[notification.uuid];
         },
     },
 

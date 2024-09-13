@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -111,6 +111,10 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': true,
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-loader': true,
+                'sw-checkbox-field': true,
             },
         },
     });

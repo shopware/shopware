@@ -127,6 +127,12 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['includes'])) {
+            if (!\is_array($payload['includes'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'includes',
+                    \gettype($payload['includes'])
+                );
+            }
             $criteria->setIncludes($payload['includes']);
         }
 
@@ -284,7 +290,7 @@ class RequestCriteriaBuilder
 
             if ($field === '') {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(sprintf('The key for filter at position "%d" must not be blank.', $index), '/filter/' . $index),
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The key for filter at position "%d" must not be blank.', $index), '/filter/' . $index),
                     '/filter/' . $index
                 );
 
@@ -293,7 +299,7 @@ class RequestCriteriaBuilder
 
             if ($value === '') {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(sprintf('The value for filter "%s" must not be blank.', $field), '/filter/' . $field),
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must not be blank.', $field), '/filter/' . $field),
                     '/filter/' . $field
                 );
 
@@ -302,7 +308,7 @@ class RequestCriteriaBuilder
 
             if (!\is_scalar($value)) {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(sprintf('The value for filter "%s" must be scalar.', $field), '/filter/' . $field),
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must be scalar.', $field), '/filter/' . $field),
                     '/filter/' . $field
                 );
 

@@ -53,7 +53,8 @@ class FileSaver
         private readonly SqlMediaLocationBuilder $locationBuilder,
         private readonly AbstractMediaPathStrategy $mediaPathStrategy,
         private readonly array $allowedExtensions,
-        private readonly array $privateAllowedExtensions
+        private readonly array $privateAllowedExtensions,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -94,6 +95,10 @@ class FileSaver
         );
 
         $this->saveFileToMediaDir($mediaFile, $media, $context);
+
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
 
         $message = new GenerateThumbnailsMessage();
         $message->setMediaIds([$mediaId]);
@@ -145,6 +150,10 @@ class FileSaver
         foreach ($media->getThumbnails() ?? [] as $thumbnail) {
             try {
                 $thumbnailDestination = $thumbnails[$thumbnail->getUniqueIdentifier()];
+
+                if (!\is_string($thumbnailDestination)) {
+                    throw MediaException::couldNotRenameFile($media->getId(), (string) $media->getFileName());
+                }
 
                 $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $media, $thumbnailDestination)];
             } catch (\Exception) {
@@ -215,6 +224,10 @@ class FileSaver
             $this->getFileSystem($media)->delete($media->getPath());
         } catch (UnableToDeleteFile) {
             // nth
+        }
+
+        if ($this->remoteThumbnailsEnable) {
+            return;
         }
 
         $this->thumbnailService->deleteThumbnails($media, $context);

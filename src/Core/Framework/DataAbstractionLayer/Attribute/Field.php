@@ -16,7 +16,8 @@ class Field
     public function __construct(
         public string $type,
         public bool $translated = false,
-        public bool|array $api = false
+        public bool|array $api = false,
+        public ?string $column = null,
     ) {
     }
 }

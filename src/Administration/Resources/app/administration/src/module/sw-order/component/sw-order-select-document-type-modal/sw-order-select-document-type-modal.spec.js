@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import swOrderSelectDocumentTypeModal from 'src/module/sw-order/component/sw-order-select-document-type-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -8,8 +7,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 /**
  * @package customer-order
  */
-
-Shopware.Component.register('sw-order-select-document-type-modal', swOrderSelectDocumentTypeModal);
 
 const orderFixture = {
     id: '1234',
@@ -95,6 +92,10 @@ async function createWrapper(customData = {}) {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-field-error': true,
                 'sw-help-text': true,
+                'router-link': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
             provide: {
                 repositoryFactory: {

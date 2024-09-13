@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -14,6 +14,15 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                     'sw-page': {
                         template: '<div />',
                     },
+                    'sw-icon': true,
+                    'sw-button-process': true,
+                    'sw-skeleton': true,
+                    'sw-select-field': true,
+                    'sw-radio-field': true,
+                    'sw-switch-field': true,
+                    'sw-card': true,
+                    'sw-settings-mailer-smtp': true,
+                    'sw-card-view': true,
                 },
                 provide: {
                     systemConfigApiService: {

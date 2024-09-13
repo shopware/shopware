@@ -113,7 +113,7 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name(sprintf('%s.json', $locale))
+            ->name(\sprintf('%s.json', $locale))
             ->in($this->getBundlePaths());
 
         $iterator = $finder->getIterator();

@@ -10,10 +10,14 @@ const { Mixin, Utils } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'cmsService',
     ],
+
+    emits: ['block-delete', 'block-duplicate'],
 
     mixins: [
         Mixin.getByName('cms-state'),
@@ -36,7 +40,7 @@ export default {
         },
 
         cmsPageState() {
-            return Shopware.State.get('cmsPageState');
+            return Shopware.Store.get('cmsPageState');
         },
 
         cmsBlocks() {

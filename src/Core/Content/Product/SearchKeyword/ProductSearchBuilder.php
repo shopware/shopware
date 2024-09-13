@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -14,14 +15,17 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     /**
      * @internal
      */
-    public function __construct(private readonly ProductSearchTermInterpreterInterface $interpreter)
-    {
+    public function __construct(
+        private readonly ProductSearchTermInterpreterInterface $interpreter,
+        private readonly LoggerInterface $logger,
+        private readonly int $searchTermMaxLength
+    ) {
     }
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void
@@ -35,6 +39,15 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         }
 
         $term = trim($term);
+        if (mb_strlen($term) > $this->searchTermMaxLength) {
+            $this->logger->notice(
+                'The search term "{term}" was trimmed because it exceeded the maximum length of {maxLength} characters.',
+                ['term' => $term, 'maxLength' => $this->searchTermMaxLength]
+            );
+
+            $term = mb_substr($term, 0, $this->searchTermMaxLength);
+        }
+
         if (empty($term)) {
             throw RoutingException::missingRequestParameter('search');
         }

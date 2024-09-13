@@ -179,6 +179,10 @@ async function createWrapper() {
                 'sw-data-grid': true,
                 'sw-card-filter': true,
                 'sw-pagination': true,
+                'sw-product-variants-configurator-prices': true,
+                'sw-product-variants-configurator-restrictions': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 shortcutService: {
@@ -198,6 +202,7 @@ async function createWrapper() {
                         return Promise.resolve('defaultFolderId');
                     },
                 },
+                swProductDetailLoadAll: () => {},
             },
         },
     });

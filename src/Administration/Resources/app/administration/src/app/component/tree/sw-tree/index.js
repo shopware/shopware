@@ -47,11 +47,40 @@ Component.register('sw-tree', {
 
     inject: ['feature'],
 
+    compatConfig: Shopware.compatConfig,
+
     provide() {
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+            return {
+                getItems: this.getItems,
+            };
+        }
+
         return {
             getItems: this.getItems,
+            startDrag: this.startDrag,
+            endDrag: this.endDrag,
+            moveDrag: this.moveDrag,
+            addSubElement: this.addSubElement,
+            addElement: this.addElement,
+            duplicateElement: this.duplicateElement,
+            onFinishNameingElement: this.onFinishNameingElement,
+            onDeleteElements: this.onDeleteElements,
+            abortCreateElement: this.abortCreateElement,
         };
     },
+
+    emits: [
+        'checked-elements-count',
+        'get-tree-items',
+        'search-tree-items',
+        'drag-start',
+        'drag-end',
+        'delete-element',
+        'editing-end',
+        'batch-delete',
+        'save-tree-items',
+    ],
 
     props: {
         items: {
@@ -268,6 +297,7 @@ Component.register('sw-tree', {
                 this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
                 this._eventFromEdit = null;
             },
+            deep: true,
         },
 
         activeTreeItemId(val) {
@@ -650,7 +680,11 @@ Component.register('sw-tree', {
                 return;
             }
 
-            if (typeof this.$listeners['batch-delete'] === 'function') {
+            const batchDeleteIsFunction = this.isCompatEnabled('INSTANCE_LISTENERS')
+                ? typeof this.$listeners['batch-delete'] === 'function'
+                : typeof this.$attrs.onBatchDelete === 'function';
+
+            if (batchDeleteIsFunction) {
                 this.$emit('batch-delete', this.checkedElements);
             } else {
                 Object.values(this.checkedElements).forEach((itemId) => {
@@ -672,13 +706,21 @@ Component.register('sw-tree', {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount += 1;
                 }
-                this.$set(this.checkedElements, item.id, item.id);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.checkedElements, item.id, item.id);
+                } else {
+                    this.checkedElements[item.id] = item.id;
+                }
                 this.checkedElementsCount += 1;
             } else {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount -= 1;
                 }
-                this.$delete(this.checkedElements, item.id);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.checkedElements, item.id);
+                } else {
+                    delete this.checkedElements[item.id];
+                }
                 this.checkedElementsCount -= 1;
             }
 

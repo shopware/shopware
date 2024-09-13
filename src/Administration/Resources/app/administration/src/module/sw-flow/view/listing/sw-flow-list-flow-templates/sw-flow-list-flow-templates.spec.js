@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package services-settings
+ */
+
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
@@ -49,6 +53,15 @@ async function createWrapper(privileges = [], props = {}) {
                 'sw-pagination': true,
                 'sw-empty-state': true,
                 'sw-search-bar': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'sw-bulk-edit-modal': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
             },
             provide: {
                 repositoryFactory: {

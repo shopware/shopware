@@ -53,6 +53,7 @@
         <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -102,6 +103,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy" />
             <argument>%shopware.filesystem.allowed_extensions%</argument>
             <argument>%shopware.filesystem.private_allowed_extensions%</argument>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileLoader">
@@ -129,6 +131,7 @@
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -143,6 +146,15 @@
         <service id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand" shared="false">
             <argument type="service" id="Shopware\Core\Content\Media\UnusedMediaPurger"/>
             <argument type="service" id="event_dispatcher" />
+
+            <tag name="console.command"/>
+        </service>
+
+        <!-- Commands -->
+        <service id="Shopware\Core\Content\Media\Commands\DeleteThumbnailsCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -227,6 +239,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator">
@@ -238,6 +251,11 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileLoader"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Media\MediaUrlPlaceholderHandler" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver">
@@ -296,13 +314,18 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber">
-            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Content\Media\Message\DeleteFileHandler"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaCreationSubscriber">

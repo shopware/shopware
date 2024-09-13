@@ -230,7 +230,58 @@ class LineItemTransformerTest extends TestCase
         }
     }
 
-    private function buildOrderLineItemEntity(string $id, string $type, ?string $parentId, int $quantity = 1): OrderLineItemEntity
+    public function testTransformFlatToNestedAddsShippingCostAware(): void
+    {
+        $customProduct = Uuid::randomHex();
+        $product = Uuid::randomHex();
+        $downloadProduct = Uuid::randomHex();
+        $promotionProduct = Uuid::randomHex();
+        $nonProduct = Uuid::randomHex();
+        $anotherType = Uuid::randomHex();
+
+        $orderLineItemCollection = new OrderLineItemCollection(
+            [
+                $this->buildOrderLineItemEntity($customProduct, LineItem::CUSTOM_LINE_ITEM_TYPE, null),
+                $this->buildOrderLineItemEntity($downloadProduct, LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1, [State::IS_DOWNLOAD]),
+                $this->buildOrderLineItemEntity($product, LineItem::PRODUCT_LINE_ITEM_TYPE, null),
+                $this->buildOrderLineItemEntity($promotionProduct, LineItem::PROMOTION_LINE_ITEM_TYPE, null),
+                $this->buildOrderLineItemEntity($nonProduct, LineItem::CREDIT_LINE_ITEM_TYPE, null),
+                $this->buildOrderLineItemEntity($anotherType, 'other-type', null),
+            ]
+        );
+
+        $nestedCollection = LineItemTransformer::transformFlatToNested($orderLineItemCollection);
+        static::assertCount(6, $nestedCollection);
+
+        $customProduct = $nestedCollection->get($customProduct);
+        static::assertNotNull($customProduct);
+        static::assertTrue($customProduct->isShippingCostAware());
+
+        $downloadProduct = $nestedCollection->get($downloadProduct);
+        static::assertNotNull($downloadProduct);
+        static::assertFalse($downloadProduct->isShippingCostAware());
+
+        $product = $nestedCollection->get($product);
+        static::assertNotNull($product);
+        static::assertTrue($product->isShippingCostAware());
+
+        $promotionProduct = $nestedCollection->get($promotionProduct);
+        static::assertNotNull($promotionProduct);
+        static::assertTrue($promotionProduct->isShippingCostAware());
+
+        $nonProduct = $nestedCollection->get($nonProduct);
+        static::assertNotNull($nonProduct);
+        static::assertFalse($nonProduct->isShippingCostAware());
+
+        $anotherType = $nestedCollection->get($anotherType);
+        static::assertNotNull($anotherType);
+        static::assertTrue($anotherType->isShippingCostAware());
+    }
+
+    /**
+     * @param string[] $states
+     */
+    private function buildOrderLineItemEntity(string $id, string $type, ?string $parentId, int $quantity = 1, array $states = []): OrderLineItemEntity
     {
         $orderLineItemEntity = new OrderLineItemEntity();
         $orderLineItemEntity->setId($id);
@@ -242,6 +293,7 @@ class LineItemTransformerTest extends TestCase
         $orderLineItemEntity->setRemovable(true);
         $orderLineItemEntity->setStackable(false);
         $orderLineItemEntity->setQuantity($quantity);
+        $orderLineItemEntity->setStates($states);
 
         if ($parentId === null) {
             return $orderLineItemEntity;

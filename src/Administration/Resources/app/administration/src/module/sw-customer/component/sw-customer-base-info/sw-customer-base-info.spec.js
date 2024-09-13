@@ -43,6 +43,7 @@ async function createWrapper() {
                 'sw-checkbox-field': true,
                 'sw-help-text': true,
                 'sw-datepicker': true,
+                'sw-text-field': true,
             },
             provide: {
                 repositoryFactory: {
@@ -224,5 +225,22 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         // Email confirmation status
         expect(leftColumn.findAll('.sw-description-list')[3].find('dt').text()).toBe('sw-customer.baseInfo.labelConfirmed');
         expect(leftColumn.findAll('.sw-description-list')[3].find('dd').text()).toBe('sw-customer.baseInfo.contentConfirmed');
+    });
+
+    it('should hide affiliate and campaign code value in edit mode', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const leftColumn = wrapper.findAll('.sw-customer-base-info-columns')[0];
+        // Affiliate code
+        expect(leftColumn.findAll('.sw-description-list')[4].find('dt').text()).toBe('sw-customer.baseInfo.labelAffiliateCode');
+        expect(leftColumn.findAll('.sw-description-list')[4].find('dd').text()).not.toBe('-');
+
+        // Campaign code
+        expect(leftColumn.findAll('.sw-description-list')[5].find('dt').text()).toBe('sw-customer.baseInfo.labelCampaignCode');
+        expect(leftColumn.findAll('.sw-description-list')[5].find('dd').text()).not.toBe('-');
     });
 });

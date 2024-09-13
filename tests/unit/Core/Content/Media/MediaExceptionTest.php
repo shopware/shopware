@@ -393,4 +393,13 @@ class MediaExceptionTest extends TestCase
         static::assertSame('The provided file name is too long, the maximum length is 3 characters.', $exception->getMessage());
         static::assertSame(['maxLength' => 3], $exception->getParameters());
     }
+
+    public function testThumbnailGenerationDisabled(): void
+    {
+        $exception = MediaException::thumbnailGenerationDisabled();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_THUMBNAIL_GENERATION_DISABLED, $exception->getErrorCode());
+        static::assertSame('Remote thumbnails are enabled. Skipping thumbnail generation.', $exception->getMessage());
+    }
 }

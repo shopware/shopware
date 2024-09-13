@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -52,6 +55,16 @@ async function createWrapper() {
                 'sw-ignore-class': {
                     template: '<div></div>',
                 },
+                'sw-loader': true,
+                'sw-label': true,
+                'sw-filter-panel': true,
+                'sw-context-menu': true,
+                'sw-card-filter': true,
+                'sw-entity-advanced-selection-modal-grid': true,
+                'sw-empty-state': true,
+                'mt-card': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
             },
             provide: {
                 ruleConditionDataProviderService: {
@@ -99,7 +112,7 @@ async function createWrapper() {
     });
 }
 
-describe('components/sw-advanced-selection-product', () => {
+describe('components/sw-advanced-selection-rule', () => {
     it('should be a Vue.JS component that wraps the selection modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

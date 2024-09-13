@@ -10,6 +10,9 @@ const TEST_OG_IMAGE = {
     alt: 'TEST_OG_IMAGE_ALT',
 };
 
+/**
+ * @package content
+ */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-social-media-card', { sync: true }), {
         global: {

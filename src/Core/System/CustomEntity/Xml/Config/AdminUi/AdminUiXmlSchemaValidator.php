@@ -14,7 +14,7 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class AdminUiXmlSchemaValidator
 {
     public function validateConfigurations(AdminUiEntity $adminUiEntity, Entity $entity): void

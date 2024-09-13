@@ -49,6 +49,11 @@ async function createWrapper(propsData = {}) {
                 'sw-checkbox-field': true,
                 'sw-context-menu-item': true,
                 'sw-data-grid-skeleton': true,
+                'sw-bulk-edit-modal': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-button-group': true,
             },
         },
     });

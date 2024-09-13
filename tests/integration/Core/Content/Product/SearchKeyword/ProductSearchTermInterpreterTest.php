@@ -144,6 +144,20 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('termScoring')]
+    public function testTermScoring(string $term, array $expected): void
+    {
+        $context = Context::createDefaultContext();
+
+        $matches = $this->interpreter->interpret($term, $context);
+        $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+
+        static::assertEquals($expected, \array_slice($terms, 0, \count($expected)));
+    }
+
+    /**
      * @return array<array{0: string, 1: list<string>}>
      */
     public static function cases(): array
@@ -362,6 +376,39 @@ class ProductSearchTermInterpreterTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array{0: string, 1: list<string>}>
+     */
+    public static function termScoring(): array
+    {
+        return [
+            [
+                'Sessel',
+                [
+                    'Sessel',
+                ],
+            ],
+            [
+                'Gelber Sessel',
+                [
+                    'Gelber Sessel',
+                    'Gelber Camping Sessel',
+                    'Klappbarer gelber Camping Sessel',
+                    'Klappbarer gelber Sessel',
+                ],
+            ],
+            [
+                'Klappbarer Camping Sessel',
+                [
+                    'Klappbarer Camping Sessel',
+                    'Klappbarer blauer Camping Sessel',
+                    'Klappbarer gelber Camping Sessel',
+                    'Klappbarer roter Camping Sessel',
+                ],
+            ],
+        ];
+    }
+
     private function setupKeywords(): void
     {
         $keywords = [
@@ -416,6 +463,21 @@ class ProductSearchTermInterpreterTest extends TestCase
             'against',
             'betweencoffee',
             'betweenbike',
+            'Sessel',
+            'Roter Camping Sessel',
+            'Klappbarer roter Sessel',
+            'Roter Sessel',
+            'Klappbarer roter Camping Sessel',
+            'Gelber Camping Sessel',
+            'Klappbarer gelber Sessel',
+            'Gelber Sessel',
+            'Klappbarer gelber Camping Sessel',
+            'Blauer Camping Sessel',
+            'Klappbarer blauer Sessel',
+            'Blauer Sessel',
+            'Klappbarer blauer Camping Sessel',
+            'Camping Sessel',
+            'Klappbarer Camping Sessel',
         ];
 
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);

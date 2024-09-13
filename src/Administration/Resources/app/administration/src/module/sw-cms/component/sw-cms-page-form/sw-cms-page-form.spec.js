@@ -71,6 +71,7 @@ async function createWrapper() {
                     props: ['element', 'elementData'],
                 },
                 'sw-extension-component-section': true,
+                'sw-alert': true,
             },
             provide: {
                 cmsService: {

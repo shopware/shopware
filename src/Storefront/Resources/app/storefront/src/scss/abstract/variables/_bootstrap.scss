@@ -15,3 +15,14 @@ $container-max-widths: ( xs: 1400px ) !default;
 
 // Utility importance (add no !important to utilities like .d-block)
 $enable-important-utilities: false !default;
+
+// Z-Index Level @see https://getbootstrap.com/docs/5.3/utilities/z-index/#sass-maps
+$zindex-levels: (
+    n1: -1,
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+);

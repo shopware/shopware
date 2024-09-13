@@ -6,9 +6,12 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
 #[Package('core')]
 class DatabaseConnectionFactory
 {
@@ -31,32 +34,24 @@ class DatabaseConnectionFactory
 
     private static function checkVersion(Connection $connection): void
     {
-        // https://developer.shopware.com/docs/guides/installation/overview#system-requirements
+        // https://developer.shopware.com/docs/guides/installation/requirements.html#sql
         $mysqlRequiredVersion = '8.0.17';
         $mariaDBRequiredVersion = '10.11';
 
         $version = $connection->fetchOne('SELECT VERSION()');
-        \assert(\is_string($version));
+        if (!\is_string($version)) {
+            throw MaintenanceException::dbVersionSelectFailed();
+        }
         if (\mb_stripos($version, 'mariadb') !== false) {
             if (version_compare($version, $mariaDBRequiredVersion, '<')) {
-                throw new DatabaseSetupException(sprintf(
-                    'Your database server is running MariaDB %s, but Shopware 6 requires at least MariaDB %s OR MySQL %s',
-                    $version,
-                    $mariaDBRequiredVersion,
-                    $mysqlRequiredVersion
-                ));
+                throw MaintenanceException::dbVersionMismatch('MariaDB', $version, $mysqlRequiredVersion, $mariaDBRequiredVersion);
             }
 
             return;
         }
 
         if (version_compare($version, $mysqlRequiredVersion, '<')) {
-            throw new DatabaseSetupException(sprintf(
-                'Your database server is running MySQL %s, but Shopware 6 requires at least MySQL %s OR MariabDB %s',
-                $version,
-                $mysqlRequiredVersion,
-                $mariaDBRequiredVersion
-            ));
+            throw MaintenanceException::dbVersionMismatch('MySQL', $version, $mysqlRequiredVersion, $mariaDBRequiredVersion);
         }
     }
 }

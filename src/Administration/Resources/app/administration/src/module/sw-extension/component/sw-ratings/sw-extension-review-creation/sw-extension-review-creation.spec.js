@@ -57,6 +57,11 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                     'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
                     'sw-external-link-deprecated': await wrapTestComponent('sw-external-link-deprecated', { sync: true }),
                     'sw-loader': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'router-link': true,
                 },
             },
             props: {

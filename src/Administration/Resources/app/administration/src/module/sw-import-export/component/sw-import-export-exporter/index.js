@@ -13,7 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['importExport', 'repositoryFactory', 'feature'],
+
+    emits: ['export-started'],
 
     mixins: [
         Mixin.getByName('notification'),

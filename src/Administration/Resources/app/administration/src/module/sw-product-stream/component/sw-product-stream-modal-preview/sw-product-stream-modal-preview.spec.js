@@ -1,5 +1,5 @@
-/*
- * @package inventory
+/**
+ * @package services-settings
  */
 
 import { mount } from '@vue/test-utils';
@@ -95,6 +95,13 @@ async function createWrapper() {
                 'sw-container': true,
                 'sw-entity-single-select': true,
                 'sw-empty-state': true,
+                'sw-product-variant-info': true,
+                'router-link': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-color-badge': true,
+                'sw-pagination': true,
+                'sw-data-grid': true,
+                'sw-button': true,
             },
             provide: {
                 productStreamPreviewService: {},

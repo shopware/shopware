@@ -26,6 +26,8 @@ async function createWrapper(slotsData = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot></slot></div>',
                 },
+                'mt-tabs': true,
+                'sw-extension-component-section': true,
             },
             mocks: {
                 $route: {
@@ -56,6 +58,23 @@ async function createWrapper(slotsData = {}) {
 }
 
 describe('src/app/component/meteor/sw-meteor-page', () => {
+    beforeAll(() => {
+        /**
+         * Warning happens due to the non-reactive programmatic usage
+         * of slots in the deprecated sw-tabs component
+         */
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('Slot "page-tabs" invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead');
+            },
+        });
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

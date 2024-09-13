@@ -27,6 +27,10 @@
         border-color: $color-gray-300;
     }
 
+    .sw-select-selection-list__input-wrapper {
+        flex: 1 1 0;
+    }
+
     .sw-select-selection-list__input {
         display: inline-block;
         min-width: 200px;
@@ -34,6 +38,7 @@
 
         &::placeholder {
             color: lighten($color-darkgray-200, 25%);
+            white-space: break-spaces;
         }
     }
 }

@@ -8,6 +8,8 @@ import './sw-cms-mapping-field.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
 
     props: {
@@ -43,7 +45,7 @@ export default {
 
     data() {
         return {
-            cmsPageState: Shopware.State.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPageState'),
             mappingTypes: {},
             allowedMappingTypes: [],
             demoValue: null,
@@ -56,7 +58,10 @@ export default {
         },
 
         hasPreview() {
-            return typeof this.$scopedSlots.preview !== 'undefined';
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return typeof this.$scopedSlots.preview !== 'undefined';
+            }
+            return this.$slots.preview !== undefined;
         },
     },
 

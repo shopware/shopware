@@ -63,7 +63,7 @@ class ThemeCreateCommand extends Command
         $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
 
         if (file_exists($directory)) {
-            $io->error(sprintf('Plugin directory %s already exists', $directory));
+            $io->error(\sprintf('Plugin directory %s already exists', $directory));
 
             return self::FAILURE;
         }
@@ -128,7 +128,7 @@ class ThemeCreateCommand extends Command
     private function createDirectory(string $pathName): void
     {
         if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
-            throw new \RuntimeException(sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 
@@ -209,7 +209,7 @@ Override variable defaults
 This file is used to override default SCSS variables from the Shopware Storefront or Bootstrap.
 
 Because of the !default flags, theme variable overrides have to be declared beforehand.
-https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
+https://getbootstrap.com/docs/5.3/customize/sass/#variable-defaults
 */
 EOL;
     }

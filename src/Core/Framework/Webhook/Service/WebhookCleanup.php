@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
 
@@ -39,8 +40,8 @@ class WebhookCleanup
             ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->connection->executeStatement(
-            'DELETE FROM `webhook_event_log` WHERE `created_at` < :before',
-            ['before' => $deleteBefore]
+            'DELETE FROM `webhook_event_log` WHERE `created_at` < :before AND (`delivery_status` = :success OR `delivery_status` = :failed)',
+            ['before' => $deleteBefore, 'success' => WebhookEventLogDefinition::STATUS_SUCCESS, 'failed' => WebhookEventLogDefinition::STATUS_FAILED]
         );
     }
 }

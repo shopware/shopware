@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/salutation.mixin';
 import { mount } from '@vue/test-utils';
 

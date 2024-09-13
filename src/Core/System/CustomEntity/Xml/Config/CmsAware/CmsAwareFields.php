@@ -13,7 +13,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsAwareFields
 {
     /**

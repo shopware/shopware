@@ -9,12 +9,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 #[CoversClass(DoctrineSQLHandler::class)]
 class DoctrineSQLHandlerTest extends TestCase
 {

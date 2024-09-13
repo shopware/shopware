@@ -81,6 +81,9 @@ async function createWrapper(privileges = [], props = {}) {
                 'sw-settings-shipping-tax-cost': true,
                 'sw-language-info': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-context-menu-item': true,
             },
         },
     });

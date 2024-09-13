@@ -65,7 +65,7 @@
             }"
             class="sw-number-range-list__add-number-range"
             variant="primary"
-            :disabled="!acl.can('number_ranges.creator')"
+            :disabled="!acl.can('number_ranges.creator') || undefined"
             :router-link="{ name: 'sw.settings.number.range.create' }"
         >
             {{ $tc('sw-settings-number-range.list.buttonAddNumberRange') }}
@@ -102,10 +102,10 @@
                         detail-route="sw.settings.number.range.detail"
                         :show-selection="false"
                         :is-loading="isLoading"
-                        :allow-edit="acl.can('number_ranges.editor')"
-                        :allow-inline-edit="acl.can('number_ranges.editor')"
-                        :allow-delete="acl.can('number_ranges.deleter')"
-                        :allow-view="acl.can('number_ranges.viewer')"
+                        :allow-edit="acl.can('number_ranges.editor') || undefined"
+                        :allow-inline-edit="acl.can('number_ranges.editor') || undefined"
+                        :allow-delete="acl.can('number_ranges.deleter') || undefined"
+                        :allow-view="acl.can('number_ranges.viewer') || undefined"
                         @page-change="onPageChange"
                         @column-sort="onSortColumn"
                     >
@@ -140,7 +140,7 @@
                             {% block sw_settings_number_range_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-entity-listing__context-menu-edit-action"
-                                :disabled="!acl.can('number_ranges.editor')"
+                                :disabled="!acl.can('number_ranges.editor') || undefined"
                                 :router-link="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}"
                             >
                                 {{ $tc('sw-settings-number-range.list.contextMenuEdit') }}
@@ -152,7 +152,7 @@
                             <sw-context-menu-item
                                 class="sw-entity-listing__context-menu-edit-delete"
                                 variant="danger"
-                                :disabled="!acl.can('number_ranges.deleter')"
+                                :disabled="!acl.can('number_ranges.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-number-range.list.contextMenuDelete') }}

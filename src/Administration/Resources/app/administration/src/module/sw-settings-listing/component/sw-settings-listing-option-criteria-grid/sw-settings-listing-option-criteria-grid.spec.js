@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];
     const customFields = [{
@@ -63,6 +66,20 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     </div>`,
                     },
                     'sw-loader': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-menu': true,
+                    'sw-single-select': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-button': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-data-grid-settings': true,
+                    'sw-product-variant-info': true,
+                    'sw-highlight-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
             props: {

@@ -25,6 +25,8 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -32,6 +34,8 @@ export default {
         'feature',
         'fileValidationService',
     ],
+
+    emits: ['media-drop', 'media-upload-sidebar-open', 'media-upload-remove-image', 'media-upload-add-file'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -153,6 +157,12 @@ export default {
             required: false,
             default: false,
         },
+
+        onMediaUploadSidebarOpen: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -183,7 +193,10 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            }
+            return !!this.onMediaUploadSidebarOpen;
         },
 
         isDragActiveClass() {
@@ -249,7 +262,7 @@ export default {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

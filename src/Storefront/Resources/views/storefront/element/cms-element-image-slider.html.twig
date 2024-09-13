@@ -8,6 +8,7 @@
                 speed: sliderConfig.speed.value,
                 autoplayTimeout: sliderConfig.autoplayTimeout.value,
                 autoplay: sliderConfig.autoSlide.value,
+                ariaLive: sliderConfig.autoSlide.value ? false : true,
                 autoplayButtonOutput: false,
                 nav: sliderConfig.navigationDots.value ? true : false,
                 controls: sliderConfig.navigationArrows.value ? true : false,
@@ -33,7 +34,8 @@
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
                                             'alt': (image.media.translated.alt ?: ''),
-                                            'title': (image.media.translated.title ?: '')
+                                            'title': (image.media.translated.title ?: ''),
+                                            'tabindex': (image.url ? '-1' : '0')
                                         } %}
 
                                         {% if element.config.displayMode.value == 'cover' or element.config.displayMode.value == 'contain' %}

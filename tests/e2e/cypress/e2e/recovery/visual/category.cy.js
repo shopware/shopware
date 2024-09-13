@@ -10,7 +10,7 @@ describe('Category: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic category workflow', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of basic category workflow', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: '/api/search/category',
             method: 'POST',

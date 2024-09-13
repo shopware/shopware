@@ -111,7 +111,7 @@ class ProcessorTest extends TestCase
 
     public function testExtensionsAreMergedEarly(): void
     {
-        $extension = new class() extends Struct {
+        $extension = new class extends Struct {
         };
 
         $cart = new Cart('bar');
@@ -122,7 +122,7 @@ class ProcessorTest extends TestCase
             $this->createMock(AmountCalculator::class),
             $this->createMock(TransactionProcessor::class),
             [
-                new class() implements CartProcessorInterface {
+                new class implements CartProcessorInterface {
                     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
                     {
                         TestCase::assertNotEmpty($original->getExtension('unit-test'));

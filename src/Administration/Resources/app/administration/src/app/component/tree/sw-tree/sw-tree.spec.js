@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+// eslint-disable-next-line import/no-named-as-default,import/no-named-as-default-member
 import getTreeItems from './fixtures/treeItems';
 
 async function createWrapper() {
@@ -20,14 +21,21 @@ async function createWrapper() {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
                 'sw-field-error': true,
                 'sw-tree-input-field': true,
                 'sw-button': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer'),
+                'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer', { sync: true }),
                 'sw-icon': true,
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
+                'sw-skeleton': await wrapTestComponent('sw-skeleton'),
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-copyable': true,
+                'sw-skeleton-bar': true,
             },
             mocks: {
                 $route: {
@@ -38,11 +46,6 @@ async function createWrapper() {
             },
             provide: {
                 validationService: {},
-            },
-            directives: {
-                tooltip: {},
-                droppable: {},
-                draggable: {},
             },
         },
     });
@@ -74,6 +77,7 @@ describe('src/app/component/tree/sw-tree', () => {
         await flushPromises();
 
         await wrapper.get('.sw-tree-item .sw-tree-item__toggle').trigger('click');
+        await flushPromises();
 
         // parent should be open
         const openedParent = wrapper.find('.sw-tree-item.is--opened');
@@ -182,6 +186,8 @@ describe('src/app/component/tree/sw-tree', () => {
         await wrapper.setData({
             checkedElementsCount: 2,
         });
+
+        await flushPromises();
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).toBeUndefined();
     });

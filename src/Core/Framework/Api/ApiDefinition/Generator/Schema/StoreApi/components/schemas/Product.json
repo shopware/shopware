@@ -57,7 +57,7 @@
                                     "referencePrice": {
                                         "oneOf": [
                                             {
-                                                "$ref": "#/components/schemas/ReferencePrice"
+                                                "$ref": "#/components/schemas/CartPriceReference"
                                             },
                                             {
                                                 "type": "null"
@@ -67,7 +67,7 @@
                                     "listPrice": {
                                         "oneOf": [
                                             {
-                                                "$ref": "#/components/schemas/ListPrice"
+                                                "$ref": "#/components/schemas/CartListPrice"
                                             },
                                             {
                                                 "type": "null"

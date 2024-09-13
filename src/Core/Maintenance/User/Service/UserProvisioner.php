@@ -9,10 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSe
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Maintenance\MaintenanceException;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
 #[Package('core')]
 class UserProvisioner
 {
+    final public const USER_EMAIL_FALLBACK = 'user@example.com';
+
     /**
      * @internal
      */
@@ -26,22 +32,22 @@ class UserProvisioner
     public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {
         if ($this->userExists($username)) {
-            throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
+            throw MaintenanceException::userAlreadyExists($username);
         }
 
         $minPasswordLength = $this->getAdminPasswordMinLength();
 
-        if ($password && \strlen($password) < $minPasswordLength) {
-            throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %d characters.', $minPasswordLength));
-        }
-
         $password = $password ?? Random::getAlphanumericString(max($minPasswordLength, 8));
+
+        if (\strlen($password) < $minPasswordLength) {
+            throw MaintenanceException::passwordTooShort($minPasswordLength);
+        }
 
         $userPayload = [
             'id' => Uuid::randomBytes(),
             'first_name' => $additionalData['firstName'] ?? '',
             'last_name' => $additionalData['lastName'] ?? $username,
-            'email' => $additionalData['email'] ?? 'info@shopware.com',
+            'email' => $additionalData['email'] ?? self::USER_EMAIL_FALLBACK,
             'username' => $username,
             'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $additionalData['localeId'] ?? $this->getLocaleOfSystemLanguage(),
@@ -95,7 +101,7 @@ class UserProvisioner
             return 0;
         }
 
-        $config = json_decode($result, true);
+        $config = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
 
         return $config['_value'] ?? 0;
     }

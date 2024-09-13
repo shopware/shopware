@@ -29,6 +29,7 @@
         <service id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
@@ -57,6 +58,7 @@
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryListRoute" public="true">
@@ -87,6 +89,8 @@
 
         <service id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder">
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">

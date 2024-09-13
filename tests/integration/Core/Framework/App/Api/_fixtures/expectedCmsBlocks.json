@@ -16,7 +16,8 @@
                 "value": "cover"
               }
             }
-          }
+          },
+          "position": 0
         },
         "right": {
           "type": "buy-box",
@@ -27,7 +28,8 @@
                 "value": "contain"
               }
             }
-          }
+          },
+          "position": 2
         },
         "middle": {
           "type": "image-gallery",
@@ -42,7 +44,8 @@
                 "value": "300px"
               }
             }
-          }
+          },
+          "position": 1
         }
       },
       "category": "text-image",
@@ -73,7 +76,8 @@
                 "value": "cover"
               }
             }
-          }
+          },
+          "position": 0
         },
         "right": {
           "type": "youtube-video",
@@ -84,7 +88,8 @@
                 "value": "contain"
               }
             }
-          }
+          },
+          "position": 2
         },
         "middle": {
           "type": "image",
@@ -99,7 +104,8 @@
                 "value": "red"
               }
             }
-          }
+          },
+          "position": 1
         }
       },
       "category": "text-image",

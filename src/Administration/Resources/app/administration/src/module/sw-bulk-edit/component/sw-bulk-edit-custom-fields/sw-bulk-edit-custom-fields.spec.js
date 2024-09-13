@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -53,6 +53,13 @@ async function createWrapper(customProps = {}) {
                 'sw-loader': true,
                 'sw-datepicker': true,
                 'sw-text-editor': true,
+                'sw-button-process': true,
+                'sw-media-collapse': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-field-copyable': true,
             },
             provide: {
                 validationService: {},
@@ -128,15 +135,15 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await changeToggle.find('.sw-field__checkbox input').setChecked(true);
         await flushPromises();
 
-        expect(wrapper.emitted().change[1]).toBeTruthy();
-        expect(Object.keys(wrapper.emitted().change[1][0])).toHaveLength(1);
+        expect(wrapper.emitted().change[0]).toBeTruthy();
+        expect(Object.keys(wrapper.emitted().change[0])).toHaveLength(1);
 
         await changeToggle.find('.sw-field__checkbox input').setChecked(false);
         await flushPromises();
 
         expect(Object.keys(wrapper.vm.selectedCustomFields)).toHaveLength(0);
-        expect(wrapper.emitted().change[3]).toBeTruthy();
-        expect(Object.keys(wrapper.emitted().change[3][0])).toHaveLength(0);
+        expect(wrapper.emitted().change[1]).toBeTruthy();
+        expect(Object.keys(wrapper.emitted().change[1][0])).toHaveLength(0);
     });
 
     it('should be get data from target input field of the customField only if its checked', async () => {

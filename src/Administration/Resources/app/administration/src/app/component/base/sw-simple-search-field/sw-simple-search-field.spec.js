@@ -19,6 +19,10 @@ async function createWrapper() {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-icon': true,
                 'icons-small-search': true,
+                'sw-field-copyable': await wrapTestComponent('sw-field-copyable'),
+                'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
+                'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
+                'sw-help-text': await wrapTestComponent('sw-help-text'),
             },
             provide: {
                 validationService: {},

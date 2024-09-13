@@ -53,7 +53,9 @@ class ProductReviewLoaderTest extends TestCase
         $request = new Request([], [], []);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        $productReviewLoader = $this->getProductReviewLoader(null, $request, $salesChannelContext);
+        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
+
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
 
         $this->expectException(RoutingException::class);
 
@@ -73,12 +75,94 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewLoader = $this->getProductReviewLoader($reviews, $request, $salesChannelContext);
+        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+
+        $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
+
+        $productReviewRouteMock
+            ->method('load')
+            ->willReturn(
+                new ProductReviewRouteResponse($reviewResult)
+            );
 
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
         static::assertInstanceOf(ProductReviewEntity::class, $result->first());
         static::assertEquals($result->first()->getId(), $reviewId);
+        static::assertCount(1, $result);
+        static::assertNull($result->getCustomerReview());
+    }
+
+    public function testItLoadsReviewsPagination(): void
+    {
+        $reviewId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $request = new Request([], [], ['productId' => $productId, 'p' => 2]);
+        $salesChannelContext = $this->getSalesChannelContext(false);
+
+        $review = $this->getReviewEntity($reviewId);
+
+        $reviews = new ProductReviewCollection([
+            $review,
+        ]);
+
+        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+
+        $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
+
+        $criteria = $this->createCriteria($request, $salesChannelContext);
+
+        $productReviewRouteMock
+            ->method('load')
+            ->with($productId, $request, $salesChannelContext, $criteria)
+            ->willReturn(
+                new ProductReviewRouteResponse($reviewResult)
+            );
+
+        $result = $productReviewLoader->load($request, $salesChannelContext);
+
+        $firstResult = $result->first();
+        static::assertInstanceOf(ProductReviewEntity::class, $firstResult);
+        static::assertEquals($firstResult->getId(), $reviewId);
+        static::assertEquals($result->getCriteria()->getOffset(), 10);
+        static::assertCount(1, $result);
+        static::assertNull($result->getCustomerReview());
+    }
+
+    public function testNegativeOffsetDefaultsToZero(): void
+    {
+        $reviewId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $request = new Request([], [], ['productId' => $productId, 'p' => -2]);
+        $salesChannelContext = $this->getSalesChannelContext(false);
+
+        $review = $this->getReviewEntity($reviewId);
+
+        $reviews = new ProductReviewCollection([
+            $review,
+        ]);
+
+        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+
+        $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
+
+        $criteria = $this->createCriteria($request, $salesChannelContext);
+
+        $productReviewRouteMock
+            ->method('load')
+            ->with($productId, $request, $salesChannelContext, $criteria)
+            ->willReturn(
+                new ProductReviewRouteResponse($reviewResult)
+            );
+
+        $result = $productReviewLoader->load($request, $salesChannelContext);
+
+        static::assertInstanceOf(ProductReviewEntity::class, $result->first());
+        static::assertEquals($result->first()->getId(), $reviewId);
+        static::assertEquals($result->getCriteria()->getOffset(), 0);
         static::assertCount(1, $result);
         static::assertNull($result->getCustomerReview());
     }
@@ -96,7 +180,16 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewLoader = $this->getProductReviewLoader($reviews, $request, $salesChannelContext);
+        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+
+        $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
+
+        $productReviewRouteMock
+            ->method('load')
+            ->willReturn(
+                new ProductReviewRouteResponse($reviewResult)
+            );
 
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
@@ -120,7 +213,16 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewLoader = $this->getProductReviewLoader($reviews, $request, $salesChannelContext);
+        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+
+        $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
+
+        $productReviewRouteMock
+            ->method('load')
+            ->willReturn(
+                new ProductReviewRouteResponse($reviewResult)
+            );
 
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
@@ -142,38 +244,35 @@ class ProductReviewLoaderTest extends TestCase
     }
 
     private function getProductReviewLoader(
-        ?ProductReviewCollection $reviews,
-        Request $request,
-        SalesChannelContext $salesChannelContext
+        ProductReviewRoute $productReviewRouteMock
     ): ProductReviewLoader {
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-
-        $criteria = $this->createCriteria($request, $salesChannelContext);
-
-        if ($reviews !== null) {
-            $reviewResult = new EntitySearchResult(
-                ProductReviewDefinition::ENTITY_NAME,
-                1,
-                $reviews,
-                new AggregationResultCollection(
-                    [
-                        'ratingMatrix' => new TermsResult('ratingMatrix', []),
-                    ]
-                ),
-                $criteria,
-                Context::createDefaultContext()
-            );
-
-            $productReviewRouteMock
-                ->method('load')
-                ->willReturn(
-                    new ProductReviewRouteResponse($reviewResult)
-                );
-        }
-
         return new ProductReviewLoader(
             $productReviewRouteMock,
             $this->createMock(EventDispatcherInterface::class)
+        );
+    }
+
+    /**
+     * @return EntitySearchResult<ProductReviewCollection>
+     */
+    private function getDefaultResult(
+        ProductReviewCollection $reviews,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): EntitySearchResult {
+        $criteria = $this->createCriteria($request, $salesChannelContext);
+
+        return new EntitySearchResult(
+            ProductReviewDefinition::ENTITY_NAME,
+            1,
+            $reviews,
+            new AggregationResultCollection(
+                [
+                    'ratingMatrix' => new TermsResult('ratingMatrix', []),
+                ]
+            ),
+            $criteria,
+            Context::createDefaultContext()
         );
     }
 
@@ -211,7 +310,7 @@ class ProductReviewLoaderTest extends TestCase
     {
         $limit = (int) $request->get('limit', 10);
         $page = (int) $request->get('p', 1);
-        $offset = $limit * ($page - 1);
+        $offset = max(0, $limit * ($page - 1));
 
         $criteria = new Criteria();
         $criteria->setLimit($limit);
@@ -229,6 +328,8 @@ class ProductReviewLoaderTest extends TestCase
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getContext()->getLanguageId())
             );
+        } else {
+            $criteria->addAssociation('language.translationCode.code');
         }
 
         $reviewFilters[] = new EqualsFilter('status', true);

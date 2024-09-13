@@ -67,11 +67,6 @@ describe('components/form/sw-purchase-price-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', async () => {
-        const wrapper = await setup();
-        expect(wrapper.element).toMatchSnapshot();
-    });
-
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);

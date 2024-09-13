@@ -14,11 +14,14 @@ const type = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'cmsService',
         'repositoryFactory',
         'seoUrlService',
+        'systemConfigApiService',
     ],
 
     mixins: [
@@ -120,7 +123,11 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPageState').currentPage;
+        },
+
+        cmsPageState() {
+            return Shopware.Store.get('cmsPageState');
         },
 
         cmsPageId() {
@@ -247,27 +254,27 @@ export default {
             }
 
             if (this.category) {
-                Shopware.State.dispatch('cmsPageState/resetCmsPageState')
-                    .then(this.getAssignedCmsPage);
+                this.cmsPageState.resetCmsPageState();
+                this.getAssignedCmsPage();
             }
 
             if (this.landingPage) {
-                Shopware.State.dispatch('cmsPageState/resetCmsPageState')
-                    .then(this.getAssignedCmsPageForLandingPage);
+                this.cmsPageState.resetCmsPageState();
+                this.getAssignedCmsPageForLandingPage();
             }
         },
     },
 
     beforeCreate() {
         Shopware.State.registerModule('swCategoryDetail', pageState);
-        Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+        Shopware.Store.get('cmsPageState').resetCmsPageState();
     },
 
     created() {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         Shopware.State.unregisterModule('swCategoryDetail');
     },
 
@@ -415,19 +422,16 @@ export default {
                 }
 
                 this.updateCmsPageDataMapping();
-                Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
+                this.cmsPageState.setCurrentPage(cmsPage);
 
                 return this.cmsPage;
             });
         },
 
         updateCmsPageDataMapping() {
-            Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'category');
-            Shopware.State.commit(
-                'cmsPageState/setCurrentMappingTypes',
-                this.cmsService.getEntityMappingTypes('category'),
-            );
-            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.category);
+            this.cmsPageState.setCurrentMappingEntity('category');
+            this.cmsPageState.setCurrentMappingTypes(this.cmsService.getEntityMappingTypes('category'));
+            this.cmsPageState.setCurrentDemoEntity(this.category);
         },
 
         getAssignedCmsPageForLandingPage() {
@@ -470,18 +474,15 @@ export default {
                 }
 
                 this.updateCmsPageDataMappingForLandingPage();
-                Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
+                this.cmsPageState.setCurrentPage(cmsPage);
                 return this.cmsPage;
             });
         },
 
         updateCmsPageDataMappingForLandingPage() {
-            Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'landing_page');
-            Shopware.State.commit(
-                'cmsPageState/setCurrentMappingTypes',
-                this.cmsService.getEntityMappingTypes('landing_page'),
-            );
-            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.landingPage);
+            this.cmsPageState.setCurrentMappingEntity('landing_page');
+            this.cmsPageState.setCurrentMappingTypes(this.cmsService.getEntityMappingTypes('landing_page'));
+            this.cmsPageState.setCurrentDemoEntity(this.landingPage);
         },
 
         async setLandingPage() {
@@ -492,7 +493,7 @@ export default {
                     Shopware.State.commit('shopwareApps/setSelectedIds', []);
 
                     await Shopware.State.dispatch('swCategoryDetail/setActiveLandingPage', { landingPage: null });
-                    await Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+                    this.cmsPageState.resetCmsPageState();
 
                     return;
                 }
@@ -506,7 +507,7 @@ export default {
                     criteria: this.landingPageCriteria,
                 });
 
-                await Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+                this.cmsPageState.resetCmsPageState();
                 await this.getAssignedCmsPageForLandingPage();
                 await this.loadLandingPageCustomFieldSet();
             } catch {
@@ -526,8 +527,8 @@ export default {
                 Shopware.State.commit('shopwareApps/setSelectedIds', []);
 
                 return Shopware.State.dispatch('swCategoryDetail/setActiveCategory', { category: null })
-                    .then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                     .then(() => {
+                        this.cmsPageState.resetCmsPageState();
                         this.isLoading = false;
                     });
             }
@@ -538,7 +539,10 @@ export default {
                 apiContext: Shopware.Context.api,
                 id: this.categoryId,
                 criteria: this.categoryCriteria,
-            }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
+            }).then(() => {
+                this.cmsPageState.resetCmsPageState();
+                return Promise.resolve();
+            })
                 .then(this.getAssignedCmsPage)
                 .then(this.loadCustomFieldSet)
                 .then(() => {
@@ -653,6 +657,14 @@ export default {
 
             this.isLoading = true;
             await this.updateSeoUrls();
+
+            const response = await this.systemConfigApiService.getValues('core.cms');
+
+            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+
+            if (this.category.cmsPageId === this.defaultCategoryId) {
+                this.category.cmsPageId = null;
+            }
 
             return this.categoryRepository.save(this.category, { ...Shopware.Context.api }).then(() => {
                 this.isSaveSuccessful = true;

@@ -1,13 +1,14 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Registered shop customer should be able to use promotion code during checkout. @checkout', async ({
+test('Registered shop customer should be able to use promotion code during checkout.', { tag: '@Checkout' }, async ({
     ShopCustomer,
     AdminApiContext,
+    TestDataService,
     DefaultSalesChannel,
     StorefrontCheckoutCart,
     StorefrontCheckoutConfirm,
     StorefrontCheckoutFinish,
-    PromotionWithCodeData,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     CartWithProductData,
     Login,
     AddPromotionCodeToCart,
@@ -15,8 +16,7 @@ test('Registered shop customer should be able to use promotion code during check
     ConfirmTermsAndConditions,
     SubmitOrder,
 }) => {
-    const promotionCode = PromotionWithCodeData.code;
-    const promotionName = PromotionWithCodeData.name;
+    const promotion = await TestDataService.createPromotionWithCode();
 
     await ShopCustomer.attemptsTo(Login());
 
@@ -25,7 +25,7 @@ test('Registered shop customer should be able to use promotion code during check
     // Value of test product with price of €10 and quantity of 10.
     await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toHaveText('€100.00*');
 
-    await ShopCustomer.attemptsTo(AddPromotionCodeToCart(promotionName, promotionCode));
+    await ShopCustomer.attemptsTo(AddPromotionCodeToCart(promotion.name, promotion.code));
     await ShopCustomer.attemptsTo(ProceedFromCartToCheckout());
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
 
@@ -33,11 +33,14 @@ test('Registered shop customer should be able to use promotion code during check
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText('€90.00*');
 
     await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.page.getByText(promotionName)).toBeVisible();
+    await ShopCustomer.expects(StorefrontCheckoutFinish.page.getByText(promotion.name)).toBeVisible();
     await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText('€90.00*');
 
+    const orderId = StorefrontCheckoutFinish.getOrderId();
+
+    TestDataService.addCreatedRecord('order', orderId);
+
     await test.step('Validate that the order was submitted successfully.', async () => {
-        const orderId = StorefrontCheckoutFinish.getOrderId();
         const orderResponse = await AdminApiContext.get(`order/${orderId}`);
 
         expect(orderResponse.ok()).toBeTruthy();

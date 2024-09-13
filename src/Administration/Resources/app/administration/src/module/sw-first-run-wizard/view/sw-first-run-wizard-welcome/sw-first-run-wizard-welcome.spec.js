@@ -110,6 +110,11 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                     'sw-icon': true,
                     'sw-loader': true,
                     'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
+                    'router-link': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-field-copyable': true,
                 },
                 provide: {
                     languagePluginService: {

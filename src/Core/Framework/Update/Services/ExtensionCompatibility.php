@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @phpstan-type Compatibility array{name: string, managedByComposer: bool, installedVersion: ?string, statusVariant: ?string, statusColor: ?string, statusMessage: string, statusName: string}
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ExtensionCompatibility
 {
     final public const PLUGIN_COMPATIBILITY_COMPATIBLE = 'compatible';

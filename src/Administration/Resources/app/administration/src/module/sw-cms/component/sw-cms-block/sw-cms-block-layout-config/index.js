@@ -8,6 +8,8 @@ import './sw-cms-block-layout-config.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
 
     props: {

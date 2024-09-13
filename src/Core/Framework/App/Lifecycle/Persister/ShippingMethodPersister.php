@@ -28,9 +28,9 @@ class ShippingMethodPersister
     private FinfoMimeTypeDetector $mimeDetector;
 
     /**
-     * @param EntityRepository<ShippingMethodCollection>                  $shippingMethodRepository
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      * @param EntityRepository<EntityCollection<AppShippingMethodEntity>> $appShippingMethodRepository
-     * @param EntityRepository<MediaCollection>                           $mediaRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
@@ -150,7 +150,7 @@ class ShippingMethodPersister
             return null;
         }
 
-        $fileName = sprintf('shipping_app_%s_%s', $manifest->getMetadata()->getName(), $shippingMethod->getIdentifier());
+        $fileName = \sprintf('shipping_app_%s_%s', $manifest->getMetadata()->getName(), $shippingMethod->getIdentifier());
         $extension = pathinfo($iconPath, \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
 

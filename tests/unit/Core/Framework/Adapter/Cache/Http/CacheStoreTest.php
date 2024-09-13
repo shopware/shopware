@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,16 +43,16 @@ class CacheStoreTest extends TestCase
             $this->createMock(AbstractCacheTracer::class),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
-            []
+            [],
+            $this->createMock(CacheTagCollector::class)
         );
 
         $store->lock($request);
 
         static::assertTrue($item->get());
 
-        $reflectionClass = new \ReflectionClass($item);
-        $prop = $reflectionClass->getProperty('expiry');
+        $value = ReflectionHelper::getPropertyValue($item, 'expiry');
 
-        static::assertEqualsWithDelta(time() + 3, $prop->getValue($item), 1);
+        static::assertEqualsWithDelta(time() + 3, $value, 1);
     }
 }

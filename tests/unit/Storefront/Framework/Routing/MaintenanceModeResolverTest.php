@@ -258,7 +258,7 @@ class MaintenanceModeResolverTest extends TestCase
             $request->server->set('REMOTE_ADDR', $proxyIp);
 
             $request->setTrustedProxies([$proxyIp], Request::HEADER_FORWARDED);
-            $request->headers->set('Forwarded', sprintf('by=%s;for=%s', $proxyIp, $clientIp));
+            $request->headers->set('Forwarded', \sprintf('by=%s;for=%s', $proxyIp, $clientIp));
         } else {
             $request->server->set('REMOTE_ADDR', $clientIp);
         }

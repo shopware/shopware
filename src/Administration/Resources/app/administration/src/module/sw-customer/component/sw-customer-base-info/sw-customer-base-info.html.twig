@@ -71,9 +71,11 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
         {% block sw_customer_base_metadata_default_payment %}
-        <sw-description-list>
+        <sw-description-list v-if="!feature.isActive('v6.7.0.0')">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
             {% block sw_customer_base_metadata_default_payment_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}
@@ -81,6 +83,7 @@
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
             {% block sw_customer_base_metadata_default_payment_content %}
             <dd
                 v-if="!customerEditMode"
@@ -91,6 +94,7 @@
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
@@ -220,7 +224,17 @@
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
-            <dd>{{ customer.affiliateCode || '-' }}</dd>
+            <dd v-if="!customerEditMode">
+                {{ customer.affiliateCode || '-' }}
+            </dd>
+            <dd v-else>
+                <sw-text-field
+                    v-model:value="customer.affiliateCode"
+                    name="sw-field--customer-customerAffiliateCode"
+                    :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
+                    size="small"
+                />
+            </dd>
         </sw-description-list>
         {% endblock %}
 
@@ -228,7 +242,17 @@
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
-            <dd>{{ customer.campaignCode || '-' }}</dd>
+            <dd v-if="!customerEditMode">
+                {{ customer.campaignCode || '-' }}
+            </dd>
+            <dd v-else>
+                <sw-text-field
+                    v-model:value="customer.campaignCode"
+                    name="sw-field--customer-customerCampaignCode"
+                    :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
+                    size="small"
+                />
+            </dd>
         </sw-description-list>
         {% endblock %}
     </div>
@@ -346,6 +370,8 @@
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"
+                    hide-hint
+                    :placeholder="$tc('sw-datepicker.date.placeholder')"
                 />
             </dd>
             {% endblock %}

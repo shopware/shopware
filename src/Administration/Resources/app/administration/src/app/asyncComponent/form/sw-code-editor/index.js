@@ -22,10 +22,14 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
         'userInputSanitizeService',
     ],
+
+    emits: ['mounted', 'update:value', 'blur'],
 
     props: {
         value: {
@@ -134,6 +138,12 @@ export default {
             required: false,
             default: null,
         },
+
+        placeholder: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -160,11 +170,19 @@ export default {
         classes() {
             return {
                 'has--error': !!this.error,
+                [this.$attrs.class]: !!this.$attrs.class,
             };
         },
 
         enableHtmlSanitizer() {
             return Shopware.Context.app.config.settings.enableHtmlSanitizer;
+        },
+
+        attrsWithoutClass() {
+            return {
+                ...this.$attrs,
+                class: undefined,
+            };
         },
     },
 
@@ -184,7 +202,7 @@ export default {
         this.mountedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

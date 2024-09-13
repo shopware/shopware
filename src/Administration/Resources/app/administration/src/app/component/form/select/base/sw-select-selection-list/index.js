@@ -14,7 +14,17 @@ const { Component } = Shopware;
 Component.register('sw-select-selection-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: [
+        'total-count-click',
+        'search-term-change',
+        'last-item-delete',
+        'key-down-enter',
+        'item-remove',
+    ],
 
     props: {
         selections: {

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Framework\Media\Validator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 trait MimeTypeValidationTrait
 {
     /**

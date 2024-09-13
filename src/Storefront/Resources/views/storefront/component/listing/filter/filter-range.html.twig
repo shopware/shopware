@@ -48,11 +48,15 @@
 
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
+         role="listitem"
          data-filter-range="true"
          data-filter-range-options="{{ filterRangeOptions|json_encode }}">
         {% block component_filter_range_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
+                    {% if ariaLabel %}
+                    aria-label="{{ ariaLabel }}"
+                    {% endif %}
                     {% if sidebar %}
                     data-bs-toggle="collapse"
                     data-bs-target="#{{ filterItemId }}"

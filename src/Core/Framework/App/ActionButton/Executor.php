@@ -111,7 +111,7 @@ class Executor
                 return '';
             }
 
-            $this->logger->notice(sprintf('ActionButton execution failed to target url "%s".', $action->getTargetUrl()), [
+            $this->logger->notice(\sprintf('ActionButton execution failed to target url "%s".', $action->getTargetUrl()), [
                 'exceptionMessage' => $e->getMessage(),
                 'statusCode' => $statusCode,
                 'response' => $e->getResponse()->getBody()->getContents(),
@@ -119,7 +119,7 @@ class Executor
 
             throw AppException::actionButtonProcessException($action->getActionId(), 'ActionButton remote execution failed', $e);
         } catch (ConnectException $e) {
-            $this->logger->notice(sprintf('ActionButton execution failed to target url "%s" due to connection problems.', $action->getTargetUrl()), [
+            $this->logger->notice(\sprintf('ActionButton execution failed to target url "%s" due to connection problems.', $action->getTargetUrl()), [
                 'message' => $e->getMessage(),
             ]);
 

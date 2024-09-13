@@ -5,14 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -29,8 +26,8 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
-            new StaticEntityRepository([]),
-            $eventDispatcher
+            $eventDispatcher,
+            $this->createMock(ActiveAppsLoader::class)
         );
 
         $shopId = $shopIdProvider->getShopId();
@@ -70,8 +67,8 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
-            new StaticEntityRepository([]),
-            $eventDispatcher
+            $eventDispatcher,
+            $this->createMock(ActiveAppsLoader::class)
         );
 
         $shopId = $shopIdProvider->getShopId();
@@ -91,24 +88,14 @@ class ShopIdProviderTest extends TestCase
                 'app_url' => $oldAppUrl,
             ],
         ]);
-        $appRepository = new StaticEntityRepository([
-            new IdSearchResult(
-                1,
-                [
-                    [
-                        'primaryKey' => '123',
-                        'data' => [],
-                    ],
-                ],
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ]);
+
+        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader->method('getActiveApps')->willReturn(['123']);
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
-            $appRepository,
-            new CollectingEventDispatcher()
+            new CollectingEventDispatcher(),
+            $activeAppsLoader
         );
 
         static::expectException(AppUrlChangeDetectedException::class);
@@ -128,23 +115,12 @@ class ShopIdProviderTest extends TestCase
             ],
         ]);
 
-        $appRepository = new StaticEntityRepository([
-            new IdSearchResult(
-                0,
-                [[
-                    'data' => [],
-                ]],
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ]);
-
         $eventDispatcher = new CollectingEventDispatcher();
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
-            $appRepository,
-            $eventDispatcher
+            $eventDispatcher,
+            $this->createMock(ActiveAppsLoader::class)
         );
 
         $result = $shopIdProvider->getShopId();
@@ -182,8 +158,8 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
-            new StaticEntityRepository([]),
-            $eventDispatcher
+            $eventDispatcher,
+            $this->createMock(ActiveAppsLoader::class)
         );
 
         static::assertNotNull($systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));

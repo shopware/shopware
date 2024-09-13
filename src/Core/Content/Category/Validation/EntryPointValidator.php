@@ -90,7 +90,7 @@ class EntryPointValidator implements EventSubscriberInterface
             $messageTemplate,
             $parameters,
             null,
-            sprintf('%s/type', $command->getPath()),
+            \sprintf('%s/type', $command->getPath()),
             $payload['type'],
             null,
             self::ERROR_CODE

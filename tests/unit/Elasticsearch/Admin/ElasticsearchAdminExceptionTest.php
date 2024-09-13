@@ -9,11 +9,9 @@ use Shopware\Elasticsearch\Admin\ElasticsearchAdminException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package system-settings
- *
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ElasticsearchAdminException::class)]
 class ElasticsearchAdminExceptionTest extends TestCase
 {

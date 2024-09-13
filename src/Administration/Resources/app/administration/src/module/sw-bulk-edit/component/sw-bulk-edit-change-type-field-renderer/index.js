@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-change-type-field-renderer.html.twig';
 import './sw-bulk-edit-change-type-field-renderer.scss';
@@ -8,7 +8,11 @@ import './sw-bulk-edit-change-type-field-renderer.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: ['change-value', 'inheritance-restore', 'inheritance-remove'],
 
     props: {
         bulkEditData: {

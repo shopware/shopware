@@ -34,7 +34,7 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 .navigation-flyout-link {
     @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
     color: $body-color;
-    font-size: $font-size-lg;
+    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg);
     margin: 0 $spacer;
     padding: $spacer-xs 0;
 
@@ -65,5 +65,6 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 
 .navigation-flyout-category-link {
     font-weight: $font-weight-bold;
-    font-size: $font-size-lg;
+    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
+    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg);
 }

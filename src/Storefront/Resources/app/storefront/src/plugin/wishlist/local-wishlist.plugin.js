@@ -23,7 +23,9 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
 
     add(productId, router) {
         if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
-            window.location.replace(router.afterLoginPath);
+            window.location.href = router.afterLoginPath;
+
+            this.$emitter.publish('Wishlist/onLoginRedirect');
 
             return;
         }
@@ -70,7 +72,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _save() {
-        if(this.products === null || this.getCurrentCounter() === 0) {
+        if (this.products === null || this.getCurrentCounter() === 0) {
             this.storage.removeItem(this._getStorageKey());
         } else {
             this.storage.setItem(this._getStorageKey(), JSON.stringify(this.products));
@@ -92,7 +94,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
                 guestLogoutButtonPlugin.$emitter.subscribe('guest-logout', () => {
                     this.storage.removeItem(this._getStorageKey());
                 });
-            })
+            });
         }
     }
 }

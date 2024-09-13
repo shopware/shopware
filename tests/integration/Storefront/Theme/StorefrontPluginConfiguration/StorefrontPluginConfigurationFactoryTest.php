@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 
@@ -16,7 +17,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private StorefrontPluginConfigurationFactory $configFactory;
+    private AbstractStorefrontPluginConfigurationFactory $configFactory;
 
     protected function setUp(): void
     {
@@ -138,7 +139,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, string>>$expected
+     * @param array<string, array<string, string>> $expected
      */
     private function assertFileCollection(array $expected, FileCollection $files): void
     {

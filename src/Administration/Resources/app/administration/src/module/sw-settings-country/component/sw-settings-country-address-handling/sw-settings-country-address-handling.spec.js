@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ */
+
 import { mount } from '@vue/test-utils';
 
 const addressFormat = [
@@ -8,10 +12,88 @@ const addressFormat = [
     ['address/country'],
 ];
 
+let stubs = {};
+
 async function createWrapper(privileges = [], customPropsData = {}) {
-    return mount(await wrapTestComponent('sw-settings-country-address-handling', {
-        sync: true,
-    }), {
+    stubs = {
+        'sw-settings-country-address-handling': await wrapTestComponent('sw-settings-country-address-handling', { sync: true }),
+        'sw-card': {
+            template: '<div class="sw-card"><slot></slot></div>',
+        },
+        'sw-container': true,
+        'sw-ignore-class': true,
+        'sw-text-field': true,
+        'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
+        'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
+        'sw-field-error': true,
+        'sw-help-text': true,
+        'sw-icon': true,
+        'sw-extension-component-section': true,
+        'sw-multi-snippet-drag-and-drop': await wrapTestComponent('sw-multi-snippet-drag-and-drop'),
+        'sw-select-base': await wrapTestComponent('sw-select-base'),
+        'sw-block-field': await wrapTestComponent('sw-block-field'),
+        'sw-base-field': await wrapTestComponent('sw-base-field'),
+        'sw-label': await wrapTestComponent('sw-label'),
+        'sw-settings-country-preview-template': await wrapTestComponent('sw-settings-country-preview-template'),
+        'sw-settings-country-new-snippet-modal': {
+            template: `
+                    <div class="sw-modal sw-settings-country-new-snippet-modal">
+                        <slot name="modal-header" @click.prevent="$emit('modal-close')"></slot>
+                        <slot></slot>
+                        <slot name="modal-footer"></slot>
+                    </div>`,
+        },
+        'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+        'sw-context-button': await wrapTestComponent('sw-context-button'),
+        'sw-button': await wrapTestComponent('sw-button'),
+        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+        'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+        'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+        'sw-popover': await wrapTestComponent('sw-popover'),
+        'sw-popover-deprecated': {
+            props: ['popoverClass'],
+            template: `
+                    <div class="sw-popover" :class="popoverClass">
+                        <slot></slot>
+                    </div>`,
+        },
+        'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+        'sw-select-result': await wrapTestComponent('sw-select-result'),
+        'sw-highlight-text': true,
+        'sw-loader': true,
+        'sw-product-variant-info': true,
+        'router-link': true,
+        'sw-inheritance-switch': true,
+        'sw-color-badge': true,
+        'sw-ai-copilot-badge': true,
+    };
+
+    return mount({
+        template: `
+<sw-settings-country-address-handling
+    :country="country"
+    :isLoading="isLoading"
+    @update:country="onUpdateCountry"
+/>
+`,
+        props: {
+            country: {
+                type: Object,
+                required: true,
+            },
+            isLoading: {
+                type: Boolean,
+                required: true,
+            },
+        },
+        methods: {
+            onUpdateCountry(path, value) {
+                Shopware.Utils.object.set(this.country, path, value);
+            },
+        },
+    }, {
         global: {
             renderStubDefaultSlot: true,
             directives: {
@@ -80,60 +162,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                 userInputSanitizeService: {},
             },
 
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
-                },
-                'sw-container': true,
-                'sw-ignore-class': true,
-                'sw-text-field': true,
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-field-error': true,
-                'sw-help-text': true,
-                'sw-icon': true,
-                'sw-extension-component-section': true,
-                'sw-multi-snippet-drag-and-drop': await wrapTestComponent('sw-multi-snippet-drag-and-drop'),
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-label': await wrapTestComponent('sw-label'),
-                'sw-settings-country-preview-template': await wrapTestComponent('sw-settings-country-preview-template'),
-                'sw-settings-country-new-snippet-modal': {
-                    template: `
-                    <div class="sw-modal sw-settings-country-new-snippet-modal">
-                        <slot name="modal-header" @click.prevent="$emit('modal-close')"></slot>
-                        <slot></slot>
-                        <slot name="modal-footer"></slot>
-                    </div>`,
-                },
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-context-menu-item': {
-                    template: `
-                    <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
-                        <slot></slot>
-                    </div>`,
-                },
-                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': {
-                    props: ['popoverClass'],
-                    template: `
-                    <div class="sw-popover" :class="popoverClass">
-                        <slot></slot>
-                    </div>`,
-                },
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-select-result': await wrapTestComponent('sw-select-result'),
-                'sw-highlight-text': true,
-                'sw-loader': true,
-            },
+            stubs,
         },
 
         props: {
@@ -360,10 +389,17 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-country-new-snippet-modal').exists()).toBeFalsy();
-        expect(wrapper.vm.currentPosition).toBeNull();
-        expect(wrapper.vm.isOpenModal).toBe(false);
+
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        expect(addressHandlingWrapper.vm.currentPosition).toBeNull();
+        expect(addressHandlingWrapper.vm.isOpenModal).toBe(false);
 
         const swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop')[0];
+
+        // Open the context menu
+        const contextButton = swMultiSnippet.find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
 
         const menuContextButton = swMultiSnippet.findAll('.sw-context-menu-item')[0];
 
@@ -371,8 +407,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-country-new-snippet-modal').exists()).toBeTruthy();
-        expect(wrapper.vm.currentPosition).toBe(0);
-        expect(wrapper.vm.isOpenModal).toBe(true);
+        expect(addressHandlingWrapper.vm.currentPosition).toBe(0);
+        expect(addressHandlingWrapper.vm.isOpenModal).toBe(true);
     });
 
     it('should be able to add a new row above than current row', async () => {
@@ -391,8 +427,12 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(swMultiSnippet).toHaveLength(5);
         expect(swMultiSnippet[0].findAll('.sw-select-selection-list > li')).toHaveLength(4);
 
-        const menuContextButton = swMultiSnippet[0].findAll('.sw-context-menu-item')[1];
+        // Open the context menu
+        const contextButton = swMultiSnippet[0].find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
 
+        const menuContextButton = swMultiSnippet[0].findAll('.sw-context-menu-item')[1];
         await menuContextButton.trigger('click');
 
         await flushPromises();
@@ -419,6 +459,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(swMultiSnippet).toHaveLength(5);
         expect(swMultiSnippet[0].findAll('.sw-select-selection-list > li')).toHaveLength(4);
         expect(swMultiSnippet[1].findAll('.sw-select-selection-list > li')).toHaveLength(3);
+
+        // Open the context menu
+        const contextButton = swMultiSnippet[0].find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
 
         const menuContextButton = swMultiSnippet[0].findAll('.sw-context-menu-item')[2];
 
@@ -455,6 +500,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(swMultiSnippet[0].findAll('.sw-select-selection-list > li')).toHaveLength(4);
         expect(swMultiSnippet[4].findAll('.sw-select-selection-list > li')).toHaveLength(2);
 
+        // Open the context menu
+        const contextButton = swMultiSnippet[4].find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
+
         const menuContextButton = swMultiSnippet[4].findAll('.sw-context-menu-item')[3];
 
         await menuContextButton.trigger('click');
@@ -462,7 +512,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(wrapper.vm.addressFormat).toEqual([
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        expect(addressHandlingWrapper.vm.addressFormat).toEqual([
             ['address/country'],
             ['address/company', 'symbol/dash', 'address/department'],
             ['address/first_name', 'address/last_name'],
@@ -499,6 +550,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(swMultiSnippet[1].findAll('.sw-select-selection-list > li')).toHaveLength(3);
         expect(swMultiSnippet[4].findAll('.sw-select-selection-list > li')).toHaveLength(2);
 
+        // Open the context menu
+        const contextButton = swMultiSnippet[1].find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
+
         const menuContextButton = swMultiSnippet[1].findAll('.sw-context-menu-item')[4];
 
         await menuContextButton.trigger('click');
@@ -533,6 +589,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         expect(swMultiSnippet).toHaveLength(5);
 
+        // Open the context menu
+        const contextButton = swMultiSnippet[0].find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
+
         const menuContextButton = swMultiSnippet[0].findAll('.sw-context-menu-item')[5];
 
         await menuContextButton.trigger('click');
@@ -549,14 +610,15 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        await wrapper.vm.onDragStart({
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
                 snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
         });
 
-        expect(wrapper.vm.draggedItem).toEqual({
+        expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
@@ -568,16 +630,17 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        expect(wrapper.vm.draggedItem).toBeNull();
-        expect(wrapper.vm.droppedItem).toBeNull();
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        expect(addressHandlingWrapper.vm.draggedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
 
-        await wrapper.vm.onDragEnter(null, null);
+        await addressHandlingWrapper.vm.onDragEnter(null, null);
         await flushPromises();
 
-        expect(wrapper.vm.draggedItem).toBeNull();
-        expect(wrapper.vm.droppedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.draggedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
 
-        await wrapper.vm.onDragStart({
+        await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
                 snippet: ['address/company', 'symbol/dash', 'address/department'],
@@ -585,17 +648,17 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         });
         await flushPromises();
 
-        expect(wrapper.vm.draggedItem).toEqual({
+        expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
-        await wrapper.vm.onDragEnter({
+        await addressHandlingWrapper.vm.onDragEnter({
             index: 0,
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         }, null);
 
-        expect(wrapper.vm.droppedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
     });
 
     it('should be able to save config when drag ends', async () => {
@@ -604,22 +667,23 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        expect(wrapper.vm.draggedItem).toBeNull();
-        expect(wrapper.vm.droppedItem).toBeNull();
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        expect(addressHandlingWrapper.vm.draggedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
 
-        await wrapper.vm.onDragStart({
+        await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
                 snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
         });
 
-        expect(wrapper.vm.draggedItem).toEqual({
+        expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
-        await wrapper.vm.onDragEnter({
+        await addressHandlingWrapper.vm.onDragEnter({
             index: 0,
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         }, {
@@ -627,7 +691,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
-        expect(wrapper.vm.droppedItem).toEqual({
+        expect(addressHandlingWrapper.vm.droppedItem).toEqual({
             index: 1,
             snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
@@ -646,18 +710,17 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'address/first_name', 'address/last_name',
         ]);
 
-        await wrapper.setData({
-            draggedItem: {
-                index: 1,
-                snippet: ['address/company', 'symbol/dash', 'address/department'],
-            },
-            droppedItem: {
-                index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department'],
-            },
-        });
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        addressHandlingWrapper.vm.draggedItem = {
+            index: 1,
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
+        };
+        addressHandlingWrapper.vm.droppedItem = {
+            index: 0,
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
+        };
 
-        await wrapper.vm.onDrop();
+        await addressHandlingWrapper.vm.onDrop();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
             'address/first_name', 'address/last_name',
@@ -680,7 +743,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'address/first_name', 'address/last_name',
         ]);
 
-        await wrapper.vm.onDropEnd(
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        await addressHandlingWrapper.vm.onDropEnd(
             0,
             {
                 dragData: {
@@ -694,6 +758,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 },
             },
         );
+        await flushPromises();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
             'address/company', 'symbol/dash',
@@ -722,7 +787,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(wrapper.vm.country.addressFormat[0][2]).toBe('address/department');
         expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/last_name');
 
-        await wrapper.vm.onDropEnd(
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        await addressHandlingWrapper.vm.onDropEnd(
             1,
             {
                 dragData: {
@@ -748,23 +814,23 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        let previewTemplate = wrapper.find('.sw-settings-country-preview-template > div');
+        let previewTemplate = wrapper.get('.sw-settings-country-preview-template > div');
 
         expect(previewTemplate.html()).toBe('<div></div>');
 
-        const selection = wrapper.find('.sw-entity-single-select');
+        const selection = wrapper.get('.sw-entity-single-select');
 
-        await selection.find('input').trigger('click');
+        await selection.get('input').trigger('click');
 
         await flushPromises();
 
-        const selectResult = wrapper.find('.sw-select-result-list-popover-wrapper');
+        const selectResult = wrapper.get('.sw-select-result-list-popover-wrapper');
 
         await selectResult.findAll('li')[0].trigger('click');
 
         await flushPromises();
 
-        previewTemplate = wrapper.find('.sw-settings-country-preview-template > div');
+        previewTemplate = wrapper.get('.sw-settings-country-preview-template > div');
 
         expect(previewTemplate.html()).toBe('<div>Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>');
     });
@@ -782,6 +848,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(swMultiSnippet).toHaveLength(5);
+
+        // Open the context menu
+        const contextButton = swMultiSnippet[0].find('.sw-context-button__button');
+        await contextButton.trigger('click');
+        await flushPromises();
 
         const menuContextButton = swMultiSnippet[0].findAll('.sw-context-menu-item')[5];
 

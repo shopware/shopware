@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
 import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
@@ -234,6 +235,10 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         resetLanguageToDefault(state) {
             state.api.languageId = state.api.systemLanguageId;
+        },
+
+        setLanguageId(state, newLanguageId: string) {
+            state.api.languageId = newLanguageId;
         },
     },
 

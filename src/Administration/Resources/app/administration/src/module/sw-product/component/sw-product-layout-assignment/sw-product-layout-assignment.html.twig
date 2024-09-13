@@ -14,7 +14,7 @@
         {% block sw_product_layout_assignment_firgure_content %}
         <sw-cms-list-item
             active
-            :disabled="!acl.can('product.editor')"
+            :disabled="!acl.can('product.editor') || undefined"
             :page="cmsPage"
         />
         {% endblock %}
@@ -54,7 +54,7 @@
             <sw-button
                 class="sw-product-layout-assignment__button"
                 size="small"
-                :disabled="!acl.can('product.editor')"
+                :disabled="!acl.can('product.editor') || undefined"
                 @click="openLayoutModal"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
@@ -66,7 +66,7 @@
             <sw-button
                 class="sw-product-layout-assignment__button"
                 size="small"
-                :disabled="!acl.can('product.editor')"
+                :disabled="!acl.can('product.editor') || undefined"
                 @click="openInPageBuilder"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
@@ -80,7 +80,7 @@
                 class="sw-product-layout-assignment__button"
                 square
                 size="small"
-                :disabled="!acl.can('product.editor')"
+                :disabled="!acl.can('product.editor') || undefined"
                 @click="onLayoutReset"
             >
                 <sw-icon

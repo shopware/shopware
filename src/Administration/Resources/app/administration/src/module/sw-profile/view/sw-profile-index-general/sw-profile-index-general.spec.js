@@ -27,6 +27,34 @@ async function createWrapper(privileges = []) {
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-upload-listener': {
+                    emits: ['click', 'media-upload-finish'],
+                    template: `<div
+                        class="sw-upload-listener"
+                        @click="$emit('click', $event)"
+                        @media-upload-finish="$emit('media-upload-finish', $event)"
+                    ></div>`,
+                },
+                'sw-media-upload-v2': {
+                    emits: ['media-drop', 'media-upload-remove-image', 'media-upload-sidebar-open'],
+                    template: `<div
+                        class="sw-media-upload-v2"
+                        @media-drop="$emit('media-drop', $event)"
+                        @media-upload-remove-image="$emit('media-upload-remove-image', $event)"
+                        @media-upload-sidebar-open="$emit('media-upload-sidebar-open', $event)"
+                    >
+                        <slot name="upload"></slot>
+                        <slot name="preview"></slot>
+                    </div>`,
+                },
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
             },
             provide: {
                 acl: {
@@ -93,7 +121,8 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['media.creator']);
         await flushPromises();
 
-        await wrapper.find('sw-upload-listener').trigger('media-upload-finish', { targetId: 'targetId' });
+        await wrapper.find('.sw-upload-listener')
+            .trigger('media-upload-finish', { targetId: 'targetId' });
 
         expect(wrapper.emitted('media-upload')[0][0].targetId).toBe('targetId');
     });
@@ -102,7 +131,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['media.creator']);
         await flushPromises();
 
-        await wrapper.find('sw-media-upload-v2').trigger('media-drop', { id: 'targetId' });
+        await wrapper.find('.sw-media-upload-v2').trigger('media-drop', { id: 'targetId' });
 
         expect(wrapper.emitted('media-upload')[0][0].targetId).toBe('targetId');
     });
@@ -111,7 +140,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['media.creator']);
         await flushPromises();
 
-        await wrapper.find('sw-media-upload-v2').trigger('media-upload-remove-image');
+        await wrapper.find('.sw-media-upload-v2').trigger('media-upload-remove-image');
 
         expect(wrapper.emitted('media-remove')[0]).toHaveLength(0);
     });
@@ -120,7 +149,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['media.creator']);
         await flushPromises();
 
-        await wrapper.find('sw-media-upload-v2').trigger('media-upload-sidebar-open');
+        await wrapper.find('.sw-media-upload-v2').trigger('media-upload-sidebar-open');
 
         expect(wrapper.emitted('media-open')[0]).toHaveLength(0);
     });

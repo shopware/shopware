@@ -1,25 +1,25 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
+const { Filter, Store } = Shopware;
+
 /**
  * @package buyers-experience
  */
-
-const { Filter, State } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
+
+    emits: ['block-overlay-click'],
 
     props: {
         block: {
             type: Object,
             required: true,
-            default() {
-                return {};
-            },
         },
 
         active: {
@@ -79,7 +79,7 @@ export default {
                 if (this.block.backgroundMedia.id) {
                     backgroundMedia = `url("${this.block.backgroundMedia.url}")`;
                 } else {
-                    backgroundMedia = `url('${this.assetFilter(this.block.backgroundMedia.url)}')`;
+                    backgroundMedia = `url("${this.assetFilter(this.block.backgroundMedia.url)}")`;
                 }
             }
 
@@ -116,7 +116,7 @@ export default {
         },
 
         isVisible() {
-            const view = State.get('cmsPageState').currentCmsDeviceView;
+            const view = Store.get('cmsPageState').currentCmsDeviceView;
 
             return (view === 'desktop' && !this.block.visibility.desktop) ||
                 (view === 'tablet-landscape' && !this.block.visibility.tablet) ||

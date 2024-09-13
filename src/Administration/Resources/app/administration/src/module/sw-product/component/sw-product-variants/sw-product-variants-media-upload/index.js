@@ -12,6 +12,8 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'mediaDefaultFolderService'],
 
     mixins: [
@@ -93,10 +95,12 @@ export default {
             this.getMediaDefaultFolderId()
                 .then((id) => {
                     this.mediaDefaultFolderId = id;
+                    this.defaultFolderId = id;
                     this.updateMediaItemPositions();
                 })
                 .catch(() => {
                     this.mediaDefaultFolderId = null;
+                    this.defaultFolderId = null;
                 });
         },
 

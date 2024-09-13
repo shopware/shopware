@@ -7,6 +7,7 @@
         <div
             v-for="locale in locales"
             :key="locale"
+            class="sw-custom-field-translated-labels__single"
         >
             <sw-text-field
                 v-for="(label, name) in propertyNames"
@@ -26,6 +27,7 @@
         v-else
         variant="minimal"
         position-identifier="sw-custom-field-translated-labels"
+        class="sw-custom-field-translated-labels__tabs"
         :default-item="fallbackLocale"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -49,25 +51,25 @@
         <template
             #content="{ active }"
         >
-            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-            <div
+            <template
                 v-for="locale in locales"
-                v-if="active === locale"
                 :key="locale"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_custom_field_translated_labels_translated_content_field %}
-                <sw-text-field
-                    v-for="(label, name) in propertyNames"
-                    :key="getInlineSnippet(name)"
-                    v-model:value="config[name][locale]"
-                    class="sw-custom-field-translated-labels__translated-content-field"
-                    :disabled="disabled"
-                    :label="getLabel(label, locale)"
-                    @update:value="onInput($event, name, locale)"
-                />
-                {% endblock %}
-            </div>
+                <div v-if="active === locale">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_custom_field_translated_labels_translated_content_field %}
+                    <sw-text-field
+                        v-for="(label, name) in propertyNames"
+                        :key="getInlineSnippet(name)"
+                        v-model:value="config[name][locale]"
+                        class="sw-custom-field-translated-labels__translated-content-field"
+                        :disabled="disabled"
+                        :label="getLabel(label, locale)"
+                        @update:value="onInput($event, name, locale)"
+                    />
+                    {% endblock %}
+                </div>
+            </template>
         </template>
         {% endblock %}
     </sw-tabs>

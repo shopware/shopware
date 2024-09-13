@@ -1,13 +1,10 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount } from '@vue/test-utils';
 
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
-import swProductDetailContextPrices from 'src/module/sw-product/view/sw-product-detail-context-prices';
-
-Shopware.Component.register('sw-product-detail-context-prices', swProductDetailContextPrices);
 
 const { EntityCollection } = Shopware.Data;
 
@@ -43,6 +40,15 @@ const createWrapper = async () => {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-skeleton': true,
                 'sw-select-rule-create': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'router-link': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-extension-component-section': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-skeleton': true,
+                'sw-field-copyable': true,
+                'sw-maintain-currencies-modal': true,
             },
             provide: {
                 repositoryFactory: {

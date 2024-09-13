@@ -69,10 +69,10 @@ EOD;
 
             $indexes = $this->schemaManager->listTableIndexes($keyStructure['TABLE_NAME']);
 
-            $playbook[] = sprintf(self::DROP_FOREIGN_KEY, $keyStructure['TABLE_NAME'], $constraintName);
+            $playbook[] = \sprintf(self::DROP_FOREIGN_KEY, $keyStructure['TABLE_NAME'], $constraintName);
 
             if (\array_key_exists(strtolower($constraintName), $indexes)) {
-                $playbook[] = sprintf(self::DROP_KEY, $keyStructure['TABLE_NAME'], $constraintName);
+                $playbook[] = \sprintf(self::DROP_KEY, $keyStructure['TABLE_NAME'], $constraintName);
             }
         }
 
@@ -119,7 +119,7 @@ EOD;
             $keyColumns[] = $newColumnName;
             $uniqueName = implode('_', $keyColumns);
 
-            $playbook[$uniqueName] = sprintf(self::ADD_KEY, $tableName, $tableName, $uniqueName, $this->implodeColumns($keyColumns));
+            $playbook[$uniqueName] = \sprintf(self::ADD_KEY, $tableName, $tableName, $uniqueName, $this->implodeColumns($keyColumns));
         }
 
         return array_values($playbook);
@@ -182,7 +182,7 @@ EOD;
     {
         $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
         \assert(\is_string($databaseName));
-        $query = sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
+        $query = \sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
         return $this->connection->fetchAllAssociative($query);
     }
@@ -198,7 +198,7 @@ EOD;
         }
         $pkName = current($pk->getColumns());
 
-        return sprintf(self::MODIFY_PRIMARY_KEY_IN_MAIN, $tableName, $newColumnName, $defaultValue, $pkName, $pkName, $newColumnName);
+        return \sprintf(self::MODIFY_PRIMARY_KEY_IN_MAIN, $tableName, $newColumnName, $defaultValue, $pkName, $pkName, $newColumnName);
     }
 
     private function findForeignKeyDefinition(array $keyStructure): ForeignKeyConstraint
@@ -227,14 +227,14 @@ EOD;
 
         $isNullable = $fk->getOption('onDelete') === 'SET NULL';
         if ($isNullable) {
-            $addColumnSql = sprintf(
+            $addColumnSql = \sprintf(
                 self::ADD_NEW_COLUMN_NULLABLE,
                 $keyStructure['TABLE_NAME'],
                 $foreignKeyColumnName,
                 $columnName
             );
         } else {
-            $addColumnSql = sprintf(
+            $addColumnSql = \sprintf(
                 self::ADD_NEW_COLUMN_WITH_DEFAULT,
                 $keyStructure['TABLE_NAME'],
                 $foreignKeyColumnName,
@@ -251,7 +251,7 @@ EOD;
         \assert(\is_string($keyStructure['TABLE_NAME']));
         \assert(\is_string($keyStructure['REFERENCED_TABLE_NAME']));
 
-        return sprintf(
+        return \sprintf(
             self::ADD_FOREIGN_KEY,
             $keyStructure['TABLE_NAME'],
             $constraintName,
@@ -269,7 +269,7 @@ EOD;
         \assert(\is_string($keyStructure['TABLE_NAME']));
         $indexes = $this->schemaManager->listTableIndexes($keyStructure['TABLE_NAME']);
         if (isset($indexes['primary']) && \count(array_intersect($indexes['primary']->getColumns(), $keyStructure['COLUMN_NAME']))) {
-            return sprintf(
+            return \sprintf(
                 self::MODIFY_PRIMARY_KEY_IN_RELATION,
                 $keyStructure['TABLE_NAME'],
                 $this->implodeColumns($indexes['primary']->getColumns()),

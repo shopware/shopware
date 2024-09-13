@@ -8,6 +8,10 @@ import './sw-cms-stage-section-selection.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['section-select'],
+
     methods: {
         selectSection(type) {
             this.$emit('section-select', type);

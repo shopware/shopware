@@ -7,13 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(TaxProviderResponse::class)]
 class TaxProviderResponseTest extends TestCase
 {

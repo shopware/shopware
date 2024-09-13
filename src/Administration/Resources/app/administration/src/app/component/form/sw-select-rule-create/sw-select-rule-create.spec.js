@@ -80,6 +80,12 @@ describe('components/sw-select-rule-create', () => {
                     'sw-popover': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
+                    'sw-entity-multi-select': true,
+                    'sw-rule-modal': true,
+                    'sw-product-variant-info': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
             props: {

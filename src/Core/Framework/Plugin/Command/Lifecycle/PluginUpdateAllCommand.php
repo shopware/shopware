@@ -68,7 +68,7 @@ class PluginUpdateAllCommand extends Command
 
             $currentVersion = $plugin->getVersion();
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
-            $output->writeln(sprintf('Updated plugin %s from version %s to version %s', $plugin->getName(), $currentVersion, $plugin->getVersion()));
+            $output->writeln(\sprintf('Updated plugin %s from version %s to version %s', $plugin->getName(), $currentVersion, $plugin->getVersion()));
         }
 
         return self::SUCCESS;

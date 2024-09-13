@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,6 +38,9 @@ class RuleValidator implements EventSubscriberInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<RuleConditionCollection> $ruleConditionRepository
+     * @param EntityRepository<AppScriptConditionCollection> $appScriptConditionRepository
      */
     public function __construct(
         private readonly ValidatorInterface $validator,
@@ -83,7 +87,7 @@ class RuleValidator implements EventSubscriberInterface
                 continue;
             }
 
-            throw new UnsupportedCommandTypeException($command);
+            throw RuleException::unsupportedCommandType($command);
         }
 
         if (!empty($updateQueue)) {
@@ -169,7 +173,7 @@ class RuleValidator implements EventSubscriberInterface
      */
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
     {
-        $type = $condition !== null ? $condition->getType() : null;
+        $type = $condition?->getType();
         if (\array_key_exists('type', $payload)) {
             $type = $payload['type'];
         }
@@ -253,10 +257,7 @@ class RuleValidator implements EventSubscriberInterface
         $criteria = new Criteria($ids);
         $criteria->setLimit(null);
 
-        /** @var RuleConditionCollection $entities */
-        $entities = $this->ruleConditionRepository->search($criteria, $context)->getEntities();
-
-        return $entities;
+        return $this->ruleConditionRepository->search($criteria, $context)->getEntities();
     }
 
     /**

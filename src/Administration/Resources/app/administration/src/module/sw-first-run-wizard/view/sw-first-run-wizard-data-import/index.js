@@ -10,10 +10,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'extensionStoreActionService',
         'repositoryFactory',
     ],
+
+    emits: ['buttons-update', 'frw-set-title', 'extension-activated'],
 
     data() {
         return {

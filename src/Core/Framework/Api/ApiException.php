@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
@@ -50,6 +52,7 @@ class ApiException extends HttpException
     public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
     public const API_SYNC_RESOLVER_FIELD_NOT_FOUND = 'FRAMEWORK__API_SYNC_RESOLVER_FIELD_NOT_FOUND';
     public const API_INVALID_ASSOCIATION_FIELD = 'FRAMEWORK__API_INVALID_ASSOCIATION';
+    public const API_UNSUPPORTED_ENCODER_INPUT = 'FRAMEWORK__API_UNSUPPORTED_ENCODER_INPUT';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -60,7 +63,7 @@ class ApiException extends HttpException
         $parameters = [];
 
         foreach ($exceptions as $i => $exception) {
-            $message[] = sprintf(
+            $message[] = \sprintf(
                 'Can not resolve foreign key at position %s. Reference field: %s',
                 $exception['pointer'],
                 $exception['entity']
@@ -158,7 +161,7 @@ class ApiException extends HttpException
 
     public static function unsupportedMediaType(string $contentType): SymfonyHttpException
     {
-        return new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
+        return new UnsupportedMediaTypeHttpException(\sprintf('The Content-Type "%s" is unsupported.', $contentType));
     }
 
     public static function badRequest(string $message): SymfonyHttpException
@@ -344,6 +347,22 @@ class ApiException extends HttpException
             self::API_SYNC_RESOLVER_FIELD_NOT_FOUND,
             'Can not resolve entity field name {{ entity }}.{{ field }} for sync operation resolver',
             ['entity' => $entity, 'field' => $fieldName]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function unsupportedEncoderInput(): self|UnsupportedEncoderInputException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new UnsupportedEncoderInputException();
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_UNSUPPORTED_ENCODER_INPUT,
+            'Unsupported encoder data provided. Only entities and entity collections are supported',
         );
     }
 }

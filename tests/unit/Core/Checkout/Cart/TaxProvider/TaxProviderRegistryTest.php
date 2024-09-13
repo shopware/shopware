@@ -9,8 +9,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTax
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxProvider;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(TaxProviderRegistry::class)]

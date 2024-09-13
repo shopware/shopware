@@ -26,6 +26,12 @@ async function createWrapper(additionalOptions = {}) {
                 'icons-regular-lock': true,
                 'icons-regular-lock-open': true,
                 'icons-solid-exclamation-circle': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'mt-icon': true,
+                'sw-icon-deprecated': true,
             },
             provide: {
                 validationService: {},

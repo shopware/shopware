@@ -15,7 +15,7 @@
         "sort-packages": true
     },
     "support": {
-        "issues": "https://issues.shopware.com",
+        "issues": "https://github.com/shopware/shopware/issues",
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",
@@ -30,7 +30,7 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0",
         "cocur/slugify": "^4.3.0",
-        "doctrine/dbal": "^3.7",
+        "doctrine/dbal": "^3.9",
         "meyfa/php-svg": "^0.14.0",
         "padaliyajay/php-autoprefixer": "^1.4",
         "scssphp/scssphp": "v1.12.0",
@@ -52,7 +52,7 @@
         "symfony/mime": "~7.1.1",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.10.3"
+        "twig/twig": "^3.14.0"
     },
     "require-dev": {
         "symfony/css-selector": "~7.1.1",

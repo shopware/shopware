@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -81,6 +81,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                     },
                     'sw-entity-single-select': true,
                     'sw-inheritance-switch': true,
+                    'sw-help-text': true,
                 },
             },
         });

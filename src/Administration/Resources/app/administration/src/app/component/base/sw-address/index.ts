@@ -28,6 +28,8 @@ const { Component } = Shopware;
 Component.register('sw-address', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         address: {
             type: Object as PropType<Address>,

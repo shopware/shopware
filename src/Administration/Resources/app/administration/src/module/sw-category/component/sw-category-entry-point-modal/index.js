@@ -8,10 +8,14 @@ import './sw-category-entry-point-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'cmsPageTypeService',
     ],
+
+    emits: ['modal-close'],
 
     props: {
         salesChannelCollection: {
@@ -136,7 +140,11 @@ export default {
                 realSalesChannel.homeMetaDescription = tempSalesChannel.homeMetaDescription;
                 realSalesChannel.homeKeywords = tempSalesChannel.homeKeywords;
                 realSalesChannel.homeCmsPageId = tempSalesChannel.homeCmsPageId;
-                this.$set(realSalesChannel, 'homeCmsPage', tempSalesChannel.homeCmsPage);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(realSalesChannel, 'homeCmsPage', tempSalesChannel.homeCmsPage);
+                } else {
+                    realSalesChannel.homeCmsPage = tempSalesChannel.homeCmsPage;
+                }
             }
 
             this.closeModal();

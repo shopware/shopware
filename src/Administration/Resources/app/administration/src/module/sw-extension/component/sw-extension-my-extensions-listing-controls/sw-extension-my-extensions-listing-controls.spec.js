@@ -6,6 +6,11 @@ async function createWrapper() {
             stubs: {
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                'sw-select-field': {
+                    template: '<div><slot /></div>',
+                },
+                'sw-base-field': true,
+                'sw-field-error': true,
             },
         },
     });

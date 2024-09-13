@@ -10,10 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelUpdateDomainCommand;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -22,17 +23,20 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[Package('core')]
 class SalesChannelUpdateDomainCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+
+    /**
+     * @var EntityRepository<SalesChannelDomainCollection>
+     */
+    private EntityRepository $domainRepo;
 
     protected function setUp(): void
     {
-        /** @var EntityRepository<SalesChannelDomainCollection> $domainRepo */
-        $domainRepo = $this->getContainer()->get('sales_channel_domain.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $this->domainRepo = static::getContainer()->get('sales_channel_domain.repository');
+        $criteria = $this->getStorefrontDomainCriteria();
 
-        /** @var SalesChannelDomainEntity $domain */
-        $domain = $domainRepo->search($criteria, Context::createDefaultContext())->first();
+        $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($domain === null) {
             static::markTestSkipped('SalesChannelUpdateDomainCommandTests need storefront channel to be active');
@@ -41,42 +45,38 @@ class SalesChannelUpdateDomainCommandTest extends TestCase
 
     public function testUpdateDomainCommand(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(SalesChannelUpdateDomainCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateDomainCommand::class));
         $commandTester->execute(['domain' => 'test.de']);
 
-        static::assertEquals(
-            0,
+        static::assertSame(
+            Command::SUCCESS,
             $commandTester->getStatusCode(),
-            "\"bin/console sales-channel:maintenance:disable\" returned errors:\n" . $commandTester->getDisplay()
+            "\"bin/console sales-channel:update:domain\" returned errors:\n" . $commandTester->getDisplay()
         );
 
-        $domainRepo = $this->getContainer()->get('sales_channel_domain.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $criteria = $this->getStorefrontDomainCriteria();
 
-        /** @var SalesChannelDomainEntity $domain */
-        $domain = $domainRepo->search($criteria, Context::createDefaultContext())->first();
+        $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($domain);
 
         static::assertSame('test.de', parse_url($domain->getUrl(), \PHP_URL_HOST));
     }
 
     public function testUpdateWithRandomPreviousDomain(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(SalesChannelUpdateDomainCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateDomainCommand::class));
         $commandTester->execute(['domain' => 'test.de', '--previous-domain' => 'shop.test']);
 
-        static::assertEquals(
-            0,
+        static::assertSame(
+            Command::SUCCESS,
             $commandTester->getStatusCode(),
-            "\"bin/console sales-channel:maintenance:disable\" returned errors:\n" . $commandTester->getDisplay()
+            "\"bin/console sales-channel:update:domain\" returned errors:\n" . $commandTester->getDisplay()
         );
 
-        $domainRepo = $this->getContainer()->get('sales_channel_domain.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $criteria = $this->getStorefrontDomainCriteria();
 
-        /** @var SalesChannelDomainEntity $domain */
-        $domain = $domainRepo->search($criteria, Context::createDefaultContext())->first();
+        $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($domain);
 
         $defaultDomain = parse_url((string) EnvironmentHelper::getVariable('APP_URL'), \PHP_URL_HOST);
         static::assertSame($defaultDomain, parse_url($domain->getUrl(), \PHP_URL_HOST));
@@ -86,22 +86,28 @@ class SalesChannelUpdateDomainCommandTest extends TestCase
     {
         $defaultHost = parse_url((string) EnvironmentHelper::getVariable('APP_URL'), \PHP_URL_HOST);
 
-        $commandTester = new CommandTester($this->getContainer()->get(SalesChannelUpdateDomainCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelUpdateDomainCommand::class));
         $commandTester->execute(['domain' => 'test.de', '--previous-domain' => $defaultHost]);
 
-        static::assertEquals(
-            0,
+        static::assertSame(
+            Command::SUCCESS,
             $commandTester->getStatusCode(),
-            "\"bin/console sales-channel:maintenance:disable\" returned errors:\n" . $commandTester->getDisplay()
+            "\"bin/console sales-channel:update:domain\" returned errors:\n" . $commandTester->getDisplay()
         );
 
-        $domainRepo = $this->getContainer()->get('sales_channel_domain.repository');
+        $criteria = $this->getStorefrontDomainCriteria();
+
+        $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($domain);
+
+        static::assertSame('test.de', parse_url($domain->getUrl(), \PHP_URL_HOST));
+    }
+
+    private function getStorefrontDomainCriteria(): Criteria
+    {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        /** @var SalesChannelDomainEntity $domain */
-        $domain = $domainRepo->search($criteria, Context::createDefaultContext())->first();
-
-        static::assertSame('test.de', parse_url($domain->getUrl(), \PHP_URL_HOST));
+        return $criteria;
     }
 }

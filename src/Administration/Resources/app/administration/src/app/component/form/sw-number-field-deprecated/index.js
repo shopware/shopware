@@ -19,12 +19,15 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'input-change',
+        'inheritance-restore',
+        'inheritance-remove',
+        'ends-with-decimal-separator',
     ],
-
-    inject: ['feature'],
 
     props: {
         numberType: {
@@ -155,7 +158,8 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         },
 
         onInput(event) {
-            let val = Number.parseFloat(event.target.value);
+            const targetValue = event.target.value;
+            let val = this.getNumberFromString(event.target.value);
 
             if (!Number.isNaN(val)) {
                 if (this.max && val > this.max) {
@@ -165,11 +169,21 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                     val = this.min;
                 }
 
+                this.currentValue = val;
                 this.$emit('input-change', val);
             } else if (this.allowEmpty === true) {
+                this.currentValue = val;
                 this.$emit('input-change', val);
             } else {
+                this.currentValue = this.min ?? 0;
                 this.$emit('input-change', this.min ?? 0);
+            }
+
+            // When target value ends with a dot or comma, emit this information to the parent component
+            if (targetValue.endsWith('.') || targetValue.endsWith(',')) {
+                this.$emit('ends-with-decimal-separator', true);
+            } else {
+                this.$emit('ends-with-decimal-separator', false);
             }
         },
 

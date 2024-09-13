@@ -32,6 +32,13 @@ type row = {
     meta?: meta,
 }
 
+type aggregations = {
+    [key: string]: {
+        name: string,
+        [key: string]: unknown,
+    },
+}
+
 type data = {
     data: [row],
     included: [row],
@@ -39,7 +46,7 @@ type data = {
         [relation: string]: string,
     },
     meta?: meta,
-    aggregations: [],
+    aggregations: aggregations,
 }
 
 type field = {

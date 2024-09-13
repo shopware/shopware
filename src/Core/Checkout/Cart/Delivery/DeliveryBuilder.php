@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -15,7 +16,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,7 +28,7 @@ class DeliveryBuilder
         $key = DeliveryProcessor::buildKey($context->getShippingMethod()->getId());
 
         if (!$data->has($key)) {
-            throw ShippingException::shippingMethodNotFound($context->getShippingMethod()->getId());
+            throw CartException::shippingMethodNotFound($context->getShippingMethod()->getId());
         }
 
         /** @var ShippingMethodEntity $shippingMethod */
@@ -62,24 +62,23 @@ class DeliveryBuilder
 
         $this->buildPositions($collection, $positions, $deliveryTime);
 
-        if ($positions->count() <= 0) {
+        if (!($positions->first() instanceof DeliveryPosition)) {
             return null;
         }
 
+        $maxDeliveryDate = $positions->first()->getDeliveryDate();
+
         return new Delivery(
             $positions,
-            $this->getDeliveryDateByPositions($positions),
+            $this->getDeliveryDateByPositions($positions, $maxDeliveryDate),
             $shippingMethod,
             $context->getShippingLocation(),
             new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
     }
 
-    private function getDeliveryDateByPositions(DeliveryPositionCollection $positions): DeliveryDate
+    private function getDeliveryDateByPositions(DeliveryPositionCollection $positions, DeliveryDate $max): DeliveryDate
     {
-        // this function is only called if the provided collection contains a deliverable line item
-        $max = $positions->first()->getDeliveryDate();
-
         foreach ($positions as $position) {
             $date = $position->getDeliveryDate();
 
@@ -105,9 +104,19 @@ class DeliveryBuilder
         ?DeliveryTime $default
     ): void {
         foreach ($items as $item) {
+            if (!$item->isShippingCostAware()) {
+                continue;
+            }
+
             if ($item->getDeliveryInformation() === null) {
                 if ($item->getChildren()->count() > 0) {
                     $this->buildPositions($item->getChildren(), $positions, $default);
+
+                    continue;
+                }
+
+                if ($default && $item->getPrice()) {
+                    $positions->add(new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), clone $item->getPrice(), DeliveryDate::createFromDeliveryTime($default)));
                 }
 
                 continue;

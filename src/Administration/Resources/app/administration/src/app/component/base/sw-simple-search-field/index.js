@@ -22,6 +22,8 @@ Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'search-term-change',
@@ -77,6 +79,15 @@ Component.register('sw-simple-search-field', {
 
         placeholder() {
             return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const orderFixture = {
@@ -97,6 +97,12 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                 'sw-field-error': true,
                 'sw-loader': true,
+                'sw-media-upload-v2': true,
+                'sw-media-modal-v2': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'router-link': true,
             },
             provide: {
                 numberRangeService: {

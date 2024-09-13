@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 const promotionData = {

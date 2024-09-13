@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -139,7 +140,6 @@ trait OrderFixture
                         'customerNumber' => 'Test',
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
-                        'defaultPaymentMethodId' => $paymentMethodId,
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
@@ -183,6 +183,10 @@ trait OrderFixture
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $paymentMethodId;
+        }
 
         return $order;
     }

@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(DownloadService::class)]
 class DownloadServiceTest extends TestCase
 {
@@ -40,7 +40,7 @@ class DownloadServiceTest extends TestCase
     public function testNotFoundFile(ImportExportFileEntity $fileEntity, string $accessToken, string $fileId): void
     {
         static::expectException(FileNotFoundException::class);
-        static::expectExceptionMessage(sprintf('Cannot find import/export file with id %s', $fileId));
+        static::expectExceptionMessage(\sprintf('Cannot find import/export file with id %s', $fileId));
 
         /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);

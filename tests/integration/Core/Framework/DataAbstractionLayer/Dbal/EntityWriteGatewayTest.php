@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\TestDefaults;
 
@@ -276,6 +277,7 @@ class EntityWriteGatewayTest extends TestCase
             'customFields' => ['a' => 1234],
         ];
 
+        /** @var EntityRepository<CountryCollection> $countryRepo */
         $countryRepo = $this->getContainer()->get('country.repository');
 
         $countryRepo->upsert([$data], Context::createDefaultContext());
@@ -289,11 +291,15 @@ class EntityWriteGatewayTest extends TestCase
 
         $countryRepo->upsert([$data], Context::createDefaultContext());
 
-        /** @var CountryEntity $country */
-        $country = $countryRepo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $country = $countryRepo
+            ->search(new Criteria([$id]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
 
-        /** @var array<mixed> $customFields */
+        static::assertInstanceOf(CountryEntity::class, $country);
+
         $customFields = $country->getCustomFields();
+        static::assertNotNull($customFields);
 
         static::assertIsInt($customFields['a']);
         static::assertIsInt($customFields['b']);
@@ -632,7 +638,7 @@ class EntityWriteGatewayTest extends TestCase
      */
     private function callbackSpy(): callable
     {
-        return new class() {
+        return new class {
             public bool $called = false;
 
             public function __invoke(): void

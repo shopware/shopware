@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
-import swFlowIndex from 'src/module/sw-flow/page/sw-flow-index';
 
-Shopware.Component.register('sw-flow-index', swFlowIndex);
-
+/**
+ * @package services-settings
+ */
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-flow-index', {
         sync: true,
@@ -38,6 +38,8 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'sw-skeleton': true,
+                'router-view': true,
             },
             provide: {
                 repositoryFactory: {

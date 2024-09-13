@@ -11,6 +11,8 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cacheApiService',
     ],
@@ -150,6 +152,29 @@ export default {
             setTimeout(() => {
                 Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
             }, 60000);
+        },
+
+        clearDataCache() {
+            this.createNotificationInfo({
+                message: this.$tc('sw-settings-cache.notifications.clearDataCache.started'),
+            });
+
+            this.processes.normalClearCache = true;
+            this.cacheApiService.delayed().then(() => {
+                this.processSuccess.normalClearCache = true;
+
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-settings-cache.notifications.clearDataCache.success'),
+                });
+            }).catch(() => {
+                this.processSuccess.normalClearCache = false;
+
+                this.createNotificationError({
+                    message: this.$tc('sw-settings-cache.notifications.clearDataCache.error'),
+                });
+            }).finally(() => {
+                this.processes.normalClearCache = false;
+            });
         },
 
         clearCache() {

@@ -31,11 +31,11 @@ class CustomerEmailUnique extends Constraint
     public function __construct(array $options)
     {
         if (!($options['context'] ?? null) instanceof Context) {
-            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
+            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
 
         if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
-            throw new MissingOptionsException(sprintf('Option "salesChannelContext" must be given for constraint %s', self::class), ['salesChannelContext']);
+            throw new MissingOptionsException(\sprintf('Option "salesChannelContext" must be given for constraint %s', self::class), ['salesChannelContext']);
         }
 
         parent::__construct($options);

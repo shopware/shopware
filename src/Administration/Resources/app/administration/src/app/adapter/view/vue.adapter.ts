@@ -2,13 +2,10 @@
  * @package admin
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
-
-// Vue3 imports
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
 import type { Router } from 'vue-router';
-import type { Store } from 'vuex';
-
+import type { Store as VuexStore } from 'vuex';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -16,16 +13,18 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
+// @ts-expect-error - compatUtils is not typed
+import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, State, Store, Mixin } = Shopware;
 
 /**
  * @private
  */
 export default class VueAdapter extends ViewAdapter {
-    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig|boolean>>;
+    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig | boolean>>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,9 +56,10 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
 
-        const store = State._store;
+        const vuexRoot = State._store;
+        const piniaRoot = Store._rootState;
         // eslint-disable-next-line @typescript-eslint/ban-types
-        const i18n = this.initLocales(store) as I18n<{}, {}, {}, string, true>;
+        const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
 
         // add router to View
         this.router = router;
@@ -103,15 +103,28 @@ export default class VueAdapter extends ViewAdapter {
                 enumerable: true,
                 configurable: true,
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
-                set() {},
+                set() { },
             });
         });
 
         this.root = this.app;
 
         this.app.use(router);
-        this.app.use(store);
+        this.app.use(vuexRoot);
         this.app.use(i18n);
+
+        // Custom compatUtils check on component basis
+        this.app.use({
+            install: (app) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                app.config.globalProperties.isCompatEnabled = function (key: string) {
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+                    return this.$options.compatConfig?.[key] ?? compatUtils.isCompatEnabled(key);
+                };
+            },
+        });
+
 
         // Add global properties to root view instance
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
@@ -122,6 +135,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initTitle(this.app);
         /* eslint-enable max-len */
 
+        this.app.use(piniaRoot);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.mount(renderElement);
 
@@ -237,6 +251,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',
+            'MtSlider',
             'MtSwitch',
             'MtTextField',
             'MtTextarea',
@@ -480,7 +495,7 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Initialises the standard locales.
      */
-    initLocales(store: Store<VuexRootState>) {
+    initLocales(store: VuexStore<VuexRootState>) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
@@ -528,7 +543,7 @@ export default class VueAdapter extends ViewAdapter {
         return i18n;
     }
 
-    setLocaleFromUser(store: Store<VuexRootState>) {
+    setLocaleFromUser(store: VuexStore<VuexRootState>) {
         const currentUser = store.state.session.currentUser;
 
         if (currentUser) {
@@ -546,7 +561,7 @@ export default class VueAdapter extends ViewAdapter {
     initTitle(app: App<Element>) {
         app.config.globalProperties.$createTitle = function createTitle(
             this: ComponentPublicInstance,
-            identifier: string|null = null,
+            identifier: string | null = null,
             ...additionalParams
         ): string {
             if (!this.$root) {

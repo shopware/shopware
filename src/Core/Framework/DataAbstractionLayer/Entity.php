@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -12,37 +13,58 @@ use Shopware\Core\Framework\Struct\Struct;
 class Entity extends Struct
 {
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     protected $_uniqueIdentifier;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string|null
      */
     protected $versionId;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var array<string, mixed>
      */
     protected $translated = [];
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     private $_entityName;
 
     private ?FieldVisibility $_fieldVisibility = null;
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from InternalFieldAccessNotAllowedException to DataAbstractionLayerException
+     *
+     * @param string $name
+     *
+     * @throws DataAbstractionLayerException|InternalFieldAccessNotAllowedException
+     *
+     * @return mixed
+     */
     public function __get($name)
     {
         if (FieldVisibility::$isInTwigRenderingContext) {
@@ -52,11 +74,18 @@ class Entity extends Struct
         return $this->$name;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
     public function __set($name, $value): void
     {
         $this->$name = $value;
     }
 
+    /**
+     * @param string $name
+     */
     public function __isset($name)
     {
         if (FieldVisibility::$isInTwigRenderingContext) {
@@ -89,6 +118,12 @@ class Entity extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from InternalFieldAccessNotAllowedException to DataAbstractionLayerException
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from \InvalidArgumentException to PropertyNotFoundException
+     *
+     * @throws DataAbstractionLayerException|InternalFieldAccessNotAllowedException
+     * @throws PropertyNotFoundException|\InvalidArgumentException
+     *
      * @return mixed|Struct|null
      */
     public function get(string $property)
@@ -105,15 +140,12 @@ class Entity extends Struct
             return $this->getExtension($property);
         }
 
-        /** @var ArrayStruct<string, mixed>|null $extension */
         $extension = $this->getExtension('foreignKeys');
-        if ($extension && $extension instanceof ArrayStruct && $extension->has($property)) {
+        if ($extension instanceof ArrayStruct && $extension->has($property)) {
             return $extension->get($property);
         }
 
-        throw new \InvalidArgumentException(
-            sprintf('Property %s do not exist in class %s', $property, static::class)
-        );
+        throw DataAbstractionLayerException::propertyNotFound($property, static::class);
     }
 
     public function has(string $property): bool
@@ -222,12 +254,12 @@ class Entity extends Struct
         $class = explode('\\', $class);
         $class = end($class);
 
-        /** @var string $entityName */
         $entityName = preg_replace(
             '/_entity$/',
             '',
             ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '_$0', $class)), '_')
         );
+        \assert(\is_string($entityName));
 
         $this->_entityName = $entityName;
 
@@ -271,11 +303,15 @@ class Entity extends Struct
 
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from InternalFieldAccessNotAllowedException to DataAbstractionLayerException
+     *
+     * @throws DataAbstractionLayerException|InternalFieldAccessNotAllowedException
      */
     protected function checkIfPropertyAccessIsAllowed(string $property): void
     {
         if (!$this->isPropertyVisible($property)) {
-            throw new InternalFieldAccessNotAllowedException($property, $this);
+            throw DataAbstractionLayerException::internalFieldAccessNotAllowed($property, static::class, $this);
         }
     }
 

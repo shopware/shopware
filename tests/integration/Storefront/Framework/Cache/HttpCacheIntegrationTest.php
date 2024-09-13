@@ -35,19 +35,15 @@ class HttpCacheIntegrationTest extends TestCase
 
     private static string $originalHttpCacheValue;
 
-    public static function setUpBeforeClass(): void
+    public static function setupBeforeClass(): void
     {
         self::$originalHttpCacheValue = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] ?? '';
-        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = '1';
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
     }
 
     protected function setUp(): void
     {
+        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = '1';
+
         KernelLifecycleManager::bootKernel();
 
         $this->getContainer()
@@ -57,6 +53,8 @@ class HttpCacheIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
+        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
+
         $connection = $this->getContainer()->get(Connection::class);
 
         static::assertEquals(
@@ -120,11 +118,11 @@ class HttpCacheIntegrationTest extends TestCase
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
     }
 
@@ -138,11 +136,11 @@ class HttpCacheIntegrationTest extends TestCase
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
     }
 
@@ -156,18 +154,18 @@ class HttpCacheIntegrationTest extends TestCase
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
         $cacheInvalidator->invalidate(['my-custom-tag'], true);
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
     }
 
@@ -181,11 +179,11 @@ class HttpCacheIntegrationTest extends TestCase
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $ids = new IdsCollection();
@@ -198,7 +196,7 @@ class HttpCacheIntegrationTest extends TestCase
         ], Context::createDefaultContext());
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
     }
 
@@ -217,11 +215,11 @@ class HttpCacheIntegrationTest extends TestCase
         }, -1501);
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
 
         $response = $kernel->handle($request);
-        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertEquals(\sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
     }
 

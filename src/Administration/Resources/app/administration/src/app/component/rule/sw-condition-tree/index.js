@@ -11,13 +11,10 @@ const { EntityCollection } = Shopware.Data;
 Component.register('sw-condition-tree', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
-    ],
-
-    emits: [
-        'conditions-changed',
-        'initial-loading-done',
     ],
 
     provide() {
@@ -33,6 +30,11 @@ Component.register('sw-condition-tree', {
             restrictedConditions: this.restrictedConditions,
         };
     },
+
+    emits: [
+        'conditions-changed',
+        'initial-loading-done',
+    ],
 
     props: {
         conditionDataProviderService: {

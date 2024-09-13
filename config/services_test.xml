@@ -7,6 +7,13 @@
             <tag name="controller.service_arguments"/>
         </service>
 
+        <service id="Shopware\Tests\Integration\Core\Content\Seo\SalesChannel\FixturesPhp\StoreApiSeoResolverTestRoute">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+
+            <tag name="controller.service_arguments"/>
+        </service>
+
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
             <tag name="shopware.entity.definition" />
         </service>
@@ -43,6 +50,11 @@
 
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg">
             <tag name="shopware.entity"/>
+        </service>
+
+
+        <service id="Shopware\Core\Framework\Test\Telemetry\Transport\TraceableTransport">
+            <tag name="shopware.metric_transport"/>
         </service>
     </services>
 </container>

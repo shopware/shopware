@@ -24,8 +24,8 @@
 
         <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="app.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">
@@ -60,6 +60,9 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
             <argument type="service" id="custom_field_set.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="custom_field_set_relation.repository"/>
+            <argument type="service" id="custom_field.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister">
@@ -187,25 +190,17 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
-            <tag name="shopware.payment.method.prepared"/>
-            <tag name="shopware.payment.method.refund"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
-            <tag name="shopware.payment.method.sync"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
-            <tag name="shopware.payment.method.async"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">

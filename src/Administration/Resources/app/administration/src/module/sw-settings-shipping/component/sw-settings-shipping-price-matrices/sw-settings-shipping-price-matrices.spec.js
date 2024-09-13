@@ -36,9 +36,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-number-field': {
                         template: '<input type="number" v-model="value" />',
-                        props: {
-                            value: 0,
-                        },
+                        props: ['value', 'size'],
                     },
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -48,6 +46,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', {
                         sync: true,
                     }),
+                    'sw-price-rule-modal': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-help-text': true,
                 },
                 mocks: {
                     $te: () => false,

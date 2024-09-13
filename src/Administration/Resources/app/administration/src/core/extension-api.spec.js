@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import api from './extension-api';

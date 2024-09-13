@@ -63,7 +63,7 @@ class TaskRegistry
         $updates = [];
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
-                throw new \RuntimeException(sprintf(
+                throw new \RuntimeException(\sprintf(
                     'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
                     $task::class
                 ));
@@ -131,7 +131,7 @@ class TaskRegistry
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
-        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
+        $newNextExecutionTime = $nextExecutionTime->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
 
         if ($newNextExecutionTime < $now) {
             return $now;

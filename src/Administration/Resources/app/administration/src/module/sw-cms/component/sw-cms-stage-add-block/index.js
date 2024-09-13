@@ -7,4 +7,8 @@ import './sw-cms-stage-add-block.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['stage-block-add'],
 };

@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -13,6 +16,11 @@ async function createWrapper() {
                 'sw-entity-listing': true,
                 'sw-promotion-v2-empty-state-hero': true,
                 'sw-context-menu-item': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-icon': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
             },
             provide: {
                 repositoryFactory: {

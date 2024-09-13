@@ -90,7 +90,7 @@ class ElasticsearchStatusCommand extends Command
         \assert(\is_string($indexName));
         if (!\in_array($indexName, $usedIndices, true)) {
             $io = new SymfonyStyle($input, $output);
-            $io->warning(sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexName));
+            $io->warning(\sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexName));
         }
 
         return self::SUCCESS;

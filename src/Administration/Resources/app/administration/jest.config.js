@@ -43,6 +43,8 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
+    runner: 'groups',
+
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
 
     collectCoverageFrom: [
@@ -58,6 +60,7 @@ module.exports = {
     ],
 
     setupFilesAfterEnv: [
+        'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
     ],
 

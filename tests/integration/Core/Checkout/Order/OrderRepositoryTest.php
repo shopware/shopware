@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -46,7 +48,7 @@ class OrderRepositoryTest extends TestCase
 
     private EntityRepository $orderRepository;
 
-    private OrderPersister $orderPersister;
+    private OrderPersisterInterface $orderPersister;
 
     private Processor $processor;
 
@@ -208,7 +210,6 @@ class OrderRepositoryTest extends TestCase
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -227,6 +228,10 @@ class OrderRepositoryTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $this->customerRepository->upsert([$customer], Context::createDefaultContext());
 
@@ -312,7 +317,6 @@ class OrderRepositoryTest extends TestCase
                         'customerNumber' => 'Test',
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
-                        'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
@@ -356,6 +360,10 @@ class OrderRepositoryTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         return $order;
     }

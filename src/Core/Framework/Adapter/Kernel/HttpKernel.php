@@ -12,8 +12,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernel as SymfonyHttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -42,7 +44,19 @@ class HttpKernel extends SymfonyHttpKernel
         }
 
         if (!$request->attributes->has('sw-skip-transformer')) {
-            $request = $this->requestTransformer->transform($request);
+            try {
+                $request = $this->requestTransformer->transform($request);
+            } catch (\Throwable $e) {
+                $event = new ExceptionEvent($this, $request, $type, $e);
+
+                $this->dispatcher->dispatch($event, KernelEvents::EXCEPTION);
+
+                if ($event->getResponse()) {
+                    return $event->getResponse();
+                }
+
+                throw $e;
+            }
         }
 
         $redirect = $this->canonicalRedirectService->getRedirect($request);

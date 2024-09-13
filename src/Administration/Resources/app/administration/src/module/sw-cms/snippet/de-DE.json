@@ -25,7 +25,7 @@
       "gridHeaderName": "Name",
       "gridHeaderType": "Typ",
       "gridHeaderAssignment": "Zugewiesene Kategorien",
-      "gridHeaderAssignments": "Zuordnungen",
+      "gridHeaderAssignments": "Zugeordnet",
       "gridHeaderAssignedPages": "Zugewiesene Seiten",
       "gridHeaderCreated": "Erstellt",
       "gridHeaderUpdated": "Bearbeitungsdatum"
@@ -722,7 +722,7 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Standardlayout zuweisen",
-        "infoText": "Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
+        "infoText": "Bitte beachte, dass alle Produkte, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Produkte diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden? | Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Abbrechen",

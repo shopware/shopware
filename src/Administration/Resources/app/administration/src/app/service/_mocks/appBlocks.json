@@ -10,6 +10,7 @@
             "slots": {
                 "left": {
                     "type": "manufacturer-logo",
+                    "position": 3,
                     "config": {
                         "displayMode": {
                             "source": "static",
@@ -19,6 +20,7 @@
                 },
                 "middle": {
                     "type": "image-gallery",
+                    "position": 1,
                     "config": {
                         "displayMode": {
                             "source": "static",
@@ -32,6 +34,7 @@
                 },
                 "right": {
                     "type": "buy-box",
+                    "position": 2,
                     "config": {
                         "displayMode": {
                             "source": "static",
@@ -48,7 +51,7 @@
                 "sizingMode": "boxed",
                 "backgroundColor": "#000"
             },
-            "template": "<div id=\"sw-example-app--my-second-block\">\n    <slot name=\"left\">form</slot>\n    <slot name=\"middle\">image</slot>\n    <slot name=\"right\">youtube-video</slot>\n</div>",
+            "template": "<div id=\"sw-example-app--my-second-block\">\n    <slot name=\"left\">first-slot</slot>\n    <slot name=\"middle\">second-slot</slot>\n    <slot name=\"right\">third-slot</slot>\n</div>",
             "styles": "#sw-example-app--my-second-block {\n    color: blue;\n    font-size: 24px;\n}"
         },
         {

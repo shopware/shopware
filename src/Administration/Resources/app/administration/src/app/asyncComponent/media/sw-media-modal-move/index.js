@@ -15,6 +15,8 @@ const { Mixin, Context, Data: { Criteria } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     provide() {
@@ -22,6 +24,8 @@ export default {
             filterItems: this.isNotPartOfItemsToMove,
         };
     },
+
+    emits: ['media-move-modal-close', 'media-move-modal-items-move'],
 
     mixins: [
         Mixin.getByName('notification'),

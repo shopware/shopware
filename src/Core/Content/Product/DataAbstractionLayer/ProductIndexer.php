@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
@@ -220,6 +221,8 @@ class ProductIndexer extends EntityIndexer
         Profiler::trace('product:indexer:event', function () use ($ids, $context, $message): void {
             $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
         });
+
+        $this->eventDispatcher->dispatch(new InvalidateProductCache(ids: $ids, force: false));
     }
 
     /**

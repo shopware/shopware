@@ -12,6 +12,8 @@ const { format } = Utils;
 export default {
     template,
 
+    emits: ['update:value', 'on-remove-code'],
+
     props: {
         currency: {
             type: Object,
@@ -30,6 +32,14 @@ export default {
             return {
                 'sw-tagged-field__tag-list--disabled': this.disabled,
             };
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

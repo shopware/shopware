@@ -18,6 +18,6 @@ class CleanupWebhookEventLogTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86400; // 24 hours
+        return self::DAILY;
     }
 }

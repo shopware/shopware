@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
-use Shopware\Core\Maintenance\System\SystemException;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -59,7 +59,7 @@ class SystemUpdateFinishCommand extends Command
                 'version-selection-mode',
                 null,
                 InputOption::VALUE_REQUIRED,
-                sprintf(
+                \sprintf(
                     'Define upto which version destructive migrations are executed. Possible values: "%s".',
                     implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES)
                 ),
@@ -126,7 +126,7 @@ class SystemUpdateFinishCommand extends Command
 
         $mode = (string) $input->getOption('version-selection-mode');
         if (!\in_array($mode, MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES, true)) {
-            throw SystemException::invalidVersionSelectionMode($mode);
+            throw MaintenanceException::invalidVersionSelectionMode($mode);
         }
         $command = $application->find('database:migrate-destructive');
         $exitCode = $this->runCommand($application, $command, [
@@ -161,7 +161,7 @@ class SystemUpdateFinishCommand extends Command
     {
         $application = $this->getApplication();
         if (!$application instanceof Application) {
-            throw SystemException::consoleApplicationNotFound();
+            throw MaintenanceException::consoleApplicationNotFound();
         }
 
         return $application;

@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -23,6 +23,9 @@ async function createWrapper() {
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: 1337 }),
                 },
+            },
+            stubs: {
+                'sw-progress-bar': true,
             },
         },
     });

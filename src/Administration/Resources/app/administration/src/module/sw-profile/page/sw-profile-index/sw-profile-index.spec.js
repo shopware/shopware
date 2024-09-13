@@ -22,6 +22,9 @@ async function createWrapper(privileges = []) {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-skeleton': true,
+                'router-view': true,
+                'sw-verify-user-modal': true,
+                'sw-media-modal-v2': true,
             },
             provide: {
                 acl: {

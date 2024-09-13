@@ -16,11 +16,14 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'customerGroupRegistrationService',
         'acl',
         'customerValidationService',
+        'feature',
     ],
 
     mixins: [
@@ -86,8 +89,8 @@ export default {
                 .addAssociation('addresses')
                 .addAssociation('group')
                 .addAssociation('salutation')
-                .addAssociation('salesChannel')
-                .addAssociation('defaultPaymentMethod')
+                .addAssociation('salesChannel.domains')
+                .addAssociation('boundSalesChannel.domains')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
                 .addAssociation('defaultBillingAddress.countryState')
@@ -96,7 +99,12 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags')
-                .addAssociation('requestedGroup');
+                .addAssociation('requestedGroup')
+                .addAssociation('boundSalesChannel');
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('defaultPaymentMethod');
+            }
 
             criteria
                 .getAssociation('addresses')

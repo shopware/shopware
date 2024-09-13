@@ -810,7 +810,7 @@ class ThemeTest extends TestCase
     public function testThemeServiceUpdateWrongId(): void
     {
         $randomId = Uuid::randomHex();
-        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $randomId));
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $randomId));
         $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
     }
 
@@ -892,7 +892,7 @@ class ThemeTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>              $customConfig
+     * @param array<string, mixed> $customConfig
      * @param array<int, array<string, string>> $saleSchannels
      */
     private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleSchannels = [], ?string $givenName = null): string

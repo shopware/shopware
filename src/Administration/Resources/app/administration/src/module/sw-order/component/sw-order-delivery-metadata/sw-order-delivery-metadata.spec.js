@@ -33,6 +33,11 @@ async function createWrapper() {
                 'sw-card': await wrapTestComponent('sw-card', { sync: true }),
                 'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 customSnippetApiService: {

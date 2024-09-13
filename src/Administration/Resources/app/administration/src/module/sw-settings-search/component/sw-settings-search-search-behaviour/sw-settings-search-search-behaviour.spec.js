@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -50,6 +50,11 @@ async function createWrapper(privileges = []) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-help-text': true,
+                'mt-number-field': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
 
             attachTo: document.body,

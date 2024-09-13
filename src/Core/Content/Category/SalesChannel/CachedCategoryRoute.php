@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Profiling\Profiler;
@@ -21,6 +22,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedCategoryRoute extends AbstractCategoryRoute
@@ -54,6 +58,10 @@ class CachedCategoryRoute extends AbstractCategoryRoute
     #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($navigationId, $request, $context);
+        }
+
         return Profiler::trace('category-route', function () use ($navigationId, $request, $context) {
             if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($navigationId, $request, $context);

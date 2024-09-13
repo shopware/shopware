@@ -2,11 +2,17 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
+
 /**
  * @internal
  */
 class DateHistogramCase
 {
+    /**
+     * @param DateHistogramAggregation::PER_* $interval
+     * @param array<string, int> $buckets
+     */
     public function __construct(
         private readonly string $interval,
         private readonly array $buckets,
@@ -15,11 +21,17 @@ class DateHistogramCase
     ) {
     }
 
+    /**
+     * @return DateHistogramAggregation::PER_*
+     */
     public function getInterval(): string
     {
         return $this->interval;
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function getBuckets(): array
     {
         return $this->buckets;

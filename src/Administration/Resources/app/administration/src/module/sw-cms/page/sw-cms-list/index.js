@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -114,7 +116,6 @@ export default {
             }
 
             this.addLinkedLayoutsAggregation(criteria);
-            this.addPageAggregations(criteria);
 
             return criteria;
         },
@@ -157,9 +158,11 @@ export default {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
-            this.loadGridUserSettings();
+            if (this.acl.can('user_config:read')) {
+                this.loadGridUserSettings();
+            }
 
-            if (this.acl.can('system_config.read')) {
+            if (this.acl.can('system_config:read')) {
                 this.getDefaultLayouts();
             }
 
@@ -185,6 +188,12 @@ export default {
         },
 
         saveGridUserSettings() {
+            if (!this.acl.can('user_config:create') || !this.acl.can('user_config:update')) {
+                console.warn('Did not persist user config, as permissions are missing.');
+
+                return;
+            }
+
             this.saveUserSettings(this.cardViewIdentifier, {
                 listMode: this.listMode,
                 sortBy: this.sortBy,
@@ -239,6 +248,9 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         addPageAggregations(criteria) {
             return criteria.addAggregation(Criteria.terms(
                 'products',
@@ -253,6 +265,22 @@ export default {
                 null,
                 Criteria.count('categoryCount', 'categories.id'),
             ));
+        },
+
+        showDefaultLayoutContextMenu(cmsPage) {
+            if (!this.acl.can('system_config:read')) {
+                return false;
+            }
+
+            if (cmsPage.type === 'product_list') {
+                return this.defaultCategoryId !== cmsPage.id;
+            }
+
+            if (cmsPage.type === 'product_detail') {
+                return this.defaultProductId !== cmsPage.id;
+            }
+
+            return false;
         },
 
         async getDefaultLayouts() {
@@ -540,18 +568,23 @@ export default {
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         getPageCategoryCount(page) {
-            return Object.values(this.associatedCategoryBuckets).find((bucket) => {
-                return bucket.key === page.id;
-            })?.categoryCount?.count || 0;
+            return page.categories.length;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         getPageProductCount(page) {
-            return Object.values(this.associatedProductBuckets).find((bucket) => {
-                return bucket.key === page.id;
-            })?.productCount?.count || 0;
+            return page.products.length;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         getPageCount(page) {
             const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
             return pageCount > 0 ? pageCount : '-';

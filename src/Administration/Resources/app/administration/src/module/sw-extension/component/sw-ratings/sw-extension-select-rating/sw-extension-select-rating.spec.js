@@ -15,6 +15,9 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-ratin
                     'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                     'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
                     'sw-icon': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });

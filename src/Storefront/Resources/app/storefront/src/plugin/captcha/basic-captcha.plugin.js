@@ -14,7 +14,7 @@ export default class BasicCaptchaPlugin extends Plugin {
         preCheck: false,
         preCheckId: '#precheck',
         preCheckRoute: {},
-    }
+    };
 
     init() {
         this._getForm();

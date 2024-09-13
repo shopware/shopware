@@ -1,0 +1,34 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "AccountNewsletterRecipient": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "undefined",
+                            "notSet",
+                            "direct",
+                            "optIn",
+                            "optOut"
+                        ]
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "account_newsletter_recipient"
+                        ]
+                    }
+                },
+                "required": [
+                    "status",
+                    "apiAlias"
+                ]
+            }
+        }
+    }
+}

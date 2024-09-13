@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -20,6 +20,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
                     'sw-users-permissions-user-listing': true,
                     'sw-users-permissions-role-listing': true,
                     'sw-users-permissions-configuration': true,
+                    'sw-icon': true,
+                    'sw-button-process': true,
                 },
             },
         });

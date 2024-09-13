@@ -41,7 +41,7 @@ class Feature
     /**
      * @template TReturn of mixed
      *
-     * @param array<string>       $features
+     * @param array<string> $features
      * @param \Closure(): TReturn $closure
      *
      * @return TReturn
@@ -239,13 +239,18 @@ class Feature
                 ScriptTraces::addDeprecationNotice($message);
             }
 
+            if (EnvironmentHelper::getVariable('TESTS_RUNNING')) {
+                // no need to trigger deprecation in tests as we cover all cases of the feature flag behaviour
+                return;
+            }
+
             trigger_deprecation('shopware/core', '', $message);
         }
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
     {
-        $fullQualifiedMethodName = sprintf('%s::%s', $class, $method);
+        $fullQualifiedMethodName = \sprintf('%s::%s', $class, $method);
         if (str_contains($method, '::')) {
             $fullQualifiedMethodName = $method;
         }

@@ -21,13 +21,17 @@ interface scopeInterface {
 interface publishOptions {
     id: string,
     path: string,
-    scope: scopeInterface
+    scope: scopeInterface,
+    deprecated?: boolean,
+    deprecationMessage?: string,
 }
 
 type dataset = {
     id: string,
     scope: number,
     data: unknown
+    deprecated?: boolean,
+    deprecationMessage?: string,
 }
 
 type transferObject = {
@@ -124,6 +128,27 @@ handleGet((data, additionalOptions) => {
         return null;
     }
 
+    if (registeredDataSet.deprecated) {
+        const extension = Object.values(Shopware.State.get('extensions'))
+            .find(ext => ext.baseUrl.startsWith(additionalOptions._event_.origin));
+
+        if (!extension) {
+            throw new Error(`Extension with the origin "${additionalOptions._event_.origin}" not found.`);
+        }
+
+        const debugArgs = [
+            'CORE',
+            // eslint-disable-next-line max-len
+            `The extension "${extension.name}" uses a deprecated data set "${data.id}". ${registeredDataSet.deprecationMessage}`,
+        ];
+        // @ts-expect-error
+        if (process.env !== 'prod') {
+            Shopware.Utils.debug.error(...debugArgs);
+        } else {
+            Shopware.Utils.debug.warn(...debugArgs);
+        }
+    }
+
     const selectors = data.selectors;
 
     if (!selectors) {
@@ -166,7 +191,7 @@ function parsePath(path :string): ParsedPath | null {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({ id, path, scope }: publishOptions): () => void {
+export function publishData({ id, path, scope, deprecated, deprecationMessage }: publishOptions): () => void {
     if (unregisterPublishDataIds.includes(id)) {
         unregisterPublishDataIds = unregisterPublishDataIds.filter(value => value !== id);
     }
@@ -230,12 +255,19 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
                     return;
                 }
 
-                scope.$set(
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
-                    parsedPath.lastSegment,
-                    transferObject[property],
-                );
+                // @ts-expect-error - This is added in the vue.adapter.ts
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (scope.isCompatEnabled('INSTANCE_SET')) {
+                    scope.$set(
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
+                        parsedPath.lastSegment,
+                        transferObject[property],
+                    );
+                } else {
+                    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] = transferObject[property];
+                }
             });
         }
 
@@ -269,13 +301,27 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
+            // @ts-expect-error - This is added in the vue.adapter.ts
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (scope.isCompatEnabled('INSTANCE_SET')) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                Shopware.Utils.object.get(scope, newPath)[lastPath] = value.data;
+            }
 
             return;
         }
 
-        scope.$set(scope, path, value.data);
+        // @ts-expect-error - This is added in the vue.adapter.ts
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        if (scope.isCompatEnabled('INSTANCE_SET')) {
+            scope.$set(scope, path, value.data);
+        } else {
+            // @ts-expect-error
+            scope[path] = value.data;
+        }
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
@@ -305,14 +351,17 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
             data: clonedValue,
             // @ts-expect-error
             scope: (scope as vueWithUid)._uid,
+            deprecated,
+            deprecationMessage,
         });
     }, 750), {
         deep: true,
         immediate: true,
     });
 
-    // Before the registering component gets destroyed, destroy the watcher and deregister the dataset
-    scope.$once('hook:beforeDestroy', () => {
+    // @ts-expect-error - Defined in meteor-sdk-data.plugin.ts
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    scope.dataSetUnwatchers.push(() => {
         publishedDataSets = publishedDataSets.filter(value => value.id !== id);
         unregisterPublishDataIds.push(id);
 

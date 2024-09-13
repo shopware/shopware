@@ -17,7 +17,7 @@ use Symfony\Component\Mailer\Transport\Transports;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MailerTransportLoader
 {
     private const VALID_OPTIONS = ['-bs', '-i', '-t'];

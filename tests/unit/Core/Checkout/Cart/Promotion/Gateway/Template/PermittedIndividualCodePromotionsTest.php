@@ -37,26 +37,25 @@ class PermittedIndividualCodePromotionsTest extends TestCase
 
         $template = new PermittedIndividualCodePromotions($codes, $this->salesChannel->getId());
 
-        static::assertEquals($this->getExpectedFilter($codes)->getQueries(), $template->getQueries());
+        static::assertSame(MultiFilter::CONNECTION_AND, $template->getOperator());
+        static::assertCount(7, $template->getQueries());
+        static::assertContainsEquals(new EqualsFilter('active', true), $template->getQueries());
+        static::assertContainsEquals(new EqualsFilter('promotion.salesChannels.salesChannelId', $this->salesChannel->getId()), $template->getQueries());
+        static::assertContainsEquals(new EqualsFilter('useCodes', true), $template->getQueries());
+        static::assertContainsEquals(new EqualsFilter('useIndividualCodes', true), $template->getQueries());
+        static::assertContainsEquals(new EqualsAnyFilter('promotion.individualCodes.code', $codes), $template->getQueries());
+        static::assertContainsEquals(new EqualsFilter('promotion.individualCodes.payload', null), $template->getQueries());
+        static::assertTrue($this->containsActiveDateRange($template));
     }
 
-    /**
-     * @param list<string> $codes
-     */
-    private function getExpectedFilter(array $codes): MultiFilter
+    private function containsActiveDateRange(MultiFilter $filter): bool
     {
-        return new MultiFilter(
-            MultiFilter::CONNECTION_AND,
-            [
-                new EqualsFilter('active', true),
-                new EqualsFilter('promotion.salesChannels.salesChannelId', $this->salesChannel->getId()),
-                new ActiveDateRange(),
-                new EqualsFilter('useCodes', true),
-                new EqualsFilter('useIndividualCodes', true),
-                new EqualsAnyFilter('promotion.individualCodes.code', $codes),
-                // a payload of null means, they have not yet been redeemed
-                new EqualsFilter('promotion.individualCodes.payload', null),
-            ]
-        );
+        foreach ($filter->getQueries() as $query) {
+            if ($query instanceof ActiveDateRange) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

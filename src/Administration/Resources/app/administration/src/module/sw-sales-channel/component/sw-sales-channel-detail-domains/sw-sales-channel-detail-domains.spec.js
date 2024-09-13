@@ -28,7 +28,15 @@ async function createWrapper(customProps = {}, domains = []) {
                 'sw-url-field': true,
                 'sw-select-base': true,
                 'sw-select-result-list': true,
-
+                'sw-checkbox-field': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-data-grid-skeleton': true,
+                'sw-loader': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
             },
             provide: {
                 repositoryFactory: {

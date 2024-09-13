@@ -30,6 +30,8 @@ class SalesChannelException extends HttpException
 
     final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
 
+    public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
+
     public static function salesChannelNotFound(string $salesChannelId): self
     {
         return new self(
@@ -112,7 +114,7 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION,
-            sprintf('Provided language "%s" is not in list of available languages: %s', $languageId, implode(', ', $availableLanguages)),
+            \sprintf('Provided language "%s" is not in list of available languages: %s', $languageId, implode(', ', $availableLanguages)),
         );
     }
 
@@ -129,6 +131,15 @@ class SalesChannelException extends HttpException
             'The sales channel domain cannot be deleted because it is still referenced in product exports.',
             [],
             $previous
+        );
+    }
+
+    public static function invalidType(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_TYPE,
+            $message
         );
     }
 }

@@ -8,6 +8,10 @@ import './sw-settings-search-example-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close'],
+
     data() {
         return {
             exampleResults: [

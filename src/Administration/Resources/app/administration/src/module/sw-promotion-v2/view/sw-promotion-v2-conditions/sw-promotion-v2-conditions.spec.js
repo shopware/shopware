@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -11,7 +14,7 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    template: '<input type="text" class="sw-field sw-text-field"></div>',
+                    template: '<input type="text" class="sw-field sw-text-field"></input>',
                     props: ['value', 'disabled'],
                 },
                 'sw-number-field': {
@@ -19,7 +22,7 @@ async function createWrapper() {
                     props: ['value', 'disabled'],
                 },
                 'sw-entity-multi-select': {
-                    template: '<input type="select" multiple="true" class="sw-field sw-entity-multi-select"></div>',
+                    template: '<input type="select" multiple="true" class="sw-field sw-entity-multi-select"></input>',
                     props: ['value', 'disabled'],
                 },
                 'sw-promotion-v2-sales-channel-select': {
@@ -31,7 +34,7 @@ async function createWrapper() {
                     props: ['value', 'disabled'],
                 },
                 'sw-switch-field': {
-                    template: '<input type="checkbox" class="sw-field sw-switch-field"></div>',
+                    template: '<input type="checkbox" class="sw-field sw-switch-field"></input>',
                     props: ['value', 'disabled'],
                 },
                 'sw-promotion-v2-cart-condition-form': true,

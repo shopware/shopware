@@ -1,4 +1,5 @@
 storefront:
     theme:
         file_delete_delay: 900
+        # @deprecated tag:v6.7.0 - The setting "auto_prefix_css" is deprecated and will be removed without replacement. Autoprefixer will be removed.
         auto_prefix_css: false

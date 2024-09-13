@@ -32,7 +32,7 @@ final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $time = new \DateTime();
-        $time->modify(sprintf('-%d day', $this->days));
+        $time->modify(\sprintf('-%d day', $this->days));
 
         $this->connection->executeStatement(
             'DELETE FROM sales_channel_api_context WHERE updated_at <= :timestamp',

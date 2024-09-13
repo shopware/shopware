@@ -15,6 +15,8 @@ const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
@@ -262,6 +264,7 @@ export default {
 
             try {
                 await this.customerGroupRepository.save(this.customerGroup);
+                await this.loadSeoUrls();
 
                 this.isSaveSuccessful = true;
             } catch (err) {

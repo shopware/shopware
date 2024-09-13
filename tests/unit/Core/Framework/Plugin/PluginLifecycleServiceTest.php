@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -47,7 +48,6 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -114,15 +114,6 @@ class PluginLifecycleServiceTest extends TestCase
             $this->pluginServiceMock,
             $this->createMock(VersionSanitizer::class),
         );
-    }
-
-    public function testGetSubscribedEvents(): void
-    {
-        $subscribedEvents = PluginLifecycleService::getSubscribedEvents();
-
-        static::assertCount(1, $subscribedEvents);
-        static::assertArrayHasKey(KernelEvents::RESPONSE, $subscribedEvents);
-        static::assertEquals(['onResponse', \PHP_INT_MIN], $subscribedEvents[KernelEvents::RESPONSE]);
     }
 
     // +++++ InstallPlugin method ++++
@@ -447,7 +438,7 @@ class PluginLifecycleServiceTest extends TestCase
         $kernelMock->expects(static::once())->method('reboot');
 
         $this->container->set('kernel', $kernelMock);
-        $this->container->set(Plugin\KernelPluginLoader\KernelPluginLoader::class, new FakeKernelPluginLoader(
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
             [
                 [
                     'baseClass' => Plugin::class,
@@ -505,7 +496,7 @@ class PluginLifecycleServiceTest extends TestCase
             throw new \LogicException();
         });
         $this->container->set('kernel', $kernelMock);
-        $this->container->set(Plugin\KernelPluginLoader\KernelPluginLoader::class, new FakeKernelPluginLoader(
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
             [
                 [
                     'baseClass' => Plugin::class,
@@ -603,7 +594,7 @@ class PluginLifecycleServiceTest extends TestCase
         $containerMock->method('get')->willReturn($this->eventDispatcher);
         $kernelMock->method('getContainer')->willReturn($containerMock);
         $this->container->set('kernel', $kernelMock);
-        $this->container->set(Plugin\KernelPluginLoader\KernelPluginLoader::class, new FakeKernelPluginLoader(
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
             [
                 [
                     'baseClass' => Plugin::class,

@@ -22,6 +22,9 @@ async function createWrapper(customProps = {}, customOptions = {}) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
                 'sw-icon': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
             },
             provide: {
                 removeNodeFromTree: () => {

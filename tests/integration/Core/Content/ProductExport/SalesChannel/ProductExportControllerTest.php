@@ -71,7 +71,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelId,
             $salesChannelDomainId
         );
-        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -125,7 +125,7 @@ class ProductExportControllerTest extends TestCase
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
 
-        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -165,7 +165,7 @@ class ProductExportControllerTest extends TestCase
             $deSalesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
+        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
         static::assertNotNull($client->getResponse()->headers->get('Last-Modified'));
@@ -197,7 +197,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -228,7 +228,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         static::assertEquals(200, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
 
@@ -262,7 +262,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());

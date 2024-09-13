@@ -22,6 +22,8 @@ Component.register('sw-custom-field-set-renderer', {
         'repositoryFactory',
     ],
 
+    compatConfig: Shopware.compatConfig,
+
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -32,6 +34,12 @@ Component.register('sw-custom-field-set-renderer', {
             getCustomFieldSetVariant: this.variant,
         };
     },
+
+    emits: [
+        'process-finish',
+        'save',
+        'change-active-selection',
+    ],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -140,8 +148,6 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-colorpicker',
                 'sw-compact-colorpicker',
                 'sw-price-field',
-                'sw-entity-multi-id-select',
-                'sw-entity-single-select',
                 'sw-tagged-field',
                 // for backwards compatibility with old custom fields
                 'sw-field',
@@ -190,16 +196,11 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         initializeCustomFields() {
-            if (!this.entity.customFields && !this.entity.translated?.customFields) {
+            if (!this.entity.customFields) {
                 return;
             }
 
-            // Check if translated custom fields are available
-            if (this.entity.translated?.customFields && Object.keys(this.entity.translated?.customFields).length <= 0) {
-                return;
-            }
-
-            this.customFields = this.entity.translated?.customFields ?? this.entity.customFields;
+            this.customFields = this.entity.customFields;
         },
 
         getInheritedCustomField(customFieldName) {
@@ -357,13 +358,19 @@ Component.register('sw-custom-field-set-renderer', {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            this.$set(this.sets, index, newSet);
+                            if (this.isCompatEnabled('INSTANCE_SET')) {
+                                this.$set(this.sets, index, newSet);
+                            } else {
+                                // eslint-disable-next-line vue/no-mutating-props
+                                this.sets[index] = newSet;
+                            }
                         }
                     });
 
                     // remove the set from the currently loading onces and refresh the visible sets
                     this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
-                }).catch(() => {
+                }).catch((error) => {
+                    console.error(error);
                     // in case of error make loading again possible
                     this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
                 });

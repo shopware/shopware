@@ -8,6 +8,10 @@ import './sw-extension-deactivation-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close', 'extension-deactivate'],
+
     props: {
         extensionName: {
             type: String,

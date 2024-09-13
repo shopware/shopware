@@ -1,10 +1,12 @@
+/**
+ * @package services-settings
+ */
 import MockAdapter from 'axios-mock-adapter';
 import SystemConfigService from 'src/core/service/api/system-config.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 
 /**
- * @package system-settings
  * @returns {{apiService, mockAdapter: MockAdapter}}
  */
 function getApiServiceAndMockAdapter() {

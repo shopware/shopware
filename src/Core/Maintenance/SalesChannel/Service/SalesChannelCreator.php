@@ -12,7 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Maintenance\MaintenanceException;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
 #[Package('core')]
 class SalesChannelCreator
 {
@@ -29,6 +33,14 @@ class SalesChannelCreator
     ) {
     }
 
+    /**
+     * @param list<string>|null $currencies
+     * @param list<string>|null $languages
+     * @param list<string>|null $shippingMethods
+     * @param list<string>|null $paymentMethods
+     * @param list<string>|null $countries
+     * @param array<string, mixed> $overwrites
+     */
     public function createSalesChannel(
         string $id,
         string $name,
@@ -97,10 +109,12 @@ class SalesChannelCreator
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
-        /** @var array<string> $ids */
-        $ids = $this->shippingMethodRepository->searchIds($criteria, $context)->getIds();
+        $shippingMethodId = $this->shippingMethodRepository->searchIds($criteria, $context)->firstId();
+        if (!\is_string($shippingMethodId)) {
+            throw MaintenanceException::couldNotGetId('first active shipping method');
+        }
 
-        return $ids[0];
+        return $shippingMethodId;
     }
 
     private function getFirstActivePaymentMethodId(Context $context): string
@@ -110,10 +124,12 @@ class SalesChannelCreator
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
 
-        /** @var array<string> $ids */
-        $ids = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
+        $paymentMethodId = $this->paymentMethodRepository->searchIds($criteria, $context)->firstId();
+        if (!\is_string($paymentMethodId)) {
+            throw MaintenanceException::couldNotGetId('first active payment method');
+        }
 
-        return $ids[0];
+        return $paymentMethodId;
     }
 
     private function getFirstActiveCountryId(Context $context): string
@@ -123,10 +139,12 @@ class SalesChannelCreator
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
 
-        /** @var array<string> $ids */
-        $ids = $this->countryRepository->searchIds($criteria, $context)->getIds();
+        $countryId = $this->countryRepository->searchIds($criteria, $context)->firstId();
+        if (!\is_string($countryId)) {
+            throw MaintenanceException::couldNotGetId('first active country');
+        }
 
-        return $ids[0];
+        return $countryId;
     }
 
     private function getRootCategoryId(Context $context): string
@@ -136,19 +154,24 @@ class SalesChannelCreator
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        /** @var array<string> $categories */
-        $categories = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+        $categoryId = $this->categoryRepository->searchIds($criteria, $context)->firstId();
+        if (!\is_string($categoryId)) {
+            throw MaintenanceException::couldNotGetId('root category');
+        }
 
-        return $categories[0];
+        return $categoryId;
     }
 
+    /**
+     * @return array<array{id: string}>
+     */
     private function getAllIdsOf(string $entity, Context $context): array
     {
         /** @var array<string> $ids */
         $ids = $this->definitionRegistry->getRepository($entity)->searchIds(new Criteria(), $context)->getIds();
 
         return array_map(
-            fn (string $id) => ['id' => $id],
+            static fn (string $id): array => ['id' => $id],
             $ids
         );
     }
@@ -163,12 +186,17 @@ class SalesChannelCreator
         $id = $repository->searchIds($criteria, $context)->firstId();
 
         if ($id === null) {
-            throw new \RuntimeException('Cannot find a customer group to assign it to the sales channel');
+            throw MaintenanceException::couldNotGetId('customer group');
         }
 
         return $id;
     }
 
+    /**
+     * @param list<string>|null $values
+     *
+     * @return array<array{id: string}>
+     */
     private function formatToMany(?array $values, string $default, string $entity, Context $context): array
     {
         if (!\is_array($values)) {
@@ -178,7 +206,7 @@ class SalesChannelCreator
         $values = array_unique(array_merge($values, [$default]));
 
         return array_map(
-            fn (string $id) => ['id' => $id],
+            static fn (string $id): array => ['id' => $id],
             $values
         );
     }

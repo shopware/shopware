@@ -29,6 +29,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class PropertyListingFilterHandler extends AbstractListingFilterHandler
 {
+    final public const FILTER_ENABLED_REQUEST_PARAM = 'property-filter';
+
     final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
     /**
@@ -49,7 +51,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $groupIds = $request->request->all(self::PROPERTY_GROUP_IDS_REQUEST_PARAM);
 
-        if (!$request->request->get('property-filter', true) && empty($groupIds)) {
+        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true) && empty($groupIds)) {
             return null;
         }
 
@@ -135,7 +137,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $grouped = FetchModeHelper::group($grouped, static fn ($row) => $row['id']);
+        $grouped = FetchModeHelper::group($grouped, static fn ($row): string => (string) $row['id']);
 
         $filters = [];
         foreach ($grouped as $options) {

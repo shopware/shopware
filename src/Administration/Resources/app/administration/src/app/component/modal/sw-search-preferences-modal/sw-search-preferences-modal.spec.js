@@ -13,6 +13,9 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-data-grid': true,
                 'sw-icon': true,
+                'router-link': true,
+                'sw-checkbox-field': true,
+                'mt-button': true,
             },
             provide: {
                 searchPreferencesService: {

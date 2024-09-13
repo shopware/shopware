@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils';
-
 /**
- * @package customer-order
+ * @package services-settings
  */
+
+import { mount } from '@vue/test-utils';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -76,6 +76,12 @@ async function createWrapper(privileges = []) {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-custom-field-set-renderer': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
             },
 
             provide: {
@@ -175,8 +181,17 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' },
         ].forEach(({ name, selector }) => {
             it(`${name} should be disabled`, async () => {
-                const element = wrapper.find(selector);
-                expect(element.attributes().disabled).toBeTruthy();
+                await flushPromises();
+                const element = wrapper.findComponent(selector);
+
+                // Condition for different types of components
+                if (element.attributes().hasOwnProperty('disabled')) {
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(element.attributes().disabled).toBeTruthy();
+                } else {
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(element.props().disabled).toBeTruthy();
+                }
             });
         });
 

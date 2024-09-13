@@ -10,6 +10,8 @@ const { Locale, Mixin, Data: { Criteria } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl', 'feature'],
 
     mixins: [

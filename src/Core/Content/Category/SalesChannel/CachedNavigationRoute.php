@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Profiling\Profiler;
@@ -22,6 +23,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedNavigationRoute extends AbstractNavigationRoute
@@ -54,6 +58,10 @@ class CachedNavigationRoute extends AbstractNavigationRoute
     #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
+        }
+
         return Profiler::trace('navigation-route', function () use ($activeId, $rootId, $request, $context, $criteria) {
             if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
@@ -162,7 +170,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         $tags = array_merge(
             $tags,
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
-            [self::buildName($context->getSalesChannelId())]
+            [self::buildName($context->getSalesChannelId())],
         );
 
         $event = new NavigationRouteCacheTagsEvent($tags, $active, $rootId, $depth, $request, $response, $context, $criteria);

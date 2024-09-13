@@ -53,11 +53,21 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should not render the infoText when no language is set', async () => {
+        const typeError = {
+            method: 'warn',
+            msg: '[TypeError: Cannot read properties of null (reading \'id\')]',
+        };
+        global.allowedErrors.push(typeError);
+
         Shopware.State.commit('context/setApiLanguage', null);
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.text()).toBe('');
+
+        // To make sure the allowedErrors don't get altered
+        const pop = global.allowedErrors.pop();
+        expect(pop).toBe(typeError);
     });
 
     it('should not render the infoText when user is in default language', async () => {

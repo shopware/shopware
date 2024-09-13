@@ -16,4 +16,11 @@ class IntField extends Field
     use TranslatableTrait;
 
     protected string $type = 'int';
+
+    protected ?int $default = null;
+
+    public function getDefault(): ?int
+    {
+        return $this->default;
+    }
 }

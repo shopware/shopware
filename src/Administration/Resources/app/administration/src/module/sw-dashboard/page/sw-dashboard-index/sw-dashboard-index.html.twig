@@ -8,7 +8,6 @@
     {% block sw_dashboard_index_content %}
     <template #content>
         <sw-card-view class="sw-dashboard-index__content">
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_index_content_intro_card %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -35,6 +34,11 @@
             {% endblock %}
 
             <sw-usage-data-consent-banner :can-be-hidden="true" />
+
+            <sw-extension-component-section
+                position-identifier="sw-dashboard__before-content"
+                class="sw-dashboard__before-content"
+            />
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_index_content_info_grid %}
@@ -110,6 +114,10 @@
 
             <sw-dashboard-statistics />
 
+            <sw-extension-component-section
+                position-identifier="sw-dashboard__after-content"
+                class="sw-dashboard__after-content"
+            />
         </sw-card-view>
     </template>
     {% endblock %}

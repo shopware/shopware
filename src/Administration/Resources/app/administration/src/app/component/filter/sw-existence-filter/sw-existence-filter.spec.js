@@ -20,6 +20,11 @@ async function createWrapper() {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
+                'mt-select': true,
             },
         },
         props: {
@@ -30,6 +35,8 @@ async function createWrapper() {
                 schema: {
                     localField: 'id',
                 },
+                optionHasCriteria: true,
+                optionNoCriteria: false,
             },
             active: true,
         },

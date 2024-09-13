@@ -420,7 +420,8 @@
         "singleRestrictionAddTitle": "Exclude values",
         "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there.",
         "digitalVariantSwitch": "Make all variants digital",
-        "removeAllButton": "Remove file from all variants"
+        "removeAllButton": "Remove file from all variants",
+        "addVariantsOnly": "Add variants only"
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",

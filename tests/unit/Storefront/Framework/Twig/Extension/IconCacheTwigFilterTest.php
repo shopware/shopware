@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
@@ -81,6 +82,11 @@ class IconCacheTwigFilterTest extends TestCase
         $placeholder->method('replace')->willReturnArgument(0);
 
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $placeholder);
+
+        $mediaUrlHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $mediaUrlHandler->method('replace')->willReturnArgument(0);
+
+        $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
 
         return $container;
     }

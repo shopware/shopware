@@ -8,6 +8,8 @@ import './sw-cms-section-actions.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         section: {
             type: Object,
@@ -21,11 +23,22 @@ export default {
         },
     },
 
-    inject: ['feature'],
+    inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
+
+        swCmsSectionEmitPageConfigOpen: {
+            from: 'swCmsSectionEmitPageConfigOpen',
+            default: null,
+        },
+    },
 
     data() {
         return {
-            cmsPageState: Shopware.State.get('cmsPageState'),
+            /* @deprecated: tag:v6.7.0 - Will be removed use cmsPageStateStore instead. */
+            cmsPageState: Shopware.Store.get('cmsPageState'),
         };
     },
 
@@ -34,6 +47,9 @@ export default {
             return {
                 'is--disabled': this.disabled,
             };
+        },
+        cmsPageStateStore() {
+            return Shopware.Store.get('cmsPageState');
         },
     },
 
@@ -44,7 +60,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.cmsPageState.selectedSection) {
-                this.$store.dispatch('cmsPageState/setSection', this.section);
+                this.cmsPageStateStore.setSection(this.section);
             }
         },
 
@@ -53,9 +69,13 @@ export default {
                 return;
             }
 
-            this.$store.dispatch('cmsPageState/setSection', this.section);
+            this.cmsPageStateStore.setSection(this.section);
 
-            this.$parent.$parent.$emit('page-config-open', 'itemConfig');
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$parent.$emit('page-config-open', 'itemConfig');
+            } else {
+                this.swCmsSectionEmitPageConfigOpen?.('itemConfig');
+            }
         },
     },
 };

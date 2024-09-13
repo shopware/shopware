@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const documentTypeMock = [
     {
         technicalName: 'invoice',
@@ -68,6 +72,10 @@ async function createWrapper() {
                 'sw-label': true,
                 'sw-icon': true,
                 'sw-field-error': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         props: {

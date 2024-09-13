@@ -18,6 +18,8 @@ async function createWrapper() {
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-icon': true,
+                'sw-alert': true,
+                'sw-loader': true,
             },
             provide: {
                 extensionStoreActionService,

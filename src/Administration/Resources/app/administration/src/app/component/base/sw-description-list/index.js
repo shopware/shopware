@@ -23,6 +23,8 @@ const { Component } = Shopware;
 Component.register('sw-description-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         grid: {
             type: String,

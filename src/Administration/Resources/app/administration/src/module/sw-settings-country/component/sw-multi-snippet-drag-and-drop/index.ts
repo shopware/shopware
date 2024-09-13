@@ -1,4 +1,4 @@
-import type { PropType } from 'vue';
+import type { PropType, ComponentObjectPropsOptions } from 'vue';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-multi-snippet-drag-and-drop.html.twig';
 import './sw-multi-snippet-drag-and-drop.scss';
@@ -21,6 +21,8 @@ const DEFAULT_MAX_LINES = 10 as number;
  */
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -61,20 +63,28 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         dragConfig: {
             type: Object,
             required: false,
-            default(): DragConfig<DragItem> {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultConfig;
+            default(props: ComponentObjectPropsOptions<{ disabled: boolean }>): DragConfig<DragItem> {
+                return {
+                    delay: 200,
+                    dragGroup: 'sw-multi-snippet',
+                    validDragCls: 'is--valid-drag',
+                    preventEvent: true,
+                    disabled: props.disabled,
+                } as unknown as DragConfig<DragItem>;
             },
         },
 
         dropConfig: {
             type: Object,
             required: false,
-            default(): DragConfig<DragItem> {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultConfig;
+            default(props: ComponentObjectPropsOptions<{ disabled: boolean }>): DragConfig<DragItem> {
+                return {
+                    delay: 200,
+                    dragGroup: 'sw-multi-snippet',
+                    validDragCls: 'is--valid-drag',
+                    preventEvent: true,
+                    disabled: props.disabled,
+                } as unknown as DragConfig<DragItem>;
             },
         },
 
@@ -130,6 +140,19 @@ Component.register('sw-multi-snippet-drag-and-drop', {
 
         isMinLines() :boolean {
             return this.totalLines <= DEFAULT_MIN_LINES;
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed.
+         */
+        listeners() {
+            let listeners = {};
+
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                listeners = this.$listeners;
+            }
+
+            return listeners;
         },
     },
 

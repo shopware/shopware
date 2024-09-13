@@ -106,7 +106,7 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
                 }
             }
 
-            static::assertTrue($found, sprintf('Technical name "%s" not found', $expectedTechnicalName));
+            static::assertTrue($found, \sprintf('Technical name "%s" not found', $expectedTechnicalName));
         }
     }
 

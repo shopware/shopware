@@ -59,6 +59,9 @@ async function createWrapper(orderData = []) {
                 'sw-entity-listing': true,
                 'sw-button': true,
                 'sw-icon': true,
+                'router-link': true,
+                'sw-time-ago': true,
+                'sw-context-menu-item': true,
             },
         },
 

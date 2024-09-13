@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const customerGroupMock = [
     {
         translated: { name: 'Test net group' },
@@ -54,6 +58,11 @@ async function createWrapper() {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-loader': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-icon-deprecated': true,
             },
         },
     });

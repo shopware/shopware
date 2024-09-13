@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import AppUrlChangeService from 'src/core/service/api/app-url-change.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';

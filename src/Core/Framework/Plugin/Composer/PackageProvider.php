@@ -28,7 +28,7 @@ class PackageProvider
 
         if (\count($warnings) !== 0) {
             $warningsString = implode("\n", $warnings);
-            $composerIO->write(sprintf("Attention!\nThe '%s' has some warnings:\n%s", $composerJsonPath, $warningsString));
+            $composerIO->write(\sprintf("Attention!\nThe '%s' has some warnings:\n%s", $composerJsonPath, $warningsString));
         }
 
         try {

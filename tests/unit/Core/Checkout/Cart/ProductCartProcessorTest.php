@@ -11,12 +11,19 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -169,5 +176,57 @@ class ProductCartProcessorTest extends TestCase
         $field = $lineItem->getPayloadValue('customFields');
         static::assertArrayHasKey('foo', $field);
         static::assertSame('baz', $field['foo']);
+    }
+
+    public function testProcess(): void
+    {
+        $calculator = $this->createMock(QuantityPriceCalculator::class);
+        $calculatedPrice = new CalculatedPrice(
+            100,
+            200,
+            new CalculatedTaxCollection([
+                new CalculatedTax(-0.48, 19, -3),
+                new CalculatedTax(-0.20, 7, -3),
+            ]),
+            new TaxRuleCollection([
+                new TaxRule(19, 50),
+                new TaxRule(7, 50),
+            ]),
+            1
+        );
+
+        $calculator->expects(static::exactly(2))->method('calculate')->willReturn($calculatedPrice);
+
+        $cartProcessor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $calculator,
+            $this->createMock(ProductFeatureBuilder::class),
+            $this->createMock(ProductPriceCalculator::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class)
+        );
+
+        $originalCart = new Cart('test');
+        $originalCart->add((new LineItem('A', 'product', 'A', 2))->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))); // 2 items of product A
+        $originalCart->add(
+            (new LineItem('B', 'product', 'B', 3))
+            ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
+            ->setStates([State::IS_DOWNLOAD])
+        );
+        $toCalculateCart = new Cart('test');
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $behavior = new CartBehavior();
+
+        $cartProcessor->process(new CartDataCollection(), $originalCart, $toCalculateCart, $context, $behavior);
+
+        static::assertCount(2, $toCalculateCart->getLineItems());
+        static::assertNotNull($toCalculateCart->get('A'));
+        static::assertNotNull($toCalculateCart->get('B'));
+        static::assertEquals(200, $toCalculateCart->get('A')->getPrice()?->getTotalPrice());
+        static::assertEquals(200, $toCalculateCart->get('B')->getPrice()?->getTotalPrice());
+
+        static::assertTrue($toCalculateCart->get('A')->isShippingCostAware());
+        static::assertFalse($toCalculateCart->get('B')->isShippingCostAware());
     }
 }

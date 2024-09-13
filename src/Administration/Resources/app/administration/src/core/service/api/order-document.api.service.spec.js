@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 import OrderDocumentApiService from 'src/core/service/api/order-document.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';

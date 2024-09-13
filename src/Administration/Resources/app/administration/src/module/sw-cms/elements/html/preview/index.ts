@@ -8,6 +8,8 @@ import './sw-cms-el-preview-html.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     data() {
         return {
             demoValue: `

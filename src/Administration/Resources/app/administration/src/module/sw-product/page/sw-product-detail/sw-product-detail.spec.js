@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -149,6 +149,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-inheritance-warning': true,
                     'router-link': true,
                     'sw-product-detail': await wrapTestComponent('sw-product-detail'),
+                    'sw-extension-component-section': true,
+                    'sw-product-clone-modal': true,
                 },
                 propsData: {
                     productId,
@@ -160,12 +162,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     let wrapper;
 
     beforeAll(() => {
-        if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
             actions: {
                 resetCmsPageState: () => {},
             },

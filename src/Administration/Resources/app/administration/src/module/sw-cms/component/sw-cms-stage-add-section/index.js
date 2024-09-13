@@ -8,6 +8,10 @@ import './sw-cms-stage-add-section.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['stage-section-add'],
+
     props: {
         forceChoose: {
             type: Boolean,

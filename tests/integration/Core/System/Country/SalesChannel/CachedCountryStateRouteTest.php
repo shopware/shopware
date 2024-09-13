@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -24,9 +25,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @deprecated tag:v6.7.0 - Remove full class
+ *
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[Group('cache')]
 #[Group('store-api')]
 class CachedCountryStateRouteTest extends TestCase
@@ -40,6 +43,7 @@ class CachedCountryStateRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)

@@ -200,7 +200,7 @@ trait AdminApiTestBehaviour
 
         $accessToken = $data['access_token'];
         \assert(\is_string($accessToken));
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($userId)));
     }
 
@@ -260,7 +260,7 @@ trait AdminApiTestBehaviour
 
         $accessToken = $data['access_token'];
         \assert(\is_string($accessToken));
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter('_integration_id', $id);
     }
 

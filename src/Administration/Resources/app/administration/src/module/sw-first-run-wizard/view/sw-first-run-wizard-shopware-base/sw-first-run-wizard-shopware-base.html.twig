@@ -5,7 +5,8 @@
 >
     <component
         :is="Component"
-        v-on="$listeners"
+        v-bind="filteredAttributes"
+        v-on="listeners"
     />
 </router-view>
 {% endblock %}

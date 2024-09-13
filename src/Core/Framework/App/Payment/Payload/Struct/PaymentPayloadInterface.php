@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('checkout')]
 interface PaymentPayloadInterface extends SourcedPayloadInterface
 {
     public function getOrderTransaction(): OrderTransactionEntity;

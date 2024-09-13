@@ -12,7 +12,7 @@ const { Component } = Shopware;
 Component.register('sw-checkbox-field', {
     template,
 
-    props: {},
+    compatConfig: Shopware.compatConfig,
 
     computed: {
         useMeteorComponent() {
@@ -30,16 +30,28 @@ Component.register('sw-checkbox-field', {
 
             return false;
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
     },
 });

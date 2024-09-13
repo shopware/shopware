@@ -12,7 +12,7 @@
         class="sw-settings-country-currency-dependent-modal__grid"
         :data-source="currencyDependsValue"
         :is-loading="isLoading"
-        :show-selection="false"
+        :show-selection="false || undefined"
         :plain-appearance="true"
         :columns="countryCurrencyColumns"
     >
@@ -44,7 +44,7 @@
                 v-model:value="item.amount"
                 class="sw-settings-country-currency-dependent-modal__input"
                 :min="0"
-                :disabled="!item.enabled || !acl.can('country.editor')"
+                :disabled="(!item.enabled || !acl.can('country.editor')) || undefined"
                 @update:value="reCalculatorInherited(item)"
             />
         </template>
@@ -57,7 +57,7 @@
                 :value="checkBox"
                 :name="radioButtonName"
                 :options="[{ value: item.enabled }]"
-                :disabled="!acl.can('country.editor')"
+                :disabled="!acl.can('country.editor') || undefined"
                 @update:value="onChangeBaseCurrency(item)"
             />
         </template>
@@ -71,7 +71,7 @@
             {% block sw_settings_country_currency_dependent_grid_column_action_delete %}
             <sw-context-menu-item
                 variant="danger"
-                :disabled="item.enabled || !acl.can('country.editor')"
+                :disabled="(item.enabled || !acl.can('country.editor')) || undefined"
                 @click="changeCurrencyDependentRow(item.currencyId, false)"
             >
                 {{ $tc('global.default.delete') }}
@@ -92,7 +92,7 @@
         <sw-button
             class="sw-settings-country-currency-dependent-modal__cancel-button"
             size="small"
-            :disabled="!acl.can('country.editor')"
+            :disabled="!acl.can('country.editor') || undefined"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
@@ -102,7 +102,7 @@
             class="sw-settings-country-currency-dependent-modal__save-button"
             variant="primary"
             size="small"
-            :disabled="!acl.can('country.editor')"
+            :disabled="!acl.can('country.editor') || undefined"
             @click="saveModal"
         >
             {{ $tc('global.default.save') }}

@@ -72,6 +72,11 @@ describe('OffCanvasMenuPlugin tests', () => {
 
         const el = document.querySelector('[data-offcanvas-menu]');
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         plugin = new OffCanvasMenuPlugin(el);
 
         jest.useFakeTimers();

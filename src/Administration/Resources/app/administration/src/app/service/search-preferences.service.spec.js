@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import SearchPreferencesService from 'src/app/service/search-preferences.service';
 import orderDefaultSearchConfiguration from 'src/module/sw-order/default-search-configuration';

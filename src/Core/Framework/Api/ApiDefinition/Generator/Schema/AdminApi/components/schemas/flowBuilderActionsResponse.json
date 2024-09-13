@@ -1,0 +1,35 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "flowBuilderActionsResponse": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the flow action"
+                        },
+                        "requirements": {
+                            "type": "array",
+                            "description": "When requirement fit with aware from `events.json` actions will be shown",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "extensions": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Extensions data of event"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

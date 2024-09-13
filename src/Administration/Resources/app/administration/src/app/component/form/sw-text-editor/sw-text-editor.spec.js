@@ -8,23 +8,10 @@ async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
     document.body.innerHTML = '<div id="app"></div>';
 
-    // localVue.directive('tooltip', {});
-
     return mount(await wrapTestComponent('sw-text-editor', { sync: true }), {
         attachTo: document.getElementById('app'),
         props: {
             allowInlineDataMapping,
-        },
-        data() {
-            return {
-                cmsPageState: {
-                    currentMappingTypes: {
-                        string: [
-                            'category.type',
-                        ],
-                    },
-                },
-            };
         },
         global: {
             stubs: {
@@ -40,6 +27,7 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-container': await wrapTestComponent('sw-container'),
@@ -49,6 +37,20 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,
+                'sw-text-editor-table-toolbar': true,
+                'sw-text-editor-toolbar-table-button': true,
+                'sw-email-field': true,
+                'sw-entity-single-select': true,
+                'sw-category-tree-field': true,
+                'mt-button': true,
+                'router-link': true,
+                'sw-loader': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'mt-switch': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},
@@ -111,6 +113,17 @@ describe('src/app/component/form/sw-text-editor', () => {
     let wrapper;
 
     beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                currentMappingTypes: {
+                    string: [
+                        'category.type',
+                    ],
+                },
+            }),
+        });
+
         // 'Implement' innerText in JSDOM: https://github.com/jsdom/jsdom/issues/1245
         Object.defineProperty(global.Element.prototype, 'innerText', {
             get() {
@@ -975,5 +988,99 @@ describe('src/app/component/form/sw-text-editor', () => {
         await flushPromises();
 
         expect(document.body.querySelector('.sw-text-editor-toolbar')).toBeNull();
+    });
+
+    it('should allow to right click and copy selected text', async () => {
+        wrapper = await createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        // Add selection
+        const paragraph = wrapper.find('#paragraph');
+        await addAndCheckSelection(wrapper, paragraph.element, 0, 11, 'Hello World');
+
+        await paragraph.trigger('mousedown', { button: 2 });
+
+        const selection = document.getSelection();
+        expect(selection.toString()).toBe('Hello World');
+    });
+
+    it('should fix loose text nodes and wrap them in paragraphs on "Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum</p><div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter' });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should fix consecutive minor nodes and wrap them all together in a single paragraph on "Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<br><b>Lorem ipsum</b> Lorem <i>ipsum</i><p>Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum<br><b>Lorem ipsum</b> Lorem <i>ipsum</i></p><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter' });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should not trigger the node fix on "Shift + Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+        const expectedContent = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter', shiftKey: true });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should replace div elements including their attributes if option is set', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div class="foo" style="font-weight: bold">Lorem ipsum</div><p class="bar">Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum</p><p class="foo" style="font-weight: bold">Lorem ipsum</p><p class="bar">Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        wrapper.vm.fixWrongNodes(true);
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should correctly detect minor nodes in the editor content', async () => {
+        wrapper = await createWrapper();
+
+        const content = 'Lorem ipsum<b>Lorem ipsum</b><div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        expect(wrapper.vm.hasDirectMinorElements()).toBe(true);
+
+        const contentWithoutMinorNode = '<p>Lorem ipsum</p><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, contentWithoutMinorNode);
+
+        expect(wrapper.vm.hasDirectMinorElements()).toBe(false);
     });
 });

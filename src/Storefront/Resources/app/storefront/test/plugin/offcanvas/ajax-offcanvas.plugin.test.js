@@ -21,6 +21,11 @@ describe('AjaxOffcanvas tests', () => {
 
     beforeEach(() => {
         window.PluginManager.initializePlugins = jest.fn();
+
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
     });
 
     afterEach(() => {

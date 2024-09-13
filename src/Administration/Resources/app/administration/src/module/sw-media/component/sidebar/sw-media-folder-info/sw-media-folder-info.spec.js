@@ -26,6 +26,12 @@ async function createWrapper() {
             stubs: {
                 'sw-media-collapse': true,
                 'sw-media-quickinfo-metadata-item': true,
+                'sw-icon': true,
+                'sw-confirm-field': true,
+                'sw-media-modal-folder-settings': true,
+                'sw-media-modal-folder-dissolve': true,
+                'sw-media-modal-move': true,
+                'sw-media-modal-delete': true,
             },
         },
     });

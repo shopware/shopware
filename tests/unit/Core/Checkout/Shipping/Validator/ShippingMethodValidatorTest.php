@@ -5,10 +5,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\Validator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -32,20 +35,53 @@ class ShippingMethodValidatorTest extends TestCase
 
     private ShippingMethodDefinition $shippingMethodDefinition;
 
+    private PaymentMethodDefinition $paymentMethodDefinition;
+
     protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 
         $registry = new StaticDefinitionInstanceRegistry(
-            [ShippingMethodDefinition::class],
+            [ShippingMethodDefinition::class, PaymentMethodDefinition::class],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );
 
-        /** @var ShippingMethodDefinition $definition */
         $definition = $registry->get(ShippingMethodDefinition::class);
-
+        static::assertInstanceOf(ShippingMethodDefinition::class, $definition);
         $this->shippingMethodDefinition = $definition;
+
+        $definition = $registry->get(PaymentMethodDefinition::class);
+        static::assertInstanceOf(PaymentMethodDefinition::class, $definition);
+        $this->paymentMethodDefinition = $definition;
+    }
+
+    public function testSubscribedEvents(): void
+    {
+        $events = ShippingMethodValidator::getSubscribedEvents();
+
+        static::assertCount(1, $events);
+        static::assertEquals('preValidate', $events[PreWriteValidationEvent::class]);
+    }
+
+    public function testPreValidateWithInvalidCommands(): void
+    {
+        $commands = [];
+        $commands[] = new UpdateCommand($this->paymentMethodDefinition, [], ['id' => Uuid::randomBytes()], EntityExistence::createForEntity('shipping_method', ['id' => Uuid::randomBytes()]), '/0/');
+        $commands[] = new class($this->shippingMethodDefinition, [], [], EntityExistence::createForEntity('shipping_method', ['id' => Uuid::randomBytes()]), '/0/') extends WriteCommand {
+            public function getPrivilege(): ?string
+            {
+                return null;
+            }
+        };
+
+        $fakeConnection = new FakeConnection([]);
+
+        $event = new PreWriteValidationEvent($this->context, $commands);
+        $validator = new ShippingMethodValidator($fakeConnection);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
     #[DataProvider('shippingMethodTaxProvider')]
@@ -59,7 +95,7 @@ class ShippingMethodValidatorTest extends TestCase
                 'tax_type' => $taxType,
                 'tax_id' => $taxId,
                 'availability_rule' => [
-                    'id' => Uuid::randomHex(),
+                    'id' => Uuid::randomBytes(),
                     'name' => 'asd',
                     'priority' => 2,
                 ],
@@ -98,6 +134,6 @@ class ShippingMethodValidatorTest extends TestCase
         yield 'Test tax type is auto' => ['auto', null, true];
         yield 'Test tax type is highest' => ['highest', null, true];
         yield 'Test tax type is fixed without tax ID' => ['fixed', null, false];
-        yield 'Test tax type is fixed with tax ID' => ['fixed', Uuid::randomHex(), true];
+        yield 'Test tax type is fixed with tax ID' => ['fixed', Uuid::randomBytes(), true];
     }
 }

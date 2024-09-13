@@ -11,7 +11,12 @@ const { mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'syncService', 'acl'],
+
+    emits: ['landing-page-checked-elements-count', 'unsaved-changes'],
+
     mixins: [
         'notification',
     ],
@@ -180,7 +185,11 @@ export default {
 
         onDeleteLandingPage({ data: landingPage }) {
             if (landingPage.isNew()) {
-                this.$delete(this.loadedLandingPages, landingPage.id);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.loadedLandingPages, landingPage.id);
+                } else {
+                    delete this.loadedLandingPages[landingPage.id];
+                }
                 return Promise.resolve();
             }
 

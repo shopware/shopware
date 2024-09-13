@@ -11,7 +11,11 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'configService'],
+
+    emits: ['media-open'],
 
     mixins: [
         Mixin.getByName('notification'),

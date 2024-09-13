@@ -18,6 +18,8 @@ type ComponentData = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     beforeRouteEnter(to, from, next) {
         next((vm) => {
             // @ts-expect-error

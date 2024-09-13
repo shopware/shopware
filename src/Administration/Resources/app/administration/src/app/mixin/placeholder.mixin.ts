@@ -21,7 +21,6 @@ export default Shopware.Mixin.register('placeholder', defineComponent({
                 return fallbackSnippet;
             }
 
-            // @ts-expect-error - we know it is a string because we check it beforehand
             if (Shopware.Utils.types.isString(entity[field]) && entity[field].length > 0) {
                 return entity[field];
             }

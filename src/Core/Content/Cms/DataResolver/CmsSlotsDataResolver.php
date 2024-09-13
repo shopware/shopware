@@ -7,14 +7,17 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\Extension\CmsSlotsDataCollectExtension;
+use Shopware\Core\Content\Cms\Extension\CmsSlotsDataEnrichExtension;
+use Shopware\Core\Content\Cms\Extension\CmsSlotsDataResolveExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -26,12 +29,7 @@ class CmsSlotsDataResolver
     /**
      * @var array<string, CmsElementResolverInterface>
      */
-    private ?array $resolvers = null;
-
-    /**
-     * @var array<string, SalesChannelRepository>
-     */
-    private ?array $repositories = null;
+    private array $resolvers = [];
 
     /**
      * @internal
@@ -41,13 +39,10 @@ class CmsSlotsDataResolver
      */
     public function __construct(
         iterable $resolvers,
-        array $repositories,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly array $repositories,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly ExtensionDispatcher $extensions,
     ) {
-        foreach ($repositories as $entityName => $repository) {
-            $this->repositories[$entityName] = $repository;
-        }
-
         foreach ($resolvers as $resolver) {
             $this->resolvers[$resolver->getType()] = $resolver;
         }
@@ -55,13 +50,47 @@ class CmsSlotsDataResolver
 
     public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
-        $slotCriteriaList = [];
+        return $this->extensions->publish(
+            name: CmsSlotsDataResolveExtension::NAME,
+            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
+            function: $this->__resolve(...),
+        );
+    }
 
-        /*
-         * Collect criteria objects for each slot from resolver
-         *
-         * @var CmsSlotEntity
-         */
+    private function __resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    {
+        $criteriaList = $this->extensions->publish(
+            name: CmsSlotsDataCollectExtension::NAME,
+            extension: new CmsSlotsDataCollectExtension($slots, $resolverContext),
+            function: $this->collectCriteriaList(...)
+        );
+
+        // reduce search requests by combining mergeable criteria objects
+        [$directReads, $searches] = $this->optimizeCriteriaObjects($criteriaList);
+
+        // fetch data from storage
+        $identifierResult = $this->fetchByIdentifier($directReads, $resolverContext->getSalesChannelContext());
+        $criteriaResult = $this->fetchByCriteria($searches, $resolverContext->getSalesChannelContext());
+
+        return $this->extensions->publish(
+            name: CmsSlotsDataEnrichExtension::NAME,
+            extension: new CmsSlotsDataEnrichExtension(
+                slots: $slots,
+                criteriaList: $criteriaList,
+                identifierResult: $identifierResult,
+                criteriaResult: $criteriaResult,
+                resolverContext: $resolverContext,
+            ),
+            function: $this->enrichCmsSlots(...),
+        );
+    }
+
+    /**
+     * @return array<string, CriteriaCollection>
+     */
+    private function collectCriteriaList(CmsSlotCollection $slots, ResolverContext $resolverContext): array
+    {
+        $result = [];
         foreach ($slots as $slot) {
             $resolver = $this->resolvers[$slot->getType()] ?? null;
             if (!$resolver) {
@@ -73,16 +102,26 @@ class CmsSlotsDataResolver
                 continue;
             }
 
-            $slotCriteriaList[$slot->getUniqueIdentifier()] = $collection;
+            $result[$slot->getUniqueIdentifier()] = $collection;
         }
 
-        // reduce search requests by combining mergeable criteria objects
-        [$directReads, $searches] = $this->optimizeCriteriaObjects($slotCriteriaList);
+        return $result;
+    }
 
-        // fetch data from storage
-        $entities = $this->fetchByIdentifier($directReads, $resolverContext->getSalesChannelContext());
-        $searchResults = $this->fetchByCriteria($searches, $resolverContext->getSalesChannelContext());
-
+    /**
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param array<CriteriaCollection> $criteriaList
+     * @param array<EntitySearchResult<TEntityCollection>> $identifierResult
+     * @param array<EntitySearchResult<TEntityCollection>> $criteriaResult
+     */
+    private function enrichCmsSlots(
+        CmsSlotCollection $slots,
+        array $criteriaList,
+        array $identifierResult,
+        array $criteriaResult,
+        ResolverContext $resolverContext
+    ): CmsSlotCollection {
         // create result for each slot with the requested data
         foreach ($slots as $slotId => $slot) {
             $resolver = $this->resolvers[$slot->getType()] ?? null;
@@ -92,8 +131,8 @@ class CmsSlotsDataResolver
 
             $result = new ElementDataCollection();
 
-            $this->mapSearchResults($result, $slot, $slotCriteriaList, $searchResults);
-            $this->mapEntities($result, $slot, $slotCriteriaList, $entities);
+            $this->mapSearchResults($result, $slot, $criteriaList, $criteriaResult);
+            $this->mapEntities($result, $slot, $criteriaList, $identifierResult);
 
             $resolver->enrich($slot, $resolverContext, $result);
 
@@ -106,8 +145,6 @@ class CmsSlotsDataResolver
 
     /**
      * @param string[][] $directReads
-     *
-     * @throws InconsistentCriteriaIdsException
      *
      * @return array<string, EntitySearchResult<EntityCollection>>
      */
@@ -132,7 +169,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param array<string, array<string, Criteria>>               $searches
+     * @param array<string, array<string, Criteria>> $searches
      *
      * @return array<string, EntitySearchResult<EntityCollection>>
      */

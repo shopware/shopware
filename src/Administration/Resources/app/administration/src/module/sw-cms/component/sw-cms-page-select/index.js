@@ -11,7 +11,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),

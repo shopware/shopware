@@ -2,8 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
@@ -16,13 +17,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 /**
  * @internal
@@ -30,6 +34,8 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 #[Entity('attribute_entity', since: '6.6.3.0')]
 class AttributeEntity extends EntityStruct
 {
+    use EntityCustomFieldsTrait;
+
     #[PrimaryKey]
     #[Field(type: FieldType::UUID)]
     public string $id;
@@ -107,8 +113,14 @@ class AttributeEntity extends EntityStruct
     #[Field(type: FieldType::TIME_ZONE, translated: true)]
     public ?string $transTimeZone = null;
 
+    #[Field(type: FieldType::STRING, translated: true, column: 'another_column_name')]
+    public ?string $differentName = null;
+
     #[ForeignKey(entity: 'currency')]
     public ?string $currencyId = null;
+
+    #[State(machine: OrderStates::STATE_MACHINE)]
+    public ?string $stateId = null;
 
     #[ForeignKey(entity: 'currency')]
     public ?string $followId = null;
@@ -119,27 +131,30 @@ class AttributeEntity extends EntityStruct
     #[OneToOne(entity: 'currency', onDelete: OnDelete::SET_NULL)]
     public ?CurrencyEntity $follow = null;
 
+    #[ManyToOne(entity: 'state_machine_state')]
+    public ?StateMachineStateEntity $state = null;
+
     /**
-     * @var array<string, AttributeEntityAgg>
+     * @var array<string, AttributeEntityAgg>|null
      */
     #[OneToMany(entity: 'attribute_entity_agg', ref: 'attribute_entity_id', onDelete: OnDelete::CASCADE)]
     public ?array $aggs = null;
 
     /**
-     * @var array<string, CurrencyEntity>
+     * @var array<string, CurrencyEntity>|null
      */
     #[ManyToMany(entity: 'currency', onDelete: OnDelete::CASCADE)]
     public ?array $currencies = null;
 
     /**
-     * @var array<string, ArrayEntity>
+     * @var array<string, OrderEntity>
      */
-    #[Translations]
-    public array $translations;
+    #[ManyToMany(entity: 'order', onDelete: OnDelete::CASCADE)]
+    public ?array $orders = null;
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, ArrayEntity>|null
      */
-    #[CustomFields]
-    public array $customFields;
+    #[Translations]
+    public ?array $translations = null;
 }

@@ -10,6 +10,10 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['element-update'],
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -22,13 +26,11 @@ export default {
     },
 
     watch: {
-        cmsPageState: {
-            deep: true,
+        'cmsPageState.currentDemoEntity': {
             handler() {
                 this.updateDemoValue();
             },
         },
-
         'element.config.content.source': {
             handler() {
                 this.updateDemoValue();
@@ -60,10 +62,12 @@ export default {
         },
 
         emitChanges(content) {
-            if (content !== this.element.config.content.value) {
-                this.element.config.content.value = content;
-                this.$emit('element-update', this.element);
+            if (content === this.element.config.content.value) {
+                return;
             }
+
+            this.element.config.content.value = content;
+            this.$emit('element-update', this.element);
         },
     },
 };

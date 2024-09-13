@@ -31,6 +31,6 @@ class ActionButtonResponseFactory
             }
         }
 
-        throw AppException::actionButtonProcessException($action->getActionId(), sprintf('No factory found for action type "%s"', $actionType));
+        throw AppException::actionButtonProcessException($action->getActionId(), \sprintf('No factory found for action type "%s"', $actionType));
     }
 }

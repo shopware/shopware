@@ -1,13 +1,11 @@
-const { Mixin } = Shopware;
-
 /**
  * @private
  * @package buyers-experience
  */
-Mixin.register('cms-state', {
+Shopware.Mixin.register('cms-state', {
     computed: {
         cmsPageState() {
-            return Shopware.State.get('cmsPageState');
+            return Shopware.Store.get('cmsPageState');
         },
 
         selectedBlock: {
@@ -16,7 +14,7 @@ Mixin.register('cms-state', {
             },
 
             set(block) {
-                this.$store.commit('cmsPageState/setSelectedBlock', block);
+                this.cmsPageState.setSelectedBlock(block);
             },
         },
 
@@ -26,7 +24,7 @@ Mixin.register('cms-state', {
             },
 
             set(section) {
-                this.$store.commit('cmsPageState/setSelectedSection', section);
+                this.cmsPageState.setSelectedSection(section);
             },
         },
 

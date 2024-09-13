@@ -99,6 +99,6 @@ export default class AppClientService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options.headers = {...options.headers, ...await this.getHeaders()};
 
-        return fetch(url, options)
+        return fetch(url, options);
     }
 }

@@ -27,7 +27,7 @@ class CustomerVatIdentification extends Constraint
     public function __construct($options = null)
     {
         if (!\is_string($options['countryId'] ?? null)) {
-            throw new MissingOptionsException(sprintf('Option "countryId" must be given for constraint %s', self::class), ['countryId']);
+            throw new MissingOptionsException(\sprintf('Option "countryId" must be given for constraint %s', self::class), ['countryId']);
         }
 
         parent::__construct($options);

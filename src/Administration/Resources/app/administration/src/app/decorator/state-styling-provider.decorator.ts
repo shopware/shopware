@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 import type { stateStyleService } from '../service/state-style.service';
 
 const { Application } = Shopware;

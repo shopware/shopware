@@ -14,6 +14,8 @@ const { State, Mixin, Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'systemConfigApiService',
         'shopwareExtensionService',
@@ -66,7 +68,7 @@ export default Shopware.Component.wrapComponentConfig({
             .catch(() => {});
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.unsubscribeStore !== null) {
             this.unsubscribeStore();
         }

@@ -11,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CronIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -34,6 +36,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldType\CronInterval;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Log\Package;
 
@@ -107,6 +111,9 @@ class #entity#Collection extends EntityCollection
 }
 EOF;
 
+    /**
+     * @return array<string, string>|null
+     */
     public function generate(EntityDefinition $definition): ?array
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -127,7 +134,7 @@ EOF;
         ];
     }
 
-    private function generateEntity(EntityDefinition $definition)
+    private function generateEntity(EntityDefinition $definition): string
     {
         $properties = [];
 
@@ -171,6 +178,9 @@ EOF;
         );
     }
 
+    /**
+     * @return array{property: string, functions: string, uses: list<string>}|null
+     */
     private function generateProperty(EntityDefinition $definition, Field $field): ?array
     {
         $nullable = '|null';
@@ -217,22 +227,22 @@ EOF;
                 );
             case $field instanceof CartPriceField:
                 $type = 'CartPrice';
-                $uses[] = 'use ' . CartPrice::class;
+                $uses[] = $this->getUsage(CartPrice::class);
 
                 break;
             case $field instanceof CalculatedPriceField:
                 $type = 'CalculatedPrice';
-                $uses[] = 'use ' . CalculatedPrice::class;
+                $uses[] = $this->getUsage(CalculatedPrice::class);
 
                 break;
             case $field instanceof PriceDefinitionField:
                 $type = 'QuantityPriceDefinition';
-                $uses[] = 'use ' . QuantityPriceDefinition::class;
+                $uses[] = $this->getUsage(QuantityPriceDefinition::class);
 
                 break;
             case $field instanceof PriceField:
                 $type = 'Price';
-                $uses[] = 'use ' . Price::class;
+                $uses[] = $this->getUsage(Price::class);
 
                 break;
             case $field instanceof FloatField:
@@ -265,12 +275,22 @@ EOF;
                 $type = "\DateTimeInterface";
 
                 break;
+            case $field instanceof DateIntervalField:
+                $type = 'DateInterval';
+                $uses[] = $this->getUsage(DateInterval::class);
+
+                break;
+            case $field instanceof CronIntervalField:
+                $type = 'CronInterval';
+                $uses[] = $this->getUsage(CronInterval::class);
+
+                break;
             case $field instanceof BlobField:
                 $type = 'object';
 
                 break;
             default:
-                throw new \RuntimeException(sprintf('Unknown field %s', $field::class));
+                throw DataAbstractionLayerException::noGeneratorForFieldTypeFound($field);
         }
 
         $template = str_replace(
@@ -297,7 +317,7 @@ EOF;
         ];
     }
 
-    private function generateCollection(EntityDefinition $definition)
+    private function generateCollection(EntityDefinition $definition): string
     {
         $entityClass = $definition->getEntityClass();
         $entityClass = explode('\\', $entityClass);
@@ -325,12 +345,12 @@ EOF;
         );
     }
 
-    private function getUsage(string $class)
+    private function getUsage(string $class): string
     {
         return 'use ' . $class;
     }
 
-    private function getClassTypeHint(string $class)
+    private function getClassTypeHint(string $class): string
     {
         $parts = explode('\\', $class);
 

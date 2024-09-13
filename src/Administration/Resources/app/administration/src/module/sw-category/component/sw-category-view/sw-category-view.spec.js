@@ -1,3 +1,7 @@
+/**
+ * @package inventory
+ */
+
 import { mount } from '@vue/test-utils';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
@@ -17,15 +21,12 @@ async function createWrapper(categoryType) {
         },
     });
 
-    if (Shopware.State.get('cmsPageState')) {
-        Shopware.State.unregisterModule('cmsPageState');
-    }
-
-    Shopware.State.registerModule('cmsPageState', {
-        namespaced: true,
-        state: {
+    Shopware.Store.unregister('cmsPageState');
+    Shopware.Store.register({
+        id: 'cmsPageState',
+        state: () => ({
             currentPage: undefined,
-        },
+        }),
     });
 
     return mount(await wrapTestComponent('sw-category-view', { sync: true }), {

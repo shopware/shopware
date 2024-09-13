@@ -58,6 +58,7 @@
                 >
                     <component
                         :is="Component"
+                        v-if="Component"
                         class="sw-first-run-wizard-modal__component"
                         @buttons-update="updateButtons"
                         @frw-redirect="redirect"
@@ -86,7 +87,7 @@
             <div class="footer-left">
                 <sw-button
                     v-for="button in buttons.left"
-                    :key="button.key"
+                    :key="button.action"
                     :variant="button.variant"
                     :disabled="button.disabled"
                     size="small"
@@ -102,7 +103,7 @@
             <div class="footer-right">
                 <sw-button
                     v-for="button in buttons.right"
-                    :key="button.key"
+                    :key="button.action"
                     :variant="button.variant"
                     :disabled="button.disabled"
                     size="small"

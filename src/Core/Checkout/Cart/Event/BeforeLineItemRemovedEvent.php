@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
-class BeforeLineItemRemovedEvent implements ShopwareSalesChannelEvent
+class BeforeLineItemRemovedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
      * @var LineItem

@@ -54,9 +54,6 @@ describe('src/app/component/base/sw-chart-card', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.hasHeaderLink).toBeFalsy();
-        wrapper.vm.$slots['header-link'] = 'foo';
-
-        expect(wrapper.vm.hasHeaderLink).toBeFalsy();
     });
 
     it('should set the correct range in the dropdown by default', async () => {

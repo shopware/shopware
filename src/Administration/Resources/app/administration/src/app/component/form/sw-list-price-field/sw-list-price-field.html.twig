@@ -19,7 +19,7 @@
             :default-price="defaultPrice"
             :tax-rate="taxRate"
             :error="error"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             :enable-inheritance="enableInheritance"
             :label="label"
             :currency="currency"
@@ -41,7 +41,7 @@
             :gross-label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
             :net-label="$tc('sw-product.priceForm.labelPurchasePriceNet')"
             :tax-rate="taxRate"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             :currency="currency"
         />
         {% endblock %}
@@ -56,7 +56,7 @@
             :value="listPrice"
             :default-price="defaultListPrice"
             :tax-rate="taxRate"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             allow-empty
             :gross-label="$tc('global.sw-list-price-field.labelListPriceGross')"
             :gross-help-text="listPriceHelpText"
@@ -68,7 +68,7 @@
             :inherited="isInherited"
             class="sw-list-price-field__list-price-field"
             :currency="currency"
-            @update:value="listPriceChanged"
+            @change="listPriceChanged"
         />
         {% endblock %}
     </div>
@@ -81,7 +81,7 @@
             :value="regulationPrice"
             :default-price="defaultRegulationPrice"
             :tax-rate="taxRate"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             allow-empty
             :gross-label="$tc('global.sw-list-price-field.labelRegulationPriceGross')"
             :gross-help-text="regulationPriceHelpText"
@@ -93,7 +93,7 @@
             :inherited="isInherited"
             class="sw-list-price-field__regulation-price-field"
             :currency="currency"
-            @update:value="regulationPriceChanged"
+            @change="regulationPriceChanged"
         />
         {% endblock %}
     </div>

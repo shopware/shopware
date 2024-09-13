@@ -151,7 +151,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
+            $this->context
         );
 
         try {
@@ -173,9 +173,11 @@ class ShippingZipCodeRuleTest extends TestCase
             static::assertSame('The property "zipCodes" is not allowed.', $exceptions[0]['detail']);
         }
 
+        $id = Uuid::randomHex();
         // should not throw an exception
         $this->conditionRepository->create([
             [
+                'id' => $id,
                 'type' => (new ShippingZipCodeRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
@@ -183,6 +185,9 @@ class ShippingZipCodeRuleTest extends TestCase
                 ],
             ],
         ], $this->context);
+
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
     public function testIfRuleIsConsistent(): void
@@ -190,7 +195,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
+            $this->context
         );
 
         $id = Uuid::randomHex();
@@ -207,6 +212,8 @@ class ShippingZipCodeRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
     public function testValidateWithInvalidGreaterThanCondition(): void
@@ -237,7 +244,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
+            $this->context
         );
 
         $id = Uuid::randomHex();
@@ -254,6 +261,8 @@ class ShippingZipCodeRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
     public function testConstraints(): void

@@ -68,8 +68,8 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 
         foreach ($apps as $app) {
             \assert(\is_string($app['path']));
-            $viewDirectory = sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
-            $resourcesDirectory = sprintf('%s/%s/Resources', $projectDir, $app['path']);
+            $viewDirectory = \sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
+            $resourcesDirectory = \sprintf('%s/%s/Resources', $projectDir, $app['path']);
 
             if (file_exists($viewDirectory)) {
                 $fileSystemLoader->addMethodCall('addPath', [$viewDirectory]);

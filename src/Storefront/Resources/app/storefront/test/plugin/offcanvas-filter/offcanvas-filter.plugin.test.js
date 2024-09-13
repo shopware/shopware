@@ -21,6 +21,11 @@ describe('Offcanvas filter tests', () => {
             subscribe: () => {},
         };
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         // mock offcanvas filter plugins
         mockDomElement = document.createElement('div');
         offcanvasFilter = new OffCanvasFilter(mockDomElement);

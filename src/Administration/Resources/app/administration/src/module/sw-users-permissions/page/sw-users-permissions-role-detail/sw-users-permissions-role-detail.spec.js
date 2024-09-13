@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
@@ -56,7 +56,9 @@ async function createWrapper(
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-icon': true,
-                'sw-card-view': true,
+                'sw-card-view': {
+                    template: '<div class="sw-card-view"><slot></slot></div>',
+                },
                 'sw-card': true,
                 'sw-field': true,
                 'sw-users-permissions-permissions-grid': true,
@@ -67,6 +69,10 @@ async function createWrapper(
                 'router-view': true,
                 'sw-skeleton': true,
                 'sw-loader': true,
+                'sw-button': {
+                    emits: ['click'],
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
             },
             mocks: {
                 $route: $route,
@@ -532,6 +538,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         await saveButton.trigger('click.prevent');
+        await flushPromises();
 
         verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
         expect(verifyUserModal.exists()).toBeTruthy();

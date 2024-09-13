@@ -19,9 +19,14 @@ interface PromotionCodeItem {
     referencedId: string,
 }
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),

@@ -11,6 +11,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-config-location-renderer', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],

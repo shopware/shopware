@@ -15,6 +15,8 @@ const profileTypes = {
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

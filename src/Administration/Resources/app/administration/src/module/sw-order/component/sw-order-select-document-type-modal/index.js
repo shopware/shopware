@@ -11,10 +11,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',
     ],
+
+    emits: ['modal-close', 'update:value'],
 
     props: {
         order: {

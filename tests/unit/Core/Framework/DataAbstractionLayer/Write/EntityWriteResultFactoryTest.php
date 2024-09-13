@@ -72,7 +72,7 @@ class EntityWriteResultFactoryTest extends TestCase
 
                 static::assertIsString($id, 'Expected write result to have a primary key as string in this test');
 
-                static::assertArrayHasKey($id, $records, sprintf('Primary key %s was not expected to be written', $id));
+                static::assertArrayHasKey($id, $records, \sprintf('Primary key %s was not expected to be written', $id));
 
                 static::assertEquals($records[$id], $written->getPayload(), 'Expected payload to be equal');
             }

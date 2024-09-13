@@ -10,6 +10,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
+      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
     services:
       database:
         image: mysql:8.0
@@ -42,6 +43,9 @@ jobs:
           name: context
           path: |
             .
+            .github/
+            !var/cache
+            !tests/
             !public
             !**/node_modules
             !vendor
@@ -50,54 +54,67 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-latest
+    environment: release
+    # we use this image to get an older git version, which does not suffer from a performance regression
+    container: alpine:3.19
     if: github.repository == 'shopware/shopware'
     strategy:
       matrix:
         package:
-          - name: Administration
-            remote: https://${{ secrets.MANYREPO_SYNC_USER }}:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware/administration
-          - name: Storefront
-            remote: https://${{ secrets.MANYREPO_SYNC_USER }}:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware/storefront
-          - name: Core
-            remote: https://${{ secrets.MANYREPO_SYNC_USER }}:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware/core
-          - name: Elasticsearch
-            remote: https://${{ secrets.MANYREPO_SYNC_USER }}:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware/elasticsearch
+          - administration
+          - storefront
+          - core
+          - elasticsearch
+    env:
+      GIT_AUTHOR_EMAIL: "shopwarebot@shopware.com"
+      GIT_AUTHOR_NAME: "shopwareBot"
+      GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
+      GIT_COMMITTER_NAME: "shopwareBot"
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: context
+      - name: Is protected
+        if: github.ref_protected
+        run: echo 'is protected'
+
+      - name: install deps
+        run: apk add git git-subtree bash composer
+      - name: Mark dir as safe
+        run: git config --global --add safe.directory $PWD
       - name: split
         run: |
-          bash .github/split.bash split_repo "${{ matrix.package.name }}"
-      - name: Incldue assets
+          bash .github/bin/split.bash split_repo "${{ matrix.package }}"
+          git config --global --add safe.directory $PWD/repos/${{ matrix.package }}
+          rm -Rf .git
+      - name: Include assets
         run: |
-          bash .github/split.bash include_assets "${{ matrix.package.name }}"
+          bash .github/bin/split.bash include_assets "${{ matrix.package }}"
       - name: Require core version
         run: |
-          bash .github/split.bash require_core_version "${{ matrix.package.name }}" "${{ github.ref_name }}" ${{ github.ref_type }}
-      - name: Require core version
-        ## todo use tag
-        if: matrix.package.name != 'Core'
-        env:
-          GIT_AUTHOR_EMAIL: "shopwarebot@shopware.com"
-          GIT_AUTHOR_NAME: "shopwareBot"
-          GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
-          GIT_COMMITTER_NAME: "shopwareBot"
+          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "${{ github.ref_name }}" ${{ github.ref_type }}
+      - name: Commit assets
+        if: matrix.package != 'core'
         run: |
-          bash .github/split.bash commit "${package}" "${{ github.ref_name }} (+ assets)"
+          bash .github/bin/split.bash commit "${{ matrix.package }}" "${{ github.ref_name }} (+ assets)"
+      - name: Tag commit
+        if: github.ref_type == 'tag'
+        run: |
+          bash .github/bin/split.bash tag "${{ matrix.package }}" "${{ github.ref_name }}"
+
       - name: Diff
-        if: matrix.package.name != 'Core'
+        if: matrix.package != 'core'
         run: |
-          P=${{ matrix.package.name }}
-          cat repos/${P,,}/composer.json
-          git -C repos/${P,,} log -n 1
-          git -C repos/${P,,} diff @^..
+          cat repos/${{ matrix.package }}/composer.json
+          git -C repos/${{ matrix.package }} log -n 2
+          git -C repos/${{ matrix.package }} diff @^.. | head -n 100
       - name: Push
-        if: github.ref_type == 'tag' && github.ref_protected
+        if: github.ref_type == 'tag'
         run: |
-          bash .github/split.bash push "${{ matrix.package.name }}" ${{ matrix.package.remote }} "${{ github.ref_name }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
 
   draft-release-notes:
+    needs: split
     runs-on: ubuntu-latest
     if: github.repository == 'shopware/shopware'
     permissions:
@@ -105,21 +122,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Draft release (Dry run)
-        if: github.ref_type != 'tag'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRY_RUN: 1
-        run: |
-          bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
       - name: Draft release
-        if: github.ref_type == 'tag' && github.ref_protected
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # set dry run if it's not a tag
+          DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
         run: |
+          echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
 
   create-sbp-release:
+    needs: split
     runs-on: ubuntu-latest
     if: github.repository == 'shopware/shopware'
     strategy:
@@ -128,16 +141,13 @@ jobs:
     env:
       SBP_API_URL: ${{ secrets[format('SBP_API_URL_{0}', matrix.sbp-environment)] }}
       SBP_TOKEN: ${{ secrets[format('SBP_API_TOKEN_{0}', matrix.sbp-environment)] }}
+      # set dry run if it's not a tag
+      DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Create sbp release (Dry run)
-        if: github.ref_type != 'tag'
-        env:
-          DRY_RUN: "1"
-        run: |
-          bash .github/bin/sbp_release.bash create "${{ github.ref_name }}"
       - name: Create sbp release
-        if: github.ref_type == 'tag' && github.ref_protected
         run: |
+          echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/sbp_release.bash create "${{ github.ref_name }}"

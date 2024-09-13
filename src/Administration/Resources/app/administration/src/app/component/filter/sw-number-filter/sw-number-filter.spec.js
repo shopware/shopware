@@ -21,6 +21,11 @@ async function createWrapper() {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'mt-number-field': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},

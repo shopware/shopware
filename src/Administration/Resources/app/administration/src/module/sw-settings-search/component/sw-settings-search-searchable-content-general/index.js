@@ -9,9 +9,13 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
     ],
+
+    emits: ['data-load', 'config-save'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -61,6 +65,9 @@ export default {
     },
 
     methods: {
+        getList() {
+            // Empty method needed to avoid warning from listing mixin
+        },
 
         getMatchingFields(fieldName) {
             if (!fieldName) {

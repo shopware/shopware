@@ -10,7 +10,11 @@ const { Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: ['preview-image-change', 'on-item-click', 'element-click', 'item-click', 'cms-page-delete'],
 
     props: {
         page: {
@@ -101,12 +105,14 @@ export default {
             this.$emit('preview-image-change', page);
         },
 
+        /** @deprecated tag:v6.7.0 - `on-item-click` will be removed. Handle `element-click` instead */
         onElementClick() {
             if (this.disabled) {
                 return;
             }
 
             this.$emit('on-item-click', this.page);
+            this.$emit('element-click', this.page);
         },
 
         onItemClick(page) {
@@ -117,6 +123,7 @@ export default {
             this.$emit('item-click', page);
         },
 
+        /** @deprecated tag:v6.7.0 - `onRemovePreviewImage` will be removed without replacement */
         onRemovePreviewImage(page) {
             page.previewMediaId = null;
             page.save();

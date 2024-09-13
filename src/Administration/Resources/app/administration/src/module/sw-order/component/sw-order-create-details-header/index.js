@@ -10,6 +10,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['on-select-existing-customer'],
+
     props: {
         // eslint-disable-next-line vue/require-default-prop
         customer: {

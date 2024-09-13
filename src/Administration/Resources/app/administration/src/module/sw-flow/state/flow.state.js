@@ -5,6 +5,7 @@ const { types } = Shopware.Utils;
 /**
  * @private
  * @package services-settings
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default {
     namespaced: true,
@@ -279,7 +280,7 @@ export default {
         },
 
         hasAvailableAction: (state) => (actionName) => {
-            return state.originAvailableActions.some(name => name === actionName);
+            return state.originAvailableActions?.some(name => name === actionName) ?? false;
         },
     },
 

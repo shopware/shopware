@@ -10,10 +10,14 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['modal-close', 'modal-save', 'base-item-change'],
 
     props: {
         currencyDependsValue: {

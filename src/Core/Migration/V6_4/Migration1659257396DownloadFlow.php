@@ -90,7 +90,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
                 'type' => 'cartLineItemProductStates',
                 'rule_id' => $idRule,
                 'parent_id' => $idCondition,
-                'value' => sprintf('{"operator": "=", "productState": "%s"}', State::IS_DOWNLOAD),
+                'value' => \sprintf('{"operator": "=", "productState": "%s"}', State::IS_DOWNLOAD),
                 'position' => 0,
                 'custom_fields' => null,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -171,7 +171,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
                     'position' => 2,
                     'true_case' => 1,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'config' => sprintf(
+                    'config' => \sprintf(
                         '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
                         Uuid::fromBytesToHex($mailTemplateId)
                     ),
@@ -216,7 +216,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
             $sequenceConfig[] = [
                 'id' => Uuid::randomHex(),
                 'actionName' => SendMailAction::ACTION_NAME,
-                'config' => sprintf(
+                'config' => \sprintf(
                     '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
                     Uuid::fromBytesToHex($mailTemplateId)
                 ),

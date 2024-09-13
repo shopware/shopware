@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-card', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-card-deprecated': true,
+                'mt-card': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

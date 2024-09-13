@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
@@ -56,6 +57,8 @@ class ContactFormRoute extends AbstractContactFormRoute
     #[Route(path: '/store-api/contact-form', name: 'store-api.contact.form', methods: ['POST'])]
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
+        EmailIdnConverter::encodeDataBag($data);
+
         $this->validateContactForm($data, $context);
 
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {

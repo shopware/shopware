@@ -20,11 +20,11 @@ async function createWrapper() {
 
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 selectedSection: {},
-            },
+            }),
             actions: {
                 setSection: () => {},
             },

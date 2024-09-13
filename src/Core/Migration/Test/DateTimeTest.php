@@ -38,7 +38,7 @@ EOF;
                     $matches
                 );
 
-                static::assertSame(0, $result, sprintf($errorTemplate, basename($file)));
+                static::assertSame(0, $result, \sprintf($errorTemplate, basename($file)));
             }
         }
     }

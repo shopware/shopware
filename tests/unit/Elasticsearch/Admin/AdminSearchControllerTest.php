@@ -17,8 +17,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[CoversClass(AdminSearchController::class)]

@@ -1,12 +1,9 @@
 import { mount } from '@vue/test-utils';
-import swCmsVisibilityToggle from 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 import 'src/app/component/base/sw-icon';
 
 /**
  * @package buyers-experience
  */
-
-Shopware.Component.register('sw-cms-visibility-toggle', swCmsVisibilityToggle);
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-visibility-toggle', {

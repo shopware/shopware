@@ -54,7 +54,7 @@ class DeleteExtensionLocalPublicFilesCommand extends Command
 
             $fs->remove($publicPath);
 
-            $io->success(sprintf('Removed public assets for bundle "%s"', $bundle->getName()));
+            $io->success(\sprintf('Removed public assets for bundle "%s"', $bundle->getName()));
         }
 
         return self::SUCCESS;

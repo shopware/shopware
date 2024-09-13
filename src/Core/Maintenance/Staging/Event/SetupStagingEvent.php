@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
 #[Package('core')]
 class SetupStagingEvent
 {

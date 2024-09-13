@@ -4,15 +4,17 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :model-value="currentValue"
-    v-on="$listeners"
+    v-on="listeners"
     @change="currentValue = $event"
 >
     <template
         v-for="(index, name) in getSlots()"
-        #[name]="data">
+        #[name]="data"
+    >
         <slot
             :name="name"
-            v-bind="data">
+            v-bind="data"
+        >
         </slot>
     </template>
     <slot></slot>
@@ -24,11 +26,12 @@
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
-        #[name]="data">
+        #[name]="data"
+    >
         <slot
             :name="name"
             v-bind="data"

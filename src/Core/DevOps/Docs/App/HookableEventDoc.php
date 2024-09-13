@@ -52,7 +52,7 @@ class HookableEventDoc
         try {
             return new self(
                 $event,
-                sprintf(
+                \sprintf(
                     self::WRITE_EVENT_DESCRIPTION_TEMPLATE,
                     $eventInfo[0],
                     $eventInfo[1]

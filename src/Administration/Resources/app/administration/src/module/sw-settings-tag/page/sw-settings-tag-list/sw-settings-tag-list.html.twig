@@ -56,7 +56,7 @@
             }"
             class="sw-settings-tag-list__button-create"
             variant="primary"
-            :disabled="!acl.can('tag.creator')"
+            :disabled="!acl.can('tag.creator') || undefined"
             @click="onDetail(null)"
         >
             {{ $tc('sw-settings-tag.list.buttonAddTag') }}
@@ -151,7 +151,7 @@
                             :label="$tc('sw-settings-tag.list.filterAssignemnt')"
                             :placeholder="$tc('sw-settings-tag.list.placeholderFilterAssignemnt')"
                             :options="assignmentFilterOptions"
-                            :disabled="emptyFilter"
+                            :disabled="emptyFilter || undefined"
                             @update:value="onFilter"
                         />
                         {% endblock %}
@@ -308,7 +308,7 @@
                                             variant="primary"
                                             size="small"
                                             :is-loading="isLoading"
-                                            :disabled="!duplicateName || bulkMergeProgress.isRunning"
+                                            :disabled="!duplicateName || bulkMergeProgress.isRunning || undefined"
                                             @click="onMergeTags(selection)"
                                         >
                                             {{ $tc('sw-settings-tag.list.bulkMerge') }}
@@ -351,7 +351,7 @@
                             {% block sw_settings_tag_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-settings-tag-list__edit-action"
-                                :disabled="!acl.can('tag.editor')"
+                                :disabled="!acl.can('tag.editor') || undefined"
                                 @click="onDetail(item.id)"
                             >
                                 {{ $tc('sw-settings-tag.list.contextMenuEdit') }}
@@ -361,7 +361,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_grid_columns_actions_duplicate %}
                             <sw-context-menu-item
-                                :disabled="!acl.can('tag.creator')"
+                                :disabled="!acl.can('tag.creator') || undefined"
                                 class="sw-settings-tag-list__duplicate-action"
                                 @click="onDuplicate(item)"
                             >
@@ -374,7 +374,7 @@
                             <sw-context-menu-item
                                 class="sw-settings-tag-list__delete-action"
                                 variant="danger"
-                                :disabled="!acl.can('tag.deleter')"
+                                :disabled="!acl.can('tag.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-tag.list.contextMenuDelete') }}

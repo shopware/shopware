@@ -9,6 +9,10 @@ const { Component } = Shopware;
 Component.register('sw-notification-center-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['center-close'],
+
     props: {
         notification: {
             type: Object,

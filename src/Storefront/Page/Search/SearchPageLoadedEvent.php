@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SearchPageLoadedEvent extends PageLoadedEvent
 {
     /**

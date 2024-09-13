@@ -38,7 +38,7 @@ class CleanupVersionTaskHandlerTest extends TestCase
 
         $this->createVersion($ids->create('version-1'), $date);
 
-        $date->modify(sprintf('-%d day', 31));
+        $date->modify(\sprintf('-%d day', 31));
         $this->createVersion($ids->create('version-2'), $date);
 
         $this->handler->run();

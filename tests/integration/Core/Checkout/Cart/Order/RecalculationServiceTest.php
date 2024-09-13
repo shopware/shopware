@@ -39,6 +39,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -244,7 +245,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -268,7 +269,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -295,7 +296,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -333,7 +334,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -357,7 +358,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -438,7 +439,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/product/%s',
                 $orderId,
                 $productId
@@ -455,7 +456,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -609,7 +610,7 @@ class RecalculationServiceTest extends TestCase
         // merge versioned order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/version/merge/%s/%s',
                 $this->getContainer()->get(OrderDefinition::class)->getEntityName(),
                 $versionId
@@ -1026,7 +1027,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order-address/%s/customer-address/%s',
                 $orderAddressId,
                 $customerAddressId
@@ -1250,7 +1251,6 @@ class RecalculationServiceTest extends TestCase
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -1269,6 +1269,10 @@ class RecalculationServiceTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
@@ -1354,7 +1358,7 @@ class RecalculationServiceTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/version/order/%s',
                 $orderId
             )
@@ -1384,7 +1388,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/product/%s',
                 $orderId,
                 $productId
@@ -1401,7 +1405,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -1469,7 +1473,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/lineItem',
                 $orderId
             ),
@@ -1542,7 +1546,7 @@ class RecalculationServiceTest extends TestCase
         // add credit item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/creditItem',
                 $orderId
             ),
@@ -1599,7 +1603,7 @@ class RecalculationServiceTest extends TestCase
         // add promotion item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/promotion-item',
                 $orderId
             ),
@@ -1647,7 +1651,7 @@ class RecalculationServiceTest extends TestCase
         // add promotion item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/toggleAutomaticPromotions',
                 $orderId
             ),

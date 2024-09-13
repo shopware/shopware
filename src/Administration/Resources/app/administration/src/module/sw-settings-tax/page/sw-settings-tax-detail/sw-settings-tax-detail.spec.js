@@ -77,6 +77,8 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                 'sw-text-field': true,
                 'sw-number-field': true,
                 'sw-skeleton': true,
+                'sw-tax-rule-card': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

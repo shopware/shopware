@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-checkbox-field', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-checkbox-field-deprecated': true,
+                'mt-checkbox': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

@@ -20,12 +20,14 @@
     "@typescript-eslint/parser": "^6.7.2",
     "dotenv": "^16.3.1",
     "eslint": "^8.49.0",
-    "eslint-plugin-playwright": "^0.16.0",
+    "eslint-plugin-playwright": "^1.6.2",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@playwright/test": "1.44.1",
-    "@shopware-ag/acceptance-test-suite": "2.0.1",
-    "@shopware/api-client": "^0.0.0-canary-20230823113412"
+    "@playwright/test": "1.45.3",
+    "@shopware-ag/acceptance-test-suite": "3.6.2",
+    "@shopware/api-client": "^0.0.0-canary-20230823113412",
+    "playwright-lighthouse": "4.0.0",
+    "lighthouse": "12.2.0"
   }
 }

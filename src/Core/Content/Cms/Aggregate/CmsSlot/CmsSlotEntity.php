@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationEntity;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -40,7 +41,7 @@ class CmsSlotEntity extends Entity
     protected $blockId;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $config;
 
@@ -111,11 +112,17 @@ class CmsSlotEntity extends Entity
         $this->blockId = $blockId;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
@@ -167,9 +174,16 @@ class CmsSlotEntity extends Entity
         $collection = new FieldConfigCollection();
         $config = $this->getTranslation('config') ?? [];
 
-        foreach ($config as $key => $value) {
+        foreach ($config as $key => $data) {
+            $source = $data['source'] ?? null;
+            $value = $data['value'] ?? null;
+
+            if (!\is_string($source)) {
+                throw CmsException::invalidFieldConfigSource($key);
+            }
+
             $collection->add(
-                new FieldConfig($key, $value['source'], $value['value'])
+                new FieldConfig($key, $source, $value)
             );
         }
 

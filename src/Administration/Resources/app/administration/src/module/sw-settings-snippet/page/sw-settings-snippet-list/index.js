@@ -11,6 +11,8 @@ const { Mixin, Data: { Criteria } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'snippetSetService',
         'snippetService',
@@ -181,7 +183,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -662,7 +664,11 @@ export default {
             this.appliedAuthors = [];
 
             Object.keys(this.filterSettings).forEach((key) => {
-                this.$set(this.filterSettings, key, false);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.filterSettings, key, false);
+                } else {
+                    this.filterSettings[key] = false;
+                }
             });
 
             this.initializeSnippetSet({});

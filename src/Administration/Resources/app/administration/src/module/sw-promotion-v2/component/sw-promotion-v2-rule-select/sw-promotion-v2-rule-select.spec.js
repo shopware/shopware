@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 const ruleConditionDataProviderService = {
@@ -12,6 +15,9 @@ async function createWrapper() {
                 'sw-entity-many-to-many-select': true,
                 'sw-arrow-field': true,
                 'sw-grouped-single-select': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-rule-modal': true,
             },
             provide: {
                 ruleConditionDataProviderService: ruleConditionDataProviderService,

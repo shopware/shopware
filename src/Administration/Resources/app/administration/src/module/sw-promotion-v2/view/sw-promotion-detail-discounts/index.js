@@ -10,6 +10,8 @@ import './sw-promotion-detail-discounts.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl'],
 
     data() {

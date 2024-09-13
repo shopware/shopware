@@ -19,7 +19,7 @@
             v-tooltip="tooltipCreate"
             class="sw-settings-units__create-action"
             variant="primary"
-            :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator')"
+            :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator') || undefined"
             @click="createNewUnit"
         >
             {{ $tc('sw-settings-units.general.createNewUnit') }}
@@ -28,7 +28,7 @@
 
     <template #language-switch>
         <sw-language-switch
-            :disabled="!!newUnit"
+            :disabled="!!newUnit || undefined"
             @on-change="onChangeLanguage"
         />
     </template>
@@ -55,7 +55,7 @@
                         :data-source="unitList"
                         :columns="unitColumns()"
                         :show-selection="false"
-                        :allow-inline-edit="acl.can('scale_unit.editor')"
+                        :allow-inline-edit="acl.can('scale_unit.editor') || undefined"
                         :skeleton-item-amount="placeholderAmount"
                         @inline-edit-save="saveUnit"
                         @inline-edit-cancel="cancelUnit"
@@ -64,7 +64,7 @@
                         <template #actions="{ item }">
                             <sw-context-menu-item
                                 class="sw-settings-units__edit-action"
-                                :disabled="!acl.can('scale_unit.editor')"
+                                :disabled="!acl.can('scale_unit.editor') || undefined"
                                 @click="editUnit(item)"
                             >
                                 {{ $tc('global.default.edit') }}
@@ -75,7 +75,7 @@
                             <sw-context-menu-item
                                 class="sw-settings-units__delete-action"
                                 variant="danger"
-                                :disabled="!acl.can('scale_unit.deleter')"
+                                :disabled="!acl.can('scale_unit.deleter') || undefined"
                                 @click="deleteUnit(item)"
                             >
                                 {{ $tc('global.default.delete') }}

@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -23,7 +24,7 @@ class AppLifecycleSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     /**
      * @var EntityRepository<AppCollection>
@@ -36,8 +37,7 @@ class AppLifecycleSubscriberTest extends TestCase
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
 
-        $userRepository = $this->getContainer()->get('user.repository');
-        $userId = $userRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $userId = $this->getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
         $source = new AdminApiSource($userId);
         $source->setIsAdmin(true);
 
@@ -75,7 +75,7 @@ class AppLifecycleSubscriberTest extends TestCase
     }
 
     /**
-     * @return  array<string, array<int, bool>>
+     * @return array<string, array<int, bool>>
      */
     public static function themeProvideData(): array
     {

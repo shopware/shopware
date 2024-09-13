@@ -10,7 +10,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
 
-async function createWrapper(privileges = ['user_config:read', 'user_config:create', 'user_config:update', 'cms.editor', 'cms.creator', 'cms.deleter', 'system_config:read']) {
+async function createWrapper(
+    privileges = ['user_config:read', 'user_config:create', 'user_config:update', 'cms.editor', 'cms.creator', 'cms.deleter', 'system_config:read'],
+    mocks = {},
+) {
     return mount(await wrapTestComponent('sw-cms-list', {
         sync: true,
     }), {
@@ -69,7 +72,7 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                     template: `
                         <div class="sw-modal-stub">
                             <slot></slot>
-    
+
                             <div class="modal-footer">
                                 <slot name="modal-footer"></slot>
                             </div>
@@ -84,9 +87,16 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                     props: ['value', 'label', 'placeholder'],
                     template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
                 },
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-tabs-item': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
             },
             mocks: {
                 $route: { query: '' },
+                ...mocks,
             },
             provide: {
                 repositoryFactory: {
@@ -172,6 +182,19 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
 }
 
 describe('module/sw-cms/page/sw-cms-list', () => {
+    beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('Did not persist user config, as permissions are missing');
+            },
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -197,6 +220,209 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             },
         ]);
     });
+
+    it('should show the correct context menu item for default layouts', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    type: 'product_list',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1',
+                    },
+                },
+                {
+                    id: '2a',
+                    type: 'product_detail',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2',
+                    },
+                },
+                {
+                    id: '3a',
+                    type: 'landingpage',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2',
+                    },
+                },
+            ],
+        };
+
+        await wrapper.setData(testData);
+        await flushPromises();
+
+        const contextButtons = wrapper.findAll('.sw-cms-list-item__options');
+        expect(contextButtons).toHaveLength(3);
+
+        const contextButtonChildren = wrapper.findAll('.sw-cms-list-item__options > .sw-cms-list-item__option-set-as-default');
+        expect(contextButtonChildren).toHaveLength(2);
+        expect(contextButtonChildren.at(0).text())
+            .toBe('sw-cms.components.cmsListItem.setAsDefaultProductList');
+        expect(contextButtonChildren.at(1).text())
+            .toBe('sw-cms.components.cmsListItem.setAsDefaultProductDetail');
+    });
+
+    it('should not add a context menu item for default layouts, if the user does not have the necessary privileges', async () => {
+        // Assign all roles and privileges besides system_config:read
+        const wrapper = await createWrapper([
+            'user_config:read',
+            'user_config:create',
+            'user_config:update',
+            'cms.editor',
+            'cms.creator',
+            'cms.deleter',
+        ]);
+        await flushPromises();
+
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    type: 'product_list',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1',
+                    },
+                },
+                {
+                    id: '2a',
+                    type: 'product_detail',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2',
+                    },
+                },
+                {
+                    id: '3a',
+                    type: 'landingpage',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2',
+                    },
+                },
+            ],
+        };
+
+        await wrapper.setData(testData);
+        await flushPromises();
+
+        const contextButtons = wrapper.findAll('.sw-cms-list-item__options');
+        expect(contextButtons).toHaveLength(3);
+
+        const contextButtonChildren = wrapper.findAll('.sw-cms-list-item__options > .sw-cms-list-item__option-set-as-default');
+        expect(contextButtonChildren).toHaveLength(0);
+    });
+
+    it('should save GridUserSettings with sufficient rights.', async () => {
+        const mocks = {
+            saveUserSettings: jest.fn(),
+        };
+
+        const wrapper = await createWrapper([
+            'user_config:read',
+            'user_config:create',
+            'user_config:update',
+            'cms.editor',
+            'cms.creator',
+            'cms.deleter',
+            'system_config:read',
+        ], mocks);
+        const saveUserSettingsSpy = jest.spyOn(wrapper.vm, 'saveUserSettings');
+        await flushPromises();
+
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
+        };
+
+        await wrapper.setData(testData);
+        await flushPromises();
+
+        wrapper.vm.saveGridUserSettings();
+
+        expect(saveUserSettingsSpy).toHaveBeenCalled();
+    });
+
+    const gridUserSettingsDataProvider = [
+        ['no rights', []],
+        ['only create', ['user_config:create']],
+        ['only update', ['user_config:update']],
+    ];
+    it.each(gridUserSettingsDataProvider)(
+        'should not save GridUserSettings with insufficient rights. [Case: %s]',
+        async (caseName, testedPrivileges) => {
+            const mocks = {
+                saveUserSettings: jest.fn(),
+            };
+
+            const defaultPrivileges = [
+                'user_config:read',
+                'cms.editor',
+                'cms.creator',
+                'cms.deleter',
+                'system_config:read',
+            ];
+
+            const wrapper = await createWrapper([
+                ...defaultPrivileges,
+                ...testedPrivileges,
+            ], mocks);
+            const saveUserSettingsSpy = jest.spyOn(wrapper.vm, 'saveUserSettings');
+            await flushPromises();
+
+            const testData = {
+                isLoading: false,
+                pages: [
+                    {
+                        id: '1a',
+                        sections: [],
+                        categories: [],
+                        products: [],
+                        translated: {
+                            name: 'CMS Page 1',
+                        },
+                    },
+                ],
+            };
+
+            await wrapper.setData(testData);
+            await flushPromises();
+
+            wrapper.vm.saveGridUserSettings();
+
+            expect(saveUserSettingsSpy).not.toHaveBeenCalled();
+        },
+    );
 
     it('should open the media modal when user clicks on edit preview image', async () => {
         const wrapper = await createWrapper();

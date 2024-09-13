@@ -1,7 +1,4 @@
 import { mount } from '@vue/test-utils';
-import swFirstRunWizardPlugins from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
-
-Shopware.Component.register('sw-first-run-wizard-plugins', swFirstRunWizardPlugins);
 
 /**
  * @package checkout
@@ -19,6 +16,8 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                     },
                     'sw-plugin-card': true,
                     'sw-loader': true,
+                    'sw-color-badge': true,
+                    'sw-icon': true,
                 },
                 provide: {
                     recommendationsService: {

@@ -49,7 +49,7 @@
         {% block sw_settings_shipping_list_smart_bar_actions_add %}
         <sw-button
             :router-link="{ name: 'sw.settings.shipping.create' }"
-            :disabled="!acl.can('shipping.creator')"
+            :disabled="!acl.can('shipping.creator') || undefined"
             variant="primary"
         >
             {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
@@ -81,11 +81,11 @@
                 :sort-direction="sortDirection"
                 :full-page="false"
                 detail-route="sw.settings.shipping.detail"
-                :show-selection="false"
+                :show-selection="undefined"
                 :show-settings="true"
                 :allow-inline-edit="false"
-                :allow-edit="acl.can('shipping.editor')"
-                :allow-delete="acl.can('shipping.deleter')"
+                :allow-edit="acl.can('shipping.editor') || undefined"
+                :allow-delete="acl.can('shipping.deleter') || undefined"
                 :is-loading="isLoading"
                 @column-sort="onSortColumn"
             >
@@ -158,7 +158,7 @@
                     {% block sw_settings_shipping_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         :router-link="{ name: 'sw.settings.shipping.detail', params: { id: item.id, edit: 'edit' }}"
-                        :disabled="!acl.can('shipping.editor')"
+                        :disabled="!acl.can('shipping.editor') || undefined"
                         class="sw-settings-shipping-list__edit-action"
                     >
                         {{ $tc('sw-settings-shipping.list.contextMenuEdit') }}
@@ -169,7 +169,7 @@
                     {% block sw_settings_shipping_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         variant="danger"
-                        :disabled="!acl.can('shipping.deleter')"
+                        :disabled="!acl.can('shipping.deleter') || undefined"
                         @click="onDelete(item.id)"
                     >
                         {{ $tc('sw-settings-shipping.list.contextMenuDelete') }}

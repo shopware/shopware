@@ -159,9 +159,13 @@ class ElasticsearchFieldBuilderTest extends TestCase
                         ],
                         'cf_foo' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -179,9 +183,13 @@ class ElasticsearchFieldBuilderTest extends TestCase
                         ],
                         'cf_foo' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -225,9 +233,13 @@ class ElasticsearchFieldBuilderTest extends TestCase
                 '_count' => AbstractElasticsearchDefinition::INT_FIELD,
                 'name' => [
                     'type' => 'keyword',
+                    'ignore_above' => 10000,
                     'normalizer' => 'sw_lowercase_normalizer',
                     'fields' => [
-                        'search' => ['type' => 'text'],
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_whitespace_analyzer',
+                        ],
                         'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                     ],
                 ],

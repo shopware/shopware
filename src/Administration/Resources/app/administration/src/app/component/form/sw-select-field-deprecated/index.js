@@ -22,9 +22,13 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-select-field-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),

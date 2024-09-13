@@ -15,16 +15,17 @@ class FeatureCallSilentToken extends Node
         private readonly string $flag,
         Node $body,
         int $line,
-        string $tag
     ) {
-        parent::__construct(['body' => $body], [], $line, $tag);
+        parent::__construct(['body' => $body], [], $line);
     }
 
     public function compile(Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)
-            ->raw('\Shopware\Core\Framework\Feature::callSilentIfInactive(\'' . $this->flag . '\', function () use(&$context) { ')
+            ->raw('\Shopware\Core\Framework\Feature::callSilentIfInactive(')
+            ->string($this->flag)
+            ->raw(', function () use(&$context) { ')
             ->subcompile($this->getNode('body'))
             ->raw('});');
     }

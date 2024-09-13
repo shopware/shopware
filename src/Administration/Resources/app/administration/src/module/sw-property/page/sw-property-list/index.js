@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -48,7 +50,8 @@ export default {
 
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.useNaturalSorting));
-            criteria.addAssociation('options');
+            const optionPart = criteria.getAssociation('options');
+            optionPart.setLimit(5);
 
             return criteria;
         },

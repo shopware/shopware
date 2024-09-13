@@ -11,7 +11,7 @@ describe('Integration: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of integrations module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of integrations module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/integration`,
             method: 'POST',

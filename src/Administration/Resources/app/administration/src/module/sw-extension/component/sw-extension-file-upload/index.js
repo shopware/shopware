@@ -14,6 +14,8 @@ const USER_CONFIG_KEY = 'extension.plugin_upload';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['extensionStoreActionService', 'repositoryFactory'],
 
     mixins: [

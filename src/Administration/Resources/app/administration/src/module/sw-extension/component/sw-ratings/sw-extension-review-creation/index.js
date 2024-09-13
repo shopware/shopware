@@ -10,7 +10,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['extensionStoreActionService'],
+
+    emits: ['created'],
 
     mixins: ['sw-extension-error'],
 

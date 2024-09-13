@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\NewsletterRecipientAdminSearchIndexer;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[CoversClass(NewsletterRecipientAdminSearchIndexer::class)]

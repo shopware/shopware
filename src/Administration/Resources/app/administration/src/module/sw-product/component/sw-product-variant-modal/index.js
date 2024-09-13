@@ -12,10 +12,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['modal-close'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -383,7 +387,11 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                this.$delete(variant.price, foundVariantIndex);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(variant.price, foundVariantIndex);
+                } else {
+                    delete variant.price[foundVariantIndex];
+                }
             }
 
             if (variant.price.length <= 0) {
@@ -406,7 +414,11 @@ export default {
             };
 
             // add new price currency to variant
-            this.$set(variant.price, variant.price.length, newPrice);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(variant.price, variant.price.length, newPrice);
+            } else {
+                variant.price.push(newPrice);
+            }
         },
 
         /**

@@ -11,14 +11,14 @@ let pluginInstalled = false;
  * @private
  */
 export default {
-    install(Vue) {
+    install(app) {
         if (pluginInstalled) {
             warn('Sanitize Plugin', 'This plugin is already installed');
             return false;
         }
 
-        Vue.prototype.$sanitizer = Sanitizer;
-        Vue.prototype.$sanitize = Sanitizer.sanitize;
+        app.config.globalProperties.$sanitizer = Sanitizer;
+        app.config.globalProperties.$sanitize = Sanitizer.sanitize;
 
         pluginInstalled = true;
 

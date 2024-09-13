@@ -14,10 +14,15 @@ const { mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'mediaService',
+        'swProductDetailLoadAll',
     ],
+
+    emits: ['modal-close', 'variations-finish-generate'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -64,6 +69,7 @@ export default {
             usageOfFiles: {},
             idToIndex: {},
             productDownloadFolderId: null,
+            isAddOnly: false,
         };
     },
 
@@ -301,7 +307,7 @@ export default {
                 this.actualProgress = 0;
                 this.maxProgress = 0;
 
-                this.$root.$emit('product-reload');
+                this.swProductDetailLoadAll();
             });
         },
 
@@ -310,6 +316,7 @@ export default {
             this.variantsGenerator.generateVariants(
                 this.currencies,
                 this.product,
+                this.isAddOnly,
             );
             this.isLoading = false;
         },

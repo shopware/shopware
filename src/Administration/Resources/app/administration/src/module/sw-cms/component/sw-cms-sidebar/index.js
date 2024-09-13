@@ -15,6 +15,8 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'cmsService',
@@ -22,6 +24,11 @@ export default {
         'feature',
         'cmsBlockFavorites',
         'cmsPageTypeService',
+    ],
+
+    emits: [
+        'page-type-change', 'demo-entity-change', 'page-save', 'block-stage-drop', 'current-block-change',
+        'section-duplicate', 'block-duplicate', 'page-update', 'open-layout-assignment', 'open-layout-set-as-default',
     ],
 
     mixins: [
@@ -52,6 +59,12 @@ export default {
             required: false,
             default: false,
         },
+
+        isDefaultLayout: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -78,7 +91,7 @@ export default {
         },
 
         cmsBlocks() {
-            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+            const currentPageType = Shopware.Store.get('cmsPageState').currentPageType;
 
             const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
                 return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
@@ -223,15 +236,20 @@ export default {
         },
 
         showDefaultLayoutSelection() {
-            if (!this.acl.can('system_config.editor')) {
+            if (
+                !this.acl.can('system_config:read')
+                || !this.acl.can('system_config:update')
+                || !this.acl.can('system_config:create')
+                || !this.acl.can('system_config:delete')
+            ) {
                 return false;
             }
 
-            if (this.page.type === 'product_list') {
-                return true;
+            if (this.page.type === 'product_list' || this.page.type === 'product_detail') {
+                return !this.isDefaultLayout;
             }
 
-            return this.page.type === 'product_detail';
+            return false;
         },
 
         cmsBlocksBySelectedBlockCategory() {
@@ -267,8 +285,9 @@ export default {
         },
 
         onCloseBlockConfig() {
-            Shopware.State.commit('cmsPageState/removeSelectedBlock');
-            Shopware.State.commit('cmsPageState/removeSelectedSection');
+            const store = Shopware.Store.get('cmsPageState');
+            store.removeSelectedBlock();
+            store.removeSelectedSection();
         },
 
         isDisabledPageType(pageType) {
@@ -284,10 +303,9 @@ export default {
         },
 
         openSectionSettings(sectionIndex) {
-            this.$refs.pageConfigSidebar.openContent();
-            this.$nextTick(() => {
-                this.$refs.sectionConfigSidebar[sectionIndex].collapseItem();
-            });
+            Shopware.Store.get('cmsPageState').setSection(this.page.sections[sectionIndex]);
+
+            this.$refs.itemConfigSidebar.openContent();
         },
 
         blockIsRemovable(block) {
@@ -530,7 +548,7 @@ export default {
         },
 
         onSectionDelete(sectionId) {
-            Shopware.State.commit('cmsPageState/removeSelectedSection');
+            Shopware.Store.get('cmsPageState').removeSelectedSection();
             this.page.sections.remove(sectionId);
             this.$emit('page-save');
         },
@@ -543,7 +561,7 @@ export default {
             section.blocks.remove(block.id);
 
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
-                Shopware.State.commit('cmsPageState/removeSelectedBlock');
+                Shopware.Store.get('cmsPageState').removeSelectedBlock();
             }
 
             this.$emit('page-save', true);

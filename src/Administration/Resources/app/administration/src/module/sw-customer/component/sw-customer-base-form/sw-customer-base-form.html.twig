@@ -116,7 +116,9 @@
             v-model:value="customer.birthday"
             type="date"
             name="birthday"
+            hide-hint
             :label="$tc('sw-customer.baseForm.labelBirthday')"
+            :placeholder="$tc('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
 
@@ -151,8 +153,10 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
         {% block sw_customer_base_form_payment_method_field %}
         <sw-entity-single-select
+            v-if="!feature.isActive('v6.7.0.0')"
             v-model:value="customer.defaultPaymentMethodId"
             name="sw-field--customer-defaultPaymentMethodId"
             class="sw-customer-base-form__payment-method-select"

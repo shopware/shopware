@@ -24,7 +24,7 @@ class StaticTranslator implements TranslatorInterface
     public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         if (!\array_key_exists($id, $this->translations)) {
-            throw new \InvalidArgumentException(sprintf('Translation for "%s" not found', $id));
+            throw new \InvalidArgumentException(\sprintf('Translation for "%s" not found', $id));
         }
 
         return $this->translations[$id];

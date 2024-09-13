@@ -1,5 +1,7 @@
+/* eslint no-console: 0 */
+
 /**
- * This module creates an proxy server. It is used in Shopware storefront for the
+ * This module creates a proxy server. It is used in Shopware storefront for the
  * hot module replacement to allow the server to automatically detect if the hot mode
  * is activated or not.
  */
@@ -7,7 +9,7 @@
 const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 
-module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri, socketPath }) {
+module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri }) {
     const proxyUrl = proxyPort !== 80 && proxyPort !== 443 ? `${proxyHost}:${proxyPort}`: proxyHost;
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
@@ -23,7 +25,7 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
             const requestHost = client_req.hostname || client_req.headers.host;
             if (requestHost.split(':')[0] !== proxyHost) {
                 //noinspection ExceptionCaughtLocallyJS
-                throw 'Rejecting request "' + client_req.method + ' ' + requestHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
+                throw 'Rejecting request "' + client_req.method + ' ' + proxyHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
             }
 
             const requestOptions = {
@@ -41,14 +43,15 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
 
             // Assets
             if (client_req.url.indexOf('/_webpack_hot_proxy_/') === 0) {
-                requestOptions.path = requestOptions.path.substring(20);
-                requestOptions.socketPath = socketPath;
+                requestOptions.host = '127.0.0.1';
+                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+                requestOptions.path = requestOptions.path.substr(20);
             }
 
             // Hot reload updates
-            if (client_req.url.indexOf('/__webpack_ws/') === 0) {
-                requestOptions.path = '/ws/' + requestOptions.path.substring(14);
-                requestOptions.socketPath = socketPath;
+            if (client_req.url.indexOf('/sockjs-node/') === 0 || client_req.url.indexOf('hot-update.json') !== -1 || client_req.url.indexOf('hot-update.js') !== -1) {
+                requestOptions.host = '127.0.0.1';
+                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
             }
 
             // pipe a new request to the client request
@@ -93,7 +96,7 @@ function openBrowserWithUrl(url) {
         child.on('error', error => {
             console.log('Unable to open browser! Details:');
             console.log(error);
-        })
+        });
     } catch (ex) {
         console.log(ex);
     }
@@ -112,8 +115,8 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
         const responseBody = responseData
             .replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`)
             // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
-            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`)
-            .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\(\'XDEBUG_IGNORE\'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'')
+            .replace(/http[s]?\\u003A\\\/\\\/[\w.]*(:\d*|\\u003A\d*)?\\\/_wdt/gm, '/_wdt')
+            .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\('XDEBUG_IGNORE'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'');
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

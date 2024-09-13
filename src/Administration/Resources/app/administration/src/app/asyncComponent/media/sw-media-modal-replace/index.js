@@ -17,7 +17,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['mediaService', 'repositoryFactory'],
+
+    emits: ['media-replace-modal-close', 'media-replace-modal-item-replaced'],
 
     mixins: [
         Mixin.getByName('notification'),

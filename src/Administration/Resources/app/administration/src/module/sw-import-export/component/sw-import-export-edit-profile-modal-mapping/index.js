@@ -13,10 +13,14 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',
     ],
+
+    emits: ['update-mapping'],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),

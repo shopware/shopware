@@ -10,6 +10,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
@@ -99,6 +101,10 @@ export default {
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
+        },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
         },
     },
 

@@ -77,7 +77,7 @@ class WriteException extends ShopwareHttpException
             $pointer = $error['source']['pointer'] ?? '/';
             \assert(\is_string($pointer));
             \assert(\is_string($error['detail']));
-            $messages[] = sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
+            $messages[] = \sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
         }
 
         $messagesString = implode(\PHP_EOL, $messages);

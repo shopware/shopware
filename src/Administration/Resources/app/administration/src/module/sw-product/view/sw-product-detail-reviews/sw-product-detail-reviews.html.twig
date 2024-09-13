@@ -62,7 +62,7 @@
                     {% block sw_product_detail_reviews_data_action_edit %}
                     <sw-context-menu-item
                         class="sw-product-detail-reviews__action-edit"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="!acl.can('product.editor') || undefined"
                         :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
                     >
                         {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
@@ -74,7 +74,7 @@
                     <sw-context-menu-item
                         class="sw-product-detail-reviews__action-delete"
                         variant="danger"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="!acl.can('product.editor') || undefined"
                         @click="onStartReviewDelete(item)"
                     >
                         {{ $tc('sw-product.reviewForm.contextMenuDelete') }}

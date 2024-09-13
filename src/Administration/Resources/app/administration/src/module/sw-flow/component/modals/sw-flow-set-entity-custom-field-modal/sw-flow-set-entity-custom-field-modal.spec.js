@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const fieldClasses = [
     '.sw-flow-set-entity-custom-field-modal__custom-field-set',
     '.sw-flow-set-entity-custom-field-modal__custom-field',
@@ -132,6 +136,10 @@ async function createWrapper(customField = customNormalField) {
                 'sw-field': true,
                 'sw-multi-select': true,
                 'sw-single-select': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         props: {

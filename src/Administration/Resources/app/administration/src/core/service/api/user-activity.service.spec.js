@@ -12,7 +12,7 @@ function createUserActivityApiService() {
 }
 
 /**
- * @package system-settings
+ * @package services-settings
  */
 describe('userActivityApiService', () => {
     it('is registered correctly', async () => {

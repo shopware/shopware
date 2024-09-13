@@ -10,6 +10,8 @@ const { deepCopyObject } = Shopware.Utils.object;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cmsService',
         'cmsElementFavorites',
@@ -19,9 +21,6 @@ export default {
         element: {
             type: Object,
             required: true,
-            default() {
-                return {};
-            },
         },
 
         active: {
@@ -59,12 +58,12 @@ export default {
         },
 
         cmsElements() {
-            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+            const currentPageType = Shopware.Store.get('cmsPageState').currentPageType;
 
-            const blocks = Object.entries(this.cmsService.getCmsElementRegistry())
+            const elements = Object.entries(this.cmsService.getCmsElementRegistry())
                 .filter(([name]) => this.cmsService.isElementAllowedInPageType(name, currentPageType));
 
-            return Object.fromEntries(blocks);
+            return Object.fromEntries(elements);
         },
 
         groupedCmsElements() {
@@ -118,6 +117,7 @@ export default {
                 disabled: true,
             };
         },
+
         modalVariant() {
             return this.element.type === 'html' ? 'full' : 'large';
         },
@@ -141,14 +141,13 @@ export default {
             if (!this.elementConfig?.defaultConfig || this.element?.locked) {
                 return;
             }
-
             this.showElementSettings = true;
         },
 
         onCloseSettingsModal() {
             const childComponent = this.$refs.elementComponentRef;
 
-            if (childComponent && childComponent.handleUpdateContent) {
+            if (childComponent?.handleUpdateContent) {
                 childComponent.handleUpdateContent();
             }
 
@@ -162,6 +161,7 @@ export default {
         onCloseElementModal() {
             this.showElementSelection = false;
         },
+
         onSelectElement(element) {
             this.element.data = deepCopyObject(element?.defaultData || {});
             this.element.config = deepCopyObject(element?.defaultConfig || {});

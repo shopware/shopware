@@ -112,8 +112,8 @@ abstract class Bundle extends SymfonyBundle
     private function registerFilesystem(ContainerBuilder $container, string $key): void
     {
         $containerPrefix = $this->getContainerPrefix();
-        $parameterKey = sprintf('shopware.filesystem.%s', $key);
-        $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
+        $parameterKey = \sprintf('shopware.filesystem.%s', $key);
+        $serviceId = \sprintf('%s.filesystem.%s', $containerPrefix, $key);
 
         $filesystem = new Definition(
             PrefixFilesystem::class,

@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge';
-import { tns } from 'tiny-slider/src/tiny-slider.module';
+import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 import Iterator from 'src/helper/iterator.helper';
@@ -18,6 +18,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         thumbnailsSelector: '[data-gallery-slider-thumbnails=true]',
         controlsSelector: '[data-gallery-slider-controls=true]',
         thumbnailControlsSelector: '[data-thumbnail-slider-controls=true]',
+        baseSliderWrapperClass: 'base-slider',
         dotActiveClass: 'tns-nav-active',
         navDotDataAttr: 'data-nav-dot',
         loadingCls: 'is-loading',
@@ -41,6 +42,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             gutter: 10,
             startIndex: 1,
             preventScrollOnTouch: 'force',
+            ariaLive: false,
             responsive: {
                 xs: {},
                 sm: {},
@@ -209,13 +211,17 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         const hasThumbnails = (!!navContainer);
 
         if (container) {
-            const onInit = () => {
+            const onInit = (sliderInfo) => {
                 window.PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
                 window.PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
 
                 if (!hasThumbnails) {
                     this.el.classList.remove(this.options.loadingCls);
                 }
+
+                const containerEl = this.el.getElementsByClassName(this.options.baseSliderWrapperClass).item(0);
+
+                this._initAccessibilityTweaks(sliderInfo, containerEl);
 
                 this.$emitter.publish('initGallerySlider');
             };
@@ -240,11 +246,14 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         if (navContainer) {
             const thumbnailControls = this.el.querySelector(this.options.thumbnailControlsSelector);
 
-            const onInitThumbnails = () => {
+            const onInitThumbnails = (sliderInfo) => {
                 if (hasThumbnails) {
                     this.el.classList.remove(this.options.loadingCls);
                 }
                 this.$emitter.publish('initThumbnailSlider');
+
+                // Remove controls div container from tab index for better accessibility.
+                sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
             };
 
             if (this._thumbnailSliderSettings.enabled) {

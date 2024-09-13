@@ -17,12 +17,19 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'salesChannelService',
         'productExportService',
         'repositoryFactory',
         'knownIpsService',
         'acl',
+    ],
+
+    emits: [
+        'template-selected', 'template-modal-close', 'template-modal-confirm',
+        'invalid-file-name', 'valid-file-name', 'access-key-changed', 'domain-changed',
     ],
 
     mixins: [
@@ -547,7 +554,11 @@ export default {
 
         deleteSalesChannel(salesChannelId) {
             this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
-                this.$root.$emit('sales-channel-change');
+                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                    this.$root.$emit('sales-channel-change');
+                } else {
+                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+                }
                 this.salesChannelFavoritesService.refresh();
             });
         },
@@ -638,12 +649,11 @@ export default {
             });
         }, 500),
 
-        changeInterval() {
-            this.disableGenerateByCronjob = this.productExport.interval === 0;
+        changeInterval(value) {
+            this.productExport.interval = value;
 
-            if (this.disableGenerateByCronjob) {
-                this.productExport.generateByCronjob = false;
-            }
+            this.disableGenerateByCronjob = this.productExport.interval === 0;
+            this.productExport.generateByCronjob = !this.disableGenerateByCronjob;
         },
 
         createCategoryCollections() {

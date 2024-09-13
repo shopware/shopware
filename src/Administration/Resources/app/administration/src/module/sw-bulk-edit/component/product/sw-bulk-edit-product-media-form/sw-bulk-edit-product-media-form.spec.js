@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
@@ -40,9 +40,17 @@ async function createWrapper() {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-loader': true,
+                'sw-label': true,
+                'router-link': true,
             },
             provide: {
                 repositoryFactory: {},
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({});
+                    },
+                },
             },
         },
     });

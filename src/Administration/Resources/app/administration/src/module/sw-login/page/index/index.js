@@ -9,9 +9,12 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @package admin
  */
 Component.register('sw-login', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         hash: {

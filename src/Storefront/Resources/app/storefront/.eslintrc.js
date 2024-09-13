@@ -33,6 +33,8 @@ module.exports = {
         'indent': ['warn', 4, {
             'SwitchCase': 1,
         }],
+        'semi': ['error', 'always'],
+        'keyword-spacing': ['error', { 'before': true }],
         'jest/no-identical-title': 'warn',
         'jest/no-focused-tests': 'error',
         'jest/no-duplicate-hooks': 'error',
@@ -53,7 +55,7 @@ module.exports = {
                 '@typescript-eslint/consistent-type-exports': 'error',
                 '@typescript-eslint/consistent-type-imports': 'error',
                 '@typescript-eslint/switch-exhaustiveness-check': 'error',
-                '@typescript-eslint/ban-ts-comment': 'off'
+                '@typescript-eslint/ban-ts-comment': 'off',
             },
         },
     ],

@@ -25,7 +25,7 @@ class ChangelogGenerator extends ChangelogProcessor
 
     private function getTemplateFile(ChangelogDefinition $template, string $date): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/%s-%s.md',
             $this->getUnreleasedDir(),
             $date,
@@ -36,9 +36,9 @@ class ChangelogGenerator extends ChangelogProcessor
     private function replaceSpecialChars(string $name): string
     {
         $name = (string) preg_replace('/[^a-z_\-0-9]/i', '-', $name);
-        $name = (string) preg_replace('/[-]{2,}/', '-', $name);
-        $name = (string) preg_replace('/[-_]+$/', '', $name);
-        $name = (string) preg_replace('/^[-_]+/', '', $name);
+        $name = (string) preg_replace('/-{2,}/', '-', $name);
+        $name = rtrim($name, '-_');
+        $name = ltrim($name, '-_');
 
         return strtolower($name);
     }

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Command\ConfigGet;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -14,7 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ConfigGet::class)]
 class ConfigGetCommandTest extends TestCase
 {
@@ -73,6 +74,7 @@ class ConfigGetCommandTest extends TestCase
     }
 
     #[DataProvider('configFormatLegacyProvider')]
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConfigGetLegacy(string $key, string $output): void
     {
         $commandOutput = $this->executeCommand($key, 'legacy');

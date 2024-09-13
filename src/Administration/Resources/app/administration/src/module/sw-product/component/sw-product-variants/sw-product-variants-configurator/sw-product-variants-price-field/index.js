@@ -12,6 +12,10 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['price-lock-change', 'change', 'price-calculate', 'price-gross-change', 'price-net-change'],
+
     props: {
         price: {
             type: Object,

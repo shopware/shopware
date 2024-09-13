@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractMailService
 {
     abstract public function getDecorated(): AbstractMailService;

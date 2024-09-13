@@ -11,7 +11,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl', 'repositoryFactory'],
+
+    emits: ['on-update-total'],
 
     mixins: [
         Mixin.getByName('notification'),

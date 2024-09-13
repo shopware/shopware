@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
+ * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: float}
  */
 #[Package('core')]
 class SearchConfigLoader

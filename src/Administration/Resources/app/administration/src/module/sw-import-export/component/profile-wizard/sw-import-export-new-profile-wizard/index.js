@@ -10,11 +10,15 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',
         'importExportProfileMapping',
     ],
+
+    emits: ['close', 'profile-save'],
 
     props: {
         profile: {

@@ -9,20 +9,25 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],
+
     mounted() {
         this.customEntityRepository.search(new Criteria(), Shopware.Context.api)
             .then(result => {
                 this.customEntities = result;
             });
     },
+
     data() {
         return {
             customEntities: [],
         };
     },
+
     computed: {
         entityTypes() {
             const entityTypes = [
@@ -104,17 +109,30 @@ export default {
 
     methods: {
         createdComponent() {
+            if (this.currentCustomField.config.hasOwnProperty('options')) {
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.currentCustomField.config, 'options');
+                } else {
+                    delete this.currentCustomField.config.options;
+                }
+            }
+
             if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
                 this.currentCustomField.config.componentName = 'sw-entity-single-select';
             }
 
+            this.multiSelectSwitchDisabled = !this.currentCustomField._isNew;
             this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-entity-multi-id-select';
         },
 
         onChangeEntityType(entity) {
             const entityType = this.entityTypes.find(type => type.value === entity);
 
-            this.$delete(this.currentCustomField.config, 'labelProperty');
+            if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                this.$delete(this.currentCustomField.config, 'labelProperty');
+            } else {
+                delete this.currentCustomField.config.labelProperty;
+            }
 
             // pass the label property into the custom field's config to allow different / multiple labelProperties
             if (entityType.hasOwnProperty('config') && entityType.config.hasOwnProperty('labelProperty')) {

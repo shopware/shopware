@@ -14,6 +14,8 @@ const { Component } = Shopware;
 Component.register('sw-select-result-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     provide() {
         return {
             setActiveItemIndex: this.setActiveItemIndex,
@@ -21,6 +23,14 @@ Component.register('sw-select-result-list', {
     },
 
     inject: ['feature'],
+
+    emits: [
+        'item-select',
+        'active-item-change',
+        'outside-click',
+        'paginate',
+        'item-select-by-keyboard',
+    ],
 
     props: {
         options: {
@@ -115,15 +125,24 @@ Component.register('sw-select-result-list', {
         addEventListeners() {
             this.focusEl.addEventListener('keydown', this.navigate);
             document.addEventListener('click', this.checkOutsideClick);
+
+            Shopware.Utils.EventBus.on('item-select', this.onItemSelect);
         },
 
         removeEventListeners() {
             this.focusEl.removeEventListener('keydown', this.navigate);
             document.removeEventListener('click', this.checkOutsideClick);
+
+            Shopware.Utils.EventBus.off('item-select', this.onItemSelect);
+        },
+
+        onItemSelect(item) {
+            this.$emit('item-select', item);
         },
 
         emitActiveItemIndex() {
             this.$emit('active-item-change', this.activeItemIndex);
+            Shopware.Utils.EventBus.emit('active-item-change', this.activeItemIndex);
         },
 
         /**
@@ -211,6 +230,7 @@ Component.register('sw-select-result-list', {
             // This emit is subscribed in the sw-result component. They can for example be disabled and need
             // choose on their own if they are selected
             this.$emit('item-select-by-keyboard', this.activeItemIndex);
+            Shopware.Utils.EventBus.emit('item-select-by-keyboard', this.activeItemIndex);
         },
 
         onScroll(event) {

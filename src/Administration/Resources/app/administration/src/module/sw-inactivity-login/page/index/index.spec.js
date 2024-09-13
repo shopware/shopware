@@ -1,6 +1,9 @@
 import { BroadcastChannel } from 'worker_threads';
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package admin
+ */
 async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()) {
     return mount(await wrapTestComponent('sw-inactivity-login', { sync: true }), {
         props: {
@@ -32,6 +35,13 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'router-link': true,
+                'sw-field-copyable': true,
+                'sw-icon-deprecated': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-loader-deprecated': true,
             },
             mocks: {
                 $router: {
@@ -41,6 +51,17 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
             provide: {
                 loginService: {
                     loginByUsername,
+                    setRememberMe: (active = true) => {
+                        if (!active) {
+                            localStorage.removeItem('rememberMe');
+                            return;
+                        }
+
+                        const duration = new Date();
+                        duration.setDate(duration.getDate() + 14);
+
+                        localStorage.setItem('rememberMe', `${+duration}`);
+                    },
                 },
                 shortcutService: {
                     startEventListener: () => {},

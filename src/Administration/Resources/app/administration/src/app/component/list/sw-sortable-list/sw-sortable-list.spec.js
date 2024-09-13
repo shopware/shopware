@@ -19,6 +19,9 @@ async function createWrapper(userConfig = {}) {
             },
         },
         global: {
+            stubs: {
+                'sw-empty-state': true,
+            },
             directives: {
                 draggable: {},
                 droppable: {},

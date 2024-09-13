@@ -1,11 +1,17 @@
 import template from './sw-settings-listing-visibility-detail.html.twig';
 
+/**
+ * @package inventory
+ */
+
 const { Criteria } = Shopware.Data;
 const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

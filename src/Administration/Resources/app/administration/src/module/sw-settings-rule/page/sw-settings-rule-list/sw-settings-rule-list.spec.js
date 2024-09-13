@@ -29,6 +29,14 @@ async function createWrapper(privileges = []) {
     `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-language-switch': true,
+                'sw-label': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-sidebar': true,
+                'router-link': true,
             },
             provide: {
                 repositoryFactory: {

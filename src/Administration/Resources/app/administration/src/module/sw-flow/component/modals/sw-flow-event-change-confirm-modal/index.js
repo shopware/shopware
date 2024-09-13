@@ -12,6 +12,10 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
+    emits: ['modal-confirm', 'modal-close'],
+
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         ...mapGetters('swFlowState', ['sequences']),
     },

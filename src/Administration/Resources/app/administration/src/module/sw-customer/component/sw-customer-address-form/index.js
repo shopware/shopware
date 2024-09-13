@@ -14,6 +14,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -147,6 +149,8 @@ export default {
 
                 return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
+
+                    this.address.country = this.country;
                     this.getCountryStates();
                 });
             },

@@ -24,6 +24,7 @@ class Content extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('breadcrumb.xml');
         $loader->load('category.xml');
         $loader->load('media.xml');
         $loader->load('media_path.xml');

@@ -17,7 +17,9 @@
     <sw-datepicker
         v-model:value="documentConfig.documentDate"
         date-type="date"
+        hide-hint
         :label="$tc('sw-order.documentModal.labelDocumentDate')"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 
@@ -27,7 +29,9 @@
         v-model:value="documentConfig.custom.deliveryDate"
         date-type="date"
         required
+        hide-hint
         :label="$tc('sw-order.documentModal.labelDeliveryDate')"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 </sw-container>

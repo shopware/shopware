@@ -11,6 +11,17 @@ const { Component, Utils } = Shopware;
 Component.register('sw-text-editor-toolbar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'created-el',
+        'destroyed-el',
+        'remove-link',
+        'text-style-change',
+        'table-edit',
+        'on-set-link',
+    ],
+
     props: {
         parentIsActive: {
             type: Boolean,
@@ -54,7 +65,7 @@ Component.register('sw-text-editor-toolbar', {
             position: {},
             range: null,
             arrowPosition: {
-                '--left': '49%;',
+                '--left': '49%',
             },
             activeTags: [],
             currentColor: null,
@@ -251,11 +262,19 @@ Component.register('sw-text-editor-toolbar', {
 
             if (button.children) {
                 if (typeof button.expanded === 'undefined') {
-                    this.$set(button, 'expanded', false);
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(button, 'expanded', false);
+                    } else {
+                        button.expanded = false;
+                    }
                 }
 
                 button.children.forEach((child) => {
-                    this.$set(child, 'active', !!this.activeTags.includes(child.tag));
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(child, 'active', !!this.activeTags.includes(child.tag));
+                    } else {
+                        child.active = !!this.activeTags.includes(child.tag);
+                    }
                 });
             }
 
@@ -271,7 +290,11 @@ Component.register('sw-text-editor-toolbar', {
                 button.buttonVariant = this.currentLink?.buttonVariant ?? 'primary';
             }
 
-            this.$set(button, 'active', !!this.activeTags.includes(button.tag));
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(button, 'active', !!this.activeTags.includes(button.tag));
+            } else {
+                button.active = !!this.activeTags.includes(button.tag);
+            }
 
             return button;
         },

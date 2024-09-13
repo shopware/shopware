@@ -142,6 +142,14 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate([
+                CachedResolvedConfigLoader::buildName($themeId),
+            ]);
+
+            return;
+        }
+
         // Reset cache buster state for improving performance in getMetadata
         $this->cacheInvalidator->invalidate([
             'theme-metaData',
@@ -154,7 +162,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     public function getResolveImportPathsCallback(array $resolveMappings): \Closure
     {
-        return function ($originalPath) use ($resolveMappings) {
+        return function (string $originalPath) use ($resolveMappings): ?string {
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
                 if (mb_strpos($originalPath, $resolve) === 0) {
@@ -341,6 +349,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         if ($this->autoPrefix === true) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
+
             $autoPreFixer = new Autoprefixer($cssOutput);
             /** @var string|false $cssOutput */
             $cssOutput = $autoPreFixer->compile($this->debug);
@@ -384,9 +394,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     {
         $allFeatures = Feature::getAll();
 
-        $featuresScss = implode(',', array_map(fn ($value, $key) => sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
+        $featuresScss = implode(',', array_map(fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
 
-        return sprintf('$sw-features: (%s);', $featuresScss);
+        return \sprintf('$sw-features: (%s);', $featuresScss);
     }
 
     /**
@@ -396,7 +406,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(fn ($value, $key) => sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
+        return array_map(fn ($value, $key) => \sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
     }
 
     /**
@@ -423,7 +433,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         foreach ($this->packages as $key => $package) {
-            $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
+            $variables[\sprintf('sw-asset-%s-url', $key)] = \sprintf('\'%s\'', $package->getUrl(''));
         }
 
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent(

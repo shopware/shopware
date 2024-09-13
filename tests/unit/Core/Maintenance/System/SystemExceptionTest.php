@@ -7,7 +7,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System;
 use PHPUnit\Event\Telemetry\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Maintenance\System\SystemException;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,7 +18,7 @@ class SystemExceptionTest extends TestCase
 {
     public function testConsoleApplicationNotFound(): void
     {
-        $exception = SystemException::consoleApplicationNotFound();
+        $exception = MaintenanceException::consoleApplicationNotFound();
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame('MAINTENANCE__SYMFONY_CONSOLE_APPLICATION_NOT_FOUND', $exception->getErrorCode());
@@ -28,7 +28,7 @@ class SystemExceptionTest extends TestCase
 
     public function testInvalidVersionSelectionMode(): void
     {
-        $exception = SystemException::invalidVersionSelectionMode('invalid');
+        $exception = MaintenanceException::invalidVersionSelectionMode('invalid');
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame('MAINTENANCE__MIGRATION_INVALID_VERSION_SELECTION_MODE', $exception->getErrorCode());

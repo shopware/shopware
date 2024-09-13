@@ -1,4 +1,5 @@
 import './sw-arrow-field.scss';
+import { h } from 'vue';
 
 const { Component } = Shopware;
 
@@ -7,16 +8,17 @@ const { Component } = Shopware;
  * @package services-settings
  */
 Component.register('sw-arrow-field', {
+    compatConfig: Shopware.compatConfig,
 
-    render(h) {
+    render() {
         return h('div', {
             class: {
                 'sw-arrow-field': true,
                 'is--disabled': this.disabled,
             },
         }, [
-            this.$slots.default,
-            this.getArrow(h),
+            typeof this.$slots.default === 'function' ? this.$slots.default() : this.$slots.default,
+            this.getArrow(),
         ]);
     },
     props: {
@@ -48,33 +50,27 @@ Component.register('sw-arrow-field', {
     },
 
     methods: {
-        getArrow(h) {
+        getArrow() {
             return h('div', {
                 class: {
                     'sw-arrow-field__arrow': true,
                 },
             }, [
                 h('svg', {
-                    attrs: {
-                        xmlns: 'http://www.w3.org/1200/svg',
-                        viewBox: '0 0 12 100',
-                        preserveAspectRatio: 'none',
-                    },
+                    xmlns: 'http://www.w3.org/2000/svg',
+                    viewBox: '0 0 12 100',
+                    preserveAspectRatio: 'none',
                 }, [
                     h('path', {
-                        attrs: {
-                            d: 'M 0 0 L 12 50 L 0 100 Z',
-                            fill: this.arrowFill,
-                            stroke: 'none',
-                        },
+                        d: 'M 0 0 L 12 50 L 0 100 Z',
+                        fill: this.arrowFill,
+                        stroke: 'none',
                     }),
                     h('polyline', {
-                        attrs: {
-                            points: '0 0 12 50 0 100',
-                            fill: 'none',
-                            stroke: this.secondary,
-                            'stroke-width': 1,
-                        },
+                        points: '0 0 12 50 0 100',
+                        fill: 'none',
+                        stroke: this.secondary,
+                        'stroke-width': 1,
                     }),
                 ]),
             ]);

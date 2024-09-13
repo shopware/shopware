@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -33,6 +34,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @deprecated tag:v6.7.0 - Remove full class
+ *
  * @internal
  */
 #[Group('cache')]
@@ -46,6 +49,7 @@ class CachedSalutationRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)

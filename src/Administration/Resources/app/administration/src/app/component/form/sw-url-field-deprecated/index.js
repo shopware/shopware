@@ -24,13 +24,16 @@ const URL_REGEX = {
  */
 Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
     template,
+
     inheritAttrs: false,
 
-    emits: [
-        'update:value',
-    ],
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
+
+    emits: [
+        'update:value', 'inheritance-restore', 'inheritance-remove',
+    ],
 
     props: {
         error: {

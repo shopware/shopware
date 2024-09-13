@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Update\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UpdatePostPrepareEvent extends UpdateEvent
 {
     public function __construct(

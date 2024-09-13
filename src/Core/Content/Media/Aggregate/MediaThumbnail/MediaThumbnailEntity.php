@@ -93,7 +93,7 @@ class MediaThumbnailEntity extends Entity
 
     public function getIdentifier(): string
     {
-        $identifier = sprintf('%dx%d', $this->getWidth(), $this->getHeight());
+        $identifier = \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
 
         return $identifier;
     }

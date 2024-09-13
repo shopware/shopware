@@ -84,9 +84,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute"/>
             <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -120,7 +120,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
@@ -402,5 +402,6 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
     </services>
 </container>

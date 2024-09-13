@@ -18,6 +18,8 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-number-field': true,
                 'sw-datepicker': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 shortcutService: {

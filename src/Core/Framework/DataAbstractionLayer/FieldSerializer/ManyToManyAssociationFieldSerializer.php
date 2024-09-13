@@ -195,7 +195,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         );
 
         if (!$fk) {
-            @trigger_error(sprintf('Foreign key for association %s not found', $association->getPropertyName()));
+            @trigger_error(\sprintf('Foreign key for association %s not found', $association->getPropertyName()));
 
             $data['versionId'] = Defaults::LIVE_VERSION;
 

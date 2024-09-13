@@ -10,11 +10,15 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'excludedSearchTermService',
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['edit-change', 'data-load'],
 
     mixins: [
         Mixin.getByName('notification'),

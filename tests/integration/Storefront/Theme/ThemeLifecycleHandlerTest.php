@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -48,7 +49,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private ThemeLifecycleHandler $themeLifecycleHandler;
 
-    private StorefrontPluginConfigurationFactory $configFactory;
+    private AbstractStorefrontPluginConfigurationFactory $configFactory;
 
     protected function setUp(): void
     {

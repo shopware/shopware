@@ -224,14 +224,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="import_export_log.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\FileService"/>
 
             <argument type="tagged" tag="shopware.import_export.reader_factory"/>
             <argument type="tagged" tag="shopware.import_export.writer_factory"/>
             <argument type="tagged" tag="shopware.import_export.pipe_factory"/>
-
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Message\ImportExportHandler" public="true">

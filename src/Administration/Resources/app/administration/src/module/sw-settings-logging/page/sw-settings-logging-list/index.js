@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ */
+
 import './sw-settings-logging-list.scss';
 import template from './sw-settings-logging-list.html.twig';
 
@@ -7,6 +11,8 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

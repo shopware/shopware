@@ -12,7 +12,7 @@ class PromotionExcludedError extends Error
 
     public function __construct(protected string $name)
     {
-        $this->message = sprintf('Promotion %s was excluded for cart.', $this->name);
+        $this->message = \sprintf('Promotion %s was excluded for cart.', $this->name);
 
         parent::__construct($this->message);
     }

@@ -38,7 +38,7 @@ describe('Import/Export - Check activities in progress can be aborted', () => {
         page = null;
     });
 
-    it('@base @settings: Abort export in progress', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@base @settings: Abort export in progress', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
             method: 'POST',

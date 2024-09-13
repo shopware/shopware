@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -42,7 +43,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -715,7 +715,7 @@ class OrderRouteTest extends TestCase
         $orderLineItemId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
-        return [
+        $order = [
             [
                 'id' => $orderId,
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
@@ -804,32 +804,6 @@ class OrderRouteTest extends TestCase
                             'countryId' => $this->getValidCountryId(),
                         ],
                         'defaultBillingAddressId' => $addressId,
-                        'defaultPaymentMethod' => [
-                            'name' => 'Invoice',
-                            'technicalName' => Uuid::randomHex(),
-                            'active' => true,
-                            'description' => 'Default payment method',
-                            'handlerIdentifier' => SyncTestPaymentHandler::class,
-                            'availabilityRule' => [
-                                'id' => Uuid::randomHex(),
-                                'name' => 'true',
-                                'priority' => 0,
-                                'conditions' => [
-                                    [
-                                        'type' => 'cartCartAmount',
-                                        'value' => [
-                                            'operator' => '>=',
-                                            'amount' => 0,
-                                        ],
-                                    ],
-                                ],
-                            ],
-                            'salesChannels' => [
-                                [
-                                    'id' => TestDefaults::SALES_CHANNEL,
-                                ],
-                            ],
-                        ],
                         'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                         'email' => $email,
                         'password' => TestDefaults::HASHED_PASSWORD,
@@ -854,6 +828,12 @@ class OrderRouteTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        return $order;
     }
 
     private function createDocument(string $orderId, bool $showInCustomerAccount = true, bool $sent = true): void

@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package buyers-experience
+ */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-block-html', {
         sync: true,

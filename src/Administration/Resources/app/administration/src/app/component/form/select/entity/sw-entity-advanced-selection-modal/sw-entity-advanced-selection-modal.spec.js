@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal';
 
@@ -88,6 +92,7 @@ const createAdvancedSelectionModal = async (customOptions) => {
                 'sw-context-menu': true,
                 'sw-filter-panel': true,
                 'sw-entity-listing': true,
+                'sw-entity-advanced-selection-modal-grid': true,
             },
             provide: {
                 acl: {

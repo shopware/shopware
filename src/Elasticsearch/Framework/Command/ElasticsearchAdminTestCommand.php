@@ -33,7 +33,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'es:admin:test',
     description: 'Allows you to test the admin search index',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class ElasticsearchAdminTestCommand extends Command
 {
     private SymfonyStyle $io;

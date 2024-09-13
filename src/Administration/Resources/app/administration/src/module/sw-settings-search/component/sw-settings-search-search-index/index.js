@@ -15,11 +15,15 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'productIndexService',
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['edit-change'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -63,7 +67,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

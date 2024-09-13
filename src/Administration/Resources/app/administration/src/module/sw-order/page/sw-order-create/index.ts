@@ -16,6 +16,8 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'feature'],
 
     mixins: [
@@ -82,7 +84,7 @@ export default Shopware.Component.wrapComponentConfig({
         this.createdComponent();
     },
 
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.unregisterModule();
     },
 
@@ -109,6 +111,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
+            State.commit('context/setLanguageId', localStorage.getItem('sw-admin-current-language')
+                || Shopware.Defaults.systemLanguageId);
             void this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
         },
 

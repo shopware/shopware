@@ -109,7 +109,11 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     searchIds(criteria: Criteria, context = Shopware.Context.api): Promise<IdSearchResult> {
         const headers = this.buildHeaders(context);
 
-        const url = `/search-ids${this.route}`;
+        let url = `/search-ids${this.route}`;
+
+        if (criteria.getTitle() !== null) {
+            url += `?title=${criteria.getTitle()}`;
+        }
 
         return this.httpClient
             .post(url, criteria.parse(), { headers })
@@ -124,7 +128,11 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection<EntityName>> {
         const headers = this.buildHeaders(context);
 
-        const url = `/search${this.route}`;
+        let url = `/search${this.route}`;
+
+        if (criteria.getTitle() !== null) {
+            url += `?title=${criteria.getTitle()}`;
+        }
 
         return this.httpClient
             .post(url, criteria.parse(), { headers })

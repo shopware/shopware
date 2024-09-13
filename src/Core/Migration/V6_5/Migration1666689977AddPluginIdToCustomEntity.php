@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class Migration1666689977AddPluginIdToCustomEntity extends MigrationStep
 {
     public function getCreationTimestamp(): int

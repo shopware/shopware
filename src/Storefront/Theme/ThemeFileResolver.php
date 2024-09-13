@@ -117,10 +117,14 @@ class ThemeFileResolver
 
                     continue;
                 }
+                // removes file with old js structure (before async changes) from collection
+                if (!str_ends_with($filepath, $file->assetName . '/' . basename($filepath))) {
+                    continue;
+                }
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
+                    \sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
                 );
             }
 

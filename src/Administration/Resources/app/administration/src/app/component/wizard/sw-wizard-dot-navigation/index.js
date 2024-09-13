@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.register('sw-wizard-dot-navigation', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         pages: {
             type: Array,

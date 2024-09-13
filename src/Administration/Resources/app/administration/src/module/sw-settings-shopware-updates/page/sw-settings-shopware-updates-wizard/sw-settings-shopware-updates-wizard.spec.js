@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -165,6 +165,18 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-field-error': true,
                     'sw-base-field': true,
+                    'sw-app-topbar-button': true,
+                    'sw-help-center-v2': true,
+                    'sw-empty-state': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-context-button': true,
+                    'sw-alert': true,
+                    'sw-radio-field': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-menu-item': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
                 },
                 attachTo: document.body,
             },

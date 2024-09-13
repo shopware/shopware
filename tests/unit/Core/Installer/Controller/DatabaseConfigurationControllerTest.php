@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
 use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
-use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
@@ -278,7 +278,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->connectionFactory->expects(static::once())
             ->method('getConnection')
-            ->willThrowException(new DatabaseSetupException(''));
+            ->willThrowException(MaintenanceException::dbVersionMismatch('', '', '', ''));
 
         $this->blueGreenDeploymentService->expects(static::never())
             ->method('setEnvironmentVariable');
@@ -321,7 +321,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->connectionFactory->expects(static::once())
             ->method('getConnection')
-            ->willThrowException(new DatabaseSetupException());
+            ->willThrowException(MaintenanceException::dbVersionMismatch('', '', '', ''));
 
         $this->translator->expects(static::once())
             ->method('trans')

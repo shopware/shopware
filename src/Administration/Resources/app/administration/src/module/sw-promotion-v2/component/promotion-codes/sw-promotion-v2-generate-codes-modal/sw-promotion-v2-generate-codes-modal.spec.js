@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 const mockCode = 'PREFIX_ABCD_SUFFIX';

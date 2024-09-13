@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -55,6 +55,11 @@ async function createWrapper() {
                         },
                     }),
                 },
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({
+                        'core.store.media.defaultEnableAugmentedReality': 'false',
+                    }),
+                },
             },
             stubs: {
                 'sw-upload-listener': true,
@@ -68,6 +73,8 @@ async function createWrapper() {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-loader': true,
+                'router-link': true,
             },
         },
     });

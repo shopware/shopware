@@ -31,7 +31,7 @@ use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
-use Shopware\Core\Framework\Migration\MigrationCompilerPass;
+use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
@@ -102,6 +102,8 @@ class Framework extends Bundle
         $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
+        $loader->load('health.xml');
+        $loader->load('telemetry.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -114,7 +116,6 @@ class Framework extends Bundle
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_REMOVING, 1000);
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new EntityCompilerPass());
-        $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
         $container->addCompilerPass(new DefaultTransportCompilerPass());
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
@@ -153,11 +154,8 @@ class Framework extends Bundle
         /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
-
-        $cacheDir = $this->container->getParameter('kernel.cache_dir');
-        if (!\is_string($cacheDir)) {
-            throw FrameworkException::invalidKernelCacheDir();
-        }
+        // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
+        MeterProvider::bindMeter($this->container);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
@@ -171,23 +169,8 @@ class Framework extends Bundle
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
     }
 
-    /**
-     * @return string[]
-     */
-    protected function getCoreMigrationPaths(): array
-    {
-        return [
-            __DIR__ . '/../Migration' => 'Shopware\Core\Migration',
-        ];
-    }
-
     private function buildConfig(ContainerBuilder $container, string $environment): void
     {
-        $cacheDir = $container->getParameter('kernel.cache_dir');
-        if (!\is_string($cacheDir)) {
-            throw FrameworkException::invalidKernelCacheDir();
-        }
-
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([

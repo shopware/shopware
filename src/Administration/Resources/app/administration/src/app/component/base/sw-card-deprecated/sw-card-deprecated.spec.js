@@ -17,6 +17,8 @@ async function createWrapper(additionalOptions = {}) {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'mt-floating-ui': true,
             },
         },
         props: {

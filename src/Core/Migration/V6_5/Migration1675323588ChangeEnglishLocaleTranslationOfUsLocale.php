@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale extends MigrationStep
 {
     public function getCreationTimestamp(): int

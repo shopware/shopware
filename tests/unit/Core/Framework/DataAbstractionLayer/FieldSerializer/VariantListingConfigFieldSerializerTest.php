@@ -125,7 +125,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param array<string, int|string|array<string, bool|string>|null>  $data
+     * @param array<string, int|string|array<string, bool|string>|null> $data
      *
      * @throws \JsonException
      *

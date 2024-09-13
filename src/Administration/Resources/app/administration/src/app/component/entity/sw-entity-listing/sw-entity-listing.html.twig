@@ -129,7 +129,7 @@
             zIndex: 9050,
         }"
         class="sw-entity-listing__context-menu-edit-action"
-        :disabled="!allowEdit && !allowView"
+        :disabled="(!allowEdit && !allowView) || undefined"
         :router-link="{ name: detailRoute, params: { id: item.id } }"
     >
         {{ detailPageLinkText }}
@@ -152,7 +152,7 @@
             showOnDisabledElements: true,
             zIndex: 9050,
         }"
-        :disabled="!allowDelete"
+        :disabled="!allowDelete || undefined"
         class="sw-entity-listing__context-menu-edit-delete"
         variant="danger"
         @click="showDelete(item.id)"

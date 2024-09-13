@@ -18,7 +18,7 @@ class FeatureCallSilentTokenTest extends TestCase
 {
     public function testCompile(): void
     {
-        $token = new FeatureCallSilentToken('v6.5.0.0', new TextNode('test', 1), 1, 'sw_feature');
+        $token = new FeatureCallSilentToken('v6.5.0.0', new TextNode('test', 1), 1);
 
         $compiler = new Compiler(new Environment(new ArrayLoader()));
 
@@ -26,7 +26,7 @@ class FeatureCallSilentTokenTest extends TestCase
 
         $code = <<<'PHP'
 // line 1
-\Shopware\Core\Framework\Feature::callSilentIfInactive('v6.5.0.0', function () use(&$context) { yield "test";
+\Shopware\Core\Framework\Feature::callSilentIfInactive("v6.5.0.0", function () use(&$context) { yield "test";
 });
 PHP;
 

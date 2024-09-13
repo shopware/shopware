@@ -22,7 +22,7 @@ class ZipUtilsTest extends TestCase
     public function testExceptionIsThrownIfZipIsInvalid(): void
     {
         static::expectException(PluginException::class);
-        static::expectExceptionMessage(sprintf('%s is not a zip archive.', __FILE__));
+        static::expectExceptionMessage(\sprintf('%s is not a zip archive.', __FILE__));
 
         ZipUtils::openZip(__FILE__);
     }

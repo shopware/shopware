@@ -8,6 +8,10 @@ import './sw-extension-domains-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close'],
+
     props: {
         extensionLabel: {
             type: String,
@@ -26,6 +30,15 @@ export default {
                 'sw-extension-store.component.sw-extension-domains-modal.modalTitle',
                 { extensionLabel: this.extensionLabel },
             );
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

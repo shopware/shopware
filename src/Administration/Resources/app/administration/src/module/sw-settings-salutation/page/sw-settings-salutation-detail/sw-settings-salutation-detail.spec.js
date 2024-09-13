@@ -114,13 +114,14 @@ async function createWrapper(privileges = []) {
                 'sw-language-info': true,
                 'sw-text-field': true,
                 'sw-skeleton': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
 
     });
 }
 
-describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () => {
+describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

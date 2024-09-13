@@ -1,11 +1,8 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import swProductDetailReviews from 'src/module/sw-product/view/sw-product-detail-reviews';
-
-Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews);
 
 const { State } = Shopware;
 
@@ -66,6 +63,9 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-skeleton': true,
                 'sw-button': true,
+                'sw-rating-stars': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-pagination': true,
             },
         },
     });

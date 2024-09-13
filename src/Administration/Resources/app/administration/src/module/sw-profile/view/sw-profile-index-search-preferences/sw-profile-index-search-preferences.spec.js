@@ -1,11 +1,9 @@
 import { mount } from '@vue/test-utils';
-import swProfileIndexSearchPreferences from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
 
 /**
  * @package services-settings
  */
 
-Shopware.Component.register('sw-profile-index-search-preferences', swProfileIndexSearchPreferences);
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return {
         isDiscountCampaignActive: jest.fn(() => true),
@@ -46,6 +44,9 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-extension-component-section': true,
                 'sw-alert': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'router-link': true,
             },
 
             provide: {
@@ -366,6 +367,116 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     }),
                 }),
             }),
+        ]));
+    });
+
+    it('should merge defaultSearchPreferences and userSearchPreferences correctly', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.searchPreferencesService.getDefaultSearchPreferences = jest.fn(() => [
+            {
+                order: {
+                    _searchable: false,
+                    number: { _score: 80, _searchable: true },
+                    documents: {
+                        _searchable: false,
+                        documentNumber: { _score: 80, _searchable: false },
+                        documentInvoice: { _score: 80, _searchable: false },
+                    },
+                },
+            }, {
+                category: {
+                    _searchable: false,
+                    name: { _score: 80, _searchable: true },
+                    tags: {
+                        _searchable: false,
+                        name: { _score: 80, _searchable: true },
+                    },
+                },
+            }, {
+                notInUserPreferences: {
+                    _searchable: true,
+                    name: { _score: 80, _searchable: true },
+                },
+            },
+        ]);
+
+        await flushPromises();
+
+        wrapper.vm.userSearchPreferences = [
+            {
+                order: {
+                    _searchable: true,
+                    number: { _score: 80, _searchable: true },
+                    documents: {
+                        _searchable: true,
+                        documentNumber: { _score: 80, _searchable: true },
+                        documentInvoice: { _score: 80, _searchable: true },
+                    },
+                },
+            }, {
+                category: {
+                    _searchable: true,
+                    name: { _score: 80, _searchable: false },
+                    tags: {
+                        _searchable: true,
+                        name: { _score: 80, _searchable: false },
+                    },
+                },
+            }, {
+                notInDefaultPreferences: {
+                    _searchable: true,
+                    name: { _score: 80, _searchable: true },
+                },
+            },
+        ];
+
+        await flushPromises();
+
+        const result = wrapper.vm.defaultSearchPreferences;
+
+        expect(result).toHaveLength(3);
+        expect(result).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                order: expect.objectContaining({
+                    _searchable: true,
+                    number: expect.objectContaining({
+                        _score: 80,
+                        _searchable: true,
+                    }),
+                    documents: expect.objectContaining({
+                        _searchable: true,
+                        documentNumber: expect.objectContaining({ _score: 80, _searchable: true }),
+                        documentInvoice: expect.objectContaining({ _score: 80, _searchable: true }),
+                    }),
+                }),
+            }),
+            expect.objectContaining({
+                category: expect.objectContaining({
+                    _searchable: true,
+                    name: expect.objectContaining({ _score: 80, _searchable: false }),
+                    tags: expect.objectContaining({
+                        _searchable: true,
+                        name: expect.objectContaining({ _score: 80, _searchable: false }),
+                    }),
+                }),
+            }),
+            expect.objectContaining({
+                notInUserPreferences: {
+                    _searchable: true,
+                    name: expect.objectContaining({ _score: 80, _searchable: true }),
+                },
+            }),
+        ]));
+
+        expect(result).toEqual(expect.not.arrayContaining([
+            {
+                notInDefaultPreferences: {
+                    _searchable: true,
+                    name: { _score: 80, _searchable: true },
+                },
+            },
         ]));
     });
 });

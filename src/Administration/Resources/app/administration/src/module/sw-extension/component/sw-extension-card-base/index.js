@@ -10,9 +10,13 @@ const { Utils, Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
+
+    emits: ['update-list'],
 
     mixins: ['sw-extension-error'],
 

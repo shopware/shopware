@@ -11,6 +11,8 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],

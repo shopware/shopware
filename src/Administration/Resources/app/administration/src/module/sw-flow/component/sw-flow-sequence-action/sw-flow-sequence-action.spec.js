@@ -7,6 +7,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return { isDiscountCampaignActive: jest.fn(() => true) };
 });
@@ -67,7 +71,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
         global: {
             stubs: {
                 'sw-icon': {
-                    template: '<div class="sw-icon" v-on="$listeners"></div>',
+                    template: '<div class="sw-icon"></div>',
                 },
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -117,6 +121,11 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                     },
                 },
                 'sw-flow-sequence-action-error': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'router-link': true,
             },
 
             provide: {

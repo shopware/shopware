@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<UserRecoveryEntity>
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserRecoveryCollection extends EntityCollection
 {
     public function getApiAlias(): string

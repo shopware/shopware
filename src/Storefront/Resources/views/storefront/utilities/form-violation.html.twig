@@ -1,5 +1,10 @@
 {% for violation in formViolations.getViolations(violationPath) %}
-    {% set snippetName = "error.#{violation.code}" %}
+    {% if violation.messageTemplate starts with 'VIOLATION::' %}
+        {% set snippetName = "error.#{violation.messageTemplate}" %}
+    {% else %}
+        {% set snippetName = "error.#{violation.code}" %}
+    {% endif %}
+
     {% set fieldName = violationLabel ? violationLabel : violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
     <div class="invalid-feedback">
         {% if violation.parameters %}

@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
     name: 'es:admin:index',
     description: 'Index the elasticsearch for the admin search',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
@@ -39,6 +39,7 @@ final class ElasticsearchAdminIndexingCommand extends Command implements EventSu
      */
     protected function configure(): void
     {
+        $this->addOption('no-progress', null, null, 'Do not output progress bar');
         $this->addOption('no-queue', null, null, 'Do not use the queue for indexing');
         $this->addOption('skip', null, InputArgument::OPTIONAL, 'Comma separated list of entity names to be skipped');
         $this->addOption('only', null, InputArgument::OPTIONAL, 'Comma separated list of entity names to be generated');
@@ -46,7 +47,7 @@ final class ElasticsearchAdminIndexingCommand extends Command implements EventSu
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = $input->getOption('no-progress') ? null : new ShopwareStyle($input, $output);
 
         $skip = \is_string($input->getOption('skip')) ? explode(',', $input->getOption('skip')) : [];
         $only = \is_string($input->getOption('only')) ? explode(',', $input->getOption('only')) : [];

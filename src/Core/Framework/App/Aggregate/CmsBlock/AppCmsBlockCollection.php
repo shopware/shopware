@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @extends EntityCollection<AppCmsBlockEntity>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class AppCmsBlockCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

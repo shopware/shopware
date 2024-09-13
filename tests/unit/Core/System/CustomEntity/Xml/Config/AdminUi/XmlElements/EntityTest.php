@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(AdminUiEntity::class)]

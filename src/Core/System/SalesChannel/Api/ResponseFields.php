@@ -3,15 +3,19 @@
 namespace Shopware\Core\System\SalesChannel\Api;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 
 #[Package('core')]
 class ResponseFields
 {
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $includes;
 
+    /**
+     * @param array<mixed>|null $includes
+     */
     public function __construct(?array $includes)
     {
         $this->includes = $includes;
@@ -21,6 +25,16 @@ class ResponseFields
     {
         if (!isset($this->includes[$type])) {
             return true;
+        }
+
+        if (!\is_array($this->includes[$type])) {
+            throw SalesChannelException::invalidType(
+                \sprintf(
+                    'The includes for type "%s" must be of the type array, %s given',
+                    $type,
+                    \gettype($this->includes[$type])
+                )
+            );
         }
 
         return \in_array($property, $this->includes[$type], true);

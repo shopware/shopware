@@ -29,6 +29,13 @@ async function createWrapper() {
         props: {
             itemsToMove: [createMediaEntity()],
         },
+        global: {
+            stubs: {
+                'sw-icon': true,
+                'sw-media-folder-content': true,
+                'sw-button': true,
+            },
+        },
     });
 }
 

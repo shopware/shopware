@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const sequences = [
     {
         id: '1',
@@ -44,6 +48,8 @@ async function createWrapper() {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
+                'router-link': true,
+                'sw-loader': true,
             },
         },
     });

@@ -10,7 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 final class AdminUiXmlSchema
 {
     public const FILENAME = 'admin-ui.xml';

@@ -102,7 +102,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
     }
 
     /**
-     *  @param array<string, mixed> $data
+     * @param array<string, mixed> $data
      */
     private function encode(?array $data = null, ?Field $field = null): ?string
     {

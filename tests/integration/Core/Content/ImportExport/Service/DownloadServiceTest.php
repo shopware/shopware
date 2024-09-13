@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class DownloadServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

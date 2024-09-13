@@ -135,6 +135,7 @@ class DeliveryBuilderTest extends TestCase
 
         $price = new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection());
         $lineItem->setPrice($price);
+        $lineItem->setShippingCostAware(true);
 
         return $lineItem;
     }

@@ -39,8 +39,14 @@ const linkDataProvider = [{
     selector: '.sw-entity-single-select',
     label: 'sw-text-editor-toolbar.link.linkTo',
     placeholder: 'sw-text-editor-toolbar.link.placeholderProduct',
+}, {
+    URL: `${seoDomainPrefix}/mediaId/aaaaaaa524604ccbad6042edce3ac799#`,
+    value: 'aaaaaaa524604ccbad6042edce3ac799',
+    type: 'media',
+    prefix: `${seoDomainPrefix}/mediaId/`,
+    selector: '.sw-media-field',
+    label: 'sw-text-editor-toolbar.link.linkTo',
 }];
-
 
 async function createWrapper(startingValue) {
     return mount(await wrapTestComponent('sw-dynamic-url-field', { sync: true }), {
@@ -69,6 +75,10 @@ async function createWrapper(startingValue) {
                 'sw-category-tree-field': {
                     props: ['label', 'placeholder', 'criteria', 'categories-collection'],
                     template: '<div class="sw-category-tree-field"></div>',
+                },
+                'sw-media-field': {
+                    props: ['value', 'label'],
+                    template: '<input class="sw-media-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                 },
                 'sw-button': true,
             },
@@ -101,9 +111,9 @@ responses.addResponse({
     },
 });
 
-describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
+describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
     linkDataProvider.forEach(link => {
-        it(`parses ${link.type} URL's correctly`, async () => {
+        it(`parses ${link.type} URLs correctly`, async () => {
             const wrapper = await createWrapper(link.URL);
             await flushPromises();
 
@@ -112,14 +122,16 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                 expect.objectContaining({
                     value: link.value,
                     label: link.label,
-                    placeholder: link.placeholder,
+                    ...(link.type !== 'media' ? {
+                        placeholder: link.placeholder,
+                    } : {}),
                 }),
             );
 
             let placeholderId = 'some-id';
             await wrapper.find(link.selector).setValue(placeholderId);
 
-            if (link.type === 'detail') {
+            if (['detail', 'media'].includes(link.type)) {
                 placeholderId += '#';
             }
 
@@ -191,7 +203,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         const options = wrapper.findComponent('select').findAll('option');
         await options.at(3).setSelected();
 
-        expect(wrapper.vm.linkCategory).toBe('email');
+        expect(wrapper.vm.linkCategory).toBe('media');
 
         const dispatchedInputEvents = wrapper.emitted('update:value');
         expect(dispatchedInputEvents[0]).toStrictEqual(['']);

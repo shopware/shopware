@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 
 const createWrapper = async (options) => {

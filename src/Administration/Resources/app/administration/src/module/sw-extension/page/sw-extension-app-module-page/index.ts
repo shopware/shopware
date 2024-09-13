@@ -11,7 +11,12 @@ const { State, Context } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'acl',
+        'extensionSdkService',
+    ],
 
     props: {
         appName: {
@@ -26,11 +31,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    data(): { appLoaded: boolean, timedOut: boolean, timedOutTimeout: null|number } {
+    data(): { appLoaded: boolean, timedOut: boolean, timedOutTimeout: null|number, signedIframeSrc: undefined|string } {
         return {
             appLoaded: false,
             timedOut: false,
             timedOutTimeout: null,
+            signedIframeSrc: undefined,
         };
     },
 
@@ -135,6 +141,31 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             },
         },
+
+        moduleDefinition: {
+            immediate: true,
+            deep: true,
+            handler() {
+                const sourceString = this.moduleDefinition?.source;
+                if (!sourceString) {
+                    return;
+                }
+
+                // The source already contains old query params remove them
+                const source = new URL(sourceString);
+                const sourceWithoutParams = source.origin + source.pathname;
+
+                this.extensionSdkService.signIframeSrc(this.appName, sourceWithoutParams).then((response) => {
+                    const uri = (response as { uri?: string})?.uri;
+
+                    if (!uri) {
+                        return;
+                    }
+
+                    this.signedIframeSrc = uri;
+                }).catch(() => {});
+            },
+        },
     },
 
     mounted() {
@@ -142,7 +173,7 @@ export default Shopware.Component.wrapComponentConfig({
         window.addEventListener('message', this.onContentLoaded);
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         window.removeEventListener('message', this.onContentLoaded);
     },

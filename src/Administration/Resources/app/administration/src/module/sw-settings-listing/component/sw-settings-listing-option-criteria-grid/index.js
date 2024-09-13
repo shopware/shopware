@@ -1,6 +1,10 @@
 import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
 
+/**
+ * @package inventory
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -8,7 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['criteria-add', 'criteria-delete', 'inline-edit-save', 'inline-edit-cancel'],
 
     mixins: [
         Mixin.getByName('notification'),

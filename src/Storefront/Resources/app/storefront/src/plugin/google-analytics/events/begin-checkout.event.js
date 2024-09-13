@@ -15,7 +15,7 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
     }
 
     getPluginName() {
-        return 'OffCanvasCart'
+        return 'OffCanvasCart';
     }
 
     _offCanvasOpened() {

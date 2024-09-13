@@ -21,7 +21,8 @@
         "move": "Move",
         "replace": "Replace",
         "settings": "Settings",
-        "ar": "Activate AR View"
+        "ar": "Activate AR View",
+        "arHelpText": "AR function enabled when presented in the storefront. You can change the default in <a href=\"{settingsLink}\">the 3D settings</a>."
       },
       "sections": {
         "actions": "Actions",

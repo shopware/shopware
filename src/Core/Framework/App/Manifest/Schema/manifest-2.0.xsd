@@ -499,7 +499,14 @@
             <xs:element type="xs:anyURI" name="pay-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="finalize-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="validate-url" minOccurs="0"/>
-            <xs:element type="xs:anyURI" name="capture-url" minOccurs="0"/>
+            <!-- @deprecated manifest:v3.0 - will be removed, as captures are not supported anymore, use pay-url instead -->
+            <xs:element type="xs:anyURI" name="capture-url" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Deprecated with manifest v3.0 / Shopware 6.7: Captures are not supported anymore, do your logic in the pay-url instead.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element type="xs:anyURI" name="refund-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="recurring-url" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">

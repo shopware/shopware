@@ -72,7 +72,7 @@ export default class WishlistWidgetPlugin extends Plugin {
                 window.PluginManager.getPluginInstances('AddToWishlist').forEach((pluginInstance) => {
                     pluginInstance.initStateClasses();
                 });
-            })
+            });
         }
     }
 
@@ -80,7 +80,7 @@ export default class WishlistWidgetPlugin extends Plugin {
      * @private
      */
     _reInitWishlistButton(productId) {
-        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId, false)
+        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId, false);
 
         if (!buttonElements) {
             return;

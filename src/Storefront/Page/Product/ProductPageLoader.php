@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -168,9 +169,19 @@ class ProductPageLoader
             return;
         }
 
-        $blocks = $page->getCmsPage()?->getSections()?->first()?->getBlocks();
-        if ($blocks === null) {
+        $sections = $page->getCmsPage()?->getSections();
+        if ($sections === null) {
             return;
+        }
+
+        $blocks = new CmsBlockCollection();
+        foreach ($sections as $section) {
+            $sectionBlocks = $section->getBlocks();
+            if ($sectionBlocks === null) {
+                continue;
+            }
+
+            $blocks->merge($sectionBlocks);
         }
 
         $descriptionReviewsStruct = $blocks->filterByProperty('type', ProductDescriptionReviewsCmsElementResolver::TYPE)->first()?->getSlots()?->first()?->getData();

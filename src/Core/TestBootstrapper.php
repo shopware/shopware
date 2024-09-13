@@ -46,16 +46,12 @@ class TestBootstrapper
 
     public function bootstrap(): TestBootstrapper
     {
-        $_SERVER['TESTS_RUNNING'] = true;
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {
             \define('TEST_PROJECT_DIR', $_SERVER['PROJECT_ROOT']);
         }
 
-        $commercialComposerJson = $_SERVER['PROJECT_ROOT'] . '/custom/plugins/SwagCommercial/composer.json';
-
-        if ($this->commercialEnabled && file_exists($commercialComposerJson)) {
-            $this->addCallingPlugin($commercialComposerJson);
+        if ($this->commercialEnabled && $this->getPluginPath('SwagCommercial')) {
             $this->addActivePlugins('SwagCommercial');
         }
 
@@ -164,7 +160,7 @@ class TestBootstrapper
 
         $auth = isset($dbUrlParts['user']) ? ($dbUrlParts['user'] . (isset($dbUrlParts['pass']) ? (':' . $dbUrlParts['pass']) : '') . '@') : '';
 
-        return $this->databaseUrl = sprintf(
+        return $this->databaseUrl = \sprintf(
             '%s://%s%s%s%s%s',
             $dbUrlParts['scheme'] ?? 'mysql',
             $auth,
@@ -266,6 +262,9 @@ class TestBootstrapper
         return $this;
     }
 
+    /**
+     * This will NOT fail, if the plugin is not available
+     */
     public function setEnableCommercial(bool $enableCommercial = true): TestBootstrapper
     {
         $this->commercialEnabled = $enableCommercial;
@@ -308,18 +307,11 @@ class TestBootstrapper
     private function addPluginAutoloadDev(ClassLoader $classLoader): void
     {
         foreach ($this->activePlugins as $pluginName) {
-            $pathToComposerJson = $this->getProjectDir() . '/custom/plugins/' . $pluginName . '/composer.json';
-            $pathToComposerJsonStaticPlugins = $this->getProjectDir() . '/custom/static-plugins/' . $pluginName . '/composer.json';
-
-            if (!\is_file($pathToComposerJson) && !\is_file($pathToComposerJsonStaticPlugins)) {
-                throw new \RuntimeException(sprintf('Could not find plugin: %s in of these paths: %s or %s', $pluginName, $pathToComposerJson, $pathToComposerJsonStaticPlugins));
+            $pluginPath = $this->getPluginPath($pluginName);
+            if (!$pluginPath) {
+                throw new \RuntimeException(\sprintf('Could not find plugin: %s', $pluginName));
             }
-
-            if (!\is_file($pathToComposerJson)) {
-                $pathToComposerJson = $pathToComposerJsonStaticPlugins;
-            }
-
-            $plugin = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);
+            $plugin = json_decode((string) file_get_contents($pluginPath . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
             $psr4 = $plugin['autoload-dev']['psr-4'] ?? [];
             $psr0 = $plugin['autoload-dev']['psr-0'] ?? [];
@@ -328,7 +320,7 @@ class TestBootstrapper
                 if (\is_string($paths)) {
                     $paths = [$paths];
                 }
-                $mappedPaths = $this->mapPsrPaths($paths, \dirname($pathToComposerJson));
+                $mappedPaths = $this->mapPsrPaths($paths, $pluginPath);
 
                 $classLoader->addPsr4($namespace, $mappedPaths);
                 if ($classLoader->isClassMapAuthoritative()) {
@@ -340,7 +332,7 @@ class TestBootstrapper
                 if (\is_string($paths)) {
                     $paths = [$paths];
                 }
-                $mappedPaths = $this->mapPsrPaths($paths, \dirname($pathToComposerJson));
+                $mappedPaths = $this->mapPsrPaths($paths, $pluginPath);
 
                 $classLoader->add($namespace, $mappedPaths);
                 if ($classLoader->isClassMapAuthoritative()) {
@@ -348,6 +340,25 @@ class TestBootstrapper
                 }
             }
         }
+    }
+
+    public function getPluginPath(string $pluginName): ?string
+    {
+        $allPluginDirectories = \glob($this->getProjectDir() . '/custom/*plugins/*', \GLOB_ONLYDIR) ?: [];
+
+        foreach ($allPluginDirectories as $pluginDir) {
+            if (!is_file($pluginDir . '/composer.json')) {
+                continue;
+            }
+
+            if (!is_file($pluginDir . '/src/' . $pluginName . '.php')) {
+                continue;
+            }
+
+            return $pluginDir;
+        }
+
+        return null;
     }
 
     /**

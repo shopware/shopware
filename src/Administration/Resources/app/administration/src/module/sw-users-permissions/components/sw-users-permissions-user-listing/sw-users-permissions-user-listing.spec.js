@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -45,6 +45,10 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-context-menu-item': true,
+                'sw-avatar': true,
+                'router-link': true,
+                'sw-pagination': true,
+                'sw-password-field': true,
             },
         },
     });

@@ -15,12 +15,29 @@ const ApiService = Shopware.Classes.ApiService;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
         'orderService',
         'feature',
     ],
+
+    provide() {
+        return {
+            swOrderDetailOnIdentifierChange: this.updateIdentifier,
+            swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
+            swOrderDetailOnLoadingChange: this.onUpdateLoading,
+            swOrderDetailOnEditingChange: this.onUpdateEditing,
+            swOrderDetailOnSaveAndRecalculate: this.onSaveAndRecalculate,
+            swOrderDetailOnRecalculateAndReload: this.onRecalculateAndReload,
+            swOrderDetailOnReloadEntityData: this.reloadEntityData,
+            swOrderDetailOnSaveAndReload: this.onSaveAndReload,
+            swOrderDetailOnSaveEdits: this.onSaveEdits,
+            swOrderDetailOnError: this.onError,
+        };
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -292,6 +309,8 @@ export default {
             });
 
             if (mappings.length === 0) {
+                State.commit('swOrderDetail/setOrderAddressIds', false);
+
                 return;
             }
 

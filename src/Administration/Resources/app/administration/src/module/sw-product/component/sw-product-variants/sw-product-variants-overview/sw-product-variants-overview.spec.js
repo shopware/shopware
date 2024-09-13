@@ -2,6 +2,7 @@
  * @package buyers-experience
  */
 import { mount } from '@vue/test-utils';
+import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
     return mount(await wrapTestComponent('sw-product-variants-overview', { sync: true }), {
@@ -45,6 +46,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     startEventListener: () => {},
                     stopEventListener: () => {},
                 },
+                fileValidationService: {},
             },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container', { sync: true }),
@@ -74,6 +76,22 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-loader': true,
+                'sw-tree-input-field': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-data-grid-settings': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-field-error': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-button-group': true,
+                'sw-media-url-form': true,
+                'sw-media-preview-v2': true,
+                'sw-context-menu-divider': true,
+                'sw-media-modal-v2': true,
             },
         },
     });
@@ -179,6 +197,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         global.activeAclRoles = ['product.deleter'];
 
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
         await deleteContextButton.trigger('click');
@@ -370,5 +389,28 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         wrapper.vm.onInheritanceRestore(variant, currency);
 
         expect(variant.price).toBeNull();
+    });
+
+    it('buildSearchQuery modifies criteria correctly', async () => {
+        const criteria = new Criteria();
+        const term = 'test';
+        const wrapper = await createWrapper();
+
+        wrapper.vm.term = term;
+        wrapper.vm.buildSearchQuery(criteria);
+
+        expect(criteria.queries).toHaveLength(3);
+        expect(criteria.queries[0].query.type).toBe('equals');
+        expect(criteria.queries[0].query.field).toBe('product.options.name');
+        expect(criteria.queries[0].query.value).toBe(term);
+        expect(criteria.queries[0].score).toBe(3500);
+        expect(criteria.queries[1].query.type).toBe('contains');
+        expect(criteria.queries[1].query.field).toBe('product.options.name');
+        expect(criteria.queries[1].query.value).toBe(term);
+        expect(criteria.queries[1].score).toBe(500);
+        expect(criteria.queries[2].query.type).toBe('contains');
+        expect(criteria.queries[2].query.field).toBe('product.productNumber');
+        expect(criteria.queries[2].query.value).toBe(term);
+        expect(criteria.queries[2].score).toBe(5000);
     });
 });

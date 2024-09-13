@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -81,5 +82,20 @@ class NetPriceCalculatorTest extends TestCase
             100,
             new RegulationPrice(100),
         ];
+    }
+
+    public function testTaxesAreRoundedProperly(): void
+    {
+        $definition = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 48.12345)]), 1);
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertCount(1, $price->getCalculatedTaxes());
+
+        $tax = $price->getCalculatedTaxes()->first();
+
+        static::assertEquals(19, $tax?->getTaxRate());
+        static::assertEquals(48.12, $tax?->getPrice());
     }
 }

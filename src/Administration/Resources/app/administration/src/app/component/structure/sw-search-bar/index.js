@@ -19,6 +19,8 @@ const { cloneDeep } = utils.object;
 Component.register('sw-search-bar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'searchService',
         'searchTypeService',
@@ -29,6 +31,18 @@ Component.register('sw-search-bar', {
         'userActivityApiService',
         'recentlySearchService',
     ],
+
+    provide() {
+        return {
+            searchBarOnMouseOver: this.onMouseOver,
+            searchBarRegisterActiveItemIndexSelectHandler: this.registerActiveItemIndexSelectHandler,
+            searchBarUnregisterActiveItemIndexSelectHandler: this.unregisterActiveItemIndexSelectHandler,
+            searchBarRegisterKeyupEnterHandler: this.registerKeyupEnterHandler,
+            searchBarUnregisterKeyupEnterHandler: this.unregisterKeyupEnterHandler,
+        };
+    },
+
+    emits: ['search', 'active-item-index-select', 'keyup-enter'],
 
     shortcuts: {
         f: 'setFocus',
@@ -103,6 +117,8 @@ Component.register('sw-search-bar', {
             searchLimit: 10,
             userSearchPreference: null,
             isComponentMounted: true,
+            activeItemIndexSelectHandler: [],
+            keyupEnterHandler: [],
         };
     },
 
@@ -262,7 +278,31 @@ Component.register('sw-search-bar', {
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-            this.$on('mouse-over', this.setActiveResultPosition);
+
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                // eslint-disable-next-line vue/no-deprecated-events-api
+                this.$on('mouse-over', this.setActiveResultPosition);
+            }
+        },
+
+        onMouseOver(index, column) {
+            this.setActiveResultPosition({ index, column });
+        },
+
+        registerActiveItemIndexSelectHandler(handler) {
+            this.activeItemIndexSelectHandler.push(handler);
+        },
+
+        unregisterActiveItemIndexSelectHandler(handler) {
+            this.activeItemIndexSelectHandler = this.activeItemIndexSelectHandler.filter(h => h !== handler);
+        },
+
+        registerKeyupEnterHandler(handler) {
+            this.keyupEnterHandler.push(handler);
+        },
+
+        unregisterKeyupEnterHandler(handler) {
+            this.keyupEnterHandler = this.keyupEnterHandler.filter(h => h !== handler);
         },
 
         getLabelSearchType(type) {
@@ -322,18 +362,7 @@ Component.register('sw-search-bar', {
             this.loadSearchTrends().then(response => {
                 this.resultsSearchTrends = response;
 
-                this.showResultsSearchTrends = true;
-            });
-
-            if (this.resultsSearchTrends?.length) {
-                this.showResultsSearchTrends = true;
-                return;
-            }
-
-            this.loadSearchTrends().then(response => {
-                this.resultsSearchTrends = response;
-
-                this.showResultsSearchTrends = true;
+                this.showResultsSearchTrends = !!response?.length;
             });
         },
 
@@ -346,7 +375,11 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            } else {
+                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+            }
         },
 
         hideSearchBar() {
@@ -435,7 +468,11 @@ Component.register('sw-search-bar', {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            } else {
+                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+            }
         },
 
         resetSearchType() {

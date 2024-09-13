@@ -12,6 +12,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-icon': true,
+                'sw-cms-stage-section-selection': true,
             },
             provide: {
                 cmsService: {},

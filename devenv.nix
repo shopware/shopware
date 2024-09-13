@@ -20,6 +20,9 @@ in {
     '')
   ];
 
+  # Fix .env loading
+  process.implementation = lib.mkDefault "honcho";
+
   dotenv.disableHint = true;
 
   languages.javascript = {

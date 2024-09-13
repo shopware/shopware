@@ -42,6 +42,16 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
+        if (!$this->hasAvailableFilter($criteria)) {
+            $criteria->addFilter(
+                new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
+            );
+        }
+
+        if ($criteria->getNestingLevel() !== Criteria::ROOT_NESTING_LEVEL) {
+            return;
+        }
+
         if (empty($criteria->getFields())) {
             $criteria
                 ->addAssociation('prices')
@@ -49,12 +59,6 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
                 ->addAssociation('deliveryTime')
                 ->addAssociation('cover.media')
             ;
-        }
-
-        if (!$this->hasAvailableFilter($criteria)) {
-            $criteria->addFilter(
-                new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
-            );
         }
 
         if ($criteria->hasAssociation('productReviews')) {

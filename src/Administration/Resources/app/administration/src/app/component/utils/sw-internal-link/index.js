@@ -20,6 +20,10 @@ const { Component } = Shopware;
 Component.register('sw-internal-link', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['click'],
+
     props: {
         routerLink: {
             type: Object,

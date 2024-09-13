@@ -16,8 +16,26 @@ describe('components/base/sw-product-variant-info', () => {
             slots: {
                 default: 'Product name from slot',
             },
+            global: {
+                stubs: {
+                    'sw-highlight-text': true,
+                },
+            },
         });
     }
+
+    beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead');
+            },
+        });
+    });
 
     it('should display the main text from its slot', async () => {
         const wrapper = await createWrapper();

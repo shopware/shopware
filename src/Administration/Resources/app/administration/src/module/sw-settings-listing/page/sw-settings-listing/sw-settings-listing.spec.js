@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     const notificationMixinMock = {
         methods: {
@@ -420,7 +423,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                             onSalesChannelChanged(salesChannelId) {
                                 this.currentSalesChannelId = salesChannelId;
                                 if (!this.actualConfigData[salesChannelId]) {
-                                    this.$set(this.actualConfigData, this.currentSalesChannelId, {});
+                                    this.actualConfigData[this.currentSalesChannelId] = {};
                                 }
                             },
                         },
@@ -511,6 +514,22 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         `,
                     },
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-search-bar': true,
+                    'sw-field-error': true,
+                    'sw-language-switch': true,
+                    'sw-simple-search-field': true,
+                    'sw-button': true,
+                    'sw-container': true,
+                    'sw-help-text': true,
+                    'sw-highlight-text': true,
+                    'sw-checkbox-field': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-loader': true,
+                    'sw-select-field': true,
+                    'sw-ai-copilot-badge': true,
                 },
                 mocks: {
                     $tc: (param) => {

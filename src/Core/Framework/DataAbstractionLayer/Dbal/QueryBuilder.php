@@ -13,6 +13,11 @@ class QueryBuilder extends DBALQueryBuilder
      */
     private array $states = [];
 
+    /**
+     * @var array<string, array{fromAlias: string, queryBuilder: self, joinCondition: string}>
+     */
+    private array $translationJoins = [];
+
     private ?string $title = null;
 
     public function addState(string $state): void
@@ -35,6 +40,24 @@ class QueryBuilder extends DBALQueryBuilder
         return $this->states;
     }
 
+    public function addTranslationJoin(
+        string $fromAlias,
+        string $joinAlias,
+        self $queryBuilder,
+        string $joinCondition,
+    ): void {
+        $this->translationJoins[$joinAlias] = [
+            'fromAlias' => $fromAlias,
+            'queryBuilder' => $queryBuilder,
+            'joinCondition' => $joinCondition,
+        ];
+    }
+
+    public function getTranslationQueryBuilder(string $joinAlias): ?self
+    {
+        return $this->translationJoins[$joinAlias]['queryBuilder'] ?? null;
+    }
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -50,12 +73,32 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function getSQL()
     {
-        $sql = parent::getSQL();
+        // Use a copy of this query builder to generate the SQL including the translation joins. This way calling this
+        // getter does not have any side effects on the original instance.
+        $query = clone $this;
+        foreach ($this->translationJoins as $joinAlias => $translationJoin) {
+            $query->leftJoin(
+                $translationJoin['fromAlias'],
+                '(' . $translationJoin['queryBuilder']->getSQL() . ')',
+                $joinAlias,
+                $translationJoin['joinCondition'],
+            );
+        }
+        $sql = $query->getUnmodifiedSQL();
 
         if ($this->getTitle()) {
             $sql = '# ' . $this->title . \PHP_EOL . $sql;
         }
 
         return $sql;
+    }
+
+    /**
+     * A helper function allowing to get the SQL without applying translation joins. This is necessary for preventing
+     * infinite recursion in {@link self::getSQL()}.
+     */
+    private function getUnmodifiedSQL(): string
+    {
+        return parent::getSQL();
     }
 }

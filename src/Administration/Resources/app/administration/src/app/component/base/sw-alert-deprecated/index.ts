@@ -26,6 +26,8 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 Component.register('sw-alert-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         variant: {
             type: String as PropType<NotificationType>,

@@ -12,6 +12,9 @@ async function createWrapper(propsData = {}) {
                     return path;
                 },
             },
+            stubs: {
+                'sw-button': true,
+            },
         },
         props: {
             extensionName: 'Sample extension',

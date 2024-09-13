@@ -10,10 +10,14 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'importExport',
     ],
+
+    emits: ['next-disable', 'next-allow'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -54,7 +58,11 @@ export default {
             ).then((mapping) => {
                 const transformedMapping = this.transformMapping(mapping);
 
-                this.$set(this.profile, 'mapping', transformedMapping);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.profile, 'mapping', transformedMapping);
+                } else {
+                    this.profile.mapping = transformedMapping;
+                }
                 this.$emit('next-allow');
 
                 if (transformedMapping.length === 1) {

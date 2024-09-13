@@ -51,7 +51,7 @@
         <sw-button
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.creator')"
             :router-link="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } }"
-            :disabled="isLoading || !acl.can('snippet.creator')"
+            :disabled="isLoading || !acl.can('snippet.creator') || undefined"
             variant="primary"
         >
             {{ $tc('sw-settings-snippet.list.buttonAdd') }}
@@ -167,7 +167,7 @@
                         v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')"
                         class="sw-settings-snippet-list__delete-action"
                         variant="danger"
-                        :disabled="!acl.can('snippet.deleter')"
+                        :disabled="!acl.can('snippet.deleter') || undefined"
                         @click="onReset(item)"
                     >
                         {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
@@ -278,7 +278,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_list_delete_modal_confirm %}
                             <sw-button
-                                :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
+                                :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1 || undefined"
                                 variant="danger"
                                 size="small"
                                 @click="onConfirmReset(item)"

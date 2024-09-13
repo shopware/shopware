@@ -46,6 +46,8 @@ const colors = [
 Component.register('sw-avatar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         color: {
             type: String,

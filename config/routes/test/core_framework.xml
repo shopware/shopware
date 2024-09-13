@@ -5,4 +5,6 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../../tests/integration/Core/Framework/Api/EventListener/FixturesPhp/*TestRoute.php" type="attribute" />
+
+    <import resource="../../../tests/integration/Core/Content/Seo/SalesChannel/FixturesPhp/*TestRoute.php" type="attribute" />
 </routes>

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -29,6 +29,9 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                     'sw-switch-field': true,
                     'sw-password-field': true,
                     'sw-help-text': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
                 mocks: {
                     $tc(translationKey) {

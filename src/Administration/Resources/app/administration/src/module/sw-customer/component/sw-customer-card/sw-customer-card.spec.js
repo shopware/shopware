@@ -20,6 +20,9 @@ async function createWrapper() {
             title: '',
         },
         global: {
+            provide: {
+                contextStoreService: {},
+            },
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
                 'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
@@ -39,6 +42,13 @@ async function createWrapper() {
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-single-select': true,
+                'sw-customer-imitate-customer-modal': true,
+                'sw-icon': true,
+                'sw-label': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
             },
         },
     });

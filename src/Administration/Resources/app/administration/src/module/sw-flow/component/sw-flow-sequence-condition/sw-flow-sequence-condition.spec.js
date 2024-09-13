@@ -3,6 +3,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const sequenceFixture = {
     id: '1',
     actionName: null,
@@ -53,7 +57,7 @@ async function createWrapper(propsData = {}) {
         global: {
             stubs: {
                 'sw-icon': {
-                    template: '<div class="sw-icon" v-on="$listeners"></div>',
+                    template: '<div class="sw-icon"></div>',
                 },
                 'sw-context-button': {
                     template: `
@@ -63,8 +67,9 @@ async function createWrapper(propsData = {}) {
                     `,
                 },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: `
-                        <div class="sw-context-menu-item" v-on="$listeners">
+                        <div class="sw-context-menu-item" @click="$emit('click')">
                           <slot></slot>
                         </div>
                     `,
@@ -82,6 +87,11 @@ async function createWrapper(propsData = {}) {
                 'sw-field-error': true,
                 'sw-label': true,
                 'sw-flow-rule-modal': true,
+                'sw-product-variant-info': true,
+                'sw-highlight-text': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 flowBuilderService: {
@@ -453,9 +463,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             '.sw-flow-sequence-condition__add-true-condition',
         ];
 
-        components.forEach(component => {
-            expect(wrapper.find(component).attributes().disabled).toBeFalsy();
-        });
+        expect(wrapper.find('.sw-flow-sequence-condition__context-button').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__rule-context-button').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-false-action').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-false-condition').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-true-action').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-true-condition').attributes().disabled).toBeFalsy();
 
         await wrapper.setProps({
             disabled: true,

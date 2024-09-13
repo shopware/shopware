@@ -21,6 +21,12 @@ const createWrapper = async () => {
                 'sw-context-button': true,
                 'sw-data-grid': true,
                 'sw-context-menu-item': true,
+                'sw-alert': true,
+                'sw-price-rule-modal': true,
+                'sw-number-field': true,
+                'sw-inheritance-switch': true,
+                'sw-inherit-wrapper': true,
+                'sw-single-select': true,
             },
         },
         props: {

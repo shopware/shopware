@@ -20,7 +20,7 @@ final class PdfRenderer
      *
      * @param array<string, mixed> $dompdfOptions
      */
-    public function __construct(private array $dompdfOptions)
+    public function __construct(private readonly array $dompdfOptions)
     {
     }
 

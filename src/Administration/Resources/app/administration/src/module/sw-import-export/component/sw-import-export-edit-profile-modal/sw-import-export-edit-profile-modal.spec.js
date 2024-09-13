@@ -49,6 +49,12 @@ async function createWrapper(params = { searchError: false, parentProfileTotal: 
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-modal': true,
+                'sw-alert': true,
+                'sw-import-export-edit-profile-general': true,
+                'sw-import-export-edit-profile-field-indicators': true,
+                'sw-import-export-edit-profile-import-settings': true,
+                'sw-import-export-edit-profile-modal-mapping': true,
+                'sw-import-export-edit-profile-modal-identifiers': true,
             },
             provide: {
                 repositoryFactory: {

@@ -109,7 +109,7 @@
 
                     <slot
                         v-for="(item, index) in items"
-                        :key="item.id"
+                        :key="getKey(item)"
                         name="items"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -134,6 +134,7 @@
                                     <sw-checkbox-field
                                         :id="item.id"
                                         :value="isSelected(item.id)"
+                                        :disabled="isGridDisabled(item.id)"
                                         @update:value="selectItem($event, item)"
                                     />
                                 </div>

@@ -18,6 +18,25 @@ const { Component } = Shopware;
 Component.register('sw-sidebar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    provide() {
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+            return {};
+        }
+
+        return {
+            registerSidebarItem: this.registerSidebarItem,
+        };
+    },
+
+    inject: [
+        'setSwPageSidebarOffset',
+        'removeSwPageSidebarOffset',
+    ],
+
+    emits: ['item-click'],
+
     props: {
         propagateWidth: {
             type: Boolean,
@@ -85,13 +104,23 @@ Component.register('sw-sidebar', {
             if (this.propagateWidth) {
                 const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
 
-                this._parent.$emit('mount', sidebarWidth);
+                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER') && this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                    this._parent.$emit('mount', sidebarWidth);
+                } else {
+                    this.setSwPageSidebarOffset(sidebarWidth);
+                }
             }
         },
 
         destroyedComponent() {
-            if (this.propagateWidth) {
+            if (!this.propagateWidth) {
+                return;
+            }
+
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER') && this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this._parent.$emit('destroy');
+            } else {
+                this.removeSwPageSidebarOffset();
             }
         },
 
@@ -120,13 +149,27 @@ Component.register('sw-sidebar', {
 
             this.items.push(item);
 
-            this.$on('item-click', item.sidebarButtonClick);
-            item.$on('toggle-active', this.setItemActive);
-            item.$on('close-content', this.closeSidebar);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                // eslint-disable-next-line vue/no-deprecated-events-api
+                this.$on('item-click', item.sidebarButtonClick);
+                item.$on('toggle-active', this.setItemActive);
+                item.$on('close-content', this.closeSidebar);
+            } else {
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Add alternative for toggle-active and close-content
+            }
         },
 
         setItemActive(clickedItem) {
             this.$emit('item-click', clickedItem);
+
+            if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.item.forEach((item) => {
+                    if (item.sidebarButtonClick) {
+                        item.sidebarButtonClick(clickedItem);
+                    }
+                });
+            }
 
             if (clickedItem.hasDefaultSlot) {
                 this.isOpened = this._isAnyItemActive();

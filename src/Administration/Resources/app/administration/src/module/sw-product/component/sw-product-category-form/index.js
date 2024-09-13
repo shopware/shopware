@@ -13,6 +13,8 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
 
     mixins: [

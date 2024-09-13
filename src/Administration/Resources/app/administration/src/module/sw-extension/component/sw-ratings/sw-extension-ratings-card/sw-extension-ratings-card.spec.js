@@ -43,6 +43,15 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                         },
                     }),
                 },
+                stubs: {
+                    'sw-extension-ratings-summary': true,
+                    'sw-extension-review': true,
+                    'sw-extension-review-creation': true,
+                    'sw-button': true,
+                    'sw-meteor-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                },
             },
             props: {
                 isInstalledAndLicensed: false,

@@ -13,16 +13,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('core')]
-class CoreSubscriber implements EventSubscriberInterface
+readonly class CoreSubscriber implements EventSubscriberInterface
 {
     /**
-     * @internal
-     *
      * @param array<string> $cspTemplates
+     *
+     * @internal
      */
     public function __construct(private array $cspTemplates)
     {
-        $this->cspTemplates = $cspTemplates;
     }
 
     /**
@@ -71,8 +70,7 @@ class CoreSubscriber implements EventSubscriberInterface
             $nonce = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
 
             if (\is_string($nonce)) {
-                $csp = str_replace('%nonce%', $nonce, $cspTemplate);
-                $csp = str_replace(["\n", "\r"], ' ', $csp);
+                $csp = str_replace(['%nonce%', "\n", "\r"], [$nonce, ' ', ' '], $cspTemplate);
                 $response->headers->set('Content-Security-Policy', $csp);
             }
         }

@@ -11,10 +11,14 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'cmsService',
     ],
+
+    emits: ['section-delete', 'section-duplicate'],
 
     mixins: [
         Mixin.getByName('cms-state'),
@@ -37,7 +41,7 @@ export default {
         },
 
         cmsPageState() {
-            return Shopware.State.get('cmsPageState');
+            return Shopware.Store.get('cmsPageState');
         },
 
         quickactionsDisabled() {

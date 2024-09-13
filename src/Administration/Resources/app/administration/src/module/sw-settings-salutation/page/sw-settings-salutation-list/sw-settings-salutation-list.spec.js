@@ -81,7 +81,7 @@ async function createWrapper(privileges = []) {
                                 <slot name="detail-action" v-bind="{ item }" >
                                     <sw-context-menu-item
                                         class="sw-salutation-list__edit-action"
-                                        :disabled="!allowEdit"
+                                        :disabled="!allowEdit || undefined"
                                     >
                                         {{ $tc('global.default.edit') }}
                                     </sw-context-menu-item>
@@ -89,7 +89,7 @@ async function createWrapper(privileges = []) {
                                 <slot name="delete-action" v-bind="{ item }" >
                                     <sw-context-menu-item
                                         class="sw-salutation-list__delete-action"
-                                        :disabled="!allowDelete"
+                                        :disabled="!allowDelete || undefined"
                                     >
                                         {{ $tc('global.default.edit') }}
                                     </sw-context-menu-item>

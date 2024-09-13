@@ -10,25 +10,26 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @phpstan-type BlockArray array{
- *           name: string,
- *           category: string,
- *           label: array<string, string>,
- *           slots: array<string, array{
- *               type: string,
- *               default: array{
- *                   config: array<string, array{
- *                       source: string,
- *                       value: string
- *                   }>
- *               }
- *           }>,
- *           defaultConfig: array<string, array{
- *               source: string,
- *               value: string
- *           }>
- *      }
+ *       name: string,
+ *       category: string,
+ *       label: array<string, string>,
+ *       slots: array<string, array{
+ *           type: string,
+ *           position: int,
+ *           default: array{
+ *               config: array<string, array{
+ *                   source: string,
+ *                   value: string
+ *               }>
+ *           }
+ *       }>,
+ *       defaultConfig: array<string, array{
+ *           source: string,
+ *           value: string
+ *       }>
+ *  }
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class Block extends XmlElement
 {
     private const TRANSLATABLE_FIELDS = [
@@ -79,9 +80,10 @@ class Block extends XmlElement
     {
         $slots = [];
 
-        foreach ($this->slots as $slot) {
+        foreach ($this->slots as $position => $slot) {
             $slots[$slot->getName()] = [
                 'type' => $slot->getType(),
+                'position' => $position,
                 'default' => [
                     'config' => $slot->getConfig()->toArray($defaultLocale),
                 ],

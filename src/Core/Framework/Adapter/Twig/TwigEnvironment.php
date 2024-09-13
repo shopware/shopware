@@ -17,7 +17,7 @@ class TwigEnvironment extends Environment
     /**
      * @param array<mixed> $options
      */
-    public function __construct(LoaderInterface $loader, $options = [])
+    public function __construct(LoaderInterface $loader, array $options = [])
     {
         // There is no Symfony configuration yet to toggle this feature
         $options['use_yield'] = true;
@@ -35,10 +35,13 @@ class TwigEnvironment extends Environment
 
         $source = $this->compiler->compile($node)->getSource();
 
-        $source = str_replace('CoreExtension::getAttribute(', 'SwTwigFunction::getAttribute(', $source);
-        $source = str_replace('twig_escape_filter(', 'SwTwigFunction::escapeFilter(', $source);
-        $source = str_replace('use Twig\Environment;', "use Twig\Environment;\nuse Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;", $source);
+        $replaces = [
+            'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',
+            'CoreExtension::callMacro(' => 'SwTwigFunction::callMacro(',
+            'twig_escape_filter(' => 'SwTwigFunction::escapeFilter(',
+            'use Twig\Environment;' => "use Twig\Environment;\nuse Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;",
+        ];
 
-        return $source;
+        return str_replace(array_keys($replaces), array_values($replaces), $source);
     }
 }

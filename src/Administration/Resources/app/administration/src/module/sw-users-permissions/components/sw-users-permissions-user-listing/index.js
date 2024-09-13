@@ -11,12 +11,16 @@ const { Criteria } = Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'userService',
         'loginService',
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['get-list'],
 
     mixins: [
         Mixin.getByName('listing'),

@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, extend AbstractPaymentHandler instead
+ */
 #[Package('checkout')]
 interface RecurringPaymentHandlerInterface extends PaymentHandlerInterface
 {

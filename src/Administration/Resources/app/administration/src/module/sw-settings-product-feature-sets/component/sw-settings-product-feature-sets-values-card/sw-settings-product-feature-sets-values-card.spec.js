@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
+
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;
 
@@ -57,6 +61,15 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     }),
                     'sw-button-group': true,
                     'sw-extension-component-section': true,
+                    'sw-settings-product-feature-sets-modal': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'router-link': true,
+                    'sw-context-menu-item': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
                     i18n: true,
                 },
                 provide: {

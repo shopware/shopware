@@ -10,8 +10,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxPro
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExceptionTaxProvider;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class TaxProviderRegistryTest extends TestCase

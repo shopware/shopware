@@ -85,6 +85,8 @@ export default {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     components: {
         apexchart: VueApexCharts,
     },
@@ -326,6 +328,19 @@ export default {
                     },
                 },
             };
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Can be removed. Event listerns will be in $attrs.
+         */
+        listeners() {
+            let listeners = {};
+
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                listeners = this.$listeners;
+            }
+
+            return listeners;
         },
     },
 

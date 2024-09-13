@@ -16,4 +16,11 @@ class EmailField extends Field
     use TranslatableTrait;
 
     protected string $type = 'email';
+
+    protected ?string $default = null;
+
+    public function getDefault(): ?string
+    {
+        return $this->default;
+    }
 }

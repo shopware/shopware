@@ -48,6 +48,10 @@ async function createWrapper(state = {}) {
                     template: '<input type="select" class="sw-entity-tag-select"/>',
                     props: ['disabled'],
                 },
+                'sw-entity-multi-select': true,
+                'sw-alert': true,
+                'sw-textarea-field': true,
+                'sw-custom-field-set-renderer': true,
             },
             mocks: {
                 placeholder: () => {},

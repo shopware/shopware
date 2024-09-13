@@ -1,5 +1,11 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
+
+
+let parentComponent;
 async function createWrapper() {
     const responseMockAll = [
         {
@@ -68,7 +74,7 @@ async function createWrapper() {
         },
     };
 
-    const parentComponent = mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
+    parentComponent = mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
         sync: true,
     }), {
         global: {
@@ -96,9 +102,14 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-tabs-item': true,
+                'sw-text-field': true,
+                'sw-settings-tag-detail-assignments': true,
+                'sw-button': true,
+                'sw-tabs-deprecated': true,
+                'sw-card-filter': true,
             },
         },
-    }).vm;
+    });
 
     const wrapper = mount(await wrapTestComponent('sw-settings-tag-detail-assignments', {
         sync: true,
@@ -110,8 +121,8 @@ async function createWrapper() {
                     return false;
                 },
             },
-            toBeAdded: parentComponent.assignmentsToBeAdded,
-            toBeDeleted: parentComponent.assignmentsToBeDeleted,
+            toBeAdded: parentComponent.vm.assignmentsToBeAdded,
+            toBeDeleted: parentComponent.vm.assignmentsToBeDeleted,
             initialCounts: {
                 products: 2,
             },
@@ -138,12 +149,22 @@ async function createWrapper() {
                 'sw-card-section': true,
                 'sw-switch-field': true,
                 'sw-container': true,
+                'sw-text-field': true,
+                'sw-settings-tag-detail-assignments': true,
+                'sw-button': true,
+                'sw-tabs-deprecated': true,
+                'sw-card-filter': true,
+                'sw-icon': true,
+                'sw-data-grid': true,
+                'sw-checkbox-field': true,
+                'sw-inheritance-switch': true,
+                'sw-highlight-text': true,
+                'sw-product-variant-info': true,
+                'sw-media-preview-v2': true,
+                'sw-entity-listing': true,
             },
         },
     });
-
-    wrapper.vm.$on('add-assignment', parentComponent.addAssignment);
-    wrapper.vm.$on('remove-assignment', parentComponent.removeAssignment);
 
     return wrapper;
 }
@@ -230,6 +251,16 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         wrapper.vm.onSelectionChange([], { id: '0' }, false);
         expect(wrapper.vm.getCount('products')).toBe(1);
 
+        expect(wrapper.emitted('remove-assignment')).toHaveLength(1);
+        expect(wrapper.emitted('remove-assignment')[0]).toEqual([
+            'products',
+            '0',
+            { id: '0' },
+        ]);
+
+        await parentComponent.vm.removeAssignment('products', '0', { id: '0' });
+        await flushPromises();
+
         [
             { id: '1', parentId: '0', expected: false },
             { id: '2', parentId: '0', expected: false },
@@ -242,6 +273,26 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         expect(wrapper.vm.getCount('products')).toBe(2);
         // remove direct assignment of variant 2, should become inherited
         wrapper.vm.onSelectionChange([], { id: '2' }, false);
+
+        expect(wrapper.emitted('remove-assignment')).toHaveLength(2);
+        expect(wrapper.emitted('remove-assignment')[1]).toEqual([
+            'products',
+            '2',
+            { id: '2' },
+        ]);
+
+        await parentComponent.vm.removeAssignment('products', '2', { id: '2' });
+        await flushPromises();
+
+        expect(wrapper.emitted('add-assignment')).toHaveLength(1);
+        expect(wrapper.emitted('add-assignment')[0]).toEqual([
+            'products',
+            '0',
+            { id: '0' },
+        ]);
+
+        await parentComponent.vm.addAssignment('products', '0', { id: '0' });
+        await flushPromises();
 
         [
             { id: '1', parentId: '0', expected: true },
@@ -261,6 +312,9 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         wrapper.vm.onSelectionChange([], { id: '0' }, false);
         wrapper.vm.onSelectionChange([], { id: '3' }, true);
+
+        await parentComponent.vm.removeAssignment('products', '0', { id: '0' });
+        await parentComponent.vm.addAssignment('products', '3', { id: '3' });
 
         await wrapper.setData({
             showSelected: true,

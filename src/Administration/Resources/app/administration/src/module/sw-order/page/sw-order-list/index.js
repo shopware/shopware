@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'stateStyleDataProviderService',
@@ -46,6 +48,8 @@ export default {
             availablePromotionCodes: [],
             filterCriteria: [],
             defaultFilters: [
+                'order-number-filter',
+                'customer-number-filter',
                 'affiliate-code-filter',
                 'campaign-code-filter',
                 'promotion-code-filter',
@@ -134,6 +138,15 @@ export default {
 
         listFilterOptions() {
             return {
+                'order-number-filter': {
+                    property: 'orderNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-order.filters.orderNumberFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.orderNumberFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
                 'sales-channel-filter': {
                     property: 'salesChannel',
                     label: this.$tc('sw-order.filters.salesChannelFilter.label'),
@@ -173,6 +186,15 @@ export default {
                     fromFieldLabel: null,
                     toFieldLabel: null,
                     showTimeframe: true,
+                },
+                'customer-number-filter': {
+                    property: 'orderCustomer.customer.customerNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-order.filters.customerNumberFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.customerNumberFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
                 },
                 'tag-filter': {
                     property: 'tags',

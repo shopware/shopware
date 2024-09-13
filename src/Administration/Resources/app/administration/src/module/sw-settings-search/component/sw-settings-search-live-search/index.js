@@ -12,10 +12,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'liveSearchService',
     ],
+
+    emits: ['live-search-results-change', 'sales-channel-change'],
 
     mixins: [
         Mixin.getByName('notification'),

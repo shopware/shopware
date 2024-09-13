@@ -11,23 +11,23 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -46,7 +46,7 @@ class PaymentControllerTest extends TestCase
 
     private EntityRepository $paymentMethodRepository;
 
-    private PaymentService $paymentService;
+    private PaymentProcessor $paymentProcessor;
 
     protected function setUp(): void
     {
@@ -55,7 +55,7 @@ class PaymentControllerTest extends TestCase
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->paymentService = $this->getContainer()->get(PaymentService::class);
+        $this->paymentProcessor = $this->getContainer()->get(PaymentProcessor::class);
     }
 
     public function testCallWithoutToken(): void
@@ -176,7 +176,7 @@ class PaymentControllerTest extends TestCase
 
     private function createPaymentMethod(
         Context $context,
-        string $handlerIdentifier = AsyncTestPaymentHandler::class
+        string $handlerIdentifier = TestPaymentHandler::class
     ): string {
         $id = Uuid::randomHex();
         $payment = [
@@ -203,10 +203,10 @@ class PaymentControllerTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $response = $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);

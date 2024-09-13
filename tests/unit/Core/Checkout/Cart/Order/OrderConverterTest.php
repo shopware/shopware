@@ -43,6 +43,7 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
 use Shopware\Core\Content\Product\State;
@@ -350,6 +351,7 @@ class OrderConverterTest extends TestCase
         unset(
             $result['extensions']['originalId'],
             $result['token'],
+            $result['errorHash']
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset(
@@ -388,6 +390,7 @@ class OrderConverterTest extends TestCase
         unset(
             $result['extensions']['originalId'],
             $result['token'],
+            $result['errorHash']
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset(
@@ -602,6 +605,9 @@ class OrderConverterTest extends TestCase
         if ($loginCustomer) {
             $salesChannelContext->method('getCustomer')->willReturn($this->getCustomer($customerWithoutBillingAddress));
         }
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('payment-method-id');
+        $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
 
         return $salesChannelContext;
     }
@@ -610,11 +616,11 @@ class OrderConverterTest extends TestCase
     {
         $cart = new Cart('cart-token');
         $cart->add(
-            (new LineItem('line-item-id-1', 'line-item-type-1'))
+            (new LineItem('line-item-id-1', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-1')
         )->add(
-            (new LineItem('line-item-id-2', 'line-item-type-2'))
+            (new LineItem('line-item-id-2', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-2')
         );
@@ -629,7 +635,7 @@ class OrderConverterTest extends TestCase
         $orderLineItem->setIdentifier('order-line-item-identifier');
         $orderLineItem->setId('order-line-item-id');
         $orderLineItem->setQuantity(1);
-        $orderLineItem->setType('order-line-item-type');
+        $orderLineItem->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
         $orderLineItem->setLabel('order-line-item-label');
         $orderLineItem->setGood(true);
         $orderLineItem->setRemovable(false);
@@ -966,7 +972,7 @@ class OrderConverterTest extends TestCase
                     'referencedId' => null,
                     'label' => 'order-line-item-label',
                     'quantity' => 1,
-                    'type' => 'order-line-item-type',
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                     'priceDefinition' => null,
                     'price' => null,
                     'good' => true,
@@ -984,6 +990,7 @@ class OrderConverterTest extends TestCase
                     'extensions' => [],
                     'states' => [],
                     'modifiedByApp' => false,
+                    'shippingCostAware' => true,
                 ],
             ],
             'errors' => [],
@@ -997,7 +1004,7 @@ class OrderConverterTest extends TestCase
                                 'referencedId' => null,
                                 'label' => 'order-line-item-label',
                                 'quantity' => 1,
-                                'type' => 'order-line-item-type',
+                                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                                 'priceDefinition' => null,
                                 'price' => null,
                                 'good' => true,
@@ -1020,6 +1027,7 @@ class OrderConverterTest extends TestCase
                                 ],
                                 'states' => [],
                                 'modifiedByApp' => false,
+                                'shippingCostAware' => true,
                             ],
                             'quantity' => 1,
                             'price' => [
@@ -1153,6 +1161,7 @@ class OrderConverterTest extends TestCase
             'affiliateCode' => null,
             'campaignCode' => null,
             'source' => null,
+            'hash' => null,
         ];
     }
 
@@ -1190,7 +1199,7 @@ class OrderConverterTest extends TestCase
                 [
                     'identifier' => 'line-item-id-1',
                     'quantity' => 1,
-                    'type' => 'line-item-type-1',
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                     'label' => 'line-item-label-1',
                     'good' => true,
                     'removable' => false,
@@ -1213,7 +1222,7 @@ class OrderConverterTest extends TestCase
                 [
                     'identifier' => 'line-item-id-2',
                     'quantity' => 1,
-                    'type' => 'line-item-type-2',
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                     'label' => 'line-item-label-2',
                     'good' => true,
                     'removable' => false,
@@ -1269,7 +1278,10 @@ class OrderConverterTest extends TestCase
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
-                'customerId' => 'customer-id',
+                'customer' => [
+                    'id' => 'customer-id',
+                    'lastPaymentMethodId' => 'payment-method-id',
+                ],
                 'customerNumber' => 'customer-number',
                 'email' => 'customer-email',
                 'firstName' => 'customer-first-name',

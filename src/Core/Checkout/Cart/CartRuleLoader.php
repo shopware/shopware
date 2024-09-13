@@ -12,7 +12,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -98,19 +97,18 @@ class CartRuleLoader implements ResetInterface
             $context->setRuleIds($rules->getIds());
             $context->setAreaRuleIds($rules->getIdsByArea());
 
-            $iteration = 1;
-
             $timestamps = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
-                if ($lineItem->getDataTimestamp() === null) {
-                    return null;
-                }
+                return $lineItem->getDataTimestamp()?->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            });
 
-                return $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $dataHashes = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
+                return $lineItem->getDataContextHash();
             });
 
             // start first cart calculation to have all objects enriched
             $cart = $this->processor->process($cart, $context, $behaviorContext);
 
+            $iteration = 1;
             do {
                 $compare = $cart;
 
@@ -148,7 +146,7 @@ class CartRuleLoader implements ResetInterface
             foreach ($rules as $rule) {
                 ++$index;
                 $this->logger->info(
-                    sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
+                    \sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
                 );
             }
 
@@ -156,7 +154,8 @@ class CartRuleLoader implements ResetInterface
             $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
-            if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
+            if ($this->updated($cart, $timestamps, $dataHashes) || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()) {
+                $cart->setErrorHash($cart->getErrors()->getUniqueHash());
                 $this->cartPersister->save($cart, $context);
             }
 
@@ -181,8 +180,7 @@ class CartRuleLoader implements ResetInterface
         return $previousLineItems->count() !== $currentLineItems->count()
             || $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
             || $previousLineItems->getKeys() !== $currentLineItems->getKeys()
-            || $previousLineItems->getTypes() !== $currentLineItems->getTypes()
-        ;
+            || $previousLineItems->getTypes() !== $currentLineItems->getTypes();
     }
 
     private function detectTaxType(SalesChannelContext $context, float $cartNetAmount = 0): string
@@ -213,19 +211,25 @@ class CartRuleLoader implements ResetInterface
 
     /**
      * @param array<string, string> $timestamps
+     * @param array<string, string> $dataHashes
      */
-    private function updated(Cart $cart, array $timestamps): bool
+    private function updated(Cart $cart, array $timestamps, array $dataHashes): bool
     {
         foreach ($cart->getLineItems() as $lineItem) {
-            if (!isset($timestamps[$lineItem->getId()])) {
+            $lineItemId = $lineItem->getId();
+            if (!isset($timestamps[$lineItemId], $dataHashes[$lineItemId])) {
                 return true;
             }
 
-            $original = $timestamps[$lineItem->getId()];
+            $original = $timestamps[$lineItemId];
 
             $timestamp = $lineItem->getDataTimestamp() !== null ? $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
 
             if ($original !== $timestamp) {
+                return true;
+            }
+
+            if ($dataHashes[$lineItemId] !== $lineItem->getDataContextHash()) {
                 return true;
             }
         }
@@ -275,7 +279,7 @@ class CartRuleLoader implements ResetInterface
         );
 
         if (!$currencyFactor) {
-            throw new EntityNotFoundException('currency', $currencyId);
+            throw CartException::currencyCannotBeFound();
         }
 
         return $this->currencyFactor[$currencyId] = (float) $currencyFactor;

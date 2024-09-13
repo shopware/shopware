@@ -28,7 +28,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(OrderSerializer::class)]
 class OrderSerializerTest extends TestCase
 {
@@ -232,6 +232,7 @@ class OrderSerializerTest extends TestCase
                     'captures' => null,
                     'customFields' => null,
                     'id' => null,
+                    'validationData' => [],
                 ],
             ]),
         ];
@@ -365,6 +366,7 @@ class OrderSerializerTest extends TestCase
                     'captures' => null,
                     'customFields' => null,
                     'id' => null,
+                    'validationData' => [],
                 ],
             ]),
         ];

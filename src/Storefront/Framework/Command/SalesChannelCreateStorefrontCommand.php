@@ -71,7 +71,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         ];
     }
 
-    private function guessSnippetSetId(?string $isoCode = 'en-GB'): string
+    private function guessSnippetSetId(?string $isoCode = null): string
     {
         $snippetSet = $this->getSnippetSetId($isoCode);
 
@@ -80,13 +80,13 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         }
 
         if ($snippetSet === null) {
-            throw new \InvalidArgumentException(sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
+            throw new \InvalidArgumentException(\sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
         }
 
         return $snippetSet;
     }
 
-    private function getSnippetSetId(?string $isoCode = 'en-GB'): ?string
+    private function getSnippetSetId(?string $isoCode = null): ?string
     {
         $isoCode = $isoCode ?: 'en-GB';
         $isoCode = str_replace('_', '-', $isoCode);

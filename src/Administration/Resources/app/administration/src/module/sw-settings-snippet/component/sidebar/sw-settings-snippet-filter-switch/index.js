@@ -8,6 +8,10 @@ import './sw-settings-snippet-filter-switch.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update:value'],
+
     props: {
         label: {
             type: String,

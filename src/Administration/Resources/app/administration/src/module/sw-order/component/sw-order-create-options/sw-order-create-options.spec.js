@@ -3,6 +3,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
+/**
+ * @package checkout
+ */
+
 const addresses = [
     {
         id: '1',
@@ -94,6 +98,14 @@ const contextResponse = {
     },
 };
 
+const contextState = {
+    namespaced: true,
+    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    mutations: {
+        setLanguageId: jest.fn(),
+    },
+};
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-options', { sync: true }), {
         props: {
@@ -177,10 +189,13 @@ async function createWrapper() {
                             </li>`,
                     methods: {
                         onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                            Shopware.Utils.EventBus.emit('item-select', this.item);
                         },
                     },
                 },
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });
@@ -212,6 +227,12 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
                 context,
             },
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', contextState);
     });
 
     it('should show address option correctly', async () => {
@@ -390,5 +411,26 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await flushPromises();
 
         expect(shippingCostField.element.value).toBe('100');
+    });
+
+    it('should be set context language when language selected', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            context: {
+                ...wrapper.vm.context,
+                languageId: null,
+            },
+        });
+
+        expect(contextState.mutations.setLanguageId).not.toHaveBeenCalled();
+
+        await wrapper.setProps({
+            context: {
+                ...wrapper.vm.context,
+                languageId: '1234',
+            },
+        });
+
+        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
     });
 });

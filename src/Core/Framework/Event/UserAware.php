@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[IsFlowEventAware]
 interface UserAware
 {

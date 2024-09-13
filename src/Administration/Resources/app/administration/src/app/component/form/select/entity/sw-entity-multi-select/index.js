@@ -10,11 +10,23 @@ const { Criteria, EntityCollection } = Shopware.Data;
  */
 Component.register('sw-entity-multi-select', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
         'feature',
+    ],
+
+    emits: [
+        'search',
+        'update:entityCollection',
+        'item-add',
+        'item-remove',
+        'display-values-expand',
+        'search-term-change',
     ],
 
     mixins: [
@@ -55,9 +67,16 @@ Component.register('sw-entity-multi-select', {
         criteria: {
             type: Object,
             required: false,
-            default() {
-                return new Criteria(1, this.resultLimit);
+            default(props) {
+                return new Criteria(1, props.resultLimit);
             },
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: undefined,
         },
 
         highlightSearchTerm: {
@@ -144,6 +163,15 @@ Component.register('sw-entity-multi-select', {
     },
 
     computed: {
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+
         repository() {
             return this.repositoryFactory.create(this.entityName || this.entityCollection.entity);
         },

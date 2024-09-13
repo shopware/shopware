@@ -10,10 +10,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['config-add', 'data-load', 'config-save', 'config-delete'],
 
     mixins: [
         Mixin.getByName('notification'),

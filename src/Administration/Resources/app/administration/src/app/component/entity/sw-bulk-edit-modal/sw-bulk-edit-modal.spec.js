@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -61,6 +64,14 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-icon': true,
             'sw-button': true,
             'sw-select-field': true,
+            'sw-loader': true,
+            'sw-context-menu-item': true,
+            'sw-context-button': true,
+            'sw-data-grid-settings': true,
+            'sw-data-grid-column-boolean': true,
+            'sw-data-grid-inline-edit': true,
+            'router-link': true,
+            'sw-data-grid-skeleton': true,
         };
     });
 

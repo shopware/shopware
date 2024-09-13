@@ -15,7 +15,8 @@
         ref="edit-field"
         :value="value"
         :placeholder="placeholder"
-        v-on="$listeners"
+        v-bind="$attrs"
+        v-on="listeners"
     />
     {% endblock %}
     {% endblock %}

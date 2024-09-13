@@ -13,7 +13,11 @@ const { Component } = Shopware;
 Component.register('sw-login-recovery', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['userRecoveryService'],
+
+    emits: ['is-loading'],
 
     data() {
         return {

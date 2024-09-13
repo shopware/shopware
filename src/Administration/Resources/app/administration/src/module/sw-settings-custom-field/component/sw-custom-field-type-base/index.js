@@ -7,6 +7,8 @@ import template from './sw-custom-field-type-base.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     props: {

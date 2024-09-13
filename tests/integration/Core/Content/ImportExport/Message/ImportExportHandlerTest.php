@@ -19,7 +19,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportHandlerTest extends AbstractImportExportTestCase
 {
     public function testImportExportHandlerDispatchesMessage(): void

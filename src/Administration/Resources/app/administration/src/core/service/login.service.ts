@@ -3,6 +3,7 @@
  */
 
 import { CookieStorage } from 'cookie-storage';
+import type { CookieOptions } from 'cookie-storage/lib/cookie-options';
 import html2canvas from 'html2canvas';
 import type { Router } from 'vue-router';
 
@@ -20,6 +21,8 @@ interface TokenResponse {
     expires_in: number,
     /* eslint-enable camelcase */
 }
+
+const REMEMBER_ME_DURATION = 14;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
@@ -39,6 +42,7 @@ export interface LoginService {
     notifyOnLoginListener: () => (void[] | null),
     verifyUserToken: (password: string) => Promise<string>,
     getStorage: () => CookieStorage,
+    setRememberMe: (active?: boolean) => void,
 }
 
 let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -73,6 +77,7 @@ export default function createLoginService(
         notifyOnLoginListener,
         verifyUserToken,
         getStorage,
+        setRememberMe,
     };
 
     /**
@@ -232,15 +237,24 @@ export default function createLoginService(
      * object identifier.
      */
     function setBearerAuthentication({ access, refresh, expiry }: AuthObject): AuthObject {
-        expiry = Math.round(+new Date() / 1000) + expiry;
+        expiry = Math.round(Date.now() + (expiry * 1000));
+
+        const cookieOptions: CookieOptions = {
+            expires: new Date(expiry),
+        };
+
+        if (!shouldConsiderUserActivity()) {
+            cookieOptions.expires = new Date(Number(localStorage.getItem('rememberMe') || expiry));
+        }
+
         const authObject = { access, refresh, expiry };
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
-            cookieStorage.setItem(storageKey, JSON.stringify(authObject));
+            cookieStorage.setItem(storageKey, JSON.stringify(authObject), cookieOptions);
         } else {
             bearerAuth = authObject;
         }
 
-        if (isLoggedIn()) {
+        if (getToken()) {
             notifyOnTokenChangedListener(authObject);
         }
 
@@ -255,19 +269,32 @@ export default function createLoginService(
      * Refresh token in half of expiry time
      */
     function autoRefreshToken(expiryTimestamp: number):void {
-        if (autoRefreshTokenTimeoutId) {
+        const needTokenUpdate = getBearerAuthentication('expiry') !== expiryTimestamp;
+
+        if (autoRefreshTokenTimeoutId && needTokenUpdate) {
             clearTimeout(autoRefreshTokenTimeoutId);
+            autoRefreshTokenTimeoutId = undefined;
         }
 
         if (shouldConsiderUserActivity() && lastActivityOverThreshold()) {
             logout(true);
-
             return;
         }
 
-        const timeUntilExpiry = expiryTimestamp * 1000 - Date.now();
+        if (!needTokenUpdate && autoRefreshTokenTimeoutId) {
+            return;
+        }
+
+        const timeUntilExpiry = expiryTimestamp - Date.now();
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
+            autoRefreshTokenTimeoutId = undefined;
+
+            if (shouldConsiderUserActivity() && lastActivityOverThreshold()) {
+                logout(true);
+                return;
+            }
+
             void refreshToken();
         }, timeUntilExpiry / 2);
     }
@@ -285,6 +312,18 @@ export default function createLoginService(
         const threshold = Math.round(+new Date() / 1000) - 1500;
 
         return lastActivity <= threshold;
+    }
+
+    function setRememberMe(active = true): void {
+        if (!active) {
+            localStorage.removeItem('rememberMe');
+            return;
+        }
+
+        const duration = new Date();
+        duration.setDate(duration.getDate() + REMEMBER_ME_DURATION);
+
+        localStorage.setItem('rememberMe', `${+duration}`);
     }
 
     function shouldConsiderUserActivity(): boolean {
@@ -333,7 +372,12 @@ export default function createLoginService(
 
         context.authToken = null;
         bearerAuth = null;
-        localStorage.removeItem('rememberMe');
+        setRememberMe(false);
+
+        if (autoRefreshTokenTimeoutId) {
+            clearTimeout(autoRefreshTokenTimeoutId);
+            autoRefreshTokenTimeoutId = undefined;
+        }
 
         forwardLogout(isInactivityLogout, shouldRedirect);
 

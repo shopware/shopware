@@ -6,7 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -36,6 +36,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
+
+use function Symfony\Component\String\u;
 
 /**
  * @internal
@@ -125,7 +127,7 @@ class EntityReader implements EntityReaderInterface
         $fields = $this->addAssociationFieldsToCriteria($criteria, $definition, $fields);
 
         if ($definition->isInheritanceAware() && $criteria->hasAssociation('parent')) {
-            throw new ParentAssociationCanNotBeFetched();
+            throw DataAbstractionLayerException::parentAssociationCannotBeFetched();
         }
 
         $rows = $this->fetch($criteria, $definition, $context, $fields, $partial);
@@ -179,7 +181,6 @@ class EntityReader implements EntityReaderInterface
 
         $addTranslation = false;
 
-        /** @var Field $field */
         foreach ($filtered as $field) {
             // translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
@@ -255,10 +256,10 @@ class EntityReader implements EntityReaderInterface
                 if ($field instanceof JsonField) {
                     // merged in hydrator
                     $parentFieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.inherited');
-                    $query->addSelect(sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
+                    $query->addSelect(\sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
                 }
                 // add selection for resolved parent-child inheritance field
-                $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
+                $query->addSelect(\sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
                 continue;
             }
@@ -299,6 +300,8 @@ class EntityReader implements EntityReaderInterface
         if (!empty($criteria->getIds())) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
+
+        $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
 
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::read');
@@ -391,13 +394,12 @@ class EntityReader implements EntityReaderInterface
     {
         $ids = [];
         $property = $association->getPropertyName();
-        /** @var Entity $struct */
         foreach ($collection as $struct) {
-            /** @var ArrayStruct<string, mixed> $ext */
             $ext = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
-            /** @var array<string> $tmp */
-            $tmp = $ext->get($property);
-            foreach ($tmp as $id) {
+            if (!$ext instanceof ArrayStruct) {
+                continue;
+            }
+            foreach ($ext->get($property) as $id) {
                 $ids[] = $id;
             }
         }
@@ -621,7 +623,6 @@ class EntityReader implements EntityReaderInterface
         );
 
         // assign loaded reference collections to root entities
-        /** @var Entity $entity */
         foreach ($collection as $entity) {
             // extract mapping ids for the current entity
             $mappingIds = $mapping[$entity->getUniqueIdentifier()] ?? [];
@@ -699,10 +700,11 @@ class EntityReader implements EntityReaderInterface
             $partial
         );
 
-        /** @var Entity $struct */
         foreach ($collection as $struct) {
-            /** @var ArrayStruct<string, mixed> $extension */
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
+            if (!$extension instanceof ArrayStruct) {
+                continue;
+            }
 
             $fks = $extension->get($association->getPropertyName()) ?? [];
 
@@ -750,18 +752,8 @@ class EntityReader implements EntityReaderInterface
         }
 
         if (!$reference) {
-            throw new \RuntimeException(
-                sprintf(
-                    'No inverse many to many association found, for association %s',
-                    $association->getPropertyName()
-                )
-            );
+            throw DataAbstractionLayerException::noInverseAssociationFound($association->getPropertyName());
         }
-
-        // build inverse accessor `product.categories.id`
-        $accessor = $association->getToManyReferenceDefinition()->getEntityName() . '.' . $reference->getPropertyName() . '.id';
-
-        $fieldCriteria->addFilter(new EqualsAnyFilter($accessor, $collection->getIds()));
 
         $root = EntityDefinitionQueryHelper::escape(
             $association->getToManyReferenceDefinition()->getEntityName() . '.' . $reference->getPropertyName() . '.mapping'
@@ -782,11 +774,34 @@ class EntityReader implements EntityReaderInterface
         $localColumn = EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn());
         $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
 
+        $condition = $root . '.' . $referenceColumn . ' = ' . EntityDefinitionQueryHelper::escape($association->getToManyReferenceDefinition()->getEntityName()) . '.id';
+
+        if (str_ends_with($association->getMappingReferenceColumn(), '_id')) {
+            $referenceVersionColumn = u($association->getMappingReferenceColumn())->trimSuffix('_id')->append('_version_id')->toString();
+        } else {
+            $referenceVersionColumn = $association->getMappingReferenceColumn() . '_version_id';
+        }
+
+        if ($association->getToManyReferenceDefinition()->isVersionAware() && $association->getMappingDefinition()->getField($referenceVersionColumn)) {
+            $condition .= ' AND ' . $root . '.version_id = ' . EntityDefinitionQueryHelper::escape($referenceVersionColumn) . '.version_id';
+        }
+
+        $query
+            ->leftJoin(
+                EntityDefinitionQueryHelper::escape($association->getToManyReferenceDefinition()->getEntityName()),
+                EntityDefinitionQueryHelper::escape($association->getMappingDefinition()->getEntityName()),
+                $root,
+                $condition
+            );
+
+        $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
+        $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+
         $orderBy = '';
         $parts = $query->getQueryPart('orderBy');
         if (!empty($parts)) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
-            $query->resetQueryPart('orderBy');
+            $query->resetOrderBy();
         }
         // order by is handled in group_concat
         $fieldCriteria->resetSorting();
@@ -851,7 +866,6 @@ class EntityReader implements EntityReaderInterface
             $partial
         );
 
-        /** @var Entity $struct */
         foreach ($collection as $struct) {
             $structData = new $collectionClass();
 
@@ -914,12 +928,9 @@ class EntityReader implements EntityReaderInterface
         $foreignKey = $association->getReferenceField();
 
         if (!$association->getReferenceDefinition()->getField('id')) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Paginated to many association must have an id field. No id field found for association %s.%s',
-                    $definition->getEntityName(),
-                    $association->getPropertyName()
-                )
+            throw DataAbstractionLayerException::noIdForAssociation(
+                $definition->getEntityName(),
+                $association->getPropertyName()
             );
         }
 
@@ -961,7 +972,7 @@ class EntityReader implements EntityReaderInterface
         );
 
         foreach ($sortings as $i => $sorting) {
-            $wrapper->addOrderBy(sprintf('sort_%s', $i), $sorting->getDirection());
+            $wrapper->addOrderBy(\sprintf('sort_%s', $i), $sorting->getDirection());
         }
 
         $wrapper->from($root, $root);
@@ -982,7 +993,6 @@ class EntityReader implements EntityReaderInterface
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
-            /** @var Entity $entity */
             foreach ($collection->getElements() as $entity) {
                 if ($entity->get('parentId')) {
                     $bytes[$entity->get('parentId')] = Uuid::fromHexToBytes($entity->get('parentId'));
@@ -1067,13 +1077,10 @@ class EntityReader implements EntityReaderInterface
         );
 
         if (!$ref) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Reference field %s not found in definition %s for definition %s',
-                    $association->getReferenceField(),
-                    $reference->getEntityName(),
-                    $definition->getEntityName()
-                )
+            throw DataAbstractionLayerException::referenceFieldNotFound(
+                $association->getReferenceField(),
+                $reference->getEntityName(),
+                $definition->getEntityName()
             );
         }
 
@@ -1109,7 +1116,7 @@ class EntityReader implements EntityReaderInterface
             $field = $definition->getFields()->get($fieldName);
             if (!$field) {
                 $this->logger->warning(
-                    sprintf('Criteria association "%s" could not be resolved. Double check your Criteria!', $fieldName)
+                    \sprintf('Criteria association "%s" could not be resolved. Double check your Criteria!', $fieldName)
                 );
 
                 continue;
@@ -1172,7 +1179,7 @@ class EntityReader implements EntityReaderInterface
         // This line removes duplicate entries, so after fetchAssociations the association must be reassigned
         $relatedCollection = new $collectionClass();
         if (!$relatedCollection instanceof EntityCollection) {
-            throw new \RuntimeException(sprintf('Collection class %s has to be an instance of EntityCollection', $collectionClass));
+            throw DataAbstractionLayerException::notAnInstanceOfEntityCollection($collectionClass);
         }
 
         $relatedCollection->fill($related);

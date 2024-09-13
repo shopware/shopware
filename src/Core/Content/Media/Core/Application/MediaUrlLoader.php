@@ -21,7 +21,9 @@ class MediaUrlLoader
      * @internal
      */
     public function __construct(
-        private readonly AbstractMediaUrlGenerator $generator
+        private readonly AbstractMediaUrlGenerator $generator,
+        private readonly RemoteThumbnailLoader $remoteThumbnailLoader,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
 
@@ -33,6 +35,12 @@ class MediaUrlLoader
      */
     public function loaded(iterable $entities): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            $this->remoteThumbnailLoader->load($entities);
+
+            return;
+        }
+
         $mapping = $this->map($entities);
 
         if (empty($mapping)) {
@@ -48,7 +56,7 @@ class MediaUrlLoader
 
             $entity->assign(['url' => $urls[$entity->getUniqueIdentifier()]]);
 
-            if (!$entity->has('thumbnails')) {
+            if (!$entity->has('thumbnails') || $entity->get('thumbnails') === null) {
                 continue;
             }
 
@@ -83,7 +91,7 @@ class MediaUrlLoader
 
             $mapped[$entity->getUniqueIdentifier()] = UrlParams::fromMedia($entity);
 
-            if (!$entity->has('thumbnails')) {
+            if (!$entity->has('thumbnails') || $entity->get('thumbnails') === null) {
                 continue;
             }
 

@@ -9,6 +9,7 @@ async function createWrapper(propsData = {}) {
         global: {
             stubs: {
                 'sw-icon': true,
+                'sw-color-badge': true,
             },
         },
         props: propsData,

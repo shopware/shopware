@@ -38,7 +38,7 @@ class SystemDumpDatabaseCommand extends Command
         /** @var Params&OverrideParams $params */
         $params = $this->connection->getParams();
 
-        $path = sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
+        $path = \sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
 
         $portString = '';
         if ($params['password'] ?? '') {
@@ -46,7 +46,7 @@ class SystemDumpDatabaseCommand extends Command
         }
 
         file_put_contents($path, 'SET unique_checks=0;SET foreign_key_checks=0;');
-        $cmd = sprintf(
+        $cmd = \sprintf(
             'mysqldump -u %s %s -h %s --port=%s -q --opt --hex-blob --no-autocommit %s %s >> %s',
             escapeshellarg($params['user'] ?? ''),
             $portString,

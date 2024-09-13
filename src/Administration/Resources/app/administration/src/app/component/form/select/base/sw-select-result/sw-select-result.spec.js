@@ -64,11 +64,17 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
             methods: {
                 emitSelectItemByKeyboard() {
                     this.$emit('item-select-by-keyboard', [0]);
+                    Shopware.Utils.EventBus.emit('item-select-by-keyboard', [0]);
                 },
             },
         };
 
         return mount(grandGrandParent, {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
+            },
             provide: {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve('bar') }),

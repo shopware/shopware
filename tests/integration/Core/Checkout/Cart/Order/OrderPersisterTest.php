@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -39,7 +40,7 @@ class OrderPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private OrderPersister $orderPersister;
+    private OrderPersisterInterface $orderPersister;
 
     private Processor $cartProcessor;
 
@@ -132,11 +133,11 @@ class OrderPersisterTest extends TestCase
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId('SWAG-ADDRESS-ID-1');
         $billingAddress->setSalutationId($this->getValidSalutationId());
-        $billingAddress->setFirstName($faker->firstName);
-        $billingAddress->setLastName($faker->lastName);
-        $billingAddress->setStreet($faker->streetAddress);
-        $billingAddress->setZipcode($faker->postcode);
-        $billingAddress->setCity($faker->city);
+        $billingAddress->setFirstName($faker->firstName());
+        $billingAddress->setLastName($faker->lastName());
+        $billingAddress->setStreet($faker->streetAddress());
+        $billingAddress->setZipcode($faker->postcode());
+        $billingAddress->setCity($faker->city());
         $billingAddress->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
         $customer = new CustomerEntity();
@@ -144,8 +145,8 @@ class OrderPersisterTest extends TestCase
         $customer->setDefaultBillingAddress($billingAddress);
         $customer->setEmail('test@example.com');
         $customer->setSalutationId($this->getValidSalutationId());
-        $customer->setFirstName($faker->firstName);
-        $customer->setLastName($faker->lastName);
+        $customer->setFirstName($faker->firstName());
+        $customer->setLastName($faker->lastName());
         $customer->setCustomerNumber('Test');
 
         return $customer;

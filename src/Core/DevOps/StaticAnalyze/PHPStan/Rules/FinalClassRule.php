@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
+ * @deprecated tag:v6.7.0 - reason:remove-phpstan-rule - Will be removed. Configure Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule instead
+ *
  * @implements Rule<InClassNode>
  *
  * @internal

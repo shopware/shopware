@@ -5,7 +5,7 @@ Danger:
     extends: .base-no-setup
     stage: lint
     image:
-        name: ghcr.io/shyim/danger-php:0.3.0
+        name: ghcr.io/shyim/danger-php:0.3.4
         entrypoint: [""]
     rules:
         - !reference [.rules, skip]
@@ -153,8 +153,9 @@ PHP static analysis:
               - '**/*.php'
     before_script:
         - !reference [ .scripts, init, composer ]
+        - composer run framework:schema:dump
     script:
-        - composer run phpstan -- --error-format=gitlab | tee phpstan-report.json
+        - composer run phpstan -- --error-format=gitlab -vvv | tee phpstan-report.json
 
 PHP lint:
     extends: .base-no-setup
@@ -173,7 +174,7 @@ PHP lint:
     before_script:
         - !reference [ .scripts, init, composer_full ]
     script:
-        - composer run ecs -- --no-progress-bar
+        - composer run ecs
         - composer run lint:changelog
         - composer run lint:snippets
         - ./bin/console sync:composer:version --dry-run
@@ -181,27 +182,27 @@ PHP lint:
         - composer run bc-check
 
 # MR based BC checker used during a new major release phase
-#BC check MR:
-#  extends: PHP lint
-#  rules:
-#    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == null'
-#      when: never
-#    - !reference [.rules, skip]
-#    - !reference [.rules, run]
-#    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*removes_deprecations.*/'
-#      allow_failure: true
-#      changes:
-#          - composer.json
-#          - 'changelog/**/*.md'
-#          - 'src/**/snippet/**/*.json'
-#          - '**/*.php'
-#    - changes:
-#          - composer.json
-#          - 'changelog/**/*.md'
-#          - 'src/**/snippet/**/*.json'
-#          - '**/*.php'
-#  script:
-#        - composer run bc-check -- --from=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+BC check MR:
+ extends: PHP lint
+ rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == null'
+     when: never
+   - !reference [.rules, skip]
+   - !reference [.rules, run]
+   - if: '$CI_MERGE_REQUEST_LABELS =~ /.*removes_deprecations.*/'
+     allow_failure: true
+     changes:
+         - composer.json
+         - 'changelog/**/*.md'
+         - 'src/**/snippet/**/*.json'
+         - '**/*.php'
+   - changes:
+         - composer.json
+         - 'changelog/**/*.md'
+         - 'src/**/snippet/**/*.json'
+         - '**/*.php'
+ script:
+       - composer run bc-check -- --from=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
 
 Twig lint (storefront):
   extends: .base-no-setup

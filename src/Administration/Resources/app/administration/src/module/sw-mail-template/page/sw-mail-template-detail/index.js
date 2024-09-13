@@ -14,6 +14,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
 
     mixins: [
@@ -234,8 +236,15 @@ export default {
             this.isLoading = true;
             this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, criteria).then((item) => {
                 this.mailTemplate = item;
-                this.onChangeType(this.mailTemplate.mailTemplateType.id);
-                this.getMailTemplateMedia();
+                if (!this.mailTemplate.mailTemplateType?.id) {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
+                    });
+                } else {
+                    this.onChangeType(this.mailTemplate.mailTemplateType.id);
+                    this.getMailTemplateMedia();
+                }
             });
         },
 
@@ -595,7 +604,11 @@ export default {
 
         addVariables(variables) {
             variables.forEach((variable) => {
-                this.$set(this.availableVariables, variable.id, variable);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.availableVariables, variable.id, variable);
+                } else {
+                    this.availableVariables[variable.id] = variable;
+                }
             });
         },
 

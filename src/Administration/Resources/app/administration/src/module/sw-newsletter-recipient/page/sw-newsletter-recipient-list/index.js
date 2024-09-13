@@ -11,6 +11,8 @@ const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
@@ -56,6 +58,10 @@ export default {
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
+        },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
         },
     },
 

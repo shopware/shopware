@@ -54,7 +54,7 @@
                         v-tooltip.bottom="tooltipDisabled"
                         :value="page.type"
                         :label="$tc('sw-cms.detail.label.pageTypeSelection')"
-                        :disabled="!isSystemDefaultLanguage || page.type === 'product_detail'"
+                        :disabled="!isSystemDefaultLanguage || page.type === 'product_detail' || undefined"
                         @update:value="onPageTypeChange"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -63,7 +63,7 @@
                             v-for="pageType in pageTypes"
                             :key="pageType.name"
                             :value="pageType.name"
-                            :disabled="isDisabledPageType(pageType)"
+                            :disabled="isDisabledPageType(pageType) || undefined"
                         >
                             {{ $tc(pageType.title) }}
                         </option>
@@ -409,7 +409,7 @@
                         {% block sw_cms_sidebar_navigator_section_menu_move_up %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-move-up"
-                            :disabled="section.position === 0"
+                            :disabled="section.position === 0 || undefined"
                             @click="moveSectionUp(section)"
                         >
                             {{ $tc('sw-cms.sidebar.contentMenu.moveUp') }}
@@ -420,7 +420,7 @@
                         {% block sw_cms_sidebar_navigator_section_menu_move_down %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-move-down"
-                            :disabled="section.position === page.sections.length - 1"
+                            :disabled="section.position === page.sections.length - 1 || undefined"
                             @click="moveSectionDown(section)"
                         >
                             {{ $tc('sw-cms.sidebar.contentMenu.moveDown') }}
@@ -598,7 +598,7 @@
             </h3>
 
             <p class="sw-cms-sidebar__layout-set-as-default-info-text">
-                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText') }}
+                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText', page.type === 'product_detail') }}
             </p>
 
             <sw-button

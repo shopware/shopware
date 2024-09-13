@@ -21,7 +21,7 @@ class UnallowedHostException extends \RuntimeException
         ?\Throwable $previous = null
     ) {
         parent::__construct(
-            sprintf(
+            \sprintf(
                 'The host "%s" you tried to call is not listed in the allowed hosts in the manifest file for app "%s".',
                 $host,
                 $appName

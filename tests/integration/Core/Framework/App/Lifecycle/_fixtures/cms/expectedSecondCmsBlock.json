@@ -14,7 +14,8 @@
             "value": "cover"
           }
         }
-      }
+      },
+      "position": 0
     },
     "right": {
       "type": "youtube-video",
@@ -25,7 +26,8 @@
             "value": "contain"
           }
         }
-      }
+      },
+      "position": 2
     },
     "middle": {
       "type": "image",
@@ -40,7 +42,8 @@
             "value": "red"
           }
         }
-      }
+      },
+      "position": 1
     }
   },
   "category": "text-image",

@@ -9,6 +9,8 @@ import './sw-sales-channel-modal-detail.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         detailType: {
             type: Object,

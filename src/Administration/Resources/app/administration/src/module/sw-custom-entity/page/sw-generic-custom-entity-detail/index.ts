@@ -27,6 +27,8 @@ type GenericCustomEntityDetailData = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'customEntityDefinitionService',
         'repositoryFactory',

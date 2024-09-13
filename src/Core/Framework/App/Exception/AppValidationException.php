@@ -15,7 +15,7 @@ class AppValidationException extends \RuntimeException
         string $appName,
         ErrorCollection $errors
     ) {
-        $message = sprintf(
+        $message = \sprintf(
             "The app \"%s\" is invalid:\n",
             $appName
         );

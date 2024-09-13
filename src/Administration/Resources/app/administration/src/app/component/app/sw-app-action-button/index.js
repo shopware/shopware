@@ -13,7 +13,11 @@ const { Component, State, Context } = Shopware;
 Component.register('sw-app-action-button', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
+
+    emits: ['run-app-action'],
 
     props: {
         action: {

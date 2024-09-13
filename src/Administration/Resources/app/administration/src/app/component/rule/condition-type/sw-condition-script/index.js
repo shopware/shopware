@@ -116,7 +116,12 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
         },
 
         updateFieldValue(fieldName, value) {
-            this.$set(this.values, fieldName, value);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.values, fieldName, value);
+                return;
+            }
+
+            this.values[fieldName] = value;
         },
     },
 });

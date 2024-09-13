@@ -1,0 +1,39 @@
+# Add f.e. 'Extension:B2B-Suite' label if issue contains the word / regex 'Extension:B2B-Suite'
+version: 1
+appendOnly: true #only add labels never remove them automatically
+labels:
+  - label: "Platform(Default)"
+    body: 'Platform\(Default\)'
+  - label: "Extension:Commercial"
+    body: "Extension:Commercial"
+  - label: "Extension:B2B-Suite"
+    body: "Extension:B2B-Suite"
+  - label: "Extension:CINEMA-Theme"
+    body: "Extension:CINEMA-Theme"
+  - label: "Extension:CMS-Professional"
+    body: "Extension:CMS-Professional"
+  - label: "Extension:Custom-Products"
+    body: "Extension:Custom-Products"
+  - label: "Extension:EMPORIUM-Theme"
+    body: "Extension:EMPORIUM-Theme"
+  - label: "Extension:Elle-Theme"
+    body: "Extension:Elle-Theme"
+  - label: "Extension:Language-Extensions"
+    body: "Extension:Language-Extensions"
+  - label: "Extension:Migration-Tool"
+    body: "Extension:Migration-Tool"
+  - label: "Extension:PayPal-Integration"
+    body: "Extension:PayPal-Integration"
+  - label: "Extension:Publisher"
+    body: "Extension:Publisher"
+  - label: "Extension:SHAPE-Theme"
+    body: "Extension:SHAPE-Theme"
+  - label: "Extension:Showroom-Theme"
+    body: "Extension:Showroom-Theme"
+  - label: "Extension:Social-Shopping"
+    body: "Extension:Social-Shopping"
+  - label: "Triage required" # add triage required Label to every pull request
+    type: "pull_request"
+  - label: "Bug" # add bug Label to every issue but to no PR
+    negate: True
+    type: "pull_request"

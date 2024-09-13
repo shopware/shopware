@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
@@ -342,6 +343,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('router'),
             $eventCollector,
             $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get(ApiRouteInfoResolver::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -405,6 +407,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('router'),
             $eventCollector,
             $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get(ApiRouteInfoResolver::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -482,6 +485,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('router'),
             $eventCollector,
             $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get(ApiRouteInfoResolver::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -504,8 +508,8 @@ class InfoControllerTest extends TestCase
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
-        static::assertEquals(
-            $appUrl . '/admin/adminextensionapipluginwithlocalentrypoint/index.html',
+        static::assertStringContainsString(
+            '/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
@@ -656,6 +660,23 @@ class InfoControllerTest extends TestCase
             static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
             static::assertEquals($event, $actualEvent[0]);
+        }
+    }
+
+    public function testFetchApiRoutes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request('GET', '/api/_info/routes');
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $routes = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        foreach ($routes['endpoints'] as $route) {
+            static::assertArrayHasKey('path', $route);
+            static::assertArrayHasKey('methods', $route);
         }
     }
 

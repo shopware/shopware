@@ -1,0 +1,65 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_media_index %}
+<sw-page class="sw-settings-media">
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_media_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('sw-settings.index.title') }} <sw-icon
+            name="regular-chevron-right-xs"
+            small
+        /> {{ $tc('sw-settings-media.general.title') }} </h2>
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_media_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_media_actions_save %}
+        <sw-button-process
+            class="sw-settings-media__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @update:process-success="saveFinish"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-media.general.buttonSave') }}
+        </sw-button-process>
+            {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_media_content %}
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <sw-system-config
+                v-show="!isLoading"
+                ref="systemConfig"
+                domain="core.media"
+                @loading-changed="onLoadingChanged"
+            >
+                <template #card-element-last>
+                    <mt-slider
+                        v-if="!isLoading"
+                        v-model="sliderValue"
+                        :min="0"
+                        :max="100"
+                        @input="onSliderChange"
+                    />
+                </template>
+            </sw-system-config>
+
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

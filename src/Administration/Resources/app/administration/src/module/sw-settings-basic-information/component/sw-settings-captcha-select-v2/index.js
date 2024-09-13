@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-captcha-select-v2.html.twig';
 import './sw-settings-captcha-select-v2.scss';
 
@@ -7,7 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature', 'captchaService'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),

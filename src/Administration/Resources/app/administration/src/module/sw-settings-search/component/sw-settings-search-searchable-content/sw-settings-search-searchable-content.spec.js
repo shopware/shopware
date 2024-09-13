@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -48,6 +48,8 @@ async function createWrapper(privileges = []) {
                     template: '<div class="sw-modal"><slot></slot></div>',
                 },
                 'router-link': true,
+                'sw-settings-search-searchable-content-general': true,
+                'sw-settings-search-searchable-content-customfields': true,
             },
         },
     });

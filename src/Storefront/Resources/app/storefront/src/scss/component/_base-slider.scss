@@ -42,7 +42,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
     // moves navigation dots outside the slider item
     &.has-dots-outside {
-        margin-bottom: 35px;
+        padding-bottom: 35px;
 
         .tns-nav,
         .base-slider-dots {

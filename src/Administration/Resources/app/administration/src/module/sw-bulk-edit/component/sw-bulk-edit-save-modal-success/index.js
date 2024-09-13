@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
@@ -10,7 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'orderDocumentApiService'],
+
+    emits: ['title-set', 'buttons-update'],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -157,7 +161,11 @@ export default {
                 return Promise.resolve();
             }
 
-            this.$set(this.document[documentType], 'isDownloading', true);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.document[documentType], 'isDownloading', true);
+            } else {
+                this.document[documentType].isDownloading = true;
+            }
             return this.orderDocumentApiService.download(documentIds)
                 .then((response) => {
                     if (!response.data) {
@@ -177,7 +185,11 @@ export default {
                     });
                 })
                 .finally(() => {
-                    this.$set(this.document[documentType], 'isDownloading', false);
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(this.document[documentType], 'isDownloading', false);
+                    } else {
+                        this.document[documentType].isDownloading = false;
+                    }
                 });
         },
     },

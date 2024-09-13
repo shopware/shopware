@@ -5,7 +5,7 @@ import { getTimeZones } from '@vvo/tzdb';
  */
 export default class TimezoneService {
     /**
-     * @package system-settings
+     * @package services-settings
      *
      * Returns an array of all timezones in the world
      * @returns {Promise<string[]>}
@@ -17,7 +17,7 @@ export default class TimezoneService {
     }
 
     /**
-     * @package system-settings
+     * @package services-settings
      *
      * Returns an array of time zones objects
      * @returns {object[]}
@@ -39,7 +39,7 @@ export default class TimezoneService {
     }
 
     /**
-     * @package system-settings
+     * @package services-settings
      * @param number
      * Returns a string containing UTC, hours, and minutes
      * @returns {string}

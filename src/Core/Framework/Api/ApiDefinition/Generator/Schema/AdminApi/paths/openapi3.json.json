@@ -5,7 +5,7 @@
         "\/_info\/openapi3.json": {
             "get": {
                 "tags": [
-                    "System Info & Healthcheck"
+                    "System Info & Health Check"
                 ],
                 "summary": "Get OpenAPI Specification",
                 "description": "Get information about the admin API in OpenAPI format.",

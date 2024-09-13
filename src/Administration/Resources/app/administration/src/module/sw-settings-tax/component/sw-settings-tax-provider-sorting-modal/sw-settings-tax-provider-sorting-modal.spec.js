@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
@@ -24,6 +28,7 @@ async function createWrapper(privileges = []) {
                 'sw-button': true,
                 'sw-button-process': true,
                 'sw-sortable-list': true,
+                'sw-icon': true,
             },
         },
         props: {

@@ -13,16 +13,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(TaxProviderPersister::class)]
 class TaxProviderPersisterTest extends TestCase
 {

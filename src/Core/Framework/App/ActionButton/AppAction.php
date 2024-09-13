@@ -33,13 +33,13 @@ class AppAction
 
         foreach ($ids as $id) {
             if (!Uuid::isValid($id)) {
-                throw new InvalidArgumentException(sprintf('%s is not a valid uuid', $id));
+                throw new InvalidArgumentException(\sprintf('%s is not a valid uuid', $id));
             }
         }
 
         // Accept only valid absolute URLs or relative URLs starting with '/'
         if (!filter_var($targetUrl, \FILTER_VALIDATE_URL) && !str_starts_with($targetUrl, '/')) {
-            throw new InvalidArgumentException(sprintf('%s is not a valid url', $targetUrl));
+            throw new InvalidArgumentException(\sprintf('%s is not a valid url', $targetUrl));
         }
 
         if ($entity === '') {

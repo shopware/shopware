@@ -43,8 +43,19 @@ async function createWrapper() {
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+                    inheritAttrs: false,
+                    template: '<div class="sw-icon" @click="$emit(\'click\', $event)"></div>',
                 },
+                'sw-data-grid-skeleton': true,
+                'sw-list-price-field': true,
+                'sw-button': true,
+                'sw-checkbox-field': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
             },
         },
         props: {
@@ -56,6 +67,7 @@ async function createWrapper() {
                 net: 0,
                 currencyId: '124',
             },
+            taxRate: {},
         },
     });
 }

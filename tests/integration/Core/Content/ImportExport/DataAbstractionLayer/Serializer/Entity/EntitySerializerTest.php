@@ -103,26 +103,95 @@ class EntitySerializerTest extends TestCase
     }
 
     /**
-     * @param array{0: array<string, string>, 1: string} $value
+     * @param array<string, string> $value
+     * @param string|bool|int|array<string, string>|\DateTimeImmutable $expectedValue
+     */
+    #[DataProvider('validValues')]
+    public function testDeserialize(array $value, string $key, $expectedValue): void
+    {
+        $mapping = $this->getDefaultMapping();
+
+        $entity = \array_merge($this->getDefaultEntityArray(), $value);
+
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        $entitySerializer = new EntitySerializer();
+        $entitySerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+
+        $result = $entitySerializer->deserialize(new Config($mapping, [], []), $productDefinition, $entity);
+        $result = \is_array($result) ? $result : iterator_to_array($result);
+
+        static::assertArrayHasKey($key, $result);
+        if ($key === 'releaseDate' && $expectedValue instanceof \DateTimeInterface) {
+            static::assertInstanceOf(\DateTimeInterface::class, $result[$key]);
+            static::assertSame($expectedValue->format('Y-m-d'), $result[$key]->format('Y-m-d'));
+        } else {
+            static::assertSame($expectedValue, $result[$key]);
+        }
+    }
+
+    /**
+     * @return iterable<array{value: array<string, string>, key: string, expectedValue: string|bool|int|array<string, string>|\DateTimeImmutable}>
+     */
+    public static function validValues(): iterable
+    {
+        yield 'valid Uuid' => [
+            'value' => ['id' => '2629dd04f6c244698cd6b1cd07b8040a'],
+            'key' => 'id',
+            'expectedValue' => '2629dd04f6c244698cd6b1cd07b8040a',
+        ];
+
+        yield 'valid Boolean' => [
+            'value' => ['active' => 'true'],
+            'key' => 'active',
+            'expectedValue' => true,
+        ];
+
+        yield 'valid Integer' => [
+            'value' => ['stock' => '12345'],
+            'key' => 'stock',
+            'expectedValue' => 12345,
+        ];
+
+        yield 'valid JSON' => [
+            'value' => ['variantRestrictions' => '{"key": "value"}'],
+            'key' => 'variantRestrictions',
+            'expectedValue' => ['key' => 'value'],
+        ];
+
+        yield 'valid Date' => [
+            'value' => ['releaseDate' => '2024-02-28'],
+            'key' => 'releaseDate',
+            'expectedValue' => new \DateTimeImmutable('2024-02-28'),
+        ];
+    }
+
+    public function testDeserializeWithEmptyDateString(): void
+    {
+        $mapping = $this->getDefaultMapping();
+
+        $entity = \array_merge($this->getDefaultEntityArray(), ['releaseDate' => ' ']);
+
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        $entitySerializer = new EntitySerializer();
+        $entitySerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+
+        $result = $entitySerializer->deserialize(new Config($mapping, [], []), $productDefinition, $entity);
+        $result = \is_array($result) ? $result : iterator_to_array($result);
+
+        static::assertArrayNotHasKey('releaseDate', $result);
+    }
+
+    /**
+     * @param array<string, string> $value
      */
     #[DataProvider('brokenValues')]
     public function testDeserializeShouldAddErrorColumn(array $value, string $expectedErrorMessage): void
     {
-        $mapping = new MappingCollection([
-            new Mapping('id', 'id'),
-            new Mapping('active', 'active'),
-            new Mapping('stock', 'stock'),
-            new Mapping('variant_restrictions', 'variantRestrictions'),
-            new Mapping('release_date', 'releaseDate'),
-        ]);
+        $mapping = $this->getDefaultMapping();
 
-        $entity = \array_merge([
-            'id' => Uuid::randomHex(),
-            'active' => 'true',
-            'stock' => '10',
-            'variantRestrictions' => '{}',
-            'releaseDate' => '2021-03-05',
-        ], $value);
+        $entity = \array_merge($this->getDefaultEntityArray(), $value);
 
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
 
@@ -138,33 +207,33 @@ class EntitySerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0: array<string, string>, 1: string}>
+     * @return iterable<array{value: array<string, string>, expectedErrorMessage: string}>
      */
     public static function brokenValues(): iterable
     {
         yield 'invalid Uuid' => [
-            ['id' => '1ab98a64fcb64d|2cb08321a122deacc1'],
-            'Deserialization failed for field "id" with value "1ab98a64fcb64d|2cb08321a122deacc1" to type "uuid"',
+            'value' => ['id' => '1ab98a64fcb64d|2cb08321a122deacc1'],
+            'expectedErrorMessage' => 'Deserialization failed for field "id" with value "1ab98a64fcb64d|2cb08321a122deacc1" to type "uuid"',
         ];
 
         yield 'invalid Boolean' => [
-            ['active' => 'invalidBoolean'],
-            'Deserialization failed for field "active" with value "invalidBoolean" to type "boolean"',
+            'value' => ['active' => 'invalidBoolean'],
+            'expectedErrorMessage' => 'Deserialization failed for field "active" with value "invalidBoolean" to type "boolean"',
         ];
 
         yield 'invalid Integer' => [
-            ['stock' => 'asd12asd'],
-            'Deserialization failed for field "stock" with value "asd12asd" to type "integer"',
+            'value' => ['stock' => 'asd12asd'],
+            'expectedErrorMessage' => 'Deserialization failed for field "stock" with value "asd12asd" to type "integer"',
         ];
 
         yield 'invalid JSON' => [
-            ['variantRestrictions' => '{"key": "value"'],
-            'Deserialization failed for field "variantRestrictions" with value "{"key": "value"" to type "json"',
+            'value' => ['variantRestrictions' => '{"key": "value"'],
+            'expectedErrorMessage' => 'Deserialization failed for field "variantRestrictions" with value "{"key": "value"" to type "json"',
         ];
 
         yield 'invalid Date' => [
-            ['releaseDate' => '2024-02-39'],
-            'Deserialization failed for field "releaseDate" with value "2024-02-39" to type "date"',
+            'value' => ['releaseDate' => '2024-02-39'],
+            'expectedErrorMessage' => 'Deserialization failed for field "releaseDate" with value "2024-02-39" to type "date"',
         ];
     }
 
@@ -232,6 +301,31 @@ class EntitySerializerTest extends TestCase
         static::assertIsArray($testExtension);
         static::assertSame($productId, $testExtension['productId']);
         static::assertSame('hello world', $testExtension['customString']);
+    }
+
+    private function getDefaultMapping(): MappingCollection
+    {
+        return new MappingCollection([
+            new Mapping('id', 'id'),
+            new Mapping('active', 'active'),
+            new Mapping('stock', 'stock'),
+            new Mapping('variant_restrictions', 'variantRestrictions'),
+            new Mapping('release_date', 'releaseDate'),
+        ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getDefaultEntityArray(): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'active' => 'true',
+            'stock' => '10',
+            'variantRestrictions' => '{}',
+            'releaseDate' => '2021-03-05',
+        ];
     }
 }
 

@@ -726,6 +726,22 @@ class ProductListingCmsElementResolverTest extends TestCase
                     'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
                 ],
             ],
+            [
+                [
+                    'manufacturer-filter' => false,
+                    'price-filter' => false,
+                    'rating-filter' => false,
+                    'shipping-free-filter' => false,
+                    'property-filter' => true,
+                    'property-whitelist' => [],
+                ],
+                [
+                    'filters' => [
+                        'value' => 'property-filter',
+                    ],
+                    'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
+                ],
+            ],
         ];
     }
 

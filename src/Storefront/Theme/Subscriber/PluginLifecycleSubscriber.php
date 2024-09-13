@@ -148,7 +148,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         if (!$plugin instanceof Plugin) {
             throw new \RuntimeException(
-                sprintf('Plugin class "%s" must extend "%s"', $plugin::class, Plugin::class)
+                \sprintf('Plugin class "%s" must extend "%s"', $plugin::class, Plugin::class)
             );
         }
 

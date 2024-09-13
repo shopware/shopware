@@ -3,10 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import swCategoryTree from 'src/module/sw-category/component/sw-category-tree';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
-
-Shopware.Component.register('sw-category-tree', swCategoryTree);
 
 async function createWrapper() {
     const routes = [{

@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const stateMachineStateMock = [
     {
         technicalName: 'paid',
@@ -59,6 +63,9 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-help-text': true,
                 'sw-field-error': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
 
             provide: {

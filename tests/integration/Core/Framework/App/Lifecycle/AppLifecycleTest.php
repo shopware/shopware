@@ -30,6 +30,7 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
@@ -67,7 +68,7 @@ class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     /**
      * @var EntityRepository<AppCollection>
@@ -534,6 +535,7 @@ class AppLifecycleTest extends TestCase
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
 
         $this->appRepository->create([[
             'id' => $id,
@@ -576,7 +578,35 @@ class AppLifecycleTest extends TestCase
             ],
             'customFieldSets' => [
                 [
-                    'name' => 'test',
+                    'id' => $customFieldSetId,
+                    'name' => 'custom_field_test',
+                    'relations' => [
+                        [
+                            'entityName' => 'product',
+                        ],
+                        [
+                            'entityName' => 'to be deleted',
+                        ],
+                    ],
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test',
+                            'type' => 'text',
+                        ],
+                        [
+                            'name' => 'to be deleted',
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+                [
+                    'name' => 'to be deleted',
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test2',
+                            'type' => 'text',
+                        ],
+                    ],
                 ],
             ],
             'aclRole' => [
@@ -684,7 +714,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($id);
+        $this->assertDefaultCustomFields($id, $customFieldSetId);
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
         $this->assertDefaultScript($appEntity->getId());
@@ -1799,7 +1829,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('user_change_me', $privileges);
     }
 
-    private function assertDefaultCustomFields(string $appId): void
+    private function assertDefaultCustomFields(string $appId, ?string $expectedFieldSetId = null): void
     {
         /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepository */
         $customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
@@ -1815,6 +1845,9 @@ class AppLifecycleTest extends TestCase
 
         $customFieldSet = $customFieldSets->first();
         static::assertNotNull($customFieldSet);
+        if ($expectedFieldSetId) {
+            static::assertSame($expectedFieldSetId, $customFieldSet->getId());
+        }
         static::assertSame('custom_field_test', $customFieldSet->getName());
         static::assertCount(2, $customFieldSet->getRelations() ?? []);
 
@@ -2225,7 +2258,7 @@ class AppLifecycleTest extends TestCase
 
                 break;
             default:
-                static::fail(sprintf('Did not expect to find app script condition with identifier %s', $scriptCondition->getIdentifier()));
+                static::fail(\sprintf('Did not expect to find app script condition with identifier %s', $scriptCondition->getIdentifier()));
         }
     }
 

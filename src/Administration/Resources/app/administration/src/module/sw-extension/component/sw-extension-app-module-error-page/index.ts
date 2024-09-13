@@ -8,6 +8,8 @@ import './sw-extension-app-module-error-page.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         assetFilter() {
             return Shopware.Filter.getByName('asset');

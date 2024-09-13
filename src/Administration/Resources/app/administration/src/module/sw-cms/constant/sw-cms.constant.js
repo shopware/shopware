@@ -51,7 +51,6 @@ export default Object.freeze({
         image: 3100,
         video: 3200,
         imageSlider: 3300,
-        imageGalery: 3400,
         default: 5000,
     },
     MEDIA: {

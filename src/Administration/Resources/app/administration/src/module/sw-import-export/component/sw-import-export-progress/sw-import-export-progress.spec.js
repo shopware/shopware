@@ -7,7 +7,13 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-import-export-progress', { sync: true }));
+        wrapper = mount(await wrapTestComponent('sw-import-export-progress', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-button': true,
+                },
+            },
+        });
     });
 
     afterEach(() => {

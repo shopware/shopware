@@ -131,6 +131,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"></div>',
                 },
+                'sw-checkbox-field': true,
             },
         },
     });

@@ -8,7 +8,11 @@ import './sw-first-run-wizard-paypal-info.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['extensionStoreActionService'],
+
+    emits: ['frw-set-title', 'buttons-update'],
 
     data() {
         return {

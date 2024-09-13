@@ -18,11 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -38,6 +39,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         'properties' => [
             'lang_en' => [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -52,6 +54,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             'lang_de' => [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -69,10 +72,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     private const SEARCHABLE_MAPPING = [
         'type' => 'keyword',
+        'ignore_above' => 10000,
         'normalizer' => 'sw_lowercase_normalizer',
         'fields' => [
             'search' => [
                 'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
             ],
             'ngram' => [
                 'type' => 'text',
@@ -122,7 +127,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
             false,
@@ -131,34 +136,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $expectedMapping = [
             'properties' => [
-                'id' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'parentId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'categoryTree' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'categoryIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'propertyIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'optionIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'tagIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'categoryTree' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'categoryIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'propertyIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'optionIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'tagIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'active' => [
                     'type' => 'boolean',
                 ],
@@ -171,10 +155,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'categoriesRo' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         '_count' => [
                             'type' => 'long',
                         ],
@@ -183,10 +164,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'categories' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                         '_count' => [
                             'type' => 'long',
@@ -203,10 +181,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'description' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                 'metaTitle' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                 'metaDescription' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                'displayGroup' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'displayGroup' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'ean' => self::SEARCHABLE_MAPPING,
                 'height' => [
                     'type' => 'double',
@@ -217,10 +192,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'manufacturer' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                         '_count' => [
                             'type' => 'long',
@@ -234,15 +206,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'options' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                        'groupId' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'groupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         '_count' => [
                             'type' => 'long',
                         ],
@@ -252,22 +218,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'properties' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                        'groupId' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'groupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'group' => [
                             'type' => 'nested',
                             'properties' => [
-                                'id' => [
-                                    'type' => 'keyword',
-                                    'normalizer' => 'sw_lowercase_normalizer',
-                                ],
+                                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                                 '_count' => [
                                     'type' => 'long',
                                 ],
@@ -303,17 +260,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'shippingFree' => [
                     'type' => 'boolean',
                 ],
-                'taxId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'taxId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'tags' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::SEARCHABLE_MAPPING,
                         '_count' => [
                             'type' => 'long',
@@ -323,10 +274,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'visibilities' => [
                     'type' => 'nested',
                     'properties' => [
-                        'salesChannelId' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'visibility' => [
                             'type' => 'long',
                         ],
@@ -335,10 +283,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'coverId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'coverId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'weight' => [
                     'type' => 'double',
                 ],
@@ -360,14 +305,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 'customSearchKeywords' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                'states' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'manufacturerId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ],
             'dynamic_templates' => [
                 ['cheapest_price' => [
@@ -433,7 +372,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $instanceRegistry->get(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
             false,
@@ -453,9 +392,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -464,9 +407,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -478,9 +425,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -489,9 +440,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -510,7 +465,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $esDefinition = new ElasticsearchProductDefinition(
             $definition,
             $this->createMock(Connection::class),
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
             $this->createMock(ElasticsearchFieldMapper::class),
             false,
@@ -522,7 +477,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
     {
-        $searchQueryBuilder = $this->createMock(AbstractProductSearchQueryBuilder::class);
+        $searchQueryBuilder = $this->createMock(ProductSearchQueryBuilder::class);
         $boolQuery = new BoolQuery();
         $boolQuery->add(new MatchQuery('name', 'test'));
         $searchQueryBuilder
@@ -572,7 +527,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
             $this->createMock(ElasticsearchFieldMapper::class),
             false,
@@ -706,7 +661,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $instanceRegistry->get(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
             false,

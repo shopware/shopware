@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,6 +20,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
 class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
@@ -49,6 +53,10 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
     #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($request, $context, $criteria);
         }

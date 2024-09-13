@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -88,7 +88,7 @@ async function createWrapper(privileges = []) {
                             <slot name="detail-action" v-bind="{ item }">
                                 <sw-context-menu-item
                                     v-if="detailRoute"
-                                    :disabled="!allowEdit && !allowView"
+                                    :disabled="!allowEdit && !allowView || undefined"
                                     class="sw-entity-listing__context-menu-edit-action">
                                     {{ detailPageLinkText(allowEdit) }}
                                 </sw-context-menu-item>
@@ -98,6 +98,8 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                 },
+                'sw-text-field': true,
+                'router-link': true,
             },
         },
     });

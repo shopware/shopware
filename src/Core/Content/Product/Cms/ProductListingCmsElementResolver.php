@@ -9,6 +9,11 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -17,9 +22,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
+    private const FILTER_REQUEST_PARAMS = [
+        ManufacturerListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
+        RatingListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
+        ShippingFreeListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
+        PriceListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
+        PropertyListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
+    ];
+
     /**
      * @internal
      */
@@ -159,30 +172,24 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function restrictFilters(CmsSlotEntity $slot, Request $request): void
     {
-        // set up the default behavior
-        $defaults = ['manufacturer-filter', 'rating-filter', 'shipping-free-filter', 'price-filter', 'property-filter'];
-
-        $request->request->set('property-whitelist', null);
-
         $config = $slot->get('config');
 
-        if (isset($config['propertyWhitelist']['value']) && (is_countable($config['propertyWhitelist']['value']) ? \count($config['propertyWhitelist']['value']) : 0) > 0) {
-            $request->request->set('property-whitelist', $config['propertyWhitelist']['value']);
+        $enabledFilters = $config['filters']['value'] ?? null;
+
+        $enabledFilters = \is_string($enabledFilters) ? explode(',', $enabledFilters) : self::FILTER_REQUEST_PARAMS;
+
+        $propertyWhitelist = $config['propertyWhitelist']['value'] ?? null ?: null;
+
+        // When the property filters are restricted, they are not in the enabledFilters array
+        if (\in_array(PropertyListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM, $enabledFilters, true)
+            || !\is_array($propertyWhitelist)) {
+            $propertyWhitelist = null;
         }
 
-        if (!isset($config['filters']['value'])) {
-            return;
-        }
+        $request->request->set(PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM, $propertyWhitelist);
 
-        // apply config settings
-        $config = explode(',', (string) $config['filters']['value']);
-
-        foreach ($defaults as $filter) {
-            if (\in_array($filter, $config, true)) {
-                continue;
-            }
-
-            $request->request->set($filter, false);
+        foreach (self::FILTER_REQUEST_PARAMS as $filterParam) {
+            $request->request->set($filterParam, \in_array($filterParam, $enabledFilters, true));
         }
     }
 }

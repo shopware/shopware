@@ -14,6 +14,8 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'importExport', 'feature'],
 
     mixins: [
@@ -215,7 +217,7 @@ export default {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         if (this.activitiesReloadTimer) {
             window.clearInterval(this.activitiesReloadTimer);
         }

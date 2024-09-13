@@ -11,7 +11,18 @@ const { Component } = Shopware;
 Component.register('sw-grid-column', {
     template,
 
-    inject: ['feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
+        swGridColumns: {
+            from: 'swGridColumns',
+            default: null,
+        },
+    },
 
     props: {
         label: {
@@ -57,19 +68,37 @@ Component.register('sw-grid-column', {
 
     computed: {
         parentGrid() {
-            return this.$parent.$parent.$parent.$parent;
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                return this.$parent.$parent.$parent.$parent;
+            }
+
+            return undefined;
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 
     watch: {
         label(newLabel, oldLabel) {
-            const index = this.parentGrid.columns.findIndex((col) => col.label === oldLabel);
+            const parentGridColumns = this.isCompatEnabled('INSTANCE_CHILDREN')
+                ? this.parentGrid?.columns
+                : this.swGridColumns;
+
+            const index = parentGridColumns.findIndex((col) => col.label === oldLabel);
 
             if (index === -1 || !newLabel) {
                 return;
             }
 
-            this.parentGrid.columns[index].label = newLabel;
+            if (this.parentGrid) {
+                parentGridColumns[index].label = newLabel;
+            }
         },
     },
 
@@ -83,12 +112,16 @@ Component.register('sw-grid-column', {
         },
 
         registerColumn() {
-            const hasColumn = this.parentGrid.columns.some(column => {
+            const parentGridColumns = this.isCompatEnabled('INSTANCE_CHILDREN')
+                ? this.parentGrid?.columns
+                : this.swGridColumns;
+
+            const hasColumn = parentGridColumns.some(column => {
                 return column.label === this.label;
             });
 
             if (!hasColumn && this.label) {
-                this.parentGrid.columns.push({
+                parentGridColumns.push({
                     label: this.label,
                     iconLabel: this.iconLabel,
                     flex: this.flex,

@@ -16,17 +16,19 @@ use Twig\Template;
 #[Package('core')]
 class SwTwigFunction
 {
+    public static mixed $macroResult = null;
+
     /**
      * Returns the attribute value for a given array/object.
      *
-     * @param mixed  $object            The object or array from where to get the item
-     * @param mixed  $item              The item to get from the array or object
-     * @param array<mixed>  $arguments         An array of arguments to pass if the item is an object method
-     * @param string $type              The type of attribute (@see \Twig\Template constants)
-     * @param bool   $isDefinedTest     Whether this is only a defined check
-     * @param bool   $ignoreStrictCheck Whether to ignore the strict attribute check or not
-     * @param int    $lineno            The template line where the attribute was called
-     * @param bool   $sandboxed         When true the extension use SandboxExtension
+     * @param mixed $object The object or array from where to get the item
+     * @param mixed $item The item to get from the array or object
+     * @param array<mixed> $arguments An array of arguments to pass if the item is an object method
+     * @param string $type The type of attribute (@see \Twig\Template constants)
+     * @param bool $isDefinedTest Whether this is only a defined check
+     * @param bool $ignoreStrictCheck Whether to ignore the strict attribute check or not
+     * @param int $lineno The template line where the attribute was called
+     * @param bool $sandboxed When true the extension use SandboxExtension
      *
      * @return mixed The attribute value, or a Boolean when $isDefinedTest is true, or null when the attribute is not set and $ignoreStrictCheck is true
      *
@@ -65,10 +67,10 @@ class SwTwigFunction
     /**
      * Escapes a string.
      *
-     * @param mixed  $string     The value to be escaped
-     * @param string $strategy   The escaping strategy
-     * @param ?string $charset    The charset
-     * @param bool   $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
+     * @param mixed $string The value to be escaped
+     * @param string $strategy The escaping strategy
+     * @param ?string $charset The charset
+     * @param bool $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
      *
      * @return string|Markup
      */
@@ -96,6 +98,24 @@ class SwTwigFunction
         }
 
         $strings[$string][$strategy] = $result;
+
+        return $result;
+    }
+
+    /**
+     * @param array<array-key, mixed> $args
+     * @param array<array-key, mixed> $context
+     *
+     * @return mixed
+     */
+    public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
+    {
+        $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
+
+        if (self::$macroResult !== null) {
+            $result = self::$macroResult;
+            self::$macroResult = null;
+        }
 
         return $result;
     }

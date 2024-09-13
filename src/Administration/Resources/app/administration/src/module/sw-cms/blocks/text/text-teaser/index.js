@@ -35,7 +35,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                         source: 'static',
                         value: `
                         <h2 style="text-align: center;">Lorem Ipsum dolor sit amet</h2>
-                        <p style="text-align: center;"><i>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+                        <p style="text-align: center;"><i>Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
                         sed diam nonumy eirmod tempor invidunt ut labore</i></p>
                         `.trim(),
                     },

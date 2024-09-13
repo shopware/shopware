@@ -8,6 +8,9 @@ const { Mixin } = Shopware;
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],

@@ -51,6 +51,11 @@ describe('SpatialLightCompositionUtil', () => {
         expect(SpatialLightCompositionUtilObject instanceof SpatialLightCompositionUtil).toBe(true);
     });
 
+    test('SpatialLightCompositionUtil is instantiated with custom intensity', () => {
+        const SpatialLightCompositionUtilObject = new SpatialLightCompositionUtil(scene, '69');
+        expect(SpatialLightCompositionUtilObject.lights[0].intensity).toBe(0.69);
+    });
+
     describe('.dispose', () => {
         beforeEach(() => {
             jest.clearAllMocks();
@@ -107,7 +112,7 @@ describe('SpatialLightCompositionUtil', () => {
 
             expect(removeLightByIdSpy).not.toHaveBeenCalled();
 
-            SpatialLightCompositionUtilObject.removeLight( testLight );
+            SpatialLightCompositionUtilObject.removeLight(testLight);
 
             expect(removeLightByIdSpy).toHaveBeenCalledWith('123');
         });

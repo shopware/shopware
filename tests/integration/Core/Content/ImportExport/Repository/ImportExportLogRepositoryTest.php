@@ -78,7 +78,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($data): void {
                 $this->logRepository->create(array_values($data), $context);
             });
-            static::fail(sprintf('Create within wrong scope \'%s\'', Context::USER_SCOPE));
+            static::fail(\sprintf('Create within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -97,7 +97,7 @@ class ImportExportLogRepositoryTest extends TestCase
             try {
                 static::assertNotNull($entry);
                 $this->logRepository->create([$entry], $this->context);
-                static::fail(sprintf('Create without required property \'%s\'', $property));
+                static::fail(\sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
                 static::assertInstanceOf(WriteConstraintViolationException::class, $e->getExceptions()[0]);
@@ -234,7 +234,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
+            static::fail(\sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -293,7 +293,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
+            static::fail(\sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -350,7 +350,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($ids): void {
                 $this->logRepository->delete($ids, $context);
             });
-            static::fail(sprintf('Delete within wrong scope \'%s\'', Context::USER_SCOPE));
+            static::fail(\sprintf('Delete within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -394,7 +394,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => ($activities[$i % 2] ?? '') . $add,
-                'state' => sprintf('state %d', $i),
+                'state' => \sprintf('state %d', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
                 'fileId' => $fileIds[$i % 2],
@@ -420,11 +420,11 @@ class ImportExportLogRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => sprintf('user_%s', Uuid::randomHex()),
+                'username' => \sprintf('user_%s', Uuid::randomHex()),
                 'password' => TestDefaults::HASHED_PASSWORD,
-                'firstName' => sprintf('Foo%d', $i),
-                'lastName' => sprintf('Bar%d', $i),
-                'email' => sprintf('%s@foo.bar', $uuid),
+                'firstName' => \sprintf('Foo%d', $i),
+                'lastName' => \sprintf('Bar%d', $i),
+                'email' => \sprintf('%s@foo.bar', $uuid),
             ];
         }
         $this->userRepository->create(array_values($data), $this->context);
@@ -443,9 +443,9 @@ class ImportExportLogRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%d.xml', $i),
-                'path' => sprintf('/test/test%d', $i),
-                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => \sprintf('file%d.xml', $i),
+                'path' => \sprintf('/test/test%d', $i),
+                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
                 'accessToken' => Random::getBase64UrlString(32),
             ];
         }
@@ -466,12 +466,12 @@ class ImportExportLogRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'technicalName' => uniqid('technical_name_'),
-                'label' => sprintf('Test label %d', $i),
+                'label' => \sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
-                'sourceEntity' => sprintf('Test entity %d', $i),
-                'fileType' => sprintf('Test file type %d', $i),
-                'delimiter' => sprintf('Test delimiter %d', $i),
-                'enclosure' => sprintf('Test enclosure %d', $i),
+                'sourceEntity' => \sprintf('Test entity %d', $i),
+                'fileType' => \sprintf('Test file type %d', $i),
+                'delimiter' => \sprintf('Test delimiter %d', $i),
+                'enclosure' => \sprintf('Test enclosure %d', $i),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i],
             ];
         }

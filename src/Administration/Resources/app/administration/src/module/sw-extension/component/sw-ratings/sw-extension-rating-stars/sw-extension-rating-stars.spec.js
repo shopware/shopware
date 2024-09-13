@@ -5,7 +5,13 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-extension-rating-stars', { sync: true }));
+        return mount(await wrapTestComponent('sw-extension-rating-stars', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
+            },
+        });
     }
 
     it('should be a Vue.js component', async () => {

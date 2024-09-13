@@ -11,6 +11,8 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder'),

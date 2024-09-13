@@ -61,7 +61,6 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
         $this->cartPersister->save($cart, $context);
 
         $this->eventDispatcher->dispatch(new AfterLineItemRemovedEvent($lineItems, $cart, $context));
-
         $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return new CartResponse($cart);

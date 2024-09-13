@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('checkout')]
 class PaymentMethodStateService
 {
     public function __construct(private readonly EntityRepository $paymentMethodRepository)

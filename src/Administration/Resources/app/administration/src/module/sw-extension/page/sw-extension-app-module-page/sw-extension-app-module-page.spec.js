@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package checkout
+ */
+
 import testApps from '../../../../app/service/_mocks/testApps.json';
 
 async function createWrapper(props) {
@@ -15,6 +19,10 @@ async function createWrapper(props) {
                 'sw-app-actions': true,
                 'sw-loader': true,
                 'sw-button': true,
+                'sw-app-topbar-button': true,
+                'sw-help-center-v2': true,
+                'sw-icon': true,
+                'router-link': true,
             },
             mocks: {
                 $route: {
@@ -22,6 +30,13 @@ async function createWrapper(props) {
                         $module: {
                             title: 'sw-extension-my-apps.general.mainMenuItemGeneral',
                         },
+                    },
+                },
+            },
+            provide: {
+                extensionSdkService: {
+                    signIframeSrc(_, source) {
+                        return Promise.resolve({ uri: `${source}?timestamp=signed` });
                     },
                 },
             },
@@ -44,9 +59,10 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
             appName: 'testAppA',
             moduleName: 'standardModule',
         });
+        await flushPromises();
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english - Standard module');
-        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/module1');
+        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/module1?timestamp=signed');
     });
 
     it('sets the correct heading and source with a main module', async () => {
@@ -55,7 +71,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english');
-        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/login');
+        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/login?timestamp=signed');
     });
 
     it('shows no iframe and default heading if module is not found', async () => {

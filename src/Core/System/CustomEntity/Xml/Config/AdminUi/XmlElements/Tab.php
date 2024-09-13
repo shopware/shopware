@@ -13,7 +13,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 final class Tab extends ConfigXmlElement
 {
     /**

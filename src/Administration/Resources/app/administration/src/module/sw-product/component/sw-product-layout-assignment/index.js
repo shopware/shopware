@@ -9,7 +9,11 @@ import './sw-product-layout-assignment.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
+
+    emits: ['modal-layout-open', 'button-edit-click', 'button-delete-click'],
 
     props: {
         cmsPage: {

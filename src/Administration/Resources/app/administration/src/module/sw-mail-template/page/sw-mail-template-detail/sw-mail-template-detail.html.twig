@@ -42,7 +42,7 @@
             variant="primary"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="!allowSave"
+            :disabled="!allowSave || undefined"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
@@ -97,7 +97,7 @@
                         show-clearable-button
                         :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                         :error="mailTemplateMailTemplateTypeIdError"
                         @update:value="onChangeType"
                     />
@@ -110,7 +110,7 @@
                         name="sw-field--mailTemplate-description"
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
                 </sw-card>
@@ -137,7 +137,7 @@
                                 required
                                 :label="$tc('sw-mail-template.detail.options.labelSubject')"
                                 :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
-                                :disabled="!acl.can('mail_templates.editor')"
+                                :disabled="!acl.can('mail_templates.editor') || undefined"
                                 :error="mailTemplateSubjectError"
                             />
                             {% endblock %}
@@ -150,7 +150,7 @@
                             name="sw-field--mailTemplate-senderName"
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
-                            :disabled="!acl.can('mail_templates.editor')"
+                            :disabled="!acl.can('mail_templates.editor') || undefined"
                         />
                         {% endblock %}
                     </sw-container>
@@ -178,7 +178,7 @@
                         default-folder="mail_template"
                         :upload-tag="mailTemplate.id"
                         :file-accept="fileAccept"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                         @media-drop="onMediaDrop"
                         @media-upload-sidebar-open="openMediaSidebar"
                     />
@@ -196,7 +196,7 @@
                         :allow-column-edit="false"
                         :allow-inline-edit="false"
                         :compact-mode="false"
-                        :show-selection="acl.can('mail_templates.editor')"
+                        :show-selection="acl.can('mail_templates.editor') || undefined"
                         @selection-change="onSelectionChanged"
                     >
                         <template #preview-fileName="{ item }">
@@ -212,11 +212,11 @@
                             <sw-context-menu-item
                                 v-tooltip.bottom="{
                                     message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('mail_templates.editor'),
+                                    disabled: acl.can('mail_templates.editor') || undefined,
                                     showOnDisabledElements: true
                                 }"
                                 variant="danger"
-                                :disabled="!acl.can('mail_templates.editor')"
+                                :disabled="!acl.can('mail_templates.editor') || undefined"
                                 @click="onDeleteMedia(item.id)"
                             >
                                 {{ $tc('global.default.delete') }}
@@ -342,7 +342,7 @@
                         name="sw-field--testerMail"
                         :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
                         :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -467,7 +467,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_sidebar_add_attachment %}
                     <sw-context-menu-item
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                         @click="onAddItemToAttachment(media.mediaItem)"
                     >
                         {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}

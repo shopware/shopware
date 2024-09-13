@@ -10,6 +10,8 @@ const { mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['shopwareExtensionService'],
 
     data() {

@@ -99,9 +99,15 @@ export default class AddressEditorPlugin extends Plugin {
     _openModal(response) {
         const pseudoModal = new PseudoModalUtil(response);
 
+        window.focusHandler.saveFocusState('address-editor');
+
         pseudoModal.open(this._onOpen.bind(this, pseudoModal), 0);
 
         const modal = pseudoModal.getModal();
+
+        modal.addEventListener('hidden.bs.modal', () => {
+            window.focusHandler.resumeFocusState('address-editor');
+        });
 
         modal.classList.add(this.options.editorModalClass);
     }

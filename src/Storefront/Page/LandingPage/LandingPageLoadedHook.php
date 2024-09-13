@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

@@ -13,9 +13,32 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveEdits: {
+            from: 'swOrderDetailOnSaveEdits',
+            default: null,
+        },
+        swOrderDetailOnRecalculateAndReload: {
+            from: 'swOrderDetailOnRecalculateAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
+        acl: {
+            from: 'acl',
+            default: null,
+        },
+    },
+
+    emits: ['save-and-recalculate', 'save-edits', 'recalculate-and-reload'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -120,14 +143,26 @@ export default {
 
         saveAndRecalculate() {
             this.$emit('save-and-recalculate');
+
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                this.swOrderDetailOnSaveAndRecalculate();
+            }
         },
 
         onSaveEdits() {
             this.$emit('save-edits');
+
+            if (this.swOrderDetailOnSaveEdits) {
+                this.swOrderDetailOnSaveEdits();
+            }
         },
 
         recalculateAndReload() {
             this.$emit('recalculate-and-reload');
+
+            if (this.swOrderDetailOnRecalculateAndReload) {
+                this.swOrderDetailOnRecalculateAndReload();
+            }
         },
     },
 };

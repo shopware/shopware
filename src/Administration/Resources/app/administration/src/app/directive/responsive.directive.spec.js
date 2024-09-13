@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 let resizeObserverList = [];

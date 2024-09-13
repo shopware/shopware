@@ -11,9 +11,16 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['repositoryFactory'],
+
+    emits: [
+        'media-folder-remove', 'media-folder-changed', 'media-folder-delete',
+        'media-folder-dissolve', 'media-folder-move',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -82,6 +89,15 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     created() {
@@ -96,11 +112,12 @@ export default {
         async getIconConfigFromFolder() {
             const { mediaFolder } = this;
 
-            if (mediaFolder.defaultFolderId === this.lastDefaultFolderId) {
+            if (!mediaFolder.defaultFolderId || mediaFolder.defaultFolderId === this.lastDefaultFolderId) {
                 return;
             }
 
             this.lastDefaultFolderId = mediaFolder.defaultFolderId;
+
             const defaultFolder = await this.mediaDefaultFolderRepository.get(mediaFolder.defaultFolderId, Context.api);
 
             if (!defaultFolder) {
@@ -114,8 +131,8 @@ export default {
                 return;
             }
 
-            this.iconConfig.name = module.manifest.icon ?? '';
-            this.iconConfig.color = module.manifest.color ?? '#000000';
+            this.iconConfig.name = module.manifest?.icon ?? '';
+            this.iconConfig.color = module.manifest?.color ?? '#000000';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

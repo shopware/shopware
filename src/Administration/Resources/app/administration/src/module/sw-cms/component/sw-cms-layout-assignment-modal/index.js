@@ -12,10 +12,15 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
+        'repositoryFactory',
         'systemConfigApiService',
         'acl',
     ],
+
+    emits: ['modal-close'],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -50,6 +55,8 @@ export default {
             hasProductsWithAssignedLayouts: false,
             hasLandingPagesWithAssignedLayouts: false,
             previousProducts: null,
+            categoryIndex: 1,
+            isCategoriesLoading: false,
         };
     },
 
@@ -131,6 +138,10 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
         },
     },
 
@@ -232,9 +243,15 @@ export default {
                     });
 
                     if (pages.length > 0) {
-                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId, pages);
-                    } else {
+                        if (this.isCompatEnabled('INSTANCE_SET')) {
+                            this.$set(this.selectedShopPages, this.shopPageSalesChannelId, pages);
+                        } else {
+                            this.selectedShopPages[this.shopPageSalesChannelId] = pages;
+                        }
+                    } else if (this.isCompatEnabled('INSTANCE_SET')) {
                         this.$set(this.selectedShopPages, this.shopPageSalesChannelId, null);
+                    } else {
+                        this.selectedShopPages[this.shopPageSalesChannelId] = null;
                     }
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);
@@ -345,13 +362,16 @@ export default {
         onConfirm() {
             this.isLoading = true;
 
-            Promise
-                .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
-                .then(() => {
-                    this.onModalClose(true);
-                }).catch(() => {
-                    this.isLoading = false;
-                });
+            Promise.all([
+                this.validateCategories(),
+                this.saveShopPages(),
+                this.validateProducts(),
+                this.validateLandingPages(),
+            ]).then(() => {
+                this.onModalClose(true);
+            }).catch(() => {
+                this.isLoading = false;
+            });
         },
 
         openConfirmChangesModal() {
@@ -443,6 +463,23 @@ export default {
 
         onInputSalesChannelSelect() {
             this.loadSystemConfig();
+        },
+
+        onExtraCategories() {
+            this.isCategoriesLoading = true;
+            this.categoryIndex += 1;
+
+            const criteria = new Criteria(this.categoryIndex, 25);
+
+            criteria.addFilter(Criteria.equals('cmsPageId', this.page.id));
+
+            this.categoryRepository.search(criteria).then((result) => {
+                if (!!result && result.length > 0) {
+                    this.page.categories.push(...result);
+                }
+
+                this.isCategoriesLoading = false;
+            });
         },
     },
 };

@@ -14,7 +14,7 @@
             :key="document.id"
             v-model:value="value.documentType[document.technicalName]"
             :label="document.name"
-            :disabled="documents?.disabled"
+            :disabled="documents?.disabled || undefined"
         />
         {% endblock %}
 
@@ -23,7 +23,7 @@
         <sw-switch-field
             v-model:value="value.skipSentDocuments"
             :label="$tc('sw-bulk-edit.order.status.documents.skipSentDocuments')"
-            :disabled="documents?.disabled"
+            :disabled="documents?.disabled || undefined"
         />
         {% endblock %}
     </sw-container>

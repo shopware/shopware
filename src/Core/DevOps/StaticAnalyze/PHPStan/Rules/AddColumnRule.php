@@ -4,7 +4,11 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use Doctrine\DBAL\Connection;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
@@ -51,7 +55,7 @@ class AddColumnRule implements Rule
         }
 
         // is \Doctrine\DBAL\Connection::executeStatement?
-        if (!$node->name instanceof Node\Identifier) {
+        if (!$node->name instanceof Identifier) {
             return [];
         }
 
@@ -59,7 +63,7 @@ class AddColumnRule implements Rule
             return [];
         }
 
-        if (!$node->var instanceof Node\Expr\Variable) {
+        if (!$node->var instanceof Variable) {
             return [];
         }
 
@@ -80,13 +84,13 @@ class AddColumnRule implements Rule
 
         $arg = $node->args[0];
 
-        if (!$arg instanceof Node\Arg) {
+        if (!$arg instanceof Arg) {
             return [];
         }
 
         $arg = $arg->value;
 
-        if (!$arg instanceof Node\Scalar\String_) {
+        if (!$arg instanceof String_) {
             return [];
         }
 

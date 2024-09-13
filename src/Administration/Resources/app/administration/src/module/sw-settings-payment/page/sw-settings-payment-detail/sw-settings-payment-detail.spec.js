@@ -95,6 +95,7 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                 'sw-sidebar-media-item': true,
                 'sw-skeleton': true,
                 'sw-context-menu-item': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

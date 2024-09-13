@@ -22,6 +22,8 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         promotionCodes: {
             type: Array as PropType<string[]>,
@@ -138,6 +140,14 @@ export default Component.wrapComponentConfig({
             async handler(): Promise<void> {
                 await this.updateCartContext();
             },
+        },
+
+        'context.languageId'(languageId: string) {
+            if (!languageId) {
+                return;
+            }
+
+            State.commit('context/setLanguageId', languageId);
         },
 
         isSameAsBillingAddress(value): void {

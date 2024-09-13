@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -49,6 +49,7 @@ async function createWrapper() {
             stubs: {
                 'sw-loader': true,
                 'sw-tree': true,
+                'sw-tree-item': true,
             },
         },
     });

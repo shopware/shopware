@@ -43,7 +43,7 @@ class ClientProfiler extends Client
             'request' => $request,
             'response' => $response,
             'time' => microtime(true) - $time,
-            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+            'backtrace' => \sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
         ];
 
         return $response;
@@ -64,11 +64,11 @@ class ClientProfiler extends Client
         $connection = $this->transport->getConnection();
 
         $this->requests[] = [
-            'url' => sprintf('%s://%s:%d/_msearch', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'url' => \sprintf('%s://%s:%d/_msearch', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
-            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+            'backtrace' => \sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
         ];
 
         return $response;
@@ -102,12 +102,12 @@ class ClientProfiler extends Client
         $connection = $this->transport->getConnection();
 
         $this->requests[] = [
-            'url' => sprintf('%s://%s:%d/_bulk', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'url' => \sprintf('%s://%s:%d/_bulk', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
             'client' => $this->transport->getConnection()->getHost(),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
-            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+            'backtrace' => \sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
         ];
 
         return $response;
@@ -128,12 +128,12 @@ class ClientProfiler extends Client
         $connection = $this->transport->getConnection();
 
         $this->requests[] = [
-            'url' => sprintf('%s://%s:%d/_scripts/%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $params['id']),
+            'url' => \sprintf('%s://%s:%d/_scripts/%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $params['id']),
             'client' => $this->transport->getConnection()->getHost(),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
-            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+            'backtrace' => \sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
         ];
 
         return $response;
@@ -159,6 +159,6 @@ class ClientProfiler extends Client
             unset($request['body']);
         }
 
-        return sprintf('%s://%s:%d/%s?%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $path, http_build_query($request));
+        return \sprintf('%s://%s:%d/%s?%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $path, http_build_query($request));
     }
 }

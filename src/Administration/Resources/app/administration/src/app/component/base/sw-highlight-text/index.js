@@ -1,3 +1,4 @@
+import { h } from 'vue';
 import './sw-highlight-text.scss';
 
 const { Component, Context } = Shopware;
@@ -15,12 +16,26 @@ const { Component, Context } = Shopware;
 Component.register('sw-highlight-text', {
     template: '',
 
+    compatConfig: Shopware.compatConfig,
+
     render(createElement) {
-        return createElement(
+        // Vue2 syntax
+        if (typeof createElement === 'function') {
+            return createElement(
+                'div',
+                {
+                    class: 'sw-highlight-text',
+                    domProps: { innerHTML: this.searchAndReplace() },
+                },
+            );
+        }
+
+        // Vue3 syntax
+        return h(
             'div',
             {
                 class: 'sw-highlight-text',
-                domProps: { innerHTML: this.searchAndReplace() },
+                innerHTML: this.searchAndReplace(),
             },
         );
     },

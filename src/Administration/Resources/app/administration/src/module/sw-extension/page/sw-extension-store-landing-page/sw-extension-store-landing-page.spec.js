@@ -16,6 +16,14 @@ async function createWrapper() {
                     },
                 },
             },
+            stubs: {
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-label': true,
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                },
+            },
         },
     });
 }

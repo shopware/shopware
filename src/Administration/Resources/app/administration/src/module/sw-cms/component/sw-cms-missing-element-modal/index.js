@@ -8,6 +8,10 @@ import './sw-cms-missing-element-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close', 'modal-save', 'modal-dont-remind-change'],
+
     props: {
         missingElements: {
             type: Array,

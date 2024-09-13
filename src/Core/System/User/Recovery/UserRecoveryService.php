@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +27,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserRecoveryService
 {
     /**
@@ -185,7 +188,11 @@ class UserRecoveryService
      */
     private function getSalesChannel(Context $context): SalesChannelEntity
     {
-        $salesChannel = $this->salesChannelRepository->search((new Criteria())->setLimit(1), $context)->first();
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON)]));
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
 
         if (!$salesChannel instanceof SalesChannelEntity) {
             throw UserException::salesChannelNotFound();

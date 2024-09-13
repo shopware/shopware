@@ -23,9 +23,7 @@ class TechnicalNameExceptionHandler implements ExceptionHandlerInterface
             $e->getMessage(),
             $matches
         )) {
-            if (\array_key_exists('technicalName', $matches) && \is_string($matches['technicalName'])) {
-                return PaymentException::duplicateTechnicalName($matches['technicalName']);
-            }
+            return PaymentException::duplicateTechnicalName($matches['technicalName']);
         }
 
         if (\preg_match(
@@ -33,9 +31,7 @@ class TechnicalNameExceptionHandler implements ExceptionHandlerInterface
             $e->getMessage(),
             $matches
         )) {
-            if (\array_key_exists('technicalName', $matches) && \is_string($matches['technicalName'])) {
-                return ShippingException::duplicateTechnicalName($matches['technicalName']);
-            }
+            return ShippingException::duplicateTechnicalName($matches['technicalName']);
         }
 
         if (\preg_match(
@@ -43,9 +39,7 @@ class TechnicalNameExceptionHandler implements ExceptionHandlerInterface
             $e->getMessage(),
             $matches
         )) {
-            if (\array_key_exists('technicalName', $matches) && \is_string($matches['technicalName'])) {
-                return ImportExportException::duplicateTechnicalName($matches['technicalName']);
-            }
+            return ImportExportException::duplicateTechnicalName($matches['technicalName']);
         }
 
         return null;

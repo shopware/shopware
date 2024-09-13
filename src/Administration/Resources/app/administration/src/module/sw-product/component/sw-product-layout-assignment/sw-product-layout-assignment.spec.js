@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -10,6 +10,7 @@ async function createWrapper() {
             stubs: {
                 'sw-cms-list-item': true,
                 'sw-button': true,
+                'sw-icon': true,
             },
         },
     });

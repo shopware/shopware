@@ -1,6 +1,6 @@
 <mt-card-original
     v-bind="$attrs"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template #before-card>
         <sw-extension-component-section
@@ -13,10 +13,12 @@
 
     <template
         v-for="(index, name) in getFilteredSlots()"
-        #[name]="data">
+        #[name]="data"
+    >
         <slot
             :name="name"
-            v-bind="data"></slot>
+            v-bind="data"
+        ></slot>
     </template>
 
     <template #after-card>

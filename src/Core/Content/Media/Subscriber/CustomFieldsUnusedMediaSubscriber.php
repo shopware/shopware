@@ -84,7 +84,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
     {
         /** @var list<array{id: string, name: string, entity_name: string}> $results */
         $results = $this->connection->fetchAllAssociative(
-            sprintf(
+            \sprintf(
                 <<<'SQL'
                 SELECT f.id, f.name, fsr.entity_name
                 FROM custom_field f
@@ -140,7 +140,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
-                $statements[] = sprintf(
+                $statements[] = \sprintf(
                     <<<'SQL'
                     SELECT JSON_EXTRACT(custom_fields, "$.%s") as mediaIds FROM `%s`
                     WHERE JSON_OVERLAPS(

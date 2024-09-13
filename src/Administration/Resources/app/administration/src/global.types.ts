@@ -89,6 +89,8 @@ import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
+import type { CmsPageState } from './module/sw-cms/store/cms-page.store';
+import type { TopBarButtonState } from './app/store/topbar-button.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -315,6 +317,7 @@ declare global {
 
     /**
      * Define global state for the Vuex store
+     * @deprecated tag:v6.8.0 - Will be removed use PiniaRootState instead
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
@@ -342,6 +345,11 @@ declare global {
         sdkLocation: SdkLocationState,
         usageData: UsageDataModuleState
         adminHelpCenter: AdminHelpCenterState,
+    }
+
+    interface PiniaRootState {
+        cmsPageState: CmsPageState,
+        topBarButtonState: TopBarButtonState,
     }
 
     /**
@@ -415,6 +423,7 @@ interface LegacyPublicProperties {
     $off(event?: string | string[], fn?: Function): this;
     $children: LegacyPublicProperties[];
     $listeners: Record<string, Function | Function[]>;
+    isCompatEnabled: (key: string) => boolean;
     /* eslint-enable @typescript-eslint/ban-types */
 }
 

@@ -21,7 +21,7 @@
         {% block sw_settings_document_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
-            :disabled="isLoading"
+            :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('sw-settings-document.detail.buttonCancel') }}
@@ -34,7 +34,7 @@
             v-model:processSuccess="isSaveSuccessful"
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-document-detail__save-action"
-            :disabled="isLoading || !acl.can('document.editor')"
+            :disabled="isLoading || !acl.can('document.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -92,7 +92,7 @@
                             entity="document_type"
                             :label="$tc('sw-settings-document.detail.labelType')"
                             class="sw-settings-document-detail__select-type"
-                            :disabled="documentConfig.global || !acl.can('document.editor')"
+                            :disabled="documentConfig.global || !acl.can('document.editor') || undefined"
                         />
                         {% endblock %}
                         <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
@@ -172,7 +172,7 @@
                                 name="sw-field--documentConfig-name"
                                 :label="$tc('sw-settings-document.detail.labelName')"
                                 :placeholder="$tc('sw-settings-document.detail.placeholderName')"
-                                :disabled="!acl.can('document.editor')"
+                                :disabled="!acl.can('document.editor') || undefined"
                                 validation="required"
                                 :error="documentBaseConfigNameError"
                                 required
@@ -201,7 +201,7 @@
                             <sw-text-field
                                 v-model:value="documentConfig.filenamePrefix"
                                 name="sw-field--documentConfig-filenamePrefix"
-                                :disabled="!acl.can('document.editor')"
+                                :disabled="!acl.can('document.editor') || undefined"
                                 :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
                             />
                         </div>
@@ -212,7 +212,7 @@
                             <sw-text-field
                                 v-model:value="documentConfig.filenameSuffix"
                                 name="sw-field--documentConfig-filenameSuffix"
-                                :disabled="!acl.can('document.editor')"
+                                :disabled="!acl.can('document.editor') || undefined"
                                 :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
                             />
                         </div>
@@ -220,25 +220,26 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_form_field_renderer_content %}
                         <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                        <template
-                            v-for="(formField, index) in generalFormFields"
-                            v-if="documentConfig.config"
-                            :key="`formField-${index}`"
-                        >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_document_detail_content_form_field_renderer %}
-                            <sw-form-field-renderer
-                                v-if="formField"
-                                v-model:value="documentConfig.config[formField.name]"
-                                :disabled="!acl.can('document.editor')"
-                                class="sw-settings-document-detail__form-field-renderer"
-                                v-bind="formField"
-                            />
-                            <div
-                                v-else
-                                :key="`else-formField-${index}`"
-                            ></div>
-                            {% endblock %}
+                        <template v-if="documentConfig.config">
+                            <template
+                                v-for="(formField, index) in generalFormFields"
+                                :key="`formField-${index}`"
+                            >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_document_detail_content_form_field_renderer %}
+                                <sw-form-field-renderer
+                                    v-if="formField"
+                                    v-model:value="documentConfig.config[formField.name]"
+                                    :disabled="!acl.can('document.editor') || undefined"
+                                    class="sw-settings-document-detail__form-field-renderer"
+                                    v-bind="formField"
+                                />
+                                <div
+                                    v-else
+                                    :key="`else-formField-${index}`"
+                                ></div>
+                                    {% endblock %}
+                            </template>
                         </template>
                         {% endblock %}
 
@@ -249,7 +250,7 @@
                             v-model:value="documentConfig.config.displayDivergentDeliveryAddress"
                             name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
                             class="sw-settings-document-detail__field_divergent_delivery_address"
-                            :disabled="!acl.can('document.editor')"
+                            :disabled="!acl.can('document.editor') || undefined"
                             :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
                         />
                         {% endblock %}
@@ -261,7 +262,7 @@
                             v-model:value="documentConfig.config.displayAdditionalNoteDelivery"
                             name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
                             class="sw-settings-document-detail__field_additional_note_delivery"
-                            :disabled="!acl.can('document.editor')"
+                            :disabled="!acl.can('document.editor') || undefined"
                             :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
                         />
                         {% endblock %}
@@ -273,25 +274,16 @@
                             v-model:value="documentConfig.config.displayCustomerVatId"
                             name="sw-field--documentConfig-config-displayCustomerVatId"
                             class="sw-settings-document-detail__field_customer_vat_id"
-                            :disabled="!acl.can('document.editor')"
+                            :disabled="!acl.can('document.editor') || undefined"
                             :label="$tc('sw-settings-document.detail.labelDisplayCustomerVatId')"
                         />
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Remove the block #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_delivery_countries %}
-                        <sw-entity-multi-id-select
-                            v-if="showCountriesSelect"
-                            v-model:value="documentConfig.config.deliveryCountries"
-                            name="sw-field--documentConfig-config-deliveryCountries"
-                            class="sw-settings-document-detail__field_delivery_countries"
-                            :repository="countryRepository"
-                            :disabled="!acl.can('document.editor')"
-                            :help-text="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
-                            :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
-                            :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')"
-                        />
                         {% endblock %}
+
                     </sw-container>
                 </sw-card>
                 {% endblock %}
@@ -319,7 +311,7 @@
                                 {% block sw_settings_document_detail_company_form_field_renderer %}
                                 <sw-form-field-renderer
                                     v-model:value="documentConfig.config[formField.name]"
-                                    :disabled="!acl.can('document.editor')"
+                                    :disabled="!acl.can('document.editor') || undefined"
                                     v-bind="formField"
                                 />
                                 {% endblock %}
@@ -340,7 +332,7 @@
                 >
                     <sw-custom-field-set-renderer
                         :entity="documentConfig"
-                        :disabled="!acl.can('document.editor')"
+                        :disabled="!acl.can('document.editor') || undefined"
                         :sets="customFieldSets"
                     />
                 </sw-card>

@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Files;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class GenericSnippetFile extends AbstractSnippetFile
 {
     public function __construct(

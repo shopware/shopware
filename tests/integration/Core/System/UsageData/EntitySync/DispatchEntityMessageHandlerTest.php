@@ -439,7 +439,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     private static function getPuid(string $name, string $lastName, string $email): string
     {
-        return hash('sha512', sprintf('%s%s%s', strtolower($name), strtolower($lastName), strtolower($email)));
+        return hash('sha512', \sprintf('%s%s%s', strtolower($name), strtolower($lastName), strtolower($email)));
     }
 
     /**

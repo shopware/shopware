@@ -14,6 +14,9 @@
                     "quantity": {
                         "type": "number"
                     },
+                    "rawTotal": {
+                        "type": "number"
+                    },
                     "totalPrice": {
                         "type": "number"
                     },
@@ -42,7 +45,7 @@
                     "referencePrice": {
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/ReferencePrice"
+                                "$ref": "#/components/schemas/CartPriceReference"
                             },
                             {
                                 "type": "null"
@@ -52,12 +55,18 @@
                     "listPrice": {
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/ListPrice"
+                                "$ref": "#/components/schemas/CartListPrice"
                             },
                             {
                                 "type": "null"
                             }
                         ]
+                    },
+                    "positionPrice": {
+                        "type": "number"
+                    },
+                    "netPrice": {
+                        "type": "number"
                     },
                     "regulationPrice": {
                         "type": "object",
@@ -84,7 +93,6 @@
                         "type": "string",
                         "enum": ["calculated_price"]
                     },
-
                     "taxRules": {
                         "type": "array",
                         "description": "Currently active tax rules and/or rates",
@@ -111,7 +119,10 @@
                     "calculatedTaxes",
                     "totalPrice",
                     "quantity",
-                    "unitPrice"
+                    "unitPrice",
+                    "positionPrice",
+                    "netPrice",
+                    "taxRules"
                 ]
             }
         }

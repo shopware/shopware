@@ -328,7 +328,7 @@ class CartFacadeTest extends TestCase
                 foreach ($expected as $key => $value) {
                     static::assertArrayHasKey($key, $item->getItem()->getPayload());
                     $actual = $item->getItem()->getPayload()[$key];
-                    static::assertEquals($value, $actual, sprintf('Payload value %s does not match', $key));
+                    static::assertEquals($value, $actual, \sprintf('Payload value %s does not match', $key));
                 }
             },
         ];
@@ -386,7 +386,7 @@ class CartFacadeTest extends TestCase
             if ($this->ids->has($key)) {
                 $key = $this->ids->get($key);
             }
-            static::assertTrue($scope->has($key), sprintf('Can not find item %s', $key));
+            static::assertTrue($scope->has($key), \sprintf('Can not find item %s', $key));
             $item = $scope->get($key);
 
             if ($expected instanceof CalculatedPrice) {

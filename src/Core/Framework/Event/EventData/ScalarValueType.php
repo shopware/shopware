@@ -24,7 +24,7 @@ class ScalarValueType implements EventDataType
     public function __construct(string $type)
     {
         if (!\in_array($type, self::VALID_TYPES, true)) {
-            throw new \InvalidArgumentException(sprintf('Invalid type "%s" provided, valid ones are: %s', $type, implode(', ', self::VALID_TYPES)));
+            throw new \InvalidArgumentException(\sprintf('Invalid type "%s" provided, valid ones are: %s', $type, implode(', ', self::VALID_TYPES)));
         }
 
         $this->type = $type;

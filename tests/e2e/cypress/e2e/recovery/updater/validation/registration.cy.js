@@ -8,7 +8,7 @@ describe('Minimal auto update', () => {
      * - update-service-mock.js must be running
      */
 
-    it('@update: Check theme compile and caches after update', { tags: ['pa-system-settings'] }, () => {
+    it('@update: Check theme compile and caches after update', { tags: ['pa-services-settings'] }, () => {
         cy.visit('/account/login');
         cy.get('.register-card').should('be.visible');
 

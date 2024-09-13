@@ -5,7 +5,7 @@
     {% block sw_condition_goods_price_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -20,7 +20,7 @@
             number-type="float"
             :min="0"
             :digits="20"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
         />
         {% endblock %}
 
@@ -29,7 +29,7 @@
         <div class="sw-condition-goods-price__filter">
             <sw-button
                 v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="showFilterModal = true"
             >
                 <sw-icon
@@ -45,7 +45,7 @@
     {% block sw_condition_goods_price_condition_modal %}
     <sw-condition-modal
         v-if="showFilterModal"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         v-bind="{ condition, conditionDataProviderService }"
         @modal-close="showFilterModal = false"
     />

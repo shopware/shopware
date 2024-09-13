@@ -10,12 +10,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
         'promotionCodeApiService',
         'feature',
     ],
+
+    emits: ['delete-finish', 'generate-finish'],
 
     mixins: [
         'notification',

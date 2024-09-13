@@ -30,7 +30,7 @@
                 showOnDisabledElements: true
             }"
             variant="primary"
-            :disabled="!acl.can('cms.creator')"
+            :disabled="!acl.can('cms.creator') || undefined"
             @click="onCreateNewLayout"
         >
             {{ $tc('sw-cms.general.createNewLayout') }}
@@ -60,7 +60,7 @@
                         <sw-tabs-item
                             v-for="pageType in sortPageTypes"
                             :key="pageType.name"
-                            :disabled="pageType.disabled"
+                            :disabled="pageType.disabled || undefined"
                             :active="pageType.active"
                             @click="onSortPageType(pageType.value)"
                         >
@@ -157,7 +157,7 @@
                                                 {% block sw_cms_list_listing_list_item_option_add_preview %}
                                                 <sw-context-menu-item
                                                     class="sw-cms-list-item__option-preview"
-                                                    :disabled="!acl.can('cms.editor')"
+                                                    :disabled="!acl.can('cms.editor') || undefined"
                                                     @click="onPreviewChange(cmsPage)"
                                                 >
                                                     {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
@@ -165,18 +165,23 @@
                                                 {% endblock %}
 
                                                 <sw-context-menu-item
-                                                    v-if="cmsPage.type === 'product_list' && defaultCategoryId !== cmsPage.id"
+                                                    v-if="showDefaultLayoutContextMenu(cmsPage)"
                                                     class="sw-cms-list-item__option-set-as-default"
-                                                    :disabled="!acl.can('system_config.editor')"
+                                                    :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete') || undefined"
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"
                                                 >
-                                                    {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                    <template v-if="cmsPage.type == 'product_detail'">
+                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                    </template>
                                                 </sw-context-menu-item>
 
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_duplicate %}
                                                 <sw-context-menu-item
-                                                    :disabled="!acl.can('cms.creator')"
+                                                    :disabled="!acl.can('cms.creator') || undefined"
                                                     class="sw-cms-list-item__option-duplicate"
                                                     @click="onDuplicateCmsPage(cmsPage)"
                                                 >
@@ -190,7 +195,7 @@
                                                     v-if="cmsPage.previewMediaId"
                                                     class="sw-cms-list-item__option-preview"
                                                     variant="danger"
-                                                    :disabled="!acl.can('cms.editor')"
+                                                    :disabled="!acl.can('cms.editor') || undefined"
                                                     @click="onPreviewImageRemove(cmsPage)"
                                                 >
                                                     {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
@@ -204,7 +209,7 @@
                                                     v-tooltip="deleteDisabledToolTip(cmsPage)"
                                                     class="sw-cms-list-item__option-delete"
                                                     variant="danger"
-                                                    :disabled="optionContextDeleteDisabled(cmsPage)"
+                                                    :disabled="optionContextDeleteDisabled(cmsPage) || undefined"
                                                     @click="onDeleteCmsPage(cmsPage)"
                                                 >
                                                     {{ $tc('sw-cms.components.cmsListItem.delete') }}
@@ -292,7 +297,12 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                     <template #column-assignments="{ item }">
-                                        {{ getPageCount(item) }}
+                                        <sw-icon
+                                            small
+                                            size="10px"
+                                            :name="layoutIsLinked(item.id) ? 'regular-checkmark-xs' : 'regular-times-xs'"
+                                            :class="layoutIsLinked(item.id) ? 'is--active' : 'is--inactive'"
+                                        />
                                     </template>
                                     {% endblock %}
 
@@ -327,25 +337,30 @@
                                         <sw-context-menu-item
                                             :router-link="{ name: 'sw.cms.detail', params: { id: item.id } }"
                                             class="sw-cms-list__context-menu-item-edit"
-                                            :disabled="!acl.can('cms.editor')"
+                                            :disabled="!acl.can('cms.editor') || undefined"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.edit') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
                                         <sw-context-menu-item
-                                            v-if="item.type === 'product_list' && defaultCategoryId !== item.id"
+                                            v-if="showDefaultLayoutContextMenu(item)"
                                             class="sw-cms-list-item__option-set-as-default"
-                                            :disabled="!acl.can('system_config.editor')"
+                                            :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete') || undefined"
                                             @click="onOpenLayoutSetAsDefault(item)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                            <template v-if="item.type == 'product_detail'">
+                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                            </template>
                                         </sw-context-menu-item>
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
                                         <sw-context-menu-item
-                                            :disabled="!acl.can('cms.creator')"
+                                            :disabled="!acl.can('cms.creator') || undefined"
                                             class="sw-cms-list__context-menu-item-duplicate"
                                             @click="onDuplicateCmsPage(item)"
                                         >
@@ -357,7 +372,7 @@
                                         {% block sw_cms_list_listing_list_item_option_rename %}
                                         <sw-context-menu-item
                                             v-if="!item.locked"
-                                            :disabled="!acl.can('cms.editor')"
+                                            :disabled="!acl.can('cms.editor') || undefined"
                                             class="sw-cms-list__context-menu-item-rename"
                                             @click="onRenameCmsPage(item)"
                                         >
@@ -372,7 +387,7 @@
                                             v-tooltip="deleteDisabledToolTip(item)"
                                             variant="danger"
                                             class="sw-cms-list__context-menu-item-delete"
-                                            :disabled="optionContextDeleteDisabled(item)"
+                                            :disabled="optionContextDeleteDisabled(item) || undefined"
                                             @click="onDeleteCmsPage(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}
@@ -443,7 +458,7 @@
                 v-if="showLayoutSetAsDefaultModal"
                 class="sw-cms-list__confirm-set-as-default-modal"
                 :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', newDefaultLayout.type === 'product_detail')"
                 @confirm="onConfirmLayoutSetAsDefault"
                 @cancel="onCloseLayoutSetAsDefault"
                 @close="onCloseLayoutSetAsDefault"

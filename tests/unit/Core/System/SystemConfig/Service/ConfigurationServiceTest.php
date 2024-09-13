@@ -22,7 +22,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {

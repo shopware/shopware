@@ -8,6 +8,10 @@ import './sw-extension-permissions-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close', 'close-with-action'],
+
     props: {
         permissions: {
             type: Object,
@@ -115,6 +119,14 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

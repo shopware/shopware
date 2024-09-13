@@ -13,7 +13,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal should be used over the CLI only
@@ -48,7 +47,6 @@ class SystemUpdatePrepareCommand extends Command
         // TODO: get new version (from composer.lock?)
         $newVersion = '';
 
-        /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = $this->container->get('event_dispatcher');
         $eventDispatcher->dispatch(new UpdatePrePrepareEvent($context, $this->shopwareVersion, $newVersion));
 

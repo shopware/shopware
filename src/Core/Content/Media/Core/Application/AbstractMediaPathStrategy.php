@@ -57,7 +57,7 @@ abstract class AbstractMediaPathStrategy
 
     protected function physicalFilename(MediaLocationStruct|ThumbnailLocationStruct $location): string
     {
-        $filenameSuffix = $location instanceof ThumbnailLocationStruct ? sprintf('_%dx%d', $location->width, $location->height) : '';
+        $filenameSuffix = $location instanceof ThumbnailLocationStruct ? \sprintf('_%dx%d', $location->width, $location->height) : '';
 
         $media = $location instanceof ThumbnailLocationStruct ? $location->media : $location;
 

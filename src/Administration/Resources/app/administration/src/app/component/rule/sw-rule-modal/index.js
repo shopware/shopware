@@ -18,6 +18,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-rule-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
@@ -25,14 +27,14 @@ Component.register('sw-rule-modal', {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
-
     emits: [
         'save',
         'modal-close',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
     ],
 
     props: {

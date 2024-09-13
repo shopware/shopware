@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -18,12 +19,19 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @deprecated tag:v6.7.0 - will be removed
+ *
  * @internal
  */
 class AccountPaymentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+    }
 
     public function testAccountPaymentMethodPageLoadedScriptsAreExecuted(): void
     {

@@ -13,12 +13,16 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
         'feature',
         'mediaService',
     ],
+
+    emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -333,6 +337,7 @@ export default {
                 criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
                 criteria.addQuery(Criteria.contains('product.options.name', term), 500);
             });
+            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
 
             // return the input
             return criteria;
@@ -486,7 +491,11 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                this.$delete(variant.price, foundVariantIndex);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(variant.price, foundVariantIndex);
+                } else {
+                    delete variant.price[foundVariantIndex];
+                }
             }
 
             if (variant.price.length <= 0 || Object.keys(variant.price).length <= 0) {
@@ -522,7 +531,11 @@ export default {
             };
 
             // add new price currency to variant
-            this.$set(variant.price, variant.price.length, newPrice);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(variant.price, variant.price.length, newPrice);
+            } else {
+                variant.price.push(newPrice);
+            }
         },
 
         onMediaInheritanceRestore(variant, isInlineEdit) {

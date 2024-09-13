@@ -95,7 +95,7 @@ class DeleteNotUsedMediaCommand extends Command
             public function start(UnusedMediaSearchStartEvent $event): void
             {
                 $this->totalMediaDeletionCandidates = $event->totalMediaDeletionCandidates;
-                $this->io->note(sprintf('Out of a total of %d media items there are %d candidates for removal', $event->totalMedia, $event->totalMediaDeletionCandidates));
+                $this->io->note(\sprintf('Out of a total of %d media items there are %d candidates for removal', $event->totalMedia, $event->totalMediaDeletionCandidates));
                 $this->progressBar = $this->io->createProgressBar($event->totalMediaDeletionCandidates);
                 $this->progressBar->setFormat('debug');
                 $this->progressBar->start();
@@ -132,12 +132,12 @@ class DeleteNotUsedMediaCommand extends Command
         );
 
         if ($count === 0) {
-            $io->success(sprintf('There are no unused media files uploaded before the grace period of %d days.', (int) $input->getOption('grace-period-days')));
+            $io->success(\sprintf('There are no unused media files uploaded before the grace period of %d days.', (int) $input->getOption('grace-period-days')));
 
             return self::SUCCESS;
         }
 
-        $io->success(sprintf('Successfully deleted %d media files.', $count));
+        $io->success(\sprintf('Successfully deleted %d media files.', $count));
 
         return self::SUCCESS;
     }
@@ -151,7 +151,7 @@ class DeleteNotUsedMediaCommand extends Command
             $input->getOption('folder-entity'),
         );
 
-        $output->write(implode(',', array_map(fn ($col) => sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
+        $output->write(implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
         foreach ($mediaBatches as $mediaBatch) {
             foreach ($mediaBatch as $media) {
                 $row = [
@@ -161,7 +161,7 @@ class DeleteNotUsedMediaCommand extends Command
                     MemorySizeCalculator::formatToBytes($media->getFileSize() ?? 0),
                 ];
 
-                $output->write(sprintf("\n%s", implode(',', array_map(fn ($col) => sprintf('"%s"', $col), $row))));
+                $output->write(\sprintf("\n%s", implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), $row))));
             }
         }
 
@@ -197,7 +197,7 @@ class DeleteNotUsedMediaCommand extends Command
             $cursor->moveToPosition(0, 0);
             $cursor->clearOutput();
             $io->title(
-                sprintf(
+                \sprintf(
                     'Files that will be deleted: Page %d. Records: %d - %d',
                     $batchNum + 1,
                     ($batchNum * 20) + 1,
@@ -227,7 +227,7 @@ class DeleteNotUsedMediaCommand extends Command
         });
 
         if ($totalCount === 0) {
-            $io->success(sprintf('There are no unused media files uploaded before the grace period of %d days.', (int) $input->getOption('grace-period-days')));
+            $io->success(\sprintf('There are no unused media files uploaded before the grace period of %d days.', (int) $input->getOption('grace-period-days')));
         } elseif ($finished) {
             $io->success('No more files to show.');
         } else {

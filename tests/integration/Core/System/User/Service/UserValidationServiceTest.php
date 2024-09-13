@@ -15,7 +15,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserValidationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

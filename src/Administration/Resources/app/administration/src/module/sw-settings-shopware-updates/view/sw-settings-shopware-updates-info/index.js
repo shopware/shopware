@@ -10,6 +10,8 @@ const { Component } = Shopware;
 Component.register('sw-settings-shopware-updates-info', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         changelog: {
             type: String,

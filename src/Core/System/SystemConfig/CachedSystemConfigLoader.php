@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 {
     final public const CACHE_TAG = 'system-config';

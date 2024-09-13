@@ -10,19 +10,19 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],
 
-    data() {
-        return {
-            demoProductCount: 8,
-        };
-    },
-
     computed: {
         currentDemoProducts() {
-            return Shopware.State.get('cmsPageState').currentDemoProducts;
+            return Shopware.Store.get('cmsPageState').currentDemoProducts;
+        },
+
+        demoProductCount() {
+            return this.currentDemoProducts?.length || 8;
         },
 
         demoProductElement() {

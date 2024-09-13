@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -250,6 +252,14 @@ export default {
 
         onSaveModal() {
             return this.onSave();
+        },
+
+        /**
+         * @param path - Lodash set path
+         * @param value
+         */
+        onUpdateCountry(path, value) {
+            Shopware.Utils.object.set(this.country, path, value);
         },
     },
 };

@@ -359,7 +359,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testErrorLogging(): void
     {
-        $logger = new class() extends AbstractLogger {
+        $logger = new class extends AbstractLogger {
             /**
              * @var mixed[]
              */

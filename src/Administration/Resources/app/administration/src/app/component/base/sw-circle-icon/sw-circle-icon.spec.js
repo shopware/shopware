@@ -12,6 +12,7 @@ describe('components/base/sw-circle-icon', () => {
         stubs = {
             'sw-label': await wrapTestComponent('sw-label'),
             'sw-icon': true,
+            'sw-color-badge': true,
         };
     });
 

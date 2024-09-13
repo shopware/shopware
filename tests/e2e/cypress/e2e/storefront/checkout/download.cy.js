@@ -97,7 +97,7 @@ describe('Test checkout with downloadable products', () => {
             // add physical product to cart
             cy.get('.header-search-input')
                 .should('be.visible')
-                .type(physicalProduct.name);
+                .type(physicalProduct.name, { force: true });
             cy.contains('.search-suggest-product-name', physicalProduct.name).click();
             cy.get('.product-detail-buy .btn-buy').click();
 

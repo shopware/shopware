@@ -16,6 +16,7 @@ type FileValidationService = {
 };
 
 /**
+ * @package services-settings
  * @private
  * @method fileHelperService
  * @returns FileHelperServiceType

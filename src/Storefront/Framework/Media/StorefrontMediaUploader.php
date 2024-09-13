@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class StorefrontMediaUploader
 {
     /**

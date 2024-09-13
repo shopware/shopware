@@ -9,6 +9,8 @@ import './sw-dashboard-index.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     data() {
         return {
             cachedHeadlineGreetingKey: null,
@@ -63,15 +65,21 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
+            /* @deprecated tag:v6.7.0 - Will be removed, use API instead */
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-dashboard-detail__todayOrderData',
                 path: 'todayOrderData',
                 scope: this,
+                deprecated: true,
+                deprecationMessage: 'No replacement available, use API instead.',
             });
+            /* @deprecated tag:v6.7.0 - Will be removed, use API instead */
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-dashboard-detail__statisticDateRanges',
                 path: 'statisticDateRanges',
                 scope: this,
+                deprecated: true,
+                deprecationMessage: 'No replacement available, use API instead.',
             });
 
             this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');

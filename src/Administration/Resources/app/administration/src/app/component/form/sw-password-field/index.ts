@@ -11,6 +11,8 @@ import template from './sw-password-field.html.twig';
 Shopware.Component.register('sw-password-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: String,
@@ -22,6 +24,12 @@ Shopware.Component.register('sw-password-field', {
             type: String,
             required: false,
             default: undefined,
+        },
+
+        placeholder: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 
@@ -51,16 +59,28 @@ Shopware.Component.register('sw-password-field', {
                 this.$emit('update:modelValue', value);
             },
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
     },
 });

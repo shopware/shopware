@@ -14,10 +14,7 @@ const ruleMock = {
     name: 'Test rule',
     isNew: () => false,
     getEntityName: () => 'rule',
-    conditions: {
-        entity: 'rule_condition',
-        source: 'foo/rule',
-    },
+    conditions: new EntityCollection('foo/rule', 'rule_condition'),
     someRuleRelation: ['some-value'],
 };
 
@@ -184,12 +181,12 @@ async function createWrapper(props = defaultProps, provide = {}) {
             },
             {
                 name: 'sw.settings.rule.detail.base',
-                component: await wrapTestComponent('sw-settings-rule-detail-base'),
+                component: await wrapTestComponent('sw-settings-rule-detail-base', { sync: true }),
                 path: '/sw/settings/rule/detail/:id/base',
             },
             {
                 name: 'sw.settings.rule.detail.assignments',
-                component: await wrapTestComponent('sw-settings-rule-detail-assignments'),
+                component: await wrapTestComponent('sw-settings-rule-detail-assignments', { sync: true }),
                 path: '/sw/settings/rule/detail/:id/assignments',
             },
         ],
@@ -234,6 +231,35 @@ async function createWrapper(props = defaultProps, provide = {}) {
                         </div>
                     `,
                     },
+                    'sw-icon': true,
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-button-group': await wrapTestComponent('sw-button-group'),
+                    'sw-skeleton': true,
+                    'sw-card-view': await wrapTestComponent('sw-card-view'),
+                    'sw-loader': true,
+                    'sw-product-variant-info': true,
+                    'sw-highlight-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-field-error': true,
+                    'sw-custom-field-set-renderer': true,
+                    'sw-error-summary': true,
+                    'sw-condition-tree': true,
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
+                    'sw-entity-tag-select': true,
+                    'sw-multi-select': true,
+                    'sw-textarea-field': true,
+                    'sw-extension-component-section': true,
+                    'sw-text-field': true,
+                    'sw-number-field': true,
+                    'sw-card-filter': true,
+                    'sw-settings-rule-assignment-listing': true,
+                    'sw-empty-state': true,
+                    'sw-settings-rule-add-assignment-modal': true,
                 },
                 provide: {
                     ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
@@ -466,6 +492,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
+        await wrapper.vm.$nextTick();
 
         const conditions = {
             ...conditionTreeMock,
@@ -477,7 +504,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             ],
         };
 
-        await wrapper.find('sw-condition-tree').trigger('conditions-changed', {
+        // Emitting over the router view doesn't work with compat therefore emitting on the component directly
+        const foo = wrapper.findComponent('sw-condition-tree-stub');
+        await foo.vm.$emit('conditions-changed', {
             conditions,
             deletedIds: ['some-condition'],
         });
@@ -549,13 +578,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should clone duplicate rule', async () => {
-        global.activeAclRoles = ['rule.editor'];
+        global.activeAclRoles = ['rule.editor', 'rule.creator'];
 
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
 
         const routerSpy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        await wrapper.find('.sw-settings-rule-detail__button-context-menu').trigger('click');
+        await flushPromises();
 
         await wrapper.find('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
         await flushPromises();

@@ -87,6 +87,7 @@ async function createWrapper(privileges = []) {
                 'sw-language-info': true,
                 'sw-single-select': true,
                 'sw-skeleton': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

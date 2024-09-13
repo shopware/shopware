@@ -771,4 +771,38 @@ class RequestCriteriaBuilderTest extends TestCase
             throw $e;
         }
     }
+
+    public function testIncludesArrayValidation(): void
+    {
+        $payload = [
+            'includes' => ['product', 'category'],
+        ];
+
+        $request = new Request([], $payload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = new Criteria();
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $payload['includes'] = 'string_instead_of_array';
+
+        $request = new Request([], $payload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        $this->expectException(DataAbstractionLayerException::class);
+        $this->expectExceptionMessage('Expected data at includes to be of the type array, string given');
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
 }

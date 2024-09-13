@@ -5,11 +5,12 @@ const { Component } = Shopware;
 
 /**
  * @package admin
- *
  * @private
  */
 Component.register('sw-inactivity-login', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'loginService',
@@ -99,7 +100,7 @@ Component.register('sw-inactivity-login', {
         (document.querySelector('.sw-inactivity-login') as HTMLElement).style.backgroundImage = `url('${dataUrl}')`;
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.sessionChannel?.close();
 
         localStorage.removeItem(`inactivityBackground_${this.hash}`);
@@ -108,6 +109,8 @@ Component.register('sw-inactivity-login', {
     methods: {
         loginUserWithPassword() {
             this.isLoading = true;
+
+            this.loginService.setRememberMe(this.rememberMe);
 
             return this.loginService.loginByUsername(this.lastKnownUser, this.password)
                 .then(() => {
@@ -126,22 +129,9 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
-            this.handleRememberMe();
-
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
-        },
-
-        handleRememberMe() {
-            if (!this.rememberMe) {
-                return;
-            }
-
-            const duration = new Date();
-            duration.setDate(duration.getDate() + 14);
-
-            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

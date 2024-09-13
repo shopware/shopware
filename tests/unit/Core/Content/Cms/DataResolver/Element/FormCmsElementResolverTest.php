@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,10 +39,11 @@ class FormCmsElementResolverTest extends TestCase
         $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection));
 
         $formElement = $this->getCmsFormElement();
+        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
 
         $formCmsElementResolver->enrich(
             $formElement,
-            new ResolverContext($this->createMock(SalesChannelContext::class), new Request()),
+            $context,
             new ElementDataCollection()
         );
 
@@ -55,10 +56,11 @@ class FormCmsElementResolverTest extends TestCase
         $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection));
 
         $formElement = $this->getCmsFormElement();
+        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
 
         $formCmsElementResolver->enrich(
             $formElement,
-            new ResolverContext($this->createMock(SalesChannelContext::class), new Request()),
+            $context,
             new ElementDataCollection()
         );
 
@@ -68,6 +70,17 @@ class FormCmsElementResolverTest extends TestCase
         $sortedKeys = array_values($enrichedCollection->map(static fn (SalutationEntity $salutation) => $salutation->getSalutationKey()));
 
         static::assertSame(['d', 'c', 'b', 'a'], $sortedKeys);
+    }
+
+    public function testCollectReturnsNull(): void
+    {
+        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $salutationRoute = $this->createMock(AbstractSalutationRoute::class);
+
+        $formCmsElementResolver = new FormCmsElementResolver($salutationRoute);
+        $actual = $formCmsElementResolver->collect(new CmsSlotEntity(), $context);
+
+        static::assertNull($actual);
     }
 
     private function getCmsFormElement(): CmsSlotEntity

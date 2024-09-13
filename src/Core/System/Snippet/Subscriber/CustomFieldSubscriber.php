@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CustomFieldSubscriber implements EventSubscriberInterface
 {
     private const CUSTOM_FIELD_ID_FIELD = 'custom_field_id';

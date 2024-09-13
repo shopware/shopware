@@ -57,7 +57,7 @@ class BusinessEventCollector
             ->newInstanceWithoutConstructor();
 
         if (!$instance instanceof FlowEventAware) {
-            throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
+            throw new \RuntimeException(\sprintf('Event %s is not a business event', $class));
         }
 
         $name ??= $instance->getName();

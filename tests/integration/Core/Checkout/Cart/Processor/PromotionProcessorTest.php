@@ -51,7 +51,9 @@ class PromotionProcessorTest extends TestCase
         $new->setPrice($cartPrice);
 
         $data = new CartDataCollection();
-        $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection());
+        $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection(
+            [new LineItem(Uuid::randomHex(), PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1)]
+        ));
 
         $processor->process($data, $cart, $new, $context, new CartBehavior());
 
@@ -72,6 +74,12 @@ class PromotionProcessorTest extends TestCase
             [new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1)],
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new PromotionsOnCartPriceZeroError([]),
+        ];
+
+        yield 'Do process discounts when cart is not zero' => [
+            [new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1)],
+            new CartPrice(100, 100, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
+            null,
         ];
     }
 }

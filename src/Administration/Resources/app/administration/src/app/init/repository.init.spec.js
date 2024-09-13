@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeRepositoryFactory from './repository.init';
 
 const coreEntityName = 'product';

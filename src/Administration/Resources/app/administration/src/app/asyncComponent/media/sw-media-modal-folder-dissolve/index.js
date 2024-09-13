@@ -15,7 +15,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['mediaFolderService'],
+
+    emits: ['media-folder-dissolve-modal-close', 'media-folder-dissolve-modal-dissolve'],
 
     mixins: [
         Mixin.getByName('notification'),

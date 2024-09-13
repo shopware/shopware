@@ -37,6 +37,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Package('services-settings')]
 class ImportEntityCommand extends Command
 {
+    private const DEFAULT_CHUNK_SIZE = 300;
+
     /**
      * @internal
      *
@@ -71,7 +73,8 @@ class ImportEntityCommand extends Command
             )
             ->addOption('rollbackOnError', 'r', InputOption::VALUE_NONE, 'Rollback database transaction on error')
             ->addOption('printErrors', 'p', InputOption::VALUE_NONE, 'Print errors occurred during import')
-            ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Do a dry run of import without persisting data');
+            ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Do a dry run of import without persisting data')
+            ->addOption('useBatchImport', 'b', InputOption::VALUE_NONE, 'Use batch import strategy');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -92,7 +95,7 @@ class ImportEntityCommand extends Command
             $expireDate = new \DateTimeImmutable($expireDateString);
         } catch (\Exception) {
             throw ImportExportException::importCommandFailed(
-                sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
+                \sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
             );
         }
 
@@ -115,7 +118,12 @@ class ImportEntityCommand extends Command
 
         $startTime = time();
 
-        $importExport = $this->importExportFactory->create($log->getId());
+        $importExport = $this->importExportFactory->create(
+            $log->getId(),
+            self::DEFAULT_CHUNK_SIZE,
+            self::DEFAULT_CHUNK_SIZE,
+            $input->getOption('useBatchImport') ?? false
+        );
 
         $total = filesize($filePath);
         if ($total === false) {
@@ -123,15 +131,12 @@ class ImportEntityCommand extends Command
         }
         $progressBar = $io->createProgressBar($total);
 
-        $io->title(sprintf('Starting import of size %d ', $total));
-
-        $records = 0;
+        $io->title(\sprintf('Starting import of size %d ', $total));
 
         $progress = new Progress($log->getId(), Progress::STATE_PROGRESS, 0);
         do {
             $progress = $importExport->import($context, $progress->getOffset());
             $progressBar->setProgress($progress->getOffset());
-            $records += $progress->getProcessedRecords();
         } while (!$progress->isFinished());
 
         $elapsed = time() - $startTime;
@@ -144,7 +149,7 @@ class ImportEntityCommand extends Command
         $this->printResults($log, $io);
 
         if ($dryRun) {
-            $io->info(sprintf('Dry run completed in %d seconds', $elapsed));
+            $io->info(\sprintf('Dry run completed in %d seconds', $elapsed));
 
             return self::SUCCESS;
         }
@@ -153,14 +158,23 @@ class ImportEntityCommand extends Command
             if ($progress->getState() === Progress::STATE_FAILED) {
                 $io->warning('Not all records could be imported due to errors');
             }
-            $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
+
+            $io->success(\sprintf(
+                'Successfully imported %d records in %d seconds',
+                $progress->getProcessedRecords(),
+                $elapsed
+            ));
 
             return self::SUCCESS;
         }
 
         $this->connection->rollBack();
 
-        $io->error(sprintf('Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds', $records, $elapsed));
+        $io->error(\sprintf(
+            'Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds',
+            $progress->getProcessedRecords(),
+            $elapsed
+        ));
 
         return self::FAILURE;
     }

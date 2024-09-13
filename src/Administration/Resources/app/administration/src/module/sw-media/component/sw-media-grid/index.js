@@ -8,6 +8,10 @@ import './sw-media-grid.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['media-grid-selection-clear'],
+
     props: {
         presentation: {
             required: false,
@@ -45,7 +49,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

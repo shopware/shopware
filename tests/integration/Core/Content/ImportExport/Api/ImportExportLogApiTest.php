@@ -272,7 +272,7 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => $activities[$i % 2] ?? null,
-                'state' => sprintf('state %d', $i),
+                'state' => \sprintf('state %d', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
                 'fileId' => $fileIds[$i % 2],
@@ -298,11 +298,11 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => sprintf('foobar%d', $i),
+                'username' => \sprintf('foobar%d', $i),
                 'password' => TestDefaults::HASHED_PASSWORD,
-                'firstName' => sprintf('Foo%d', $i),
-                'lastName' => sprintf('Bar%d', $i),
-                'email' => sprintf('fo%d@ob.ar', $i),
+                'firstName' => \sprintf('Foo%d', $i),
+                'lastName' => \sprintf('Bar%d', $i),
+                'email' => \sprintf('fo%d@ob.ar', $i),
             ];
         }
         $this->userRepository->create(array_values($data), $this->context);
@@ -321,9 +321,9 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%d.xml', $i),
-                'path' => sprintf('/test/test%d', $i),
-                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => \sprintf('file%d.xml', $i),
+                'path' => \sprintf('/test/test%d', $i),
+                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
                 'accessToken' => Random::getBase64UrlString(32),
             ];
         }
@@ -343,13 +343,13 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'technicalName' => sprintf('test_name_%d', $i),
-                'label' => sprintf('Test label %d', $i),
+                'technicalName' => \sprintf('test_name_%d', $i),
+                'label' => \sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
-                'sourceEntity' => sprintf('Test entity %d', $i),
-                'fileType' => sprintf('Test file type %d', $i),
-                'delimiter' => sprintf('Test delimiter %d', $i),
-                'enclosure' => sprintf('Test enclosure %d', $i),
+                'sourceEntity' => \sprintf('Test entity %d', $i),
+                'fileType' => \sprintf('Test file type %d', $i),
+                'delimiter' => \sprintf('Test delimiter %d', $i),
+                'enclosure' => \sprintf('Test enclosure %d', $i),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i],
             ];
         }

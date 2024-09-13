@@ -47,6 +47,10 @@ async function createWrapper() {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-entity-single-select': true,
                 'sw-icon': true,
+                'sw-inheritance-switch': true,
+                'sw-field-copyable': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},

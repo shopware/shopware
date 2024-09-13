@@ -118,6 +118,8 @@ class OffCanvasSingleton {
      * @private
      */
     _openOffcanvas(offCanvas, callback) {
+        window.focusHandler.saveFocusState('offcanvas');
+
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
 
@@ -142,12 +144,14 @@ class OffCanvasSingleton {
                 setTimeout(() => {
                     offCanvas.remove();
 
+                    window.focusHandler.resumeFocusState('offcanvas');
+
                     this.$emitter.publish('onCloseOffcanvas', {
                         offCanvasContent: offCanvasElements,
                     });
                 }, delay);
 
-                offCanvas.removeEventListener('hide.bs.offcanvas', onBsClose)
+                offCanvas.removeEventListener('hide.bs.offcanvas', onBsClose);
             };
 
             offCanvas.addEventListener('hide.bs.offcanvas', onBsClose);
@@ -200,6 +204,7 @@ class OffCanvasSingleton {
         const offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
+        offCanvas.setAttribute('tabindex', '-1');
 
         if (fullwidth === true) {
             offCanvas.classList.add(OFF_CANVAS_FULLWIDTH_CLASS);

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CartCreatedEvent extends Event
+class CartCreatedEvent extends Event implements CartEvent
 {
     /**
      * @var Cart

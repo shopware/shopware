@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserController extends AbstractController
 {
     /**
@@ -239,7 +239,7 @@ class UserController extends AbstractController
         }
 
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
     }
 

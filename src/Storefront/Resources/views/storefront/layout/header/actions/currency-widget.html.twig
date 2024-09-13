@@ -18,39 +18,53 @@
                                         id="currenciesDropdown-{{ position }}"
                                         data-bs-toggle="dropdown"
                                         aria-haspopup="true"
-                                        aria-expanded="false">
+                                        aria-expanded="false"
+                                        aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': page.header.activeCurrency.translated.name })|striptags }}">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
-                                        {{ page.header.activeCurrency.symbol }}
-                                        <span class="top-bar-nav-text">{{ page.header.activeCurrency.translated.name }}</span>
+                                        <span aria-hidden="true">{{ page.header.activeCurrency.symbol }}</span>
+                                        {# @deprecated tag:v6.7.0 - Toggling the text display will use Bootstrap helper classes instead of custom CSS. #}
+                                        <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ page.header.activeCurrency.translated.name }}</span>
                                     {% endblock %}
                                 </button>
                             {% endblock %}
 
                             {% block layout_header_actions_currency_widget_form_items %}
-                                <div class="top-bar-list dropdown-menu dropdown-menu-end"
-                                    aria-labelledby="currenciesDropdown-{{ position }}">
+                                <ul class="top-bar-list dropdown-menu dropdown-menu-end"
+                                    aria-label="{{ 'header.currencyList'|trans|striptags }}">
                                     {% for currency in page.header.currencies %}
+                                        {% set isActiveCurrency = currency.id is same as(page.header.activeCurrency.id) %}
+
                                         {% block layout_header_actions_currency_widget_form_items_element %}
-                                            <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
-                                                 title="{{ currency.translated.shortName }}">
+                                            {# @deprecated tag:v6.7.0 - `dropdown-item` class will be on the button as docuented by Bootstrap: https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items #}
+                                            {# @deprecated tag:v6.7.0 - `item-checked` class will be removed. Bootstrap class `active` will be used instead. #}
+                                            <li class="top-bar-list-item{% if not feature('ACCESSIBILITY_TWEAKS') %} dropdown-item{% endif %}{% if isActiveCurrency %} item-checked{% endif %}">
                                                 {% block layout_header_actions_currency_widget_form_items_element_label %}
-                                                    <label class="top-bar-list-label"
-                                                           for="{{ position }}-{{ currency.id }}">
-                                                        {% block layout_header_actions_currency_widget_form_items_element_input %}
-                                                            <input class="top-bar-list-radio"
-                                                                   id="{{ position }}-{{ currency.id }}"
-                                                                   value="{{ currency.id }}"
-                                                                   name="currencyId"
-                                                                   type="radio"
-                                                                {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
-                                                            {{ currency.symbol }} {{ currency.translated.shortName }}
-                                                        {% endblock %}
-                                                    </label>
+                                                    {# @deprecated tag:v6.7.0 - Dropdown items will be buttons instead of radio inputs to imrpove accessibility #}
+                                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                        <button class="dropdown-item d-flex gap-1{% if isActiveCurrency %} active{% endif %}" type="submit" name="currencyId" id="{{ position }}-{{ currency.id }}" value="{{ currency.id }}">
+                                                            <span aria-hidden="true" class="top-bar-list-item-currency-symbol">{{ currency.symbol }}</span>
+                                                            {{ currency.translated.name }}
+                                                        </button>
+                                                    {% else %}
+                                                        <label class="top-bar-list-label"
+                                                               for="{{ position }}-{{ currency.id }}">
+                                                            {# @deprecated tag:v6.7.0 - block `layout_header_actions_currency_widget_form_items_element_input` will be removed. Use parent block `layout_header_actions_currency_widget_form_items_element_label` instead. #}
+                                                            {% block layout_header_actions_currency_widget_form_items_element_input %}
+                                                                <input class="top-bar-list-radio"
+                                                                       id="{{ position }}-{{ currency.id }}"
+                                                                       value="{{ currency.id }}"
+                                                                       name="currencyId"
+                                                                       type="radio"
+                                                                        {% if isActiveCurrency %} checked{% endif %}>
+                                                                <span class="aria-hidden">{{ currency.symbol }}</span> {{ currency.translated.shortName }}
+                                                            {% endblock %}
+                                                        </label>
+                                                    {% endif %}
                                                 {% endblock %}
-                                            </div>
+                                            </li>
                                         {% endblock %}
                                     {% endfor %}
-                                </div>
+                                </ul>
                             {% endblock %}
 
                             {% block layout_header_actions_currency_widget_form_redirect %}

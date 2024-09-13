@@ -324,14 +324,24 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const secondCall = global.console.warn.mock.calls[1];
+        // Check if any of the warnings contains the correct values
+        let wasFound = false;
+        global.console.warn.mock.calls.forEach((call) => {
+            if (call[1].includes('base-component')) {
+                wasFound = true;
+            } else {
+                return;
+            }
 
-        expect(secondCall).toContain('[deprecated-component]');
-        expect(secondCall[1]).toEqual(expect.stringContaining('--> deprecated-component'));
-        expect(secondCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(secondCall[1]).toMatch(
-            ' --> deprecated-component \n' +
-            '      base-component ',
-        );
+            expect(call).toContain('[deprecated-component]');
+            expect(call[1]).toEqual(expect.stringContaining('--> deprecated-component'));
+            expect(call[1]).toEqual(expect.stringContaining('base-component'));
+            expect(call[1]).toMatch(
+                ' --> deprecated-component \n' +
+                '      base-component ',
+            );
+        });
+
+        expect(wasFound).toBeTruthy();
     });
 });

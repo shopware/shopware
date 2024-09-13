@@ -12,7 +12,7 @@ describe('Scale units: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of scale unit module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of scale unit module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/unit`,
             method: 'POST',

@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.7.0 - reason:remove-phpstan-rule - Will be removed. Configure Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule instead
+ *
  * @implements Rule<InClassNode>
  *
  * @internal

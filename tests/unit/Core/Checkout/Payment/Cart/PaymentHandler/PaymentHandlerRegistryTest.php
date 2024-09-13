@@ -6,26 +6,23 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
-use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
-use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
@@ -33,7 +30,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,7 +43,7 @@ use Symfony\Component\HttpFoundation\Request;
 class PaymentHandlerRegistryTest extends TestCase
 {
     /**
-     * @var array<string, PaymentHandlerInterface>
+     * @var array<string, PaymentHandlerInterface|AbstractPaymentHandler>
      */
     private array $registeredHandlers = [];
 
@@ -102,13 +99,43 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testPaymentRegistry(): void
     {
         $registry = new PaymentHandlerRegistry(
-            $this->registerHandler(SynchronousPaymentHandlerInterface::class),
-            $this->registerHandler(AsynchronousPaymentHandlerInterface::class),
-            $this->registerHandler(PreparedPaymentHandlerInterface::class),
-            $this->registerHandler(RefundPaymentHandlerInterface::class),
-            $this->registerHandler(RecurringPaymentHandlerInterface::class),
+            $this->registerHandler(AbstractPaymentHandler::class),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
             $this->connection,
         );
+
+        $abstract = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
+        static::assertInstanceOf(AbstractPaymentHandler::class, $abstract);
+
+        $foo = $registry->getPaymentMethodHandler(Uuid::randomHex());
+        static::assertNull($foo);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old interfaces
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
+    public function testOldPaymentRegistry(): void
+    {
+        $registry = new PaymentHandlerRegistry(
+            $this->registerHandler(AbstractPaymentHandler::class),
+            $this->registerHandlerInterface(SynchronousPaymentHandlerInterface::class),
+            $this->registerHandlerInterface(AsynchronousPaymentHandlerInterface::class),
+            $this->registerHandlerInterface(PreparedPaymentHandlerInterface::class),
+            $this->registerHandlerInterface(RefundPaymentHandlerInterface::class),
+            $this->registerHandlerInterface(RecurringPaymentHandlerInterface::class),
+            $this->connection,
+        );
+
+        $abstract = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
+        static::assertInstanceOf(AbstractPaymentHandler::class, $abstract);
+
+        $foo = $registry->getPaymentMethodHandler(Uuid::randomHex());
+        static::assertNull($foo);
 
         $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
         static::assertInstanceOf(SynchronousPaymentHandlerInterface::class, $sync);
@@ -129,9 +156,14 @@ class PaymentHandlerRegistryTest extends TestCase
         static::assertNull($foo);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old interfaces
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testPaymentRegistryWithoutServices(): void
     {
         $registry = new PaymentHandlerRegistry(
+            new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
@@ -163,25 +195,27 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([
-                SynchronousPaymentHandlerInterface::class => fn () => new class() {
+                AbstractPaymentHandler::class => fn () => new class {
                 },
             ]),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
+            new ServiceLocator([]),
             $this->connection,
         );
 
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
-        static::assertNull($sync);
+        $handler = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
+        static::assertNull($handler);
     }
 
     public function testRegistryWithNonRegisteredPaymentHandler(): void
     {
-        $this->registerHandler(SynchronousPaymentHandlerInterface::class);
+        $this->registerHandler(AbstractPaymentHandler::class);
 
         $registry = new PaymentHandlerRegistry(
+            new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
@@ -190,14 +224,19 @@ class PaymentHandlerRegistryTest extends TestCase
             $this->connection,
         );
 
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
+        $sync = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
         static::assertNull($sync);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old interfaces
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testRegistryWithMismatchedExpectedType(): void
     {
         $registry = new PaymentHandlerRegistry(
-            $this->registerHandler(AsynchronousPaymentHandlerInterface::class),
+            new ServiceLocator([]),
+            $this->registerHandlerInterface(AsynchronousPaymentHandlerInterface::class),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
@@ -209,6 +248,7 @@ class PaymentHandlerRegistryTest extends TestCase
         static::assertNull($sync);
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConnectionQueryBuilder(): void
     {
         $qb = $this->createMock(QueryBuilder::class);
@@ -217,13 +257,7 @@ class PaymentHandlerRegistryTest extends TestCase
             ->method('select')
             ->with('
                 payment_method.handler_identifier,
-                app_payment_method.id as app_payment_method_id,
-                app_payment_method.pay_url,
-                app_payment_method.finalize_url,
-                app_payment_method.capture_url,
-                app_payment_method.validate_url,
-                app_payment_method.refund_url,
-                app_payment_method.recurring_url
+                app_payment_method.id as app_payment_method_id
             ')
             ->willReturnSelf();
 
@@ -269,6 +303,7 @@ class PaymentHandlerRegistryTest extends TestCase
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
+            new ServiceLocator([]),
             $connection,
         );
 
@@ -276,104 +311,45 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @param array<string> $urls
-     * @param class-string<PaymentHandlerInterface>|null $expectedResult
+     * @param class-string<AbstractPaymentHandler> $handler
+     *
+     * @return ServiceLocator<AbstractPaymentHandler>
      */
-    #[DataProvider('appPaymentMethodUrlProvider')]
-    public function testRegistryAppPaymentMethodResolve(array $urls, ?string $testedType, ?string $expectedResult): void
+    private function registerHandler(string $handler): ServiceLocator
     {
-        $result = $this->createMock(Result::class);
-        $result
-            ->method('fetchAssociative')
-            ->willReturn(['handler_identifier' => $testedType, 'app_payment_method_id' => 'foo', ...$urls]);
+        $class = new class extends AbstractPaymentHandler {
+            public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
+            {
+                return false;
+            }
 
-        $qb = $this->createMock(QueryBuilder::class);
-        $qb->method('select')->willReturnSelf();
-        $qb->method('from')->willReturnSelf();
-        $qb->method('leftJoin')->willReturnSelf();
-        $qb->method('andWhere')->willReturnSelf();
-        $qb->method('setParameter')->willReturnSelf();
-        $qb->method('executeQuery')->willReturn($result);
+            public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
+            {
+                return null;
+            }
+        };
 
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->method('createQueryBuilder')
-            ->willReturn($qb);
+        $this->registeredHandlers[Uuid::fromHexToBytes($this->ids->get($handler))] = $class;
 
-        $sync = new AppSyncPaymentHandler(
-            $this->createMock(OrderTransactionStateHandler::class),
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(PaymentPayloadService::class),
-            $this->createMock(EntityRepository::class),
-        );
-
-        $async = new AppAsyncPaymentHandler(
-            $this->createMock(OrderTransactionStateHandler::class),
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(PaymentPayloadService::class),
-            $this->createMock(EntityRepository::class),
-        );
-
-        $registry = new PaymentHandlerRegistry(
-            new ServiceLocator([
-                AppSyncPaymentHandler::class => fn () => $sync,
-            ]),
-            new ServiceLocator([
-                AppAsyncPaymentHandler::class => fn () => $async,
-            ]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            $connection,
-        );
-
-        $handler = $registry->getPaymentMethodHandler(Uuid::randomHex(), $testedType);
-
-        if ($expectedResult === null) {
-            static::assertNull($handler);
-
-            return;
-        }
-
-        static::assertInstanceOf($expectedResult, $handler);
-    }
-
-    /**
-     * @return \Generator
-     */
-    public static function appPaymentMethodUrlProvider(): iterable
-    {
-        yield [[], null, AppSyncPaymentHandler::class];
-
-        yield [['finalize_url' => 'https://example.com'], AsynchronousPaymentHandlerInterface::class, AsynchronousPaymentHandlerInterface::class];
-        yield [[], AsynchronousPaymentHandlerInterface::class, SynchronousPaymentHandlerInterface::class];
-
-        yield [['capture_url' => 'https://example.com', 'validate_url' => 'https://example.com'], PreparedPaymentHandlerInterface::class, PreparedPaymentHandlerInterface::class];
-        yield [['capture_url' => 'https://example.com'], PreparedPaymentHandlerInterface::class, null];
-        yield [['validate_url' => 'https://example.com'], PreparedPaymentHandlerInterface::class, null];
-        yield [[], PreparedPaymentHandlerInterface::class, null];
-
-        yield [['refund_url' => 'https://example.com'], RefundPaymentHandlerInterface::class, RefundPaymentHandlerInterface::class];
-        yield [[], RefundPaymentHandlerInterface::class, null];
-
-        yield [['recurring_url' => 'https://example.com'], RecurringPaymentHandlerInterface::class, RecurringPaymentHandlerInterface::class];
-        yield [[], RecurringPaymentHandlerInterface::class, null];
+        return new ServiceLocator([$class::class => fn () => $class]);
     }
 
     /**
      * @param class-string<PaymentHandlerInterface> $handler
      *
      * @return ServiceLocator<PaymentHandlerInterface>
+     *
+     * @deprecated tag:v6.7.0 - all following can be removed
      */
-    private function registerHandler(string $handler): ServiceLocator
+    private function registerHandlerInterface(string $handler): ServiceLocator
     {
         $class = match ($handler) {
-            SynchronousPaymentHandlerInterface::class => new class() implements SynchronousPaymentHandlerInterface {
+            SynchronousPaymentHandlerInterface::class => new class implements SynchronousPaymentHandlerInterface {
                 public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
                 {
                 }
             },
-            AsynchronousPaymentHandlerInterface::class => new class() implements AsynchronousPaymentHandlerInterface {
+            AsynchronousPaymentHandlerInterface::class => new class implements AsynchronousPaymentHandlerInterface {
                 public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
                 {
                     return new RedirectResponse('https://example.com');
@@ -383,7 +359,7 @@ class PaymentHandlerRegistryTest extends TestCase
                 {
                 }
             },
-            PreparedPaymentHandlerInterface::class => new class() implements PreparedPaymentHandlerInterface {
+            PreparedPaymentHandlerInterface::class => new class implements PreparedPaymentHandlerInterface {
                 public function validate(Cart $cart, RequestDataBag $requestDataBag, SalesChannelContext $context): Struct
                 {
                     return new ArrayStruct();
@@ -393,17 +369,17 @@ class PaymentHandlerRegistryTest extends TestCase
                 {
                 }
             },
-            RefundPaymentHandlerInterface::class => new class() implements RefundPaymentHandlerInterface {
+            RefundPaymentHandlerInterface::class => new class implements RefundPaymentHandlerInterface {
                 public function refund(string $refundId, Context $context): void
                 {
                 }
             },
-            RecurringPaymentHandlerInterface::class => new class() implements RecurringPaymentHandlerInterface {
+            RecurringPaymentHandlerInterface::class => new class implements RecurringPaymentHandlerInterface {
                 public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
                 {
                 }
             },
-            default => new class() implements PaymentHandlerInterface {
+            default => new class implements PaymentHandlerInterface {
             },
         };
 

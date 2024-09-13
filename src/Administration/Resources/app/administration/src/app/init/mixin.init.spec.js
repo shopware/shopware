@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import createAppMixin from 'src/app/init/mixin.init';
 
 describe('src/app/init/mixin.init.js', () => {

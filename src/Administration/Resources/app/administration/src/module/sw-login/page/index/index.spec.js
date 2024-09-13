@@ -10,6 +10,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'router-view': true,
+                'sw-loader': true,
             },
             mocks: {
             },
@@ -17,6 +18,9 @@ async function createWrapper() {
     });
 }
 
+/**
+ * @package admin
+ */
 describe('src/module/sw-login/page/index/index.js', () => {
     let wrapper;
     const cookieStorage = new CookieStorage({

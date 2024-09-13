@@ -131,6 +131,10 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         'creditNoteNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
+                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                        $config->jsonSerialize(),
+                        $order,
+                    ),
                 ]);
 
                 if ($operation->isStatic()) {

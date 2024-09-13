@@ -7,6 +7,8 @@ import template from './sw-extension-my-extensions-index.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     computed: {

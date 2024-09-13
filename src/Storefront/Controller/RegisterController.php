@@ -157,14 +157,8 @@ class RegisterController extends StorefrontController
             }
 
             $data->set('storefrontUrl', $this->getConfirmUrl($context, $request));
-
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
-
-            if ($data->getBoolean('createCustomerAccount')) {
-                $data->set('guest', false);
-            } else {
-                $data->set('guest', true);
-            }
+            $data->set('guest', !$data->getBoolean('createCustomerAccount'));
 
             $this->registerRoute->register(
                 $data->toRequestDataBag(),
@@ -232,9 +226,9 @@ class RegisterController extends StorefrontController
 
     private function isDoubleOptIn(DataBag $data, SalesChannelContext $context): bool
     {
-        $creatueCustomerAccount = $data->getBoolean('createCustomerAccount');
+        $createCustomerAccount = $data->getBoolean('createCustomerAccount');
 
-        $configKey = $creatueCustomerAccount
+        $configKey = $createCustomerAccount
             ? 'core.loginRegistration.doubleOptInRegistration'
             : 'core.loginRegistration.doubleOptInGuestOrder';
 
@@ -245,7 +239,7 @@ class RegisterController extends StorefrontController
             return false;
         }
 
-        if ($creatueCustomerAccount) {
+        if ($createCustomerAccount) {
             $this->addFlash(self::SUCCESS, $this->trans('account.optInRegistrationAlert'));
 
             return true;
@@ -266,7 +260,7 @@ class RegisterController extends StorefrontController
             ]));
         }
 
-        if ($data->has('guest')) {
+        if ($data->getBoolean('guest')) {
             return $definition;
         }
 

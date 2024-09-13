@@ -5,10 +5,13 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -20,9 +23,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -53,9 +53,9 @@ class AuthController extends StorefrontController
         private readonly AbstractResetPasswordRoute $resetPasswordRoute,
         private readonly AbstractLoginRoute $loginRoute,
         private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly AbstractImitateCustomerRoute $imitateCustomerRoute,
         private readonly StorefrontCartFacade $cartFacade,
-        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
-        private readonly SalesChannelContextServiceInterface $salesChannelContextService
+        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
     ) {
     }
 
@@ -160,20 +160,6 @@ class AuthController extends StorefrontController
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
             $cartBeforeNewContext = $this->cartFacade->get($token, $context);
-
-            $newContext = $this->salesChannelContextService->get(
-                new SalesChannelContextServiceParameters(
-                    $context->getSalesChannelId(),
-                    $token,
-                    $context->getLanguageId(),
-                    $context->getCurrencyId(),
-                    $context->getDomainId(),
-                    $context->getContext()
-                )
-            );
-
-            // Update the sales channel context for CacheResponseSubscriber
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $newContext);
 
             if (!empty($token)) {
                 $this->addCartErrors($cartBeforeNewContext);
@@ -311,5 +297,22 @@ class AuthController extends StorefrontController
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    #[Route(path: '/account/login/imitate-customer', name: 'frontend.account.login.imitate-customer', methods: ['POST'])]
+    public function imitateCustomerLogin(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        try {
+            $this->imitateCustomerRoute->imitateCustomerLogin($data, $context);
+
+            return $this->redirectToRoute('frontend.account.home.page');
+        } catch (InvalidImitateCustomerTokenException|CustomerNotFoundByIdException) {
+            return $this->forwardToRoute(
+                'frontend.account.login.page',
+                [
+                    'loginError' => true,
+                ]
+            );
+        }
     }
 }

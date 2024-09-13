@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import swUsageDataConsentBanner from 'src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner';
 
 const usageDataService = {
     getConsent: () => jest.fn(),
@@ -27,6 +26,10 @@ async function createWrapper(canBeHidden = false, isPrivileged = true) {
                 'sw-internal-link': true,
                 'sw-help-text': true,
                 i18n: true,
+                'i18n-t': true,
+                'sw-icon-deprecated': true,
+                'router-link': true,
+                'sw-loader': true,
             },
             provide: {
                 usageDataService,
@@ -52,8 +55,6 @@ describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-bann
                 isBannerHidden: false,
             });
         }
-
-        Shopware.State.registerModule('usageData', swUsageDataConsentBanner);
     });
 
     it('should show the usage data consent banner', async () => {

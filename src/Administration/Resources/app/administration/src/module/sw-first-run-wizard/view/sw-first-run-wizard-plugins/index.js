@@ -8,7 +8,11 @@ import './sw-first-run-wizard-plugins.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['recommendationsService'],
+
+    emits: ['extension-activated', 'frw-set-title', 'buttons-update', 'loading-finished'],
 
     data() {
         return {

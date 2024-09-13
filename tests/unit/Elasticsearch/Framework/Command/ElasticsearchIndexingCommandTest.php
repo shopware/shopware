@@ -11,8 +11,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[CoversClass(ElasticsearchIndexingCommand::class)]

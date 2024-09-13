@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -46,6 +49,12 @@ const createSelect = async (customOptions = {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-button': true,
+                'sw-inheritance-switch': true,
+                'mt-loader': true,
+                'sw-loader-deprecated': true,
             },
             provide: {
                 repositoryFactory: {
@@ -62,7 +71,7 @@ const createSelect = async (customOptions = {
     });
 };
 
-describe('components/sw-entity-multi-select', () => {
+describe('components/sw-entity-many-to-many-select', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createSelect();
 

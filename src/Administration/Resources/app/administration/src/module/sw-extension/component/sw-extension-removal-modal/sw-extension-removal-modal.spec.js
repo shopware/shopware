@@ -8,6 +8,9 @@ async function createWrapper(propsData = {}) {
                     return key + JSON.stringify(Object.values(values));
                 },
             },
+            stubs: {
+                'sw-button': true,
+            },
         },
         props: {
             extensionName: 'Awesome extension',

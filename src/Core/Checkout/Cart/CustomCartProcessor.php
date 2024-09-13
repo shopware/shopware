@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -57,6 +58,8 @@ class CustomCartProcessor implements CartProcessorInterface, CartDataCollectorIn
                     $context
                 )
             );
+
+            $lineItem->setShippingCostAware(!$lineItem->hasState(State::IS_DOWNLOAD));
 
             $toCalculate->add($lineItem);
         }

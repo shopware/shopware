@@ -27,16 +27,6 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
      */
     protected $name;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getDeliveryTime(): ?DeliveryTimeEntity
     {
         return $this->deliveryTime;

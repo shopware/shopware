@@ -23,7 +23,7 @@ export default class Overlay {
             sessionRunning: 'is--session-running',
         },
         placementHintTimeout: 3000,
-    }
+    };
 
     constructor(overlay: HTMLElement) {
         this.overlay = overlay;

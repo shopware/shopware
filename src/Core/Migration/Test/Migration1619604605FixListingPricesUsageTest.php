@@ -312,7 +312,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
 
         $page = [
             'id' => Uuid::randomHex(),
-            'name' => $faker->company,
+            'name' => $faker->company(),
             'type' => 'landing_page',
             'sections' => [
                 [

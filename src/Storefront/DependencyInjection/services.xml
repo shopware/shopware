@@ -168,6 +168,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\CanonicalLinkListener">
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Event\BeforeSendResponseEvent"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
             <argument type="service" id="http_kernel"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
@@ -353,11 +357,11 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
@@ -533,5 +537,19 @@
             <argument>%shopware.twig.app_variable.allowed_server_params%</argument>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\DomainNotMappedListener">
+            <argument type="service" id="service_container"/>
+
+            <tag name="kernel.event_listener" event="kernel.exception"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface" />
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface" />
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
     </services>
 </container>

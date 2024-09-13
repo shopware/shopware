@@ -13,21 +13,29 @@ class FkField extends Field implements StorageAware
     final public const PRIORITY = 70;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     protected $storageName;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     protected $referenceClass;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var EntityDefinition
      */
     protected $referenceDefinition;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     protected $referenceField;

@@ -7,7 +7,7 @@
         v-model:value="id"
         name="sw-field--id"
         entity="product"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :value="initialProduct"
         size="medium"
         advanced-selection-component="sw-advanced-selection-product"
@@ -20,7 +20,7 @@
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
         :plural="matchesAll"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -29,7 +29,7 @@
     <sw-number-field
         v-model:value="quantity"
         name="sw-field--quantity"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         size="medium"
         :step="1"
     />

@@ -8,7 +8,11 @@ import './sw-payment-card.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
+
+    emits: ['set-payment-active'],
 
     props: {
         paymentMethod: {

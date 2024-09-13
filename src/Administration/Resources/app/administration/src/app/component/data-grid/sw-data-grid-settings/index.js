@@ -11,6 +11,10 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-settings', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['change-compact-mode', 'change-preview-images', 'change-column-visibility', 'change-column-order'],
+
     props: {
         columns: {
             type: Array,
@@ -84,11 +88,15 @@ Component.register('sw-data-grid-settings', {
             this.$emit('change-column-visibility', value, index);
         },
 
-        onClickChangeColumnOrderUp(columnIndex) {
+        onClickChangeColumnOrderUp(column) {
+            const columnIndex = this.currentColumns.findIndex((col) => col.property === column.property);
+
             this.$emit('change-column-order', columnIndex, columnIndex - 1);
         },
 
-        onClickChangeColumnOrderDown(columnIndex) {
+        onClickChangeColumnOrderDown(column) {
+            const columnIndex = this.currentColumns.findIndex((col) => col.property === column.property);
+
             this.$emit('change-column-order', columnIndex, columnIndex + 1);
         },
     },

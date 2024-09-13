@@ -175,7 +175,7 @@ class PluginFinder
         $errors->add(new PluginComposerJsonInvalidException(
             $pluginPath . '/composer.json',
             [
-                sprintf(
+                \sprintf(
                     'Plugin composer.json has invalid "type" (must be "%s"), or invalid "extra/%s" value, or missing extra.label property',
                     self::COMPOSER_TYPE,
                     self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER

@@ -19,7 +19,7 @@ class ChangelogValidator extends ChangelogProcessor
         $errors = [];
         $entries = !empty($path) ? [$path] : $this->getUnreleasedChangelogFiles();
         foreach ($entries as $entry) {
-            if (preg_match('/^([-\.\w\/]+)$/', $entry) === 0) {
+            if (preg_match('/^([-.\w\/]+)$/', $entry) === 0) {
                 $errors[$entry][] = 'Changelog has invalid filename, please use only alphanumeric characters, dots, dashes and underscores.';
             }
 

@@ -9,11 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,8 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Salutation\SalutationDefinition;
-use Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -101,9 +102,6 @@ class CartOrderRouteTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
-
-        PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
-        PreparedTestPaymentHandler::$fail = false;
 
         $this->createTestData();
     }
@@ -531,8 +529,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testPreparedPaymentStructForwarded(): void
     {
-        $this->createCustomerAndLogin(null, null, PreparedTestPaymentHandler::class);
-        PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
+        $this->createCustomerAndLogin();
 
         $this->browser
             ->request(
@@ -554,8 +551,16 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order'
             );
 
-        static::assertNotNull(PreparedTestPaymentHandler::$preOrderPaymentStruct);
-        static::assertSame(PreparedTestPaymentHandler::TEST_STRUCT_CONTENT, PreparedTestPaymentHandler::$preOrderPaymentStruct->all());
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+
+        /** @var EntityRepository<OrderTransactionCollection> $transactionRepo */
+        $transactionRepo = $this->getContainer()->get('order_transaction.repository');
+        $transaction = $transactionRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertNotNull($transaction);
+        static::assertContains('testValue', $transaction->getValidationData());
     }
 
     public function testTaxProviderAppliedIfGiven(): void
@@ -632,7 +637,7 @@ class CartOrderRouteTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
 
-        $this->createCustomerAndLogin($email, $password, PreparedTestPaymentHandler::class, true);
+        $this->createCustomerAndLogin($email, $password, true);
 
         // Fill product
         $this->browser
@@ -684,7 +689,7 @@ class CartOrderRouteTest extends TestCase
         $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
         static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
 
-        $this->createCustomerAndLogin($email, $password, PreparedTestPaymentHandler::class, true);
+        $this->createCustomerAndLogin($email, $password, true);
 
         // Fill product
         $this->browser
@@ -746,13 +751,9 @@ class CartOrderRouteTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    /**
-     * @param class-string $paymentHandler
-     */
     private function createCustomerAndLogin(
         ?string $email = null,
         ?string $password = null,
-        string $paymentHandler = SyncTestPaymentHandler::class,
         bool $invalidSalutationId = false
     ): void {
         $email ??= Uuid::randomHex() . '@example.com';
@@ -760,7 +761,6 @@ class CartOrderRouteTest extends TestCase
         $this->createCustomer(
             $password,
             $email,
-            $paymentHandler,
             $invalidSalutationId,
             $this->validSalutationId,
             $this->validCountryId
@@ -790,13 +790,9 @@ class CartOrderRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    /**
-     * @param class-string $paymentHandler
-     */
     private function createCustomer(
         string $password,
         ?string $email = null,
-        string $paymentHandler = SyncTestPaymentHandler::class,
         bool $invalidSalutaionId = false,
         ?string $validSalutationId = null,
         ?string $validCountryId = null
@@ -819,12 +815,12 @@ class CartOrderRouteTest extends TestCase
                     'countryId' => $validCountryId ?? $this->getValidCountryId($this->ids->get('sales-channel')),
                 ],
                 'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
+                'lastPaymentMethod' => [
                     'name' => 'Invoice',
                     'technicalName' => Uuid::randomHex(),
                     'active' => true,
                     'description' => 'Default payment method',
-                    'handlerIdentifier' => $paymentHandler,
+                    'handlerIdentifier' => TestPaymentHandler::class,
                     'salesChannels' => [
                         [
                             'id' => $this->ids->get('sales-channel'),

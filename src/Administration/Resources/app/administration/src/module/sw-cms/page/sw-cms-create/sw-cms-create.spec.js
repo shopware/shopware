@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-import 'src/module/sw-cms/state/cms-page.state';
+import 'src/module/sw-cms/store/cms-page.store';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
@@ -92,21 +92,15 @@ async function createWrapper(routeParams = {}) {
     });
 }
 
-/**
- * @package buyers-experience
- */
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 isSystemDefaultLanguage: true,
-            },
-            mutations: {
+            }),
+            actions: {
                 removeCurrentPage() {},
                 removeSelectedBlock() {},
                 removeSelectedSection() {},

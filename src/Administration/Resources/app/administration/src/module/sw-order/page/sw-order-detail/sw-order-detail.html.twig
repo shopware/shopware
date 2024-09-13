@@ -207,6 +207,10 @@
             </sw-tabs>
             {% endblock %}
 
+            <sw-extension-component-section
+                position-identifier="sw-order-detail__before-content"
+            />
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_view %}
             <template v-if="isLoading">
@@ -223,16 +227,16 @@
                 :is-editing="isEditing"
                 :is-loading="isLoading"
                 :is-save-successful="isSaveSuccessful"
-                @identifier-change.native="updateIdentifier"
-                @created-by-id-change.native="updateCreatedById"
-                @loading-change.native="onUpdateLoading"
-                @editing-change.native="onUpdateEditing"
-                @save-and-recalculate.native="onSaveAndRecalculate"
-                @recalculate-and-reload.native="onRecalculateAndReload"
-                @reload-entity-data.native="reloadEntityData"
-                @save-and-reload.native="onSaveAndReload"
-                @save-edits.native="onSaveEdits"
-                @error.native="onError"
+                @identifier-change="updateIdentifier"
+                @created-by-id-change="updateCreatedById"
+                @loading-change="onUpdateLoading"
+                @editing-change="onUpdateEditing"
+                @save-and-recalculate="onSaveAndRecalculate"
+                @recalculate-and-reload="onRecalculateAndReload"
+                @reload-entity-data="reloadEntityData"
+                @save-and-reload="onSaveAndReload"
+                @save-edits="onSaveEdits"
+                @error="onError"
             />
             {% endblock %}
 

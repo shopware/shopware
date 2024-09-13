@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
@@ -9,7 +10,8 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -45,7 +48,8 @@ class PromotionCollector implements CartDataCollectorInterface
     public function __construct(
         private readonly PromotionGatewayInterface $gateway,
         private readonly PromotionItemBuilder $itemBuilder,
-        private readonly HtmlSanitizer $htmlSanitizer
+        private readonly HtmlSanitizer $htmlSanitizer,
+        private readonly Connection $connection
     ) {
         $this->requiredDalAssociations = [
             'personaRules',
@@ -104,9 +108,11 @@ class PromotionCollector implements CartDataCollectorInterface
                 $allPromotions->addAutomaticPromotions($this->searchPromotionsAuto($data, $context));
             }
 
+            $currentOrderId = $original->getExtension(OrderConverter::ORIGINAL_ID) instanceof IdStruct ? $original->getExtension(OrderConverter::ORIGINAL_ID)->getId() : null;
+
             // check if max allowed redemption of promotion have been reached or not
             // if max redemption has been reached promotion will not be added
-            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
+            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer()?->getId(), $currentOrderId);
 
             $discountLineItems = [];
             $foundCodes = [];
@@ -292,7 +298,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * function returns all promotions that have discounts and that are eligible
      * (function validates that max usage or customer max usage hasn't exceeded)
      */
-    private function getEligiblePromotionsWithDiscounts(CartPromotionsDataDefinition $dataDefinition, ?CustomerEntity $customer): CartPromotionsDataDefinition
+    private function getEligiblePromotionsWithDiscounts(CartPromotionsDataDefinition $dataDefinition, ?string $customerId, ?string $currentOrderId): CartPromotionsDataDefinition
     {
         $result = new CartPromotionsDataDefinition();
 
@@ -303,16 +309,7 @@ class PromotionCollector implements CartDataCollectorInterface
         foreach ($dataDefinition->getPromotionCodeTuples() as $tuple) {
             $promotion = $tuple->getPromotion();
 
-            if (!$promotion->isOrderCountValid()) {
-                continue;
-            }
-
-            if ($customer !== null && !$promotion->isOrderCountPerCustomerCountValid($customer->getId())) {
-                continue;
-            }
-
-            // check if no discounts have been set
-            if (!$promotion->hasDiscount()) {
+            if (!$this->isEligible($promotion, $customerId, $currentOrderId)) {
                 continue;
             }
 
@@ -328,6 +325,41 @@ class PromotionCollector implements CartDataCollectorInterface
         }
 
         return $result;
+    }
+
+    private function isEligible(PromotionEntity $promotion, ?string $customerId, ?string $currentOrderId): bool
+    {
+        // code is already applied to this order, so it's should be valid
+        if ($currentOrderId && $this->isUsedInCurrentOrder($promotion->getId(), $currentOrderId)) {
+            return true;
+        }
+
+        // order count invalid
+        if (!$promotion->isOrderCountValid()) {
+            return false;
+        }
+
+        // order count for this customer invalid
+        if ($customerId !== null && !$promotion->isOrderCountPerCustomerCountValid($customerId)) {
+            return false;
+        }
+
+        // check if no discounts have been set
+        if (!$promotion->hasDiscount()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isUsedInCurrentOrder(string $promotionId, string $orderId): bool
+    {
+        $foundPromotionInThisOrder = $this->connection->fetchOne('SELECT 1 FROM order_line_item WHERE order_id = :orderId AND promotion_id = :promotionId', [
+            'orderId' => Uuid::fromHexToBytes($orderId),
+            'promotionId' => Uuid::fromHexToBytes($promotionId),
+        ]);
+
+        return $foundPromotionInThisOrder === '1';
     }
 
     /**
@@ -375,8 +407,8 @@ class PromotionCollector implements CartDataCollectorInterface
                 $factor
             );
 
-            $originalCodeItem = $cart->getLineItems()->filter(function (LineItem $item) use ($code) {
-                if ($item->getReferencedId() === $code) {
+            $originalCodeItem = $cart->getLineItems()->filter(function (LineItem $item) use ($code, $discount) {
+                if ($item->getReferencedId() === $code && $item->getPayloadValue('discountId') === $discount->getId()) {
                     return $item;
                 }
 

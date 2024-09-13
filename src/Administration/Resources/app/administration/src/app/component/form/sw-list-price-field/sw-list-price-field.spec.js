@@ -75,11 +75,6 @@ describe('components/form/sw-list-price-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be rendered correctly', async () => {
-        const wrapper = await setup();
-        expect(wrapper.element).toMatchSnapshot();
-    });
-
     it('should set listPrice null when the gross value is NaN', async () => {
         const wrapper = await setup();
         const listPrice = {

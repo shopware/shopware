@@ -41,7 +41,7 @@ export default class OffCanvasFilter extends Plugin {
         const filterContent = document.querySelector('[data-off-canvas-filter-content="true"]');
 
         if (!filterContent) {
-            throw Error('There was no DOM element with the data attribute "data-offcanvas-filter-content".')
+            throw Error('There was no DOM element with the data attribute "data-offcanvas-filter-content".');
         }
 
         OffCanvas.open(

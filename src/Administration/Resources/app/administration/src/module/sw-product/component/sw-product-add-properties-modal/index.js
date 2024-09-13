@@ -9,7 +9,11 @@ import './sw-product-add-properties-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['modal-cancel', 'modal-save'],
 
     props: {
         newProperties: {

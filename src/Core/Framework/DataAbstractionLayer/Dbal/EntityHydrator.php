@@ -94,7 +94,7 @@ class EntityHydrator
         }
 
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context, $partial));
+            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context));
         }
 
         return $collection;
@@ -323,11 +323,12 @@ class EntityHydrator
 
         foreach ($translatedFields as $field => $typed) {
             $fieldValue = self::value($row, $root, $field);
-            $translation = $fieldValue ? $typed->getSerializer()->decode($typed, $fieldValue) : null;
+            $translation = $fieldValue !== null ? $typed->getSerializer()->decode($typed, $fieldValue) : null;
+
             $entity->addTranslated($field, $translation);
 
             $chainFieldValue = self::value($row, $chain[0], $field);
-            $entity->$field = $chainFieldValue ? ($fieldValue === $chainFieldValue ? $translation : $typed->getSerializer()->decode($typed, $chainFieldValue)) : null;
+            $entity->$field = $chainFieldValue !== null ? ($fieldValue === $chainFieldValue ? $translation : $typed->getSerializer()->decode($typed, $chainFieldValue)) : null;
         }
     }
 
@@ -362,7 +363,7 @@ class EntityHydrator
         }
 
         if (!$field instanceof AssociationField) {
-            throw new \RuntimeException(sprintf('Provided field %s is no association field', $field->getPropertyName()));
+            throw new \RuntimeException(\sprintf('Provided field %s is no association field', $field->getPropertyName()));
         }
         $pk = $this->getManyToOneProperty($field);
 
@@ -378,7 +379,7 @@ class EntityHydrator
             self::$partialFullPaths[$key] = true;
         }
 
-        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, self::$partial[$field->getPropertyName()] ?? []);
+        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context);
     }
 
     /**
@@ -495,7 +496,7 @@ class EntityHydrator
         );
 
         if ($reference === null) {
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'Can not find field by storage name %s in definition %s',
                 $field->getReferenceField(),
                 $field->getReferenceDefinition()->getEntityName()
@@ -548,11 +549,10 @@ class EntityHydrator
 
     /**
      * @param array<mixed> $row
-     * @param array<string|array<string>> $partial
      */
-    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context, array $partial = []): Entity
+    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context): Entity
     {
-        $isPartial = $partial !== [];
+        $isPartial = self::$partial !== [];
         $hydratorClass = $definition->getHydratorClass();
         $entityClass = $isPartial ? PartialEntity::class : $entityClass;
 
@@ -563,7 +563,7 @@ class EntityHydrator
         $hydrator = $this->container->get($hydratorClass);
 
         if (!$hydrator instanceof self) {
-            throw new \RuntimeException(sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
+            throw new \RuntimeException(\sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
         }
 
         $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
@@ -577,7 +577,7 @@ class EntityHydrator
         $entity = new $entityClass();
 
         if (!$entity instanceof Entity) {
-            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', $entity::class));
+            throw new \RuntimeException(\sprintf('Expected instance of Entity.php, got %s', $entity::class));
         }
 
         $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct([], $definition->getEntityName() . '_foreign_keys_extension'));

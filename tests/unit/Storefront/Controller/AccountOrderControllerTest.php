@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -44,7 +43,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -89,53 +87,27 @@ class AccountOrderControllerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        // Ensure it redirects to the correct route
-        $router = static::createMock(RouterInterface::class);
-        $router
-            ->expects(static::once())
-            ->method('generate')
-            ->with('frontend.account.order.page')
-            ->willReturn('http://localhost/account/order');
-
-        $container = new ContainerBuilder();
-        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
-        $container->set('router', $router);
-
-        $this->controller->setContainer($container);
-
         $response = $this->controller->editOrder($ids->get('order'), new Request(), Generator::createSalesChannelContext());
 
         // Ensure flash massage is shown
-        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
+        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('http://localhost/account/order', $response->headers->get('Location'));
+        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testEditOrderInvalidUuid(): void
     {
-        // Ensure it redirects to the correct route
-        $router = static::createMock(RouterInterface::class);
-        $router
-            ->expects(static::once())
-            ->method('generate')
-            ->with('frontend.account.order.page')
-            ->willReturn('http://localhost/account/order');
-
-        $container = new ContainerBuilder();
-        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
-        $container->set('router', $router);
-
-        $this->controller->setContainer($container);
-
         // Ensure invalid uuid exception is thrown
         $this->orderRouteMock->method('load')->willThrowException(new InvalidUuidException('invalid-id'));
 
         $response = $this->controller->editOrder('invalid-id', new Request(), Generator::createSalesChannelContext());
 
         // Ensure flash massage is shown
-        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
+        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('http://localhost/account/order', $response->headers->get('Location'));
+        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testOrderAlreadyPaid(): void
@@ -167,18 +139,9 @@ class AccountOrderControllerTest extends TestCase
             )
         );
 
-        // Ensure it redirects to the correct route
-        $router = static::createMock(RouterInterface::class);
-        $router
-            ->expects(static::once())
-            ->method('generate')
-            ->with('frontend.account.order.page')
-            ->willReturn('http://localhost/account/order');
-
         $dispatcher = static::createMock(EventDispatcherInterface::class);
 
         $container = new ContainerBuilder();
-        $container->set('router', $router);
         $container->set('event_dispatcher', $dispatcher);
 
         $this->controller->setContainer($container);
@@ -189,32 +152,19 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder($ids->get('order'), new Request(), $salesChannelContext);
 
         // Ensure flash massage is shown
-        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_ALREADY_PAID', $this->controller->flash);
+        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_ALREADY_PAID']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('http://localhost/account/order', $response->headers->get('Location'));
+        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testCancelOrderRedirectsToCorrectRouteForLoggedInCustomer(): void
     {
-        $routerMock = $this->createMock(RouterInterface::class);
         $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $dispatcher = static::createMock(EventDispatcherInterface::class);
-
-        $container = new ContainerBuilder();
-        $container->set('router', $routerMock);
-        $container->set('event_dispatcher', $dispatcher);
-        $this->controller->setContainer($container);
 
         $customer = new CustomerEntity();
         $customer->setGuest(false);
         $salesChannelContextMock->method('getCustomer')->willReturn($customer);
-
-        $expectedRouteName = 'frontend.account.order.page';
-        $expectedRedirectUrl = 'http://localhost/account/order';
-        $routerMock->expects(static::once())
-            ->method('generate')
-            ->with(static::equalTo($expectedRouteName))
-            ->willReturn($expectedRedirectUrl);
 
         $request = new Request();
         $request->attributes->set('orderId', Uuid::randomHex());
@@ -222,31 +172,16 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->cancelOrder($request, $salesChannelContextMock);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals($expectedRedirectUrl, $response->getTargetUrl());
+        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testCancelOrderRedirectsToCorrectRouteForGuestCustomer(): void
     {
-        $routerMock = $this->createMock(RouterInterface::class);
         $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $dispatcher = static::createMock(EventDispatcherInterface::class);
-
-        $container = new ContainerBuilder();
-        $container->set('router', $routerMock);
-        $container->set('event_dispatcher', $dispatcher);
-
-        $this->controller->setContainer($container);
 
         $customer = new CustomerEntity();
         $customer->setGuest(true);
         $salesChannelContextMock->method('getCustomer')->willReturn($customer);
-
-        $expectedRouteName = 'frontend.account.order.single.page';
-        $expectedRedirectUrl = 'http://localhost/account/order/guest';
-        $routerMock->expects(static::once())
-            ->method('generate')
-            ->with(static::equalTo($expectedRouteName))
-            ->willReturn($expectedRedirectUrl);
 
         $request = new Request();
         $request->attributes->set('orderId', Uuid::randomHex());
@@ -255,17 +190,11 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->cancelOrder($request, $salesChannelContextMock);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals($expectedRedirectUrl, $response->getTargetUrl());
+        static::assertEquals('frontend.account.order.single.page', $response->getTargetUrl());
     }
 
     public function testTransactionsStateMachineAssociationIsLoadedOnOrderUpdate(): void
     {
-        $container = new ContainerBuilder();
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
-        $container->set('router', $this->createMock(RouterInterface::class));
-
-        $this->controller->setContainer($container);
-
         $ids = new IdsCollection();
 
         $salesChannelContext = Generator::createSalesChannelContext();
@@ -326,41 +255,5 @@ class AccountOrderControllerTest extends TestCase
  */
 class AccountOrderControllerTestClass extends AccountOrderController
 {
-    public string $renderStorefrontView;
-
-    public string $flash;
-
-    /**
-     * @var array<array-key, mixed>
-     */
-    public array $renderStorefrontParameters;
-
-    /**
-     * @param array<array-key, mixed> $parameters
-     */
-    protected function renderStorefront(string $view, array $parameters = []): Response
-    {
-        $this->renderStorefrontView = $view;
-        $this->renderStorefrontParameters = $parameters;
-
-        return new Response();
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    protected function trans(string $snippet, array $parameters = []): string
-    {
-        return $snippet;
-    }
-
-    protected function hook(Hook $hook): void
-    {
-        // nothing
-    }
-
-    protected function addFlash(string $type, mixed $message): void
-    {
-        $this->flash = $type . ' ' . $message;
-    }
+    use StorefrontControllerMockTrait;
 }

@@ -31,7 +31,7 @@ class SupportedFeaturesService
     ) {
         foreach ($entities as $entityName) {
             if (!\is_string($entityName)) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new \InvalidArgumentException(\sprintf(
                     'Supported entities should be collection of strings. %s given.',
                     \gettype($entityName)
                 ));
@@ -41,7 +41,7 @@ class SupportedFeaturesService
 
         foreach ($fileTypes as $fileType) {
             if (!\is_string($fileType)) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new \InvalidArgumentException(\sprintf(
                     'Supported file types should be collection of strings. %s given',
                     \gettype($fileType)
                 ));

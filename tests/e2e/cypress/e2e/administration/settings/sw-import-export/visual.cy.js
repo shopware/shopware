@@ -26,7 +26,7 @@ describe('Import/Export:  Visual tests', () => {
         page = null;
     });
 
-    it('@visual: check appearance of basic im/ex profile workflow', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of basic im/ex profile workflow', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST',
@@ -65,7 +65,7 @@ describe('Import/Export:  Visual tests', () => {
             {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of basic export workflow', { tags: ['pa-system-settings', 'quarantined', 'VUE3'] }, () => {
+    it('@visual: check appearance of basic export workflow', { tags: ['pa-services-settings', 'quarantined', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'POST',
@@ -143,7 +143,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.takeSnapshot('[Import export] reworked log info modal after export', '.sw-import-export-activity-log-info-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of basic import workflow', { tags: ['pa-system-settings', 'quarantined', 'VUE3_SKIP'] }, () => {
+    it('@visual: check appearance of basic import workflow', { tags: ['pa-services-settings', 'quarantined', 'VUE3_SKIP'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'POST',
@@ -228,7 +228,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.resetAdminChangesForScreenshot();
     });
 
-    it('should check appearance of import/export wizard', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('should check appearance of import/export wizard', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

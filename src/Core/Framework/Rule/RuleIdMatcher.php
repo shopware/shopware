@@ -30,13 +30,12 @@ class RuleIdMatcher
     }
 
     /**
-     * @phpstan-template T of Collection<covariant (IdAware&RuleIdAware)>
+     * @template T of Collection<covariant (IdAware&RuleIdAware)>
      *
-     * @phpstan-param T $options
-     *
+     * @param T $options
      * @param string[] $ruleIds
      *
-     * @phpstan-return T
+     * @return T
      */
     public function filterCollection(Collection $options, array $ruleIds): Collection
     {

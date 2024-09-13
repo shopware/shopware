@@ -12,7 +12,11 @@ const { Context, Utils } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'mediaService'],
+
+    emits: ['modal-close', 'media-modal-selection-change'],
 
     props: {
         initialFolderId: {
@@ -102,7 +106,7 @@ export default {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -273,6 +277,10 @@ export default {
             }
 
             return upload.id === this.selectedMediaItem.id;
+        },
+
+        onSearchTermChange(searchTerm) {
+            this.term = searchTerm;
         },
     },
 };

@@ -1,9 +1,8 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
-import swCmsElConfigProductListingConfigSortingGrid from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import Vue from 'vue';
-
-Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', swCmsElConfigProductListingConfigSortingGrid);
 
 const customFields = [
     {
@@ -38,7 +37,7 @@ const snippets = {
 };
 
 async function createWrapper(productSortings = [], defaultSorting = {}) {
-    return mount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
+    return mount(await wrapTestComponent('sw-cms-el-config-product-listing-config-sorting-grid', { sync: true }), {
         global: {
             provide: {
                 validationService: {},
@@ -65,7 +64,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                               <slot name="column-fields" v-bind="{ item: item }"></slot>
                               <slot name="column-priority" v-bind="{ item: item }">
                                   <div :class="'column-priority_' + item.id">
-                                      <sw-number-field v-model="item.priority" class="sw-grid-priority"></sw-number-field>
+                                      <sw-number-field v-model:value="item.priority" class="sw-grid-priority"></sw-number-field>
                                   </div>
                               </slot>
                           </template>
@@ -75,9 +74,10 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                 'sw-context-menu-item': {
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
+                'sw-pagination': true,
                 'sw-number-field': {
                     template: `
-                    <input type="number" :value="value" @input="$emit('input', Number($event.target.value))" />
+                    <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
                 `,
                     props: {
                         value: 0,
@@ -92,14 +92,14 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     return param;
                 },
             },
+            mixins: [
+                Shopware.Mixin.getByName('sw-inline-snippet'),
+            ],
         },
-        props: Vue.observable({
-            productSortings: productSortings,
-            defaultSorting: defaultSorting,
-        }),
-        mixins: [
-            Shopware.Mixin.getByName('sw-inline-snippet'),
-        ],
+        props: {
+            productSortings,
+            defaultSorting,
+        },
     });
 }
 

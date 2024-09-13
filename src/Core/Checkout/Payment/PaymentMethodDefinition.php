@@ -90,7 +90,6 @@ class PaymentMethodDefinition extends EntityDefinition
             // Reverse Associations, not available in store-api
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, 'id', false),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, 'payment_method_id', 'sales_channel_id'),
@@ -106,6 +105,7 @@ class PaymentMethodDefinition extends EntityDefinition
             $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()));
         } else {
             $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()));
+            $fields->add((new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', 'id'))->addFlags(new RestrictDelete()));
         }
 
         return $fields;

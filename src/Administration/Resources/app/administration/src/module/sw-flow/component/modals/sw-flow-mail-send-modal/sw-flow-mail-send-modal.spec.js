@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const recipientEmailInputClass = '.sw-flow-mail-send-modal__recipient-email #sw-field--item-email';
 const recipientNameInputClass = '.sw-flow-mail-send-modal__recipient-name #sw-field--item-name';
 
@@ -76,6 +80,7 @@ async function createWrapper(sequence = {}) {
                 `,
                 },
                 'sw-button': {
+                    emits: ['click'],
                     template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                 },
                 'sw-alert': true,
@@ -113,6 +118,7 @@ async function createWrapper(sequence = {}) {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
                 'sw-context-button': {
@@ -121,6 +127,15 @@ async function createWrapper(sequence = {}) {
                 'sw-loader': true,
                 'router-link': true,
                 'sw-flow-create-mail-template-modal': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-field-copyable': true,
             },
             provide: {
                 repositoryFactory: {
@@ -188,11 +203,6 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const recipientFieldsClasses = [
-            '.sw-flow-mail-send-modal__recipient-email',
-            '.sw-flow-mail-send-modal__recipient-name',
-        ];
-
         const btnEditInline = '.sw-data-grid__cell--actions .sw-data-grid__inline-edit-save';
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
@@ -205,10 +215,10 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const saveButton = wrapper.find(btnEditInline);
         await saveButton.trigger('click');
+        await flushPromises();
 
-        recipientFieldsClasses.forEach(elementClass => {
-            expect(wrapper.find(elementClass).classes()).toContain('has--error');
-        });
+        expect(wrapper.find('.sw-flow-mail-send-modal__recipient-email').classes()).toContain('has--error');
+        expect(wrapper.find('.sw-flow-mail-send-modal__recipient-name').classes()).toContain('has--error');
     });
 
     it('should show and remove email valid message on recipient email field', async () => {
@@ -347,7 +357,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(row1.find('.sw-data-grid__cell--email').text()).toContain('test@example.com');
         expect(row1.find('.sw-data-grid__cell--name').text()).toContain('John Doe');
 
-        await row1.find('.sw-flow-mail-send-modal__grid-action-delete').trigger('click');
+        await row1.find('.sw-flow-mail-send-modal__grid-action-delete')
+            .trigger('click');
         await flushPromises();
 
         recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');

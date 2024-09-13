@@ -32,7 +32,7 @@ final class CleanupVersionTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $time = new \DateTime();
-        $time->modify(sprintf('-%d day', $this->days));
+        $time->modify(\sprintf('-%d day', $this->days));
 
         do {
             $result = $this->connection->executeStatement(

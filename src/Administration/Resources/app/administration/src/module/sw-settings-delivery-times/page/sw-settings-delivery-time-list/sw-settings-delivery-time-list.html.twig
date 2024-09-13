@@ -54,7 +54,7 @@
             }"
             class="sw-settings-delivery-time-list__create"
             variant="primary"
-            :disabled="!acl.can('delivery_times.creator')"
+            :disabled="!acl.can('delivery_times.creator') || undefined"
             :router-link="{ name: 'sw.settings.delivery.time.create' }"
         >
             {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
@@ -90,7 +90,7 @@
                         :sort-by="sortBy"
                         :sort-direction="sortDirection"
                         :allow-column-edit="false"
-                        :show-selection="acl.can('delivery_times.deleter')"
+                        :show-selection="acl.can('delivery_times.deleter') || undefined"
                         :show-settings="false"
                         :is-loading="isLoading"
                         :full-page="false"

@@ -20,7 +20,7 @@ class AddressValidationError extends Error
         private readonly bool $isBillingAddress,
         private readonly ConstraintViolationList $violations
     ) {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'Please check your %s address for missing or invalid values.',
             $isBillingAddress ? 'billing' : 'shipping'
         );
@@ -35,7 +35,7 @@ class AddressValidationError extends Error
 
     public function getMessageKey(): string
     {
-        return sprintf('%s-%s', $this->isBillingAddress ? 'billing' : 'shipping', self::KEY);
+        return \sprintf('%s-%s', $this->isBillingAddress ? 'billing' : 'shipping', self::KEY);
     }
 
     public function getLevel(): int

@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
-import swFlowRuleModal from 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
-Shopware.Component.register('sw-flow-rule-modal', swFlowRuleModal);
+/**
+ * @package services-settings
+ */
 
 function createRuleMock(isNew) {
     return {
@@ -75,6 +76,16 @@ async function createWrapper() {
                 },
                 'sw-icon': true,
                 'sw-condition-tree': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
+                'sw-select-selection-list': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
+                'sw-select-base': true,
+                'sw-field-copyable': true,
+                'sw-contextual-field': true,
+                'sw-textarea-field-deprecated': true,
             },
         },
     });

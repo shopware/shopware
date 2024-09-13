@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -121,12 +121,16 @@ async function createWrapper(privileges = []) {
                 'sw-icon': true,
                 'sw-loader': true,
                 'sw-modal': true,
+                'sw-text-field': true,
+                'sw-number-field': true,
+                'sw-custom-field-detail': true,
+                'sw-select-field': true,
             },
         },
     });
 }
 
-describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail', () => {
+describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-custom-field-list', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();

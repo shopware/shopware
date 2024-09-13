@@ -21,6 +21,8 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                     'sw-media-url-form': true,
                     'sw-media-preview-v2': true,
                     'sw-context-menu-divider': true,
+                    'sw-button-group': true,
+                    'sw-media-modal-v2': true,
                 },
                 provide: {
                     repositoryFactory: {},
@@ -32,6 +34,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                         removeByTag: () => {},
                         removeListener: () => {},
                     },
+                    fileValidationService: {},
                 },
                 directives: {
                     droppable: true,

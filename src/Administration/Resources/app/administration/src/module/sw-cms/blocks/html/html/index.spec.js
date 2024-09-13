@@ -1,10 +1,13 @@
-import 'src/module/sw-cms/service/cms.service';
-import './index';
+/**
+ * @package buyers-experience
+ */
+import { runCmsBlockRegistryTest } from 'src/module/sw-cms/test-utils';
 
-describe('src/module/sw-cms/blocks/html/html/index.ts', () => {
-    it('should register components correctly', () => {
-        expect(Shopware.Component.getComponentRegistry().has('sw-cms-block-html')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-cms-preview-html')).toBe(true);
-        expect(Object.keys(Shopware.Service('cmsService').getCmsBlockRegistry())).toContain('html');
+describe('src/module/sw-cms/blocks/html/html', () => {
+    runCmsBlockRegistryTest({
+        import: 'src/module/sw-cms/blocks/html/html',
+        name: 'html',
+        component: 'sw-cms-block-html',
+        preview: 'sw-cms-preview-html',
     });
 });

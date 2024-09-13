@@ -88,6 +88,8 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-context-menu-item': true,
                 'sw-button': true,
+                'sw-pagination': true,
+                'sw-settings-tax-rule-modal': true,
             },
         },
     });

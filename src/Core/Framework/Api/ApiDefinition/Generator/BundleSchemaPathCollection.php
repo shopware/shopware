@@ -22,7 +22,7 @@ class BundleSchemaPathCollection
     }
 
     /**
-     * @phpstan-param Api $api
+     * @param Api $api
      *
      * @return string[]
      */

@@ -13,8 +13,15 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-advanced-selection-product', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
+    ],
+
+    emits: [
+        'selection-submit',
+        'modal-close',
     ],
 
     data() {

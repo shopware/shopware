@@ -38,6 +38,9 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal').should('be.visible');
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 input').check();
 
+        cy.get('.sw-order-customer-grid__sales-channel-selection-modal').should('be.visible');
+        cy.get('.sw-order-customer-grid__sales-channel-selection-modal .sw-button--primary').click();
+
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
@@ -287,6 +290,9 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal').should('be.visible');
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 input').check();
 
+        cy.get('.sw-order-customer-grid__sales-channel-selection-modal').should('be.visible');
+        cy.get('.sw-order-customer-grid__sales-channel-selection-modal .sw-button--primary').click();
+        
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');

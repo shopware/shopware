@@ -13,6 +13,12 @@
             <meta itemprop="name" content="{{ review.title }}">
         {% endblock %}
 
+        {% block component_review_item_meta_lang %}
+            {% if review.language %}
+                <meta itemprop="language" content="{{ review.language.translationCode.code }}">
+            {% endif %}
+        {% endblock %}
+
         {% block component_review_item_meta_author %}
             <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
                 <meta itemprop="name" content="{{ review.externalUser }}">
@@ -38,7 +44,7 @@
 
                 {% block component_review_item_title %}
                     <div class="col-md-auto product-detail-review-item-title">
-                        <p class="h5">
+                        <p class="h5"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
                             {{ review.title }}
                         </p>
                     </div>
@@ -62,7 +68,7 @@
         {% endblock %}
 
         {% block component_review_item_content %}
-            <p class="product-detail-review-item-content" itemprop="description">
+            <p class="product-detail-review-item-content" itemprop="description"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
                 {{ review.content }}
             </p>
         {% endblock %}

@@ -20,7 +20,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(SnippetFilterFactory::class)]
 class SnippetFilterFactoryTest extends TestCase
 {
@@ -42,7 +42,7 @@ class SnippetFilterFactoryTest extends TestCase
 
         if ($expectedResult === null) {
             $this->expectException(SnippetException::class);
-            $this->expectExceptionMessage(sprintf('The filter "%s" was not found in "Shopware\Core\System\Snippet\Filter\SnippetFilterFactory".', $filterName));
+            $this->expectExceptionMessage(\sprintf('The filter "%s" was not found in "Shopware\Core\System\Snippet\Filter\SnippetFilterFactory".', $filterName));
         }
 
         $result = $factory->getFilter($filterName);

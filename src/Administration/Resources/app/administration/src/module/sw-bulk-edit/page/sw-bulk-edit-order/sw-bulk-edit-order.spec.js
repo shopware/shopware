@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
@@ -8,9 +11,6 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-/**
- * @package system-settings
- */
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
     let routes;
@@ -93,6 +93,22 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-entity-tag-select': true,
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
+                    'sw-app-topbar-button': true,
+                    'sw-help-center-v2': true,
+                    'mt-button': true,
+                    'mt-checkbox': true,
+                    'sw-context-button': true,
+                    'sw-inheritance-switch': true,
+                    'mt-card': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-highlight-text': true,
+                    'mt-tabs': true,
+                    'mt-switch': true,
+                    'mt-text-field': true,
+                    'sw-field-copyable': true,
+                    'sw-media-collapse': true,
                 },
                 provide: {
                     validationService: {},
@@ -220,12 +236,15 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         routes = [
             {
                 name: 'sw.bulk.edit.order',
-                path: '/index/:excludeDelivery?',
+                path: '/index/:parentId?/:excludeDelivery?',
+                component: {
+                    template: '<div>sw-bulk-edit-order</div>',
+                },
             },
             {
                 name: 'sw.bulk.edit.order.save',
                 path: '',
-                component: await wrapTestComponent('sw-bulk-edit-save-modal'),
+                component: await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                 meta: { $module: {
                     title: 'sw-bulk-edit-order.general.mainMenuTitle',
                 } },
@@ -236,7 +255,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         name: 'sw.bulk.edit.order.save.confirm',
                         path: '/confirm',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
@@ -244,7 +263,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         name: 'sw.bulk.edit.order.save.process',
                         path: '/process',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process', { sync: true }),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
@@ -252,7 +271,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         name: 'sw.bulk.edit.order.save.success',
                         path: '/success',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
@@ -260,7 +279,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         name: 'sw.bulk.edit.order.save.error',
                         path: 'error',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
@@ -369,7 +388,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').setValue('checked');
+        await wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input')
+            .setValue('checked');
 
         await wrapper.vm.$nextTick();
 

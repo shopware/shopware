@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type ConfigArray array<string, array{source: string, value: string}>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class Config extends XmlElement
 {
     /**

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
+
 /**
- * @package core
  * Doctrine breaks all FK fields due namespacing. This reverts that feature
  */
 
@@ -198,8 +198,8 @@ abstract class AbstractAsset
      * very long names.
      *
      * @param array<string> $columnNames
-     * @param string   $prefix
-     * @param int      $maxSize
+     * @param string $prefix
+     * @param int $maxSize
      *
      * @return string
      */

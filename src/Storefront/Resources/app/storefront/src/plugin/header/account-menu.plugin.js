@@ -18,6 +18,8 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         /**
          * class is used to hide the dropdown on viewports where the offcanvas is used
+         *
+         * @deprecated tag:v6.7.0 - Hidden class will be removed because the dropdown does not open in the first place when _isInAllowedViewports() is true.
          */
         hiddenClass: 'd-none',
 
@@ -28,6 +30,9 @@ export default class OffCanvasAccountMenu extends Plugin {
     };
 
     init() {
+        this._dropdown = DomAccess.querySelector(this.el.parentNode, `.${this.options.dropdownMenuSelector}`);
+        this._dropdownWrapper = this.el.parentNode;
+
         this._registerEventListeners();
     }
 
@@ -38,6 +43,7 @@ export default class OffCanvasAccountMenu extends Plugin {
      */
     _registerEventListeners() {
         this.el.addEventListener('click', this._onClickAccountMenuTrigger.bind(this, this.el));
+        this._dropdownWrapper.addEventListener('show.bs.dropdown', this._onClickPreventDropdown.bind(this));
 
         document.addEventListener('Viewport/hasChanged', this._onViewportHasChanged.bind(this));
     }
@@ -45,15 +51,13 @@ export default class OffCanvasAccountMenu extends Plugin {
     /**
      * On clicking the trigger item the account menu OffCanvas shall open
      * and the dropdown content may be fetched and shown inside the OffCanvas.
-     * @param trigger
      * @private
      */
-    _onClickAccountMenuTrigger(trigger) {
-
+    _onClickAccountMenuTrigger() {
         // if the current viewport is not allowed return
-        if (this._isInAllowedViewports() === false) return;
-
-        this._dropdown = DomAccess.querySelector(trigger.parentNode, `.${this.options.dropdownMenuSelector}`);
+        if (this._isInAllowedViewports() === false) {
+            return;
+        }
 
         this._dropdown.classList.add(this.options.hiddenClass);
 
@@ -61,6 +65,18 @@ export default class OffCanvasAccountMenu extends Plugin {
         OffCanvas.setAdditionalClassName(this.options.additionalClass);
 
         this.$emitter.publish('onClickAccountMenuTrigger');
+    }
+
+    /**
+     * Prevent opening the Bootstrap dropdown in allowed viewports
+     *
+     * @param event
+     * @private
+     */
+    _onClickPreventDropdown(event) {
+        if (this._isInAllowedViewports() === true) {
+            event.preventDefault();
+        }
     }
 
     /**
@@ -78,10 +94,23 @@ export default class OffCanvasAccountMenu extends Plugin {
         }
 
         if (this._dropdown) {
-            if (this._isInAllowedViewports() === false) {
-                this._dropdown.classList.remove(this.options.hiddenClass);
-            } else {
+            const bsDropdownInstance = bootstrap.Dropdown.getInstance(this.el);
+
+            if (this._isInAllowedViewports() === true) {
+                /**
+                 * @deprecated tag:v6.7.0 - hiddenClass will be removed because the dropdown does not open when _isInAllowedViewports() is true.
+                 * This is now handled by _onClickPreventDropdown() method. Instead of hiding the opened dropdown again by adding a hidden class,
+                 * we prevent that the dropdown opens in the first place in allowed viewports. When a dropdown is already opened and the viewport changes
+                 * to the allowed viewports, the dropdown will be closed using Bootstraps API instead of adding a hidden class.
+                 */
                 this._dropdown.classList.add(this.options.hiddenClass);
+
+                if (bsDropdownInstance) {
+                    bsDropdownInstance.hide();
+                }
+            } else {
+                // @deprecated tag:v6.7.0 - Hidden class and else-case will be removed because the dropdown does not open when _isInAllowedViewports() is true.
+                this._dropdown.classList.remove(this.options.hiddenClass);
             }
         }
 

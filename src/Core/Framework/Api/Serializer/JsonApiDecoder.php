@@ -57,7 +57,7 @@ class JsonApiDecoder implements DecoderInterface
 
         if (!\array_key_exists($hash, $includes)) {
             throw new InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Resolving relationship "%s(%s)" failed due to non-existence.',
                     $resource['type'],
                     $resource['id']

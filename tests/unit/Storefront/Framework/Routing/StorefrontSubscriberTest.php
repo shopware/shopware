@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
-use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -38,9 +37,6 @@ class StorefrontSubscriberTest extends TestCase
             ],
             CustomerLogoutEvent::class => [
                 'updateSessionAfterLogout',
-            ],
-            BeforeSendResponseEvent::class => [
-                ['setCanonicalUrl'],
             ],
             StorefrontRenderEvent::class => [
                 ['addHreflang'],

@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils';
-import swUsageDataConsentBanner from 'src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner';
+
+/**
+ * @package data-services
+ */
 
 const usageDataService = {
     getConsent: () => jest.fn(),
@@ -19,6 +22,13 @@ async function createWrapper() {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-usage-data-consent-banner': await wrapTestComponent('sw-usage-data-consent-banner'),
+                'sw-extension-component-section': true,
+                'sw-icon': true,
+                'sw-internal-link': true,
+                'i18n-t': true,
+                'sw-help-text': true,
+                'sw-external-link': true,
+                'sw-button': true,
             },
         },
     });
@@ -26,10 +36,6 @@ async function createWrapper() {
 
 describe('src/module/sw-settings-usage-data/component/sw-settings-usage-data-general', () => {
     let wrapper;
-
-    beforeEach(async () => {
-        Shopware.State.registerModule('usageData', swUsageDataConsentBanner);
-    });
 
     it('should show the usage data consent banner', async () => {
         wrapper = await createWrapper();

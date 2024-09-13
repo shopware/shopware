@@ -7,6 +7,10 @@ async function createWrapper() {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-icon': true,
+                'sw-label': true,
+                'router-link': true,
+                'sw-loader': true,
             },
         },
     });

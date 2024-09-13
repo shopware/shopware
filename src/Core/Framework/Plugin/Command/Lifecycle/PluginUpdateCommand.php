@@ -39,18 +39,18 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         $updatedPluginCount = 0;
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
             ++$updatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));
+            $io->text(\sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));
         }
 
         if ($updatedPluginCount !== 0) {
-            $io->success(sprintf('Updated %d plugin(s).', $updatedPluginCount));
+            $io->success(\sprintf('Updated %d plugin(s).', $updatedPluginCount));
         }
 
         $this->handleClearCacheOption($input, $io, 'updating');

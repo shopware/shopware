@@ -153,10 +153,14 @@ export default class BaseSliderPlugin extends Plugin {
 
         const container = this.el.querySelector(this.options.containerSelector);
         const controlsContainer = this.el.querySelector(this.options.controlsSelector);
-        const onInit = () => {
+        const onInit = (sliderInfo) => {
             window.PluginManager.initializePlugins();
 
             this.$emitter.publish('initSlider');
+
+            if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+                this._initAccessibilityTweaks(sliderInfo, this.el);
+            }
         };
 
         if (container) {
@@ -174,6 +178,55 @@ export default class BaseSliderPlugin extends Plugin {
         }
 
         this.$emitter.publish('afterInitSlider');
+    }
+
+    /**
+     * Initializes some accessibility improvements for the tiny-slider package.
+     *
+     * @param {Object} sliderInfo
+     * @param {HTMLElement} wrapperEl
+     * @private
+     */
+    _initAccessibilityTweaks(sliderInfo, wrapperEl) {
+        const sliderItems = sliderInfo.slideItems;
+
+        if (sliderInfo.controlsContainer) {
+            // Remove controls div container from tab index for better accessibility.
+            sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
+        }
+
+        for (let index = 0; index < sliderItems.length; index++) {
+            const item = sliderItems.item(index);
+
+            if (item.classList.contains('tns-slide-cloned')) {
+                const selectableElements = item.querySelectorAll('a, button, img');
+
+                // Hide selectable elements within cloned elements from screen readers.
+                for (const selectableEl of selectableElements) {
+                    selectableEl.setAttribute('tabindex', '-1');
+                }
+
+            } else {
+                // Tracking the focus within slider elements to keep them in view.
+                item.addEventListener('focusin', () => {
+                    const currentSliderInfo = this._slider.getInfo();
+
+                    // Prevent native browser function to scroll items into view.
+                    if (wrapperEl) {
+                        wrapperEl.scrollLeft = 0;
+                    } else {
+                        this.el.scrollLeft = 0;
+                    }
+
+                    // Keep the element which has focus on first slide position.
+                    if (index !== currentSliderInfo.index) {
+                        const newSlide = index - currentSliderInfo.cloneCount;
+
+                        this._slider.goTo(newSlide);
+                    }
+                });
+            }
+        }
     }
 
     /**

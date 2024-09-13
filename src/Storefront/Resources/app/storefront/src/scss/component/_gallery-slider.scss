@@ -293,20 +293,20 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
 // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
 .ar-button {
-    position: absolute;
     bottom: 10px;
     right: 9px;
-    padding: 0px;
-    width: 32px;
     height: 32px;
     border: 2px solid $gray-300;
     border-radius: 5px;
-    text-align: center;
 
     .icon-augmented {
-        margin-top: 1px;
         height: 18px;
         width: 18px;
+        margin-right: 5px;
+
+        svg {
+            top: unset;
+        }
     }
 
     &:hover {

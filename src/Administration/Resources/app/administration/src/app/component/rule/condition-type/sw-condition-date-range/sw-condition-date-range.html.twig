@@ -8,7 +8,7 @@
         name="sw-field--useTime"
         size="medium"
         :options="selectValues"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :placeholder="$tc('global.sw-condition.condition.withTime')"
         show-clearable-button
     />
@@ -20,9 +20,10 @@
         v-model:value="fromDate"
         name="sw-field--fromDate"
         size="medium"
-        :date-type="isDateTime"
         required
-        :disabled="disabled"
+        :date-type="isDateTime"
+        :disabled="disabled || undefined"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 
@@ -32,9 +33,10 @@
         v-model:value="toDate"
         name="sw-field--toDate"
         size="medium"
-        :date-type="isDateTime"
         required
-        :disabled="disabled"
+        :date-type="isDateTime"
+        :disabled="disabled || undefined"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 </div>

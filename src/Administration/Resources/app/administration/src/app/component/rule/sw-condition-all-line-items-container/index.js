@@ -16,16 +16,18 @@ const { EntityCollection } = Shopware.Data;
 Component.register('sw-condition-all-line-items-container', {
     template,
 
-    emits: [
-        'create-before',
-        'create-after',
-    ],
+    compatConfig: Shopware.compatConfig,
 
     provide() {
         return {
             unwrapAllLineItemsCondition: this.unwrapCondition,
         };
     },
+
+    emits: [
+        'create-before',
+        'create-after',
+    ],
 
     mixins: [
         Mixin.getByName('ruleContainer'),

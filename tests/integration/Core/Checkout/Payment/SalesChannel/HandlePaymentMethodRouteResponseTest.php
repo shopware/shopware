@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -109,7 +109,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('redirectUrl', $response);
-        static::assertSame(AsyncTestPaymentHandler::REDIRECT_URL, $response['redirectUrl']);
+        static::assertSame(TestPaymentHandler::REDIRECT_URL, $response['redirectUrl']);
     }
 
     private function createTransaction(
@@ -187,7 +187,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     private function createPaymentMethod(
         Context $context,
-        string $handlerIdentifier = AsyncTestPaymentHandler::class
+        string $handlerIdentifier = TestPaymentHandler::class
     ): string {
         $id = Uuid::randomHex();
         $payment = [

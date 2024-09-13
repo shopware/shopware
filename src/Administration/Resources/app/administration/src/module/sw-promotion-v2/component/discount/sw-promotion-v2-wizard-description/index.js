@@ -7,4 +7,6 @@ import './sw-promotion-v2-wizard-description.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

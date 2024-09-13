@@ -1,17 +1,13 @@
-/*
+/**
  * @package inventory
  */
-
 import { mount } from '@vue/test-utils';
-import swProductDetailVariants from 'src/module/sw-product/view/sw-product-detail-variants';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-empty-state';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
-
-Shopware.Component.register('sw-product-detail-variants', swProductDetailVariants);
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {
@@ -79,6 +75,12 @@ async function createWrapper(privileges = []) {
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
                 'sw-tabs': true,
+                'sw-tabs-item': true,
+                'sw-product-modal-variant-generation': true,
+                'sw-product-modal-delivery': true,
+                'sw-product-add-properties-modal': true,
+                'sw-icon': true,
+                'sw-button-deprecated': true,
             },
         },
     });

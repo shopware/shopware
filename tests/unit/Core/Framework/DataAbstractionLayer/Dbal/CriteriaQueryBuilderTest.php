@@ -122,7 +122,7 @@ class CriteriaQueryBuilderTest extends TestCase
 
     private function returnMockDefinition(): EntityDefinition
     {
-        return new class() extends EntityDefinition {
+        return new class extends EntityDefinition {
             public function getEntityName(): string
             {
                 return 'order';

@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
+use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 
 /**
  * @internal

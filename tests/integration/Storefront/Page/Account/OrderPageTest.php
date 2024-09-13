@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
-use Shopware\Tests\Integration\Storefront\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

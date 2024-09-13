@@ -43,10 +43,10 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 

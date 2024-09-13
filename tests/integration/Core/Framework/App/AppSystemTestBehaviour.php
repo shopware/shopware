@@ -14,6 +14,9 @@ use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 trait AppSystemTestBehaviour
 {
     abstract protected static function getContainer(): ContainerInterface;

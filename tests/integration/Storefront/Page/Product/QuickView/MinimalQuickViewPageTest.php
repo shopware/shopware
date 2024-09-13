@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoadedEvent;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
-use Shopware\Tests\Integration\Storefront\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Shopware\Tests\Integration\Storefront\Page\StorefrontPageTestConstants;
 use Symfony\Component\HttpFoundation\Request;
 

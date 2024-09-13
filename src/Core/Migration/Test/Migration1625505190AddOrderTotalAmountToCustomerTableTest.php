@@ -17,7 +17,7 @@ use Shopware\Core\Migration\V6_4\Migration1625505190AddOrderTotalAmountToCustome
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
-use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
 
 /**
  * @internal

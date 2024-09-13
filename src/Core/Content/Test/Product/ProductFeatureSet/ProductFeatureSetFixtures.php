@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\System\EntityFixturesBase;
+use Shopware\Core\Test\Integration\Traits\EntityFixturesBase;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 trait ProductFeatureSetFixtures
 {
     use EntityFixturesBase;

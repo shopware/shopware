@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes;
+namespace Shopware\Core\Test\Stub\Doctrine;
 
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Page;
+namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -29,10 +29,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
+use Shopware\Tests\Integration\Storefront\Page\StorefrontPageTestConstants;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 trait StorefrontPageTestBehaviour
 {
     use TaxAddToSalesChannelTestBehaviour;

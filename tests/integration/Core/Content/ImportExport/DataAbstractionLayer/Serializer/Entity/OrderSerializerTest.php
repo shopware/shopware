@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
 
 /**
  * @internal

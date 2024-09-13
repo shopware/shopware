@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedEvent;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
-use Shopware\Tests\Integration\Storefront\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

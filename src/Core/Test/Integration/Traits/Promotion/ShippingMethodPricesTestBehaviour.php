@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits;
+namespace Shopware\Core\Test\Integration\Traits\Promotion;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -8,6 +8,9 @@ use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('checkout')]
 trait ShippingMethodPricesTestBehaviour
 {

@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**

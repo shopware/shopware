@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\System;
+namespace Shopware\Core\Test\Integration\Traits;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Before;
@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 trait EntityFixturesBase
 {
     /**

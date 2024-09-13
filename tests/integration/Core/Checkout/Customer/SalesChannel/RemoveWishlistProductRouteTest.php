@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**

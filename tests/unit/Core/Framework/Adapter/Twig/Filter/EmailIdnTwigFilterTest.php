@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Filter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Framework\Adapter\Twig\Filter\EmailIdnTwigFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Twig\Extension\EmailIdnTwigFilter;
 
 /**
  * @internal

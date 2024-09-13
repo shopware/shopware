@@ -47,10 +47,10 @@ class ElasticsearchAdminResetCommand extends Command
             return self::FAILURE;
         }
 
-        $answer = $io->ask('Are you sure you want to reset the Admin Elasticsearch indexing?', 'yes');
+        $confirm = $io->confirm('Are you sure you want to reset the Admin Elasticsearch indexing?');
 
-        if ($answer !== 'yes') {
-            $io->error('Canceled clearing indexing process');
+        if (!$confirm) {
+            $io->caution('Canceled clearing indexing process');
 
             return self::SUCCESS;
         }

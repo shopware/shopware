@@ -392,4 +392,74 @@ class FileSaverTest extends TestCase
 
         $this->fileSaver->renameMedia($mediaId, 'foobar', $context);
     }
+
+    public function testRenameMediaWithInvalidThumbnailAndRemoteThumbnailsEnable(): void
+    {
+        $locationBuilder = $this->createMock(SqlMediaLocationBuilder::class);
+        $mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
+        $fileSaver = new FileSaver(
+            $this->mediaRepository,
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(ThumbnailService::class),
+            $this->createMock(MetadataLoader::class),
+            $this->createMock(TypeDetector::class),
+            $this->messageBus,
+            $this->createMock(EventDispatcherInterface::class),
+            $locationBuilder,
+            $mediaPathStrategy,
+            ['png'],
+            ['png'],
+            true
+        );
+
+        $mediaId = Uuid::randomHex();
+        $thumbnailId = Uuid::randomHex();
+
+        $locationBuilder->method('media')->willReturn([
+            $mediaId => new MediaLocationStruct(
+                Uuid::randomHex(),
+                'png',
+                'foo',
+                new \DateTimeImmutable()
+            ),
+        ]);
+
+        $mediaPathStrategy->method('generate')->willReturn(
+            [
+                $mediaId => 'foo.png',
+            ],
+            [
+                $thumbnailId => null,
+            ]
+        );
+
+        $thumbnail = new MediaThumbnailEntity();
+        $thumbnail->setId($thumbnailId);
+
+        $thumbnails = new MediaThumbnailCollection();
+        $thumbnails->add($thumbnail);
+
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setMimeType('image/png');
+        $media->setFileName('foo');
+        $media->setFileExtension('png');
+        $media->setPrivate(false);
+        $media->setThumbnails($thumbnails);
+
+        $mediaCollection = new MediaCollection([$media]);
+        $this->mediaRepository->addSearch($mediaCollection, new MediaCollection());
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+
+        $fileSaver->renameMedia($mediaId, 'foobar', $context);
+
+        static::assertCount(1, $this->mediaRepository->updates);
+        $update = $this->mediaRepository->updates[0];
+
+        static::assertCount(1, $update);
+        static::assertEquals($mediaId, $update[0]['id']);
+        static::assertEquals('foobar', $update[0]['fileName']);
+    }
 }

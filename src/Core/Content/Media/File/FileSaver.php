@@ -135,8 +135,6 @@ class FileSaver
     {
         $path = $this->getNewMediaPath($media, $destination);
 
-        $thumbnails = $this->getNewThumbnailPaths($media, $destination);
-
         try {
             $renamedFiles = $this->renameFile(
                 $media->getPath(),
@@ -147,19 +145,6 @@ class FileSaver
             throw MediaException::couldNotRenameFile($media->getId(), (string) $media->getFileName());
         }
 
-        foreach ($media->getThumbnails() ?? [] as $thumbnail) {
-            try {
-                $thumbnailDestination = $thumbnails[$thumbnail->getUniqueIdentifier()];
-
-                if (!\is_string($thumbnailDestination)) {
-                    throw MediaException::couldNotRenameFile($media->getId(), (string) $media->getFileName());
-                }
-
-                $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $media, $thumbnailDestination)];
-            } catch (\Exception) {
-                $this->rollbackRenameAction($media, $renamedFiles);
-            }
-        }
         $event = new MediaPathChangedEvent($context);
 
         $event->media(
@@ -173,18 +158,36 @@ class FileSaver
             'path' => $path,
         ];
 
-        if (!empty($thumbnails)) {
-            foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
-                $event->thumbnail(
-                    mediaId: $media->getId(),
-                    thumbnailId: $thumbnailId,
-                    path: $thumbnailPath
-                );
+        if ($this->remoteThumbnailsEnable === false) {
+            $thumbnails = $this->getNewThumbnailPaths($media, $destination);
+
+            foreach ($media->getThumbnails() ?? [] as $thumbnail) {
+                try {
+                    $thumbnailDestination = $thumbnails[$thumbnail->getUniqueIdentifier()];
+
+                    if (!\is_string($thumbnailDestination)) {
+                        throw MediaException::couldNotRenameFile($media->getId(), (string) $media->getFileName());
+                    }
+
+                    $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $media, $thumbnailDestination)];
+                } catch (\Exception) {
+                    $this->rollbackRenameAction($media, $renamedFiles);
+                }
             }
 
-            $updateData['thumbnails'] = array_map(function ($id, $path) {
-                return ['id' => $id, 'path' => $path];
-            }, array_keys($thumbnails), $thumbnails);
+            if (!empty($thumbnails)) {
+                foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
+                    $event->thumbnail(
+                        mediaId: $media->getId(),
+                        thumbnailId: $thumbnailId,
+                        path: $thumbnailPath
+                    );
+                }
+
+                $updateData['thumbnails'] = array_map(function ($id, $path) {
+                    return ['id' => $id, 'path' => $path];
+                }, array_keys($thumbnails), $thumbnails);
+            }
         }
 
         try {

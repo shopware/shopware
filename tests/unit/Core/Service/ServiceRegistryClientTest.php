@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistryEntry;
@@ -15,10 +16,31 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 #[CoversClass(ServiceRegistryClient::class)]
 class ServiceRegistryClientTest extends TestCase
 {
-    public function testInvalidResponseBodyReturnsEmptyListOfServices(): void
+    public static function invalidResponseProvider(): \Generator
+    {
+        yield 'not-json' => [''];
+
+        yield 'not-correct-list' => [json_encode([1, 2, 3])];
+
+        yield 'not-correct-service-definition' => [json_encode([['not-valid' => 1]])];
+
+        yield 'missing-label' => [json_encode([['name' => 'SomeService']])];
+
+        yield 'missing-host' => [json_encode([['name' => 'SomeService', 'label' => 'SomeService']])];
+
+        yield 'missing-app-endpoint' => [json_encode([['name' => 'SomeService', 'label' => 'SomeService', 'host' => 'https://www.someservice.com']])];
+
+        yield '1-valid-1-invalid' => [json_encode([
+            ['name' => 'SomeService', 'label' => 'SomeService', 'host' => 'https://www.someservice.com', 'app-endpoint' => '/register'],
+            ['not-valid' => 1],
+        ])];
+    }
+
+    #[DataProvider('invalidResponseProvider')]
+    public function testInvalidResponseBodyReturnsEmptyListOfServices(string $response): void
     {
         $client = new MockHttpClient([
-            $response = new MockResponse(''),
+            $response = new MockResponse($response),
         ]);
 
         $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);

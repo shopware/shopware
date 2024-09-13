@@ -13,6 +13,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @internal
@@ -77,10 +79,13 @@ class ServiceClientTest extends TestCase
 
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
-        static::expectExceptionObject(ServiceException::requestFailed(400));
+        $response = static::createMock(ResponseInterface::class);
+        $response->expects(static::any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+
+        static::expectExceptionObject(ServiceException::requestFailed($response));
 
         $httpClient = new MockHttpClient([
-            new MockResponse('', ['http_code' => 400]),
+            $response,
         ]);
         $client = new ServiceClient(
             $httpClient,
@@ -244,7 +249,10 @@ class ServiceClientTest extends TestCase
 
     public function testDownloadAppZipForVersionThrowsExceptionWhenRequestFails(): void
     {
-        static::expectExceptionObject(ServiceException::requestFailed(400));
+        $response = static::createMock(ResponseInterface::class);
+        $response->expects(static::once())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+
+        static::expectExceptionObject(ServiceException::requestFailed($response));
 
         $httpClient = new MockHttpClient([
             new MockResponse('', ['http_code' => 400]),

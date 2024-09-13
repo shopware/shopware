@@ -47,6 +47,12 @@ class ServiceRegistryClient
                 return [];
             }
 
+            $content = $response->toArray();
+
+            if (!$this->validateResponse($content)) {
+                return [];
+            }
+
             return array_map(
                 static fn (array $service) => new ServiceRegistryEntry(
                     $service['name'],
@@ -60,5 +66,23 @@ class ServiceRegistryClient
         } catch (ExceptionInterface $e) {
             return [];
         }
+    }
+
+    /**
+     * @param array<mixed> $content
+     */
+    private function validateResponse(array $content): bool
+    {
+        foreach ($content as $service) {
+            if (!\is_array($service)) {
+                return false;
+            }
+
+            if (!isset($service['name']) || !isset($service['label']) || !isset($service['host']) || !isset($service['app-endpoint'])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

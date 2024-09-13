@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @internal
@@ -45,11 +46,27 @@ class ServiceExceptionTest extends TestCase
 
     public function testRequestFailed(): void
     {
-        $e = ServiceException::requestFailed(404);
+        $response = static::createMock(ResponseInterface::class);
+        $response->expects(static::once())->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
+
+        $e = ServiceException::requestFailed($response);
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertEquals(ServiceException::SERVICE_REQUEST_TRANSPORT_ERROR, $e->getErrorCode());
         static::assertEquals('Error performing request. Response code: 404', $e->getMessage());
+    }
+
+    public function testRequestFailedWithErrors(): void
+    {
+        $response = static::createMock(ResponseInterface::class);
+        $response->expects(static::once())->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
+        $response->expects(static::once())->method('toArray')->with(false)->willReturn(['errors' => ['Error 1', 'Error 2']]);
+
+        $e = ServiceException::requestFailed($response);
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertEquals(ServiceException::SERVICE_REQUEST_TRANSPORT_ERROR, $e->getErrorCode());
+        static::assertEquals('Error performing request. Response code: 404. Errors: ["Error 1","Error 2"]', $e->getMessage());
     }
 
     public function testRequestTransportError(): void

@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 #[Package('core')]
 class ServiceException extends HttpException
@@ -57,12 +59,25 @@ class ServiceException extends HttpException
         );
     }
 
-    public static function requestFailed(int $responseCode): self
+    public static function requestFailed(ResponseInterface $response): self
     {
+        try {
+            $data = $response->toArray(false);
+            $errors = $data['errors'] ?? [];
+        } catch (JsonException $e) {
+            $errors = [];
+        }
+
+        $message = 'Error performing request. Response code: ' . $response->getStatusCode();
+
+        if (!empty($errors)) {
+            $message .= '. Errors: ' . json_encode($errors, \JSON_THROW_ON_ERROR);
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_REQUEST_TRANSPORT_ERROR,
-            'Error performing request. Response code: ' . $responseCode,
+            $message,
             [],
         );
     }

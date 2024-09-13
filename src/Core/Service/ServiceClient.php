@@ -56,7 +56,7 @@ class ServiceClient
     {
         try {
             if ($response->getStatusCode() !== 200) {
-                throw ServiceException::requestFailed($response->getStatusCode());
+                throw ServiceException::requestFailed($response);
             }
         } catch (TransportExceptionInterface $exception) {
             throw ServiceException::requestTransportError($exception);

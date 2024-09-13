@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\MessageQueue\Stats;
 
 use Psr\Container\ContainerInterface;
+use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 class StatsService
 {
@@ -11,7 +13,31 @@ class StatsService
         private readonly ContainerInterface $transportLocator,
         private readonly array $transportNames,
         private readonly RedisCircularBuffer $circularBuffer,
+        private readonly MySQLStatsRepository $mySQLStatsRepository,
+        private readonly int $timeToStore = 5 * 60,
+        private readonly int $messageTypesLimit = 5,
     ) {}
+
+    public function getStats(): array
+    {
+        return $this->mySQLStatsRepository->getStats($this->getStatsCutOff(), $this->messageTypesLimit);
+
+        return [
+            'handledCount' => 5,
+            'handledSince' => (new \DateTime('now - 5minutes'))->format(\DateTime::ATOM),
+            'averageTimeInQueue' => 5,
+            'recentMessageTypes' => [
+                [
+                    'name' => 'Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductIndexingMessage',
+                    'count' => 5,
+                ],
+                [
+                    'name' => 'Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\CategoryIndexingMessage',
+                    'count' => 5,
+                ],
+            ],
+        ];
+    }
 
     public function getTransportsInfo(): array
     {
@@ -36,17 +62,32 @@ class StatsService
         return $transportsInfo;
     }
 
-    public function registerMessage(string $transportName, object $message): void
+    public function registerMessage(string $transportName, Envelope $envelope): void
     {
         if (!$this->transportIsSupported($transportName)) {
             return;
         }
 
-        $type = $message::class;
+        $sentAtStamp = $envelope->last(SentAtStamp::class);
+        if ($sentAtStamp === null) {
+            return;
+        }
+        $now = new \DateTimeImmutable();
+
+        $timeInQueue = $now->getTimestamp() - $sentAtStamp->getSentAt();
+        $messageFqcn = \get_class($envelope->getMessage());
+        $this->mySQLStatsRepository->insertMessageStats($transportName, $messageFqcn, $timeInQueue, $now);
+        $this->mySQLStatsRepository->deleteStatsOlderThan($this->getStatsCutOff());
+
         $this->circularBuffer->add($transportName, \json_encode([
             'timestamp' => time(),
-            'type' => $type,
+            'type' => $messageFqcn,
         ]));
+    }
+
+    private function getStatsCutOff(): \DateTimeInterface
+    {
+        return (new \DateTime('now - ' . $this->timeToStore . ' seconds'));
     }
 
     private function getLastMessagesTypes(string $transportName): array

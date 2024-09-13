@@ -71,12 +71,19 @@
             </argument>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
 
         <service id="Shopware\Core\Framework\MessageQueue\Stats\StatsService">
             <argument type="service" id="messenger.receiver_locator"/>
             <argument type="abstract"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\RedisCircularBuffer"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware">
+        </service>
     </services>
 </container>

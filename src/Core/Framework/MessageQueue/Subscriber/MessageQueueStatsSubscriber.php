@@ -48,7 +48,7 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
     public function onMessageHandled(WorkerMessageHandledEvent $event): void
     {
         $this->handle($event->getEnvelope(), false);
-        $this->statsService->registerMessage($event->getReceiverName(), $event->getEnvelope()->getMessage());
+        $this->statsService->registerMessage($event->getReceiverName(), $event->getEnvelope());
     }
 
     public function onMessageSent(SendMessageToTransportsEvent $event): void

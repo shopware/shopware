@@ -89,6 +89,8 @@
 
         <service id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder">
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">

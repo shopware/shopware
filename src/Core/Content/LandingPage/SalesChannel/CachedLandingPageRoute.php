@@ -46,7 +46,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     public static function buildName(string $id): string
     {
-        return LandingPageRoute::buildName($id);
+        return 'landing-page-route-' . $id;
     }
 
     public function getDecorated(): AbstractLandingPageRoute

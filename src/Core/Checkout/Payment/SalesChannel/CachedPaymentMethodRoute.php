@@ -82,7 +82,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
     public static function buildName(string $salesChannelId): string
     {
-        return PaymentMethodRoute::buildName($salesChannelId);
+        return 'payment-method-route-' . $salesChannelId;
     }
 
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string

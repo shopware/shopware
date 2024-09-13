@@ -47,7 +47,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
     public static function buildName(string $id): string
     {
-        return CategoryRoute::buildName($id);
+        return 'category-route-' . $id;
     }
 
     public function getDecorated(): AbstractCategoryRoute

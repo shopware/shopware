@@ -79,7 +79,7 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
 
     public static function buildName(string $parentId): string
     {
-        return ProductDetailRoute::buildName($parentId);
+        return 'product-detail-route-' . $parentId;
     }
 
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string

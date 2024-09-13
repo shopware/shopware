@@ -26,10 +26,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefin
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
-use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
@@ -195,14 +197,15 @@ class CacheInvalidationSubscriber
 
     public function invalidateProduct(InvalidateProductCache $event): void
     {
-        if (!Feature::isActive('cache_rework')) {
-            // without return, cache invalidation would triggered twice
-            return;
+        if (Feature::isActive('cache_rework')) {
+            $listing = array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));
+
+            $parents = array_map(ProductDetailRoute::buildName(...), $this->getParentIds($event->getIds()));
+        } else {
+            $listing = array_map(CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));
+
+            $parents = array_map(CachedProductDetailRoute::buildName(...), $this->getParentIds($event->getIds()));
         }
-
-        $listing = array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));
-
-        $parents = array_map(ProductDetailRoute::buildName(...), $this->getParentIds($event->getIds()));
 
         $streams = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $this->getStreamIds($event->getIds()));
 
@@ -239,7 +242,7 @@ class CacheInvalidationSubscriber
             Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
         );
         // invalidates the product listing route each time a category changed
-        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $event->getIds()));
+        $this->cacheInvalidator->invalidate(array_map(CachedProductListingRoute::buildName(...), $event->getIds()));
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
@@ -363,7 +366,7 @@ class CacheInvalidationSubscriber
 
         // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
-            array_map(ProductDetailRoute::buildName(...), [...$parentIds, ...$event->getIds()])
+            array_map(CachedProductDetailRoute::buildName(...), [...$parentIds, ...$event->getIds()])
         );
     }
 
@@ -388,9 +391,15 @@ class CacheInvalidationSubscriber
             $variantIds,
         );
 
-        $this->cacheInvalidator->invalidate(
-            array_map(ProductDetailRoute::buildName(...), $productIds)
-        );
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate(
+                array_map(ProductDetailRoute::buildName(...), $productIds)
+            );
+        } else {
+            $this->cacheInvalidator->invalidate(
+                array_map(CachedProductDetailRoute::buildName(...), $productIds)
+            );
+        }
     }
 
     /**
@@ -411,7 +420,7 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'categoryId');
 
-        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $ids));
+        $this->cacheInvalidator->invalidate(array_map(CachedProductListingRoute::buildName(...), $ids));
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
@@ -479,7 +488,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map(ProductListingRoute::buildName(...), $ids)
+            array_map(CachedProductListingRoute::buildName(...), $ids)
         );
     }
 
@@ -503,7 +512,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map(ProductReviewRoute::buildName(...), $event->getIds())
+            array_map(CachedProductReviewRoute::buildName(...), $event->getIds())
         );
     }
 
@@ -523,7 +532,7 @@ class CacheInvalidationSubscriber
         );
         // invalidates product listings which are based on the product category assignment
         $this->cacheInvalidator->invalidate(
-            array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()))
+            array_map(CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()))
         );
     }
 
@@ -603,7 +612,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map(ProductCrossSellingRoute::buildName(...), $ids)
+            array_map(CachedProductCrossSellingRoute::buildName(...), $ids)
         );
     }
 
@@ -622,8 +631,8 @@ class CacheInvalidationSubscriber
         $productIds = array_column($ids, 'productId');
 
         return array_merge(
-            array_map(ProductDetailRoute::buildName(...), array_unique($productIds)),
-            array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds))
+            array_map(CachedProductDetailRoute::buildName(...), array_unique($productIds)),
+            array_map(CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds))
         );
     }
 
@@ -688,8 +697,8 @@ class CacheInvalidationSubscriber
         );
 
         return [
-            ...array_map(ProductDetailRoute::buildName(...), array_filter($parentIds)),
-            ...array_map(ProductListingRoute::buildName(...), array_filter($categoryIds)),
+            ...array_map(CachedProductDetailRoute::buildName(...), array_filter($parentIds)),
+            ...array_map(CachedProductListingRoute::buildName(...), array_filter($categoryIds)),
         ];
     }
 

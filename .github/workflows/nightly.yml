@@ -1,0 +1,45 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 1 * * *' # every day at 01:00
+  workflow_dispatch:
+
+jobs:
+  redis:
+    name:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        redis:
+          - redis:alpine
+          - eqalpha/keydb:latest
+          - valkey/valkey:8.0
+    services:
+      redis:
+        image: ${{ matrix.redis }}
+        ports:
+          - "6379:6379"
+    env:
+      REDIS_URL: redis://localhost:6379
+      COMPOSER_ROOT_VERSION: 6.5.9999999.9999999-dev
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+      - name: Run PHPUnit
+        run: |
+          ./vendor/bin/phpunit --group=redis
+                
+  admin:
+    uses: ./.github/workflows/admin.yml
+  integration:
+    uses: ./.github/workflows/integration.yml
+  php:
+    uses: ./.github/workflows/php.yml
+  storefront:
+    uses: ./.github/workflows/storefront.yml

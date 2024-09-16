@@ -56,7 +56,7 @@
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
                                 {% for product in searchResult %}
-                                    <div class="cms-listing-col {{ listingColumns }}">
+                                    <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
                                             {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
                                                 'layout': boxLayout,

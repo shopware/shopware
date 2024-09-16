@@ -137,6 +137,6 @@ class ShopConfiguratorTest extends TestCase
             ->first();
 
         static::assertEquals('Euro', $oldDefault->getName());
-        static::assertEquals(1.1216169229561, $oldDefault->getFactor());
+        static::assertEquals(1.1216169229561337, $oldDefault->getFactor());
     }
 }

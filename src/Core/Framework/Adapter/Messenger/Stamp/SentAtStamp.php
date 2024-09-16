@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
 #[Package('core')]
-class SentAtStamp implements StampInterface
+readonly class SentAtStamp implements StampInterface
 {
     private int $sentAt;
 

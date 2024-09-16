@@ -14,7 +14,7 @@ jobs:
         uses: snok/container-retention-policy@v2
         with:
           image-names: ${{ github.event.repository.name }}/ci-e2e
-          skip-tags: latest, trunk, main, master, v*
+          skip-tags: latest, trunk, 6.5.x, v*
           cut-off: two days ago UTC
           keep-at-least: 1
           account-type: personal

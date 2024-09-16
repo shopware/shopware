@@ -160,7 +160,12 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this._saveFocusState(event.target);
-        this.sendAjaxFormSubmit();
+
+        const reCaptcha = this._form.querySelector('[data-google-re-captcha^="data-google-re-captcha-v"]');
+
+        if (!reCaptcha) {
+            this.sendAjaxFormSubmit();
+        }
     }
 
     sendAjaxFormSubmit() {

@@ -155,7 +155,11 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         this._createLoadingIndicators();
         this.$emitter.publish('beforeSubmit');
 
-        this.sendAjaxFormSubmit();
+        const reCaptcha = this._form.querySelector('[data-google-re-captcha^="data-google-re-captcha-v"]');
+
+        if (!reCaptcha) {
+            this.sendAjaxFormSubmit();
+        }
     }
 
     sendAjaxFormSubmit() {

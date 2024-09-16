@@ -316,7 +316,7 @@
                     "default": false
                 },
                 "stats": {
-                    "type": "object",
+                    "type": ["object", "null"],
                     "additionalProperties": false,
                     "properties": {
                         "enabled": {
@@ -324,15 +324,10 @@
                             "title": "Enable the messenger stats collection",
                             "default": false
                         },
-                        "messages_number": {
+                        "time_span": {
                             "type": "integer",
-                            "title": "The number of messages to store statistics for.",
-                            "default": 5
-                        },
-                        "redis_dsn": {
-                            "type": "string",
-                            "title": "The storage DSN for the messenger stats",
-                            "default": "redis://localhost"
+                            "title": "The time span in seconds for the messenger stats. Be aware that high values can slow down message processing",
+                            "default": 300
                         }
                     }
                 }

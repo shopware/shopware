@@ -924,8 +924,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('stats')
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
-                        ->integerNode('messages_number')->defaultValue(5)->end()
-                        ->scalarNode('redis_dsn')->end()
+                        ->integerNode('time_span')->defaultValue(300)->end()
                     ->end()
             ->end();
 

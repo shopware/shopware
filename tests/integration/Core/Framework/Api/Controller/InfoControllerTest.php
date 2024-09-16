@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -413,6 +414,7 @@ class InfoControllerTest extends TestCase
             ),
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
+            $this->createMock(StatsService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -484,6 +486,7 @@ class InfoControllerTest extends TestCase
             ),
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
+            $this->createMock(StatsService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
@@ -29,7 +30,10 @@ class MessageQueueStatsSubscriberTest extends TestCase
     {
         $this->gatewayRegistry = $this->createMock(IncrementGatewayRegistry::class);
         $this->incrementer = $this->createMock(AbstractIncrementer::class);
-        $this->subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry);
+        $this->subscriber = new MessageQueueStatsSubscriber(
+            $this->gatewayRegistry,
+            $this->createMock(StatsService::class),
+        );
     }
 
     public function testOnMessageFailed(): void

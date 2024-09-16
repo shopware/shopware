@@ -60,26 +60,13 @@
             <argument>%shopware.messenger.routing_overwrite%</argument>
         </service>
 
-
-        <service id="Shopware\Core\Framework\MessageQueue\Stats\RedisCircularBuffer">
-            <argument>%shopware.messenger.stats.messages_number%</argument>
-            <argument type="service">
-                <service class="Redis">
-                    <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
-                    <argument>%shopware.messenger.stats.redis_dsn%</argument>
-                </service>
-            </argument>
-        </service>
-
         <service id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.messenger.stats.time_span%</argument>
         </service>
 
 
         <service id="Shopware\Core\Framework\MessageQueue\Stats\StatsService">
-            <argument type="service" id="messenger.receiver_locator"/>
-            <argument type="abstract"/>
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\RedisCircularBuffer"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository"/>
         </service>
 

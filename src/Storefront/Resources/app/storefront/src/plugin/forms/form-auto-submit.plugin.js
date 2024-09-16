@@ -46,6 +46,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
     };
 
     init() {
+        this.formSubmittedByCaptcha = false;
+
         this._getForm();
 
         if (!this._form) {
@@ -165,7 +167,10 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this._saveFocusState(event.target);
-        this.sendAjaxFormSubmit();
+
+        if (!this.formSubmittedByCaptcha) {
+            this.sendAjaxFormSubmit();
+        }
     }
 
     sendAjaxFormSubmit() {

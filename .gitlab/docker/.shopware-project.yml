@@ -1,0 +1,7 @@
+deployment:
+  hooks:
+    post: |
+      echo "After deployment general"
+      ./bin/console system:generate-jwt-secret || true
+      chown www-data:www-data -R public config/jwt var/cache
+      bin/console cache:clear

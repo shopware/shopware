@@ -1,0 +1,98 @@
+
+x-env: &env
+    APP_ENV: prod
+    APP_DEBUG: 1
+    PROJECT_ROOT: /var/www/html
+    MYSQL_ROOT_PASSWORD: app
+    MYSQL_DATABASE: shopware
+    ADMINER_DEFAULT_SERVER: database
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    DATABASE_URL: mysql://root:app@database:3306/shopware
+    APP_SECRET: secret
+    APP_URL: http://localhost:8000
+    MAILER_DSN: smtp://mailpit:1025
+    MAILPIT_BASE_URL: http://localhost:8013
+    # TEST_WEB_INSTALLER: 1
+    # SHOPWARE_SKIP_WEBINSTALLER: 0
+    # SHOPWARE_DISABLE_UPDATE_CHECK: '0'
+    # SW_RECOVERY_NEXT_VERSION: 6.6.9999999.9999999
+    # SW_RECOVERY_NEXT_BRANCH: dev-trunk
+    # SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
+    INSTALL_LOCALE: en-US
+    INSTALL_CURRENCY: USD
+    PHP_OPCACHE_VALIDATE_TIMESTAMPS: 1
+    SW_RECOVERY_NEXT_VERSION: 6.5.9999999.9999999
+    SW_RECOVERY_NEXT_BRANCH: dev-trunk
+    SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
+
+x-service: &service
+    environment:
+        <<: *env
+    networks:
+        - local
+
+x-shopware: &shopware
+    environment:
+        <<: *env
+    networks:
+        - local
+    image: ghcr.io/shopware/shopware/ci-e2e:6.5.x
+    volumes:
+    - jwt:/var/www/html/config/jwt
+    - media:/var/www/html/public/media
+    - theme:/var/www/html/public/theme
+    - bundles:/var/www/html/public/bundles
+    - thumbnail:/var/www/html/public/thumbnail
+    - cache:/var/www/html/var/cache
+    - ./src/Storefront/Resources/views:/var/www/html/vendor/storefront/Resources/views
+
+services:
+    database:
+        <<: *service
+        image: mysql:8.0
+        entrypoint:
+            [
+                "sh",
+                "-c",
+                "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON"
+            ]
+        tmpfs:
+            - /var/lib/mysql:uid=999,gid=999
+
+    adminer:
+        <<: *service
+        image: adminer:latest
+        depends_on: [ database ]
+        ports:
+            - '8012:8080'
+
+    mailpit:
+        <<: *service
+        image: axllent/mailpit
+        ports:
+            - 8013:8025
+
+    init:
+        <<: *shopware
+        depends_on: [ database, mailpit ]
+        entrypoint: ['sh', '/init.sh']
+        user: root
+
+    shopware:
+        <<: *shopware
+        depends_on:
+            init:
+                condition: service_completed_successfully
+        ports:
+            - '8000:8000'
+
+volumes:
+  jwt:
+  media:
+  theme:
+  bundles:
+  thumbnail:
+  cache:
+
+networks:
+    local:

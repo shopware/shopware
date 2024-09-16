@@ -311,7 +311,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
+            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | grep v6.5. | head -n 1)"
         ],
         "build:js": [
             "@build:js:admin",

@@ -107,6 +107,7 @@ class UrlEncodingTwigFilterTest extends TestCase
         $media->setFileExtension('png');
         $media->setUploadedAt($uploadTime);
         $media->setFileName('(image with spaces and brackets)');
+        $media->setPath('(image with spaces and brackets).png');
 
         $urls = $urlGenerator->generate(['foo' => UrlParams::fromMedia($media)]);
 

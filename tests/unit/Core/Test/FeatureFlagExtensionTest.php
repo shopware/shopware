@@ -65,7 +65,7 @@ class FeatureFlagExtensionTest extends TestCase
 
     public function testIsDoesNotAffectNonPureUnitTests(): void
     {
-        $testMethod = '\Shopware\Tests\Integration\Core\BasicOrderProductTest::testBasicOrderFlow';
+        $testMethod = '\Shopware\Tests\Integration\Core\Checkout\BasicOrderProductTest::testBasicOrderFlow';
 
         $featureFlagConfig = Feature::getRegisteredFeatures();
         $server = $_SERVER;

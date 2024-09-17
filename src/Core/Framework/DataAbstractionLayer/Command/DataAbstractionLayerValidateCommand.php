@@ -27,7 +27,7 @@ class DataAbstractionLayerValidateCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
+    protected function configure()
     {
         $this->addOption('check-unregistered-tables', null, InputOption::VALUE_NONE | InputOption::VALUE_NEGATABLE, 'enables or disables the check for unregistered tables (enabled by default)');
     }

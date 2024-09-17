@@ -5,7 +5,7 @@
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -29,6 +29,7 @@ export default {
         return {
             crossSelling: null,
             isInherited: false,
+            showRestoreInheritanceModal: false,
         };
     },
 
@@ -60,6 +61,13 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        crossSellingRepository() {
+            return this.repositoryFactory.create(
+                this.product.crossSellings.entity,
+                this.product.crossSellings.source,
+            );
         },
     },
 
@@ -117,11 +125,7 @@ export default {
         },
 
         onAddCrossSelling() {
-            const crossSellingRepository = this.repositoryFactory.create(
-                this.product.crossSellings.entity,
-                this.product.crossSellings.source,
-            );
-            this.crossSelling = crossSellingRepository.create();
+            this.crossSelling = this.crossSellingRepository.create();
             this.crossSelling.productId = this.product.id;
             this.crossSelling.position = this.product.crossSellings.length + 1;
             this.crossSelling.type = 'productStream';
@@ -138,6 +142,28 @@ export default {
 
         removeInheritance() {
             this.isInherited = false;
+        },
+
+        onShowRestoreInheritanceModal() {
+            this.showRestoreInheritanceModal = true;
+        },
+
+        onCloseRestoreInheritanceModal() {
+            this.showRestoreInheritanceModal = false;
+        },
+
+        onConfirmRestoreInheritance() {
+            this.onCloseRestoreInheritanceModal();
+
+            this.$nextTick(() => {
+                this.product.crossSellings = new EntityCollection(
+                    this.crossSellingRepository.route,
+                    this.product.crossSellings.entity,
+                    Shopware.Context.api,
+                );
+
+                this.restoreInheritance();
+            });
         },
     },
 };

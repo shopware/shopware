@@ -13,6 +13,22 @@
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_restore_inheritance %}
+        <sw-button
+            class="sw-product-detail-cross-selling__restore-inheritance-btn"
+            :disabled="!acl.can('product.editor')"
+            @click="onShowRestoreInheritanceModal"
+        >
+            <sw-icon
+                key="inherit-icon"
+                name="regular-link-horizontal"
+                size="16px"
+            />
+            {{ $tc('sw-product.crossselling.buttonRestoreCrossSellingInheritance') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_items %}
         <ul class="sw-product-detail-cross-selling__cross-selling-list">
             <sw-product-cross-selling-form
@@ -170,6 +186,51 @@
         {% endblock %}
     </sw-card>
     {% endblock %}
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_detail_cross_selling_modal_restore_inheritance %}
+    <sw-modal
+        v-if="showRestoreInheritanceModal"
+        variant="small"
+        :title="$tc('sw-product.crossselling.restoreInheritanceConfirmTitle')"
+        class="sw-product-detail-cross-selling__restore-inheritance-modal"
+        @modal-close="onCloseRestoreInheritanceModal"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_modal_restore_inheritance_text %}
+        <p>
+            {{ $tc('sw-product.crossselling.restoreInheritanceConfirmText') }}
+        </p>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_modal_restore_inheritance_footer %}
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseRestoreInheritanceModal"
+            >
+                {{ $tc('sw-product.crossselling.restoreInheritanceButtonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_restore %}
+            <sw-button
+                class="sw-product-detail-cross-selling__restore-button"
+                size="small"
+                variant="danger"
+                @click="onConfirmRestoreInheritance"
+            >
+                {{ $tc('sw-product.crossselling.restoreInheritanceButtonRestore') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
     {% endblock %}
 </div>
 {% endblock %}

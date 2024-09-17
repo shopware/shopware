@@ -484,7 +484,12 @@
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
       "assignPlaceholder": "Durchsuche Produkte ...",
       "linkCrossSellingsOfParent": "Zeige die Cross Sellings des Hauptprodukts",
-      "inheritSwitchLabel": "Nutze die Cross Sellings des Hauptprodukts"
+      "inheritSwitchLabel": "Nutze die Cross Sellings des Hauptprodukts",
+      "buttonRestoreCrossSellingInheritance": "Vererbung wiederherstellen",
+      "restoreInheritanceConfirmTitle": "Cross Selling Vererbung wiederherstellen",
+      "restoreInheritanceConfirmText": "Möchtest Du die Cross-Selling-Vererbung wirklich wiederherstellen? Alle Cross-Selling-Konfigurationen dieser Variante werden dabei gelöscht.",
+      "restoreInheritanceButtonCancel": "Zurück",
+      "restoreInheritanceButtonRestore": "Vererbung wiederherstellen"
     },
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",

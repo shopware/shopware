@@ -1,6 +1,37 @@
 @import "~scss/variables";
 
 .sw-product-detail-cross-selling {
+    &__restore-inheritance-btn {
+        display: block;
+        margin: 0 auto 40px;
+        background-color: transparent;
+        border-color: $color-module-purple-900;
+        color: $color-module-purple-900;
+
+        .sw-icon {
+            color: $color-module-purple-900;
+        }
+
+        &:hover {
+            background-color: $color-module-purple-50;
+        }
+
+        &:active {
+            background-color: $color-module-purple-100;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background-color: transparent;
+            border-color: $color-module-purple-200;
+            color: $color-module-purple-200;
+
+            .sw-icon {
+                color: $color-module-purple-200;
+            }
+        }
+    }
+
     &__context-button {
         float: right;
         padding-bottom: 20px;

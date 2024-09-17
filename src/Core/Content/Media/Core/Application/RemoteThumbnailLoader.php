@@ -87,8 +87,8 @@ class RemoteThumbnailLoader implements ResetInterface
                 $thumbnail = new MediaThumbnailEntity();
                 $thumbnail->assign([
                     'id' => Uuid::randomHex(),
-                    'width' => $size['width'],
-                    'height' => $size['height'],
+                    'width' => (int) $size['width'],
+                    'height' => (int) $size['height'],
                     'url' => $url,
                 ]);
 

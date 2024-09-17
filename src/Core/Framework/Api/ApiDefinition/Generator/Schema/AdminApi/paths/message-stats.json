@@ -1,0 +1,57 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Message Queue statistics",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/message-stats.json": {
+            "get": {
+                "summary": "Get statistics for recently processed messages",
+                "operationId": "getMessageStats",
+                "responses": {
+                    "200": {
+                        "description": "Statistics received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalMessagesProcessed": {
+                                            "type": "integer"
+                                        },
+                                        "processedSince": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "averageTimeInQueue": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "messageTypeStats": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "count": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No stats found (disabled in configuration or empty so far)"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -24,7 +24,7 @@ class Migration1726135997CreateMessengerStatsTable extends MigrationStep
                 `id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
                 `message_type` VARCHAR(255) NOT NULL,
                 `time_in_queue` INT NOT NULL,
-                `created_at` DATETIME(3) NOT NULL,
+                `created_at` DATETIME NOT NULL,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');

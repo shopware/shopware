@@ -4,16 +4,10 @@ namespace Shopware\Core\Framework\MessageQueue\Stats;
 
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStats;
 use Symfony\Component\Messenger\Envelope;
 
 /**
- * @phpstan-type StatsData array{
- *     handledCount: int,
- *     handledSince: string,
- *     averageTimeInQueue: float,
- *     recentMessageTypes: array<array{name: string, count: int}>
- * }
- *
  * @internal
  */
 #[Package('core')]
@@ -24,10 +18,7 @@ class StatsService
     ) {
     }
 
-    /**
-     * @return ?StatsData
-     */
-    public function getStats(): ?array
+    public function getStats(): MessageStats
     {
         return $this->mySQLStatsRepository->getStats();
     }
@@ -38,7 +29,8 @@ class StatsService
         if ($sentAtStamp === null) {
             return;
         }
-        $now = new \DateTimeImmutable();
+        $now = \DateTimeImmutable::createFromFormat('U', (string) time());
+        \assert($now instanceof \DateTimeImmutable);
 
         $timeInQueue = $now->getTimestamp() - $sentAtStamp->getSentAt();
         $messageFqcn = \get_class($envelope->getMessage());

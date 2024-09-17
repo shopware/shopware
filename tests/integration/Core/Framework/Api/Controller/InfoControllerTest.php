@@ -15,6 +15,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
@@ -43,6 +44,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
@@ -671,6 +673,34 @@ class InfoControllerTest extends TestCase
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
+    }
+
+    public function testFetchMessageStats(): void
+    {
+        $statsService = $this->getContainer()->get(StatsService::class);
+        $statsService->registerMessage(new Envelope(new \stdClass(), [new SentAtStamp(time() - 2)]));
+        $statsService->registerMessage(new Envelope(new \stdClass(), [new SentAtStamp(time() - 1)]));
+
+        $client = $this->getBrowser();
+        $client->request('GET', '/api/_info/message-stats.json');
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        static::assertJson($content);
+        $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('totalMessagesProcessed', $stats);
+        static::assertGreaterThanOrEqual(2, $stats['totalMessagesProcessed']);
+        static::assertArrayHasKey('processedSince', $stats);
+        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['processedSince']));
+        static::assertArrayHasKey('averageTimeInQueue', $stats);
+        static::assertIsFloat($stats['averageTimeInQueue']);
+        static::assertArrayHasKey('messageTypeStats', $stats);
+        static::assertIsArray($stats['messageTypeStats']);
+        static::assertArrayHasKey('type', $stats['messageTypeStats'][0]);
+        static::assertArrayHasKey('count', $stats['messageTypeStats'][0]);
     }
 
     private function createApp(string $appId, string $aclRoleId): void

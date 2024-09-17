@@ -108,9 +108,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/message-stats.json', name: 'api.info.queue2', methods: ['GET'])]
     public function messageStats(): JsonResponse
     {
-        return new JsonResponse([
-            'stats' => $this->messageStatsService->getStats(),
-        ]);
+        return new JsonResponse($this->messageStatsService->getStats());
     }
 
     #[Route(

@@ -14,6 +14,7 @@ class MessageQueueException extends HttpException
     public const WORKER_IS_LOCKED = 'FRAMEWORK__WORKER_IS_LOCKED';
     public const CANNOT_FIND_SCHEDULED_TASK = 'FRAMEWORK__CANNOT_FIND_SCHEDULED_TASK';
     public const QUEUE_MESSAGE_SIZE_EXCEEDS = 'FRAMEWORK__QUEUE_MESSAGE_SIZE_EXCEEDS';
+    public const QUEUE_STATS_NOT_FOUND = 'FRAMEWORK__QUEUE_STATS_NOT_FOUND';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -66,6 +67,15 @@ class MessageQueueException extends HttpException
                 'message' => $messageName,
                 'size' => $size,
             ]
+        );
+    }
+
+    public static function queueMessageStatsNotFound(): self
+    {
+        return new self(
+            Response::HTTP_NO_CONTENT,
+            self::QUEUE_STATS_NOT_FOUND,
+            'No stats available.',
         );
     }
 }

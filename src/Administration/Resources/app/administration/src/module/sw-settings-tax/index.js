@@ -40,7 +40,7 @@ Shopware.Component.register(
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-tax', {
@@ -103,7 +103,14 @@ Module.register('sw-settings-tax', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'localization';
+        },
         to: 'sw.settings.tax.index',
         icon: 'regular-chart-pie',
         privilege: 'tax.viewer',

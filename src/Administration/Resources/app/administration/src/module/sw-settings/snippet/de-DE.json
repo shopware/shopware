@@ -7,6 +7,12 @@
       "title": "Einstellungen",
       "tabShop": "Shop",
       "tabSystem": "System",
+      "tabGeneral": "Allgemein",
+      "tabLocalization": "Regional",
+      "tabCustomer": "Kunde",
+      "tabCommerce": "Handel",
+      "tabContent": "Inhalte",
+      "tabAutomation": "Automatisierung",
       "tabPlugins": "Erweiterungen"
     },
     "system-config": {

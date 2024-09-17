@@ -29,7 +29,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('check-unregistered-tables',null,InputOption::VALUE_NONE|InputOption::VALUE_NEGATABLE,'enables or disables the check for unregistered tables (enabled by default)');
+        $this->addOption('check-unregistered-tables', null, InputOption::VALUE_NONE | InputOption::VALUE_NEGATABLE, 'enables or disables the check for unregistered tables (enabled by default)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

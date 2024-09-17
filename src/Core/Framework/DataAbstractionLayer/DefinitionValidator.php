@@ -148,6 +148,7 @@ class DefinitionValidator
         'document_type',
         'app_payment_method',
     ];
+
     private bool $checkNotRegisteredTables = true;
 
     /**
@@ -166,7 +167,6 @@ class DefinitionValidator
     public function validate(): array
     {
         $violations = [];
-
 
         $definitionValidatorFilterEvent = new DefinitionValidatorFilterEvent($this->registry->getDefinitions());
 
@@ -229,7 +229,7 @@ class DefinitionValidator
         }
 
         $tableSchemas = $this->connection->createSchemaManager()->listTables();
-        if($this->checkNotRegisteredTables) {
+        if ($this->checkNotRegisteredTables) {
             $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
         }
 
@@ -1202,12 +1202,10 @@ class DefinitionValidator
         if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
             return false;
         }
+
         return true;
     }
 
-    /**
-     * @param bool $checkNotRegisteredTables
-     */
     public function setCheckNotRegisteredTables(bool $checkNotRegisteredTables): void
     {
         $this->checkNotRegisteredTables = $checkNotRegisteredTables;

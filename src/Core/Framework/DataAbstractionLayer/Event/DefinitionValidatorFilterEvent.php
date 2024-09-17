@@ -13,8 +13,7 @@ class DefinitionValidatorFilterEvent
      */
     public function __construct(
         private array $entityDefinitions,
-    )
-    {
+    ) {
     }
 
     public function filterDefinitions(callable $filter): void
@@ -29,5 +28,4 @@ class DefinitionValidatorFilterEvent
     {
         return $this->entityDefinitions;
     }
-
 }

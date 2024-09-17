@@ -20,11 +20,18 @@ export default class CountryStateSelectPlugin extends Plugin {
         zipcodeRequired: 'zipcode-required',
         zipcodeLabel: '#zipcodeLabel',
         scopeElementSelector: null,
+        prefix: null,
     };
 
     init() {
         this.initClient();
         this.initSelects();
+
+        this._getFormFieldToggleInstance();
+
+        if (this._formFieldToggleInstance) {
+            this._formFieldToggleInstance.$emitter.subscribe('onChange', this._onFormFieldToggleChange.bind(this));
+        }
     }
 
     initClient() {
@@ -104,6 +111,10 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     _updateRequiredVatId(vatIdFieldInput, vatIdRequired) {
+        if (this._differentShippingCheckbox && this.options.prefix === 'billingAddress') {
+            return;
+        }
+
         const label = vatIdFieldInput.parentNode.querySelector('label');
 
         if (vatIdRequired) {
@@ -136,6 +147,33 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
 
         input.removeAttribute('required');
+    }
+
+    _getFormFieldToggleInstance() {
+        const toggleField = DomAccess.querySelector(document, '[data-form-field-toggle-target=".js-form-field-toggle-shipping-address"]', false);
+        if (!toggleField) {
+            return;
+        }
+
+        this._formFieldToggleInstance = window.PluginManager.getPluginInstanceFromElement(toggleField, 'FormFieldToggle');
+    }
+    _onFormFieldToggleChange(event) {
+        this._differentShippingCheckbox = event.target.checked;
+
+        const scopeElementSelector = this._differentShippingCheckbox ? '.register-shipping' : '.register-billing';
+        const scopeElement = DomAccess.querySelector(document, scopeElementSelector);
+
+        const countrySelect = DomAccess.querySelector(scopeElement, this.options.countrySelectSelector);
+        const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
+
+        const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
+        const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
+
+        if (!vatIdInput) {
+            return;
+        }
+
+        this._updateRequiredVatId(vatIdInput, vatIdRequired);
     }
 }
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\DefinitionValidatorFilterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
@@ -146,13 +148,15 @@ class DefinitionValidator
         'document_type',
         'app_payment_method',
     ];
+    private bool $checkNotRegisteredTables = true;
 
     /**
      * @internal
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -163,15 +167,17 @@ class DefinitionValidator
     {
         $violations = [];
 
-        foreach ($this->registry->getDefinitions() as $definition) {
+
+        $definitionValidatorFilterEvent = new DefinitionValidatorFilterEvent($this->registry->getDefinitions());
+
+        // filter out definitions that should not be validated
+        $definitionValidatorFilterEvent->filterDefinitions($this->definitionRequiresValidation(...));
+
+        // dispatches an avent for filtering Plugins to be able to filter definitions
+        $this->eventDispatcher->dispatch($definitionValidatorFilterEvent);
+
+        foreach ($definitionValidatorFilterEvent->getEntityDefinitions() as $definition) {
             $definitionClass = $definition->getClass();
-            // ignore definitions from a test namespace
-            if (preg_match('/.*\\\\Test|s\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
-                continue;
-            }
-            if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
-                continue;
-            }
 
             $violations[$definitionClass] = [];
 
@@ -223,7 +229,9 @@ class DefinitionValidator
         }
 
         $tableSchemas = $this->connection->createSchemaManager()->listTables();
-        $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
+        if($this->checkNotRegisteredTables) {
+            $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
+        }
 
         return array_filter($violations);
     }
@@ -1181,5 +1189,27 @@ class DefinitionValidator
                 $parentDefinition->getEntityName(),
             )],
         ];
+    }
+
+    private function definitionRequiresValidation(EntityDefinition $definition): bool
+    {
+        $definitionClass = $definition->getClass();
+        // ignore definitions from a test namespace
+        if (preg_match('/.*\\\\Test|s\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
+            return false;
+        }
+
+        if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param bool $checkNotRegisteredTables
+     */
+    public function setCheckNotRegisteredTables(bool $checkNotRegisteredTables): void
+    {
+        $this->checkNotRegisteredTables = $checkNotRegisteredTables;
     }
 }

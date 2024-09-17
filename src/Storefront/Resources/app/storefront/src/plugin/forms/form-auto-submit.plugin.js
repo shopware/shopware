@@ -46,6 +46,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
     };
 
     init() {
+        this.formSubmittedByCaptcha = false;
+
         this._getForm();
 
         if (!this._form) {
@@ -161,9 +163,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
         this._saveFocusState(event.target);
 
-        const reCaptcha = this._form.querySelector('[data-google-re-captcha^="data-google-re-captcha-v"]');
-
-        if (!reCaptcha) {
+        if (!this.formSubmittedByCaptcha) {
             this.sendAjaxFormSubmit();
         }
     }

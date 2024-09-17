@@ -6,13 +6,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -29,16 +32,52 @@ class LineItemGoodsTotalRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
 
-    public function testMatchWithWrongScopeShouldReturnFalse(): void
+    public function testMatchWithLineItemScopeAndLineItemIsNotGood(): void
     {
-        $lineItemGoodsTotalRule = new LineItemGoodsTotalRule();
+        $rule = new LineItemGoodsTotalRule(Rule::OPERATOR_EQ, 1);
 
-        $scope = new LineItemScope(
-            new LineItem('foo', 'foo'),
+        $lineItem = $this->createLineItem()->setGood(false);
+
+        $match = $rule->match(new LineItemScope(
+            $lineItem,
             $this->createMock(SalesChannelContext::class)
-        );
+        ));
 
-        static::assertFalse($lineItemGoodsTotalRule->match($scope));
+        static::assertFalse($match);
+    }
+
+    public function testMatchWithLineItemScopeWithNotMatchFilter(): void
+    {
+        $rule = new LineItemGoodsTotalRule(Rule::OPERATOR_EQ, 6);
+        $rule->addRule(new FalseRule());
+
+        $lineItem = $this->createLineItemWithGoodsCount();
+        $lineItem->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 6));
+
+        $match = $rule->match(new LineItemScope(
+            $lineItem,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertFalse($match);
+    }
+
+    /**
+     * @dataProvider matchWithoutFilterTestDataProvider
+     */
+    public function testMatchWithLineItemScopeWithoutFilter(string $operator, int $count, bool $expected): void
+    {
+        $rule = new LineItemGoodsTotalRule($operator, $count);
+
+        $lineItem = $this->createLineItemWithGoodsCount();
+        $lineItem->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 6));
+
+        $match = $rule->match(new LineItemScope(
+            $lineItem,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
     }
 
     /**
@@ -164,5 +203,10 @@ class LineItemGoodsTotalRuleTest extends TestCase
         static::assertInstanceOf(Choice::class, $operatorResult);
 
         static::assertSame($expected->choices, $operatorResult->choices);
+    }
+
+    private function createLineItemWithGoodsCount(): LineItem
+    {
+        return $this->createLineItem()->setGood(true);
     }
 }

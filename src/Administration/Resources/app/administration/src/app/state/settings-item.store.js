@@ -9,15 +9,25 @@ export default {
     namespaced: true,
     state: {
         settingsGroups: {
-            shop: [],
+            general: [],
+            customer: [],
+            automation: [],
+            localization: [],
+            content: [],
+            commerce: [],
             system: [],
             plugins: [],
+            shop: [],
         },
     },
 
     mutations: {
         addItem(state, settingsItem) {
-            const group = settingsItem.group;
+            let group = settingsItem.group;
+
+            if (typeof group === 'function') {
+                group = group();
+            }
 
             if (!hasOwnProperty(state.settingsGroups, group)) {
                 state.settingsGroups[group] = [];

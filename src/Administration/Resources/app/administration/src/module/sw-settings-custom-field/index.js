@@ -3,7 +3,7 @@
  */
 import './acl';
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.extend(
@@ -100,7 +100,14 @@ Module.register('sw-settings-custom-field', {
     },
 
     settingsItem: {
-        group: 'system',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'system';
+            }
+
+            return 'content';
+        },
         to: 'sw.settings.custom.field.index',
         icon: 'regular-bars-square',
         privilege: 'custom_field.viewer',

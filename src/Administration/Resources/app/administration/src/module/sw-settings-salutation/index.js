@@ -8,7 +8,7 @@ Shopware.Component.register('sw-settings-salutation-list', () => import('./page/
 Shopware.Component.register('sw-settings-salutation-detail', () => import('./page/sw-settings-salutation-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-salutation', {
@@ -58,7 +58,14 @@ Module.register('sw-settings-salutation', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'customer';
+        },
         to: 'sw.settings.salutation.index',
         icon: 'regular-comments',
         privilege: 'salutation.viewer',

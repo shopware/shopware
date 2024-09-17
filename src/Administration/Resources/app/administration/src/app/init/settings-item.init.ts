@@ -1,17 +1,30 @@
+const { Feature } = Shopware;
+
 /**
  * @private
  * @package admin
  */
 export default function initializeSettingItems(): void {
     Shopware.ExtensionAPI.handle('settingsItemAdd', async (settingsItemConfig, additionalInformation) => {
-        const allowedTabs = [
+        let allowedTabs = [
             'shop',
+            'general',
+            'localization',
+            'customer',
+            'commerce',
+            'content',
+            'automation',
             'system',
             'plugins',
         ];
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
-            ext.baseUrl.startsWith(additionalInformation._event_.origin),
-        );
+
+        // @deprecated tag:v6.7.0 - Remove condition and make allowedTabs constant
+        if (!Feature.isActive('v6.7.0.0')) {
+            allowedTabs = ['shop', 'system', 'plugins'];
+        }
+
+        const extension = Object.values(Shopware.State.get('extensions'))
+            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
 
         if (!extension) {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);

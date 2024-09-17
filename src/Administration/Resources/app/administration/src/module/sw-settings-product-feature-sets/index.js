@@ -23,7 +23,7 @@ Shopware.Component.register(
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-product-feature-sets', {
@@ -73,7 +73,14 @@ Module.register('sw-settings-product-feature-sets', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: function () {
+            // @deprecated tag:v6.7.0 - Remove condition and function callback
+            if (!Feature.isActive('v6.7.0.0')) {
+                return 'shop';
+            }
+
+            return 'commerce';
+        },
         to: 'sw.settings.product.feature.sets.index',
         icon: 'regular-check-square',
         privilege: 'product_feature_sets.viewer',

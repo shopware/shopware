@@ -1,22 +1,83 @@
 @import "~scss/variables";
 
 .sw-settings-index {
+    /** @deprecated tag:v6.7.0 - Whole block can be removed when sw-settings__tabs will be removed */
     .sw-settings__tabs {
         display: grid;
         grid-template-columns: minmax(126px, 1fr) minmax(0, $content-width) 1fr;
+
+        .sw-settings__content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-gap: 30px 10px;
+        }
+
+        .sw-tabs__content {
+            top: 100px;
+        }
+
+        .sw-settings__content-header {
+            margin-bottom: 64px;
+        }
     }
 
-    .sw-settings__content-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        grid-gap: 30px 10px;
-    }
+    .sw-settings__card--hero {
+        container-type: inline-size;
+        color: var(--color-text-primary-default, #2d2e32);
+        background: transparent;
+        border: none;
 
-    .sw-tabs__content {
-        top: 100px;
-    }
+        h1,
+        h2 {
+            color: var(--color-text-primary-default, #2d2e32);
+            font-weight: 700;
+        }
 
-    .sw-settings__content-header {
-        margin-bottom: 64px;
+        h2 {
+            line-height: 145%;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            line-height: 140%;
+            font-size: 24px;
+        }
+
+        .sw-settings__content-header {
+            text-align: left;
+            margin-bottom: 48px;
+        }
+
+        .sw-settings__content-grid {
+            columns: 3;
+            text-align: left;
+            column-gap: 64px;
+            max-width: 960px;
+
+            @container (max-width: 940px) {
+                columns: 2;
+            }
+
+            @container (max-width: 500px) {
+                columns: 1;
+            }
+        }
+
+        .sw-settings__content-group {
+            break-inside: avoid;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            &:not(:first-child) {
+                margin-top: 48px;
+
+                @container (max-width: 500px) {
+                    margin-top: 32px;
+                }
+            }
+        }
     }
 }

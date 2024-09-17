@@ -242,6 +242,7 @@
 .line-item-img-container {
     text-align: center;
     width: 70px;
+    margin-bottom: $spacer-sm;
 }
 
 .line-item-img-link {
@@ -328,10 +329,6 @@
 
 .line-item-quantity {
     margin-bottom: $spacer-sm;
-}
-
-.line-item-details {
-    padding-top: 8px;
 }
 
 .line-item-details-characteristics {
@@ -620,13 +617,6 @@ a.line-item-label {
     }
 }
 
-.line-item-quantity-label,
-.line-item-unit-price-label,
-.line-item-total-price-label,
-.line-item-tax-price-label {
-    color: $gray-800;
-}
-
 .line-item-total-price-value {
     text-align: right;
 }
@@ -683,7 +673,7 @@ a.line-item-label {
 
 @include media-breakpoint-up(md) {
     .line-item-details-container {
-        padding-left: $spacer;
+        padding-left: $spacer-xs;
     }
 }
 

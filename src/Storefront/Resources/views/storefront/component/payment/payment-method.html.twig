@@ -37,6 +37,7 @@
                             {% block component_payment_method_description %}
                                 <div class="payment-method-description">
                                     {% set paymentName = payment.translated.name %}
+
                                     {% block component_payment_method_name %}
                                         <strong>{{ paymentName }}</strong>
                                     {% endblock %}

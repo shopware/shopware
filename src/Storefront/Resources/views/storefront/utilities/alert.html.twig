@@ -94,15 +94,15 @@ To display a dismissible button set the value of "dismissible" to true.
                     {{ sw_icon_cache_disable() }}
                 {% endif %}
                 {% if type == 'danger' %}
-                    {% sw_icon 'blocked' %}
+                    {% sw_icon 'blocked' style { ariaHidden: true } %}
                 {% elseif type == 'warning' %}
-                    {% sw_icon 'warning' %}
+                    {% sw_icon 'warning' style { ariaHidden: true } %}
                 {% elseif type == 'info' %}
-                    {% sw_icon 'info' %}
+                    {% sw_icon 'info' style { ariaHidden: true } %}
                 {% elseif type == 'success' %}
-                    {% sw_icon 'checkmark-circle' %}
+                    {% sw_icon 'checkmark-circle' style { ariaHidden: true } %}
                 {% else %}
-                    {% sw_icon 'alert' %}
+                    {% sw_icon 'alert' style { ariaHidden: true } %}
                 {% endif %}
                 {% if iconCache == false and iconCacheSystem === true %}
                     {{ sw_icon_cache_enable() }}

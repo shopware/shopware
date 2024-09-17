@@ -1,5 +1,10 @@
 {% block page_account_order_item_detail_body %}
-    <div class="order-detail-content-list">
+    {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+        <ul class="order-detail-content-list list-unstyled" aria-label="{{ 'account.orderLineItemsListAriaLabel'|trans|sw_sanitize }}">
+    {%- else -%}
+        <div class="order-detail-content-list" role="list" aria-label="{{ 'account.orderLineItemsListAriaLabel'|trans|sw_sanitize }}">
+    {%- endif -%}
         {% block page_account_order_item_detail_line_items %}
             {% for lineItem in order.nestedLineItems %}
                 {% block page_account_order_item_detail_line_item %}
@@ -10,5 +15,10 @@
                 {% endblock %}
             {% endfor %}
         {% endblock %}
-    </div>
+    {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+    {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+        </div>
+    {%- else -%}
+        </ul>
+    {%- endif -%}
 {% endblock %}

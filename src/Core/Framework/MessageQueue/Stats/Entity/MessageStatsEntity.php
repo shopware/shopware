@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('core')]
-class MessageStats extends Struct
+class MessageStatsEntity extends Struct
 {
     protected int $totalMessagesProcessed;
 

@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\MessageQueue\Stats;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
-use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStats;
-use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStats;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 
 /**
  * @internal
@@ -50,7 +50,7 @@ class MySQLStatsRepository
             ->executeQuery();
     }
 
-    public function getStats(): MessageStats
+    public function getStats(): MessageStatsEntity
     {
         $newerThan = $this->getCutOffDate();
 
@@ -64,7 +64,7 @@ class MySQLStatsRepository
             throw MessageQueueException::queueMessageStatsNotFound();
         }
 
-        $stats = new MessageStats(
+        $stats = new MessageStatsEntity(
             totalMessagesProcessed: (int) $vals['handled_count'],
             processedSince: new \DateTimeImmutable($vals['handled_since']),
             averageTimeInQueue: (float) $vals['average_time_in_queue'],
@@ -82,7 +82,7 @@ class MySQLStatsRepository
         $recentMessageTypes = $query->executeQuery()->fetchAllAssociative();
 
         foreach ($recentMessageTypes as $row) {
-            $stats->getMessageTypeStats()->add(new MessageTypeStats(
+            $stats->getMessageTypeStats()->add(new MessageTypeStatsEntity(
                 type: $row['name'],
                 count: (int) $row['count'],
             ));

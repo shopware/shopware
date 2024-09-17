@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStats;
-use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStats;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Symfony\Bridge\PhpUnit\ClockMock;
@@ -23,12 +23,12 @@ class StatsServiceTest extends TestCase
 {
     public function testGetStats(): void
     {
-        $returnVal = new MessageStats(
+        $returnVal = new MessageStatsEntity(
             totalMessagesProcessed: 5,
             processedSince: new \DateTimeImmutable('3 seconds ago'),
             averageTimeInQueue: 7.3,
             messageTypeStats: new MessageTypeStatsCollection([
-                new MessageTypeStats(
+                new MessageTypeStatsEntity(
                     type: 'test',
                     count: 3,
                 ),

@@ -6,13 +6,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<MessageTypeStats>
+ * @extends Collection<MessageTypeStatsEntity>
  */
 #[Package('core')]
 class MessageTypeStatsCollection extends Collection
 {
     protected function getExpectedClass(): ?string
     {
-        return MessageTypeStats::class;
+        return MessageTypeStatsEntity::class;
     }
 }

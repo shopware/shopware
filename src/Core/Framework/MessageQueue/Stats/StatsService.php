@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Stats;
 
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStats;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Symfony\Component\Messenger\Envelope;
 
 /**
@@ -18,7 +18,7 @@ class StatsService
     ) {
     }
 
-    public function getStats(): MessageStats
+    public function getStats(): MessageStatsEntity
     {
         return $this->mySQLStatsRepository->getStats();
     }

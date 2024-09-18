@@ -103,10 +103,17 @@ async function createWrapper(propsData) {
                 street: 'Denesik Bridge',
                 zipcode: '05132',
                 city: 'Bernierstad',
+                company: 'Muster SE',
+                department: 'People & Culture',
                 id: '38e8895864a649a1b2ec806dad02ab87',
                 country: {
                     translated: {
                         name: 'Buzbach',
+                    },
+                },
+                countryState: {
+                    translated: {
+                        name: 'NRW',
                     },
                 },
             },
@@ -174,12 +181,19 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             street: 'Denesik Bridge',
             zipcode: '05132',
             city: 'Bernierstad',
+            company: 'Muster SE',
             id: '38e8895864a649a1b2ec806dad02ab87',
             country: {
                 translated: {
                     name: 'Buzbach',
                 },
             },
+            countryState: {
+                translated: {
+                    name: 'NRW',
+                },
+            },
+            department: 'People & Culture',
         });
     });
 
@@ -187,7 +201,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         expect(addressSelection.find('.sw-single-select__selection-text').text())
-            .toBe('Denesik Bridge, 05132 Bernierstad, Buzbach');
+            .toBe('Muster SE - People & Culture, Denesik Bridge, 05132 Bernierstad, NRW, Buzbach');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
@@ -236,14 +250,15 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(list.findAll('.sw-select-result')).toHaveLength(2);
 
         const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
-        expect(firstSelection.findAll('p').at(1).text()).toBe('Denesik Bridge');
-        expect(firstSelection.findAll('p').at(2).text()).toBe('05132 Bernierstad');
-        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
+        expect(firstSelection.findAll('p').at(1).text()).toBe('Muster SE - People & Culture');
+        expect(firstSelection.findAll('p').at(2).text()).toBe('Denesik Bridge');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('05132 Bernierstad');
+        expect(firstSelection.findAll('p').at(4).text()).toBe('Buzbach');
 
         const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
         expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
-        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
+        expect(secondSelection.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
     it('should be able to get the options with not props', async () => {

@@ -53,6 +53,7 @@
       "textCustomers": "Customers",
       "textCustomersTotal": "No customer | One customer | {count} customers",
       "buttonAddCustomer": "Add customer",
+      "columnCompany": "Company",
       "columnCustomerNumber": "Customer number",
       "columnName": "Name",
       "columnGroup": "Customer group",

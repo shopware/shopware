@@ -261,7 +261,7 @@ class AccountServiceTest extends TestCase
 
     public function testSetDefaultBillingAddress(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $customer = $context->getCustomer();
 
         static::assertNotNull($customer);
@@ -285,7 +285,7 @@ class AccountServiceTest extends TestCase
 
     public function testSetDefaultShippingAddress(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $customer = $context->getCustomer();
 
         static::assertNotNull($customer);
@@ -309,7 +309,7 @@ class AccountServiceTest extends TestCase
 
     public function testLoginById(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -364,7 +364,7 @@ class AccountServiceTest extends TestCase
 
     public function testLoginByIdWithNonValidId(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $accountService = new AccountService(
             $this->createMock(EntityRepository::class),
@@ -381,7 +381,7 @@ class AccountServiceTest extends TestCase
 
     public function testLoginByIdNotFound(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $repo = $this->createMock(EntityRepository::class);
         $repo

@@ -16,7 +16,7 @@ class CountryRegionMissingErrorTest extends TestCase
 {
     public function testAPI(): void
     {
-        $error = new class() extends CountryRegionMissingError {
+        $error = new class extends CountryRegionMissingError {
             public function getId(): string
             {
                 return 'country-region-missing';

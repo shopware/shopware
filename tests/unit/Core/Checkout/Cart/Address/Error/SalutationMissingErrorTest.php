@@ -16,7 +16,7 @@ class SalutationMissingErrorTest extends TestCase
 {
     public function testAPI(): void
     {
-        $error = new class() extends SalutationMissingError {
+        $error = new class extends SalutationMissingError {
             public function getId(): string
             {
                 return 'salutation-missing';

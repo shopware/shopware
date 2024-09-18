@@ -22,10 +22,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxEntity;
 
 /**
  * @internal
@@ -73,7 +75,7 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 10,
                 12.0,
-                true,
+                false,
                 null,
                 $this->deliveryTime
             )
@@ -113,6 +115,130 @@ class DeliveryCalculatorTest extends TestCase
         );
 
         $deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
+        static::assertNotNull($newCosts);
+        static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
+        static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
+    }
+
+    public function testCalculateShippingFreeShippingCost(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $delivery = $this->getMockBuilder(Delivery::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $delivery
+            ->expects(static::atLeastOnce())
+            ->method('getShippingCosts')
+            ->willReturn($costs);
+        $newCosts = null;
+        $delivery
+            ->expects(static::once())
+            ->method('setShippingCosts')
+            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+                /** @var CalculatedPrice $newCosts */
+                $newCosts = $costsParameter;
+            });
+
+        $deliveryInformation = new DeliveryInformation(
+            10,
+            12.0,
+            true,
+            null,
+            $this->deliveryTime
+        );
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            $deliveryInformation
+        );
+        $lineItem->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $price = $lineItem->getPrice();
+
+        static::assertNotNull($price);
+
+        $delivery
+            ->expects(static::atLeastOnce())
+            ->method('getPositions')
+            ->willReturn(
+                new DeliveryPositionCollection(
+                    [
+                        new DeliveryPosition(
+                            Uuid::randomHex(),
+                            $lineItem,
+                            1,
+                            $price,
+                            new DeliveryDate(new \DateTime(), new \DateTime())
+                        ),
+                    ]
+                )
+            );
+
+        $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
+        $quantityPriceCalculatorMock->expects(static::once())->method('calculate')->willReturn($costs);
+
+        $deliveryCalculator = new DeliveryCalculator(
+            $quantityPriceCalculatorMock,
+            $this->createMock(PercentageTaxRuleBuilder::class),
+        );
+
+        $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
+
+        static::assertNotNull($newCosts);
+        static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
+        static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
+    }
+
+    public function testCalculateManualShippingCost(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context
+            ->expects(static::atLeastOnce())
+            ->method('buildTaxRules')
+            ->willReturn(new TaxRuleCollection());
+
+        $delivery = $this->getMockBuilder(Delivery::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $costs = new CalculatedPrice(10.00, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setTaxType('fixed');
+        $shippingMethod->setTaxId(Uuid::randomHex());
+
+        $delivery
+            ->expects(static::atLeastOnce())
+            ->method('getShippingCosts')
+            ->willReturn($costs);
+        $delivery
+            ->expects(static::atLeastOnce())
+            ->method('getShippingMethod')
+            ->willReturn($shippingMethod);
+
+        $newCosts = null;
+        $delivery
+            ->expects(static::once())
+            ->method('setShippingCosts')
+            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+                /** @var CalculatedPrice $newCosts */
+                $newCosts = $costsParameter;
+            });
+
+        $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
+        $quantityPriceCalculatorMock
+            ->expects(static::once())
+            ->method('calculate')
+            ->willReturn($costs);
+
+        $deliveryCalculator = new DeliveryCalculator(
+            $quantityPriceCalculatorMock,
+            $this->createMock(PercentageTaxRuleBuilder::class),
+        );
+
+        $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
+
         static::assertNotNull($newCosts);
         static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
         static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());

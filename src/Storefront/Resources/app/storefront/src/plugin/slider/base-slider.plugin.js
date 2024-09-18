@@ -218,8 +218,12 @@ export default class BaseSliderPlugin extends Plugin {
                         this.el.scrollLeft = 0;
                     }
 
-                    // Keep the element which has focus on first slide position.
-                    if (index !== currentSliderInfo.index) {
+                    // Keep the element which has focus visible in slider.
+                    let isInView = index === currentSliderInfo.index;
+                    if (currentSliderInfo.items > 1) {
+                        isInView = index >= currentSliderInfo.index && index < (currentSliderInfo.index + currentSliderInfo.items);
+                    }
+                    if (!isInView) {
                         const newSlide = index - currentSliderInfo.cloneCount;
 
                         this._slider.goTo(newSlide);

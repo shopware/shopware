@@ -70,11 +70,6 @@ class StatsServiceTest extends TestCase
             ->with(
                 'stdClass',
                 static::equalTo(time() - 123456789),
-                static::callback(function (\DateTimeInterface $now) {
-                    self::assertEquals($now->getTimestamp(), time());
-
-                    return true;
-                })
             );
 
         $service = new StatsService($repository);

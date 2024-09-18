@@ -13,15 +13,16 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
  * @internal
  */
 #[Package('core')]
-class MySQLStatsRepository
+class MySQLStatsRepository extends AbstractStatsRepository
 {
     private const MESSAGE_TYPES_LIMIT = 100;
     private const DATE_FORMAT = 'Y-m-d H:i:s';
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly int $timeSpan,
+        int $timeSpan,
     ) {
+        parent::__construct($timeSpan);
     }
 
     private function insertMessageStats(string $messageFqcn, int $timeInQueue, \DateTimeInterface $createdAt): void
@@ -33,12 +34,11 @@ class MySQLStatsRepository
         ]);
     }
 
-    public function updateMessageStats(string $messageFqcn, int $timeInQueue, \DateTimeInterface $createdAt): void
+    public function updateMessageStats(string $messageFqcn, int $timeInQueue): void
     {
         $cutoffDate = $this->getCutOffDate();
-        if ($createdAt >= $cutoffDate) {
-            $this->insertMessageStats($messageFqcn, $timeInQueue, $createdAt);
-        }
+        $now = $this->getNow();
+        $this->insertMessageStats($messageFqcn, $timeInQueue, $now);
         $this->deleteStatsOlderThan($cutoffDate);
     }
 
@@ -89,14 +89,5 @@ class MySQLStatsRepository
         }
 
         return $stats;
-    }
-
-    private function getCutOffDate(): \DateTimeInterface
-    {
-        $cutOff = time() - $this->timeSpan;
-        $cutOffDate = \DateTimeImmutable::createFromFormat('U', (string) $cutOff);
-        \assert($cutOffDate instanceof \DateTimeImmutable);
-
-        return $cutOffDate;
     }
 }

@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Symfony\Bridge\PhpUnit\ClockMock;
 
 /**
  * @internal
@@ -36,30 +35,34 @@ class MySQLStatsRepositoryTest extends TestCase
 
     public function testUpdateMessageStats(): void
     {
-        ClockMock::register(MySQLStatsRepository::class);
-        ClockMock::register(__CLASS__);
-        ClockMock::withClockMock(true);
+        $repository = new MySQLStatsRepositoryTestable($this->connection, 20);
 
-        $repository = new MySQLStatsRepository($this->connection, 20);
+        $now = 1726671956;
+        $repository->setNow($this->dateTimeFromTime($now - 21));
+        $repository->updateMessageStats('myclassname', 3);
 
-        $now = time();
-        $repository->updateMessageStats('myclassname', 3, $this->dateTimeFromTime($now - 21));
-        $repository->updateMessageStats('myclassname', 7, $this->dateTimeFromTime($now - 20));
-        $repository->updateMessageStats('myclassname', 0, $this->dateTimeFromTime($now));
+        $repository->setNow($this->dateTimeFromTime($now - 20));
+        $repository->updateMessageStats('myclassname', 7);
+
+        $repository->setNow($this->dateTimeFromTime($now));
+        $repository->updateMessageStats('myclassname', 0);
+
         static::assertEquals(2, $this->countRecords($this->dateTimeFromTime($now - 21)));
-
-        ClockMock::withClockMock(false);
     }
 
     public function testGetStats(): void
     {
-        $repository = new MySQLStatsRepository($this->connection, 20);
+        $repository = new MySQLStatsRepositoryTestable($this->connection, 20);
 
         $now = $this->dateTimeFromTime(time());
         $expired = $this->dateTimeFromTime(time() - 30);
-        $repository->updateMessageStats('test', 1, $now);
-        $repository->updateMessageStats('test', 10, $now);
-        $repository->updateMessageStats('test', 100, $expired);
+
+        $repository->setNow($expired);
+        $repository->updateMessageStats('test', 100);
+
+        $repository->setNow($now);
+        $repository->updateMessageStats('test', 1);
+        $repository->updateMessageStats('test', 10);
 
         $stats = $repository->getStats();
 
@@ -99,5 +102,23 @@ class MySQLStatsRepositoryTest extends TestCase
         \assert($date instanceof \DateTimeImmutable);
 
         return $date;
+    }
+}
+
+/**
+ * @internal
+ */
+class MySQLStatsRepositoryTestable extends MySQLStatsRepository
+{
+    private \DateTimeInterface $now;
+
+    public function setNow(\DateTimeInterface $now): void
+    {
+        $this->now = $now;
+    }
+
+    protected function getNow(): \DateTimeInterface
+    {
+        return $this->now;
     }
 }

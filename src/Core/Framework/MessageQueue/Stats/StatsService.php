@@ -14,13 +14,13 @@ use Symfony\Component\Messenger\Envelope;
 class StatsService
 {
     public function __construct(
-        private readonly MySQLStatsRepository $mySQLStatsRepository,
+        private readonly AbstractStatsRepository $statsRepository,
     ) {
     }
 
     public function getStats(): MessageStatsEntity
     {
-        return $this->mySQLStatsRepository->getStats();
+        return $this->statsRepository->getStats();
     }
 
     public function registerMessage(Envelope $envelope): void
@@ -29,11 +29,9 @@ class StatsService
         if ($sentAtStamp === null) {
             return;
         }
-        $now = \DateTimeImmutable::createFromFormat('U', (string) time());
-        \assert($now instanceof \DateTimeImmutable);
 
-        $timeInQueue = $now->getTimestamp() - $sentAtStamp->getSentAt();
+        $timeInQueue = time() - $sentAtStamp->getSentAt();
         $messageFqcn = \get_class($envelope->getMessage());
-        $this->mySQLStatsRepository->updateMessageStats($messageFqcn, $timeInQueue, $now);
+        $this->statsRepository->updateMessageStats($messageFqcn, $timeInQueue);
     }
 }

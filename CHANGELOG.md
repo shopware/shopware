@@ -1,13 +1,6 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
-## 6.6.6.1
-*  [NEXT-33697 - Fix product slider unwanted slides on slider item clicks](./changelog/release-6-6-6-1/2024-09-05-fix-product-slider.md)
-*  [NEXT-31669 - Cache name fix](./changelog/release-6-6-6-1/2024-09-06-cache-name-fix.md)
-*  [NEXT-37673 - Improve data hash for calculation of product prices in cart](./changelog/release-6-6-6-1/2024-09-06-consider-data-hash-for-product-data-caching.md)
-*  [NEXT-38216 - fix base-slider plugin _initAccessibilityTweaks method](./changelog/release-6-6-6-1/2024-09-06-fix-base-slider-initAccessibilityTweaks-.md) ([Carlo Cecco](https://github.com/luminalpark))
-*  [NEXT-38252 - Fix duplicate save-edits method error when saving order](./changelog/release-6-6-6-1/2024-09-11-fix-duplicate-save-edits-method-error-when-saving-order.md)
-
 ## 6.6.6.0
 *  [NEXT-28114 - Rework Storefront pagination to use anchor links](./changelog/release-6-6-6-0/2023-08-31-pagination-with-links.md)
 *  [NEXT-34379 - Add Email Idn handling](./changelog/release-6-6-6-0/2024-06-26-add-email-idn-handling.md)

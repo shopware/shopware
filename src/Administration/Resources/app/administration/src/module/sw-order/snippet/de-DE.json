@@ -7,6 +7,7 @@
       "placeholderSearchBar": "Durchsuche alle Bestellungen ..."
     },
     "list": {
+      "columnCustomerCompany": "Firma",
       "columnCustomerName": "Kundenname",
       "columnBillingAddress": "Rechnungsadresse",
       "columnDeliveryAddress": "Lieferadresse",
@@ -105,6 +106,7 @@
         "labelPhoneNumber": "Telefonnummer",
         "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
         "placeholderPhoneNumber": "Gib eine Telefonnummer ein ...",
+        "labelAddressCompany": "Firma",
         "labelBillingAddress": "Rechnungsadresse",
         "labelShippingAddress": "Lieferadresse",
         "placeholder": "Kunden auswählen oder anlegen ...",

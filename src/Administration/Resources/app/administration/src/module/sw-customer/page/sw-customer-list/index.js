@@ -301,6 +301,12 @@ export default {
                 primary: true,
                 useCustomSort: true,
             }, {
+                property: 'company',
+                label: 'sw-customer.list.columnCompany',
+                allowResize: true,
+                visible: false,
+                useCustomSort: true,
+            }, {
                 property: 'defaultBillingAddress.street',
                 label: 'sw-customer.list.columnStreet',
                 allowResize: true,

@@ -113,19 +113,17 @@ export default {
         addressOptions() {
             const addresses = (this.customer?.addresses || []).map(item => {
                 return {
-                    label: `${item.street}, ${item.zipcode} ${item.city}, ${item.country?.translated?.name}`,
+                    label: this.addressLabel(item),
                     ...item,
                 };
             });
 
             // eslint-disable-next-line no-unused-expressions
             this.address && addresses.unshift({
-                label: this.address?.zipCode !== null
-                    // eslint-disable-next-line max-len
-                    ? `${this.address.street}, ${this.address.zipcode} ${this.address.city}, ${this.address?.country?.translated?.name}`
-                    : `${this.address.street}, ${this.address.city}, ${this.address?.country?.translated?.name}`,
+                label: this.addressLabel(this.address),
                 ...this.address,
             });
+
             return addresses;
         },
 
@@ -277,6 +275,18 @@ export default {
                 .then((customFieldSets) => {
                     this.customerAddressCustomFieldSets = customFieldSets;
                 });
+        },
+
+        addressLabel(address) {
+            const label = [
+                [address.company, address.department].filter(v => v).join(' - '),
+                address.street,
+                (`${address.zipcode ?? ''} ${address.city}`).trim(),
+                address?.countryState?.translated?.name,
+                address?.country?.translated?.name,
+            ];
+
+            return label.filter(v => v).join(', ');
         },
     },
 };

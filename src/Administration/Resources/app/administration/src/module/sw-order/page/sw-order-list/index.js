@@ -402,6 +402,12 @@ export default {
                 label: 'sw-order.list.columnCustomerName',
                 allowResize: true,
             }, {
+                property: 'orderCustomer.company',
+                dataIndex: 'orderCustomer.company',
+                label: 'sw-order.list.columnCustomerCompany',
+                allowResize: true,
+                visible: false,
+            }, {
                 property: 'billingAddressId',
                 dataIndex: 'billingAddress.street',
                 label: 'sw-order.list.columnBillingAddress',

@@ -817,7 +817,11 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-            ->integerNode('term_max_length')->defaultValue(300)->end()
+                ->integerNode('term_max_length')->defaultValue(300)->end()
+                ->arrayNode('preserved_chars')
+                    ->performNoDeepMerging()->defaultValue([])
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

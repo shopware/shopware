@@ -532,3 +532,5 @@ shopware:
 
     search:
         term_max_length: 300
+        # special chars that will not be removed on tokenizing
+        preserved_chars: [ '-', '_', '+', '.', '@' ]

@@ -213,14 +213,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 '_count' => AbstractElasticsearchDefinition::INT_FIELD,
-                'name' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                    'fields' => [
-                        'search' => ['type' => 'text'],
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
+                'name' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
             ],
         ], $nestedFields);
     }

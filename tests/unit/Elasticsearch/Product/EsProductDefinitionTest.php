@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
@@ -70,19 +71,7 @@ class EsProductDefinitionTest extends TestCase
         ],
     ];
 
-    private const SEARCHABLE_MAPPING = [
-        'type' => 'keyword',
-        'normalizer' => 'sw_lowercase_normalizer',
-        'fields' => [
-            'search' => [
-                'type' => 'text',
-            ],
-            'ngram' => [
-                'type' => 'text',
-                'analyzer' => 'sw_ngram_analyzer',
-            ],
-        ],
-    ];
+    private const SEARCHABLE_MAPPING = AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD;
 
     private readonly IdsCollection $ids;
 

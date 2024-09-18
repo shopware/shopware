@@ -22,6 +22,7 @@ shopware:
             - 'pk_kwd'
             - 'piwik_kwd'
             - 'pk_keyword'
+            - 'piwik_keyword'
             - 'mtm_campaign' # Matomo
             - 'matomo_campaign'
             - 'mtm_cid'
@@ -49,6 +50,7 @@ shopware:
             - 'pa'
             - 'camid'
             - 'adgid'
+            - 'yclid'
             - 'utm_term' # Google
             - 'utm_source'
             - 'utm_medium'
@@ -63,9 +65,18 @@ shopware:
             - 'adgroupid'
             - 'campaignid'
             - 'adid'
-            - 'gclsrc' # Google DoubleClick
+            - 'utm_id'
+            - 'utm_source_platform'
+            - 'utm_creative_format'
+            - 'utm_marketing_tactic'
+            - '_gl'
+            - 'gclsrc'
             - 'gclid'
-            - 'srsltid' # Google Merchant
+            - 'srsltid'
+            - 'dclid'
+            - 'gbraid'
+            - 'wbraid'
+            - 'gad_source'
             - 'fbclid' # Facebook
             - 'fb_action_ids'
             - 'fb_action_types'
@@ -82,7 +93,8 @@ shopware:
             - 'gdftrk'
             - 'gdffi'
             - '_ke'  # Klaviyo
-            - 'redirect_log_mongo_id' # Klaviyo
+            - '_kx'
+            - 'redirect_log_mongo_id'
             - 'redirect_mongo_id'
             - 'sb_referer_host'
             - 'mkwid' # Marin
@@ -93,6 +105,31 @@ shopware:
             - 'dm_i' # dotdigital
             - 'epik' # Pinterest
             - 'pp'
+            - 'twclid' # Twitter / X
+            - 'hsa_cam' # Hubspot
+            - 'hsa_grp'
+            - 'hsa_mt'
+            - 'hsa_src'
+            - 'hsa_ad'
+            - 'hsa_acc'
+            - 'hsa_net'
+            - 'hsa_kw'
+            - 'hsa_tgt'
+            - 'hsa_ver'
+            - '_branch_match_id' # Branch
+            - 'mkevt' # eBay
+            - 'mkcid'
+            - 'mkrid'
+            - 'campid'
+            - 'toolid'
+            - 'customid'
+            - 'igshid' # Instagram
+            - 'si' # Spotify
+            - 'ttclid' #  TikTok
+            - 'ScCid' # Snapchat
+            - 'rtid' # Rokt
+            - 'irclickid' # Impact
+
     profiler:
         integrations: []
     filesystem:

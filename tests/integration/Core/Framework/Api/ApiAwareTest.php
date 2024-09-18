@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
@@ -26,7 +27,7 @@ class ApiAwareTest extends TestCase
 
     public function testApiAware(): void
     {
-        $cacheId = hash_file('md5', __DIR__ . '/fixtures/api-aware-fields.json');
+        $cacheId = Hasher::hash_file(__DIR__ . '/fixtures/api-aware-fields.json');
         if (!\is_string($cacheId)) {
             static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be hashed');
         }

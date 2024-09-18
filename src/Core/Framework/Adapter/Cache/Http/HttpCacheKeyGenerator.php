@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -64,7 +65,7 @@ class HttpCacheKeyGenerator
 
         $parts = $event->getParts();
 
-        return 'http-cache-' . hash('sha256', implode('|', $parts));
+        return 'http-cache-' . Hasher::hash(implode('|', $parts));
     }
 
     private function getRequestUri(Request $request): string

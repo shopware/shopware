@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('core')]
@@ -32,7 +33,7 @@ class EntityCacheKeyGenerator
     {
         $ruleIds = $context->getRuleIdsByAreas($areas);
 
-        return md5((string) json_encode([
+        return Hasher::hash([
             $context->getSalesChannelId(),
             $context->getDomainId(),
             $context->getLanguageIdChain(),
@@ -41,12 +42,12 @@ class EntityCacheKeyGenerator
             $context->getTaxState(),
             $context->getItemRounding(),
             $ruleIds,
-        ], \JSON_THROW_ON_ERROR));
+        ]);
     }
 
     public function getCriteriaHash(Criteria $criteria): string
     {
-        return md5((string) json_encode([
+        return Hasher::hash([
             $criteria->getIds(),
             $criteria->getFilters(),
             $criteria->getTerm(),
@@ -59,6 +60,6 @@ class EntityCacheKeyGenerator
             $criteria->getGroupFields(),
             $criteria->getAggregations(),
             $criteria->getAssociations(),
-        ], \JSON_THROW_ON_ERROR));
+        ]);
     }
 }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -94,7 +94,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
             return null;
         }
 
-        return self::buildName($landingPageId) . '-' . md5(Json::encode($event->getParts()));
+        return self::buildName($landingPageId) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

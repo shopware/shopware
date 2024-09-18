@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Predis\ClientInterface;
 use Relay\Relay;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
@@ -39,7 +40,7 @@ class RedisConnectionFactory
      */
     public function create(string $dsn, array $options = [])
     {
-        $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
+        $configHash = Hasher::hash($options);
         $key = $dsn . $configHash . $this->prefix;
 
         if (!isset(self::$connections[$key]) || (

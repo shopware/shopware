@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Password\LegacyEncoder;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 
 #[Package('checkout')]
 class Sha256 implements LegacyEncoderInterface
@@ -25,7 +26,7 @@ class Sha256 implements LegacyEncoderInterface
     {
         $hash = '';
         for ($i = 0; $i <= $iterations; ++$i) {
-            $hash = hash('sha256', $hash . $password . $salt);
+            $hash = Hasher::hash($hash . $password . $salt, 'sha256');
         }
 
         return $iterations . ':' . $salt . ':' . $hash;

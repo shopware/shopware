@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -142,7 +143,7 @@ class SourceResolver implements ResetInterface
 
     private function cacheKey(AppEntity|Manifest $app): string
     {
-        return md5(match (true) {
+        return Hasher::hash(match (true) {
             $app instanceof AppEntity => $app->getName() . '-' . $app->getVersion(),
             $app instanceof Manifest => $app->getMetadata()->getName() . '-' . $app->getMetadata()->getVersion(),
         });

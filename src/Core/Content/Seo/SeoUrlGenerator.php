@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -180,7 +181,7 @@ class SeoUrlGenerator
 
     private function getTemplateName(string $template): string
     {
-        return 'seo_url_template_' . \md5($template);
+        return 'seo_url_template_' . Hasher::hash($template);
     }
 
     private function removePrefix(string $subject, string $prefix): string

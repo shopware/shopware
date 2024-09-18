@@ -251,20 +251,20 @@ class AssetServiceTest extends TestCase
             ],
             'destination-nothing-changed' => [
                 'manifest' => [
-                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                    'one.js' => '9b88085012a490e232336863bf269917',
+                    'two.js' => '9b88085012a490e232336863bf269917',
+                    'three.js' => '9b88085012a490e232336863bf269917',
                 ],
                 'expectedWrites' => [],
                 'expectedDeletes' => [],
             ],
             'destination-new-and-removed' => [
                 'manifest' => [
-                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'four.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                    'one.js' => '9b88085012a490e232336863bf269917',
+                    'two.js' => '9b88085012a490e232336863bf269917',
+                    'four.js' => '9b88085012a490e232336863bf269917',
                 ],
                 'expectedWrites' => [
                     'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
@@ -275,10 +275,10 @@ class AssetServiceTest extends TestCase
             ],
             'destination-content-changed' => [
                 'manifest' => [
-                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
-                    'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
-                    'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                    'one.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                    'two.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                    'three.js' => '9b88085012a490e232336863bf269917',
                 ],
                 'expectedWrites' => [
                     'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
@@ -343,10 +343,10 @@ class AssetServiceTest extends TestCase
             }));
 
         $expectedManifestFiles = [
-            'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-            'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-            'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-            'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            'one.js' => '9b88085012a490e232336863bf269917',
+            'static/js/app.js' => '9b88085012a490e232336863bf269917',
+            'three.js' => '9b88085012a490e232336863bf269917',
+            'two.js' => '9b88085012a490e232336863bf269917',
         ];
         ksort($expectedManifestFiles);
 
@@ -451,13 +451,13 @@ class AssetServiceTest extends TestCase
 
         $expectedManifestFiles = [
             'administration' => [
-                'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'one.js' => '9b88085012a490e232336863bf269917',
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'three.js' => '9b88085012a490e232336863bf269917',
+                'two.js' => '9b88085012a490e232336863bf269917',
             ],
             'examplebundle' => [
-                'test.txt' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'test.txt' => '9b88085012a490e232336863bf269917',
             ],
         ];
 

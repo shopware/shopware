@@ -64,7 +64,7 @@ class HttpCacheKeyGenerator
 
         $parts = $event->getParts();
 
-        return 'http-cache-' . hash('sha256', implode('|', $parts));
+        return 'http-cache-' . hash('xxh128', implode('|', $parts));
     }
 
     private function getRequestUri(Request $request): string

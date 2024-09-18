@@ -33,7 +33,7 @@ class ConfigurableFilesystemCache extends FilesystemCache
 
     public function generateKey(string $name, string $className): string
     {
-        $hash = hash('sha256', $className . $this->configHash . implode('', $this->templateScopes));
+        $hash = hash('xxh128', $className . $this->configHash . implode('', $this->templateScopes));
 
         return $this->cacheDirectory . $hash[0] . $hash[1] . '/' . $hash . '.php';
     }

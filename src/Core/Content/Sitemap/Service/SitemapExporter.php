@@ -121,6 +121,7 @@ class SitemapExporter implements SitemapExporterInterface
                     }
 
                     $sitemapDomains[$arrayKey] = [
+                        'domainId' => $domain->getId(),
                         'url' => $domain->getUrl(),
                         'scheme' => $urlParts['scheme'] ?? '',
                     ];
@@ -130,7 +131,8 @@ class SitemapExporter implements SitemapExporterInterface
 
         $sitemapHandles = [];
         foreach ($sitemapDomains as $sitemapDomain) {
-            $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url']);
+            /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
+            $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url'], $sitemapDomain['domainId']);
         }
 
         if (empty($sitemapHandles)) {

@@ -17,8 +17,17 @@ class SitemapHandleFactory implements SitemapHandleFactoryInterface
     {
     }
 
-    public function create(FilesystemOperator $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface
-    {
-        return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain);
+    /**
+     * @deprecated tag:v6.7.0 - reason:new-optional-parameter - Parameter ?string $domainId = null will be added
+     */
+    public function create(
+        FilesystemOperator $filesystem,
+        SalesChannelContext $context,
+        ?string $domain = null,
+        /* , ?string $domainId = null */
+    ): SitemapHandleInterface {
+        $domainId = \func_num_args() > 3 ? func_get_arg(3) : null;
+
+        return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain, $domainId);
     }
 }

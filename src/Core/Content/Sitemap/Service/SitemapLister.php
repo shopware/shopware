@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Sitemap\Struct\Sitemap;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
 
@@ -28,8 +29,23 @@ class SitemapLister implements SitemapListerInterface
 
         $sitemaps = [];
 
+        /** @var SalesChannelDomainCollection $domains */
+        $domains = $salesChannelContext->getSalesChannel()->getDomains();
+
         foreach ($files as $file) {
             if ($file->isDir()) {
+                continue;
+            }
+
+            $filename = basename($file->path());
+
+            $exploded = explode('-', $filename);
+
+            if (isset($exploded[1]) && $domains->has($exploded[1])) {
+                $domain = $domains->get($exploded[1]);
+
+                $sitemaps[] = new Sitemap($domain->getUrl() . '/' . $file->path(), 0, new \DateTime('@' . ($file->lastModified() ?? time())));
+
                 continue;
             }
 

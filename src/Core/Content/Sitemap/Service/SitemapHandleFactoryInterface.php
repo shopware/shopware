@@ -9,5 +9,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('services-settings')]
 interface SitemapHandleFactoryInterface
 {
-    public function create(FilesystemOperator $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface;
+    /**
+     * @deprecated tag:v6.7.0 - reason:new-optional-parameter - Parameter ?string $domainId = null will be added
+     */
+    public function create(
+        FilesystemOperator $filesystem,
+        SalesChannelContext $context,
+        ?string $domain = null,
+        /* , ?string $domainId = null */
+    ): SitemapHandleInterface;
 }

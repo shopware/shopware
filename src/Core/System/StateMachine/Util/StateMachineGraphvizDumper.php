@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\StateMachine\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
 #[Package('checkout')]
@@ -100,7 +101,7 @@ class StateMachineGraphvizDumper
 
     private function dotize(string $id): string
     {
-        return hash('sha1', $id);
+        return Hasher::hash($id, 'sha1');
     }
 
     private function escape(string $string): string

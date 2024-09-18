@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
+use Shopware\Core\Framework\Util\Hasher;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -110,7 +111,7 @@ class PhpSyntaxExtension extends AbstractExtension
                     );
                 }
 
-                return md5($var);
+                return Hasher::hash($var, 'md5');
             }),
         ];
     }

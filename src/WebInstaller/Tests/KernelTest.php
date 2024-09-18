@@ -47,7 +47,7 @@ class KernelTest extends TestCase
 
         /** @var string $fileName */
         $fileName = (new \ReflectionClass($kernel))->getFileName();
-        $kernelPath = md5(\dirname($fileName));
+        $kernelPath = \hash(\dirname($fileName), 'md5');
 
         static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . $kernelPath . '/', $kernel->getCacheDir());
         static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . $kernelPath . '/', $kernel->getLogDir());

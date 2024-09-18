@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -190,7 +191,7 @@ class RegisterConfirmRouteTest extends TestCase
     {
         return new RequestDataBag([
             'hash' => 'hash',
-            'em' => hash('sha1', 'test@test.test'),
+            'em' => Hasher::hash('test@test.test', 'sha1'),
         ]);
     }
 }

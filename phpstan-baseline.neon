@@ -5470,3 +5470,8 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"
 			count: 5
 			path: tests/unit/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php
+
+		- 	# This is okay, while the class is not included in the phar
+			message: "#^Do not use hash function, use class Shopware\\\\Core\\\\Framework\\\\Util\\\\Hasher instead\\.$#"
+			count: 1
+			path: src/WebInstaller/Kernel.php

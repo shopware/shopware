@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -97,7 +98,7 @@ class NewsletterControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            '/newsletter-subscribe?em=' . hash('sha1', 'nltest@example.com') . '&hash=' . $recipientEntry->getHash()
+            '/newsletter-subscribe?em=' . Hasher::hash('nltest@example.com', 'sha1') . '&hash=' . $recipientEntry->getHash()
         );
 
         $response = $browser->getResponse();

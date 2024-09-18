@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -72,7 +73,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'em' => $dataBag->get('em'),
                 'doubleOptInRegistration' => $customer->getDoubleOptInRegistration(),
             ],
-            $this->getBeforeConfirmValidation(hash('sha1', (string) $customer->getEmail()))
+            $this->getBeforeConfirmValidation(Hasher::hash($customer->getEmail(), 'sha1'))
         );
 
         if ($customer->getDoubleOptInConfirmDate() !== null) {

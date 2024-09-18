@@ -44,7 +44,7 @@ class Kernel extends BaseKernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . md5(__DIR__) . '/';
+        return sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . \hash(__DIR__, 'md5') . '/';
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void

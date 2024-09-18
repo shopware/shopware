@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Core\Application;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * Global path generator for media files
@@ -79,7 +80,7 @@ abstract class AbstractMediaPathStrategy
             return null;
         }
 
-        $hash = md5($value);
+        $hash = Hasher::hash($value, 'md5');
 
         $slices = \array_slice(str_split($hash, 2), 0, 3);
         $slices = array_map(

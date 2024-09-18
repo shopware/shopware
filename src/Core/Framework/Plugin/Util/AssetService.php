@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -172,7 +173,7 @@ class AssetService
     {
         $localManifest = array_combine(
             array_map(fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
-            array_map(fn (SplFileInfo $file) => (string) hash_file('sha256', $file->getPathname()), $files)
+            array_map(fn (SplFileInfo $file) => (string) Hasher::hash_file($file->getPathname(), 'sha256'), $files)
         );
 
         ksort($localManifest);

@@ -11,6 +11,12 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - Platform
+          - Install
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
@@ -22,13 +28,14 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-          install: true
+          install: ${{ matrix.project != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
           installAdmin: true
           installStorefront: true
           env: prod
 
-      - name: Build
+      - name: Build js
         run: |
+          mkdir -p config/jwt
           composer run build:js
       - name: Start web server
         run: symfony server:start -d
@@ -43,11 +50,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run your tests
         working-directory: tests/acceptance
-        run: npx playwright test --project=Platform
+        run: npx playwright test --project=${{ matrix.project }} ${{ matrix.project == 'Install' && '--trace=on' || '' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: tests/acceptance/test-results/
           retention-days: 3
 
@@ -223,3 +230,109 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }},ghcr.io/${{ github.repository }}/ci-e2e:${{ github.ref_name }}
           file: .gitlab/docker/dev/Dockerfile
+
+  ats-version-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ format('["{0}","{1}","{2}","{3}"]', steps.versions.outputs.PREV_MAJOR_MIN_TAG, steps.versions.outputs.PREV_MAJOR_MAX_TAG, steps.versions.outputs.CUR_MAJOR_MIN_TAG, steps.versions.outputs.CUR_MAJOR_MAX_TAG) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate versions
+        id: versions
+        run: |
+          .gitlab/bin/print_tested_updates.bash >> "$GITHUB_OUTPUT"
+
+  acceptance-update:
+    needs: ats-version-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        update-from-version: ${{ fromJson(needs.ats-version-matrix.outputs.versions) }}
+    env:
+      SHOPWARE_HTTP_CACHE_ENABLED: 0
+      BLUE_GREEN_DEPLOYMENT: 1
+      SHOPWARE_DISABLE_UPDATE_CHECK: "0"
+      SW_RECOVERY_NEXT_VERSION: "6.6.9999999.9999999"
+      SW_RECOVERY_NEXT_BRANCH: "6.6.9999999.9999999"
+      SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
+    steps:
+      - name: Create shopware dirs
+        run: mkdir -p old-shopware new-shopware 
+      - name: Setup new Shopware
+        uses: shopware/setup-shopware@main
+        env:
+          COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          installAdmin: true
+          installStorefront: true
+          env: dev
+          path: new-shopware
+
+      - name: Build new shopware
+        working-directory: new-shopware
+        run: |
+          composer run build:js:admin
+          composer run npm:storefront run production
+          (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+          
+          composer -d src/Core config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Administration config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
+
+      - name: Build updater
+        working-directory: new-shopware/src/WebInstaller
+        run: |
+          composer config platform.php 8.2
+          composer install
+          composer build-phar
+
+      - name: Checkout template
+        uses: actions/checkout@v4
+        with:
+          repository: shopware/production
+          path: old-shopware
+
+      - name: Configure project root
+        run: |
+          echo "PROJECT_ROOT=${{ github.workspace }}/old-shopware" >> "$GITHUB_ENV"
+
+      - name: Require shopware
+        working-directory: old-shopware
+        run: composer require shopware/core:${{ matrix.update-from-version }}
+
+      - name: Install
+        working-directory: old-shopware
+        run: |
+          sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
+          bin/console system:install --basic-setup --drop-database --create-database
+
+      - name: Copy WebInstaller
+        run: cp new-shopware/src/WebInstaller/shopware-installer.phar.php old-shopware/public/shopware-installer.phar.php
+
+      - name: Start web server
+        working-directory: old-shopware
+        run: symfony server:start -d
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: new-shopware/tests/acceptance
+        run: npm ci
+      - name: Install Playwright Browsers
+        working-directory: new-shopware/tests/acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Run update tests
+        working-directory: new-shopware/tests/acceptance
+        run: npx playwright test --project=Update --trace=on
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-update-${{ matrix.update-from-version }}
+          path: new-shopware/tests/acceptance/test-results/
+          retention-days: 3

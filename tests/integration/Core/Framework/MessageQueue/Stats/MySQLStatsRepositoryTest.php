@@ -33,7 +33,7 @@ class MySQLStatsRepositoryTest extends TestCase
         $this->cleanTable();
     }
 
-    public function testUpdateMessageStats(): void
+    public function testUpdateMessageStatsDeletesExpired(): void
     {
         $repository = new MySQLStatsRepositoryTestable($this->connection, 20);
 
@@ -83,12 +83,10 @@ class MySQLStatsRepositoryTest extends TestCase
             ->from('messenger_stats')
             ->where('created_at >= :newerThan')
             ->setParameter('newerThan', $newerThan->format('Y-m-d H:i:s'));
-        $vals = $query->executeQuery()->fetchAssociative();
+        $count = $query->executeQuery()->fetchOne();
+        static::assertIsString($count);
 
-        static::assertIsArray($vals);
-        static::assertArrayHasKey('handled_count', $vals);
-
-        return (int) $vals['handled_count'];
+        return (int) $count;
     }
 
     private function cleanTable(): void
@@ -98,10 +96,7 @@ class MySQLStatsRepositoryTest extends TestCase
 
     private function dateTimeFromTime(int $timestamp): \DateTimeImmutable
     {
-        $date = \DateTimeImmutable::createFromFormat('U', (string) $timestamp);
-        \assert($date instanceof \DateTimeImmutable);
-
-        return $date;
+        return new \DateTimeImmutable('@' . $timestamp);
     }
 }
 

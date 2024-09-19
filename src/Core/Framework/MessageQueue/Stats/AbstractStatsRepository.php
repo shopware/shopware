@@ -28,6 +28,7 @@ abstract class AbstractStatsRepository
     protected function getCutOffDate(): \DateTimeInterface
     {
         $cutOff = $this->getNow()->getTimestamp() - $this->timeSpan;
+
         return new \DateTimeImmutable('@' . $cutOff);
     }
 }

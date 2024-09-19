@@ -48,10 +48,7 @@
       "placeholderStart": "Startnummer eingeben ...",
       "placeholderPleaseSelect": "Bitte wählen ...",
       "placeholderSimpleModeImpossible": "Erweiterter Modus aktiv",
-      "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern",
-      "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>{prefix}_{n}_{suffix}<br/>'n' entspricht der definierten Startnummer<br/>('_' ist ein beliebiges Trennzeichen)<br/><br/>Verwendung von 'date' (PHP-Parameter): <br/>{date}:<br/>Internationales Datums-Format (YYYY-MM-DD)<br/>{date_dmy}:<br/>Benutzerdefiniertes Datums-Format (DD-MM-YY)<br/><br/>usw.",
-      "errorSalesChannelNeededMessage": "Kein Verkaufskanal ausgewählt. Bitte wähle mindestens einen Verkaufskanal.",
+      "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>{'{prefix}_{n}_{suffix}'}<br/><li>'n' entspricht der definierten Startnummer</li><li>('_' ist ein beliebiges Trennzeichen)</li><br/>Verwendung von 'date' (PHP-Parameter): <br/><li>{'{date}'}: Internationales Datums-Format (YYYY-MM-DD)</li><li>{'{date_dmy}'}: Benutzerdefiniertes Datums-Format (DD-MM-YY)</li>",
       "errorPatternNeededMessage": "Kein Pattern angegeben. Bitte gib mindestens eine Startnummer an.",
       "infoStartDecrementMessage": "Änderungen der Startnummer werden nur wirksam, wenn die Startnummer größer als die aktuelle Nummer ist."
     }

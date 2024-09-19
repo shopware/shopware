@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -72,7 +73,9 @@ class OrderAmountServiceTest extends TestCase
             false
         );
 
-        $buckets = $service->load($since, $paid);
+        $context = Context::createDefaultContext();
+
+        $buckets = $service->load($context, $since, $paid);
 
         static::assertEquals($expected, $buckets);
     }

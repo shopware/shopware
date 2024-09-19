@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\DashboardController;
 use Shopware\Administration\Dashboard\OrderAmountService;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -20,13 +21,15 @@ class DashboardControllerTest extends TestCase
     {
         $service = $this->createMock(OrderAmountService::class);
 
+        $context = Context::createDefaultContext();
+
         $service->expects(static::once())
             ->method('load')
-            ->with($since, $paid, $timezone);
+            ->with($context, $since, $paid, $timezone);
 
         $controller = new DashboardController($service);
 
-        $controller->orderAmount($since, $request);
+        $controller->orderAmount($since, $request, $context);
     }
 
     public static function requestProvider(): \Generator

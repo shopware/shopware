@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Controller;
 
 use Shopware\Administration\Dashboard\OrderAmountService;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,13 +22,13 @@ class DashboardController extends AbstractController
     }
 
     #[Route(path: '/api/_admin/dashboard/order-amount/{since}', name: 'api.admin.dashboard.order-amount', defaults: ['_routeScope' => ['administration']], methods: ['GET'])]
-    public function orderAmount(string $since, Request $request): JsonResponse
+    public function orderAmount(string $since, Request $request, Context $context): JsonResponse
     {
         $paid = $request->query->getBoolean('paid', true);
 
         $timezone = $request->query->get('timezone', 'UTC');
 
-        $amount = $this->orderAmountService->load($since, $paid, $timezone);
+        $amount = $this->orderAmountService->load($context, $since, $paid, $timezone);
 
         return new JsonResponse(['statistic' => $amount]);
     }

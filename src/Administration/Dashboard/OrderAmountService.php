@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -26,29 +26,16 @@ class OrderAmountService
     /**
      * @return list<array{date:string, amount:float, count:int}>
      */
-    public function load(string $since, bool $paid, string $timezone = 'UTC'): array
+    public function load(Context $context, string $since, bool $paid, string $timezone = 'UTC'): array
     {
-        $rounding = (int) $this->connection->fetchOne(
-            'SELECT currency.total_rounding FROM currency WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::CURRENCY)]
-        );
-
-        $rounding = json_decode((string) $rounding, true);
-        $rounding = !empty($rounding) ? $rounding : ['decimals' => 2, 'interval' => 0.01, 'roundForNet' => true];
-
-        $rounding = new CashRoundingConfig(
-            $rounding['decimals'],
-            $rounding['interval'],
-            $rounding['roundForNet']
-        );
-
         $query = $this->connection->createQueryBuilder();
 
         $accessor = '`order`.order_date_time';
 
         if ($this->timeZoneSupportEnabled) {
-            $accessor = 'CONVERT_TZ(`order`.order_date_time, \'+00:00\', :timezone)';
+            $accessor = 'IFNULL(CONVERT_TZ(' . $accessor . ', :dbtimezone, :timezone), ' . $accessor . ')';
 
+            $query->setParameter('dbtimezone', '+00:00');
             $query->setParameter('timezone', $timezone);
         }
 
@@ -61,25 +48,34 @@ class OrderAmountService
         );
 
         $query->from('`order`');
-        $query->leftJoin('`order`', 'currency', 'currency', 'currency.id = `order`.currency_id');
+        $query->leftJoin('`order`', 'currency', 'currency', '`order`.currency_factor is null AND currency.id = `order`.currency_id');
         $query->andWhere('`order`.order_date_time >= :since');
         $query->andWhere('`order`.version_id = :version');
 
-        $query->groupBy('DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\')');
+        $query->groupBy('`date`');
 
         if ($paid) {
-            $query->innerJoin('`order`', 'order_transaction', 'transactions', 'transactions.order_id = `order`.id AND `transactions`.`version_id` = `order`.version_id');
-            $query->innerJoin('transactions', 'state_machine_state', 'state', 'transactions.state_id = state.id');
-            $query->andWhere('state.technical_name = :paid');
-            $query->setParameter('paid', OrderTransactionStates::STATE_PAID);
+            $paidId = $this->connection->fetchOne('
+                SELECT state.id FROM state_machine_state state
+                INNER JOIN state_machine ON state.state_machine_id = state_machine.id
+                WHERE state_machine.technical_name = :state_machine AND state.technical_name = :state
+            ', [
+                'state_machine' => OrderTransactionStates::STATE_MACHINE,
+                'state' => OrderTransactionStates::STATE_PAID,
+            ]);
+
+            $query->innerJoin('`order`', 'order_transaction', 'transactions', 'transactions.order_id = `order`.id AND transactions.version_id = `order`.version_id AND transactions.state_id = :paidId');
+            $query->setParameter('paidId', $paidId);
         }
 
         $query->setParameter('since', $since);
         $query->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
-        $query->orderBy('order_date_time', 'ASC');
+        $query->orderBy('`date`', 'ASC');
 
         $data = $query->executeQuery()->fetchAllAssociative();
+
+        $rounding = $context->getRounding();
 
         $mapped = [];
         foreach ($data as $row) {

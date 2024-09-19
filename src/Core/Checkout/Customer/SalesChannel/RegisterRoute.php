@@ -291,11 +291,14 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function validateRegistrationData(DataBag $data, bool $isGuest, SalesChannelContext $context, ?DataValidationDefinition $additionalValidations, bool $validateStorefrontUrl): void
     {
-        /** @var DataBag $addressData */
-        $addressData = $data->get('billingAddress');
-        $addressData->set('firstName', $data->get('firstName'));
-        $addressData->set('lastName', $data->get('lastName'));
-        $addressData->set('salutationId', $data->get('salutationId'));
+        $billingAddress = $data->get('billingAddress');
+        $shippingAddress = $data->get('shippingAddress');
+
+        if ($billingAddress instanceof DataBag) {
+            $billingAddress->set('firstName', $data->get('firstName'));
+            $billingAddress->set('lastName', $data->get('lastName'));
+            $billingAddress->set('salutationId', $data->get('salutationId'));
+        }
 
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data, $context);
 
@@ -313,28 +316,30 @@ class RegisterRoute extends AbstractRegisterRoute
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $data->get('billingAddress'), $context));
 
-        if ($data->has('shippingAddress')) {
-            /** @var DataBag $shippingAddress */
-            $shippingAddress = $data->get('shippingAddress');
+        if ($shippingAddress instanceof DataBag) {
             $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, $context));
         }
-
-        $billingAddress = $addressData->all();
 
         if ($data->get('vatIds') instanceof DataBag) {
             $vatIds = array_filter($data->get('vatIds')->all());
             $data->set('vatIds', $vatIds);
         }
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $data->get('vatIds') !== null) {
-            if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
-                $definition->add('vatIds', new NotBlank());
-            }
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            $countryId = $shippingAddress instanceof DataBag
+                ? $shippingAddress->get('countryId')
+                : ($billingAddress instanceof DataBag ? $billingAddress->get('countryId') : null);
 
-            $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                ['countryId' => $billingAddress['countryId']]
-            ));
+            if ($countryId) {
+                if ($this->requiredVatIdField($countryId, $context)) {
+                    $definition->add('vatIds', new NotBlank());
+                }
+
+                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
+                    ['countryId' => $countryId]
+                ));
+            }
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {

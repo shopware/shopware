@@ -1,3 +1,5 @@
+import Storage from 'src/helper/storage/storage.helper';
+
 /**
  * @package storefront
  */
@@ -35,7 +37,7 @@ export default class AppClientService {
      * Resets the token for the current app. This will force the next request to fetch a new token.
      */
     reset(): void {
-        window.sessionStorage.removeItem(this.getStorageKey());
+        Storage.removeItem(this.getStorageKey());
     }
 
     // @ts-ignore
@@ -45,20 +47,20 @@ export default class AppClientService {
 
     private async getHeaders() {
         const key = this.getStorageKey();
-        if (!window.sessionStorage.getItem(key)) {
+        if (!Storage.getItem(key)) {
             const data = await this.fetchHeaders();
 
-            window.sessionStorage.setItem(key, JSON.stringify(data));
+            Storage.setItem(key, JSON.stringify(data));
 
             return data.headers;
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = JSON.parse(window.sessionStorage.getItem(key));
+        const data = JSON.parse(Storage.getItem(key));
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
         if (new Date(data.expires) < new Date()) {
-            window.sessionStorage.removeItem(key);
+            Storage.removeItem(key);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return await this.getHeaders();

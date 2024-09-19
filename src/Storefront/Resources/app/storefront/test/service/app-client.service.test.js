@@ -1,4 +1,5 @@
 import AppClientService from '../../src/service/app-client.service';
+import Storage from 'src/helper/storage/storage.helper';
 
 /**
  * @package storefront
@@ -6,7 +7,7 @@ import AppClientService from '../../src/service/app-client.service';
 describe('App Client Service', () => {
     beforeEach(() => {
         window['router']['frontend.app-system.generate-token'] = 'http://localhost/Placeholder';
-        window.sessionStorage.clear();
+        Storage.clear();
     });
 
     it('handles not customer logged in', async () => {
@@ -144,10 +145,10 @@ describe('App Client Service', () => {
 
         await appClientService.get('https://my-app-backend.com');
 
-        expect(window.sessionStorage.length).toBe(1);
+        expect(Storage.length).toBe(1);
         appClientService.reset();
 
-        expect(window.sessionStorage.length).toBe(0);
+        expect(Storage.length).toBe(0);
     });
 
     it('test post', async () => {

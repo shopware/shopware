@@ -28,7 +28,7 @@
             :disabled="isLoading"
             @click="onCancel"
         >
-            {{ $tc('sw-settings-number-range.detail.buttonCancel') }}
+            {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 
@@ -44,7 +44,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-number-range.detail.buttonSave') }}
+            {{ $tc('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>

@@ -352,7 +352,8 @@
             "@php bin/console feature:dump",
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
-            "@php bin/console theme:compile --sync"
+            "@php bin/console theme:compile --sync",
+            "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
         "e2e:cypress": [

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Telemetry\Metrics\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\MetricInterface;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\Framework\Telemetry\TelemetryException;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,7 @@ class MetricNotSupportedException extends TelemetryException
     final public const METRIC_NOT_SUPPORTED = 'TELEMETRY__METRIC_NOT_SUPPORTED';
 
     public function __construct(
-        public readonly MetricInterface $metric,
+        public readonly Metric $metric,
         public readonly MetricTransportInterface $transport,
         public string $errorCode = self::METRIC_NOT_SUPPORTED,
         string $message = '',

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
+use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
@@ -27,7 +28,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::never())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener($serializer, $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -45,7 +46,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::never())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener($serializer, $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -63,7 +64,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::once())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener($serializer, $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
 
         $stdClass = new \stdClass();
         $stdClass->a = str_repeat('a', 1024 * 256);
@@ -83,7 +84,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::never())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener($serializer, $logger, true);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, true);
 
         $stdClass = new \stdClass();
         $stdClass->a = str_repeat('a', 1024 * 256);

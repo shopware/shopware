@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
+use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
-use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 
 #[Package('core')]
@@ -20,7 +20,7 @@ readonly class MessageQueueSizeRestrictListener
     /**
      * @internal
      */
-    public function __construct(private SerializerInterface $serializer, private LoggerInterface $logger, private bool $enforceLimit)
+    public function __construct(private MessageSizeCalculator $calculator, private LoggerInterface $logger, private bool $enforceLimit)
     {
     }
 
@@ -35,8 +35,7 @@ readonly class MessageQueueSizeRestrictListener
             }
         }
 
-        $encoded = $this->serializer->encode($event->getEnvelope());
-        $messageLength = \strlen(json_encode($encoded, \JSON_THROW_ON_ERROR));
+        $messageLength = $this->calculator->size($event->getEnvelope());
 
         if ($messageLength > self::MESSAGE_SIZE_LIMIT) {
             $messageName = $event->getEnvelope()->getMessage()::class;

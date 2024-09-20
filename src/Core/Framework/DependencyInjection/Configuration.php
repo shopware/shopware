@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -49,6 +50,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSystemConfigNode())
                 ->append($this->createMessengerSection())
                 ->append($this->createSearchSection())
+                ->append($this->createTelemetrySection())
             ->end();
 
         return $treeBuilder;
@@ -949,6 +951,56 @@ class Configuration implements ConfigurationInterface
             ->prototype('scalar')->end()
             ->end()
             ->end();
+
+        return $rootNode;
+    }
+
+    private function createTelemetrySection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('telemetry');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+            ->arrayNode('metrics')
+                ->children()
+                    ->scalarNode('namespace')->end()
+                    ->booleanNode('allow_unknown_labels')->defaultFalse()->end()
+                    ->booleanNode('allow_unknown_label_values')->defaultFalse()->end()
+                    ->booleanNode('enable_internal_metrics')->defaultFalse()->end()
+                    ->booleanNode('enabled')->defaultFalse()->end()
+                    ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('definitions')
+                        ->useAttributeAsKey('name')
+                        ->arrayPrototype()
+                            ->children()
+                                ->enumNode('type')
+                                    ->isRequired()
+                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                ->end()
+                                ->scalarNode('description')->end()
+                                ->scalarNode('unit')->end()
+                                ->scalarNode('enabled')->defaultTrue()->end()
+                                ->arrayNode('parameters')
+                                    ->variablePrototype()
+                                ->end()
+                                ->end()
+                                ->arrayNode('labels')
+                                    ->useAttributeAsKey('label_name')
+                                    ->arrayPrototype()
+                                        ->children()
+                                            ->arrayNode('allowed_values')
+                                                ->scalarPrototype()
+                                            ->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+        ->end()
+        ->end();
 
         return $rootNode;
     }

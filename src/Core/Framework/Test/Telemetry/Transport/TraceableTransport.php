@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Telemetry\Transport;
 
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\MetricInterface;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 
 /**
@@ -11,17 +11,17 @@ use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 class TraceableTransport implements MetricTransportInterface
 {
     /**
-     * @var MetricInterface[]
+     * @var Metric[]
      */
     private array $metrics = [];
 
-    public function emit(MetricInterface $metric): void
+    public function emit(Metric $metric): void
     {
         $this->metrics[] = $metric;
     }
 
     /**
-     * @return MetricInterface[]
+     * @return Metric[]
      */
     public function getEmittedMetrics(): array
     {

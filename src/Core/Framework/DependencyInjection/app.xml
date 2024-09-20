@@ -593,5 +593,11 @@
             <argument type="service" id="app_flow_event.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

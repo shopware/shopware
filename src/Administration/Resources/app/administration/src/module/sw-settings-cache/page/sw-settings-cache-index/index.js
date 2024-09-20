@@ -64,7 +64,7 @@ export default {
                     'product.many-to-many-id-field',
                     'product.category-denormalizer',
                     'product.cheapest-price',
-                    'product.rating-averaget',
+                    'product.rating-average',
                     'product.stream',
                     'product.search-keyword',
                     'product.seo-url',

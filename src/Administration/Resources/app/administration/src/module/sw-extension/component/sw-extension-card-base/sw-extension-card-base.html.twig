@@ -88,6 +88,12 @@
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>
+        <router-link
+            v-else-if="extension.configurable"
+            :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+        </router-link>
     </div>
 
     <sw-context-button
@@ -97,13 +103,6 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_actions %}
-        <sw-context-menu-item
-            v-if="isInstalled && extension.configurable"
-            :router-link="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
-        >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
-        </sw-context-menu-item>
-
         <sw-context-menu-item
             v-if="openLinkExists && extension.active"
             :disabled="!openLinkExists"

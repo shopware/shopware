@@ -32,6 +32,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                 'sw-meteor-card': {
                     template: '<div><slot></slot></div>',
                 },
+                'router-link': true,
             },
         },
         props: {

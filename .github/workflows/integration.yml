@@ -36,7 +36,9 @@ jobs:
       - name: Build js
         run: |
           mkdir -p config/jwt
-          composer run build:js
+          composer run build:js:admin
+          composer npm:storefront run production # we cannot use build:js because it requires a db
+          (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
       - name: Start web server
         run: symfony server:start -d
       - uses: actions/setup-node@v4

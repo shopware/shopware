@@ -14,11 +14,21 @@ class MediaThumbnailEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected int $width = 0;
-
     protected ?string $path = null;
 
-    protected int $height = 0;
+    /**
+     * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be native `int` type
+     */
+    protected $width;
+
+    /**
+     * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be native `int` type
+     */
+    protected $height;
 
     /**
      * @var string

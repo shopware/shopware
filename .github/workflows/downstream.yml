@@ -1,0 +1,36 @@
+name: Downstream
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  rufus:
+    name: Rufus
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' }}
+    steps:
+      - name: Rufus
+        uses: shopware/github-actions/downstream@main
+        with:
+          repo: shopware/rufus
+          workflow: Downstream
+          ref: trunk
+          timeout: 15m
+  
+  commercial:
+    name: Commercial
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request || github.event.pull_request.author_association == 'MEMBER' }}
+    steps:
+      - name: Commercial
+        uses: shopware/github-actions/downstream@main
+        with:
+          repo: shopware/SwagCommercial
+          workflow: Downstream
+          ref: trunk
+          timeout: 20m

@@ -57,3 +57,5 @@ jobs:
     uses: ./.github/workflows/php.yml
   storefront:
     uses: ./.github/workflows/storefront.yml
+  downstream:
+    uses: ./.github/workflows/downstream.yml

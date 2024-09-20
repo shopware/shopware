@@ -51,7 +51,11 @@ export default {
             }
 
             this.page = this.pageRepository.create();
-            this.page.sections = [];
+            this.page.sections = new Shopware.Data.EntityCollection(
+                `/cms-page/${this.page.id}/sections`,
+                'cms_section',
+                Shopware.Context.api,
+            );
         },
 
         async onSave() {

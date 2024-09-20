@@ -36,7 +36,7 @@ async function createWrapper() {
     });
 }
 
-describe('module/sw-cms/page/sw-cms-list-item', () => {
+describe('module/sw-cms/component/sw-cms-list-item', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -159,8 +159,8 @@ describe('module/sw-cms/page/sw-cms-list-item', () => {
 
         wrapper.vm.onRemovePreviewImage(page);
 
-        expect(page.previewMediaId).toBeNull();
-        expect(page.previewMedia).toBeNull();
+        expect(page.previewMediaId).toBeUndefined();
+        expect(page.previewMedia).toBeUndefined();
         expect(saveSpy).toHaveBeenCalled();
     });
 

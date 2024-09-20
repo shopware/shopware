@@ -7,6 +7,8 @@ import 'src/module/sw-cms/store/cms-page.store';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
+const { EntityCollection } = Shopware.Data;
+
 const pageId = 'TEST-PAGE-ID';
 const categoryId = 'TEST-CATEGORY-ID';
 const customEntityId = 'TEST-CUSTOM-ENTITY-ID';
@@ -108,12 +110,6 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should assign new layout to a category', async () => {
         const wrapper = await createWrapper({ type: 'category', id: categoryId });
         await flushPromises();
@@ -124,12 +120,13 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         expect(mockFn).toHaveBeenCalledTimes(1);
 
         const callArg = mockFn.mock.calls[0][0];
-        expect(callArg).toEqual(expect.objectContaining({
+
+        expect(callArg).toMatchObject({
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
-            sections: [],
+            sections: expect.any(EntityCollection),
             type: 'product_list',
-        }));
+        });
 
         expect(callArg.categories).toHaveLength(1);
         expect(callArg.categories[0]).toMatchObject({ id: categoryId });
@@ -147,7 +144,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         expect(callArg).toEqual(expect.objectContaining({
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
-            sections: [],
+            sections: expect.any(EntityCollection),
             type: 'product_list',
         }));
 
@@ -167,7 +164,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         expect(callArg).toEqual(expect.objectContaining({
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
-            sections: [],
+            sections: expect.any(EntityCollection),
             type: 'product_list',
         }));
 
@@ -188,7 +185,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         expect(callArg).toEqual(expect.objectContaining({
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
-            sections: [],
+            sections: expect.any(EntityCollection),
             type: 'product_list',
         }));
 

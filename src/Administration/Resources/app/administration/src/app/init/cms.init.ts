@@ -39,12 +39,8 @@ export default function initializeCms(): void {
             previewComponent: 'sw-cms-block-app-preview-renderer',
             previewImage: block.previewImage,
             appName: extension.name,
-            slots: block.slots.reduce<{
-                [key: string]: {
-                    type: string;
-                };
-            }>((acc, slot, index) => {
-                acc[`${slot.element}-${index}`] = {
+            slots: block.slots.reduce((acc, slot, index) => {
+                (acc as { [key: string]: $TSFixMe })[`${slot.element}-${index}`] = {
                     type: slot.element,
                 };
 

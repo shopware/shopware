@@ -15,9 +15,6 @@ async function createWrapper() {
                 desktop: true,
             },
         },
-        provide: {
-            cmsService: {},
-        },
         global: {
             stubs: {
                 'sw-icon': await wrapTestComponent('sw-icon'),

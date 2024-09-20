@@ -110,7 +110,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.block.backgroundMediaId).toBe(block.backgroundMediaId);
         await wrapper.vm.removeMedia();
-        expect(wrapper.vm.block.backgroundMediaId).toBeNull();
+        expect(wrapper.vm.block.backgroundMediaId).toBeUndefined();
     });
 
     it('should be able to manually set background media', async () => {

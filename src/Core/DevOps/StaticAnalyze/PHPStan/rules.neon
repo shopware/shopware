@@ -14,3 +14,4 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RouteScopeRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessagesShouldNotUsePHPStanTypes
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UseCLIContextRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoInconfiguredMetricAllowed

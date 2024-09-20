@@ -261,5 +261,11 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
             <tag name="kernel.cache_clearer"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Telemetry\CacheTelemetrySubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

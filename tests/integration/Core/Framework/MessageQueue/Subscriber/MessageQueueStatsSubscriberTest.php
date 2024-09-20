@@ -3,19 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\Histogram;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\BarMessage;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
-use Shopware\Core\Framework\Test\Telemetry\Transport\TraceableTransport;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\NoHandlerMessage;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\SerializedMessageStamp;
 
 /**
  * @internal
@@ -60,27 +55,5 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $this->runWorker();
         $stats = $pool->list('message_queue_stats');
         static::assertEquals(0, $stats[NoHandlerMessage::class]['count']);
-    }
-
-    public function testOnMessageReceivedSizeMetricEmitted(): void
-    {
-        Feature::skipTestIfInActive('TELEMETRY_METRICS', $this);
-
-        $transport = $this->getContainer()->get(TraceableTransport::class);
-        static::assertInstanceOf(TraceableTransport::class, $transport);
-        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(MessageBusInterface::class, $bus);
-
-        $stamp = new SerializedMessageStamp('{"name": "John Doe"}');
-        $message = new Envelope(new FooMessage(), [$stamp]);
-        $transport->reset();
-        $bus->dispatch($message);
-        $this->runWorker();
-        static::assertEquals(new Histogram(
-            name: 'messenger.message.size',
-            value: \strlen($stamp->getSerializedMessage()),
-            description: 'Size of the message in bytes',
-            unit: 'byte',
-        ), $transport->getEmittedMetrics()[0]);
     }
 }

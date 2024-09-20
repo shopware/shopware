@@ -277,5 +277,11 @@
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CustomFieldsetGenerator">
             <tag name="shopware.scaffold.generator"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Telemetry\PluginTelemetrySubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

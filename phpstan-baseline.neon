@@ -4687,26 +4687,6 @@ parameters:
 			path: src/Core/System/Tax/Aggregate/TaxRule/TaxRuleEntity.php
 
 		-
-			message: "#^Offset 'states' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/IndividualStatesRuleTypeFilter.php
-
-		-
-			message: "#^Offset 'fromZipCode' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/ZipCodeRangeRuleTypeFilter.php
-
-		-
-			message: "#^Offset 'toZipCode' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/ZipCodeRangeRuleTypeFilter.php
-
-		-
-			message: "#^Offset 'zipCode' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/ZipCodeRuleTypeFilter.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Unit\\\\Aggregate\\\\UnitTranslation\\\\UnitTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Unit/Aggregate/UnitTranslation/UnitTranslationCollection.php

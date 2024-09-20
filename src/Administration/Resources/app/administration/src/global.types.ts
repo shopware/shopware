@@ -81,6 +81,7 @@ import type ListingMixin from './app/mixin/listing.mixin';
 import type CartNotificationMixin from './module/sw-order/mixin/cart-notification.mixin';
 import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension-error.mixin';
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
+import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
@@ -91,6 +92,7 @@ import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageState } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonState } from './app/store/topbar-button.store';
+import type { CmsService } from './module/sw-cms/service/cms.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -113,18 +115,6 @@ type SalutationFilterEntityType = {
     firstName: string,
     lastName: string,
     [key: string]: unknown
-};
-
-type CmsService = {
-    registerCmsElement: (config: { [key: string]: unknown }) => void,
-    registerCmsBlock: $TSFixMeFunction,
-    getCmsElementConfigByName: $TSFixMeFunction,
-    getCmsBlockConfigByName: $TSFixMeFunction,
-    getCmsElementRegistry: $TSFixMeFunction,
-    getCmsBlockRegistry: $TSFixMeFunction,
-    getEntityMappingTypes: $TSFixMeFunction,
-    getPropertyByMappingPath: $TSFixMeFunction,
-    getCmsServiceState: $TSFixMeFunction,
 };
 
 // declare global types
@@ -254,6 +244,7 @@ declare global {
         'cart-notification': typeof CartNotificationMixin,
         'sw-extension-error': typeof SwExtensionErrorMixin,
         'cms-element': typeof CmsElementMixin,
+        'cms-state': typeof CmsStateMixin,
         'generic-condition': typeof GenericConditionMixin,
         'sw-form-field': typeof SwFormFieldMixin,
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin,

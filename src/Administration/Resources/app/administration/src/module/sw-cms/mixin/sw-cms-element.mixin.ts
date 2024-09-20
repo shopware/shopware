@@ -1,5 +1,5 @@
-import type { PropType } from 'vue';
-import { defineComponent } from 'vue';
+import { defineComponent, type PropType } from 'vue';
+import { type RuntimeSlot } from '../service/cms.service';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
@@ -21,7 +21,7 @@ export default Mixin.register('cms-element', defineComponent({
 
     props: {
         element: {
-            type: Object as PropType<Record<string, $TSFixMe>>,
+            type: Object as PropType<RuntimeSlot>,
             required: true,
         },
 
@@ -43,8 +43,8 @@ export default Mixin.register('cms-element', defineComponent({
             return Shopware.Store.get('cmsPageState');
         },
 
-        cmsElements(): Record<string, { defaultConfig: unknown }> {
-            return this.cmsService.getCmsElementRegistry() as Record<string, { defaultConfig: unknown }>;
+        cmsElements() {
+            return this.cmsService.getCmsElementRegistry();
         },
 
         category(): EntitySchema.Entities['category'] {
@@ -69,10 +69,8 @@ export default Mixin.register('cms-element', defineComponent({
                 fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
             }
 
-            // eslint-disable-next-line vue/no-mutating-props,@typescript-eslint/no-unsafe-assignment
             this.element.config = merge(
                 cloneDeep(defaultConfig),
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 this.element?.translated?.config || {},
                 fallbackCategoryConfig || {},
                 this.element?.config || {},
@@ -80,21 +78,16 @@ export default Mixin.register('cms-element', defineComponent({
         },
 
         initElementData(elementName: string) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
                 return;
             }
 
             const elementConfig = this.cmsElements[elementName];
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const defaultData = elementConfig.defaultData ?? {};
-            // eslint-disable-next-line vue/no-mutating-props,@typescript-eslint/no-unsafe-assignment
+            const defaultData = elementConfig?.defaultData ?? {};
             this.element.data = merge(cloneDeep(defaultData), this.element.data || {});
         },
 
         getDemoValue(mappingPath: string) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this.cmsService.getPropertyByMappingPath(
                 this.cmsPageState.currentDemoEntity,
                 mappingPath,

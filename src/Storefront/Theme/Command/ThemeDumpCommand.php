@@ -17,6 +17,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
@@ -55,9 +56,24 @@ class ThemeDumpCommand extends Command
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('theme.salesChannels.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $criteria->addAssociation('salesChannels.domains');
 
         $id = $input->getArgument('theme-id');
-        if ($id !== null) {
+
+        if (!$id) {
+            $helper = $this->getHelper('question');
+
+            $choices = $this->getThemeChoices();
+
+            if (\count($choices) > 1) {
+                $question = new ChoiceQuestion('Please select a theme:', $this->getThemeChoices());
+                $themeName = $helper->ask($input, $output, $question);
+
+                \assert(\is_string($themeName));
+
+                $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+            }
+        } else {
             $criteria->setIds([$id]);
         }
 
@@ -91,6 +107,15 @@ class ThemeDumpCommand extends Command
             true
         );
 
+        $domainUrl = $this->askForDomainUrlIfMoreThanOne($themeEntity, $input, $output);
+
+        if ($domainUrl === null) {
+            $this->io->error(sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
+
+            return self::FAILURE;
+        }
+
+        $dump['domainUrl'] = $domainUrl;
         $dump['basePath'] = $themeConfig->getBasePath();
 
         file_put_contents(
@@ -101,6 +126,20 @@ class ThemeDumpCommand extends Command
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected function getThemeChoices(): array
+    {
+        $choices = [];
+
+        foreach ($this->pluginRegistry->getConfigurations()->getThemes() as $theme) {
+            $choices[] = $theme->getTechnicalName();
+        }
+
+        return $choices;
     }
 
     private function getTechnicalName(string $themeId): ?string
@@ -120,5 +159,45 @@ class ThemeDumpCommand extends Command
         } while ($technicalName === null && $themeId !== null);
 
         return $technicalName;
+    }
+
+    private function askForDomainUrlIfMoreThanOne(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string
+    {
+        $salesChannels = $themeEntity->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+
+        if (!$salesChannels) {
+            return null;
+        }
+
+        $domainUrls = [];
+
+        foreach ($salesChannels as $salesChannel) {
+            if (!$salesChannel->getDomains()?->count()) {
+                continue;
+            }
+
+            $domains = $salesChannel->getDomains();
+
+            if (!$domains?->count()) {
+                continue;
+            }
+
+            foreach ($domains as $domain) {
+                $domainUrls[] = $domain->getUrl();
+            }
+        }
+
+        if (\count($domainUrls) > 1) {
+            $helper = $this->getHelper('question');
+
+            $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
+            $domainUrl = $helper->ask($input, $output, $question);
+
+            \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
+
+            return $domainUrl;
+        }
+
+        return $domainUrls[0] ?? null;
     }
 }

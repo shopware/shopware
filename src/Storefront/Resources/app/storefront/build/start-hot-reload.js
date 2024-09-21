@@ -1,12 +1,20 @@
 /* eslint no-console: 0 */
 const createLiveReloadServer = require('./live-reload-server/index');
 const createProxyServer = require('./proxy-server-hot/index');
+const path = require('path');
 
 // starting the live reload server
 const server = createLiveReloadServer();
 
+const projectRootPath = process.env.PROJECT_ROOT
+    ? path.resolve(process.env.PROJECT_ROOT)
+    : path.resolve('../../../../..');
+
+const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
+const themeFiles = require(themeFilesConfigPath);
+
 server.then(() => {
-    const fullUrl = process.env.APP_URL;
+    const fullUrl = themeFiles.domainUrl;
     const proxyUrl = new URL(process.env.PROXY_URL || process.env.APP_URL);
     const proxyPort = process.env.STOREFRONT_PROXY_PORT;
 

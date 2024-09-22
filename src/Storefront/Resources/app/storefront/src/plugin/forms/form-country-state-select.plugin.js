@@ -120,14 +120,14 @@ export default class CountryStateSelectPlugin extends Plugin {
         if (vatIdRequired) {
             vatIdFieldInput.setAttribute('required', 'required');
 
-            if (label.textContent.substr(-1, 1) !== '*') {
+            if (label?.textContent && label.textContent.substr(-1, 1) !== '*') {
                 label.textContent = `${label.textContent}*`;
             }
 
             return;
         }
 
-        if (label.textContent.substr(-1, 1) === '*') {
+        if (label?.textContent && label.textContent.substr(-1, 1) === '*') {
             label.textContent = label.textContent.substr(0, label.textContent.length -1);
         }
 
@@ -226,14 +226,14 @@ function updateRequiredState(countryStateSelect, stateRequired, placeholderQuery
         placeholder.setAttribute('disabled', 'disabled');
         countryStateSelect.setAttribute('required', 'required');
 
-        if (label.textContent && label.textContent.substr(-1, 1) !== '*') {
+        if (label?.textContent && label.textContent.substr(-1, 1) !== '*') {
             label.textContent = `${label.textContent.trim()}*`;
         }
 
         return;
     }
 
-    if (label.textContent && label.textContent.substr(-1, 1) === '*') {
+    if (label?.textContent && label.textContent.substr(-1, 1) === '*') {
         label.textContent = label.textContent.substr(0, label.textContent.length -1);
     }
 

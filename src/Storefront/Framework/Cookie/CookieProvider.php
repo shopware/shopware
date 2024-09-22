@@ -54,6 +54,7 @@ class CookieProvider implements CookieProviderInterface
             [
                 'snippet_name' => 'cookie.groupComfortFeaturesWishlist',
                 'cookie' => 'wishlist-enabled',
+                'expiration' => '30',
                 'value' => '1',
             ],
             [

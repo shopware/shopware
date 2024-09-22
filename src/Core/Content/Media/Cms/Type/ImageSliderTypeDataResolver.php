@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('buyers-experience')]
@@ -86,7 +87,6 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             if ($sliderItems === null || (is_countable($sliderItems) ? \count($sliderItems) : 0) < 1) {
                 return;
             }
-            $this->sortItemsByPosition($sliderItems);
 
             if ($sliderItemsConfig->getStringValue() === 'product.media') {
                 /** @var ProductEntity $productEntity */
@@ -109,8 +109,13 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         }
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     protected function sortItemsByPosition(ProductMediaCollection $sliderItems): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Unused method ImageSliderTypeDataResolver::sortItemsByPosition will be removed without replacement');
+
         if (!$sliderItems->first() || !$sliderItems->first()->has('position')) {
             return;
         }

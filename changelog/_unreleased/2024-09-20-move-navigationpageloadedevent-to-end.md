@@ -6,4 +6,4 @@ author_email: wolfniklas94@web.de
 author_github: @niklaswolf
 ---
 # Core
-* move NavigationPageLoadedEvent so that the canonical can be changed via event-subscriber
+* Changed `NavigationPageLoader` to dispatch the `NavigationPageLoadedEvent` after setting the canonical URL, such that the canonical can be changed via an event-subscriber

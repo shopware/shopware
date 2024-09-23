@@ -31,8 +31,8 @@
                     "Experimental",
                     "Breadcrumb"
                 ],
-                "summary": "Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
-                "description": "Perform search to get category or product breadcrumb.",
+                "summary": "Fetch a breadcrumb",
+                "description": "Perform search to get category or product breadcrumb. \n\nExperimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "readBreadcrumb",
                 "parameters": [
                     {

@@ -6,6 +6,7 @@
         "schemas": {
             "SeoUrl": {
                 "type": "object",
+                "title": "SeoUrlEntity",
                 "properties": {
                     "routeName": {
                         "type": "string",

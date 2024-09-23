@@ -197,8 +197,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
             static::assertStringContainsString(
                 'Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.',
-                $operation['summary'],
-                \sprintf('Route "%s" is experimental but not documented as such in the schema, please add that note to the summary.', $route->getPath())
+                $operation['description'],
+                \sprintf('Route "%s" is experimental but not documented as such in the schema, please add that note to the description.', $route->getPath())
             );
         }
     }

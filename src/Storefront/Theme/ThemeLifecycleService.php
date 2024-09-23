@@ -39,7 +39,7 @@ class ThemeLifecycleService
         private readonly EntityRepository $themeMediaRepository,
         private readonly FileSaver $fileSaver,
         private readonly FileNameProvider $fileNameProvider,
-        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
@@ -144,14 +144,15 @@ class ThemeLifecycleService
     /**
      * @return array<string, mixed>|null
      */
-    private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
+    private function createMediaStruct(StorefrontPluginConfiguration $pluginConfig, string $path, string $mediaId, ?string $themeFolderId): ?array
     {
-        $path = $this->themeFileImporter->getRealPath($path);
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        if (!$this->themeFileImporter->fileExists($path)) {
+        if (!$fs->hasFile('Resources', $path)) {
             return null;
         }
 
+        $path = $fs->path('Resources', $path);
         $pathinfo = pathinfo($path);
 
         return [
@@ -343,11 +344,12 @@ class ThemeLifecycleService
 
         $installedConfiguration = null;
         if ($theme && \is_array($theme->getThemeJson())) {
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfiguration);
+
             $installedConfiguration = $this->pluginConfigurationFactory->createFromThemeJson(
                 $theme->getTechnicalName() ?? 'childTheme',
                 $theme->getThemeJson(),
-                $pluginConfiguration->getBasePath(),
-                false
+                $fs->location,
             );
         }
 
@@ -364,7 +366,7 @@ class ThemeLifecycleService
 
             $path = $pluginConfiguration->getPreviewMedia();
 
-            $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+            $mediaItem = $this->createMediaStruct($pluginConfiguration, $path, $mediaId, $themeFolderId);
 
             if ($mediaItem) {
                 $themeData['previewMediaId'] = $mediaId;
@@ -407,7 +409,7 @@ class ThemeLifecycleService
                     continue;
                 }
 
-                $path = $pluginConfiguration->getBasePath() . \DIRECTORY_SEPARATOR . $field['value'];
+                $path = $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
                     if (
@@ -425,7 +427,7 @@ class ThemeLifecycleService
                     }
 
                     $mediaId = Uuid::randomHex();
-                    $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+                    $mediaItem = $this->createMediaStruct($pluginConfiguration, $path, $mediaId, $themeFolderId);
 
                     if (!$mediaItem) {
                         continue;

@@ -64,3 +64,8 @@ parameters:
         - # @deprecated tag:v6.7.0 - Constructor changed, remove this exclusion
             message: '#Parameter .* of class Shopware\\Core\\Maintenance\\System\\Exception\\DatabaseSetupException constructor expects .*, .* given#'
             path: src/Core/Maintenance/MaintenanceException.php
+
+        - # @deprecated tag:v6.7.0 - File will be removed
+            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
+            count: 1
+            path: src/Storefront/Theme/ThemeFileImporter.php

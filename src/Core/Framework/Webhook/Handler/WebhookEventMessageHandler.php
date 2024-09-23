@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
+use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -103,7 +104,7 @@ final class WebhookEventMessageHandler
                         'errorCount' => 0,
                     ],
                 ], $context);
-            } catch (WriteTypeIntendException $e) {
+            } catch (AppNotFoundException|WriteTypeIntendException $e) {
                 // may happen if app or webhook got deleted in the meantime,
                 // we don't need to update the erro-count in that case, so we can ignore the error
             }

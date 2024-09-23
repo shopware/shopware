@@ -8,35 +8,27 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  */
 #[Package('core')]
-class AppLoader extends AbstractAppLoader
+class AppLoader
 {
     final public const COMPOSER_TYPE = 'shopware-app';
 
     public function __construct(
         private readonly string $appDir,
-        private readonly string $projectDir,
-        ConfigReader $configReader,
         private readonly LoggerInterface $logger
     ) {
-        parent::__construct($configReader);
     }
 
-    public function getDecorated(): AbstractAppLoader
-    {
-        throw new DecorationPatternException(self::class);
-    }
-
+    /**
+     * @return array<string, Manifest>
+     */
     public function load(): array
     {
         return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
@@ -57,38 +49,6 @@ class AppLoader extends AbstractAppLoader
         }
 
         (new Filesystem())->remove($manifest->getPath());
-    }
-
-    public function loadFile(string $appPath, string $filePath): ?string
-    {
-        $path = Path::join($appPath, $filePath);
-
-        if ($path[0] !== \DIRECTORY_SEPARATOR) {
-            $path = Path::join($this->projectDir, $path);
-        }
-
-        $content = @file_get_contents($path);
-
-        if (!$content) {
-            return null;
-        }
-
-        return $content;
-    }
-
-    public function locatePath(string $appPath, string $filePath): ?string
-    {
-        $path = Path::join($appPath, $filePath);
-
-        if ($path[0] !== \DIRECTORY_SEPARATOR) {
-            $path = Path::join($this->projectDir, $path);
-        }
-
-        if (!file_exists($path)) {
-            return null;
-        }
-
-        return $path;
     }
 
     /**

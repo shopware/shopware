@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SystemConfig\Service;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -28,7 +28,7 @@ class ConfigurationService
     public function __construct(
         private readonly iterable $bundles,
         private readonly ConfigReader $configReader,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly AppConfigReader $appConfigReader,
         private readonly EntityRepository $appRepository,
         private readonly SystemConfigService $systemConfigService
     ) {
@@ -46,7 +46,7 @@ class ConfigurationService
         $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
 
         if (!$validDomain) {
-            throw new \InvalidArgumentException('Expected domain');
+            throw SystemConfigException::invalidDomain();
         }
 
         $scope = $match[1];
@@ -54,7 +54,7 @@ class ConfigurationService
 
         $config = $this->fetchConfiguration($scope === 'core' ? 'System' : $scope, $configName, $context);
         if (!$config) {
-            throw new ConfigurationNotFoundException($scope);
+            throw SystemConfigException::configurationNotFound($scope);
         }
 
         $domain = rtrim($domain, '.') . '.';
@@ -119,7 +119,7 @@ class ConfigurationService
             $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException|ConfigurationNotFoundException|BundleConfigNotFoundException) {
+        } catch (\InvalidArgumentException|SystemConfigException|BundleConfigNotFoundException) {
             return false;
         }
     }
@@ -138,11 +138,8 @@ class ConfigurationService
         }
 
         $app = $this->getAppByName($technicalName, $context);
-        if ($app) {
-            return $this->appLoader->getConfiguration($app);
-        }
 
-        return null;
+        return $app ? $this->appConfigReader->read($app) : null;
     }
 
     private function getAppByName(string $name, Context $context): ?AppEntity

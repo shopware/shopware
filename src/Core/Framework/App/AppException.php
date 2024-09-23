@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
+use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -34,8 +35,11 @@ class AppException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
     final public const APP_PAYMENT_INVALID_TRANSACTION_ID = 'APP_PAYMENT__INVALID_TRANSACTION_ID';
     final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
-
+    public const NO_SOURCE_SUPPORTS = 'FRAMEWORK__APP_NO_SOURCE_SUPPORTS';
+    public const CANNOT_MOUNT_APP_FILESYSTEM = 'FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM';
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+    public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
+    public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -84,11 +88,16 @@ class AppException extends HttpException
 
     public static function notFound(string $identifier): self
     {
+        return static::notFoundByField($identifier);
+    }
+
+    public static function notFoundByField(string $value, string $field = 'identifier'): self
+    {
         return new AppNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::NOT_FOUND,
             self::$couldNotFindMessage,
-            ['entity' => 'app', 'field' => 'identifier', 'value' => $identifier]
+            ['entity' => 'app', 'field' => $field, 'value' => $value]
         );
     }
 
@@ -219,7 +228,7 @@ class AppException extends HttpException
             return new XmlParsingException($file, $message);
         }
 
-        return new AppXmlParsingException($file, $message);
+        return AppXmlParsingException::cannotParseFile($file, $message);
     }
 
     public static function missingRequestParameter(string $parameterName): self
@@ -262,6 +271,45 @@ class AppException extends HttpException
             'The transaction with id {{ transactionId }} is invalid or could not be found.',
             ['transactionId' => $transactionId],
             $e
+        );
+    }
+
+    public static function noSourceSupports(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_SOURCE_SUPPORTS,
+            'App is not supported by any source.',
+        );
+    }
+
+    public static function cannotMountAppFilesystem(string $appName, HttpException $exception): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_MOUNT_APP_FILESYSTEM,
+            'Cannot mount a filesystem for App "{{ app }}". Error: "{{ error }}"',
+            ['app' => $appName, 'error' => $exception->getMessage()],
+            $exception
+        );
+    }
+
+    public static function userAborted(): self
+    {
+        return new UserAbortedCommandException(
+            Response::HTTP_BAD_REQUEST,
+            self::USER_ABORTED,
+            'User aborted operation'
+        );
+    }
+
+    public static function cannotReadFile(string $file): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_READ_FILE,
+            'Unable to read file: "{{ file }}"',
+            ['file' => $file]
         );
     }
 }

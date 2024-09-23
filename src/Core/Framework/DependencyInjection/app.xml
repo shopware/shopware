@@ -80,7 +80,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
@@ -90,7 +90,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
@@ -100,7 +100,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister">
@@ -108,7 +108,7 @@
             <argument type="service" id="app_shipping_method.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
@@ -157,6 +157,7 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="kernel.reset" method="reset"/>
+            <tag name="kernel.event_listener" event="console.terminate" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">
@@ -231,7 +232,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
@@ -253,6 +253,9 @@
             <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister"/>
             <argument type="service" id="custom_entity.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -292,8 +295,6 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLoader">
             <argument>%shopware.app_dir%</argument>
-            <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
             <argument type="service" id="logger"/>
         </service>
 
@@ -575,7 +576,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
             <argument type="service" id="app_flow_action.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -593,6 +594,40 @@
             <argument type="service" id="app_flow_event.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver">
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Source\SourceResolver">
+            <argument type="tagged_iterator" tag="app.source_resolver" index-by="id"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Source\RemoteZip">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppDownloader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppExtractor"/>
+            <tag name="app.source_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Source\Local">
+            <argument>%kernel.project_dir%</argument>
+            <tag name="app.source_resolver" priority="-100"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppArchiveValidator"/>
+
+        <service id="Shopware\Core\Framework\App\AppExtractor">
+            <argument type="service" id="Shopware\Core\Framework\App\AppArchiveValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppDownloader">
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory"/>
 
         <service id="Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber">
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />

@@ -19,8 +19,43 @@ class ThemeFileResolver
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeFileImporterInterface $themeFileImporter)
+    public function __construct(private readonly ThemeFilesystemResolver $themeFilesystemResolver)
     {
+    }
+
+    private function resolveScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
+    {
+        $fileCollection = new FileCollection();
+        $scriptFiles = $configuration->getScriptFiles();
+        $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
+
+        // add source file at the beginning if no other theme is included first
+        if ($addSourceFile
+            && $configuration->getStorefrontEntryFilepath()
+            && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
+        ) {
+            $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
+        }
+        foreach ($scriptFiles as $scriptFile) {
+            if ($onlySourceFiles && !$this->isInclude($scriptFile->getFilepath())) {
+                continue;
+            }
+            $fileCollection->add($scriptFile);
+        }
+        if ($addSourceFile
+            && $configuration->getStorefrontEntryFilepath()
+            && $scriptFiles->count() > 0
+            && $scriptFiles->first()
+            && $this->isInclude($scriptFiles->first()->getFilepath())
+        ) {
+            $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
+        }
+
+        foreach ($fileCollection as $file) {
+            $file->assetName = $configuration->getAssetName();
+        }
+
+        return $fileCollection;
     }
 
     /**
@@ -36,39 +71,7 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
-                    $fileCollection = new FileCollection();
-                    $scriptFiles = $configuration->getScriptFiles();
-                    $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
-
-                    // add source file at the beginning if no other theme is included first
-                    if ($addSourceFile
-                        && $configuration->getStorefrontEntryFilepath()
-                        && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
-                    ) {
-                        $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
-                    }
-                    foreach ($scriptFiles as $scriptFile) {
-                        if ($onlySourceFiles && !$this->isInclude($scriptFile->getFilepath())) {
-                            continue;
-                        }
-                        $fileCollection->add($scriptFile);
-                    }
-                    if ($addSourceFile
-                        && $configuration->getStorefrontEntryFilepath()
-                        && $scriptFiles->count() > 0
-                        && $scriptFiles->first()
-                        && $this->isInclude($scriptFiles->first()->getFilepath())
-                    ) {
-                        $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
-                    }
-
-                    foreach ($fileCollection as $file) {
-                        $file->assetName = $configuration->getAssetName();
-                    }
-
-                    return $fileCollection;
-                }
+                $this->resolveScriptFiles(...)
             ),
             self::STYLE_FILES => $this->resolve(
                 $themeConfig,
@@ -99,7 +102,7 @@ class ThemeFileResolver
             return $files;
         }
 
-        $this->convertPathsToAbsolute($files);
+        $this->convertPathsToAbsolute($themeConfig, $files);
 
         $resolvedFiles = new FileCollection();
         $nextIncluded = $included;
@@ -112,7 +115,7 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
-                if ($this->themeFileImporter->fileExists($filepath)) {
+                if (file_exists($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;
@@ -124,7 +127,7 @@ class ThemeFileResolver
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    \sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
+                    \sprintf('Unable to load file "Resources/%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
                 );
             }
 
@@ -169,18 +172,24 @@ class ThemeFileResolver
         return str_starts_with($file, '@');
     }
 
-    private function convertPathsToAbsolute(FileCollection $files): void
+    private function convertPathsToAbsolute(StorefrontPluginConfiguration $themeConfig, FileCollection $files): void
     {
         foreach ($files->getElements() as $file) {
             if ($this->isInclude($file->getFilepath())) {
                 continue;
             }
 
-            $file->setFilepath($this->themeFileImporter->getRealPath($file->getFilepath()));
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
+            if ($fs->has('Resources', $file->getFilepath())) {
+                $file->setFilepath($fs->realpath('Resources', $file->getFilepath()));
+            }
+
             $mapping = $file->getResolveMapping();
 
             foreach ($mapping as $key => $val) {
-                $mapping[$key] = $this->themeFileImporter->getRealPath($val);
+                if ($fs->has('Resources', $val)) {
+                    $mapping[$key] = $fs->realpath('Resources', $val);
+                }
             }
 
             $file->setResolveMapping($mapping);

@@ -10,7 +10,11 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -26,6 +30,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -38,6 +44,8 @@ class AuthControllerTest extends TestCase
 
     private MockObject&AccountLoginPageLoader $accountLoginPageLoader;
 
+    private MockObject&AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader;
+
     private MockObject&AbstractLoginRoute $loginRoute;
 
     private MockObject&SalesChannelContextServiceInterface $salesChannelContextService;
@@ -45,7 +53,7 @@ class AuthControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
-        $passwordRecoveryPageLoader = $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
+        $this->passwordRecoveryPageLoader = $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
         $resetPasswordRoute = $this->createMock(AbstractResetPasswordRoute::class);
         $this->loginRoute = $this->createMock(AbstractLoginRoute::class);
         $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
@@ -55,7 +63,7 @@ class AuthControllerTest extends TestCase
 
         $this->controller = new AuthControllerTestClass(
             $this->accountLoginPageLoader,
-            $passwordRecoveryPageLoader,
+            $this->passwordRecoveryPageLoader,
             $resetPasswordRoute,
             $this->loginRoute,
             $logoutRoute,
@@ -135,6 +143,41 @@ class AuthControllerTest extends TestCase
         $this->expectExceptionMessage('Guest account is not allowed to login');
 
         $this->controller->guestLoginPage($request, $context);
+    }
+
+    public function testGenerateAccountRecoveryThrowsConstraintException(): void
+    {
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.account.recover.page');
+
+        $dataBag = new RequestDataBag();
+        $data = new DataBag();
+        $data->set('email', 'test@test');
+        $dataBag->set('email', $data);
+
+        $validation = new DataValidationDefinition('customer.email.recover');
+        $validation->add('email', new Email());
+
+        $dataValidator = new DataValidator(Validation::createValidatorBuilder()->getValidator());
+
+        $violations = $dataValidator->getViolations(['email' => 'test@test'], $validation);
+
+        $exception = new ConstraintViolationException($violations, ['email' => 'test@test']);
+
+        $this->passwordRecoveryPageLoader
+            ->expects(static::once())
+            ->method('sendRecoveryMail')
+            ->willThrowException($exception);
+
+        $this->controller->generateAccountRecovery($request, $dataBag, Generator::createSalesChannelContext());
+
+        static::assertSame('frontend.account.recover.page', $this->controller->forwardToRoute);
+
+        /** @var ConstraintViolationException $formViolations */
+        $formViolations = $this->controller->forwardToRouteAttributes['formViolations'];
+
+        static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
+        static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());
     }
 }
 

@@ -5,7 +5,6 @@
 import { mount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
 
-
 async function createWrapper(systemLanguageIso = '', translations = [], customOptions = {}) {
     return mount(await wrapTestComponent('sw-snippet-field', { sync: true }), {
         global: {
@@ -36,6 +35,16 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                     create: (entity) => ({
                         search: () => {
                             if (entity === 'snippet_set') {
+                                const mockLanguages = (new Array(30)).fill(null).reduce((accumulator, _, index) => {
+                                    accumulator.push({
+                                        name: `Mock en-GB #${index}`,
+                                        iso: `en-GB-${index}`,
+                                        id: uuid.get('en-GB'),
+                                    });
+
+                                    return accumulator;
+                                }, []);
+
                                 return Promise.resolve(createEntityCollection([
                                     {
                                         name: 'Base en-GB',
@@ -47,6 +56,7 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                                         iso: 'de-DE',
                                         id: uuid.get('de-DE'),
                                     },
+                                    ...mockLanguages,
                                 ]));
                             }
 
@@ -120,6 +130,47 @@ describe('src/app/component/form/sw-snippet-field', () => {
 
         const textField = wrapper.find('input');
         expect(textField.element.value).toBe('deutsch');
+    });
+
+    it('should show all admin languages\' translations of snippet field, even with more than 25 languages', async () => {
+        Shopware.State.get('session').currentLocale = 'de-DE';
+
+        const enGB = {
+            author: 'testUser',
+            id: null,
+            value: 'english',
+            origin: null,
+            resetTo: 'english',
+            translationKey: 'test.snippet',
+            setId: uuid.get('en-GB'),
+        };
+
+        const deDE = {
+            ...enGB,
+            value: 'deutsch',
+            resetTo: 'deutsch',
+            setId: uuid.get('de-DE'),
+        };
+
+        const mockLanguages = (new Array(30)).reduce((accumulator, _, index) => {
+            accumulator.push({
+                ...enGB,
+                value: `mock-english-${index}`,
+                resetTo: `mock-english-${index}`,
+            });
+
+            return accumulator;
+        }, []);
+
+        const wrapper = await createWrapper('en-GB', [
+            enGB,
+            deDE,
+            ...mockLanguages,
+        ]);
+
+        await flushPromises();
+
+        expect(wrapper.vm.snippetSets).toHaveLength(32);
     });
 
     it('should show system default language translation of snippet field', async () => {

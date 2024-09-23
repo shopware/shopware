@@ -6,4 +6,4 @@ author_email: wolfniklas94@web.de
 author_github: @niklaswolf
 ___
 # Storefront
-* Check for HEAD-request in newsletter-optin controller
+* Added check for HEAD-request in newsletter-optin controller

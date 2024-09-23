@@ -413,6 +413,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             wrapper.vm.mailTemplate,
             expect.anything(),
             '1a2b3c',
+            undefined,
+            '6666673yd1ssd299si1d837dy1ud628',
         );
     });
 
@@ -451,6 +453,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             wrapper.vm.mailTemplate,
             expect.anything(),
             '1a2b3c',
+            undefined,
+            '6666673yd1ssd299si1d837dy1ud628',
         );
     });
 
@@ -572,6 +576,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             mailTemplate,
             expect.anything(),
             '1a2b3c',
+            undefined,
+            '6666673yd1ssd299si1d837dy1ud628',
         );
     });
 
@@ -680,6 +686,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             wrapper.vm.mailTemplate,
             expect.anything(),
             '1a2b3c',
+            undefined,
+            '6666673yd1ssd299si1d837dy1ud628',
         );
 
         expect(notificationMock).toHaveBeenCalledTimes(1);

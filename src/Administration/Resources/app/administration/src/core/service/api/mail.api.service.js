@@ -21,6 +21,8 @@ class MailApiService extends ApiService {
         testMode = false,
         documentIds = [],
         templateData = null,
+        mailTemplateTypeId = null,
+        mailTemplateId = null,
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
@@ -38,6 +40,8 @@ class MailApiService extends ApiService {
                 senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
                 documentIds,
                 testMode,
+                mailTemplateTypeId,
+                mailTemplateId,
             },
             {
                 headers: this.getBasicHeaders(),
@@ -47,7 +51,15 @@ class MailApiService extends ApiService {
         });
     }
 
-    testMailTemplate(recipient, mailTemplate, mailTemplateMedia, salesChannelId, documentIds = []) {
+    testMailTemplate(
+        recipient,
+        mailTemplate,
+        mailTemplateMedia,
+        salesChannelId,
+        mailTemplateTypeId,
+        mailTemplateId,
+        documentIds = [],
+    ) {
         return this.sendMailTemplate(
             recipient,
             recipient,
@@ -56,6 +68,9 @@ class MailApiService extends ApiService {
             salesChannelId,
             true,
             documentIds,
+            null,
+            mailTemplateTypeId,
+            mailTemplateId,
         );
     }
 

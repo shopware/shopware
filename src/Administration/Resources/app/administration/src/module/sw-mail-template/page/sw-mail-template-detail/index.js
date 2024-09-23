@@ -351,6 +351,8 @@ export default {
                 this.mailPreviewContent(),
                 this.mailTemplateMedia,
                 this.testMailSalesChannelId,
+                this.mailTemplate.mailTemplateTypeId,
+                this.mailTemplate.id,
             ).then((response) => {
                 // Size is the length of the mail message, if the size is zero then no mail was sent
                 const isMailSent = response?.size !== 0;

@@ -15,7 +15,8 @@ class QueuedTimeMiddleware implements MiddlewareInterface
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
         if ($envelope->last(SentAtStamp::class) === null && $envelope->last(SentStamp::class) === null) {
-            $envelope = $envelope->with(new SentAtStamp(time()));
+            $now = new \DateTimeImmutable('@' . time());
+            $envelope = $envelope->with(new SentAtStamp($now));
         }
 
         return $stack->next()->handle($envelope, $stack);

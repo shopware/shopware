@@ -30,13 +30,14 @@ class QueuedTimeMiddlewareTest extends TestCase
 
     public function testDoesNotAddSentAtStampIfAlreadyPresent(): void
     {
+        $sentAt = new \DateTimeImmutable('@123456789');
         $middleware = new QueuedTimeMiddleware();
-        $envelope = new Envelope(new \stdClass(), [new SentAtStamp(123456789)]);
+        $envelope = new Envelope(new \stdClass(), [new SentAtStamp($sentAt)]);
 
         $resultingEnvelope = $middleware->handle($envelope, $this->prepareStack());
         static::assertInstanceOf(SentAtStamp::class, $resultingEnvelope->last(SentAtStamp::class));
         static::assertCount(1, $resultingEnvelope->all(SentAtStamp::class));
-        static::assertSame(123456789, $resultingEnvelope->last(SentAtStamp::class)->getSentAt());
+        static::assertSame($sentAt, $resultingEnvelope->last(SentAtStamp::class)->getSentAt());
     }
 
     public function testDoesNotAddSentAtStampIfEnvelopeIsSent(): void

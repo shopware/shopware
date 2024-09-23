@@ -678,8 +678,12 @@ class InfoControllerTest extends TestCase
     public function testFetchMessageStats(): void
     {
         $statsService = $this->getContainer()->get(StatsService::class);
-        $statsService->registerMessage(new Envelope(new \stdClass(), [new SentAtStamp(time() - 2)]));
-        $statsService->registerMessage(new Envelope(new \stdClass(), [new SentAtStamp(time() - 1)]));
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 2))),
+        ]));
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 1))),
+        ]));
 
         $client = $this->getBrowser();
         $client->request('GET', '/api/_info/message-stats.json');

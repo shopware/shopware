@@ -73,7 +73,9 @@ class StatsServiceTest extends TestCase
             );
 
         $service = new StatsService($repository);
-        $envelope = new Envelope(new \stdClass(), [new SentAtStamp(123456789)]);
+        $envelope = new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . 123456789)),
+        ]);
         $service->registerMessage($envelope);
 
         ClockMock::withClockMock(false);

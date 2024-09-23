@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
+use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
@@ -52,7 +52,9 @@ class MessageQueueStatsSubscriberTest extends TestCase
 
     public function testOnMessageHandled(): void
     {
-        $envelope = new Envelope(new \stdClass(), [new SentAtStamp(1726567204)]);
+        $envelope = new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . 1726567204)),
+        ]);
         $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
 
         $this->handleCommonExpectations($envelope, false);

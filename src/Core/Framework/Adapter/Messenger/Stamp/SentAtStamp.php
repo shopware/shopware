@@ -8,14 +8,14 @@ use Symfony\Component\Messenger\Stamp\StampInterface;
 #[Package('core')]
 readonly class SentAtStamp implements StampInterface
 {
-    private int $sentAt;
+    private \DateTimeInterface $sentAt;
 
-    public function __construct(int $sentAt)
+    public function __construct(?\DateTimeInterface $sentAt = null)
     {
-        $this->sentAt = $sentAt;
+        $this->sentAt = $sentAt ?? new \DateTimeImmutable();
     }
 
-    public function getSentAt(): int
+    public function getSentAt(): \DateTimeInterface
     {
         return $this->sentAt;
     }

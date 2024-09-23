@@ -16,9 +16,9 @@ class SentAtStampTest extends TestCase
 {
     public function testGetSentAt(): void
     {
-        $timestamp = 123456789;
-        $stamp = new SentAtStamp($timestamp);
+        $sentAt = new \DateTimeImmutable('@123456789');
+        $stamp = new SentAtStamp($sentAt);
 
-        static::assertSame($timestamp, $stamp->getSentAt());
+        static::assertSame($sentAt, $stamp->getSentAt());
     }
 }

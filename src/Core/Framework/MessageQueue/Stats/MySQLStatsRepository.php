@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Stats;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 class MySQLStatsRepository extends AbstractStatsRepository
 {
     private const MESSAGE_TYPES_LIMIT = 100;
-    private const DATE_FORMAT = 'Y-m-d H:i:s';
 
     public function __construct(
         private readonly Connection $connection,
@@ -30,7 +30,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $this->connection->insert('messenger_stats', [
             'message_type' => $messageFqcn,
             'time_in_queue' => $timeInQueue,
-            'created_at' => $createdAt->format(self::DATE_FORMAT),
+            'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 
@@ -46,7 +46,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
     {
         $this->connection->createQueryBuilder()->delete('messenger_stats')
             ->where('created_at < :olderThan')
-            ->setParameter('olderThan', $olderThan->format(self::DATE_FORMAT))
+            ->setParameter('olderThan', $olderThan->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->executeQuery();
     }
 
@@ -57,7 +57,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $query = $this->connection->createQueryBuilder()->select('COUNT(*) AS handled_count, MIN(created_at) AS handled_since, AVG(time_in_queue) AS average_time_in_queue')
             ->from('messenger_stats')
             ->where('created_at > :newerThan')
-            ->setParameter('newerThan', $newerThan->format(self::DATE_FORMAT));
+            ->setParameter('newerThan', $newerThan->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         $vals = $query->executeQuery()->fetchAssociative();
 
         if (!isset($vals['handled_since'])) {
@@ -77,7 +77,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
             ->groupBy('message_type')
             ->orderBy('created_at', 'DESC')
             ->setMaxResults(self::MESSAGE_TYPES_LIMIT)
-            ->setParameter('newerThan', $newerThan->format(self::DATE_FORMAT));
+            ->setParameter('newerThan', $newerThan->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         $recentMessageTypes = $query->executeQuery()->fetchAllAssociative();
 

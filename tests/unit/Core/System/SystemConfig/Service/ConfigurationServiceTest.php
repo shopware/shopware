@@ -48,9 +48,6 @@ class ConfigurationServiceTest extends TestCase
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
         $this->featureConfigBackup = Feature::getRegisteredFeatures();
-
-        Feature::registerFeature('FEATURE_NEXT_101');
-        Feature::registerFeature('FEATURE_NEXT_102');
     }
 
     protected function tearDown(): void
@@ -118,6 +115,9 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationFeatureFlag(): void
     {
+        Feature::registerFeature('FEATURE_NEXT_101');
+        Feature::registerFeature('FEATURE_NEXT_102');
+
         $_SERVER['FEATURE_NEXT_101'] = '1';
         $_SERVER['FEATURE_NEXT_102'] = '1';
         static::assertTrue(Feature::isActive('FEATURE_NEXT_101'));
@@ -134,6 +134,9 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
     {
+        Feature::registerFeature('FEATURE_NEXT_101');
+        Feature::registerFeature('FEATURE_NEXT_102');
+
         $_SERVER['FEATURE_NEXT_101'] = '0';
         $_SERVER['FEATURE_NEXT_102'] = '0';
         static::assertFalse(Feature::isActive('FEATURE_NEXT_101'));

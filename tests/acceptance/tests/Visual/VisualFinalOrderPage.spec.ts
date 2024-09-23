@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import path from "path";
+import path from 'path';
 
 test('Visual: Final order page in the Storefront.', { tag: '@Visual' }, async ({
     ShopCustomer,
@@ -31,14 +31,14 @@ test('Visual: Final order page in the Storefront.', { tag: '@Visual' }, async ({
 
     await test.step('Creates a screenshot and compare it on final order page in storefront.', async () => {
 
+        await StorefrontCheckoutFinish.page.setViewportSize({ width: 1280, height: 1111});
+
         await expect(StorefrontCheckoutFinish.page).toHaveScreenshot({
-            fullPage: true,
-            stylePath: path.resolve('./tests/visual/screenshot.css'),
+            maxDiffPixelRatio: 0.2,
+            stylePath: path.resolve('./tests/Visual/screenshot.css'),
             mask: [
                 StorefrontCheckoutFinish.page.locator('.finish-ordernumber'),
-                StorefrontCheckoutFinish.page.locator('.line-item-details'),
             ],
-            maxDiffPixelRatio: 0.30,
         });
     });
 });

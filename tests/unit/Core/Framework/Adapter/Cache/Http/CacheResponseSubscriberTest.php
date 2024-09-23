@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -210,7 +211,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         if ($hasCookie === false) {
-            $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'foo');
+            $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'foo');
         }
 
         $response = new Response();
@@ -227,7 +228,7 @@ class CacheResponseSubscriberTest extends TestCase
         if ($hasCookie) {
             static::assertTrue($response->headers->has('set-cookie'));
 
-            $cookies = array_filter($response->headers->getCookies(), fn (Cookie $cookie) => $cookie->getName() === CacheResponseSubscriber::CONTEXT_CACHE_COOKIE);
+            $cookies = array_filter($response->headers->getCookies(), fn (Cookie $cookie) => $cookie->getName() === HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
 
             static::assertCount(1, $cookies);
             /** @var Cookie $cookie */
@@ -437,7 +438,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
-        $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'cart-filled');
+        $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(
@@ -535,8 +536,8 @@ class CacheResponseSubscriberTest extends TestCase
         $salesChannelContext->assign(['customer' => null]);
 
         $salesChannelRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
-        $salesChannelRequest->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'foo');
-        $salesChannelRequest->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'logged-in');
+        $salesChannelRequest->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'foo');
+        $salesChannelRequest->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'logged-in');
 
         $maintenanceRequest = clone $salesChannelRequest;
         $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
@@ -572,7 +573,7 @@ class CacheResponseSubscriberTest extends TestCase
             'states' => ['cart-filled'],
         ]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
-        $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'cart-filled');
+        $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(
@@ -584,7 +585,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $cookies = $response->headers->getCookies();
         static::assertCount(1, $cookies);
-        static::assertSame(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         static::assertSame(0, $cookies[0]->getExpiresTime(), 'the cookie should be an session cookie');
 
         // still not cached
@@ -608,7 +609,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
-        $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'cart-filled');
+        $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(
@@ -637,36 +638,36 @@ class CacheResponseSubscriberTest extends TestCase
             'route' => 'no.login',
             'requestMethod' => Request::METHOD_POST,
             'cookiesAmount' => 1,
-            'cookieName' => CacheResponseSubscriber::SYSTEM_STATE_COOKIE,
+            'cookieName' => HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE,
             'assertCountErrorMessage' => 'There should be 1 cookies set now!',
-            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::SYSTEM_STATE_COOKIE should be set as 1. cookie',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE should be set as 1. cookie',
         ];
 
         yield 'Set cache on login via post' => [
             'route' => 'frontend.account.login',
             'requestMethod' => Request::METHOD_POST,
             'cookiesAmount' => 2,
-            'cookieName' => CacheResponseSubscriber::CONTEXT_CACHE_COOKIE,
+            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
             'assertCountErrorMessage' => 'There should be 2 cookies set now!',
-            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
         ];
 
         yield 'Set cache on no_login via get' => [
             'route' => 'anything',
             'requestMethod' => Request::METHOD_GET,
             'cookiesAmount' => 2,
-            'cookieName' => CacheResponseSubscriber::CONTEXT_CACHE_COOKIE,
+            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
             'assertCountErrorMessage' => 'There should be 2 cookies set now!',
-            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
         ];
 
         yield 'Set cache on login via get' => [
             'route' => 'frontend.account.login',
             'requestMethod' => Request::METHOD_GET,
             'cookiesAmount' => 2,
-            'cookieName' => CacheResponseSubscriber::CONTEXT_CACHE_COOKIE,
+            'cookieName' => HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
             'assertCountErrorMessage' => 'There should be 2 cookies set now!',
-            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
+            'assertEqualsErrorMessage' => 'HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
         ];
     }
 

@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
@@ -94,7 +94,7 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertIsString($appUrl);
 
         $request = $this->createRequest($appUrl);
-        $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'a');
+        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
         static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
@@ -102,7 +102,7 @@ class HttpCacheIntegrationTest extends TestCase
         $response = $kernel->handle($request);
         static::assertEquals('GET /: fresh', $response->headers->get('x-symfony-cache'));
 
-        $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'b');
+        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'b');
 
         $response = $kernel->handle($request);
         static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
@@ -211,7 +211,7 @@ class HttpCacheIntegrationTest extends TestCase
 
         $this->addEventListener($this->getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event): void {
             static::assertEquals(5, $event->getResponse()->getMaxAge());
-            static::assertEquals('logged-in', $event->getResponse()->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
+            static::assertEquals('logged-in', $event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
         }, -1501);
 
         $response = $kernel->handle($request);

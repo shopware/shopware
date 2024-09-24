@@ -87,4 +87,28 @@ class ServiceRegistryClientTest extends TestCase
         static::assertEquals('/app-endpoint', $entries[1]->appEndpoint);
         static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
     }
+
+    public function testServicesAreFetchedAndCached(): void
+    {
+        $service = [
+            ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
+            ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+        ];
+
+        $client = new MockHttpClient([
+            new MockResponse((string) json_encode($service)),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+
+        $entries1 = $registryClient->getAll();
+        static::assertCount(2, $entries1);
+
+        // second fetch would be empty array, since request would fail as we don't provide a second mocked response.
+        // registry client will catch and return empty array.
+        $entries2 = $registryClient->getAll();
+        static::assertCount(2, $entries2);
+
+        static::assertSame($entries1, $entries2);
+    }
 }

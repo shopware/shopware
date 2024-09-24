@@ -5,13 +5,19 @@ namespace Shopware\Core\Service;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('core')]
-class ServiceRegistryClient
+class ServiceRegistryClient implements ResetInterface
 {
+    /**
+     * @var array<ServiceRegistryEntry>
+     */
+    private ?array $services = null;
+
     public function __construct(
         private readonly string $registryUrl,
         private readonly HttpClientInterface $client,
@@ -36,6 +42,10 @@ class ServiceRegistryClient
      */
     public function getAll(): array
     {
+        if ($this->services !== null) {
+            return $this->services;
+        }
+
         try {
             $response = $this->client->request('GET', $this->registryUrl, [
                 'headers' => [
@@ -53,7 +63,7 @@ class ServiceRegistryClient
                 return [];
             }
 
-            return array_map(
+            return $this->services = array_map(
                 static fn (array $service) => new ServiceRegistryEntry(
                     $service['name'],
                     $service['label'],
@@ -84,5 +94,10 @@ class ServiceRegistryClient
         }
 
         return true;
+    }
+
+    public function reset(): void
+    {
+        $this->services = [];
     }
 }

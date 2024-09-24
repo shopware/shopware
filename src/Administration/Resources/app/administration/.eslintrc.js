@@ -146,6 +146,7 @@ module.exports = {
                 'vue/no-deprecated-props-default-this': 'error',
                 'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+                'sw-deprecation-rules/no-vue-options-api': 'off',
             },
         }, {
             extends: [
@@ -287,6 +288,7 @@ module.exports = {
                 '@typescript-eslint/no-unused-vars': 'error',
                 'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+                'sw-deprecation-rules/no-vue-options-api': 'off',
             },
         },
     ],

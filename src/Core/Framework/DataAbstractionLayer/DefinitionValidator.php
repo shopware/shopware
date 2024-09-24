@@ -165,8 +165,8 @@ class DefinitionValidator
 
         foreach ($this->registry->getDefinitions() as $definition) {
             $definitionClass = $definition->getClass();
-            // ignore definitions from a test namespace
-            if (preg_match('/.*\\\\Test|s\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
+            // ignore definitions from a test namespace https://regex101.com/r/hpxAVN/1
+            if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
                 continue;
             }
             if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {

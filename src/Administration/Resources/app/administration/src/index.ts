@@ -5,7 +5,6 @@
  * the Shopware Core with the Shopware object. And then starts to execute
  * the application.
  */
-// @ts-expect-error - we use an webpack alias for compat mode
 import { configureCompat } from 'vue';
 import 'src/core/shopware';
 import 'src/app/main';

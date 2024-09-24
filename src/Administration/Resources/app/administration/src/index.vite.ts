@@ -5,7 +5,6 @@
 // Needed because we build the files for traditional backend: https://vitejs.dev/guide/backend-integration.html
 // eslint-disable-next-line import/no-unresolved
 import 'vite/modulepreload-polyfill';
-// @ts-expect-error - we use an alias for compat mode
 import { configureCompat } from 'vue';
 import './app/assets/scss/all.scss';
 

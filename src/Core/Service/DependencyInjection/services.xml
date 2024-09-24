@@ -23,6 +23,8 @@
         <service id="Shopware\Core\Service\ServiceRegistryClient">
             <argument>%env(SERVICE_REGISTRY_URL)%</argument>
             <argument type="service" id="http_client"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceLifecycle">

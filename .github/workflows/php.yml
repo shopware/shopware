@@ -61,7 +61,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: PHPStan
-        run: composer run phpstan -- --error-format=github --no-progress | tee phpstan-report.json
+        run: composer run phpstan -- --error-format=github --no-progress
 
   bc-checker:
     runs-on: ubuntu-latest

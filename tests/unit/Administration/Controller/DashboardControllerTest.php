@@ -25,11 +25,23 @@ class DashboardControllerTest extends TestCase
 
         $service->expects(static::once())
             ->method('load')
-            ->with($context, $since, $paid, $timezone);
+            ->with($context, $since, $paid, $timezone)
+            ->willReturn([
+                [
+                    'date' => '2021-01-01',
+                    'count' => 100,
+                    'amount' => 1300.3,
+                ],
+                [
+                    'date' => '2021-01-02',
+                    'count' => 200,
+                    'amount' => 2600.1,
+                ],
+            ]);
 
         $controller = new DashboardController($service);
-
-        $controller->orderAmount($since, $request, $context);
+        $response = $controller->orderAmount($since, $request, $context);
+        static::assertSame('{"statistic":[{"date":"2021-01-01","count":100,"amount":1300.3},{"date":"2021-01-02","count":200,"amount":2600.1}]}', $response->getContent());
     }
 
     public static function requestProvider(): \Generator

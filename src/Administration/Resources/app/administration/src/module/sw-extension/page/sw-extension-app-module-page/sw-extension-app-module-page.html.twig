@@ -1,4 +1,7 @@
-<sw-page class="sw-extension-app-module-page">
+<sw-page
+    class="sw-extension-app-module-page"
+    :show-smart-bar="showSmartBar"
+>
     <template
         v-if="!suspend"
         #smart-bar-header

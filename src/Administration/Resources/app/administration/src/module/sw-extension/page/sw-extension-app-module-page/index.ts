@@ -69,6 +69,12 @@ export default Shopware.Component.wrapComponentConfig({
             }) ?? null;
         },
 
+        showSmartBar(): boolean {
+            const hiddenSmartBars = State.get('extensionSdkModules').hiddenSmartBars;
+
+            return !hiddenSmartBars.includes(this.moduleName);
+        },
+
         suspend(): boolean {
             return !this.appDefinition || !this.moduleDefinition;
         },

@@ -1,0 +1,92 @@
+# general
+/adr/                             @shopware/product-ct-core @shopware/product-ct-admin @shopware/product-ct-storefront
+
+# this file
+/.github/CODEOWNERS     @shopware/product-ct-core @shopware/product-ct-admin @shopware/product-ct-storefront
+
+
+# ops
+/.github/               @shopware/product-operations
+/.gitlab/               @shopware/product-operations
+.gitlab-ci.yml          @shopware/product-operations
+
+
+# admin
+/src/Administration/Resources/* @shopware/product-ct-admin
+/.github/workflows/admin* @shopware/product-ct-admin @shopware/product-operations
+
+
+# storefront
+/src/Storefront/ @shopware/product-ct-storefront
+/.github/workflows/storefront* @shopware/product-ct-storefront @shopware/product-operations
+
+
+# ctrl-alt-elite
+src/Core/System/UsageData/usage-data-allow-list.json @product/engineering/solution-teams/ctrl-alt-elite
+
+
+# core
+**/composer.json @shopware/product-ct-core
+/.github/workflows/php* @shopware/product-ct-core @shopware/product-operations
+
+/src/Core/Checkout/Cart/Facade/ @shopware/product-ct-core
+/src/Core/Checkout/Cart/AbstractCartPersister.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/CartCalculator.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/CartDataCollectorInterface.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/CartPersister.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/CartProcessorInterface.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/CartRuleLoader.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/RuleLoader.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/Processor.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/Validator.php @shopware/product-ct-core
+/src/Core/Checkout/Cart/Price/ @shopware/product-ct-core
+/src/Core/Checkout/Cart/Processor/ @shopware/product-ct-core
+/src/Core/Checkout/Cart/CartValidatorInterface.php @shopware/product-ct-core
+/src/Core/Checkout/Order/SalesChannel/OrderRoute.php @shopware/product-ct-core
+/src/Core/Checkout/Promotion/Cart/PromotionProcessor.php @shopware/product-ct-core
+/src/Core/Checkout/Promotion/Cart/PromotionDeliveryProcessor.php @shopware/product-ct-core
+/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php @shopware/product-ct-core
+/src/Core/Content/Media/Pathname/ @shopware/product-ct-core
+/src/Core/Content/Product/SalesChannel/ @shopware/product-ct-core
+/src/Core/Content/Product/DataAbstractionLayer/ @shopware/product-ct-core
+/src/Core/Content/Product/Cart/ @shopware/product-ct-core
+/src/Core/Content/Product/Subscriber/ProductSubscriber.php @shopware/product-ct-core
+/src/Core/Content/Seo/SeoUrlGenerator.php @shopware/product-ct-core
+/src/Core/Content/Seo/SeoResolver.php @shopware/product-ct-core
+/src/Core/Content/Seo/SeoUrlPersister.php @shopware/product-ct-core
+/src/Core/Content/Seo/SeoUrlUpdater.php @shopware/product-ct-core
+/src/Core/Content/Seo/SeoUrlTwigFactory.php @shopware/product-ct-core
+/src/Core/Content/Seo/SeoUrlPlaceholderHandler.php @shopware/product-ct-core
+/src/Core/**/Cache*.php @shopware/product-ct-core
+/src/Core/Framework/Adapter/ @shopware/product-ct-core
+/src/Core/Framework/Api/ @shopware/product-ct-core
+/src/Core/Framework/App/ @shopware/product-ct-core
+/src/Core/Framework/DataAbstractionLayer/ @shopware/product-ct-core
+/src/Core/Framework/Feature/ @shopware/product-ct-core
+/src/Core/Framework/Log/ @shopware/product-ct-core
+/src/Core/Framework/MessageQueue/ @shopware/product-ct-core
+/src/Core/Framework/Migration/ @shopware/product-ct-core
+/src/Core/Framework/Plugin/ @shopware/product-ct-core
+/src/Core/Framework/Resources/config/ @shopware/product-ct-core
+/src/Core/Framework/Routing/ @shopware/product-ct-core
+/src/Core/Framework/Rule/ @shopware/product-ct-core
+/src/Core/Framework/Script/ @shopware/product-ct-core
+/src/Core/Framework/Update/ @shopware/product-ct-core
+/src/Core/Framework/Util/ @shopware/product-ct-core
+/src/Core/Framework/Uuid/ @shopware/product-ct-core
+/src/Core/Framework/Validation/ @shopware/product-ct-core
+/src/Core/Framework/Webhook/ @shopware/product-ct-core
+/src/Core/Framework/*.php @shopware/product-ct-core
+/src/Core/Profiling/ @shopware/product-ct-core
+/src/Core/DevOps/ @shopware/product-ct-core
+/src/Core/System/CustomEntity/ @shopware/product-ct-core
+/src/Core/System/CustomField/ @shopware/product-ct-core
+/src/Core/System/Integration/ @shopware/product-ct-core
+/src/Elasticsearch/ @shopware/product-ct-core
+/bin/ @shopware/product-ct-core
+/public/ @shopware/product-ct-core
+/config/bundles.php @shopware/product-ct-core
+phpstan.neon @shopware/product-ct-core
+.bc-exclude.php @shopware/product-ct-core
+deprecation.ignore @shopware/product-ct-core
+/src/Core/Framework/Resources/config/packages/shopware.yaml @shopware/product-ct-core

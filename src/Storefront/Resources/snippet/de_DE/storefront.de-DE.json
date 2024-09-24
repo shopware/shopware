@@ -559,6 +559,7 @@
     "filterByManufacturerAriaLabel": "Filtern nach Hersteller",
     "filterByPriceAriaLabel": "Filtern nach Preis",
     "filterByRatingAriaLabel": "Filtern nach Mindestbewertung",
+    "filterClose": "Filter schließen",
     "defaultProductSortingLabel": "Name A-Z",
     "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",
     "beforeListPrice": "",
@@ -690,7 +691,8 @@
     "wishlistEmptyHeader": "Ihr Merkzettel ist leer",
     "wishlistEmptyDescription": "Behalten Sie interessante Produkte im Auge, indem Sie sie zu Ihrem Merkzettel hinzufügen.",
     "deliveryTimeRestock": "{1} Versandfertig in 1 Tag, Lieferzeit %name% |]1,Inf[ Versandfertig in %restockTime% Tagen, Lieferzeit %name% ",
-    "deliveryShipping": "Dieses Produkt erscheint am"
+    "deliveryShipping": "Dieses Produkt erscheint am",
+    "remove": "%product_name% vom Merkzettel entfernen"
   },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",

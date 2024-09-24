@@ -25,8 +25,8 @@
                         {% endblock %}
 
                         {% block component_product_wishlist_remove_submit %}
-                            <button type="submit" class="btn product-wishlist-btn product-wishlist-btn-remove">
-                                {% sw_icon 'x' style { class: 'icon-wishlist icon-wishlist-remove', size: size, pack: 'solid' } %}
+                            <button type="submit" class="btn btn-light product-wishlist-btn product-wishlist-btn-remove" aria-label="{{ 'wishlist.remove'|trans({ '%product_name%': product.translated.name })|striptags }}">
+                                {% sw_icon 'x' style { class: 'icon-wishlist icon-wishlist-remove', size: size, pack: 'solid', ariaHidden: true } %}
                             </button>
                         {% endblock %}
                     </form>

@@ -32,6 +32,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -107,6 +108,10 @@ class ProductPageLoaderTest extends TestCase
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
             ->addAssociation('media');
+
+        $criteria->getAssociation('media')->addSorting(
+            new FieldSorting('position')
+        );
 
         $productDetailRouteMock = $this->createMock(ProductDetailRoute::class);
         $productDetailRouteMock

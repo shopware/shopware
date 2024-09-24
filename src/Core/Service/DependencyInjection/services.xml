@@ -33,6 +33,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceClientFactory">
@@ -75,5 +76,12 @@
 
             <tag name="app.source_resolver" priority="100"/>
         </service>
+
+        <service id="Shopware\Core\Service\Framework\ServiceExtensionCompatibility"
+                 decorates="Shopware\Core\Framework\Update\Services\ExtensionCompatibility">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>        </service>
+
     </services>
 </container>

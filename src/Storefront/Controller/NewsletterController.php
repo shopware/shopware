@@ -42,7 +42,7 @@ class NewsletterController extends StorefrontController
          * clicking the link, only by the HEAD-request.
          * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET"
          */
-        if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD') {
             return new Response(status: Response::HTTP_NO_CONTENT);
         }
 

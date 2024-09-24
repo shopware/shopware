@@ -100,6 +100,11 @@ class Kernel extends HttpKernel
             }
         }
 
+        if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service\Service::class])) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The %s bundle should be added to config/bundles.php');
+            yield new Service\Service();
+        }
+
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
     }
 

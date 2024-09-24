@@ -244,6 +244,8 @@ class AppEntity extends Entity
      */
     protected array $sourceConfig = [];
 
+    protected bool $selfManaged = false;
+
     public function getId(): string
     {
         return $this->id;
@@ -760,5 +762,20 @@ class AppEntity extends Entity
     public function setSourceConfig(array $config): void
     {
         $this->sourceConfig = $config;
+    }
+
+    /**
+     * Is this App managed by itself?
+     *
+     * If so, it should not be presented to the client, it is managed and updated by itself
+     */
+    public function isSelfManaged(): bool
+    {
+        return $this->selfManaged;
+    }
+
+    public function setSelfManaged(bool $selfManaged): void
+    {
+        $this->selfManaged = $selfManaged;
     }
 }

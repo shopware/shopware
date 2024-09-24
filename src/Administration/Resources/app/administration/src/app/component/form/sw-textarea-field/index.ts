@@ -56,8 +56,11 @@ Component.register('sw-textarea-field', {
                 return this.modelValue || this.value;
             },
             set(value: string) {
-                this.$emit('update:value', value);
-                this.$emit('update:modelValue', value);
+                if (this.useMeteorComponent) {
+                    this.$emit('update:value', value);
+                } else {
+                    this.$emit('update:modelValue', value);
+                }
             },
         },
 

@@ -33,15 +33,8 @@ class ServiceClientFactory
 
     public function fromName(string $name): ServiceClient
     {
-        $entry = $this->serviceRegistryClient->get($name);
-
-        return new ServiceClient(
-            $this->client->withOptions([
-                'base_uri' => $entry->host,
-            ]),
-            $this->shopwareVersion,
-            $entry,
-            new Filesystem()
+        return $this->newFor(
+            $this->serviceRegistryClient->get($name)
         );
     }
 }

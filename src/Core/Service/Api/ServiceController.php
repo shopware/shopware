@@ -38,15 +38,7 @@ class ServiceController
     #[Route(path: 'api/services/trigger-update', name: 'api.services.trigger-update', methods: ['POST'])]
     public function triggerUpdate(Context $context): Response
     {
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource) {
-            throw ServiceException::updateRequiresAdminApiSource($source);
-        }
-
-        $integrationId = $source->getIntegrationId();
-        if (!$integrationId) {
-            throw ServiceException::updateRequiresIntegration();
-        }
+        $integrationId = $this->extractIntegrationIdOrFail($context);
 
         $app = $this->loadService($context);
 
@@ -62,15 +54,7 @@ class ServiceController
     #[Route(path: '/api/service/activate/{serviceName}', name: 'api.service.activate', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
     public function activate(string $serviceName, Context $context): JsonResponse
     {
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource) {
-            throw ServiceException::updateRequiresAdminApiSource($source);
-        }
-
-        $integrationId = $source->getIntegrationId();
-        if (!$integrationId) {
-            throw ServiceException::updateRequiresIntegration();
-        }
+        $integrationId = $this->extractIntegrationIdOrFail($context);
 
         $service = $this->loadServiceByName($serviceName, $context);
 
@@ -94,16 +78,7 @@ class ServiceController
     #[Route(path: '/api/service/deactivate/{serviceName}', name: 'api.service.deactivate', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
     public function deactivate(string $serviceName, Context $context): JsonResponse
     {
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource) {
-            throw ServiceException::updateRequiresAdminApiSource($source);
-        }
-
-        $integrationId = $source->getIntegrationId();
-        if (!$integrationId) {
-            throw ServiceException::updateRequiresIntegration();
-        }
-
+        $integrationId = $this->extractIntegrationIdOrFail($context);
         $service = $this->loadServiceByName($serviceName, $context);
 
         if (!$service) {
@@ -130,25 +105,18 @@ class ServiceController
     }
 
     /**
-     * @return array<array{name: string, active: bool}>
+     * @return array<array{id: string, name: string, active: bool}>
      */
     private function loadAllServices(Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
 
-        $services = $this->appRepository->search($criteria, $context)->getEntities();
-
-        $result = [];
-        foreach ($services as $service) {
-            $result[] = [
-                'id' => $service->getId(),
-                'name' => $service->getName(),
-                'active' => $service->isActive(),
-            ];
-        }
-
-        return $result;
+        return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(fn (AppEntity $app) => [
+            'id' => $app->getId(),
+            'name' => $app->getName(),
+            'active' => $app->isActive(),
+        ]));
     }
 
     private function loadService(Context $context): ?AppEntity
@@ -171,5 +139,20 @@ class ServiceController
         $criteria->setLimit(1);
 
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
+    }
+
+    private function extractIntegrationIdOrFail(Context $context): string
+    {
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ServiceException::updateRequiresAdminApiSource($source);
+        }
+
+        $integrationId = $source->getIntegrationId();
+        if (!$integrationId) {
+            throw ServiceException::updateRequiresIntegration();
+        }
+
+        return $integrationId;
     }
 }

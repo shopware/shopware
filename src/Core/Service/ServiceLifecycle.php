@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
@@ -33,12 +34,19 @@ class ServiceLifecycle
         private readonly EntityRepository $appRepository,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
-        private readonly ServiceSourceResolver $sourceResolver
+        private readonly ServiceSourceResolver $sourceResolver,
+        private readonly AppStateService $appStateService
     ) {
     }
 
-    public function install(ServiceRegistryEntry $serviceEntry): bool
+    public function install(ServiceRegistryEntry $serviceEntry, Context $context): bool
     {
+        $appId = $this->getAppIdForAppWithSameNameAsService($serviceEntry, $context);
+
+        if ($appId) {
+            return $this->upgradeAppToService($appId, $serviceEntry, $context);
+        }
+
         try {
             $appInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
@@ -139,5 +147,53 @@ class ServiceLifecycle
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
 
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
+    }
+
+    /**
+     * If a non-service app exists with the same name as the service, return its ID.
+     */
+    public function getAppIdForAppWithSameNameAsService(ServiceRegistryEntry $serviceEntry, Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $serviceEntry->name));
+        $criteria->addFilter(new EqualsFilter('selfManaged', false));
+        $criteria->setLimit(1);
+
+        return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
+    }
+
+    private function upgradeAppToService(string $appId, ServiceRegistryEntry $entry, Context $context): bool
+    {
+        $this->appRepository->update(
+            [
+                [
+                    'id' => $appId,
+                    'selfManaged' => true,
+                ],
+            ],
+            $context
+        );
+
+        // it was possibly disabled during the update process
+        $this->appStateService->activateApp($appId, $context);
+
+        $result = $this->update($entry->name, $context);
+
+        if ($result) {
+            return true;
+        }
+
+        // reset it back to a normal app
+        $this->appRepository->update(
+            [
+                [
+                    'id' => $appId,
+                    'selfManaged' => false,
+                ],
+            ],
+            $context
+        );
+
+        return false;
     }
 }

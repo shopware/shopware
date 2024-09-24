@@ -44,7 +44,7 @@ class AllServiceInstaller
         $installedServices = [];
         $newServices = $this->getNewServices($existingServices);
         foreach ($newServices as $service) {
-            $result = $this->serviceLifecycle->install($service);
+            $result = $this->serviceLifecycle->install($service, $context);
 
             if ($result) {
                 $installedServices[] = $service->name;

@@ -212,14 +212,17 @@ export default {
             criteria.getAssociation('currencies')
                 .addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
-            criteria.addAssociation('languages');
+            criteria.getAssociation('languages')
+                .addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('analytics');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
 
-            criteria.addAssociation('domains.language');
-            criteria.addAssociation('domains.snippetSet');
+            criteria.getAssociation('domains.language')
+                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('domains.snippetSet')
+                .addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains.currency');
             criteria.addAssociation('domains.productExports');
 

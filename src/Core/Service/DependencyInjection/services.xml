@@ -80,11 +80,12 @@
             <tag name="app.source_resolver" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Service\Framework\ServiceExtensionCompatibility"
-                 decorates="Shopware\Core\Framework\Update\Services\ExtensionCompatibility">
-            <argument type="service" id=".inner"/>
+        <service id="Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber">
             <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>        </service>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
 
         <service id="Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber">
             <argument type="service" id="app.repository"/>

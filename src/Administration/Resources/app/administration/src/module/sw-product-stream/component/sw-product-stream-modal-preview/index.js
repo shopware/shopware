@@ -51,6 +51,8 @@ export default {
             limit: this.defaultLimit,
             sorting: this.defaultSorting,
             isLoading: false,
+            selectedCurrencyIsoCode: 'EUR',
+            selectedCurrencyId: Context.app.systemCurrencyId,
         };
     },
 
@@ -146,7 +148,9 @@ export default {
         onSalesChannelChange() {
             this.page = 1;
             this.isLoading = true;
-            this.loadEntityData().finally(() => {
+            this.loadSalesChannelById().then(() => {
+                return this.loadEntityData();
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -161,7 +165,7 @@ export default {
                 this.previewCriteria,
                 this.mapFiltersForSearch(this.filters),
                 {
-                    'sw-currency-id': Context.app.systemCurrencyId,
+                    'sw-currency-id': this.selectedCurrencyId,
                     'sw-inheritance': true,
                 },
             ).then((result) => {
@@ -225,6 +229,23 @@ export default {
             this.loadEntityData().finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        loadSalesChannelById() {
+            if (this.selectedSalesChannel === null) {
+                return Promise.resolve();
+            }
+
+            const criteria = this.salesChannelCriteria;
+
+            criteria.addAssociation('currency');
+
+            return this.salesChannelRepository
+                .get(this.selectedSalesChannel, Shopware.Context.api, this.salesChannelCriteria)
+                .then((salesChannel) => {
+                    this.selectedCurrencyIsoCode = salesChannel.currency.isoCode;
+                    this.selectedCurrencyId = salesChannel.currencyId;
+                });
         },
     },
 };

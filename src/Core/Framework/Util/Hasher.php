@@ -11,17 +11,37 @@ class Hasher
 {
     public const ALGO = 'xxh128';
 
-    public static function hash(mixed $data, string $algo = self::ALGO, bool $binary = false): string
+    /**
+     * @return string the generated hash, **note** that the hashing is not cryptographically secure and should not be used for security purposes
+     */
+    public static function hash(mixed $data, string $algo = self::ALGO): string
     {
         if (!\is_string($data)) {
             $data = \json_encode($data, \JSON_THROW_ON_ERROR);
         }
 
-        return \hash($algo, $data, $binary);
+        return \hash($algo, $data);
     }
 
-    public static function hash_file(string $filename, string $algo = self::ALGO, bool $binary = false): string|false
+    /**
+     * @return string the generated binary hash, **note** that the hashing is not cryptographically secure and should not be used for security purposes
+     */
+    public static function hashBinary(string $data, string $algo = self::ALGO): string
     {
-        return \hash_file($algo, $filename, $binary);
+        return \hash($algo, $data, true);
+    }
+
+    /**
+     * @return string the generated hash, **note** that the hashing is not cryptographically secure and should not be used for security purposes
+     */
+    public static function hashFile(string $filename, string $algo = self::ALGO): string
+    {
+        $hash = \hash_file($algo, $filename);
+
+        if ($hash === false) {
+            throw UtilException::couldNotHashFile($filename);
+        }
+
+        return $hash;
     }
 }

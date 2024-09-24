@@ -173,7 +173,7 @@ class AssetService
     {
         $localManifest = array_combine(
             array_map(fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
-            array_map(fn (SplFileInfo $file) => (string) Hasher::hash_file($file->getPathname(), 'sha256'), $files)
+            array_map(fn (SplFileInfo $file) => Hasher::hashFile($file->getPathname(), 'sha256'), $files)
         );
 
         ksort($localManifest);

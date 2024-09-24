@@ -46,7 +46,7 @@ class FileFetcher
             FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
-            Hasher::hash_file($fileName, 'md5') ?: null
+            Hasher::hashFile($fileName, 'md5')
         );
     }
 
@@ -85,7 +85,7 @@ class FileFetcher
             $mimeType,
             $extension,
             $writtenBytes,
-            Hasher::hash_file($fileName, 'md5') ?: null
+            Hasher::hashFile($fileName, 'md5')
         );
     }
 
@@ -96,14 +96,14 @@ class FileFetcher
         \assert($fh !== false);
 
         $blobSize = (int) @fwrite($fh, $blob);
-        $fileHash = $tempFile ? Hasher::hash_file($tempFile, 'md5') : null;
+        $fileHash = $tempFile ? Hasher::hashFile($tempFile, 'md5') : null;
 
         return new MediaFile(
             $tempFile,
             $contentType,
             $extension,
             $blobSize,
-            $fileHash ?: null
+            $fileHash
         );
     }
 

@@ -27,10 +27,7 @@ class ApiAwareTest extends TestCase
 
     public function testApiAware(): void
     {
-        $cacheId = Hasher::hash_file(__DIR__ . '/fixtures/api-aware-fields.json');
-        if (!\is_string($cacheId)) {
-            static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be hashed');
-        }
+        $cacheId = Hasher::hashFile(__DIR__ . '/fixtures/api-aware-fields.json');
 
         $kernel = KernelLifecycleManager::createKernel(
             null,

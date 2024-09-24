@@ -128,7 +128,7 @@ class Uuid
      */
     public static function fromStringToHex(string $string): string
     {
-        return self::fromBytesToHex(Hasher::hash($string, 'md5', true));
+        return self::fromBytesToHex(Hasher::hashBinary($string, 'md5'));
     }
 
     public static function isValid(string $id): bool

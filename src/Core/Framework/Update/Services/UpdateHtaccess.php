@@ -42,7 +42,7 @@ class UpdateHtaccess implements EventSubscriberInterface
             return;
         }
 
-        if (\in_array(Hasher::hash_file($this->htaccessPath, 'md5'), self::OLD_FILES, true)) {
+        if (\in_array(Hasher::hashFile($this->htaccessPath, 'md5'), self::OLD_FILES, true)) {
             $this->replaceFile($this->htaccessPath);
 
             return;

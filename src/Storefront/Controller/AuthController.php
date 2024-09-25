@@ -223,6 +223,11 @@ class AuthController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         } catch (RateLimitExceededException $e) {
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forwardToRoute(
+                'frontend.account.recover.page',
+                ['formViolations' => $formViolations]
+            );
         }
 
         return $this->redirectToRoute('frontend.account.recover.page');

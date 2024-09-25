@@ -9,6 +9,11 @@ describe('VariantSwitchPlugin tests', () => {
     beforeEach(() => {
         document.$emitter = new NativeEventEmitter();
 
+        window.focusHandler = {
+            saveFocusStatePersistent: jest.fn(),
+            resumeFocusStatePersistent: jest.fn(),
+        };
+
         // mock variant switch plugins
         const mockElement = document.createElement('form');
         const mockInput = document.createElement('input');

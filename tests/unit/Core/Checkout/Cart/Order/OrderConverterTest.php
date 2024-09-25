@@ -1162,6 +1162,7 @@ class OrderConverterTest extends TestCase
             'campaignCode' => null,
             'source' => null,
             'hash' => null,
+            'states' => [],
         ];
     }
 

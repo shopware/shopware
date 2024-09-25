@@ -558,6 +558,14 @@
         />
         {% endblock %}
 
+        <sw-text-field
+            v-if="salesChannel.productExports && salesChannel.productExports.length > 0"
+            v-model:value="cliCommand"
+            copyable
+            :label="$tc('sw-sales-channel.detail.productComparison.cliCommand')"
+            readonly
+            :disabled="true"
+        />
     </sw-card>
     {% endblock %}
 

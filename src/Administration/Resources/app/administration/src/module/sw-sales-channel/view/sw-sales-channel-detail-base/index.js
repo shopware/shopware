@@ -468,6 +468,15 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        cliCommand() {
+            if (this.salesChannel.productExports === undefined || this.salesChannel.productExports.length === 0) {
+                return '';
+            }
+
+            // eslint-disable-next-line max-len
+            return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
+        },
     },
 
     watch: {

@@ -1,6 +1,7 @@
 /**
  * @package customer-order
  * @private
+ * @description Apply for upselling service only, no public usage
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

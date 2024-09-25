@@ -262,6 +262,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtSkeletonBar',
             'MtToast',
             'MtFloatingUi',
+            'MtPopover',
         ];
 
         // Disable compat for meteor components

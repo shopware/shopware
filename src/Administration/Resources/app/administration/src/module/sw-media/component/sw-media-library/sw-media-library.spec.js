@@ -59,6 +59,7 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                 'sw-button': true,
                 'sw-media-folder-item': true,
                 'router-link': true,
+                'sw-extension-teaser-popover': true,
             },
 
             provide: {

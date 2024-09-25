@@ -2,6 +2,7 @@
  * @package customer-order
  *
  * @private
+ * @description Apply for upselling service only, no public usage
  */
 
 import topBarButtonState from 'src/app/store/topbar-button.store';

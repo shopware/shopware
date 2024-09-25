@@ -61,6 +61,7 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-loader': true,
+                'sw-extension-component-section': true,
             },
             provide: {
                 repositoryFactory: {

@@ -72,11 +72,14 @@ $background-color: $color-gray-100;
         }
     }
 
-    .sw-property-search__search-field.sw-product-add-properties-modal__search-field {
+    .sw-product-add-properties-modal__toolbar {
         padding: 30px;
         border-bottom: 1px solid #d8dde6;
         background-color: $background-color;
+        grid-template-columns: 1fr auto;
+    }
 
+    .sw-property-search__search-field.sw-product-add-properties-modal__search-field {
         .sw-simple-search-field {
             margin: 0;
         }
@@ -84,5 +87,9 @@ $background-color: $color-gray-100;
         .sw-icon.sw-simple-search-field__search-icon.icon--regular-search-s.sw-icon--small {
             right: 45px;
         }
+    }
+
+    .sw-extension-teaser-popover {
+        margin-left: 14px;
     }
 }

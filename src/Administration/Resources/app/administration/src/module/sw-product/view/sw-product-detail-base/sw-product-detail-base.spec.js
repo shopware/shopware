@@ -57,6 +57,7 @@ async function createWrapper() {
                 'sw-select-field': true,
                 'router-link': true,
                 'sw-skeleton': true,
+                'sw-extension-teaser-popover': true,
             },
             mocks: {
                 $route: {

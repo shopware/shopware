@@ -5,6 +5,11 @@
         :alt="'Preview image for app CMS block: ' + $tc(blockLabel)"
     >
 
+    <sw-extension-teaser-popover
+        v-else-if="appName === 'SwagCeToRiseUpsellingApp'"
+        position-identifier="sw-cms-block-3d-object"
+    />
+
     <section
         v-else
         class="sw-cms-block-app-preview-renderer__fallback-preview"

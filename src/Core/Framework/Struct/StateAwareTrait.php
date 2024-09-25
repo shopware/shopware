@@ -10,7 +10,7 @@ trait StateAwareTrait
     /**
      * @var array<string>
      */
-    private array $states = [];
+    protected array $states = [];
 
     public function addState(string ...$states): void
     {

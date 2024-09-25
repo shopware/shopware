@@ -78,7 +78,7 @@ export default class VariantsGenerator extends EventEmitter {
             if (grouped.length <= 0) {
                 this.loadExisting(this.product.id).then((variantsOnServer) => {
                     const deleteArray = Object.keys(variantsOnServer).map((id) => { return id; });
-                    this.emit('queues', { createQueue: [], deleteQueue: deleteArray });
+                    this.emit('queues', { createQueue: [], deleteQueue: isAddOnly ? [] : deleteArray });
                 });
                 return;
             }

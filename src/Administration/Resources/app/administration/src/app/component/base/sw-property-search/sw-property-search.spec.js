@@ -355,4 +355,21 @@ describe('components/base/sw-property-search', () => {
 
         expect(groupOptions).toBe(12);
     });
+
+
+    it('should add option count when change the isAddOnly', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setProps({
+            isAddOnly: true,
+        });
+
+        const addOptionCount = jest.spyOn(wrapper.vm, 'addOptionCount');
+        await wrapper.setProps({
+            isAddOnly: false,
+        });
+
+        expect(addOptionCount).toHaveBeenCalled();
+    });
 });

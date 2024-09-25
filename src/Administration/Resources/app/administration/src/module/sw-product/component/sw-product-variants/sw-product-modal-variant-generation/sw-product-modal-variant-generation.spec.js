@@ -957,4 +957,109 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         wrapper.vm.onChangeVariantValue(true, items[0]);
         expect(wrapper.vm.variantGenerationQueue.createQueue[0].downloads).toContainEqual(file);
     });
+
+    it('should add option count when change the isAddOnly', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            isAddOnly: true,
+        });
+
+        const addOriginalConfiguratorSettings = jest.spyOn(wrapper.vm, 'addOriginalConfiguratorSettings');
+        await wrapper.setData({
+            isAddOnly: false,
+        });
+
+        expect(addOriginalConfiguratorSettings).toHaveBeenCalled();
+
+        const emptyConfiguratorSettings = jest.spyOn(wrapper.vm, 'emptyConfiguratorSettings');
+        await wrapper.setData({
+            isAddOnly: true,
+        });
+
+        expect(emptyConfiguratorSettings).toHaveBeenCalled();
+    });
+
+    it('should add origin configuration when cancel modal', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            originalConfiguratorSettings: new EntityCollection(
+                'product-configurator-settings',
+                '/product-configurator-settings',
+                Shopware.Context.api,
+                null,
+                [
+                    {
+                        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                        productId: 'e8751848318b4564a4c48bd2bba570b2',
+                        productVersionId: null,
+                        mediaId: null,
+                        optionId: 'e10fed21a07149958427cb5339ee4c31',
+                        creationState: 'is-download',
+                        price: null,
+                        position: 0,
+                        customFields: null,
+                        createdAt: '2022-09-26T06:33:59.508+00:00',
+                        updatedAt: null,
+                        apiAlias: null,
+                        id: '529991749890466e9ff44982bff96305',
+                        option: {
+                            groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                            name: 'Tower',
+                            position: 1,
+                            colorHexCode: null,
+                            mediaId: null,
+                            customFields: null,
+                            createdAt: '2022-09-26T06:32:18.221+00:00',
+                            updatedAt: '2022-09-26T06:33:59.512+00:00',
+                            translated: { name: 'Tower', position: 1, customFields: {} },
+                            apiAlias: null,
+                            id: 'e10fed21a07149958427cb5339ee4c31',
+                            translations: [],
+                            productConfiguratorSettings: [],
+                            productProperties: [],
+                            productOptions: [],
+                        },
+                    },
+                    {
+                        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                        productId: 'e8751848318b4564a4c48bd2bba570b2',
+                        productVersionId: null,
+                        mediaId: null,
+                        optionId: 'd6e90b99fe4842d487b53b59e50491a5',
+                        creationState: 'is-physical',
+                        price: null,
+                        position: 0,
+                        customFields: null,
+                        createdAt: '2022-09-26T06:32:43.994+00:00',
+                        updatedAt: null,
+                        apiAlias: null,
+                        id: '12bbe30fa2ef4f1d83d0899db1c6d450',
+                        option: {
+                            groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                            name: 'HQ',
+                            position: 1,
+                            colorHexCode: null,
+                            mediaId: null,
+                            customFields: null,
+                            createdAt: '2022-09-26T06:32:22.274+00:00',
+                            updatedAt: null,
+                            translated: { name: 'HQ', position: 1, customFields: {} },
+                            apiAlias: null,
+                            id: 'd6e90b99fe4842d487b53b59e50491a4',
+                            translations: [],
+                            productConfiguratorSettings: [],
+                            productProperties: [],
+                            productOptions: [],
+                        },
+                    },
+                ],
+            ),
+        });
+
+        const removeDuplicateEntries = jest.spyOn(wrapper.vm, 'removeDuplicateEntries');
+        wrapper.vm.onModalCancel();
+
+        expect(removeDuplicateEntries).toHaveBeenCalled();
+    });
 });

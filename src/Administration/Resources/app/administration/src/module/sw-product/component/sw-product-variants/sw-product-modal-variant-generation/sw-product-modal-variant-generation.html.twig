@@ -95,6 +95,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_main %}
     <div class="sw-product-modal-variant-generation__main">
+        {# @deprecated tag:v6.7.0 - The property :disabled will be removed, use isAddOnly instead #}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_selection %}
         <sw-product-variants-configurator-selection
@@ -104,6 +105,7 @@
             :overlay="false"
             :collapsible="false"
             :disabled="isAddOnly"
+            :is-add-only="isAddOnly"
             @variations-finish-generate="$emit('variations-finish-generate')"
             @option-select="calcVariantsNumber()"
         />
@@ -136,7 +138,7 @@
         {% block sw_product_modal_variant_generation_footer_cancel %}
         <sw-button
             size="small"
-            @click="$emit('modal-close')"
+            @click="onModalCancel"
         >
             {{ $tc('sw-product.variations.cancelVariationsButton') }}
         </sw-button>

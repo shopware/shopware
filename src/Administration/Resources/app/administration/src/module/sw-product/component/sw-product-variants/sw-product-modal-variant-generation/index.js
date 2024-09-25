@@ -70,6 +70,7 @@ export default {
             idToIndex: {},
             productDownloadFolderId: null,
             isAddOnly: false,
+            originalConfiguratorSettings: [],
         };
     },
 
@@ -134,6 +135,15 @@ export default {
         variantGenerationQueue() {
             this.getList();
             this.showUploadModal = true;
+        },
+
+        isAddOnly() {
+            if (this.isAddOnly) {
+                this.emptyConfiguratorSettings();
+                return;
+            }
+
+            this.addOriginalConfiguratorSettings();
         },
     },
 
@@ -299,6 +309,7 @@ export default {
             });
 
             this.variantsGenerator.saveVariants(this.variantGenerationQueue).then(() => {
+                this.addOriginalConfiguratorSettings();
                 return this.productRepository.save(this.product);
             }).then(() => {
                 this.$emit('variations-finish-generate');
@@ -452,9 +463,47 @@ export default {
             this.usageOfFiles[fileName].push(id);
         },
 
+
+        onModalCancel() {
+            this.addOriginalConfiguratorSettings();
+            this.$emit('modal-close');
+        },
+
+        addOriginalConfiguratorSettings() {
+            this.removeDuplicateEntries();
+            this.originalConfiguratorSettings.forEach((configSetting) => {
+                this.product.configuratorSettings.add(configSetting);
+            });
+
+            this.calcVariantsNumber();
+        },
+
+        emptyConfiguratorSettings() {
+            this.originalConfiguratorSettings = [];
+            this.product.configuratorSettings.getIds().forEach((id) => {
+                this.originalConfiguratorSettings.push(this.product.configuratorSettings.get(id));
+                this.product.configuratorSettings.remove(id);
+            });
+
+            this.calcVariantsNumber();
+        },
+
         onTermChange(term) {
             this.term = term;
             this.getList();
+        },
+
+        removeDuplicateEntries() {
+            const that = this;
+            this.product.configuratorSettings.getIds().forEach((configSettingId) => {
+                const configSetting = that.product.configuratorSettings.get(configSettingId);
+
+                if (this.originalConfiguratorSettings.find((setting) => {
+                    return setting.optionId === configSetting.optionId;
+                }) !== undefined) {
+                    that.product.configuratorSettings.remove(configSettingId);
+                }
+            });
         },
     },
 };

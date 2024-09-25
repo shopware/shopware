@@ -143,6 +143,8 @@
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 

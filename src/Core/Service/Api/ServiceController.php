@@ -54,16 +54,12 @@ class ServiceController
     #[Route(path: '/api/service/activate/{serviceName}', name: 'api.service.activate', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
     public function activate(string $serviceName, Context $context): JsonResponse
     {
-        $integrationId = $this->extractIntegrationIdOrFail($context);
+        $this->extractIntegrationIdOrFail($context);
 
         $service = $this->loadServiceByName($serviceName, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
-        }
-
-        if ($service->getIntegrationId() === $integrationId) {
-            throw ServiceException::toggleActionNotAllowed();
         }
 
         if (!$service->isActive()) {
@@ -78,15 +74,12 @@ class ServiceController
     #[Route(path: '/api/service/deactivate/{serviceName}', name: 'api.service.deactivate', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
     public function deactivate(string $serviceName, Context $context): JsonResponse
     {
-        $integrationId = $this->extractIntegrationIdOrFail($context);
+        $this->extractIntegrationIdOrFail($context);
+
         $service = $this->loadServiceByName($serviceName, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
-        }
-
-        if ($service->getIntegrationId() === $integrationId) {
-            throw ServiceException::toggleActionNotAllowed();
         }
 
         if ($service->isActive()) {

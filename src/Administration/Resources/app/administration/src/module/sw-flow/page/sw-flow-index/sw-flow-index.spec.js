@@ -40,6 +40,7 @@ async function createWrapper(privileges = []) {
                 'sw-tabs-item': true,
                 'sw-skeleton': true,
                 'router-view': true,
+                'sw-extension-teaser-popover': true,
             },
             provide: {
                 repositoryFactory: {

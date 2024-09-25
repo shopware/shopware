@@ -9,6 +9,7 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @description Apply for upselling service only, no public usage
  */
 Component.register('sw-app-topbar-button', {
     template,

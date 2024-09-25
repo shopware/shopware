@@ -201,7 +201,7 @@ describe('src/app/main.ts', () => {
     it('should add all initializer to Application', () => {
         const initializers = Shopware.Application.getContainer('init').$list();
 
-        expect(initializers).toHaveLength(34);
+        expect(initializers).toHaveLength(35);
         expect(initializers).toContain('apiServices');
         expect(initializers).toContain('state');
         expect(initializers).toContain('store');
@@ -236,6 +236,7 @@ describe('src/app/main.ts', () => {
         expect(initializers).toContain('worker');
         expect(initializers).toContain('usageData');
         expect(initializers).toContain('topbarButton');
+        expect(initializers).toContain('teaserPopover');
     });
 
     it('should add all services to Application', () => {

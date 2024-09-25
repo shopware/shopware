@@ -123,6 +123,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         flex-direction: row;
         text-align: right;
         white-space: nowrap;
+        align-items: center;
 
         .sw-button,
         .sw-button-group,

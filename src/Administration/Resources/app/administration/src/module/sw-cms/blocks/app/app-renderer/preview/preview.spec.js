@@ -7,6 +7,12 @@ import { mount } from '@vue/test-utils';
 async function createWrapper(props = undefined) {
     return mount(await wrapTestComponent('sw-cms-block-app-preview-renderer', { sync: true }), {
         props,
+
+        global: {
+            stubs: {
+                'sw-extension-teaser-popover': true,
+            },
+        },
     });
 }
 

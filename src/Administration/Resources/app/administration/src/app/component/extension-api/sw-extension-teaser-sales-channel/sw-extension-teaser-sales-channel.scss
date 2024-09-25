@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+.sw-extension-teaser-sales-channel {
+    display: flex;
+    background: white;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding-right: 10px;
+
+    &__info {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    &__icon {
+        background: $color-gray-100;
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        margin-right: 30px;
+
+        .mt-icon {
+            color: $color-gray-900;
+            margin: 20px;
+        }
+    }
+
+    &__item-name {
+        font-size: $font-size-m;
+        margin-bottom: 0;
+        color: $color-darkgray-200;
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+    &__item-description {
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+        margin-top: 5px;
+        cursor: pointer;
+    }
+}

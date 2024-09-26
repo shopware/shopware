@@ -64,7 +64,7 @@
         {% block page_product_detail_buy_container %}
             <div itemprop="offers"
                  itemscope
-                 itemtype="{% if page.product.calculatedPrices|length > 1 %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}">
+                 itemtype="{% if page.product.calculatedPrices|length > 1 %}https://schema.org/AggregateOffer{% else %}https://schema.org/Offer{% endif %}">
                 {% block page_product_detail_data %}
                     {% block page_product_detail_data_rich_snippet_url %}
                         <meta itemprop="url"

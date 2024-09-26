@@ -3,7 +3,7 @@ import Feature from 'src/helper/feature.helper';
 
 const html = `<div class="main-navigation" id="mainNavigation" data-flyout-menu="true">
             <div class="container">
-            <nav class="nav main-navigation-menu" itemscope="itemscope" itemtype="http://schema.org/SiteNavigationElement">
+            <nav class="nav main-navigation-menu" itemscope="itemscope" itemtype="https://schema.org/SiteNavigationElement">
                 <a class="nav-link main-navigation-link home-link" href="/" itemprop="url" title="Home">
                     <div class="main-navigation-link-text">
                         <span itemprop="name">Home</span>

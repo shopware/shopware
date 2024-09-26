@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,7 +32,8 @@ class ServiceController
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
-        private readonly AppStateService $appStateService
+        private readonly AppStateService $appStateService,
+        private readonly AbstractAppLifecycle $appLifecycle,
     ) {
     }
 
@@ -87,6 +89,23 @@ class ServiceController
                 $this->appStateService->deactivateApp($service->getId(), $context);
             });
         }
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(path: '/api/service/uninstall/{serviceName}', name: 'api.service.uninstall', defaults: ['auth_required' => true, '_acl' => ['api_service_toggle']], methods: ['POST'])]
+    public function uninstall(string $serviceName, Context $context): JsonResponse
+    {
+        $this->extractIntegrationIdOrFail($context);
+        $service = $this->loadServiceByName($serviceName, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $serviceName);
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+            $this->appLifecycle->delete($service->getId(), ['id' => $service->getId()], $context);
+        });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

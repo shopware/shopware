@@ -21,6 +21,7 @@ export default class VariantSwitchPlugin extends Plugin {
         pageType: '',
         radioFieldSelector: '.product-detail-configurator-option-input',
         selectFieldSelector: '.product-detail-configurator-select-input',
+        focusHandlerKey: 'variant-switch',
     };
 
     init() {
@@ -33,6 +34,7 @@ export default class VariantSwitchPlugin extends Plugin {
         this._ensureFormElement();
         this._preserveCurrentValues();
         this._registerEvents();
+        this._resumeFocusState();
     }
 
     /**
@@ -98,6 +100,7 @@ export default class VariantSwitchPlugin extends Plugin {
             return;
         }
 
+        this._saveFocusState(event.target);
         this._redirectToVariant(query);
     }
 
@@ -188,5 +191,20 @@ export default class VariantSwitchPlugin extends Plugin {
             const data = JSON.parse(response);
             window.location.replace(data.url);
         });
+    }
+
+    /**
+     * @param {HTMLInputElement} inputElement
+     * @private
+     */
+    _saveFocusState(inputElement) {
+        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[data-variant-switch-value="${inputElement.dataset.variantSwitchValue}"]`);
+    }
+
+    /**
+     * @private
+     */
+    _resumeFocusState() {
+        window.focusHandler.resumeFocusStatePersistent(this.options.focusHandlerKey);
     }
 }

@@ -25,7 +25,7 @@ const componentHelper = {
 
 // Register each component helper
 Object.entries(componentHelper).forEach(([name, value]) => {
-    Shopware.Component.registerComponentHelper(name, value);
+    Shopware.Component.registerComponentHelper(name as keyof typeof componentHelper, value);
 });
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

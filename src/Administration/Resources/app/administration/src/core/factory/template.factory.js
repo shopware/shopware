@@ -139,6 +139,7 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
 
     return true;
 }
+
 /**
  * Registers the main template for the component
  * based on the template of the extended component.
@@ -197,6 +198,7 @@ function registerTemplateOverride(
         index: overrideIndex,
         raw: templateOverride,
     });
+    component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);
     return true;
 }

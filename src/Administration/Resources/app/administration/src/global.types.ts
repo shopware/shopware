@@ -30,6 +30,8 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
+import type { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import type * as mapErrors from 'src/app/service/map-errors.service';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -91,7 +93,9 @@ import type { UsageDataModuleState } from './app/state/usage-data.store';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface SubContainer<ContainerName extends string> {
     $decorator(name: string | Decorator, func?: Decorator): this;
+
     $register(Obj: Bottle.IRegisterableObject): this;
+
     $list(): (keyof Bottle.IContainer[ContainerName])[];
 }
 
@@ -132,12 +136,13 @@ declare global {
      * Dangerous "unknown" types which are specific enough but do not provide type safety.
      * You should avoid using these.
      */
-    type $TSDangerUnknownObject = {[key: string|symbol]: unknown};
+    type $TSDangerUnknownObject = { [key: string | symbol]: unknown };
 
     /**
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
+
     interface Window {
         Shopware: ShopwareClass;
         _features_: {
@@ -153,8 +158,8 @@ declare global {
     /**
      * Define global container for the bottle.js containers
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface ServiceContainer extends SubContainer<'service'>{
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface ServiceContainer extends SubContainer<'service'> {
         loginService: LoginService,
         feature: FeatureService,
         menuService: $TSFixMe,
@@ -231,13 +236,14 @@ declare global {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface InitContainer extends SubContainer<'init'>{
+    interface InitContainer extends SubContainer<'init'> {
         state: $TSFixMe,
         router: $TSFixMe,
         httpClient: AxiosInstance,
     }
+
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface FactoryContainer extends SubContainer<'factory'>{
+    interface FactoryContainer extends SubContainer<'factory'> {
         component: typeof AsyncComponentFactory,
         template: $TSFixMe,
         module: typeof ModuleFactory,
@@ -268,13 +274,25 @@ declare global {
         'thumbnail-size': $TSFixMeFunction,
         truncate: $TSFixMeFunction,
         'unicode-uri': $TSFixMeFunction,
-        [key: string]: ((...args: any[]) => any)|undefined,
+
+        [key: string]: ((...args: any[]) => any) | undefined,
+    }
+
+    interface ComponentHelper {
+        mapState: typeof mapState,
+        mapMutations: typeof mapMutations,
+        mapGetters: typeof mapGetters,
+        mapActions: typeof mapActions,
+        mapPropertyErrors: typeof mapErrors.mapPropertyErrors,
+        mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors,
+        mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors,
+        mapPageErrors: typeof mapErrors.mapPageErrors,
     }
 
     /**
      * Define global state for the Vuex store
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         context: ContextState,
         extensions: ExtensionsState,
@@ -286,7 +304,7 @@ declare global {
             currentUser: EntitySchema.Entities['user'],
             userPending: boolean,
             languageId: string,
-            currentLocale: string|null,
+            currentLocale: string | null,
         },
         swCategoryDetail: $TSFixMe,
         menuItem: MenuItemState,
@@ -380,9 +398,10 @@ declare module 'vue-router' {
  */
 declare module 'vue/types/vue' {
     interface Vue extends ServiceContainer {
-        $createTitle: (identifier?: string|null) => string,
+        $createTitle: (identifier?: string | null) => string,
         $router: VueRouter,
         $route: Route,
+        $super: (methodName: string, ...args: any[]) => any,
     }
 }
 
@@ -403,7 +422,7 @@ declare module 'vue/types/options' {
         }
     }
 
-    interface PropOptions<T=any> {
+    interface PropOptions<T = any> {
         validValues?: T[]
     }
 }

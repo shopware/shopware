@@ -15,6 +15,7 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import resetFilters from '../_helper_/restartFilters';
+import VirtualCallStackPlugin from '../../src/app/plugin/virtual-call-stack.plugin';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -30,6 +31,9 @@ const directiveRegistry = Shopware.Directive.getDirectiveRegistry();
 directiveRegistry.forEach((value, key) => {
     global.Vue.directive(key, value);
 });
+
+// Add plugins
+global.Vue.use(VirtualCallStackPlugin);
 
 // Add all filters
 const filterRegistry = Shopware.Filter.getRegistry();

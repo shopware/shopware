@@ -9,7 +9,7 @@
         {% block cms_element_form_textarea_textarea %}
             {% apply spaceless %}
                 <textarea name="{{ fieldName }}"
-                          id="form-{{ fieldName }}"
+                          id="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-{{ fieldName }}"
                           placeholder="{{ placeholder|trans }}"
                           {% if rows %}rows="{{ rows }}"{% endif %}
                           {% if required %}required="required"{% endif %}

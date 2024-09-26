@@ -1,9 +1,10 @@
 {% block cms_form_contact %}
+    {% set formPrefix = 'cms-form-contact' %}
     <form action="{{ path(action) }}"
           method="post"
           data-form-validation="true"
           data-form-preserver="true"
-          id="cms-form-contact">
+          id="{{ formPrefix }}">
         <div class="form-content">
         <div class="row g-2">
             {% block cms_form_contact_select_salutation %}
@@ -129,13 +130,13 @@
         {% block cms_form_contact_hidden_fields %}
             <div class="form-hidden-fields">
                 {% if page.navigationId and page.entityName %}
-                    <input type="hidden" name="navigationId" value="{{ page.navigationId }}">
-                    <input type="hidden" name="entityName" value="{{ page.entityName }}">
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.navigationId }}">
+                    <input type="hidden" id="{{ formPrefix }}-entityName" name="entityName" value="{{ page.entityName }}">
                 {% else %}
-                    <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}">
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.header.navigation.active.id }}">
                 {% endif %}
 
-                <input type="hidden" name="slotId" value="{{ element.id }}">
+                <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">
 
                 <input type="submit" class="submit--hidden d-none">
             </div>

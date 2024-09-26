@@ -6,9 +6,6 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     AdminProductDetail,
     GenerateVariants,
 }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
-    test.skip("not supported in 6.5");
-
     const product = await TestDataService.createBasicProduct();
     await TestDataService.createColorPropertyGroup();
     await TestDataService.createTextPropertyGroup();

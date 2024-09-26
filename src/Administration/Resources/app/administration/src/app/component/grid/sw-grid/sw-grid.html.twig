@@ -145,6 +145,7 @@
                             >
                                 <div class="sw-grid__cell-content">
                                     <sw-checkbox-field
+                                        :id="item.id"
                                         :value="isSelected(item.id)"
                                         {% if VUE3 %}
                                         @update:value="selectItem($event, item)"

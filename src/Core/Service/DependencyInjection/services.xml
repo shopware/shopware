@@ -12,6 +12,7 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
         </service>
 
         <service id="Shopware\Core\Service\Command\Install">

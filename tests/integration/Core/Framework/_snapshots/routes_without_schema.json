@@ -156,6 +156,7 @@
     "/service/activate/{serviceName}",
     "/service/deactivate/{serviceName}",
     "/service/list",
+    "/service/uninstall/{serviceName}",
     "/services/trigger-update",
     "/usage-data/accept-consent",
     "/usage-data/consent",

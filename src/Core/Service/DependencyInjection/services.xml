@@ -85,5 +85,11 @@
             <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>        </service>
 
+
+        <service id="Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber">
+            <argument type="service" id="app.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

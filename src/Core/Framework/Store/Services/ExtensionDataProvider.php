@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Store\Event\InstalledExtensionsListingLoadedEvent;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
@@ -26,7 +28,8 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         private readonly ExtensionLoader $extensionLoader,
         private readonly EntityRepository $appRepository,
         private readonly EntityRepository $pluginRepository,
-        private readonly ExtensionListingLoader $extensionListingLoader
+        private readonly ExtensionListingLoader $extensionListingLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -46,13 +49,15 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $installedPlugins = $this->pluginRepository->search($pluginCriteria, $context)->getEntities();
         $pluginCollection = $this->extensionLoader->loadFromPluginCollection($context, $installedPlugins);
 
-        $localExtensions = $this->extensionLoader->loadFromAppCollection($context, $installedApps)->merge($pluginCollection);
+        $extensions = $this->extensionLoader->loadFromAppCollection($context, $installedApps)->merge($pluginCollection);
 
         if ($loadCloudExtensions) {
-            return $this->extensionListingLoader->load($localExtensions, $context);
+            $extensions = $this->extensionListingLoader->load($extensions, $context);
         }
 
-        return $localExtensions;
+        $this->eventDispatcher->dispatch($event = new InstalledExtensionsListingLoadedEvent($extensions, $context));
+
+        return $event->extensionCollection;
     }
 
     public function getAppEntityFromTechnicalName(string $technicalName, Context $context): AppEntity

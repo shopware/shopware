@@ -249,16 +249,16 @@ phpstan:
         reports:
             codequality: phpstan-report.json
 
-ecs:
+cs-fixer:
     stage: test
     needs: []
     rules:
         - if: '$CI_PIPELINE_SOURCE == "pipeline"'
           when: never
         - exists:
-              - ecs.php
+              - .php-cs-fixer.dist.php
     script:
-        - ${PROJECT_ROOT}/vendor/bin/ecs
+        - ${PROJECT_ROOT}/vendor/bin/php-cs-fixer fix --dry-run --diff
 
 jest (administration):
     stage: test

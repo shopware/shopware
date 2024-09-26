@@ -511,12 +511,10 @@
         ],
         "post-install-cmd": [
             "@composer bin all install --ansi",
-            "ln -sf ./../../vendor-bin/cs-fixer/vendor/bin/ecs vendor/bin/ecs",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
         ],
         "post-update-cmd": [
             "@composer bin all update --ansi",
-            "ln -sf ./../../vendor-bin/cs-fixer/vendor/bin/ecs vendor/bin/ecs",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
         ],
         "reset": [

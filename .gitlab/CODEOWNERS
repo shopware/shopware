@@ -59,7 +59,6 @@
 /config/bundles.php
 composer.json
 /vendor-bin/*/composer.json
-ecs.php
 phpstan.neon
 .bc-exclude.php
 deprecation.ignore

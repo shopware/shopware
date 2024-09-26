@@ -389,7 +389,6 @@ PHP Full:
     - >
       if [ -n "$FAKE_PHP_VERSION" ]; then
         composer config platform.php $FAKE_PHP_VERSION
-        composer config -d vendor-bin/cs-fixer platform.php $FAKE_PHP_VERSION
         composer config -d vendor-bin/rector platform.php $FAKE_PHP_VERSION
       fi
     - !reference [.scripts, init, composer]

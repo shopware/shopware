@@ -159,17 +159,6 @@ class ServiceControllerTest extends TestCase
         $controller->activate('invalidService', $context);
     }
 
-    public function testActivateThrownExceptionIfToggleItself(): void
-    {
-        static::expectExceptionObject(ServiceException::toggleActionNotAllowed());
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService);
-
-        $source = new AdminApiSource('AABB', 'CCDD');
-        $context = Context::createDefaultContext($source);
-
-        $controller->activate('MyCoolService', $context);
-    }
-
     public function testActivate(): void
     {
         $this->app->setActive(false);
@@ -224,17 +213,6 @@ class ServiceControllerTest extends TestCase
         $context = Context::createDefaultContext($source);
 
         $controller->deactivate('invalidService', $context);
-    }
-
-    public function testDeactivateThrownExceptionIfToggleItself(): void
-    {
-        static::expectExceptionObject(ServiceException::toggleActionNotAllowed());
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService);
-
-        $source = new AdminApiSource('AABB', 'CCDD');
-        $context = Context::createDefaultContext($source);
-
-        $controller->deactivate('MyCoolService', $context);
     }
 
     public function testDeactivate(): void

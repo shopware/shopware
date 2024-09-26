@@ -112,10 +112,12 @@ export default {
 
         addressOptions() {
             const addresses = (this.customer?.addresses || []).map(item => {
-                return {
+                const option = {
                     label: this.addressLabel(item),
                     ...item,
                 };
+                option.id = item.id;
+                return option;
             });
 
             // eslint-disable-next-line no-unused-expressions

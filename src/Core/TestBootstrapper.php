@@ -304,6 +304,25 @@ class TestBootstrapper
         return $this->forceInstall = (bool) ($_SERVER['FORCE_INSTALL'] ?? false);
     }
 
+    public function getPluginPath(string $pluginName): ?string
+    {
+        $allPluginDirectories = \glob($this->getProjectDir() . '/custom/*plugins/*', \GLOB_ONLYDIR) ?: [];
+
+        foreach ($allPluginDirectories as $pluginDir) {
+            if (!is_file($pluginDir . '/composer.json')) {
+                continue;
+            }
+
+            if (!is_file($pluginDir . '/src/' . $pluginName . '.php')) {
+                continue;
+            }
+
+            return $pluginDir;
+        }
+
+        return null;
+    }
+
     private function addPluginAutoloadDev(ClassLoader $classLoader): void
     {
         foreach ($this->activePlugins as $pluginName) {
@@ -340,25 +359,6 @@ class TestBootstrapper
                 }
             }
         }
-    }
-
-    public function getPluginPath(string $pluginName): ?string
-    {
-        $allPluginDirectories = \glob($this->getProjectDir() . '/custom/*plugins/*', \GLOB_ONLYDIR) ?: [];
-
-        foreach ($allPluginDirectories as $pluginDir) {
-            if (!is_file($pluginDir . '/composer.json')) {
-                continue;
-            }
-
-            if (!is_file($pluginDir . '/src/' . $pluginName . '.php')) {
-                continue;
-            }
-
-            return $pluginDir;
-        }
-
-        return null;
     }
 
     /**

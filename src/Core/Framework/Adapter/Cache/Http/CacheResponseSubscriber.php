@@ -182,21 +182,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
     }
 
-    /**
-     * @param list<string> $cacheStates
-     * @param list<string> $states
-     */
-    private function hasInvalidationState(array $cacheStates, array $states): bool
-    {
-        foreach ($states as $state) {
-            if (\in_array($state, $cacheStates, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function onCustomerLogin(CustomerLoginEvent $event): void
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -218,6 +203,21 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $context->assign(['customer' => null]);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    /**
+     * @param list<string> $cacheStates
+     * @param list<string> $states
+     */
+    private function hasInvalidationState(array $cacheStates, array $states): bool
+    {
+        foreach ($states as $state) {
+            if (\in_array($state, $cacheStates, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string

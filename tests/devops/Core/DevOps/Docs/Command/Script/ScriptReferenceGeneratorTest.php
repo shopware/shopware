@@ -17,6 +17,11 @@ class ScriptReferenceGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    public static function tearDownAfterClass(): void
+    {
+        ScriptReferenceDataCollector::reset();
+    }
+
     public function testGeneratedDocumentsAreRecent(): void
     {
         $generators = $this->getGenerators();
@@ -34,11 +39,6 @@ MSG
                 );
             }
         }
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        ScriptReferenceDataCollector::reset();
     }
 
     /**

@@ -74,6 +74,10 @@ class ServiceSourceResolver implements Source
         return new Filesystem($this->checkVersionAndDownloadAppZip($name, $sourceConfig));
     }
 
+    public function reset(array $filesystems): void
+    {
+    }
+
     /**
      * @param ServiceSourceConfig $sourceConfig
      */
@@ -132,9 +136,5 @@ class ServiceSourceResolver implements Source
     private function isLatestVersionInstalled(AppInfo $latestAppInfo, array $sourceConfig): bool
     {
         return $latestAppInfo->revision === $sourceConfig['revision'];
-    }
-
-    public function reset(array $filesystems): void
-    {
     }
 }

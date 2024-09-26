@@ -58,6 +58,16 @@ readonly class RemoteZip implements Source
         );
     }
 
+    /**
+     * @param array<Filesystem> $filesystems
+     */
+    public function reset(array $filesystems): void
+    {
+        $this->io->remove(
+            array_map(fn (Filesystem $fs) => $fs->location, $filesystems)
+        );
+    }
+
     private function downloadAppZip(string $remoteZipLocation, string $appName): string
     {
         $directory = $this->temporaryDirectoryFactory->path();
@@ -73,15 +83,5 @@ readonly class RemoteZip implements Source
         }
 
         return $appPath;
-    }
-
-    /**
-     * @param array<Filesystem> $filesystems
-     */
-    public function reset(array $filesystems): void
-    {
-        $this->io->remove(
-            array_map(fn (Filesystem $fs) => $fs->location, $filesystems)
-        );
     }
 }

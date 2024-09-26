@@ -23,15 +23,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(MediaUrlPlaceholderHandler::class)]
 class MediaUrlPlaceholderHandlerTest extends TestCase
 {
-    private MockObject&Connection $connection;
-
-    private MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler;
-
     private const MEDIA1_ID = 'ade8de5aba434c6c8b871e7785d57596';
     private const MEDIA2_ID = 'f120665e491849d38f1a94e912fbc7e3';
     private const MEDIA3_ID = 'b897b4b7c8394387ac88341951816613';
     private const PRODUCT_ID = 'ad518375caa8445caad158291c0c5234';
     private const DATETIME = '2024-05-14 13:37:00';
+
+    private MockObject&Connection $connection;
+
+    private MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler;
 
     protected function setUp(): void
     {

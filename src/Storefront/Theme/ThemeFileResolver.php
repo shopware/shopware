@@ -23,6 +23,30 @@ class ThemeFileResolver
     {
     }
 
+    /**
+     * @return array<string, FileCollection>
+     */
+    public function resolveFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles
+    ): array {
+        return [
+            self::SCRIPT_FILES => $this->resolve(
+                $themeConfig,
+                $configurationCollection,
+                $onlySourceFiles,
+                $this->resolveScriptFiles(...)
+            ),
+            self::STYLE_FILES => $this->resolve(
+                $themeConfig,
+                $configurationCollection,
+                $onlySourceFiles,
+                fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+            ),
+        ];
+    }
+
     private function resolveScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
     {
         $fileCollection = new FileCollection();
@@ -56,30 +80,6 @@ class ThemeFileResolver
         }
 
         return $fileCollection;
-    }
-
-    /**
-     * @return array<string, FileCollection>
-     */
-    public function resolveFiles(
-        StorefrontPluginConfiguration $themeConfig,
-        StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $onlySourceFiles
-    ): array {
-        return [
-            self::SCRIPT_FILES => $this->resolve(
-                $themeConfig,
-                $configurationCollection,
-                $onlySourceFiles,
-                $this->resolveScriptFiles(...)
-            ),
-            self::STYLE_FILES => $this->resolve(
-                $themeConfig,
-                $configurationCollection,
-                $onlySourceFiles,
-                fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
-            ),
-        ];
     }
 
     /**

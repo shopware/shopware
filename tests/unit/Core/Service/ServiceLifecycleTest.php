@@ -78,21 +78,6 @@ class ServiceLifecycleTest extends TestCase
         ]);
     }
 
-    /**
-     * @param array<AppEntity> $apps
-     *
-     * @return StaticEntityRepository<AppCollection>
-     */
-    private function buildAppRepository(array $apps = []): StaticEntityRepository
-    {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
-            new AppCollection($apps),
-        ]);
-
-        return $appRepository;
-    }
-
     public function testInstallLogsErrorIfAppCannotBeDownloaded(): void
     {
         $this->serviceClient->expects(static::once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInfo());
@@ -544,6 +529,21 @@ class ServiceLifecycleTest extends TestCase
         );
 
         static::assertTrue($lifecycle->update('MyCoolService', Context::createDefaultContext()));
+    }
+
+    /**
+     * @param array<AppEntity> $apps
+     *
+     * @return StaticEntityRepository<AppCollection>
+     */
+    private function buildAppRepository(array $apps = []): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection($apps),
+        ]);
+
+        return $appRepository;
     }
 
     private function createManifest(): Manifest

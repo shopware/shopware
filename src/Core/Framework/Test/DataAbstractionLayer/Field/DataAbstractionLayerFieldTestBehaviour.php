@@ -32,8 +32,6 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private array $addedExtensions = [];
 
-    abstract protected static function getContainer(): ContainerInterface;
-
     protected function tearDown(): void
     {
         $this->removeExtension(...$this->addedExtensions);
@@ -44,6 +42,8 @@ trait DataAbstractionLayerFieldTestBehaviour
         $this->addedSalesChannelDefinitions = [];
         $this->addedExtensions = [];
     }
+
+    abstract protected static function getContainer(): ContainerInterface;
 
     /**
      * @param class-string<EntityDefinition> ...$definitionClasses

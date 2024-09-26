@@ -341,6 +341,11 @@ class TestExtensionDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.4.3.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -350,11 +355,6 @@ class TestExtensionDefinition extends EntityDefinition
 
             new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class, false),
         ]);
-    }
-
-    public function since(): ?string
-    {
-        return '6.4.3.0';
     }
 }
 

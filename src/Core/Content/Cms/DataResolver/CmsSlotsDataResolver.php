@@ -48,15 +48,6 @@ class CmsSlotsDataResolver
         }
     }
 
-    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
-    {
-        return $this->extensions->publish(
-            name: CmsSlotsDataResolveExtension::NAME,
-            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
-            function: $this->__resolve(...),
-        );
-    }
-
     private function __resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
         $criteriaList = $this->extensions->publish(
@@ -82,6 +73,15 @@ class CmsSlotsDataResolver
                 resolverContext: $resolverContext,
             ),
             function: $this->enrichCmsSlots(...),
+        );
+    }
+
+    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    {
+        return $this->extensions->publish(
+            name: CmsSlotsDataResolveExtension::NAME,
+            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
+            function: $this->__resolve(...),
         );
     }
 

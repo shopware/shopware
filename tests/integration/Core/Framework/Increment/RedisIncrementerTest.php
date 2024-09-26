@@ -26,26 +26,6 @@ class RedisIncrementerTest extends TestCase
         }
     }
 
-    private function getIncrementer(?string $prefix = null): RedisIncrementer
-    {
-        $factory = new RedisConnectionFactory($prefix);
-
-        $redisClient = $factory->create((string) EnvironmentHelper::getVariable('REDIS_URL'));
-        static::assertInstanceOf(\Redis::class, $redisClient);
-
-        $incrementer = new RedisIncrementer($redisClient);
-        $incrementer->setPool('test');
-
-        return $incrementer;
-    }
-
-    public static function incrementerProvider(): \Generator
-    {
-        yield [null];
-
-        yield ['test'];
-    }
-
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -55,6 +35,13 @@ class RedisIncrementerTest extends TestCase
         static::assertInstanceOf(\Redis::class, $redisClient);
 
         $redisClient->flushAll();
+    }
+
+    public static function incrementerProvider(): \Generator
+    {
+        yield [null];
+
+        yield ['test'];
     }
 
     #[DataProvider('incrementerProvider')]
@@ -114,5 +101,18 @@ class RedisIncrementerTest extends TestCase
         $incrementer->reset('test');
 
         static::assertEmpty($incrementer->list('test'));
+    }
+
+    private function getIncrementer(?string $prefix = null): RedisIncrementer
+    {
+        $factory = new RedisConnectionFactory($prefix);
+
+        $redisClient = $factory->create((string) EnvironmentHelper::getVariable('REDIS_URL'));
+        static::assertInstanceOf(\Redis::class, $redisClient);
+
+        $incrementer = new RedisIncrementer($redisClient);
+        $incrementer->setPool('test');
+
+        return $incrementer;
     }
 }

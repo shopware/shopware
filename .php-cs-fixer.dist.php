@@ -30,6 +30,7 @@ return (new Config())
         'no_superfluous_phpdoc_tags' => ['allow_unused_params' => true, 'allow_mixed' => true],
         'no_useless_else' => true,
         'no_useless_return' => true,
+        'ordered_class_elements' => true,
         'phpdoc_align' => ['align' => 'left'],
         'phpdoc_annotation_without_dot' => false,
         'phpdoc_line_span' => true,

@@ -250,6 +250,16 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         }
     }
 
+    protected function buildCapturePayload(PreparedPaymentTransactionStruct $transaction, Struct $preOrderPaymentStruct): CapturePayload
+    {
+        return new CapturePayload(
+            $transaction->getOrderTransaction(),
+            $transaction->getOrder(),
+            $preOrderPaymentStruct,
+            $transaction->getRecurring()
+        );
+    }
+
     /**
      * @template T of AbstractResponse
      *
@@ -384,16 +394,6 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
             $cart,
             $dataBag->all(),
             $context,
-        );
-    }
-
-    protected function buildCapturePayload(PreparedPaymentTransactionStruct $transaction, Struct $preOrderPaymentStruct): CapturePayload
-    {
-        return new CapturePayload(
-            $transaction->getOrderTransaction(),
-            $transaction->getOrder(),
-            $preOrderPaymentStruct,
-            $transaction->getRecurring()
         );
     }
 }

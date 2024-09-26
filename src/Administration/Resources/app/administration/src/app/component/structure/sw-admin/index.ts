@@ -2,6 +2,14 @@ import template from './sw-admin.html.twig';
 
 const { Component } = Shopware;
 
+Component.override('sw-entity-multi-select', {
+    methods: {
+        refreshCurrentCollection() {
+            this.$super('refreshCurrentCollection');
+        },
+    },
+});
+
 /**
  * @package admin
  *

@@ -303,11 +303,13 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend a given component & should register a new component (without template)', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 template: '<div>This is a test template.</div>',
             }),
             B: () => ({
-                updated() {},
+                updated() {
+                },
             }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
@@ -328,11 +330,13 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend a given component & should register a new component (with template)', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 template: '<div>This is a test template.</div>',
             }),
             B: () => ({
-                updated() {},
+                updated() {
+                },
                 template: '<div>This is an extension.</div>',
             }),
         }).forEach(({ testCase, components }) => {
@@ -355,7 +359,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should register an override of an existing component in the override registry (without index)', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
@@ -386,12 +391,68 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(overrideRegistry.has('test-component')).toBe(true);
                 expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
                 expect(overrideRegistry.get('test-component')).toHaveLength(1);
-                expect(overrideRegistry.get('test-component')[0]).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
             });
         });
     });
 
-    describe('should register two overrides of an existing component in the override registry (with index)', () => {
+    describe('should register two overrides of an existing component in the override registry (with same index)', () => {
+        createComponentMatrix({
+            A: () => ({
+                created() {
+                },
+                methods: {
+                    testMethod() {
+                        return 'This is a test method.';
+                    },
+                },
+                template: '<div>This is a test template.</div>',
+            }),
+            B: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the first override.';
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the second override.';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                const overrideOne = ComponentFactory.override('test-component', components.B());
+                const overrideTwo = ComponentFactory.override('test-component', components.C());
+
+                const registry = ComponentFactory.getComponentRegistry();
+                const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+                expect(typeof (await overrideOne()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideTwo()).methods.testMethod).toBe('function');
+                expect(overrideOne.template).toBeUndefined();
+                expect(overrideTwo.template).toBeUndefined();
+                expect(registry.has('test-component')).toBe(true);
+                expect(registry.get('test-component')).toBeInstanceOf(Object);
+                expect(overrideRegistry.has('test-component')).toBe(true);
+                expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
+                expect(overrideRegistry.get('test-component')).toHaveLength(2);
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[1].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].index).toBe(0);
+                expect(overrideRegistry.get('test-component')[1].index).toBe(0);
+                expect(typeof (await overrideRegistry.get('test-component')[0].config()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideRegistry.get('test-component')[1].config()).methods.testMethod).toBe('function');
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is the first override.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is the second override.');
+            });
+        });
+    });
+
+    describe('should register two overrides of an existing component in the override registry (with higher index)', () => {
         createComponentMatrix({
             A: () => ({
                 created() {},
@@ -419,8 +480,8 @@ describe('core/factory/async-component.factory.ts', () => {
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
-                const overrideOne = ComponentFactory.override('test-component', components.B());
-                const overrideTwo = ComponentFactory.override('test-component', components.C(), 0);
+                const overrideOne = ComponentFactory.override('test-component', components.B(), 3);
+                const overrideTwo = ComponentFactory.override('test-component', components.C(), 5);
 
                 const registry = ComponentFactory.getComponentRegistry();
                 const overrideRegistry = ComponentFactory.getOverrideRegistry();
@@ -434,12 +495,117 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(overrideRegistry.has('test-component')).toBe(true);
                 expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
                 expect(overrideRegistry.get('test-component')).toHaveLength(2);
-                expect(overrideRegistry.get('test-component')[0]).toBeInstanceOf(Object);
-                expect(overrideRegistry.get('test-component')[1]).toBeInstanceOf(Object);
-                expect(typeof (await overrideRegistry.get('test-component')[0]()).methods.testMethod).toBe('function');
-                expect(typeof (await overrideRegistry.get('test-component')[1]()).methods.testMethod).toBe('function');
-                expect((await overrideRegistry.get('test-component')[0]()).methods.testMethod()).toBe('This is the second override.');
-                expect((await overrideRegistry.get('test-component')[1]()).methods.testMethod()).toBe('This is the first override.');
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[1].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].index).toBe(3);
+                expect(overrideRegistry.get('test-component')[1].index).toBe(5);
+                expect(typeof (await overrideRegistry.get('test-component')[0].config()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideRegistry.get('test-component')[1].config()).methods.testMethod).toBe('function');
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is the first override.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is the second override.');
+            });
+        });
+    });
+
+    describe('should register two overrides of an existing component in the override registry (with lower index)', () => {
+        createComponentMatrix({
+            A: () => ({
+                created() {},
+                methods: {
+                    testMethod() {
+                        return 'This is a test method.';
+                    },
+                },
+                template: '<div>This is a test template.</div>',
+            }),
+            B: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the first override.';
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the second override.';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                const overrideOne = ComponentFactory.override('test-component', components.B(), 5);
+                const overrideTwo = ComponentFactory.override('test-component', components.C(), 3);
+
+                const registry = ComponentFactory.getComponentRegistry();
+                const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+                expect(typeof (await overrideOne()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideTwo()).methods.testMethod).toBe('function');
+                expect(overrideOne.template).toBeUndefined();
+                expect(overrideTwo.template).toBeUndefined();
+                expect(registry.has('test-component')).toBe(true);
+                expect(registry.get('test-component')).toBeInstanceOf(Object);
+                expect(overrideRegistry.has('test-component')).toBe(true);
+                expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
+                expect(overrideRegistry.get('test-component')).toHaveLength(2);
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[1].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].index).toBe(3);
+                expect(overrideRegistry.get('test-component')[1].index).toBe(5);
+                expect(typeof (await overrideRegistry.get('test-component')[0].config()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideRegistry.get('test-component')[1].config()).methods.testMethod).toBe('function');
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is the second override.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is the first override.');
+            });
+        });
+    });
+
+    describe('should register three overrides of an existing component in the override registry (with different indices)', () => {
+        createComponentMatrix({
+            A: () => ({
+                created() {},
+                methods: {
+                    testMethod() {
+                        return 'This is a test method.';
+                    },
+                },
+                template: '<div>This is a test template.</div>',
+            }),
+            B: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is override B.';
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is override C.';
+                    },
+                },
+            }),
+            D: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is override D.';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B(), 50);
+                ComponentFactory.override('test-component', components.C(), 100);
+                ComponentFactory.override('test-component', components.D(), 75);
+
+                const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is override B.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is override D.');
+                expect((await overrideRegistry.get('test-component')[2].config()).methods.testMethod()).toBe('This is override C.');
             });
         });
     });
@@ -595,7 +761,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should build the final component structure without extending', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
@@ -621,7 +788,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should build the final component structure with extension', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
@@ -700,7 +868,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should build the final component structure with an override', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
@@ -741,7 +910,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should build the final component structure with an override with parent', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
@@ -782,7 +952,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should build the final component structure with multiple overrides', () => {
         createComponentMatrix({
             A: () => ({
-                created() {},
+                created() {
+                },
                 methods: {
                     singleOverride() {
                         return 'This method should be overridden once.';
@@ -2331,10 +2502,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('returns a component if it has no template but a render function', () => {
         createComponentMatrix({
             A: () => ({
-                render(h) { return h('div', {}, 'i was not registered'); },
+                render(h) {
+                    return h('div', {}, 'i was not registered');
+                },
             }),
             B: () => ({
-                render(h) { return h('div', {}, 'registered component'); },
+                render(h) {
+                    return h('div', {}, 'registered component');
+                },
             }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
@@ -2360,9 +2535,17 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 inject: ['someService', 'anotherService'],
                 mixins: [{
-                    computed: { logSomeService() { return this.someService(); } },
+                    computed: {
+                        logSomeService() {
+                            return this.someService();
+                        },
+                    },
                 }, {
-                    computed: { logAnotherService() { return this.anotherService(); } },
+                    computed: {
+                        logAnotherService() {
+                            return this.anotherService();
+                        },
+                    },
                 }],
             }),
             C: () => ({
@@ -2370,7 +2553,11 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 inject: ['someService'],
                 mixins: [{
-                    computed: { logSomeService() { return this.someService(); } },
+                    computed: {
+                        logSomeService() {
+                            return this.someService();
+                        },
+                    },
                 }],
             }),
         }).forEach(({ testCase, components }) => {
@@ -2385,8 +2572,12 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 const wrapper = await shallowMount(buildConfig, {
                     provide: {
-                        someService() { return 'foo'; },
-                        anotherService() { return 'bar'; },
+                        someService() {
+                            return 'foo';
+                        },
+                        anotherService() {
+                            return 'bar';
+                        },
                     },
                 });
 
@@ -2511,7 +2702,8 @@ describe('core/factory/async-component.factory.ts', () => {
 
     it('should not register a component helper when a name is missing', async () => {
         const spy = jest.spyOn(console, 'warn').mockImplementation();
-        const success = ComponentFactory.registerComponentHelper('', () => {});
+        const success = ComponentFactory.registerComponentHelper('', () => {
+        });
 
         expect(success).toBe(false);
         expect(spy).toHaveBeenCalledWith(
@@ -2523,10 +2715,12 @@ describe('core/factory/async-component.factory.ts', () => {
 
     it('should not register a component helper when a helper with the same name exists before', async () => {
         const spy = jest.spyOn(console, 'warn').mockImplementation();
-        const success = ComponentFactory.registerComponentHelper('test', () => {});
+        const success = ComponentFactory.registerComponentHelper('test', () => {
+        });
         expect(success).toBe(true);
 
-        const secondSuccess = ComponentFactory.registerComponentHelper('test', () => {});
+        const secondSuccess = ComponentFactory.registerComponentHelper('test', () => {
+        });
         expect(secondSuccess).toBe(false);
         expect(spy).toHaveBeenCalledWith(
             '[ComponentFactory/ComponentHelper]',
@@ -2690,7 +2884,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 const buildConfig = await ComponentFactory.build('override');
 
-                const wrapper = mount(buildConfig, {});
+                const wrapper = mount(buildConfig);
 
                 const resultOne = wrapper.vm.test(1);
                 const resultTwo = wrapper.vm.test(2);
@@ -2700,6 +2894,292 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 wrapper.destroy();
             });
+        });
+    });
+
+    describe('returns a component that overrides a method which overrides another method. Calling these method multiple times should not return different values', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '<div>Something</div>',
+                methods: {
+                    test(value) {
+                        // This should never be called in Component B
+                        return `NEVER_CALL_THIS_${value}`;
+                    },
+                },
+            }),
+            B: () => ({
+                methods: {
+                    test(value) {
+                        // Component B ignores return value of A
+                        return `B_${value}`;
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    test(value) {
+                        // Component C calls the super method of B
+                        return `C_${this.$super('test', value)}`;
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('base-component', components.A());
+                ComponentFactory.extend('extension', 'base-component', components.B());
+                ComponentFactory.override('extension', components.C());
+
+                const buildConfig = await ComponentFactory.build('extension');
+
+                const wrapper = mount(buildConfig);
+
+                // Call the method multiple times and expect the same return value
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+
+                wrapper.destroy();
+            });
+        });
+    });
+
+    describe('should be able to override without explicitly calling $super', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '<span>{% block swag_a %}a {{ message }}{% endblock %}</span>',
+
+                data() {
+                    return {
+                        message: '',
+                    };
+                },
+
+                computed: {
+                    baseComputed() {
+                        return this.message;
+                    },
+                    getterSetterComputed: {
+                        get() {
+                            return this.message;
+                        },
+                        set(msg) {
+                            this.message = msg;
+                        },
+                    },
+                },
+
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.message = 'a';
+                    },
+                },
+            }),
+            B: () => ({
+                template: '<span>{% block swag_a %}b {{ message }}{% endblock %}</span>',
+
+                computed: {
+                    baseComputed() {
+                        return `${this.$super('baseComputed')} extended`;
+                    },
+                    getterSetterComputed: {
+                        get() {
+                            return `${this.$super('getterSetterComputed.get')} extended`;
+                        },
+                        set(msg) {
+                            this.$super('getterSetterComputed.set', `extended ${msg}`);
+                        },
+                    },
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.$super('createdComponent');
+                    },
+                },
+            }),
+            C: () => ({
+                template: '<span>{% block swag_a %}c{% endblock %}</span>',
+
+                methods: {
+                    overrideMethod() {
+                        this.message = 'c override';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                // Register a base component with a method and a computed
+                ComponentFactory.register('swag-a', components.A());
+
+                // Extend the base component, altering the method and computed
+                ComponentFactory.extend('swag-b', 'swag-a', components.B());
+
+                // Register an override which does not define the extended super calls
+                ComponentFactory.override('swag-b', components.C());
+
+                // Build component and create wrapper
+                const buildConfig = await ComponentFactory.build('swag-b');
+                const wrapper = mount(buildConfig);
+
+                // Expect that the override changes the template but leaves the extension computed and method values
+                expect(wrapper.html()).toBe('<span>c</span>');
+                // data
+                expect(wrapper.vm.message).toBe('a');
+                // Computed
+                expect(wrapper.vm.baseComputed).toBe('a extended');
+                // Getter setter computed - getter
+                expect(wrapper.vm.getterSetterComputed).toBe('a extended');
+                // Getter setter computed - setter
+                wrapper.vm.getterSetterComputed = 'foo';
+                // expect extended prepended by setter and appended by getter
+                expect(wrapper.vm.getterSetterComputed).toBe('extended foo extended');
+
+                // override additions
+                wrapper.vm.overrideMethod();
+                expect(wrapper.vm.message).toBe('c override');
+            });
+        });
+    });
+
+    describe('should be able to build extended component with non consecutive $super calls', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '<span>{% block swag_a %}a {{ message }}{% endblock %}</span>',
+
+                computed: {
+                    salesChannelRepository() {
+                        return {
+                            create: () => ({ id: 'ajip23845iokasmf' }),
+                        };
+                    },
+                },
+
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.message = 'a';
+                    },
+                },
+            }),
+            B: () => ({
+                methods: {
+                    createdComponent() {
+                        // eslint-disable-next-line no-unused-vars
+                        const salesChannel = this.salesChannelRepository.create();
+                        this.$super('createdComponent');
+                    },
+                },
+            }),
+            C: () => ({
+                template: '<span>{% block swag_a %}c{% endblock %}</span>',
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                // Register a base component with a method and a computed
+                ComponentFactory.register('sw-sales-channel-detail', components.A());
+
+                // Extend the base component, altering the method and computed
+                ComponentFactory.extend('sw-sales-channel-create', 'sw-sales-channel-detail', components.B());
+
+                ComponentFactory.override('sw-sales-channel-detail', components.C());
+
+                const component = await ComponentFactory.build('sw-sales-channel-create');
+                const wrapper = await mount(component);
+
+                expect(wrapper.html()).toBe('<span>c</span>');
+            });
+        });
+    });
+
+    describe('should be able to build $super for extension without consecutive method structure', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '<span>{% block swag_a %}sw-condition-base{% endblock %}</span>',
+            }),
+            B: () => ({
+                template: '<span>{% block swag_a %}sw-condition-base-line-item{% endblock %}</span>',
+
+                computed: {
+                    matchesAll: {
+                        get() {
+                            return '';
+                        },
+                        set() {
+                        },
+                    },
+                },
+            }),
+            C: () => ({
+                template: '<span>{% block swag_a %}sw-condition-line-item-in-category{% endblock %}</span>',
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                // Register a base component with a method and a computed
+                ComponentFactory.register('sw-condition-base', components.A());
+
+                // Extend the base component, altering the method and computed
+                ComponentFactory.extend('sw-condition-base-line-item', 'sw-condition-base', components.B());
+
+                ComponentFactory.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', components.C());
+
+                const component = await ComponentFactory.build('sw-condition-line-item-in-category');
+                const wrapper = await mount(component);
+
+                expect(wrapper.html()).toBe('<span>sw-condition-line-item-in-category</span>');
+            });
+        });
+    });
+
+    describe('should handle errors accordingly', () => {
+        it('should throw error calling $super("$super")', async () => {
+            ComponentFactory.register('jest', {
+                template: '<span>{% block jest %}jest{% endblock %}</span>',
+                methods: {
+                    foo() {
+                        // trigger error
+                        this.$super('$super');
+                    },
+                },
+            });
+
+            const component = await ComponentFactory.build('jest');
+            const wrapper = await mount(component);
+
+            expect(wrapper.html()).toBe('<span>jest</span>');
+            expect(() => wrapper.vm.foo()).toThrow('Don\'t call "$super" manually! This is not supported!');
+        });
+
+        it('should throw error calling $super without parent', async () => {
+            ComponentFactory.register('jest', {
+                template: '<span>{% block jest %}jest{% endblock %}</span>',
+                methods: {
+                    foo() {
+                        // trigger error
+                        this.$super('foo');
+                    },
+                },
+            });
+
+            const component = await ComponentFactory.build('jest');
+            const wrapper = await mount(component);
+
+            expect(wrapper.html()).toBe('<span>jest</span>');
+            expect(() => wrapper.vm.foo()).toThrow('There was an error resolving the "$super" chain for method "foo".');
         });
     });
 });

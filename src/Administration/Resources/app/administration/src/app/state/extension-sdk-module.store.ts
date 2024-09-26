@@ -22,6 +22,8 @@ interface ExtensionSdkModuleState {
     modules: ExtensionSdkModule[],
 
     smartBarButtons: smartBarButtonAdd[],
+
+    hiddenSmartBars: string[],
 }
 
 const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = {
@@ -30,6 +32,7 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     state: (): ExtensionSdkModuleState => ({
         modules: [],
         smartBarButtons: [],
+        hiddenSmartBars: [],
     }),
 
     actions: {
@@ -63,6 +66,10 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     mutations: {
         addSmartBarButton(state, button: smartBarButtonAdd) {
             state.smartBarButtons.push(button);
+        },
+
+        addHiddenSmartBar(state, locationId: string) {
+            state.hiddenSmartBars.push(locationId);
         },
     },
 

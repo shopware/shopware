@@ -34,4 +34,8 @@ export default function initMainModules(): void {
     Shopware.ExtensionAPI.handle('smartBarButtonAdd', (configuration) => {
         Shopware.State.commit('extensionSdkModules/addSmartBarButton', configuration);
     });
+
+    Shopware.ExtensionAPI.handle('smartBarHide', (configuration) => {
+        Shopware.State.commit('extensionSdkModules/addHiddenSmartBar', configuration.locationId);
+    });
 }

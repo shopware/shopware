@@ -80,7 +80,7 @@ class ServiceRegistryClient implements ResetInterface
 
     public function reset(): void
     {
-        $this->services = [];
+        $this->services = null;
     }
 
     /**

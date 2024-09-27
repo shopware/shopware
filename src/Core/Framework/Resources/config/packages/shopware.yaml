@@ -65,6 +65,7 @@ shopware:
             - 'adid'
             - 'gclsrc' # Google DoubleClick
             - 'gclid'
+            - 'srsltid' # Google Merchant
             - 'fbclid' # Facebook
             - 'fb_action_ids'
             - 'fb_action_types'

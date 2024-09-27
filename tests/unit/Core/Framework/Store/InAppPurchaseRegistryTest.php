@@ -41,6 +41,8 @@ class InAppPurchaseRegistryTest extends TestCase
         static::assertSame(['active-feature-1', 'active-feature-2'], InAppPurchase::getByExtension('extension-1'));
         static::assertSame(['active-feature-3'], InAppPurchase::getByExtension('extension-2'));
         static::assertSame([], InAppPurchase::getByExtension('extension-3'));
+
+        InAppPurchase::reset();
     }
 
     public function testConnectionError(): void

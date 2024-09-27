@@ -42,8 +42,7 @@ class Migration1716361840InAppPurchaseTest extends TestCase
 
         $columns = $manager->listTableColumns('in_app_purchase');
 
-        static::assertCount(8, $columns);
-        static::assertArrayHasKey('id', $columns);
+        static::assertCount(7, $columns);
         static::assertArrayHasKey('app_id', $columns);
         static::assertArrayHasKey('plugin_id', $columns);
         static::assertArrayHasKey('active', $columns);

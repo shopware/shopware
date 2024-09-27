@@ -37,28 +37,28 @@ class InAppPurchaseRegistryTest extends TestCase
         $inAppRepo->create([
             [
                 'id' => $this->ids->get('in-app-1'),
-                'identifier' => 'active-app-feature',
+                'identifier' => 'Test app active-active-app-feature',
                 'appId' => $this->ids->get('app'),
                 'expiresAt' => $expiresAt,
                 'active' => true,
             ],
             [
                 'id' => $this->ids->get('in-app-2'),
-                'identifier' => 'inactive-app-feature',
+                'identifier' => 'Test app active-inactive-app-feature',
                 'appId' => $this->ids->get('app'),
                 'expiresAt' => $expiresAt,
                 'active' => false,
             ],
             [
                 'id' => $this->ids->get('in-app-3'),
-                'identifier' => 'active-plugin-feature',
+                'identifier' => 'Test plugin active-active-plugin-feature',
                 'pluginId' => $this->ids->get('plugin'),
                 'expiresAt' => $expiresAt,
                 'active' => true,
             ],
             [
                 'id' => $this->ids->get('in-app-4'),
-                'identifier' => 'inactive-plugin-feature',
+                'identifier' => 'Test plugin active-inactive-plugin-feature',
                 'pluginId' => $this->ids->get('plugin'),
                 'expiresAt' => $expiresAt,
                 'active' => false,
@@ -68,14 +68,63 @@ class InAppPurchaseRegistryTest extends TestCase
         $registry = new InAppPurchaseRegistry($this->getContainer()->get(Connection::class));
         $registry->register();
 
-        static::assertTrue(InAppPurchase::isActive('active-app-feature'));
-        static::assertFalse(InAppPurchase::isActive('inactive-app-feature'));
-        static::assertTrue(InAppPurchase::isActive('active-plugin-feature'));
-        static::assertFalse(InAppPurchase::isActive('inactive-plugin-feature'));
+        static::assertTrue(InAppPurchase::isActive('Test app active-active-app-feature'));
+        static::assertFalse(InAppPurchase::isActive('Test app active-inactive-app-feature'));
+        static::assertTrue(InAppPurchase::isActive('Test plugin active-active-plugin-feature'));
+        static::assertFalse(InAppPurchase::isActive('Test plugin active-inactive-plugin-feature'));
 
-        static::assertSame(['active-app-feature', 'active-plugin-feature'], InAppPurchase::all());
-        static::assertSame(['active-app-feature'], InAppPurchase::getByExtension($this->ids->get('app')));
-        static::assertSame(['active-plugin-feature'], InAppPurchase::getByExtension($this->ids->get('plugin')));
+        static::assertSame(['Test app active-active-app-feature', 'Test plugin active-active-plugin-feature'], InAppPurchase::all());
+        static::assertSame(['Test app active-active-app-feature'], InAppPurchase::getByExtension($this->ids->get('app')));
+        static::assertSame(['Test plugin active-active-plugin-feature'], InAppPurchase::getByExtension($this->ids->get('plugin')));
+    }
+
+    public function testRegisterWithOutdatedData(): void
+    {
+        $expiresAt = (new \DateTime())->add(new \DateInterval('P1D'));
+
+        $inAppRepo = $this->getContainer()->get('in_app_purchase.repository');
+
+        $inAppRepo->upsert([
+            [
+                'id' => $this->ids->get('in-app-1'),
+                'identifier' => 'Test app active-active-app-feature',
+                'appId' => $this->ids->get('app'),
+                'expiresAt' => $expiresAt,
+                'active' => true,
+            ],
+            [
+                'id' => $this->ids->get('in-app-2'),
+                'identifier' => 'Test app active-inactive-app-feature',
+                'appId' => $this->ids->get('app'),
+                'expiresAt' => $expiresAt,
+                'active' => false,
+            ],
+            [
+                'id' => $this->ids->get('in-app-3'),
+                'identifier' => 'Test app active-active-but-expired-app-feature',
+                'appId' => $this->ids->get('app'),
+                'expiresAt' => new \DateTime('2019-01-01'),
+                'active' => true,
+            ],
+            [
+                'id' => $this->ids->get('in-app-4'),
+                'identifier' => 'Test app active-inactive-and-expired-app-feature',
+                'appId' => $this->ids->get('app'),
+                'expiresAt' => new \DateTime('2019-01-01'),
+                'active' => false,
+            ],
+        ], Context::createDefaultContext());
+
+        $registry = new InAppPurchaseRegistry($this->getContainer()->get(Connection::class));
+        $registry->register();
+
+        static::assertTrue(InAppPurchase::isActive('Test app active-active-app-feature'));
+        static::assertFalse(InAppPurchase::isActive('Test app active-inactive-app-feature'));
+        static::assertFalse(InAppPurchase::isActive('Test app active-active-but-expired-app-feature'));
+        static::assertFalse(InAppPurchase::isActive('Test app active-inactive-and-expired-app-feature'));
+
+        static::assertSame(['Test app active-active-app-feature'], InAppPurchase::all());
+        static::assertSame(['Test app active-active-app-feature'], InAppPurchase::getByExtension($this->ids->get('app')));
     }
 
     private function setUpExtensions(): void

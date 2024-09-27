@@ -6,6 +6,7 @@
     <parameters>
         <parameter key="env(INSTANCE_ID)"/>
         <parameter key="instance_id">%env(INSTANCE_ID)%</parameter>
+        <parameter key="in_app_purchases.active_purchases">/swplatform/inappfeatures/purchases</parameter>
         <parameter key="shopware.store_endpoints" type="collection">
             <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
             <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
@@ -247,8 +248,19 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\InAppPurchaseRegistry" public="true">
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchasesSyncService" public="true">
+            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="in_app_purchase.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="string">%in_app_purchases.active_purchases%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Handler\InAppPurchaseSyncHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchasesSyncService"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

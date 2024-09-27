@@ -4,15 +4,12 @@ namespace Shopware\Core\Framework\Store\InAppPurchase;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
 #[Package('core')]
 class InAppPurchaseEntity extends Entity
 {
-    use EntityIdTrait;
-
     protected string $identifier;
 
     protected bool $active;

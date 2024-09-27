@@ -13,23 +13,29 @@ class InAppPurchaseRegistry
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
+        private readonly Connection $connection
     ) {
     }
 
     public function register(): void
     {
         try {
-            /** @var array<string, string> $inAppPurchases */
-            $inAppPurchases = $this->connection->fetchAllKeyValue('
-                SELECT `identifier`, LOWER(HEX(IFNULL(`app_id`, `plugin_id`))) AS extension_id
-                FROM in_app_purchase
-                WHERE `active` = 1
-            ');
-
-            InAppPurchase::registerPurchases($inAppPurchases);
+            InAppPurchase::registerPurchases($this->fetchActiveInAppPurchases());
         } catch (Exception) {
             // we don't have a database connection, so we can't fetch the active in-app purchases
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function fetchActiveInAppPurchases(): array
+    {
+        /** @var array<string, string> */
+        return $this->connection->fetchAllKeyValue('
+            SELECT `identifier`, LOWER(HEX(IFNULL(`app_id`, `plugin_id`))) AS extensionId
+            FROM in_app_purchase
+            WHERE `active` = 1 AND expires_at > NOW()
+        ');
     }
 }

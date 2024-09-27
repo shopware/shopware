@@ -21,15 +21,14 @@ class Migration1716361840InAppPurchase extends MigrationStep
     {
         $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `in_app_purchase` (
-              `id`                      BINARY(16)          NOT NULL,
-              `active`                  TINYINT(1) unsigned NOT NULL DEFAULT 1,
               `identifier`              VARCHAR(255)        NOT NULL,
               `expires_at`              DATETIME(3)         NOT NULL,
+              `active`                  TINYINT(1) unsigned NOT NULL DEFAULT 1,
               `app_id`                  BINARY(16)          NULL,
               `plugin_id`               BINARY(16)          NULL,
               `created_at`              DATETIME(3)         NOT NULL,
               `updated_at`              DATETIME(3)         NULL,
-               PRIMARY KEY (`id`),
+               PRIMARY KEY (`identifier`),
                CONSTRAINT `uniq.in_app_purchase.identifier`
                  UNIQUE (`identifier`),
                CONSTRAINT `fk.in_app_purchase.app_id` FOREIGN KEY (`app_id`)

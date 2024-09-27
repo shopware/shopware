@@ -11,16 +11,25 @@ use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -87,6 +96,51 @@ class SyncServiceTest extends TestCase
         ], $result->getData());
 
         static::assertSame([], $result->getNotFound());
+    }
+
+    public function testCriteriaGetsNoLimit(): void
+    {
+        $ids = new IdsCollection();
+        $operations = [
+            new SyncOperation(
+                key: 'foo',
+                entity: 'product_category',
+                action: SyncOperation::ACTION_DELETE,
+                payload: [],
+                criteria: [['type' => 'equals', 'field' => 'productId', 'value' => $ids->get('foo')]]
+            ),
+        ];
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product_category.productId', $ids->get('foo')));
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductCategoryDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $searcher = $this->createMock(EntitySearcher::class);
+        $searcher
+            ->expects(static::once())
+            ->method('search')
+            ->with($registry->get(ProductCategoryDefinition::class), $criteria);
+
+        $service = new SyncService(
+            $this->createMock(EntityWriter::class),
+            new EventDispatcher(),
+            $registry,
+            $searcher,
+            new RequestCriteriaBuilder(
+                new AggregationParser(),
+                $this->createMock(ApiCriteriaValidator::class),
+                new CriteriaArrayConverter(new AggregationParser()),
+                100
+            ),
+            $this->createMock(SyncFkResolver::class)
+        );
+
+        $service->sync($operations, Context::createCLIContext(), new SyncBehavior());
     }
 
     public function testWildcardDeleteForMappingEntities(): void
@@ -168,5 +222,21 @@ class SyncServiceTest extends TestCase
         $behavior = new SyncBehavior('disable-indexing', ['product.indexer']);
 
         $service->sync([$delete], Context::createDefaultContext(), $behavior);
+    }
+}
+
+class TracedSearcher implements EntitySearcherInterface
+{
+    public Criteria $criteria;
+
+    public function __construct(private readonly EntitySearcherInterface $decorated)
+    {
+    }
+
+    public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
+    {
+        $this->criteria = $criteria;
+
+        return $this->decorated->search($definition, $criteria, $context);
     }
 }

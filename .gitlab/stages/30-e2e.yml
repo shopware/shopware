@@ -38,7 +38,6 @@
           touch install.lock
       else
           composer run setup
-          composer run e2e:sdk-plugin:fixture-to-plugin
       fi
     - bin/console assets:install
     - bin/console e2e:dump-db
@@ -71,7 +70,7 @@ E2E:
       - BROWSER: "chrome"
         FEATURE_ALL: "false"
         TEST_DIRECTORY:
-          - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
+          - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*"
           - "cypress/e2e/administration/settings/sw-settings-*/*"
           - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
           - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"

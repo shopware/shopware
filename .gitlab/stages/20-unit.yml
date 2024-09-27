@@ -358,7 +358,6 @@ PHP Full:
     - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
     - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
   script:
-    - "bin/console plugin:deactivate TestPlugin || true"
     - "rm -Rf custom/plugins/* || true"
     - >
       if [ "$DEPENDENCY_DEV" == "dev dependencies" ]; then

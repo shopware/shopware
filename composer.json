@@ -230,9 +230,6 @@
         "e2e:cypress-repeat": " ",
         "e2e:open": "Launches the Cypress E2E test-suite UI",
         "e2e:prepare": "Installs the Admin Extension SDK test plugin with fixtures and dumps the database",
-        "e2e:sdk-plugin:fixture-to-plugin": " ",
-        "e2e:sdk-plugin:plugin-to-fixture": " ",
-        "e2e:sdk-plugin:prepare-plugin": " ",
         "e2e:setup": "Installs a clean shopware instance for E2E environment and launches 'e2e:prepare'",
         "e2e:vue3": "Launches the Cypress E2E test-suite UI with the Vue3 feature flag enabled",
         "e2e:web-update:open": " ",
@@ -370,23 +367,7 @@
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
-            "@e2e:sdk-plugin:fixture-to-plugin",
-            "@e2e:sdk-plugin:prepare-plugin",
             "@php bin/console e2e:dump-db"
-        ],
-        "e2e:sdk-plugin:fixture-to-plugin": [
-            "rm -rf $PWD/custom/plugins/TestPlugin;",
-            "cp -a $PWD/tests/e2e/cypress/fixtures/TestPlugin/. $PWD/custom/plugins/TestPlugin/"
-        ],
-        "e2e:sdk-plugin:plugin-to-fixture": [
-            "rm -rf $PWD/tests/e2e/cypress/fixtures/TestPlugin;",
-            "cp -a $PWD/custom/plugins/TestPlugin/. $PWD/tests/e2e/cypress/fixtures/TestPlugin/"
-        ],
-        "e2e:sdk-plugin:prepare-plugin": [
-            "cd $PWD/custom/plugins/TestPlugin/src/Resources/app/administration/; npm install --no-audit --prefer-offline;",
-            "bin/console plugin:refresh;",
-            "bin/console plugin:install --activate TestPlugin;",
-            "@build:js:admin"
         ],
         "e2e:setup": [
             "@putenv APP_ENV=e2e",

@@ -202,7 +202,7 @@ class ServiceClientTest extends TestCase
                 2 => 'part2',
                 3 => 'part3',
                 4 => '',
-                default => null
+                default => null,
             };
 
             static::assertSame('/some/file', $filename);

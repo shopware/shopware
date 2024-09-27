@@ -46,6 +46,7 @@ return (new Config())
         'single_quote' => ['strings_containing_single_quote_chars' => true],
         'strict_comparison' => true,
         'strict_param' => true,
+        'trailing_comma_in_multiline' => ['after_heredoc' => true, 'elements' => ['array_destructuring', 'arrays', 'match']],
         'void_return' => true,
         'yoda_style' => [
             'equal' => false,

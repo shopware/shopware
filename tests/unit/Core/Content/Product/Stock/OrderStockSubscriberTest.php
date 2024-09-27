@@ -294,7 +294,7 @@ class OrderStockSubscriberTest extends TestCase
                             []
                         ),
                         '/0'
-                    )
+                    ),
                 };
             },
             $commands

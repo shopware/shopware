@@ -53,7 +53,7 @@ class ServiceSourceResolver implements Source
     {
         return match (true) {
             $app instanceof AppEntity => $app->getSourceType() === $this->name(),
-            $app instanceof Manifest => preg_match('#^https?://#', $app->getPath()) && $app->getMetadata()->isSelfManaged()
+            $app instanceof Manifest => preg_match('#^https?://#', $app->getPath()) && $app->getMetadata()->isSelfManaged(),
         };
     }
 

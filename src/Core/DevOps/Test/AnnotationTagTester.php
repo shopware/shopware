@@ -155,7 +155,7 @@ class AnnotationTagTester
             !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
             !isset($properties['feature']) => throw new \InvalidArgumentException('Could not find property feature in experimental annotation.'),
             !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
-            default => $this->validateAgainstPlatformVersion($properties['stableVersion'])
+            default => $this->validateAgainstPlatformVersion($properties['stableVersion']),
         };
     }
 

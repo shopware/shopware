@@ -111,4 +111,33 @@ class ServiceRegistryClientTest extends TestCase
 
         static::assertSame($entries1, $entries2);
     }
+
+    public function testResetCausesRefetch(): void
+    {
+        $services1 = [
+            ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
+            ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+        ];
+
+        $services2 = [
+            ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
+            ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+            ['name' => 'MyCoolService3', 'host' => 'https://coolservice3.com', 'label' => 'My Cool Service 3', 'app-endpoint' => '/app-endpoint'],
+        ];
+
+        $client = new MockHttpClient([
+            new MockResponse((string) json_encode($services1)),
+            new MockResponse((string) json_encode($services2)),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+
+        $entries1 = $registryClient->getAll();
+        static::assertCount(2, $entries1);
+
+        $registryClient->reset();
+
+        $entries2 = $registryClient->getAll();
+        static::assertCount(3, $entries2);
+    }
 }

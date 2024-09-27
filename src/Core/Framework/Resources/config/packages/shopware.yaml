@@ -59,7 +59,7 @@ shopware:
             - 'ie'
             - 'cof'
             - 'siteurl'
-            - '_ga'
+            - '_ga' # Google Analytics
             - 'adgroupid'
             - 'campaignid'
             - 'adid'

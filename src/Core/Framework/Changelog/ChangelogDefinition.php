@@ -19,8 +19,8 @@ class ChangelogDefinition
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    #[Assert\NotBlank(message: 'The Jira ticket should not be blank')]
-    #[Assert\Regex(pattern: '/^NEXT-\d+$/', message: 'The Jira ticket has an invalid format')]
+    #[Assert\NotBlank(message: 'No issue was referenced')]
+    #[Assert\Regex(pattern: '/^(NEXT-|#)\d+$/', message: 'The issue has an invalid format')]
     private string $issue;
 
     private ?string $flag = null;

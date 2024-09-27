@@ -122,6 +122,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

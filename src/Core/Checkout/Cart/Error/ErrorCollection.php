@@ -94,11 +94,6 @@ class ErrorCollection extends Collection
         return 'cart_error_collection';
     }
 
-    protected function getExpectedClass(): ?string
-    {
-        return Error::class;
-    }
-
     public function getUniqueHash(): string
     {
         if ($this->elements === []) {
@@ -112,5 +107,10 @@ class ErrorCollection extends Collection
         }
 
         return hash('xxh64', $hash);
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return Error::class;
     }
 }

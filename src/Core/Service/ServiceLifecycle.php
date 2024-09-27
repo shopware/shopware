@@ -129,6 +129,19 @@ class ServiceLifecycle
         }
     }
 
+    /**
+     * If a non-service app exists with the same name as the service, return its ID.
+     */
+    public function getAppIdForAppWithSameNameAsService(ServiceRegistryEntry $serviceEntry, Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $serviceEntry->name));
+        $criteria->addFilter(new EqualsFilter('selfManaged', false));
+        $criteria->setLimit(1);
+
+        return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
+    }
+
     private function createManifest(string $manifestPath, string $host, AppInfo $appInfo): Manifest
     {
         $manifest = $this->manifestFactory->createFromXmlFile($manifestPath);
@@ -147,19 +160,6 @@ class ServiceLifecycle
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
 
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    /**
-     * If a non-service app exists with the same name as the service, return its ID.
-     */
-    public function getAppIdForAppWithSameNameAsService(ServiceRegistryEntry $serviceEntry, Context $context): ?string
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $serviceEntry->name));
-        $criteria->addFilter(new EqualsFilter('selfManaged', false));
-        $criteria->setLimit(1);
-
-        return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
     }
 
     private function upgradeAppToService(string $appId, ServiceRegistryEntry $entry, Context $context): bool

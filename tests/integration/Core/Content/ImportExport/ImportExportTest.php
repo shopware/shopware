@@ -103,11 +103,11 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class ImportExportTest extends AbstractImportExportTestCase
 {
     use OrderFixture;
+    private const PUBLIC_MEDIA_PATH = '/public/media';
 
     private bool $mediaDirCreated = false;
 
     private string $projectDir = '';
-    private const PUBLIC_MEDIA_PATH = '/public/media';
 
     protected function setUp(): void
     {

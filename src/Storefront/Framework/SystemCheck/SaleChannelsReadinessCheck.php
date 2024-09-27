@@ -45,6 +45,21 @@ class SaleChannelsReadinessCheck extends BaseCheck
         return $this->withSalesChannelRequest(fn () => $this->doRun());
     }
 
+    public function category(): Category
+    {
+        return Category::FEATURE;
+    }
+
+    public function name(): string
+    {
+        return 'SaleChannelsReadiness';
+    }
+
+    protected function allowedSystemCheckExecutionContexts(): array
+    {
+        return SystemCheckExecutionContext::readiness();
+    }
+
     private function doRun(): Result
     {
         $domains = $this->fetchSalesChannelDomains();
@@ -113,20 +128,5 @@ class SaleChannelsReadinessCheck extends BaseCheck
     private function generateDomainUrl(string $url): string
     {
         return rtrim($url, '/') . $this->router->generate(self::INDEX_PAGE);
-    }
-
-    public function category(): Category
-    {
-        return Category::FEATURE;
-    }
-
-    public function name(): string
-    {
-        return 'SaleChannelsReadiness';
-    }
-
-    protected function allowedSystemCheckExecutionContexts(): array
-    {
-        return SystemCheckExecutionContext::readiness();
     }
 }

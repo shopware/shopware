@@ -318,7 +318,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-media: '456';
 \$sw-asset-theme-url: 'http://localhost';
 
-PHP_EOL
+PHP_EOL,
         ];
 
         yield 'ignores fields with scss config property set to false' => [
@@ -351,7 +351,7 @@ PHP_EOL
 \$sw-color-brand-secondary: #526e7f;
 \$sw-asset-theme-url: 'http://localhost';
 
-PHP_EOL
+PHP_EOL,
         ];
         yield 'HasNoConfigFieldsAndReturnsOnlyDefaultVariables' => [
             [
@@ -407,7 +407,7 @@ $sw-asset-theme-url: \'http://localhost\';
 \$sw-zero-margin: 0;
 \$sw-asset-theme-url: 'http://localhost';
 
-PHP_EOL
+PHP_EOL,
         ];
     }
 

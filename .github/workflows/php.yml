@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./var/cache/cs_fixer
-          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('vendor-bin/cs-fixer/composer.json') }}
+          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
           restore-keys: |
             ${{ runner.os }}-cs-fixer-
 
@@ -197,4 +197,3 @@ jobs:
       - name: Check license
         if: steps.changed-composer-json.outputs.any_changed == 'true'
         run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
-  

@@ -107,7 +107,7 @@ class SyncFkResolver
                     $ref = match (true) {
                         $field instanceof FkField => $field->getReferenceDefinition()->getEntityName(),
                         $field instanceof IdField => $entity,
-                        default => null
+                        default => null,
                     };
 
                     if ($ref === null) {

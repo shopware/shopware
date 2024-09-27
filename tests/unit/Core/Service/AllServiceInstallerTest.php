@@ -20,21 +20,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(AllServiceInstaller::class)]
 class AllServiceInstallerTest extends TestCase
 {
-    /**
-     * @param array<AppEntity> $apps
-     *
-     * @return StaticEntityRepository<AppCollection>
-     */
-    private function buildAppRepository(array $apps = []): StaticEntityRepository
-    {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
-            new AppCollection($apps),
-        ]);
-
-        return $appRepository;
-    }
-
     public function testAllServicesAreInstalledIfNoneExist(): void
     {
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
@@ -152,5 +137,20 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle->expects(static::never())->method('install');
 
         $serviceInstaller->install(Context::createDefaultContext());
+    }
+
+    /**
+     * @param array<AppEntity> $apps
+     *
+     * @return StaticEntityRepository<AppCollection>
+     */
+    private function buildAppRepository(array $apps = []): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection($apps),
+        ]);
+
+        return $appRepository;
     }
 }

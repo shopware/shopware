@@ -81,33 +81,6 @@ class AdministrationControllerTest extends TestCase
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
     }
 
-    protected function createAdministrationController(
-        ?CustomerCollection $collection = null,
-        bool $isCustomerBoundToSalesChannel = false
-    ): AdministrationController {
-        $collection = $collection ?? new CustomerCollection();
-
-        return new AdministrationController(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(FirstRunWizardService::class),
-            $this->createMock(SnippetFinderInterface::class),
-            [],
-            new KnownIpsCollector(),
-            $this->connection,
-            $this->eventDispatcher,
-            $this->shopwareCoreDir,
-            new StaticEntityRepository([$collection]),
-            $this->currencyRepository,
-            $this->htmlSanitizer,
-            $this->definitionRegistry,
-            $this->parameterBag,
-            new StaticSystemConfigService([
-                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
-            ]),
-            $this->fileSystemOperator,
-        );
-    }
-
     public function testIndexPerformsOnSearchOfCurrency(): void
     {
         $this->parameterBag->expects(static::any())->method('has')->willReturn(true);
@@ -482,6 +455,33 @@ class AdministrationControllerTest extends TestCase
             false,
             new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]),
         ];
+    }
+
+    protected function createAdministrationController(
+        ?CustomerCollection $collection = null,
+        bool $isCustomerBoundToSalesChannel = false
+    ): AdministrationController {
+        $collection = $collection ?? new CustomerCollection();
+
+        return new AdministrationController(
+            $this->createMock(TemplateFinder::class),
+            $this->createMock(FirstRunWizardService::class),
+            $this->createMock(SnippetFinderInterface::class),
+            [],
+            new KnownIpsCollector(),
+            $this->connection,
+            $this->eventDispatcher,
+            $this->shopwareCoreDir,
+            new StaticEntityRepository([$collection]),
+            $this->currencyRepository,
+            $this->htmlSanitizer,
+            $this->definitionRegistry,
+            $this->parameterBag,
+            new StaticSystemConfigService([
+                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
+            ]),
+            $this->fileSystemOperator,
+        );
     }
 
     private function buildCustomerEntity(): CustomerEntity

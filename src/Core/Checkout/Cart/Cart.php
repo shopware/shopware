@@ -50,6 +50,8 @@ class Cart extends Struct
 
     protected ?string $hash = null;
 
+    protected string $errorHash = '';
+
     private ?CartDataCollection $data = null;
 
     /**
@@ -58,8 +60,6 @@ class Cart extends Struct
     private array $ruleIds = [];
 
     private ?CartBehavior $behavior = null;
-
-    protected string $errorHash = '';
 
     /**
      * @internal

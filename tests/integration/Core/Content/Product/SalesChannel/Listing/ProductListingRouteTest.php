@@ -166,223 +166,6 @@ class ProductListingRouteTest extends TestCase
         static::assertArrayHasKey('total', $response);
     }
 
-    private function createData(string $productAssignmentType = 'product', ?string $productStreamId = null, ?string $mainVariant = null): void
-    {
-        $this->productId = Uuid::randomHex();
-
-        $this->optionIds = [
-            'red' => Uuid::randomHex(),
-            'green' => Uuid::randomHex(),
-            'xl' => Uuid::randomHex(),
-            'l' => Uuid::randomHex(),
-        ];
-
-        $this->variantIds = [
-            'redXl' => Uuid::randomHex(),
-            'greenXl' => Uuid::randomHex(),
-            'redL' => Uuid::randomHex(),
-            'greenL' => Uuid::randomHex(),
-        ];
-
-        $this->groupIds = [
-            'color' => Uuid::randomHex(),
-            'size' => Uuid::randomHex(),
-        ];
-
-        $product = [
-            'name' => 'test',
-            'stock' => 10,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'active' => true,
-        ];
-
-        $products = [];
-        for ($i = 0; $i < 5; ++$i) {
-            $products[] = array_merge(
-                [
-                    'id' => $this->ids->create('product' . $i),
-                    'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],
-                    'productNumber' => $this->ids->get('product' . $i),
-                ],
-                $product
-            );
-        }
-
-        $product['id'] = $this->productId;
-        $product['configuratorSettings'] = [
-            [
-                'option' => [
-                    'id' => $this->optionIds['red'],
-                    'name' => 'Red',
-                    'group' => [
-                        'id' => $this->groupIds['color'],
-                        'name' => 'Color',
-                    ],
-                ],
-            ],
-            [
-                'option' => [
-                    'id' => $this->optionIds['green'],
-                    'name' => 'Green',
-                    'group' => [
-                        'id' => $this->groupIds['color'],
-                        'name' => 'Color',
-                    ],
-                ],
-            ],
-            [
-                'option' => [
-                    'id' => $this->optionIds['xl'],
-                    'name' => 'XL',
-                    'group' => [
-                        'id' => $this->groupIds['size'],
-                        'name' => 'size',
-                    ],
-                ],
-            ],
-            [
-                'option' => [
-                    'id' => $this->optionIds['l'],
-                    'name' => 'L',
-                    'group' => [
-                        'id' => $this->groupIds['size'],
-                        'name' => 'size',
-                    ],
-                ],
-            ],
-        ];
-        $product['children'] = [
-            [
-                'id' => $this->variantIds['redXl'],
-                'productNumber' => 'a.1',
-                'stock' => 10,
-                'active' => true,
-                'parentId' => $this->productId,
-                'options' => [
-                    ['id' => $this->optionIds['red']],
-                    ['id' => $this->optionIds['xl']],
-                ],
-            ],
-            [
-                'id' => $this->variantIds['greenXl'],
-                'productNumber' => 'a.3',
-                'stock' => 10,
-                'active' => true,
-                'parentId' => $this->productId,
-                'options' => [
-                    ['id' => $this->optionIds['green']],
-                    ['id' => $this->optionIds['xl']],
-                ],
-            ],
-            [
-                'id' => $this->variantIds['redL'],
-                'productNumber' => 'a.5',
-                'stock' => 10,
-                'active' => true,
-                'parentId' => $this->productId,
-                'options' => [
-                    ['id' => $this->optionIds['red']],
-                    ['id' => $this->optionIds['l']],
-                ],
-            ],
-            [
-                'id' => $this->variantIds['greenL'],
-                'productNumber' => 'a.7',
-                'stock' => 10,
-                'active' => true,
-                'parentId' => $this->productId,
-                'options' => [
-                    ['id' => $this->optionIds['green']],
-                    ['id' => $this->optionIds['l']],
-                ],
-            ],
-        ];
-        $product['productNumber'] = $this->productId;
-        $products[] = $product;
-
-        $data = [
-            'id' => $this->ids->create('category'),
-            'name' => 'Test',
-            'productAssignmentType' => $productAssignmentType,
-            'cmsPage' => [
-                'id' => $this->ids->create('cms-page'),
-                'type' => 'product_list',
-                'sections' => [
-                    [
-                        'position' => 0,
-                        'type' => 'sidebar',
-                        'blocks' => [
-                            [
-                                'type' => 'product-listing',
-                                'position' => 1,
-                                'slots' => [
-                                    ['type' => 'product-listing', 'slot' => 'content'],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            'products' => $products,
-        ];
-
-        $this->getContainer()->get('product_stream.repository')->create([[
-            'id' => $this->ids->create('productStream'),
-            'name' => 'test',
-            'filters' => [[
-                'type' => 'equals',
-                'field' => 'options.id',
-                'value' => $this->optionIds['red'],
-            ]],
-        ]], Context::createDefaultContext());
-
-        $this->categoryRepository->upsert([$data], Context::createDefaultContext());
-        $this->categoryRepository->upsert([[
-            'id' => $this->ids->get('category'),
-            'productStreamId' => $productStreamId,
-        ]], Context::createDefaultContext());
-
-        if ($mainVariant) {
-            $upsertData = [
-                [
-                    'id' => $this->productId,
-                    'variantListingConfig' => [
-                        'mainVariantId' => $this->variantIds['greenL'],
-                    ],
-                ],
-            ];
-            $this->productRepository->upsert($upsertData, Context::createDefaultContext());
-        }
-
-        $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->get('sales-channel'),
-            'navigationCategoryId' => $this->ids->get('category'),
-        ]);
-
-        $this->setVisibilities($products);
-    }
-
-    /**
-     * @param array<int, array<string, array<int|string, array<string, array<int|string, array<string, string>|string>|bool|int|string>|int|string>|bool|int|string>> $createdProducts
-     */
-    private function setVisibilities(array $createdProducts): void
-    {
-        $products = [];
-        foreach ($createdProducts as $created) {
-            $products[] = [
-                'id' => $created['id'],
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
-        }
-
-        $this->productRepository->update($products, Context::createDefaultContext());
-    }
-
     /**
      * @param array<string, mixed> $product
      * @param array<string, mixed> $expected
@@ -761,5 +544,222 @@ class ProductListingRouteTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function createData(string $productAssignmentType = 'product', ?string $productStreamId = null, ?string $mainVariant = null): void
+    {
+        $this->productId = Uuid::randomHex();
+
+        $this->optionIds = [
+            'red' => Uuid::randomHex(),
+            'green' => Uuid::randomHex(),
+            'xl' => Uuid::randomHex(),
+            'l' => Uuid::randomHex(),
+        ];
+
+        $this->variantIds = [
+            'redXl' => Uuid::randomHex(),
+            'greenXl' => Uuid::randomHex(),
+            'redL' => Uuid::randomHex(),
+            'greenL' => Uuid::randomHex(),
+        ];
+
+        $this->groupIds = [
+            'color' => Uuid::randomHex(),
+            'size' => Uuid::randomHex(),
+        ];
+
+        $product = [
+            'name' => 'test',
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'active' => true,
+        ];
+
+        $products = [];
+        for ($i = 0; $i < 5; ++$i) {
+            $products[] = array_merge(
+                [
+                    'id' => $this->ids->create('product' . $i),
+                    'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],
+                    'productNumber' => $this->ids->get('product' . $i),
+                ],
+                $product
+            );
+        }
+
+        $product['id'] = $this->productId;
+        $product['configuratorSettings'] = [
+            [
+                'option' => [
+                    'id' => $this->optionIds['red'],
+                    'name' => 'Red',
+                    'group' => [
+                        'id' => $this->groupIds['color'],
+                        'name' => 'Color',
+                    ],
+                ],
+            ],
+            [
+                'option' => [
+                    'id' => $this->optionIds['green'],
+                    'name' => 'Green',
+                    'group' => [
+                        'id' => $this->groupIds['color'],
+                        'name' => 'Color',
+                    ],
+                ],
+            ],
+            [
+                'option' => [
+                    'id' => $this->optionIds['xl'],
+                    'name' => 'XL',
+                    'group' => [
+                        'id' => $this->groupIds['size'],
+                        'name' => 'size',
+                    ],
+                ],
+            ],
+            [
+                'option' => [
+                    'id' => $this->optionIds['l'],
+                    'name' => 'L',
+                    'group' => [
+                        'id' => $this->groupIds['size'],
+                        'name' => 'size',
+                    ],
+                ],
+            ],
+        ];
+        $product['children'] = [
+            [
+                'id' => $this->variantIds['redXl'],
+                'productNumber' => 'a.1',
+                'stock' => 10,
+                'active' => true,
+                'parentId' => $this->productId,
+                'options' => [
+                    ['id' => $this->optionIds['red']],
+                    ['id' => $this->optionIds['xl']],
+                ],
+            ],
+            [
+                'id' => $this->variantIds['greenXl'],
+                'productNumber' => 'a.3',
+                'stock' => 10,
+                'active' => true,
+                'parentId' => $this->productId,
+                'options' => [
+                    ['id' => $this->optionIds['green']],
+                    ['id' => $this->optionIds['xl']],
+                ],
+            ],
+            [
+                'id' => $this->variantIds['redL'],
+                'productNumber' => 'a.5',
+                'stock' => 10,
+                'active' => true,
+                'parentId' => $this->productId,
+                'options' => [
+                    ['id' => $this->optionIds['red']],
+                    ['id' => $this->optionIds['l']],
+                ],
+            ],
+            [
+                'id' => $this->variantIds['greenL'],
+                'productNumber' => 'a.7',
+                'stock' => 10,
+                'active' => true,
+                'parentId' => $this->productId,
+                'options' => [
+                    ['id' => $this->optionIds['green']],
+                    ['id' => $this->optionIds['l']],
+                ],
+            ],
+        ];
+        $product['productNumber'] = $this->productId;
+        $products[] = $product;
+
+        $data = [
+            'id' => $this->ids->create('category'),
+            'name' => 'Test',
+            'productAssignmentType' => $productAssignmentType,
+            'cmsPage' => [
+                'id' => $this->ids->create('cms-page'),
+                'type' => 'product_list',
+                'sections' => [
+                    [
+                        'position' => 0,
+                        'type' => 'sidebar',
+                        'blocks' => [
+                            [
+                                'type' => 'product-listing',
+                                'position' => 1,
+                                'slots' => [
+                                    ['type' => 'product-listing', 'slot' => 'content'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'products' => $products,
+        ];
+
+        $this->getContainer()->get('product_stream.repository')->create([[
+            'id' => $this->ids->create('productStream'),
+            'name' => 'test',
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'options.id',
+                'value' => $this->optionIds['red'],
+            ]],
+        ]], Context::createDefaultContext());
+
+        $this->categoryRepository->upsert([$data], Context::createDefaultContext());
+        $this->categoryRepository->upsert([[
+            'id' => $this->ids->get('category'),
+            'productStreamId' => $productStreamId,
+        ]], Context::createDefaultContext());
+
+        if ($mainVariant) {
+            $upsertData = [
+                [
+                    'id' => $this->productId,
+                    'variantListingConfig' => [
+                        'mainVariantId' => $this->variantIds['greenL'],
+                    ],
+                ],
+            ];
+            $this->productRepository->upsert($upsertData, Context::createDefaultContext());
+        }
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->get('sales-channel'),
+            'navigationCategoryId' => $this->ids->get('category'),
+        ]);
+
+        $this->setVisibilities($products);
+    }
+
+    /**
+     * @param array<int, array<string, array<int|string, array<string, array<int|string, array<string, string>|string>|bool|int|string>|int|string>|bool|int|string>> $createdProducts
+     */
+    private function setVisibilities(array $createdProducts): void
+    {
+        $products = [];
+        foreach ($createdProducts as $created) {
+            $products[] = [
+                'id' => $created['id'],
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+        }
+
+        $this->productRepository->update($products, Context::createDefaultContext());
     }
 }

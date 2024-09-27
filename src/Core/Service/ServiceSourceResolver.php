@@ -53,7 +53,7 @@ class ServiceSourceResolver implements Source
     {
         return match (true) {
             $app instanceof AppEntity => $app->getSourceType() === $this->name(),
-            $app instanceof Manifest => preg_match('#^https?://#', $app->getPath()) && $app->getMetadata()->isSelfManaged()
+            $app instanceof Manifest => preg_match('#^https?://#', $app->getPath()) && $app->getMetadata()->isSelfManaged(),
         };
     }
 
@@ -72,6 +72,10 @@ class ServiceSourceResolver implements Source
         $sourceConfig = $app->getSourceConfig();
 
         return new Filesystem($this->checkVersionAndDownloadAppZip($name, $sourceConfig));
+    }
+
+    public function reset(array $filesystems): void
+    {
     }
 
     /**
@@ -132,9 +136,5 @@ class ServiceSourceResolver implements Source
     private function isLatestVersionInstalled(AppInfo $latestAppInfo, array $sourceConfig): bool
     {
         return $latestAppInfo->revision === $sourceConfig['revision'];
-    }
-
-    public function reset(array $filesystems): void
-    {
     }
 }

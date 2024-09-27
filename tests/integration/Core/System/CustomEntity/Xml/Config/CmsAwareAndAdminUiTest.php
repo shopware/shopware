@@ -241,7 +241,7 @@ class CmsAwareAndAdminUiTest extends TestCase
         $idColumn = match ($entity::class) {
             AppEntity::class => 'app_id',
             PluginEntity::class => 'plugin_id',
-            default => throw new \Exception('Wrong Entity!')
+            default => throw new \Exception('Wrong Entity!'),
         };
         $cmsAwareAndAdminUiSettings = $this->connection->executeQuery(
             "SELECT flags FROM custom_entity WHERE $idColumn = :id",

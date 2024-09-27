@@ -83,15 +83,6 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
         return $this->traitJsonSerialize();
     }
 
-    /**
-     * @param array<string, mixed> $array
-     */
-    protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
-        $this->traitConvertDateTimePropertiesToJsonStringRepresentation($array);
-    }
-
     public function addExtension(string $name, Struct $extension): void
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
@@ -174,5 +165,14 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitRemoveExtension($name);
+    }
+
+    /**
+     * @param array<string, mixed> $array
+     */
+    protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
+        $this->traitConvertDateTimePropertiesToJsonStringRepresentation($array);
     }
 }

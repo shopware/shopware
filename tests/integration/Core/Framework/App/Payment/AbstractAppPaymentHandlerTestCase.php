@@ -76,6 +76,11 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
      */
     protected EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
+    protected EntityRepository $orderTransactionRepository;
+
     private EntityRepository $customerRepository;
 
     private EntityRepository $paymentMethodRepository;
@@ -85,11 +90,6 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     private InitialStateIdLoader $initialStateIdLoader;
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    /**
-     * @var EntityRepository<OrderTransactionCollection>
-     */
-    protected EntityRepository $orderTransactionRepository;
 
     private EntityRepository $orderTransactionCaptureRepository;
 

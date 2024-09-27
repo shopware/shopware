@@ -108,21 +108,6 @@ class MeterTest extends TestCase
     }
 
     /**
-     * @param array<MetricTransportInterface> $transports
-     *
-     * @return TransportCollection<MetricTransportInterface>
-     */
-    private function createTransportCollectionMock(array $transports): TransportCollection
-    {
-        $collection = $this->createMock(TransportCollection::class);
-        $collection->expects(static::once())
-            ->method('getIterator')
-            ->willReturn(new \ArrayIterator($transports));
-
-        return $collection;
-    }
-
-    /**
      * @return array{ConfiguredMetric, MetricConfig, Metric, Callback<Metric>}
      */
     public function buildCommonTestStubs(): array
@@ -145,5 +130,20 @@ class MeterTest extends TestCase
         $metricConfigProvider->expects(static::once())->method('get')->with('test')->willReturn($metricConfig);
 
         return $metricConfigProvider;
+    }
+
+    /**
+     * @param array<MetricTransportInterface> $transports
+     *
+     * @return TransportCollection<MetricTransportInterface>
+     */
+    private function createTransportCollectionMock(array $transports): TransportCollection
+    {
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects(static::once())
+            ->method('getIterator')
+            ->willReturn(new \ArrayIterator($transports));
+
+        return $collection;
     }
 }

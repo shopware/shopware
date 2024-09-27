@@ -27,13 +27,13 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private CustomerVatIdentificationValidator $validator;
-
-    private ExecutionContext $executionContext;
-
     private const COUNTRY_ISO = [
         'DE', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DK', 'EE', 'GR', 'ES', 'FI', 'FR', 'GB', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK',
     ];
+
+    private CustomerVatIdentificationValidator $validator;
+
+    private ExecutionContext $executionContext;
 
     /**
      * @var string[]

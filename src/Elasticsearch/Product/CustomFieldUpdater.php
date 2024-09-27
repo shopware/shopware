@@ -83,7 +83,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 'type' => 'object',
                 'dynamic' => true,
             ],
-            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD
+            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
         };
     }
 

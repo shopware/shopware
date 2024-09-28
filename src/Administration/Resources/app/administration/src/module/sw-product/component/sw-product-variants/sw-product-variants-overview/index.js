@@ -30,6 +30,11 @@ export default {
     ],
 
     props: {
+        productEntity: {
+            type: Object,
+            required: true,
+        },
+
         selectedGroups: {
             type: Array,
             required: true,
@@ -650,6 +655,8 @@ export default {
                     return;
                 }
 
+                this.updateVariantListingConfig(variantIds);
+
                 this.productRepository.syncDeleted(variantIds).then(() => {
                     this.modalLoading = false;
                     this.toBeDeletedVariantIds = [];
@@ -717,6 +724,25 @@ export default {
 
         variantIsDigital(variant) {
             return this.productStates.includes('all') && variant.states && variant.states.includes('is-download');
+        },
+
+        updateVariantListingConfig(variantIds) {
+            if (variantIds.length === this.variants.length) {
+                this.productEntity.variantListingConfig = null;
+            }
+
+            const mainVariantId = this.productEntity.variantListingConfig?.mainVariantId;
+            if (mainVariantId && variantIds.includes(mainVariantId)) {
+                this.productEntity.variantListingConfig.mainVariantId = null;
+
+                const displaySingleProduct = this.productEntity.variantListingConfig?.displayParent !== null;
+
+                if (displaySingleProduct) {
+                    this.productEntity.variantListingConfig.displayParent = true;
+                }
+            }
+
+            this.productRepository.save(this.productEntity);
         },
     },
 };

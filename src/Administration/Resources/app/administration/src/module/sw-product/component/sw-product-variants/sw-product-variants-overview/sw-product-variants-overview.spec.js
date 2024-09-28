@@ -9,15 +9,20 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         props: {
             selectedGroups: [],
             uploadTag: 'uploadTag',
+            productEntity: {
+                id: '72bfaf5d90214ce592715a9649d8760a',
+                variantListingConfig: null,
+            },
             ...propsOverride,
         },
         global: {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve(),
+                        search: () => Promise.resolve([]),
                         save: () => Promise.resolve([]),
                         get: () => Promise.resolve({}),
+                        syncDeleted: () => Promise.resolve({}),
                     }),
                     ...repositoryFactoryOverride,
                 },
@@ -72,7 +77,15 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-pagination': true,
                 'sw-bulk-edit-modal': true,
-                'sw-modal': true,
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal">
+                          <slot name="modal-header"></slot>
+                          <slot></slot>
+                          <slot name="modal-footer"></slot>
+                        </div>
+                    `,
+                },
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
@@ -160,6 +173,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     state.variants = variants;
                 },
                 setLoading() {},
+                setProduct(state, newProduct) {
+                    state.product = newProduct;
+                },
             },
         });
     });
@@ -412,5 +428,38 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries[2].query.field).toBe('product.productNumber');
         expect(criteria.queries[2].query.value).toBe(term);
         expect(criteria.queries[2].score).toBe(5000);
+    });
+
+    it('should update variant listing config of product when deleting variant', async () => {
+        global.activeAclRoles = ['product.deleter'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const product = {
+            variantListingConfig: {
+                displayParent: 0,
+                configuratorGroupConfig: [],
+                mainVariantId: 1,
+            },
+            ...wrapper.vm.product,
+        };
+
+        await wrapper.setProps({
+            productEntity: product,
+        });
+
+        const productSaveSpy = jest.spyOn(wrapper.vm.productRepository, 'save');
+
+        const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
+        await deleteContextButton.trigger('click');
+
+        const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
+        expect(deleteModal.exists()).toBe(true);
+
+        await wrapper.find('.sw-product-variants-overview__delete-modal .sw-button--danger').trigger('click');
+        await flushPromises();
+
+        expect(productSaveSpy).toHaveBeenCalledTimes(1);
     });
 });

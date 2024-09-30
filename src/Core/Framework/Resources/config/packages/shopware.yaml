@@ -59,12 +59,13 @@ shopware:
             - 'ie'
             - 'cof'
             - 'siteurl'
-            - '_ga'
+            - '_ga' # Google Analytics
             - 'adgroupid'
             - 'campaignid'
             - 'adid'
             - 'gclsrc' # Google DoubleClick
             - 'gclid'
+            - 'srsltid' # Google Merchant
             - 'fbclid' # Facebook
             - 'fb_action_ids'
             - 'fb_action_types'

@@ -117,7 +117,7 @@
                                                data-bs-toggle="collapse"
                                                data-bs-target="#{{ typePrefix }}address-create-edit"
                                             >
-                                                {% sw_icon 'paper-pencil' style {size: 'xs'} %}
+                                                {% sw_icon 'paper-pencil' style {size: 'xs', ariaHidden: true} %}
 
                                                 {{ 'account.addressEditBtn'|trans|sw_sanitize }}
                                             </a>
@@ -128,7 +128,7 @@
                                                data-bs-toggle="collapse"
                                                data-bs-target="#{{ typePrefix }}address-create-new"
                                             >
-                                                {% sw_icon 'plus' style {size: 'xs', pack: 'solid'} %}
+                                                {% sw_icon 'plus' style {size: 'xs', pack: 'solid', ariaHidden: true} %}
 
                                                 {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
                                             </a>

@@ -27,7 +27,9 @@
                     <div class="navigation-flyout-close js-close-flyout-menu">
                         {% block layout_navbar_content_row_close_content %}
                             {% block layout_utilities_offcanvas_close_icon %}
-                                {% sw_icon 'x' %}
+                                {% sw_icon 'x' style {
+                                    ariaLabel: 'general.collapse'|trans
+                                } %}
                             {% endblock %}
                         {% endblock %}
                     </div>

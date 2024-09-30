@@ -21,10 +21,14 @@
                                 {% block layout_footer_navigation_hotline_icons %}
                                     <div class="footer-column-toggle">
                                         <span class="footer-plus-icon">
-                                            {% sw_icon 'plus' %}
+                                            {% sw_icon 'plus' style {
+                                                ariaLabel: 'general.expand'|trans
+                                            } %}
                                         </span>
                                         <span class="footer-minus-icon">
-                                            {% sw_icon 'minus' %}
+                                            {% sw_icon 'minus' style {
+                                                ariaLabel: 'general.collapse'|trans
+                                            } %}
                                         </span>
                                     </div>
                                 {% endblock %}
@@ -74,10 +78,14 @@
                                         {% block layout_footer_navigation_information_icons %}
                                             <div class="footer-column-toggle">
                                                 <span class="footer-plus-icon">
-                                                    {% sw_icon 'plus' %}
+                                                    {% sw_icon 'plus' style {
+                                                        ariaLabel: 'general.expand'|trans
+                                                    } %}
                                                 </span>
                                                 <span class="footer-minus-icon">
-                                                    {% sw_icon 'minus' %}
+                                                    {% sw_icon 'minus' style {
+                                                        ariaLabel: 'general.collapse'|trans
+                                                    } %}
                                                 </span>
                                             </div>
                                         {% endblock %}
@@ -220,7 +228,7 @@
 
             {% block layout_footer_copyright %}
                 <div class="footer-copyright">
-                    {% sw_icon 'shopware' style {size:'xs'} %}
+                    {% sw_icon 'shopware' style { size:'xs' } %}
                     {{ 'footer.copyrightInfo'|trans|sw_sanitize }}
                 </div>
             {% endblock %}

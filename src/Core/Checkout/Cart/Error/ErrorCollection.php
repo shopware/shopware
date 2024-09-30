@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Error;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @extends Collection<Error>
@@ -106,7 +107,7 @@ class ErrorCollection extends Collection
             $hash .= $element->getId() . json_encode($element->getParameters());
         }
 
-        return hash('xxh64', $hash);
+        return Hasher::hash($hash, 'xxh64');
     }
 
     protected function getExpectedClass(): ?string

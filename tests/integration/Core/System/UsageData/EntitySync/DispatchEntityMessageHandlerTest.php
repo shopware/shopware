@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -439,7 +440,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     private static function getPuid(string $name, string $lastName, string $email): string
     {
-        return hash('sha512', \sprintf('%s%s%s', strtolower($name), strtolower($lastName), strtolower($email)));
+        return Hasher::hash(\sprintf('%s%s%s', strtolower($name), strtolower($lastName), strtolower($email)), 'sha512');
     }
 
     /**

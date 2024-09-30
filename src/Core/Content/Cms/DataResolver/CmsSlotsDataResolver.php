@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -369,6 +370,6 @@ class CmsSlotsDataResolver
 
     private function hash(Criteria $criteria): string
     {
-        return md5(serialize($criteria));
+        return Hasher::hash($criteria);
     }
 }

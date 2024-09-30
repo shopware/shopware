@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -851,7 +852,7 @@ class VersionManager
                 ];
 
                 // deduplicate to prevent deletion errors
-                $entityKey = md5(Json::encode($entity));
+                $entityKey = Hasher::hash($entity);
                 if (isset($handled[$entityKey])) {
                     continue;
                 }

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -42,7 +43,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
         ksort($options);
 
-        $key = implode('-', [$name, md5(json_encode($options, \JSON_THROW_ON_ERROR))]);
+        $key = implode('-', [$name, Hasher::hash($options)]);
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
             if (Feature::isActive('cache_rework')) {

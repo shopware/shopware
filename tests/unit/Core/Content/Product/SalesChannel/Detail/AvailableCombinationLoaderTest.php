@@ -40,11 +40,11 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $combinations = $result->getCombinations();
         static::assertSame([
-            'a3f67ea263a4f2f5cf456e16de744b4b' => [
+            '4b97f87ff3bd2cd72cc6f6f7d2ae49ae' => [
                 'green',
                 'red',
             ],
-            'b6073234fc601007b541885dd70491f1' => [
+            'a6a23a74867cad90ee0c788a48944911' => [
                 'green',
             ],
         ], $combinations);
@@ -70,11 +70,11 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $combinations = $result->getCombinations();
         static::assertSame([
-            'a3f67ea263a4f2f5cf456e16de744b4b' => [
+            '4b97f87ff3bd2cd72cc6f6f7d2ae49ae' => [
                 'green',
                 'red',
             ],
-            'b6073234fc601007b541885dd70491f1' => [
+            'a6a23a74867cad90ee0c788a48944911' => [
                 'green',
             ],
         ], $combinations);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\WebInstaller;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -44,7 +45,7 @@ class Kernel extends BaseKernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . md5(__DIR__) . '/';
+        return sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . Hasher::hash(__DIR__) . '/';
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void

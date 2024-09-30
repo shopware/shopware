@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Update\Services;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -41,7 +42,7 @@ class UpdateHtaccess implements EventSubscriberInterface
             return;
         }
 
-        if (\in_array(md5_file($this->htaccessPath), self::OLD_FILES, true)) {
+        if (\in_array(Hasher::hashFile($this->htaccessPath, 'md5'), self::OLD_FILES, true)) {
             $this->replaceFile($this->htaccessPath);
 
             return;

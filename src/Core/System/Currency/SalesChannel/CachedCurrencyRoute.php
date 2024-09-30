@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\Currency\Event\CurrencyRouteCacheKeyEvent;
 use Shopware\Core\System\Currency\Event\CurrencyRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -96,7 +96,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
             return null;
         }
 
-        return self::buildName($context->getSalesChannelId()) . '-' . md5((string) Json::encode($event->getParts()));
+        return self::buildName($context->getSalesChannelId()) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

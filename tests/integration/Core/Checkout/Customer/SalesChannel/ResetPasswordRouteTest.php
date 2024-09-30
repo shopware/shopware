@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
@@ -217,7 +218,7 @@ class ResetPasswordRouteTest extends TestCase
         ];
 
         if ($addLegacyPassword) {
-            $customer['legacyPassword'] = md5('test');
+            $customer['legacyPassword'] = Hasher::hash('test', 'md5');
             $customer['legacyEncoder'] = 'Md5';
         }
 

@@ -1,6 +1,6 @@
 ---
 title: Add srsltid parameter to ignored http cache parameters
-issue: NEXT-000000
+issue: NEXT-38521
 author: Wanne Van Camp
 author_email: info@campit.be
 author_github: wannevancamp

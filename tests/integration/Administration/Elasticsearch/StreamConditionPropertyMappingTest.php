@@ -21,7 +21,7 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     private SalesChannelProductDefinition $productDefinition;
 
-    private ?AbstractElasticsearchDefinition $elasticDefinition;
+    private AbstractElasticsearchDefinition $elasticDefinition;
 
     protected function setUp(): void
     {
@@ -32,10 +32,6 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     public function testMappingHasConditionField(): void
     {
-        if ($this->elasticDefinition === null) {
-            static::fail('EsProductDefinition is not defined');
-        }
-
         $js = file_get_contents(__DIR__ . '/../../../../src/Administration/Resources/app/administration/src/app/service/product-stream-condition.service.js');
 
         if (!$js) {

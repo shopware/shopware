@@ -30,10 +30,12 @@ parameters:
         containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
     type_perfect:
-        no_mixed: true
+        no_mixed_property: true
+        no_mixed_caller: true
 
     excludePaths:
         - src/WebInstaller/Resources/
+        - src/WebInstaller/stub.php
         - src/WebInstaller/vendor(?)
         - src/WebInstaller/Tests/_fixtures
         - tests/e2e/cypress

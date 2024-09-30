@@ -80,7 +80,7 @@ class ElasticsearchFieldMapper
      * This method is commonly used to handle associations, such as product names and descriptions in different languages.
      *
      * @param array<int, array{id: string, languageId?: string}> $items An array of items with language information.
-     * @param string[] $translatedFields An array of fields to be translated.
+     * @param list<string> $translatedFields An array of fields to be translated.
      *
      * @return array<int, array<string, array<string, string>>> An array of items with nested arrays containing translated values.
      *
@@ -137,7 +137,8 @@ class ElasticsearchFieldMapper
             }
         }
 
-        // Convert grouped items into a numerically indexed array
+        // Convert grouped items into a numerically indexed array. Somehow PHPStan cannot resolve it
+        /** @phpstan-ignore argument.unresolvableType, function.unresolvableReturnType */
         return array_values($groupedItems);
     }
 

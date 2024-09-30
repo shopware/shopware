@@ -1,5 +1,4 @@
 import FocusHandler from 'src/helper/focus-handler.helper';
-import Storage from 'src/helper/storage/storage.helper';
 
 /**
  * @package storefront
@@ -140,7 +139,7 @@ describe('focus-handler.helper', () => {
 
         // 2. Save the focus state with key
         focusHandler.saveFocusStatePersistent('test-modal', '#modal-open');
-        expect(Storage.getItem('sw-last-focus-test-modal')).toBe('#modal-open');
+        expect(window.sessionStorage.getItem('sw-last-focus-test-modal')).toBe('#modal-open');
 
         // 2. Focus the close button manually and verify current focus
         modalCloseButton.focus();
@@ -149,7 +148,7 @@ describe('focus-handler.helper', () => {
         // 3. Resume the focus state from session storage and verify current focus and storage has been removed
         focusHandler.resumeFocusStatePersistent('test-modal');
         expect(document.activeElement).toBe(modalButton);
-        expect(Storage.getItem('sw-last-focus-test-modal')).toBeNull();
+        expect(window.sessionStorage.getItem('sw-last-focus-test-modal')).toBeNull();
     });
 
     test('should show a console error during persistent save when no sufficient parameters are given', () => {

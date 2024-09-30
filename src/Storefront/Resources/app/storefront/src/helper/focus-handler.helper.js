@@ -1,5 +1,3 @@
-import Storage from 'src/helper/storage/storage.helper';
-
 /**
  * This class is used to make it easier to preserve the focus state.
  * It is used to set the focus back to a given element after displaying content in a modal.
@@ -76,13 +74,17 @@ export default class FocusHandler {
 
         // Default sessionStorage structure:
         // key: "sw-last-focus-my-example-element" | value: "#my-example-unique-id"
-        const storageKey = `${this._defaultStorageKeyPrefix}-${focusStorageKey}`;
-        Storage.setItem(storageKey, uniqueSelector);
+        try {
+            const storageKey = `${this._defaultStorageKeyPrefix}-${focusStorageKey}`;
+            window.sessionStorage.setItem(storageKey, uniqueSelector);
 
-        document.$emitter.publish('Focus/StateSavedPersistent', {
-            focusStorageKey,
-            uniqueSelector,
-        });
+            document.$emitter.publish('Focus/StateSavedPersistent', {
+                focusStorageKey,
+                uniqueSelector,
+            });
+        } catch (e) {
+            // do nothing, if sessionStorage is blocked
+        }
     }
 
     /**
@@ -92,20 +94,23 @@ export default class FocusHandler {
      * @param focusOptions
      */
     resumeFocusStatePersistent(focusStorageKey, focusOptions) {
-        const uniqueSelector = Storage.getItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
-        if (!uniqueSelector) {
-            return;
+        try {
+            const uniqueSelector = window.sessionStorage.getItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
+            if (!uniqueSelector) {
+                return;
+            }
+
+            const focusEl = document.querySelector(uniqueSelector);
+            this.setFocus(focusEl, focusOptions);
+            window.sessionStorage.removeItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
+
+            document.$emitter.publish('Focus/StateResumedPersistent', {
+                focusStorageKey,
+                focusEl,
+            });
+        } catch (e) {
+            // do nothing, if sessionStorage is blocked
         }
-
-        const focusEl = document.querySelector(uniqueSelector);
-
-        this.setFocus(focusEl, focusOptions);
-        Storage.removeItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
-
-        document.$emitter.publish('Focus/StateResumedPersistent', {
-            focusStorageKey,
-            focusEl,
-        });
     }
 
     /**

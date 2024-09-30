@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Struct\Struct;
@@ -151,6 +152,8 @@ class ExtensionStruct extends Struct
 
     protected string $storeUrl;
 
+    protected bool $managedByComposer = false;
+
     /**
      * @param array<string, mixed> $data
      *
@@ -159,15 +162,15 @@ class ExtensionStruct extends Struct
     public static function fromArray(array $data): ExtensionStruct
     {
         if (!isset($data['name'])) {
-            throw new \InvalidArgumentException('Entry "name" in payload missing');
+            throw FrameworkException::invalidArgumentException('Entry "name" in payload missing');
         }
 
         if (!isset($data['label'])) {
-            throw new \InvalidArgumentException('Entry "label" in payload missing');
+            throw FrameworkException::invalidArgumentException('Entry "label" in payload missing');
         }
 
         if (!isset($data['type'])) {
-            throw new \InvalidArgumentException('Entry "type" in payload missing');
+            throw FrameworkException::invalidArgumentException('Entry "type" in payload missing');
         }
 
         return (new self())->assign($data);

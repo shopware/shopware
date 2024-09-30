@@ -14,6 +14,8 @@ class FrameworkException extends HttpException
 
     private const INVALID_EVENT_DATA = 'FRAMEWORK__INVALID_EVENT_DATA';
 
+    private const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT';
+
     private const INVALID_COMPRESSION_METHOD = 'FRAMEWORK__INVALID_COMPRESSION_METHOD';
     private const EXTENSION_RESULT_NOT_SET = 'FRAMEWORK__EXTENSION_RESULT_NOT_SET';
 
@@ -62,6 +64,15 @@ class FrameworkException extends HttpException
             self::EXTENSION_RESULT_NOT_SET,
             'Extension result not set for extension "{{ extension }}".',
             ['extension' => $extension]
+        );
+    }
+
+    public static function invalidArgumentException(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ARGUMENT,
+            $message
         );
     }
 }

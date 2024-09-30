@@ -134,7 +134,7 @@ export default {
         },
 
         isUpdateable() {
-            if (!this.extension || this.extension.latestVersion === null) {
+            if (!this.extension || this.extension.latestVersion === null || this.extension.managedByComposer) {
                 return false;
             }
 

@@ -189,6 +189,7 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
+            'managedByComposer' => $plugin->getManagedByComposer(),
         ];
 
         return ExtensionStruct::fromArray($this->replaceCollections($data));

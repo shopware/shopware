@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;

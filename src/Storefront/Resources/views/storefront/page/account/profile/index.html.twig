@@ -116,7 +116,7 @@
                 {% block page_account_profile_mail_and_password %}
                     <div class="profile-content accordion">
                         {% block page_account_profile_mail_collapse %}
-                            <div class="collapse{% if emailFormViolation and formViolations %} show{% endif %}" id="profile-email-form" data-parent=".profile-content">
+                            <div class="collapse{% if emailFormViolation and formViolations %} show{% endif %}" id="profile-email-form" data-bs-parent=".profile-content">
                                 <div class="card account-email">
                                     {% block page_account_profile_mail_form %}
                                         <form id="profileMailForm"
@@ -252,7 +252,7 @@
                         {% endblock %}
 
                         {% block page_account_profile_password %}
-                            <div class="collapse{% if passwordFormViolation and formViolations %} show{% endif %}" id="profile-password-form" data-parent=".profile-content">
+                            <div class="collapse{% if passwordFormViolation and formViolations %} show{% endif %}" id="profile-password-form" data-bs-parent=".profile-content">
                                 <div class="card account-password">
                                     {% block page_account_profile_password_form %}
                                         <form id="profilePasswordForm"

@@ -44,7 +44,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $client = new S3Client($s3Opts);
 
-        return new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
+        return new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
     }
 
     public function getType(): string

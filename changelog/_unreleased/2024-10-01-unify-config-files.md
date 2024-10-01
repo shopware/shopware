@@ -2,6 +2,13 @@
 title: Unify config files
 issue: NEXT-38616
 ---
+
+# Core
+
+- Added support for `LOCK_DSN` environment variable in `config/packages/framework.yaml` to configure the DSN for the lock store.
+
+___
+
 # Upgrade Information
 
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas

@@ -13,6 +13,7 @@ class OrderException extends HttpException
 {
     final public const ORDER_MISSING_ORDER_ASSOCIATION_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_ASSOCIATION';
     final public const ORDER_ORDER_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_DELIVERY_NOT_FOUND';
+    final public const ORDER_ORDER_CANCELLED_CODE = 'CHECKOUT__ORDER_ORDER_CANCELLED';
     final public const ORDER_ORDER_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_NOT_FOUND';
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
     final public const ORDER_MISSING_TRANSACTIONS_CODE = 'CHECKOUT__ORDER_MISSING_TRANSACTIONS';
@@ -157,6 +158,16 @@ class OrderException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::ORDER_INVALID_ORDER_ADDRESS_MAPPING,
             'Invalid order address mapping provided. ' . $reason,
+        );
+    }
+
+    public static function orderCancelled(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::ORDER_ORDER_CANCELLED_CODE,
+            'Order with id "{{ orderId }}" was cancelled and cannot be edited afterwards.',
+            ['orderId' => $orderId]
         );
     }
 }

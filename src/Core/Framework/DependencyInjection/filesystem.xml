@@ -107,6 +107,6 @@
             <tag name="shopware.asset" asset="sitemap"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory"/>
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInputFactory"/>
     </services>
 </container>

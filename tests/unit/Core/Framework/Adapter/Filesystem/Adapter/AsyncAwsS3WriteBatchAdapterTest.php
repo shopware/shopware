@@ -1,43 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Plugin;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use AsyncAws\Core\Test\ResultMockFactory;
 use AsyncAws\S3\Result\PutObjectOutput;
 use AsyncAws\S3\S3Client;
-use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
-use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInput;
 
 /**
  * @internal
  */
-#[CoversClass(CopyBatch::class)]
-class CopyBatchTest extends TestCase
+#[CoversClass(AsyncAwsS3WriteBatchAdapter::class)]
+class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 {
-    public function testCopy(): void
-    {
-        $fs = new Filesystem(new MemoryFilesystemAdapter());
-
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
-
-        $sourceFile = fopen($tmpFile, 'r');
-        static::assertIsResource($sourceFile);
-        CopyBatch::copy($fs, new CopyBatchInput($tmpFile, ['test.txt']), new CopyBatchInput($sourceFile, ['test2.txt']));
-
-        static::assertTrue($fs->fileExists('test.txt'));
-        static::assertTrue($fs->fileExists('test2.txt'));
-        static::assertSame('test', $fs->read('test.txt'));
-        static::assertSame('test', $fs->read('test2.txt'));
-
-        unlink($tmpFile);
-    }
-
     public function testS3(): void
     {
         $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
@@ -59,9 +37,8 @@ class CopyBatchTest extends TestCase
             ])
             ->willReturn($result);
 
-        $fs = new Filesystem(new AsyncAwsS3Adapter($s3Client, 'test'));
-
-        CopyBatch::copy($fs, new CopyBatchInput($sourceFile, ['test.txt']));
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test');
+        $adapter->writeBatch(new WriteBatchInput($sourceFile, ['test.txt']));
     }
 
     public function testS3UsingPath(): void
@@ -82,9 +59,9 @@ class CopyBatchTest extends TestCase
                 return $result;
             });
 
-        $fs = new Filesystem(new AsyncAwsS3Adapter($s3Client, 'test'));
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test');
 
-        CopyBatch::copy($fs, new CopyBatchInput($tmpFile, ['test.txt']));
+        $adapter->writeBatch(new WriteBatchInput($tmpFile, ['test.txt']));
     }
 
     public function testS3InvalidFile(): void
@@ -95,15 +72,7 @@ class CopyBatchTest extends TestCase
             ->expects(static::never())
             ->method('putObject');
 
-        $fs = new Filesystem(new AsyncAwsS3Adapter($s3Client, 'test'));
-
-        CopyBatch::copy($fs, new CopyBatchInput('invalid', ['test.txt']));
-    }
-
-    public function testConstructor(): void
-    {
-        static::expectException(\InvalidArgumentException::class);
-        // @phpstan-ignore-next-line
-        new CopyBatchInput(null, []);
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test');
+        $adapter->writeBatch(new WriteBatchInput('invalid', ['test.txt']));
     }
 }

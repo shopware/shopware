@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInput;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -73,7 +73,7 @@ class ThemeFileImporter implements ThemeFileImporterInterface
             $relativePathname = $file->getRelativePathname();
             $assetDir = basename($assetPath);
 
-            $assets[] = new CopyBatchInput(
+            $assets[] = new WriteBatchInput(
                 $assetPath . \DIRECTORY_SEPARATOR . $relativePathname,
                 [
                     $outputPath . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,

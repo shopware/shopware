@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInputFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
@@ -81,7 +81,7 @@ class ThemeCompilerTest extends TestCase
         $this->themeCompiler = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
-            new CopyBatchInputFactory(),
+            new WriteBatchInputFactory(),
             $themeFileResolver,
             true,
             $this->eventDispatcher,
@@ -99,7 +99,7 @@ class ThemeCompilerTest extends TestCase
         $this->themeCompilerAutoPrefix = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
-            new CopyBatchInputFactory(),
+            new WriteBatchInputFactory(),
             $themeFileResolver,
             true,
             $this->eventDispatcher,
@@ -437,7 +437,7 @@ PHP_EOL;
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
-            new CopyBatchInputFactory(),
+            new WriteBatchInputFactory(),
             $resolver,
             true,
             $this->getContainer()->get('event_dispatcher'),

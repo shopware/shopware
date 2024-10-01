@@ -34,7 +34,7 @@ class UseHasherRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isInTestClass($scope)) {
+        if ($this->isInTestClass($scope) || $this->isInWebInstaller($scope)) {
             // if in a test namespace, don't care
             return [];
         }
@@ -60,5 +60,21 @@ class UseHasherRule implements Rule
         }
 
         return [];
+    }
+
+    /**
+     * The webinstaller also runs on older installations and therefore we can't enforce the usage of the Hasher class.
+     */
+    protected function isInWebInstaller(Scope $scope): bool
+    {
+        if (!$scope->isInClass()) {
+            return false;
+        }
+
+        $definitionClassReflection = $scope->getClassReflection()->getNativeReflection();
+
+        $className = $definitionClassReflection->getName();
+
+        return str_contains($className, 'Shopware\WebInstaller');
     }
 }

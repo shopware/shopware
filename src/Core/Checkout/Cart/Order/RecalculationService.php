@@ -271,7 +271,7 @@ class RecalculationService
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
-            ->setIncludeDeliveries(false)
+            ->setIncludeDeliveries(!$skipAutomaticPromotions)
             ->setIncludeTransactions(false)
             ->setIncludeOrderDate(false);
 
@@ -367,7 +367,7 @@ class RecalculationService
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
 
         if (!$product) {
-            throw new ProductNotFoundException($productId);
+            throw CartException::productNotFound($productId);
         }
     }
 

@@ -57,6 +57,16 @@ class DeliveryTransformer
             $shippingAddress = AddressTransformer::transform($delivery->getLocation()->getAddress());
         }
 
+        $originalAddressId = $delivery->getExtensionOfType(
+            OrderConverter::ORIGINAL_ADDRESS_ID,
+            IdStruct::class
+        )?->getId();
+
+        $originalAddressVersionId = $delivery->getExtensionOfType(
+            OrderConverter::ORIGINAL_ADDRESS_VERSION_ID,
+            IdStruct::class
+        )?->getId();
+
         $deliveryData = [
             'id' => self::getId($delivery),
             'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -67,6 +77,11 @@ class DeliveryTransformer
             'positions' => [],
             'stateId' => $stateId,
         ];
+
+        if ($originalAddressId !== null && $originalAddressVersionId !== null) {
+            $deliveryData['shippingOrderAddressId'] = $originalAddressId;
+            $deliveryData['shippingOrderAddressVersionId'] = $originalAddressVersionId;
+        }
 
         $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 

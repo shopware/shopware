@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
+use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -24,6 +26,7 @@ class OrderException extends HttpException
     final public const ORDER_CUSTOMER_NOT_LOGGED_IN = 'CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN';
     final public const ORDER_CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__ORDER_CUSTOMER_ADDRESS_NOT_FOUND';
     final public const ORDER_INVALID_ORDER_ADDRESS_MAPPING = 'CHECKOUT__INVALID_ORDER_ADDRESS_MAPPING';
+    final public const ORDER_DELIVERY_WITHOUT_ADDRESS = 'CHECKOUT__DELIVERY_WITHOUT_ADDRESS';
 
     public static function missingAssociation(string $association): self
     {
@@ -157,6 +160,22 @@ class OrderException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::ORDER_INVALID_ORDER_ADDRESS_MAPPING,
             'Invalid order address mapping provided. ' . $reason,
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function deliveryWithoutAddress(): self|ShopwareHttpException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new DeliveryWithoutAddressException();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_DELIVERY_WITHOUT_ADDRESS,
+            'Delivery contains no shipping address',
         );
     }
 }

@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -20,6 +22,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -163,7 +166,7 @@ class PromotionDeliveryCalculator
     private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
-        $fixedPricesDiscountLineItems = $discountLineItems->filter(function ($discountLineItem) {
+        $fixedPricesDiscountLineItems = $discountLineItems->filter(function (LineItem $discountLineItem) {
             if (!$discountLineItem->hasPayloadValue('discountScope') || !$discountLineItem->hasPayloadValue('discountType')) {
                 return false;
             }
@@ -196,10 +199,10 @@ class PromotionDeliveryCalculator
             $priceDefB = $discountB->getPriceDefinition();
 
             if (!$priceDefA instanceof AbsolutePriceDefinition) {
-                throw new InvalidPriceDefinitionException((string) $discountA->getLabel(), $discountA->getReferencedId());
+                throw PromotionException::invalidPriceDefinition((string) $discountA->getLabel(), $discountA->getReferencedId());
             }
             if (!$priceDefB instanceof AbsolutePriceDefinition) {
-                throw new InvalidPriceDefinitionException((string) $discountB->getLabel(), $discountB->getReferencedId());
+                throw PromotionException::invalidPriceDefinition((string) $discountB->getLabel(), $discountB->getReferencedId());
             }
 
             // NEXT-21735 - This is covered randomly
@@ -217,6 +220,10 @@ class PromotionDeliveryCalculator
             return 1;
             // @codeCoverageIgnoreEnd
         });
+
+        if ($fixedPricesDiscountLineItems->first() === null) {
+            return new LineItemCollection();
+        }
 
         // now we return a collection with the first price discountLineItem
         // of filtered and sorted discount lineItems
@@ -256,7 +263,7 @@ class PromotionDeliveryCalculator
         switch ($discountType) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 if (!$originalPriceDefinition instanceof AbsolutePriceDefinition) {
-                    throw new InvalidPriceDefinitionException((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
+                    throw PromotionException::invalidPriceDefinition((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
                 $discountAdded = $this->calculateAbsolute($deliveries, $originalPriceDefinition, $context);
@@ -264,7 +271,7 @@ class PromotionDeliveryCalculator
                 break;
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 if (!$originalPriceDefinition instanceof PercentagePriceDefinition) {
-                    throw new InvalidPriceDefinitionException((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
+                    throw PromotionException::invalidPriceDefinition((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
                 $discountMaxValue = '';
@@ -278,7 +285,7 @@ class PromotionDeliveryCalculator
                 break;
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 if (!$originalPriceDefinition instanceof AbsolutePriceDefinition) {
-                    throw new InvalidPriceDefinitionException((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
+                    throw PromotionException::invalidPriceDefinition((string) $discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
                 $discountAdded = $this->calculateFixedDiscount($deliveries, $originalPriceDefinition, $context, $notDiscountedShippingCosts);
@@ -456,6 +463,9 @@ class PromotionDeliveryCalculator
             return;
         }
 
+        $idStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_ID, IdStruct::class);
+        $versionIdStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, IdStruct::class);
+
         $delivery = new Delivery(
             $delivery->getPositions(),
             $delivery->getDeliveryDate(),
@@ -463,6 +473,14 @@ class PromotionDeliveryCalculator
             $delivery->getLocation(),
             $price
         );
+
+        if ($idStruct instanceof IdStruct) {
+            $delivery->addExtension(OrderConverter::ORIGINAL_ADDRESS_ID, $idStruct);
+        }
+
+        if ($versionIdStruct instanceof IdStruct) {
+            $delivery->addExtension(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, $versionIdStruct);
+        }
 
         $deliveries->add($delivery);
     }
@@ -475,7 +493,7 @@ class PromotionDeliveryCalculator
     private function addFakeLineitem(Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
     {
         // filter all cart line items with the code
-        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(fn ($discountLineItem) => $discountLineItem->getId() === $discount->getId());
+        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
 
         // if we have a line item in cart for this discount, it is already stored and we do not need to add
         // another lineitem

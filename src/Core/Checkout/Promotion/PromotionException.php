@@ -3,9 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('buyers-experience')]
@@ -24,6 +27,8 @@ class PromotionException extends HttpException
     public const PROMOTION_DISCOUNT_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND';
 
     public const PROMOTION_CODE_NOT_FOUND = 'CHECKOUT__PROMOTION_CODE_NOT_FOUND';
+
+    public const PROMOTION_INVALID_PRICE_DEFINITION = 'CHECKOUT__INVALID_DISCOUNT_PRICE_DEFINITION';
 
     public static function codeAlreadyRedeemed(string $code): self
     {
@@ -96,6 +101,34 @@ class PromotionException extends HttpException
             self::PROMOTION_CODE_NOT_FOUND,
             'Promotion code "{{ code }}" has not been found!',
             ['code' => $code]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function invalidPriceDefinition(string $label, ?string $code): self|ShopwareHttpException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new InvalidPriceDefinitionException($label, $code);
+        }
+
+        if ($code === null) {
+            $messages = [
+                'Invalid discount price definition for automated promotion "{{ label }}"',
+                ['label' => $label],
+            ];
+        } else {
+            $messages = [
+                'Invalid discount price definition for promotion line item with code "{{ code }}"',
+                ['code' => $code],
+            ];
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_INVALID_PRICE_DEFINITION,
+            ...$messages,
         );
     }
 }

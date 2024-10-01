@@ -104,6 +104,11 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
             this._form.removeEventListener('change', onChange);
             this._form.addEventListener('change', onChange);
+
+            // // Remove the loading indicator before leaving the page to not cache it in back/forward-cache.
+            window.addEventListener('pagehide', () => {
+                PageLoadingIndicatorUtil.remove();
+            });
         }
     }
 

@@ -363,6 +363,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_bulk_edit_modal %}
                 <template #bulk-modals="{ selection }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_order_list_bulk_edit_modal_inner %}
                     <sw-bulk-edit-modal
                         v-if="showBulkEditModal"
                         ref="bulkEditModal"
@@ -475,6 +477,7 @@
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
+                    {% endblock %}
                 </template>
                 {% endblock %}
             </sw-data-grid>

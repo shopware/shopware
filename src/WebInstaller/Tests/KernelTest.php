@@ -5,7 +5,6 @@ namespace Shopware\WebInstaller\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\WebInstaller\Kernel;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -48,7 +47,7 @@ class KernelTest extends TestCase
 
         /** @var string $fileName */
         $fileName = (new \ReflectionClass($kernel))->getFileName();
-        $kernelPath = Hasher::hash(\dirname($fileName));
+        $kernelPath = md5(\dirname($fileName));
 
         static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . $kernelPath . '/', $kernel->getCacheDir());
         static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . $kernelPath . '/', $kernel->getLogDir());

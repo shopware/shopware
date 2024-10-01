@@ -120,7 +120,7 @@
     "uuid": "8.3.2",
     "uuidv7": "0.5.3",
     "v-click-outside": "3.2.0",
-    "vue": "3.4.30",
+    "vue": "3.5.6",
     "vue-apexcharts": "1.6.2",
     "vue-i18n": "9.2.2",
     "vue-router": "4.2.2",
@@ -239,7 +239,7 @@
     "vuex": "Vuex is deprecated and will be removed with Shopware 6.8.0"
   },
   "overrides": {
-    "vue": "3.4.30",
+    "vue": "3.5.6",
     "@typescript-eslint/eslint-plugin": "6.12.0"
   }
 }

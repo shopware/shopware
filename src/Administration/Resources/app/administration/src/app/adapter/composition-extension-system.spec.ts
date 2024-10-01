@@ -9,7 +9,13 @@
 
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';
-import { ref, computed, reactive } from 'vue';
+import type { EmitFn, PropType } from 'vue';
+import { ref, computed, reactive, defineComponent } from 'vue';
+import type { SetupContext, Slot } from '@vue/runtime-core';
+
+// Helper functions to test type safety, based on https://github.com/tsdjs/tsd
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const expectType = <T>(expression: T) => {};
 
 describe('src/app/adapter/composition-extension-system', () => {
     beforeEach(() => {
@@ -27,22 +33,32 @@ describe('src/app/adapter/composition-extension-system', () => {
     describe('Refs:', () => {
         describe('Single override:', () => {
             it('should be able to override ref values', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+
+                            return {
+                                count,
+                            };
+                        });
 
                         return {
-                            count: count,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.text()).toBe('Count: 1');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     return {
                         count: ref(5),
                     };
@@ -54,22 +70,32 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override ref values and access previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+
+                            return {
+                                count,
+                            };
+                        });
 
                         return {
-                            count: count,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.text()).toBe('Count: 1');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCount = previousState.count;
                     const newCount = ref(oldCount.value + 5);
 
@@ -84,23 +110,33 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override ref values, access previous ones and modify previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count,
+                                increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -110,7 +146,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count').text()).toBe('Count: 2');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCount = previousState.count;
                     const newCount = ref(oldCount.value + 5);
 
@@ -131,22 +167,32 @@ describe('src/app/adapter/composition-extension-system', () => {
 
         describe('Multiple overrides:', () => {
             it('should be able to override ref values (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+
+                            return {
+                                count,
+                            };
+                        });
 
                         return {
-                            count: count,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.text()).toBe('Count: 1');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     return {
                         count: ref(5),
                     };
@@ -155,7 +201,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     return {
                         count: ref(10),
                     };
@@ -167,22 +213,32 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override ref values and access previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+
+                            return {
+                                count,
+                            };
+                        });
 
                         return {
-                            count: count,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.text()).toBe('Count: 1');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCount = previousState.count;
                     const newCount = ref(oldCount.value + 5);
 
@@ -194,7 +250,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCount = previousState.count;
                     const newCount = ref(oldCount.value + 5);
 
@@ -209,23 +265,33 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override ref values, access previous ones and modify previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count,
+                                increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -235,7 +301,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count').text()).toBe('Count: 2');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCount = previousState.count;
                     const newCount = ref(oldCount.value + 5);
 
@@ -247,7 +313,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCount = previousState.count;
                     const newCount = ref(oldCount.value + 5);
 
@@ -270,30 +336,40 @@ describe('src/app/adapter/composition-extension-system', () => {
     describe('Reactive:', () => {
         describe('Single override:', () => {
             it('should be able to override reactive values', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -301,7 +377,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.deep-message').text()).toBe('Deep: Original');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 5,
                         greeting: {
@@ -327,30 +403,40 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and handle missing values correctly', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -361,7 +447,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
                 // Override the setup function with a invalid reactive object which doesn't have the same structure
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 5,
                         hello: 'world',
@@ -381,30 +467,40 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and handle missing values (nested) correctly', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -415,7 +511,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
                 // Override the setup function with a invalid reactive object which doesn't have the same structure
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 5,
                         greeting: {
@@ -445,30 +541,40 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and access previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -476,7 +582,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.deep-message').text()).toBe('Deep: Original');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldComplexObject = previousState.complexObject;
                     const newComplexObject = reactive({
                         count: oldComplexObject.count + 5,
@@ -503,36 +609,46 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and access previous ones and modify previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            const increment = () => {
+                                complexObject.count += 1;
+                            };
+
+                            return {
+                                complexObject: complexObject,
+                                increment,
+                            };
                         });
 
-                        const increment = () => {
-                            complexObject.count += 1;
-                        };
-
                         return {
-                            complexObject: complexObject,
-                            increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -544,7 +660,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count').text()).toBe('Count: 2');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldComplexObject = previousState.complexObject;
                     // Multiply the count by 5 (should be 2 * 5 = 10)
                     oldComplexObject.count *= 5;
@@ -579,30 +695,40 @@ describe('src/app/adapter/composition-extension-system', () => {
 
         describe('Multiple overrides:', () => {
             it('should be able to override reactive values (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -610,7 +736,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.deep-message').text()).toBe('Deep: Original');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 5,
                         greeting: {
@@ -631,7 +757,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 10,
                         greeting: {
@@ -657,30 +783,40 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and handle missing values correctly (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -691,7 +827,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
                 // 1. Override the setup function with a invalid reactive object which doesn't have the same structure
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 5,
                         hello: 'world',
@@ -710,7 +846,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 );
 
                 // 2. Override the setup function with a invalid reactive object which doesn't have the same structure
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 10,
                         greeting: {
@@ -740,30 +876,40 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and handle missing values (nested) correctly (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -774,7 +920,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
                 // 1. Override the setup function with a invalid reactive object which doesn't have the same structure
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 5,
                         greeting: {
@@ -803,7 +949,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 );
 
                 // 2. Override the setup function with a invalid reactive object which doesn't have the same structure
-                overrideComponentSetup('originalComponent', () => {
+                overrideComponentSetup()('originalComponent', () => {
                     const newComplexObject = reactive({
                         count: 10,
                         greeting: {
@@ -836,30 +982,40 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and access previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            return {
+                                complexObject,
+                            };
                         });
 
                         return {
-                            complexObject: complexObject,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -867,7 +1023,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.deep-message').text()).toBe('Deep: Original');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldComplexObject = previousState.complexObject;
                     const newComplexObject = reactive({
                         count: oldComplexObject.count + 5,
@@ -889,7 +1045,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldComplexObject = previousState.complexObject;
                     const newComplexObject = reactive({
                         count: oldComplexObject.count + 5,
@@ -916,36 +1072,46 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override reactive values and access previous ones and modify previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ complexObject.count }}</div>
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const complexObject = reactive({
-                            count: 1,
-                            greeting: {
-                                message: 'Hello',
-                                deep: {
-                                    and: {
-                                        deeper: 'Original',
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const complexObject = reactive({
+                                count: 1,
+                                greeting: {
+                                    message: 'Hello',
+                                    deep: {
+                                        and: {
+                                            deeper: 'Original',
+                                        },
                                     },
                                 },
-                            },
+                            });
+
+                            const increment = () => {
+                                complexObject.count += 1;
+                            };
+
+                            return {
+                                complexObject: complexObject,
+                                increment,
+                            };
                         });
 
-                        const increment = () => {
-                            complexObject.count += 1;
-                        };
-
                         return {
-                            complexObject: complexObject,
-                            increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -957,7 +1123,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count').text()).toBe('Count: 2');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldComplexObject = previousState.complexObject;
                     // Multiply the count by 5 (should be 2 * 5 = 10)
                     oldComplexObject.count *= 5;
@@ -983,7 +1149,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldComplexObject = previousState.complexObject;
                     // Multiply the count by 5 (should be ((2 * 5) + 5) * 5 = 75)
                     oldComplexObject.count *= 5;
@@ -1018,33 +1184,43 @@ describe('src/app/adapter/composition-extension-system', () => {
     describe('Computed:', () => {
         describe('Single override:', () => {
             it('should be able to override readonly computed values', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed(() => count.value * 2);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed(() => count.value * 2);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
                 expect(wrapper.find('.count-doubled').text()).toBe('Count Doubled: 2');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const countTripled = computed(() => previousState.count.value * 3);
 
                     return {
@@ -1060,29 +1236,39 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override readonly computed values and access previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed(() => count.value * 2);
-                        const countTripled = computed(() => count.value * 3);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed(() => count.value * 2);
+                            const countTripled = computed(() => count.value * 3);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -1090,7 +1276,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 3');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountDoubled = previousState.countDoubled;
                     const countTimesSix = computed(() => oldCountDoubled.value * 3);
 
@@ -1109,29 +1295,39 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override readonly computed values and modify previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed(() => count.value * 2);
-                        const countTripled = computed(() => count.value * 3);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed(() => count.value * 2);
+                            const countTripled = computed(() => count.value * 3);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -1139,7 +1335,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 3');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountDoubled = previousState.countDoubled;
                     const countTimesSix = computed(() => oldCountDoubled.value * 3);
                     const oldCount = previousState.count;
@@ -1160,27 +1356,37 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override writable computed values', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <input v-model="countDoubled" type="number"/>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed({
-                            get: () => count.value * 2,
-                            set: (value) => {
-                                count.value = value / 2;
-                            },
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed({
+                                get: () => count.value * 2,
+                                set: (value) => {
+                                    count.value = value / 2;
+                                },
+                            });
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                            };
                         });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
 
@@ -1193,7 +1399,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-doubled').text()).toBe('Count Doubled: 10');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const countTripled = computed({
                         get: () => previousState.count.value * 3,
                         set: (value) => {
@@ -1214,35 +1420,45 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override writable computed values and access previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <input v-model="countTripled" type="number"/>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed({
-                            get: () => count.value * 2,
-                            set: (value) => {
-                                count.value = value / 2;
-                            },
-                        });
-                        const countTripled = computed({
-                            get: () => count.value * 3,
-                            set: (value) => {
-                                count.value = value / 3;
-                            },
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed({
+                                get: () => count.value * 2,
+                                set: (value) => {
+                                    count.value = value / 2;
+                                },
+                            });
+                            const countTripled = computed({
+                                get: () => count.value * 3,
+                                set: (value) => {
+                                    count.value = value / 3;
+                                },
+                            });
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                            };
                         });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
 
@@ -1257,7 +1473,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 9');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesSix = computed({
                         get: () => oldCountTripled.value * 2,
@@ -1280,35 +1496,45 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override writable computed values and modify previous ones', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <input v-model="countTripled" type="number"/>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed({
-                            get: () => count.value * 2,
-                            set: (value) => {
-                                count.value = value / 2;
-                            },
-                        });
-                        const countTripled = computed({
-                            get: () => count.value * 3,
-                            set: (value) => {
-                                count.value = value / 3;
-                            },
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed({
+                                get: () => count.value * 2,
+                                set: (value) => {
+                                    count.value = value / 2;
+                                },
+                            });
+                            const countTripled = computed({
+                                get: () => count.value * 3,
+                                set: (value) => {
+                                    count.value = value / 3;
+                                },
+                            });
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                            };
                         });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
 
@@ -1323,7 +1549,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 9');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesSix = computed({
                         get: () => oldCountTripled.value * 2,
@@ -1351,33 +1577,43 @@ describe('src/app/adapter/composition-extension-system', () => {
 
         describe('Multiple overrides:', () => {
             it('should be able to override readonly computed values (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed(() => count.value * 2);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed(() => count.value * 2);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
                 expect(wrapper.find('.count-doubled').text()).toBe('Count Doubled: 2');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const countTripled = computed(() => previousState.count.value * 3);
 
                     return {
@@ -1391,7 +1627,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-doubled').text()).toBe('Count Doubled: 3');
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const countQuadrupled = computed(() => previousState.count.value * 4);
 
                     return {
@@ -1406,29 +1642,39 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override readonly computed values and access previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed(() => count.value * 2);
-                        const countTripled = computed(() => count.value * 3);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed(() => count.value * 2);
+                            const countTripled = computed(() => count.value * 3);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -1436,7 +1682,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 3');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountDoubled = previousState.countDoubled;
                     const countTimesFour = computed(() => oldCountDoubled.value * 2);
 
@@ -1452,7 +1698,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 4');
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesSix = computed(() => oldCountTripled.value * 1.5);
 
@@ -1469,29 +1715,39 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override readonly computed values and modify previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed(() => count.value * 2);
-                        const countTripled = computed(() => count.value * 3);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed(() => count.value * 2);
+                            const countTripled = computed(() => count.value * 3);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
@@ -1499,7 +1755,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 3');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountDoubled = previousState.countDoubled;
                     const countTimesFour = computed(() => oldCountDoubled.value * 2);
                     previousState.count.value = 2;
@@ -1516,7 +1772,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 8');
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesSix = computed(() => oldCountTripled.value * 1.5);
                     previousState.count.value = 3;
@@ -1534,27 +1790,37 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override writable computed values (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <input v-model="countDoubled" type="number"/>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed({
-                            get: () => count.value * 2,
-                            set: (value) => {
-                                count.value = value / 2;
-                            },
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed({
+                                get: () => count.value * 2,
+                                set: (value) => {
+                                    count.value = value / 2;
+                                },
+                            });
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                            };
                         });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
 
@@ -1562,7 +1828,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-doubled').text()).toBe('Count Doubled: 2');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const countTripled = computed({
                         get: () => previousState.count.value * 3,
                         set: (value) => {
@@ -1581,7 +1847,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-doubled').text()).toBe('Count Doubled: 3');
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const countQuadrupled = computed({
                         get: () => previousState.count.value * 4,
                         set: (value) => {
@@ -1606,35 +1872,45 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override writable computed values and access previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <input v-model="countTripled" type="number"/>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed({
-                            get: () => count.value * 2,
-                            set: (value) => {
-                                count.value = value / 2;
-                            },
-                        });
-                        const countTripled = computed({
-                            get: () => count.value * 3,
-                            set: (value) => {
-                                count.value = value / 3;
-                            },
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed({
+                                get: () => count.value * 2,
+                                set: (value) => {
+                                    count.value = value / 2;
+                                },
+                            });
+                            const countTripled = computed({
+                                get: () => count.value * 3,
+                                set: (value) => {
+                                    count.value = value / 3;
+                                },
+                            });
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                            };
                         });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
 
@@ -1643,7 +1919,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 3');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesSix = computed({
                         get: () => oldCountTripled.value * 2,
@@ -1664,7 +1940,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 6');
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesNine = computed({
                         get: () => oldCountTripled.value * 1.5,
@@ -1692,35 +1968,45 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override writable computed values and modify previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <input v-model="countTripled" type="number"/>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const countDoubled = computed({
-                            get: () => count.value * 2,
-                            set: (value) => {
-                                count.value = value / 2;
-                            },
-                        });
-                        const countTripled = computed({
-                            get: () => count.value * 3,
-                            set: (value) => {
-                                count.value = value / 3;
-                            },
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const countDoubled = computed({
+                                get: () => count.value * 2,
+                                set: (value) => {
+                                    count.value = value / 2;
+                                },
+                            });
+                            const countTripled = computed({
+                                get: () => count.value * 3,
+                                set: (value) => {
+                                    count.value = value / 3;
+                                },
+                            });
+
+                            return {
+                                count: count,
+                                countDoubled: countDoubled,
+                                countTripled: countTripled,
+                            };
                         });
 
                         return {
-                            count: count,
-                            countDoubled: countDoubled,
-                            countTripled: countTripled,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
 
@@ -1729,7 +2015,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 3');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesSix = computed({
                         get: () => oldCountTripled.value * 2,
@@ -1752,7 +2038,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 expect(wrapper.find('.count-tripled').text()).toBe('Count Tripled: 12');
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const oldCountTripled = previousState.countTripled;
                     const countTimesNine = computed({
                         get: () => oldCountTripled.value * 1.5,
@@ -1786,29 +2072,39 @@ describe('src/app/adapter/composition-extension-system', () => {
     describe('Functions:', () => {
         describe('Single override:', () => {
             it('should be able to override functions', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -1832,29 +2128,39 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override functions (with direct call of the previousState method)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
 
                 // Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const newIncrement = () => {
                         // Call previous increment function twice
                         previousState.increment();
@@ -1878,29 +2184,39 @@ describe('src/app/adapter/composition-extension-system', () => {
 
         describe('Multiple overrides:', () => {
             it('should be able to override functions (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -1917,7 +2233,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -1942,29 +2258,39 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override functions (with direct call of the previousState method, multiple overrides)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                         <div class="count">Count: {{ count }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const increment = () => {
-                            count.value += 1;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const increment = () => {
+                                count.value += 1;
+                            };
+
+                            return {
+                                count: count,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
 
                 // 1. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const newIncrement = () => {
                         // Call previous increment function twice
                         previousState.increment();
@@ -1979,7 +2305,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // 2. Override the setup function
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const newIncrement = () => {
                         // Call previous increment function and add 1 more
                         previousState.increment();
@@ -2002,34 +2328,44 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override functions and access previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="double-count">Double Count: {{ doubleCount }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const doubleCount = ref(2);
-                        const increment = () => {
-                            count.value += 1;
-                            doubleCount.value = count.value * 2;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const doubleCount = ref(2);
+                            const increment = () => {
+                                count.value += 1;
+                                doubleCount.value = count.value * 2;
+                            };
+
+                            return {
+                                count: count,
+                                doubleCount: doubleCount,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            doubleCount: doubleCount,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
                 expect(wrapper.find('.double-count').text()).toBe('Double Count: 2');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -2045,7 +2381,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -2069,34 +2405,44 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
 
             it('should be able to override functions and modify previous ones (Multiple overridess)', async () => {
-                const originalComponent = {
+                const originalComponent = defineComponent({
                     template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="double-count">Double Count: {{ doubleCount }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup: createExtendableSetup('originalComponent', () => {
-                        const count = ref(1);
-                        const doubleCount = ref(2);
-                        const increment = () => {
-                            count.value += 1;
-                            doubleCount.value = count.value * 2;
-                        };
+                    setup(props, context) {
+                        const publicApi = createExtendableSetup({
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        }, () => {
+                            const count = ref(1);
+                            const doubleCount = ref(2);
+                            const increment = () => {
+                                count.value += 1;
+                                doubleCount.value = count.value * 2;
+                            };
+
+                            return {
+                                count: count,
+                                doubleCount: doubleCount,
+                                increment: increment,
+                            };
+                        });
 
                         return {
-                            count: count,
-                            doubleCount: doubleCount,
-                            increment: increment,
+                            ...publicApi,
                         };
-                    }),
-                };
+                    },
+                });
 
                 const wrapper = mount(originalComponent);
                 expect(wrapper.find('.count').text()).toBe('Count: 1');
                 expect(wrapper.find('.double-count').text()).toBe('Double Count: 2');
 
                 // First override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -2113,7 +2459,7 @@ describe('src/app/adapter/composition-extension-system', () => {
                 await flushPromises();
 
                 // Second override
-                overrideComponentSetup('originalComponent', (previousState) => {
+                overrideComponentSetup()('originalComponent', (previousState) => {
                     const previousIncrement = previousState.increment;
 
                     const newIncrement = () => {
@@ -2144,7 +2490,7 @@ describe('src/app/adapter/composition-extension-system', () => {
 
     describe('Props:', () => {
         it('should be able to access props in the override setup function', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="multiplier">Multiplier: {{ multiplier }}</div>
@@ -2156,16 +2502,26 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup: createExtendableSetup('originalComponent', (props) => {
-                    const count = ref(1);
-                    const multipliedCount = computed(() => count.value * props.multiplier);
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+                        const multipliedCount = computed(() => count.value * props.multiplier);
+
+                        return {
+                            count,
+                            multipliedCount,
+                        };
+                    });
 
                     return {
-                        count,
-                        multipliedCount,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             const wrapper = mount(originalComponent, {
                 props: {
@@ -2177,10 +2533,10 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.multiplier').text()).toBe('Multiplier: 2');
             expect(wrapper.find('.multiplied').text()).toBe('Multiplied: 2');
 
-            overrideComponentSetup('originalComponent', (previousState, props) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
                 const newCount = ref(5);
                 // Multiply by the multiplier prop and then multiply by 2
-                const newMultipliedCount = computed(() => newCount.value * props.multiplier * 2);
+                const newMultipliedCount = computed(() => newCount.value * props.multiplier! * 2);
 
                 return {
                     count: newCount,
@@ -2197,7 +2553,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should update when props change after override', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="multiplier">Multiplier: {{ multiplier }}</div>
@@ -2209,16 +2565,26 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup: createExtendableSetup('originalComponent', (props) => {
-                    const count = ref(1);
-                    const multipliedCount = computed(() => count.value * props.multiplier);
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+                        const multipliedCount = computed(() => count.value * props.multiplier);
+
+                        return {
+                            count,
+                            multipliedCount,
+                        };
+                    });
 
                     return {
-                        count,
-                        multipliedCount,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             const wrapper = mount(originalComponent, {
                 props: {
@@ -2230,10 +2596,10 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.multiplier').text()).toBe('Multiplier: 2');
             expect(wrapper.find('.multiplied').text()).toBe('Multiplied: 2');
 
-            overrideComponentSetup('originalComponent', (previousState, props) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
                 const newCount = ref(5);
                 // Multiply by the multiplier prop and then multiply by 2
-                const newMultipliedCount = computed(() => newCount.value * props.multiplier * 2);
+                const newMultipliedCount = computed(() => newCount.value * props.multiplier! * 2);
 
                 return {
                     count: newCount,
@@ -2257,7 +2623,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should handle multiple overrides with props', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                     <div class="base">Base: {{ baseValue }}</div>
                     <div class="multiplier">Multiplier: {{ multiplier }}</div>
@@ -2275,19 +2641,29 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 0,
                     },
                 },
-                setup: createExtendableSetup('originalComponent', (props) => {
-                    const baseValue = ref(1);
-                    const multipliedValue = computed(() => baseValue.value * props.multiplier);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    const addedValue = computed(() => baseValue.value + props.added);
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const baseValue = ref(1);
+                        const multipliedValue = computed(() => baseValue.value * props.multiplier);
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        const addedValue = computed(() => baseValue.value + props.added);
+
+                        return {
+                            baseValue,
+                            multipliedValue,
+                            addedValue,
+                        };
+                    });
 
                     return {
-                        baseValue,
-                        multipliedValue,
-                        addedValue,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             const wrapper = mount(originalComponent, {
                 props: {
@@ -2302,9 +2678,9 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.added').text()).toBe('Added: 3');
             expect(wrapper.find('.addedValue').text()).toBe('Added value: 4');
 
-            overrideComponentSetup('originalComponent', (previousState, props) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
                 const newBaseValue = ref(5);
-                const newMultipliedValue = computed(() => newBaseValue.value * props.multiplier);
+                const newMultipliedValue = computed(() => newBaseValue.value * props.multiplier!);
 
                 return {
                     baseValue: newBaseValue,
@@ -2320,9 +2696,9 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.added').text()).toBe('Added: 3');
             expect(wrapper.find('.addedValue').text()).toBe('Added value: 8');
 
-            overrideComponentSetup('originalComponent', (previousState, props) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                const newAddedValue = computed(() => previousState.baseValue.value + props.added * 2);
+                const newAddedValue = computed(() => previousState.baseValue.value + props.added! * 2);
 
                 return {
                     addedValue: newAddedValue,
@@ -2349,7 +2725,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should console an error when the original setup functions returns a prop', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="multiplier">Multiplier: {{ multiplier }}</div>
@@ -2361,18 +2737,28 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup: createExtendableSetup('originalComponent', (props) => {
-                    const count = ref(1);
-                    const multipliedCount = computed(() => count.value * props.multiplier);
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+                        const multipliedCount = computed(() => count.value * props.multiplier);
+
+                        return {
+                            count,
+                            multipliedCount,
+                            // This is not allowed and should cause an error
+                            multiplier: props.multiplier,
+                        };
+                    });
 
                     return {
-                        count,
-                        multipliedCount,
-                        // This is not allowed and should cause an error
-                        multiplier: props.multiplier,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             // Mock console.error
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -2391,7 +2777,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should console an error when the override function returns a prop', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                     <div class="count">Count: {{ count }}</div>
                     <div class="multiplier">Multiplier: {{ multiplier }}</div>
@@ -2403,16 +2789,28 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup: createExtendableSetup('originalComponent', (props) => {
-                    const count = ref(1);
-                    const multipliedCount = computed(() => count.value * props.multiplier);
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+                        const multipliedCount = computed(() => count.value * props.multiplier);
+
+                        return {
+                            count,
+                            multipliedCount,
+                            // This is not allowed and should cause an error
+                            multiplier: props.multiplier,
+                        };
+                    });
 
                     return {
-                        count,
-                        multipliedCount,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             mount(originalComponent, {
                 props: {
@@ -2424,10 +2822,10 @@ describe('src/app/adapter/composition-extension-system', () => {
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
             // Override the setup function
-            overrideComponentSetup('originalComponent', (previousState, props) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
                 const newCount = ref(5);
                 // Multiply by the multiplier prop and then multiply by 2
-                const newMultipliedCount = computed(() => newCount.value * props.multiplier * 2);
+                const newMultipliedCount = computed(() => newCount.value * props.multiplier! * 2);
 
                 return {
                     count: newCount,
@@ -2447,7 +2845,7 @@ describe('src/app/adapter/composition-extension-system', () => {
 
     describe('Context:', () => {
         it('should be able to access context in the override', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                     <div>
                         <slot name="header">
@@ -2456,16 +2854,26 @@ describe('src/app/adapter/composition-extension-system', () => {
                         {{ secondMessage }}
                     </div>
                 `,
-                setup: createExtendableSetup('originalComponent', () => {
-                    const message = ref('Original message');
-                    const secondMessage = ref('Original second message');
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const message = ref('Original message');
+                        const secondMessage = ref('Original second message');
+
+                        return {
+                            message,
+                            secondMessage,
+                        };
+                    });
 
                     return {
-                        message,
-                        secondMessage,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             const wrapper = mount(originalComponent, {
                 slots: {
@@ -2478,12 +2886,12 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             expect(wrapper.text()).toBe('Original Header Original second message');
 
-            overrideComponentSetup('originalComponent', (previousState, props, context) => {
+            overrideComponentSetup()('originalComponent', (previousState, props, context) => {
                 // Access slots
                 const headerSlot = context.slots.header;
 
                 // Access attrs
-                const title = context.attrs.title;
+                const title = context.attrs.title as string ?? '';
 
                 const newSecondMessage = ref(`Overriden: Title: ${title}. Header slot filled: ${!!headerSlot}`);
 
@@ -2498,7 +2906,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should be able to access context in the override (with empty slot)', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: `
                 <div>
                     <slot name="header">
@@ -2507,16 +2915,26 @@ describe('src/app/adapter/composition-extension-system', () => {
                     {{ secondMessage }}
                 </div>
             `,
-                setup: createExtendableSetup('originalComponent', () => {
-                    const message = ref('Original message');
-                    const secondMessage = ref('Original second message');
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const message = ref('Original message');
+                        const secondMessage = ref('Original second message');
+
+                        return {
+                            message,
+                            secondMessage,
+                        };
+                    });
 
                     return {
-                        message,
-                        secondMessage,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             const wrapper = mount(originalComponent, {
                 attrs: {
@@ -2526,12 +2944,12 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             expect(wrapper.text()).toBe('Original message Original second message');
 
-            overrideComponentSetup('originalComponent', (previousState, props, context) => {
+            overrideComponentSetup()('originalComponent', (previousState, props, context) => {
                 // Access slots
                 const headerSlot = context.slots.header;
 
                 // Access attrs
-                const title = context.attrs.title;
+                const title = context.attrs.title as string ?? '';
 
                 const newSecondMessage = ref(`Overriden: Title: ${title}. Header slot filled: ${!!headerSlot}`);
 
@@ -2546,21 +2964,30 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
 
         it('should be able to modify exposed properties using context.expose', async () => {
-            const originalComponent = {
+            const originalComponent = defineComponent({
                 template: '<div>{{ exposedValue }}</div>',
-                setup: createExtendableSetup('originalComponent', (props, context) => {
-                    const exposedValue = ref('Original');
-                    context.expose({ exposedValue });
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const exposedValue = ref('Original');
+
+                        return {
+                            exposedValue,
+                        };
+                    });
 
                     return {
-                        exposedValue,
+                        ...publicApi,
                     };
-                }),
-            };
+                },
+            });
 
             const wrapper = mount(originalComponent);
 
-            overrideComponentSetup('originalComponent', () => {
+            overrideComponentSetup()('originalComponent', () => {
                 const newExposedValue = ref('Overridden');
 
                 return {
@@ -2573,5 +3000,221 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.vm.exposedValue).toBe('Overridden');
             expect(wrapper.text()).toBe('Overridden');
         });
+    });
+
+    describe('TS Types', () => {
+        /* eslint-disable jest/expect-expect */
+        /**
+         * These are just type checks without any runtime assertions
+         */
+        it('should have correct props types in createExtendableSetup', () => {
+            defineComponent({
+                template: `
+                    <div class="count">Count: {{ count }}</div>
+                    <div class="multiplier>Multiplier: {{ multiplier }}</div>
+                    <div class="multiplied>Multiplied: {{ multipliedCount }}</div>
+                `,
+                props: {
+                    multiplier: {
+                        type: Number,
+                        default: 1,
+                    },
+                    title: {
+                        type: String,
+                        default: 'Original',
+                    },
+                    complexProp: {
+                        type: Object as PropType<{
+                            hello: string;
+                            world: number;
+                        }>,
+                        default: () => ({}),
+                    },
+                },
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+                        const multipliedCount = computed(() => count.value * props.multiplier);
+
+                        // Check if the props types are correct
+                        expectType<number>(props.multiplier);
+                        expectType<string>(props.title);
+                        expectType<{ hello: string; world: number; }>(props.complexProp);
+
+                        return {
+                            count,
+                            multipliedCount,
+                        };
+                    });
+
+                    return {
+                        ...publicApi,
+                    };
+                },
+            });
+        });
+
+        it('should have correct previousState types for the overrideComponentSetup', () => {
+            const _InternalTestComponent = defineComponent({
+                template: `
+                <div class="base">Base: {{ baseValue }}</div>
+                <div class="multiplier">Multiplier: {{ multiplier }}</div>
+                <div class="multiplied">Multiplied: {{ multipliedValue }}</div>
+                <div class="addedValue">Added value: {{ addedValue }}</div>
+                <div class="added">Added: {{ added }}</div>
+            `,
+                props: {
+                    multiplier: {
+                        type: Number,
+                        default: 1,
+                    },
+                    added: {
+                        type: Number,
+                        default: 0,
+                    },
+                },
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: '_internal_test_compponent',
+                    }, () => {
+                        const baseValue = ref(1);
+                        const title = ref('Original Title');
+                        const multipliedValue = computed(() => baseValue.value * props.multiplier);
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        const addedValue = computed(() => baseValue.value + props.added);
+
+                        return {
+                            baseValue,
+                            multipliedValue,
+                            addedValue,
+                            title,
+                        };
+                    });
+
+                    return {
+                        ...publicApi,
+                    };
+                },
+            });
+
+            overrideComponentSetup<typeof _InternalTestComponent>()('_internal_test_compponent', (previousState, props) => {
+                const newBaseValue = ref(5);
+                const newMultipliedValue = computed(() => newBaseValue.value * props.multiplier!);
+
+                previousState.baseValue.value = 2;
+
+                expectType<number>(previousState.baseValue.value);
+                expectType<number>(previousState.multipliedValue.value);
+                expectType<number>(previousState.addedValue.value);
+                expectType<string>(previousState.title.value);
+
+                return {
+                    baseValue: newBaseValue,
+                    multipliedValue: newMultipliedValue,
+                };
+            });
+        });
+
+        it('should have correct props types for the overrideComponentSetup', () => {
+            const originalComponent = defineComponent({
+                template: `
+                    <div>Hello World</div>
+                `,
+                props: {
+                    exampleString: {
+                        type: String,
+                        default: 'Hello',
+                    },
+                    exampleNumber: {
+                        type: Number,
+                        default: 1,
+                    },
+                    exampleBoolean: {
+                        type: Boolean,
+                        default: true,
+                    },
+                    exampleObject: {
+                        type: Object as PropType<{
+                            hello: string;
+                            world: number;
+                        }>,
+                        default: () => ({}),
+                    },
+                },
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+
+                        return { count };
+                    });
+
+                    return {
+                        ...publicApi,
+                    };
+                },
+            });
+
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
+                // Expect the props to be correct
+                expectType<number|undefined>(props.exampleNumber);
+                expectType<number>(props.exampleNumber!);
+
+                expectType<string|undefined>(props.exampleString);
+                expectType<string>(props.exampleString!);
+
+                expectType<boolean|undefined>(props.exampleBoolean);
+                expectType<boolean>(props.exampleBoolean!);
+
+                expectType<{ hello: string; world: number; } | undefined>(props.exampleObject);
+                expectType<{ hello: string; world: number; }>(props.exampleObject!);
+
+                return {};
+            });
+        });
+
+        it('should have correct context types for the overrideComponentSetup', () => {
+            const originalComponent = defineComponent({
+                template: `
+                    <div>Hello World</div>
+                `,
+                setup(props, context) {
+                    const publicApi = createExtendableSetup({
+                        props,
+                        context,
+                        name: 'originalComponent',
+                    }, () => {
+                        const count = ref(1);
+
+                        return { count };
+                    });
+
+                    return {
+                        ...publicApi,
+                    };
+                },
+            });
+
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props, context) => {
+                // Expect the context to be correct typed
+                expectType<Readonly<{ [name: string]: Slot | undefined }>>(context.slots);
+                expectType<Record<string, unknown>>(context.attrs);
+                expectType<EmitFn<unknown>>(context.emit);
+                expectType<<Exposed extends Record<string, unknown> = Record<string, unknown>>(exposed?: Exposed) => void>(context.expose);
+                expectType<SetupContext>(context);
+
+                return {};
+            });
+        });
+        /* eslint-enable jest/expect-expect */
     });
 });

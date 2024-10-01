@@ -108,7 +108,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -122,11 +122,11 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label',
+                    'customFields.CustomField_1' => 'DE - Label',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'EN - Label',
+                    'customFields.CustomField_1' => 'EN - Label',
                 ],
             ],
             'expectedCount' => 2,
@@ -143,7 +143,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -157,15 +157,15 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label',
+                    'customFields.CustomField_1' => 'DE - Label',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'EN - Label',
+                    'customFields.CustomField_1' => 'EN - Label',
                 ],
 
                 'fr-FR' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
+                    'customFields.CustomField_1' => 'CustomField_1',
                 ],
             ],
             'expectedCount' => 3,
@@ -181,7 +181,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -196,11 +196,11 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label',
+                    'customFields.CustomField_1' => 'DE - Label',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'EN - Label',
+                    'customFields.CustomField_1' => 'EN - Label',
                 ],
             ],
             'expectedCount' => 2,
@@ -218,7 +218,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -233,11 +233,11 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label',
+                    'customFields.CustomField_1' => 'DE - Label',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'EN - Label',
+                    'customFields.CustomField_1' => 'EN - Label',
                 ],
             ],
             'expectedCount' => 4,
@@ -256,7 +256,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [],
                         ],
@@ -280,7 +280,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -293,15 +293,15 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
+                    'customFields.CustomField_1' => 'CustomField_1',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
+                    'customFields.CustomField_1' => 'CustomField_1',
                 ],
 
                 'fr-FR' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
+                    'customFields.CustomField_1' => 'CustomField_1',
                 ],
             ],
             'expectedCount' => 5,
@@ -320,7 +320,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -333,11 +333,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 2',
+                    'name' => 'CustomFieldSet_2',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 2',
+                            'name' => 'CustomField_2',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -350,11 +350,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 3',
+                    'name' => 'CustomFieldSet_3',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 3',
+                            'name' => 'CustomField_3',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -367,11 +367,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 4',
+                    'name' => 'CustomFieldSet_4',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 4',
+                            'name' => 'CustomField_4',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -384,24 +384,24 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
-                    'customFields.CustomField 2' => 'CustomField 2',
-                    'customFields.CustomField 3' => 'DE - Label',
-                    'customFields.CustomField 4' => 'CustomField 4',
+                    'customFields.CustomField_1' => 'CustomField_1',
+                    'customFields.CustomField_2' => 'CustomField_2',
+                    'customFields.CustomField_3' => 'DE - Label',
+                    'customFields.CustomField_4' => 'CustomField_4',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
-                    'customFields.CustomField 2' => 'CustomField 2',
-                    'customFields.CustomField 3' => 'CustomField 3',
-                    'customFields.CustomField 4' => 'EN - Label',
+                    'customFields.CustomField_1' => 'CustomField_1',
+                    'customFields.CustomField_2' => 'CustomField_2',
+                    'customFields.CustomField_3' => 'CustomField_3',
+                    'customFields.CustomField_4' => 'EN - Label',
                 ],
 
                 'fr-FR' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
-                    'customFields.CustomField 2' => 'FR - Label',
-                    'customFields.CustomField 3' => 'CustomField 3',
-                    'customFields.CustomField 4' => 'CustomField 4',
+                    'customFields.CustomField_1' => 'CustomField_1',
+                    'customFields.CustomField_2' => 'FR - Label',
+                    'customFields.CustomField_3' => 'CustomField_3',
+                    'customFields.CustomField_4' => 'CustomField_4',
                 ],
             ],
             'expectedCount' => 20,
@@ -419,7 +419,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => $customField,
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -474,15 +474,15 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label - 1',
+                    'customFields.CustomField_1' => 'DE - Label - 1',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
+                    'customFields.CustomField_1' => 'CustomField_1',
                 ],
 
                 'fr-FR' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
+                    'customFields.CustomField_1' => 'CustomField_1',
                 ],
             ],
             'expectedCount' => 4,
@@ -498,7 +498,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -511,11 +511,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 2',
+                    'name' => 'CustomFieldSet_2',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 2',
+                            'name' => 'CustomField_2',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -528,11 +528,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 3',
+                    'name' => 'CustomFieldSet_3',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 3',
+                            'name' => 'CustomField_3',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -545,11 +545,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 4',
+                    'name' => 'CustomFieldSet_4',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 4',
+                            'name' => 'CustomField_4',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -562,17 +562,17 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label - 1',
-                    'customFields.CustomField 2' => 'DE - Label - 2',
-                    'customFields.CustomField 3' => 'DE - Label - 3',
-                    'customFields.CustomField 4' => 'DE - Label - 4',
+                    'customFields.CustomField_1' => 'DE - Label - 1',
+                    'customFields.CustomField_2' => 'DE - Label - 2',
+                    'customFields.CustomField_3' => 'DE - Label - 3',
+                    'customFields.CustomField_4' => 'DE - Label - 4',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
-                    'customFields.CustomField 2' => 'CustomField 2',
-                    'customFields.CustomField 3' => 'CustomField 3',
-                    'customFields.CustomField 4' => 'CustomField 4',
+                    'customFields.CustomField_1' => 'CustomField_1',
+                    'customFields.CustomField_2' => 'CustomField_2',
+                    'customFields.CustomField_3' => 'CustomField_3',
+                    'customFields.CustomField_4' => 'CustomField_4',
                 ],
             ],
             'expectedCount' => 8,
@@ -589,7 +589,7 @@ class CustomFieldSubscriberTest extends TestCase
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 1',
+                            'name' => 'CustomField_1',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -602,11 +602,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 2',
+                    'name' => 'CustomFieldSet_2',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 2',
+                            'name' => 'CustomField_2',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -619,11 +619,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 3',
+                    'name' => 'CustomFieldSet_3',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 3',
+                            'name' => 'CustomField_3',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -636,11 +636,11 @@ class CustomFieldSubscriberTest extends TestCase
 
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomFieldSet 4',
+                    'name' => 'CustomFieldSet_4',
                     'customFields' => [
                         [
                             'id' => Uuid::randomHex(),
-                            'name' => 'CustomField 4',
+                            'name' => 'CustomField_4',
                             'type' => 'text',
                             'config' => [
                                 'label' => [
@@ -653,17 +653,17 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedSnippets' => [
                 'de-DE' => [
-                    'customFields.CustomField 1' => 'DE - Label - 1',
-                    'customFields.CustomField 2' => 'DE - Label - 2',
-                    'customFields.CustomField 3' => 'DE - Label - 3',
-                    'customFields.CustomField 4' => 'DE - Label - 4',
+                    'customFields.CustomField_1' => 'DE - Label - 1',
+                    'customFields.CustomField_2' => 'DE - Label - 2',
+                    'customFields.CustomField_3' => 'DE - Label - 3',
+                    'customFields.CustomField_4' => 'DE - Label - 4',
                 ],
 
                 'en-GB' => [
-                    'customFields.CustomField 1' => 'CustomField 1',
-                    'customFields.CustomField 2' => 'CustomField 2',
-                    'customFields.CustomField 3' => 'CustomField 3',
-                    'customFields.CustomField 4' => 'CustomField 4',
+                    'customFields.CustomField_1' => 'CustomField_1',
+                    'customFields.CustomField_2' => 'CustomField_2',
+                    'customFields.CustomField_3' => 'CustomField_3',
+                    'customFields.CustomField_4' => 'CustomField_4',
                 ],
             ],
             'expectedCount' => 12,
@@ -680,7 +680,7 @@ class CustomFieldSubscriberTest extends TestCase
             'customFields' => [
                 [
                     'id' => $customFieldId,
-                    'name' => 'CustomField 1',
+                    'name' => 'CustomField_1',
                     'type' => 'text',
                     'config' => [
                         'label' => [
@@ -691,7 +691,7 @@ class CustomFieldSubscriberTest extends TestCase
                 ],
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'CustomField 2',
+                    'name' => 'CustomField_2',
                     'type' => 'text',
                     'config' => [
                         'label' => [
@@ -725,7 +725,7 @@ class CustomFieldSubscriberTest extends TestCase
         $customFieldId = Uuid::randomHex();
         $customField = [
             'id' => $customFieldId,
-            'name' => 'CustomField 1',
+            'name' => 'CustomField_1',
             'type' => 'text',
             'config' => [
                 'label' => [

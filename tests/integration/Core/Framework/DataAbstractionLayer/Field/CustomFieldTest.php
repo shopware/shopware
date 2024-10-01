@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
@@ -261,6 +262,8 @@ class CustomFieldTest extends TestCase
 
     public function testKeyWithDot(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->addCustomFields(['foo.bar' => CustomFieldTypes::TEXT]);
 
         $dotId = Uuid::randomHex();
@@ -285,6 +288,8 @@ class CustomFieldTest extends TestCase
 
     public function testSortingHyphenatedJson(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->addCustomFields(['hyphenated-property' => CustomFieldTypes::JSON]);
 
         $entities = [
@@ -830,6 +835,8 @@ class CustomFieldTest extends TestCase
 
     public function testUpdateCustomFieldWithDot(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->addCustomFields(['foo.bar' => CustomFieldTypes::TEXT]);
 
         $id = Uuid::randomHex();

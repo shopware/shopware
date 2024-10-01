@@ -554,7 +554,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         $repo = $this->getContainer()->get('custom_field_set.repository');
 
         $attributeSet = [
-            'name' => 'test set',
+            'name' => 'test_set',
             'config' => ['description' => 'test'],
             'customFields' => $customFields,
             'relations' => [

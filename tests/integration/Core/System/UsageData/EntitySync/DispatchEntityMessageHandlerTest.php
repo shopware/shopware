@@ -106,7 +106,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
             static::assertArrayHasKey('customFieldSets', $firstProduct);
             static::assertSame($firstProduct['customFieldSets'], [
-                $ids->get('test-customFieldSet-1'),
+                $ids->get('test_customFieldSet_1'),
             ]);
 
             $secondProduct = $payload['entities'][1];
@@ -119,8 +119,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
             static::assertArrayHasKey('customFieldSets', $secondProduct);
             static::assertSame($secondProduct['customFieldSets'], [
-                $ids->get('test-customFieldSet-1'),
-                $ids->get('test-customFieldSet-2'),
+                $ids->get('test_customFieldSet_1'),
+                $ids->get('test_customFieldSet_2'),
             ]);
 
             return new MockResponse('', ['http_code' => 200]);
@@ -140,13 +140,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
         // product 2 only has 1 entry
         $this->insertProductCategoryTree($ids->get('test-product-2'), $ids->get('test-category-2'));
 
-        $this->createCustomFieldSet($ids->get('test-customFieldSet-1'));
-        $this->createCustomFieldSet($ids->get('test-customFieldSet-2'));
+        $this->createCustomFieldSet($ids->get('test_customFieldSet_1'));
+        $this->createCustomFieldSet($ids->get('test_customFieldSet_2'));
 
         // product 1 only has 1 entry
-        $this->insertProductCustomFieldSet($ids->get('test-product-1'), $ids->get('test-customFieldSet-1'));
-        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test-customFieldSet-1'));
-        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test-customFieldSet-2'));
+        $this->insertProductCustomFieldSet($ids->get('test-product-1'), $ids->get('test_customFieldSet_1'));
+        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test_customFieldSet_1'));
+        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test_customFieldSet_2'));
 
         $dispatchEntityMessage = new DispatchEntityMessage(
             'product',
@@ -515,17 +515,17 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $attributeSet = [
             'id' => $id,
-            'name' => 'test set',
+            'name' => 'test_set',
             'config' => ['description' => 'test set'],
             'customFields' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => Uuid::randomHex(),
+                    'name' => 'test_field_' . rand(1, 1000),
                     'type' => 'int',
                 ],
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => Uuid::randomHex(),
+                    'name' => 'test_field_' . rand(1, 1000),
                     'type' => 'string',
                 ],
             ],

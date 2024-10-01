@@ -593,13 +593,13 @@ class AppLifecycleTest extends TestCase
                             'type' => 'text',
                         ],
                         [
-                            'name' => 'to be deleted',
+                            'name' => 'to_be_deleted',
                             'type' => 'text',
                         ],
                     ],
                 ],
                 [
-                    'name' => 'to be deleted',
+                    'name' => 'to_be_deleted',
                     'customFields' => [
                         [
                             'name' => 'bla_test2',

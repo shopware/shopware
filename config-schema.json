@@ -4,7 +4,7 @@
     "definitions": {
         "root": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "parameters": {
                     "$ref": "#/definitions/parameters"
@@ -17,6 +17,9 @@
                 },
                 "elasticsearch": {
                     "$ref": "#/definitions/elasticsearch"
+                },
+                "framework": {
+                    "$ref": "#/definitions/framework"
                 }
             },
             "title": "Root"
@@ -1334,6 +1337,87 @@
                 "dynamic_templates": {
                     "type": "array",
                     "title": "Dynamic Templates Config"
+                }
+            }
+        },
+        "framework": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "trusted_proxies": {
+                    "type": "string",
+                    "default": "",
+                    "description": "A list of IP ranges to be considered as proxies and trust the headers",
+                    "examples": [
+                        "REMOTE_ADDR",
+                        "private_ranges",
+                        "192.0.0.1,10.0.0.0/8"
+                    ]
+                },
+                "trusted_headers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "x-forwarded-for",
+                            "x-forwarded-host",
+                            "x-forwarded-proto",
+                            "x-forwarded-port",
+                            "x-forwarded-prefix"
+                        ]
+                    }
+                },
+                "lock": {
+                    "type": "string",
+                    "default": "flock"
+                },
+                "session": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "storage_factory_id": {
+                            "type": "string",
+                            "default": "session.storage.factory.native"
+                        },
+                        "handler_id": {
+                            "type": "string",
+                            "default": "",
+                            "examples": [
+                                "redis://localhost"
+                            ]
+                        },
+                        "name": {
+                            "type": "string",
+                            "default": "shop-",
+                            "description": "The cookie name of the session"
+                        },
+                        "cookie_lifetime": {
+                            "type": "integer",
+                            "default": 7200,
+                            "description": "The cookie lifetime of the session"
+                        }
+                    }
+                },
+                "cache": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "app": {
+                            "type": "string",
+                            "default": "cache.adapter.filesystem"
+                        },
+                        "system": {
+                            "type": "string",
+                            "default": "cache.adapter.filesystem"
+                        },
+                        "default_redis_provider": {
+                            "type": "string",
+                            "default": "redis://localhost",
+                            "examples": [
+                                "redis://%env(REDIS_URL)%"
+                            ]
+                        }
+                    }
                 }
             }
         }

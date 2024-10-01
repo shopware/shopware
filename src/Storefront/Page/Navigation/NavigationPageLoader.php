@@ -53,10 +53,6 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             $page->setCmsPage($category->getCmsPage());
         }
 
-        $this->eventDispatcher->dispatch(
-            new NavigationPageLoadedEvent($page, $context, $request)
-        );
-
         if ($page->getMetaInformation()) {
             $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
@@ -64,6 +60,10 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
 
             $page->getMetaInformation()->setCanonical($canonical);
         }
+
+        $this->eventDispatcher->dispatch(
+            new NavigationPageLoadedEvent($page, $context, $request)
+        );
 
         return $page;
     }

@@ -23,6 +23,9 @@ return [
         '**/src/Core/Checkout/Cart/Event/CartChangedEvent.php', // duplicate class declarations for compatibility reasons,
         '**/src/Core/Framework/Changelog/**', // some missed internal
         '**/src/Core/Service/AllServiceInstaller.php', // missed internal (not released yet)
+        '**/src/Core/Framework/App/Source/AbstractTemporaryDirectoryFactory.php', // dropped (not released yet)
+        '**/src/Core/Framework/App/Source/TemporaryDirectoryFactory.php', // dropped decorator (not released yet)
+
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

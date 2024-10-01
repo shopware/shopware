@@ -146,7 +146,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                     (new Finder())
                         ->files()
                         ->in($fixtureDir)
-                        ->name('/\.(jpg|png)$/')
+                        ->name('/\.(jpg|png|webp|avif)$/')
                         ->getIterator()
                 )
             );

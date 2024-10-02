@@ -118,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVisible() {
-            const view = Store.get('cmsPageState').currentCmsDeviceView;
+            const view = Store.get('cmsPage').currentCmsDeviceView;
 
             const visibility = this.block.visibility as CmsVisibility;
 

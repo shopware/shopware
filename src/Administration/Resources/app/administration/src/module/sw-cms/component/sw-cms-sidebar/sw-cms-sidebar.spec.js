@@ -33,10 +33,10 @@ async function createWrapper(
 ) {
     localStorage.clear();
 
-    Shopware.Store.unregister('cmsPageState');
+    Shopware.Store.unregister('cmsPage');
 
     Shopware.Store.register({
-        id: 'cmsPageState',
+        id: 'cmsPage',
         state: () => ({
             isSystemDefaultLanguage: true,
             currentPageType: 'product_list',

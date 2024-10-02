@@ -60,7 +60,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsElements() {
-            const currentPageType = Shopware.Store.get('cmsPageState').currentPageType;
+            const currentPageType = Shopware.Store.get('cmsPage').currentPageType;
 
             if (!currentPageType) {
                 return {};

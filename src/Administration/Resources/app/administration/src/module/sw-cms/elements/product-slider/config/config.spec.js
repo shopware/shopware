@@ -110,7 +110,7 @@ async function createWrapper(customCmsElementConfig) {
 describe('module/sw-cms/elements/product-slider/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
         });
     });
 

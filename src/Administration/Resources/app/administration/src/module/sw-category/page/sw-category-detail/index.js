@@ -123,11 +123,11 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPage').currentPage;
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
 
         cmsPageId() {
@@ -267,7 +267,7 @@ export default {
 
     beforeCreate() {
         Shopware.State.registerModule('swCategoryDetail', pageState);
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     },
 
     created() {

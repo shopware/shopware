@@ -4,6 +4,10 @@
 import Store from 'src/app/store/index';
 
 describe('src/app/store/index.ts', () => {
+    beforeAll(() => {
+        Shopware.Store.clear();
+    });
+
     it('should be a Singleton', () => {
         const aStore = Store.instance;
 
@@ -85,29 +89,19 @@ describe('src/app/store/index.ts', () => {
         }).toThrow('Store with id "foo" not found');
     });
 
-    it('should wrap a store config', () => {
+    it('should correctly unregister all stores', () => {
         const root = Store.instance;
-        const fooStore = root.wrapStoreDefinition({
+        root.register({
             id: 'foo',
-            state: () => ({
-                data: 'value',
-            }),
-            actions: {
-                setData(newData) {
-                    this.data = newData;
-                },
-            },
-            getters: {
-                reverseData: () => {
-                    return this.data.reverse();
-                },
-            },
         });
 
-        expect(fooStore).toBeDefined();
-        expect(fooStore.state).toBeInstanceOf(Function);
-        expect(fooStore.state().data).toBe('value');
-        expect(fooStore.getters.reverseData).toBeInstanceOf(Function);
-        expect(fooStore.actions.setData).toBeInstanceOf(Function);
+        root.register({
+            id: 'bar',
+        });
+
+        expect(root.list()).toStrictEqual(['foo', 'bar']);
+
+        root.clear();
+        expect(root.list()).toStrictEqual([]);
     });
 });

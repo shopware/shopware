@@ -83,9 +83,9 @@ async function createWrapper() {
  */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 currentPage: null,
             }),

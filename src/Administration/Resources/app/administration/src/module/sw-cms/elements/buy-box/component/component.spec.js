@@ -50,11 +50,11 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should show skeleton if page type is product page', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
 
@@ -85,8 +85,8 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     it('should show current demo data if mapping entity is product', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentMappingEntity('product');
-        Shopware.Store.get('cmsPageState').setCurrentDemoEntity(productMock);
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity('product');
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity(productMock);
         const wrapper = await createWrapper();
 
         wrapper.get('.sw-cms-el-buy-box__content');
@@ -94,8 +94,8 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     it('should show dummy data initially if mapping entity is not product', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentMappingEntity(null);
-        Shopware.Store.get('cmsPageState').setCurrentDemoEntity(productMock);
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity(null);
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity(productMock);
         const wrapper = await createWrapper();
 
         wrapper.get('.sw-cms-el-buy-box__content');
@@ -122,7 +122,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     it('computed product falls back to dummy data if no product or demo config is available', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentDemoEntity(null);
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity(null);
         const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {

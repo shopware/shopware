@@ -162,9 +162,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             actions: {
                 resetCmsPageState: () => {},
             },

@@ -77,12 +77,8 @@ Application.setViewAdapter(adapter);
 const allInitializers = { ...preInitializer, ...initializers, ...postInitializer };
 
 // Add initializers to application
-Object.keys(allInitializers).forEach((key) => {
+Object.entries(allInitializers).forEach(([key, initializer]) => {
     // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const initializer = allInitializers[key];
-    // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Application.addInitializer(key, initializer);
 });
 

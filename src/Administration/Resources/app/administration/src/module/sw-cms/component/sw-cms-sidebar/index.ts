@@ -127,7 +127,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsBlocks() {
-            const currentPageType = Shopware.Store.get('cmsPageState').currentPageType;
+            const currentPageType = Shopware.Store.get('cmsPage').currentPageType;
 
             if (!currentPageType) {
                 return {};
@@ -325,7 +325,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseBlockConfig() {
-            const store = Shopware.Store.get('cmsPageState');
+            const store = Shopware.Store.get('cmsPage');
             store.removeSelectedBlock();
             store.removeSelectedSection();
         },
@@ -343,7 +343,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openSectionSettings(sectionIndex: number) {
-            Shopware.Store.get('cmsPageState').setSection(this.page.sections![sectionIndex]);
+            Shopware.Store.get('cmsPage').setSection(this.page.sections![sectionIndex]);
 
             const itemConfigSidebar = this.$refs.itemConfigSidebar as { openContent: () => void };
             itemConfigSidebar.openContent();
@@ -602,7 +602,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSectionDelete(sectionId: string) {
-            Shopware.Store.get('cmsPageState').removeSelectedSection();
+            Shopware.Store.get('cmsPage').removeSelectedSection();
             this.page.sections!.remove(sectionId);
             this.$emit('page-save');
         },
@@ -615,7 +615,7 @@ export default Shopware.Component.wrapComponentConfig({
             section?.blocks?.remove(block.id);
 
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
-                Shopware.Store.get('cmsPageState').removeSelectedBlock();
+                Shopware.Store.get('cmsPage').removeSelectedBlock();
             }
 
             this.$emit('page-save', true);

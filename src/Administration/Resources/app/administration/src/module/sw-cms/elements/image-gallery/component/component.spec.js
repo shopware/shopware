@@ -100,11 +100,11 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should map to product media if the component is in a product page', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
 

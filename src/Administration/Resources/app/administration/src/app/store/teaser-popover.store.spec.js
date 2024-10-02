@@ -1,11 +1,10 @@
-import teaserPopoverState from './teaser-popover.store';
+import './teaser-popover.store';
 
 describe('teaser-popover.store', () => {
-    Shopware.Store.register(teaserPopoverState);
     let store;
 
     beforeEach(() => {
-        store = Shopware.Store.get('teaserPopoverState');
+        store = Shopware.Store.get('teaserPopover');
     });
 
     afterEach(() => {

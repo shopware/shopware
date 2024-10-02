@@ -149,7 +149,7 @@ async function createWrapper(activeTab = 'sorting') {
 describe('src/module/sw-cms/elements/product-listing/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
         });
     });
 

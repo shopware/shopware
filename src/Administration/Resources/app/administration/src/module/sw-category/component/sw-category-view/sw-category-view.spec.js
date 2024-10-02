@@ -21,9 +21,9 @@ async function createWrapper(categoryType) {
         },
     });
 
-    Shopware.Store.unregister('cmsPageState');
+    Shopware.Store.unregister('cmsPage');
     Shopware.Store.register({
-        id: 'cmsPageState',
+        id: 'cmsPage',
         state: () => ({
             currentPage: undefined,
         }),

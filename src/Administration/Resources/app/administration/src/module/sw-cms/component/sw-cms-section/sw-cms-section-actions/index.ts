@@ -39,7 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             /* @deprecated: tag:v6.7.0 - Will be removed use cmsPageStateStore instead. */
-            cmsPageState: Shopware.Store.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPage'),
         };
     },
 
@@ -50,7 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
         cmsPageStateStore() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
     },
 

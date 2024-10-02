@@ -68,7 +68,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
     });
 
     beforeEach(async () => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should be a Vue.js component', async () => {
@@ -79,7 +79,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
     it('should use demo products', async () => {
         const wrapper = await createWrapper();
-        Shopware.Store.get('cmsPageState').setCurrentDemoProducts(currentDemoProducts);
+        Shopware.Store.get('cmsPage').setCurrentDemoProducts(currentDemoProducts);
 
         await wrapper.vm.$nextTick();
         const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });
@@ -94,7 +94,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
     it('should use fallback to empty products', async () => {
         const wrapper = await createWrapper();
-        Shopware.Store.get('cmsPageState').setCurrentDemoProducts([]);
+        Shopware.Store.get('cmsPage').setCurrentDemoProducts([]);
 
         await wrapper.vm.$nextTick();
         const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });

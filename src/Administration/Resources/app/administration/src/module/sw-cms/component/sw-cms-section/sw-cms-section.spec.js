@@ -74,10 +74,10 @@ async function createWrapper() {
 
 describe('module/sw-cms/component/sw-cms-section', () => {
     beforeEach(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
 
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 selectedBlock: {
                     id: '1a2b',

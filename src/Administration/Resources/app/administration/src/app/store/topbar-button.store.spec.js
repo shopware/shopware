@@ -1,14 +1,12 @@
 /**
  * @package customer-order
  */
-import topBarButtonState from './topbar-button.store';
 
 describe('topbar-button.store', () => {
-    Shopware.Store.register(topBarButtonState);
     let store;
 
     beforeEach(() => {
-        store = Shopware.Store.get('topBarButtonState');
+        store = Shopware.Store.get('topBarButton');
     });
 
     afterEach(() => {

@@ -132,7 +132,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         sectionMobileAndHidden() {
-            const view = Shopware.Store.get('cmsPageState').currentCmsDeviceView;
+            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
             return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
@@ -173,7 +173,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVisible() {
-            const view = Shopware.Store.get('cmsPageState').currentCmsDeviceView;
+            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
 
             const visibility = this.section.visibility as CmsVisibility;
 
@@ -233,7 +233,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onBlockSelection(block: EntitySchema.Entity<'cms_block'>) {
-            Shopware.Store.get('cmsPageState').setBlock(block);
+            Shopware.Store.get('cmsPage').setBlock(block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
@@ -245,7 +245,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.blocks!.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
-                Shopware.Store.get('cmsPageState').removeSelectedBlock();
+                Shopware.Store.get('cmsPage').removeSelectedBlock();
             }
 
             this.updateBlockPositions();

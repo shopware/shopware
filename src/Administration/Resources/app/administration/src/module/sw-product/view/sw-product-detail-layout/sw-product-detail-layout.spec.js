@@ -77,7 +77,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
             },
         });
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 currentPage: null,
             }),
@@ -126,7 +126,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     afterAll(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
     });
 
     it('should turn on layout modal', async () => {
@@ -157,7 +157,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
-        Shopware.Store.get('cmsPageState').setCurrentPage(null);
+        Shopware.Store.get('cmsPage').setCurrentPage(null);
 
         await wrapper.vm.onOpenInPageBuilder();
 
@@ -169,7 +169,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
-        Shopware.Store.get('cmsPageState').setCurrentPage({ id: 'id' });
+        Shopware.Store.get('cmsPage').setCurrentPage({ id: 'id' });
 
         await wrapper.vm.onOpenInPageBuilder();
 
@@ -255,7 +255,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should not be able to view layout config if cms page is locked', async () => {
         const wrapper = await createWrapper(['product.editor']);
         await wrapper.vm.onResetLayout();
-        Shopware.Store.get('cmsPageState').setCurrentPage({ id: 'id', locked: true });
+        Shopware.Store.get('cmsPage').setCurrentPage({ id: 'id', locked: true });
         await flushPromises();
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');

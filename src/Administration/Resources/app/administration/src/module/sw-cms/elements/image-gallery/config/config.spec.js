@@ -152,7 +152,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').$reset();
+        Shopware.Store.get('cmsPage').$reset();
     });
 
     it('should media selection if sliderItems config source is static', async () => {

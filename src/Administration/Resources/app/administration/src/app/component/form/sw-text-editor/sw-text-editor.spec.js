@@ -114,7 +114,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 currentMappingTypes: {
                     string: [

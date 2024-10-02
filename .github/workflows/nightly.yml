@@ -51,11 +51,16 @@ jobs:
                 
   admin:
     uses: ./.github/workflows/admin.yml
+    secrets: inherit
   integration:
     uses: ./.github/workflows/integration.yml
+    secrets: inherit
   php:
     uses: ./.github/workflows/php.yml
+    secrets: inherit
   storefront:
     uses: ./.github/workflows/storefront.yml
+    secrets: inherit
   downstream:
     uses: ./.github/workflows/downstream.yml
+    secrets: inherit

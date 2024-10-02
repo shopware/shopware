@@ -15,8 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         project:
-          - Platform
-          - Install
+          - id: OquVUx
+            name: Platform
+          - id: LhSCFb
+            name: Install
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
@@ -28,7 +30,7 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-          install: ${{ matrix.project != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
+          install: ${{ matrix.project.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
           installAdmin: true
           installStorefront: true
           env: prod
@@ -50,13 +52,18 @@ jobs:
       - name: Install Playwright Browsers
         working-directory: tests/acceptance
         run: npx playwright install --with-deps chromium
-      - name: Run your tests
+      - name: Run your tests with reporting
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx playwright test --project=${{ matrix.project }} ${{ matrix.project == 'Install' && '--trace=on' || '' }}
+        run: npx pwc --project-id ${{ matrix.project.id }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.project.name }} --trace=on
+      - name: Run your tests
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        working-directory: tests/acceptance
+        run: npx playwright test --project=${{ matrix.project.name }} ${{ matrix.project.name == 'Install' && '--trace=on' || '' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-${{ matrix.project.name }}
           path: tests/acceptance/test-results/
           retention-days: 3
 
@@ -233,25 +240,32 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }},ghcr.io/${{ github.repository }}/ci-e2e:${{ github.ref_name }}
           file: .gitlab/docker/dev/Dockerfile
 
-  ats-version-matrix:
+  tested-update-versions:
+    name: tested-versions
     runs-on: ubuntu-latest
     outputs:
-      versions: ${{ format('["{0}","{1}","{2}","{3}"]', steps.versions.outputs.PREV_MAJOR_MIN_TAG, steps.versions.outputs.PREV_MAJOR_MAX_TAG, steps.versions.outputs.CUR_MAJOR_MIN_TAG, steps.versions.outputs.CUR_MAJOR_MAX_TAG) }}
+      first-version: ${{ steps.versions.outputs.first-version }}
+      latest-version: ${{ steps.versions.outputs.latest-version }}
+      lts-first-version: ${{ steps.versions.outputs.lts-first-version }}
+      lts-latest-version: ${{ steps.versions.outputs.lts-latest-version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Generate versions
         id: versions
-        run: |
-          .gitlab/bin/print_tested_updates.bash >> "$GITHUB_OUTPUT"
+        uses: shopware/github-actions/versions@main
 
   acceptance-update:
-    needs: ats-version-matrix
+    needs: tested-update-versions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        update-from-version: ${{ fromJson(needs.ats-version-matrix.outputs.versions) }}
+        update:
+          - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
+            project-id: pXkufA
+          - version: ${{ needs.tested-update-versions.outputs.first-version }}
+            project-id: m9afF2
+          - version: ${{ needs.tested-update-versions.outputs.latest-version }}
+            project-id: mR5suq
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       BLUE_GREEN_DEPLOYMENT: 1
@@ -305,7 +319,7 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update-from-version }}
+        run: composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware
@@ -329,12 +343,18 @@ jobs:
       - name: Install Playwright Browsers
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium
+      - name: Run update tests with reporting
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        working-directory: new-shopware/tests/acceptance
+        run: npx pwc --project-id ${{ matrix.update.project-id }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-update-${{ matrix.update-from-version }}
+          name: playwright-report-update-${{ matrix.update.version }}
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3

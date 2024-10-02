@@ -41,4 +41,9 @@ class Migration1726132532ExpandNotificationMessageTest extends TestCase
         static::assertArrayHasKey('Type', $newColumnType);
         static::assertEquals('longtext', $newColumnType['Type']);
     }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1726132532, (new Migration1726132532ExpandNotificationMessage())->getCreationTimestamp());
+    }
 }

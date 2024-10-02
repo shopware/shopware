@@ -64,14 +64,12 @@ parameters:
         -
             message: '#Service ".*" is not registered in the container\.#'
             paths:
-                - src/**/*Test.php
                 - tests/unit
                 - tests/integration
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
             paths:
-                - src/**/*Test.php
                 - tests/performance/**/*Bench.php
                 - tests/unit/**/*Test.php
                 - tests/devops/**/*Test.php

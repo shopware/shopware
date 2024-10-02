@@ -140,7 +140,7 @@ jobs:
       matrix:
         suite:
           - unit
-          - migration-tests
+          - migration
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root

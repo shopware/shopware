@@ -72,7 +72,7 @@ class CustomFieldsSerializerTest extends TestCase
     public static function serializeDataProvider(): iterable
     {
         yield 'expect nothing for non existing value' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKey'
@@ -88,7 +88,7 @@ class CustomFieldsSerializerTest extends TestCase
             ],
         ];
         yield 'expect null for null value' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKey'
@@ -106,7 +106,7 @@ class CustomFieldsSerializerTest extends TestCase
             ],
         ];
         yield 'expect nothing if the entity has no custom fields' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKeyText'
@@ -123,7 +123,7 @@ class CustomFieldsSerializerTest extends TestCase
             ],
         ];
         yield 'expect values for both custom fields' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKeyText'
@@ -182,7 +182,7 @@ class CustomFieldsSerializerTest extends TestCase
     public static function deserializeDataProvider(): iterable
     {
         yield 'expect null for no value' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKey'
@@ -193,7 +193,7 @@ class CustomFieldsSerializerTest extends TestCase
             'expected' => null,
         ];
         yield 'expect null for empty value' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKey'
@@ -206,7 +206,7 @@ class CustomFieldsSerializerTest extends TestCase
             'expected' => null,
         ];
         yield 'expect null for two empty values' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKeyText'
@@ -224,7 +224,7 @@ class CustomFieldsSerializerTest extends TestCase
             'expected' => null,
         ];
         yield 'expect one of two values if one is empty' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKeyText'
@@ -244,7 +244,7 @@ class CustomFieldsSerializerTest extends TestCase
             ],
         ];
         yield 'expect two values if both are defined' => [
-            'mapping' => [
+            'mappings' => [
                 new Mapping(
                     'translations.DEFAULT.customFields.' . self::CUSTOM_FIELD_TEXT,
                     'mappedKeyText'

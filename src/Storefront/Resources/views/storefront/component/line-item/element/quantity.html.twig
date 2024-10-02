@@ -60,8 +60,11 @@
 
                                 {% block component_line_item_quantity_select %}
                                     {% block component_line_item_quantity_select_input %}
-                                        <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
-                                            <label class="form-label visually-hidden">{{ 'component.product.quantitySelect.label'|trans|striptags }}</label>
+                                        <label for="line-item-quantity-group-{{ lineItem.id }}" class="form-label visually-hidden">
+                                            {{ 'component.product.quantitySelect.label'|trans|striptags }}
+                                        </label>
+
+                                        <div id="line-item-quantity-group-{{ lineItem.id }}" class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
                                             <button
                                                 {% if isDigital %}disabled="disabled"{% endif %}
                                                 type="button"

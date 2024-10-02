@@ -141,11 +141,6 @@
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
-        <!-- Legacy -->
-        <testsuite name="migration">
-            <directory>src/Core/Migration/Test</directory>
-        </testsuite>
-        <!-- new Structure -->
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
@@ -155,7 +150,7 @@
         <testsuite name="devops">
             <directory>tests/devops</directory>
         </testsuite>
-        <testsuite name="migration-tests">
+        <testsuite name="migration">
             <directory>tests/migration</directory>
         </testsuite>
         <!-- Paratest -->
@@ -163,7 +158,6 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit</directory>
-            <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>
     <extensions>

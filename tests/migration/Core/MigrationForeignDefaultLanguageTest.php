@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Traits\MigrationUntouchedDbTestTrait;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
@@ -19,6 +21,7 @@ use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
  */
 #[Package('core')]
 #[Group('slow')]
+#[CoversClass(MigrationCollection::class)]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -336,7 +339,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         );
 
         /** @var string $dumpFile */
-        $dumpFile = file_get_contents(__DIR__ . '/../../schema.sql');
+        $dumpFile = file_get_contents(__DIR__ . '/../../../src/Core/schema.sql');
 
         $connection->executeStatement($dumpFile);
 

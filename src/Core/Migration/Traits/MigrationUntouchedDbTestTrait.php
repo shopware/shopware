@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Core\Migration\Traits;
 
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;

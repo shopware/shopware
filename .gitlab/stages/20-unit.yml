@@ -109,45 +109,6 @@ PHP integration:
       --testsuite integration,devops
       --order-by default
 
-PHP legacy:
-  extends: .base-no-setup
-  stage: unit
-  timeout: 30m
-  needs: []
-  services:
-    - name: mariadb:10.11
-      alias: database
-      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
-    - name: redis:7.0
-      alias: redis
-  variables:
-    APP_ENV: "test"
-    FEATURE_ALL: "major"
-    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
-    REDIS_URL: redis://redis:6379
-  rules:
-    # do not run in merge trains
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
-      when: never
-    - !reference [.rules, skip]
-    - !reference [.rules, run]
-    - changes:
-        - "**/*.php"
-        - "**/*.xml"
-        - "composer.json"
-  before_script:
-    - !reference [.scripts, init, composer]
-    - mkdir -p config/jwt || true
-    - "rm -Rf /var/www/html/public || true"
-    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
-  script:
-    - php vendor/bin/phpunit
-      --configuration phpunit.xml.dist
-      --log-junit phpunit.junit.xml
-      --testsuite migration
-      --order-by default
-
 PHP bench:
   extends: .base-no-setup
   stage: unit
@@ -308,7 +269,7 @@ PHP migration coverage:
     - php $PHP_OPTIONS vendor/bin/phpunit
       --configuration tests/migration/phpunit.xml
       --log-junit phpunit.junit.xml
-      --testsuite migration-tests
+      --testsuite migration
       --coverage-text
       --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
   coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
@@ -339,7 +300,7 @@ PHP Full:
     - name: redis:7.0
       alias: redis
   variables:
-    TEST_SUITES: "integration devops migration migration-tests"
+    TEST_SUITES: "integration devops migration"
     APP_ENV: test
     GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     ALLOW_FAILURE: "false"
@@ -376,7 +337,7 @@ PHP Full:
         PREFER_LOWEST: "prefer lowest"
         # Don't run devops tests with lowest dependencies, as phpstan has known issues with mismatched in installed package versions: https://github.com/phpstan/phpdoc-parser/issues/188
         # Also running devops tests don't provide value with prefer lowest, as the scripts are always executed with the latest dependencies
-        TEST_SUITES: "integration unit migration migration-tests"
+        TEST_SUITES: "integration unit migration"
       - MYSQL_IMAGE: mariadb:10.11
         ONLY_CORE: "only core"
         TEST_SUITES: "integration migration"
@@ -419,6 +380,7 @@ PHP Full:
           rm -rf tests/integration/Administration
           rm -rf tests/integration/Elasticsearch
           rm -rf tests/integration/Storefront
+          rm -rf tests/migration/Administration
           composer dump-autoload -o
           php bin/console lint:container
       fi

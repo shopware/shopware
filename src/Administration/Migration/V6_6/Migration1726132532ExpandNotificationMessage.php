@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1726132532ExpandNotificationMessage extends MigrationStep
@@ -24,10 +22,5 @@ class Migration1726132532ExpandNotificationMessage extends MigrationStep
         $connection->executeStatement('
             ALTER TABLE `notification` MODIFY `message` LONGTEXT;
         ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

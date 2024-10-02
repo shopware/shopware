@@ -106,7 +106,7 @@ class MigrationLoaderTest extends TestCase
         $collection->getMigrationSteps();
     }
 
-    public function testNullcollection(): void
+    public function testNullCollection(): void
     {
         $nullCollection = $this->loader->collect('null');
 

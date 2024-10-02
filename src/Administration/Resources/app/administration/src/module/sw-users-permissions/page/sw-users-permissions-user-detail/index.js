@@ -208,6 +208,13 @@ export default {
                 path: 'currentUser',
                 scope: this,
             });
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-user-detail__user',
+                path: 'user',
+                scope: this,
+            });
+
             this.isLoading = true;
 
             if (!this.languageId) {

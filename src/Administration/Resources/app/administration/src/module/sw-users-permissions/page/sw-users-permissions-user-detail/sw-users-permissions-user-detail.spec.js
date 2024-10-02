@@ -185,6 +185,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
         });
+
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
     });
 
     beforeEach(async () => {
@@ -525,5 +527,21 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(wrapper.vm.mediaItem.id).toBe(mediaId);
         expect(wrapper.vm.user.avatarId).toBe(mediaId);
         expect(wrapper.vm.user.avatarMedia.id).toBe(mediaId);
+    });
+
+    it('should publish current user and editing user', async () => {
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenCalledTimes(2);
+
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(1, {
+            id: 'sw-users-permissions-user-detail__currentUser',
+            path: 'currentUser',
+            scope: expect.anything(),
+        });
+
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(2, {
+            id: 'sw-users-permissions-user-detail__user',
+            path: 'user',
+            scope: expect.anything(),
+        });
     });
 });

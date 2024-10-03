@@ -70,6 +70,10 @@ export default {
         productSortingOptionsSearchCriteria() {
             const criteria = new Criteria(1, 25);
 
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
+
+            criteria.addFilter(Criteria.equals('locked', false));
+
             criteria.addFilter(Criteria.contains('label', this.productSortingOptionsSearchTerm));
 
             return criteria;

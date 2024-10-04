@@ -78,8 +78,8 @@ class CorsListener implements EventSubscriberInterface
         /**
          * depends on the shopware version. only valid frontend api headers needed
          *
-         * @link vendor/shopware/core/PlatformRequest.php
-         * @link \Shopware\Core\Framework\Api\EventListener\CorsListener::onKernelResponse
+         * @see vendor/shopware/core/PlatformRequest.php
+         * @see \Shopware\Core\Framework\Api\EventListener\CorsListener::onKernelResponse
          */
         $corsHeaders = [
             'Content-Type',

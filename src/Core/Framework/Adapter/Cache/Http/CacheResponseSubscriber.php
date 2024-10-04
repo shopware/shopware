@@ -223,36 +223,26 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
-        if (Feature::isActive('cache_rework')) {
-            $parts = [
-                HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
-                HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
-                HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-                HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-                HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-            ];
+        $parts = [
+            HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
+            HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
+            HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
+            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
+            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+        ];
 
-            foreach ($this->cookies as $cookie) {
-                if (!$request->cookies->has($cookie)) {
-                    continue;
-                }
-
-                $parts[$cookie] = $request->cookies->get($cookie);
+        foreach ($this->cookies as $cookie) {
+            if (!$request->cookies->has($cookie)) {
+                continue;
             }
 
-            $event = new HttpCacheCookieEvent($request, $context, $parts);
-            $this->dispatcher->dispatch($event);
-
-            return Hasher::hash($event->getParts());
+            $parts[$cookie] = $request->cookies->get($cookie);
         }
 
-        return Hasher::hash([
-            $context->getRuleIds(),
-            $context->getContext()->getVersionId(),
-            $context->getCurrency()->getId(),
-            $context->getTaxState(),
-            $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ]);
+        $event = new HttpCacheCookieEvent($request, $context, $parts);
+        $this->dispatcher->dispatch($event);
+
+        return Hasher::hash($event->getParts());
     }
 
     /**

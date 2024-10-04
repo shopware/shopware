@@ -15,6 +15,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
+use Shopware\Core\System\SalesChannel\Event\SwitchContextEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Type;
@@ -76,6 +77,10 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             ->add(self::STATE_ID, new Type('string'))
         ;
 
+        $event = new SwitchContextEvent($data, $definition, $parameters, $context);
+        $this->eventDispatcher->dispatch($event, SwitchContextEvent::CONSISTENT_CHECK);
+        $parameters = $event->parameters;
+
         $this->validator->validate($parameters, $definition);
 
         $addressCriteria = new Criteria();
@@ -122,6 +127,10 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $context->getContext()]))
             ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $context->getContext()]))
         ;
+
+        $event = new SwitchContextEvent($data, $definition, $parameters, $context);
+        $this->eventDispatcher->dispatch($event, SwitchContextEvent::DATABASE_CHECK);
+        $parameters = $event->parameters;
 
         $this->validator->validate($parameters, $definition);
 

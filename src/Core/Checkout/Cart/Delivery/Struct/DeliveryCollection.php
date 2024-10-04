@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 

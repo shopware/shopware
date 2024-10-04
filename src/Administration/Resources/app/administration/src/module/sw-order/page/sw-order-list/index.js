@@ -156,8 +156,8 @@ export default {
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
-                    property: 'deliveries.stateMachineState',
-                    criteria: this.getStatusCriteria('order_delivery.state'),
+                    property: 'primaryOrderDelivery.stateMachineState',
+                    criteria: this.getStatusCriteria('primary_order_delivery.state'),
                     label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder'),
                 },
@@ -484,7 +484,7 @@ export default {
         getVariantFromDeliveryState(order) {
             const style = this.stateStyleDataProviderService.getStyle(
                 'order_delivery.state',
-                order.deliveries[0].stateMachineState.technicalName,
+                this.getDelivery(order).stateMachineState.technicalName,
             );
 
             return style.colorCode;
@@ -551,5 +551,14 @@ export default {
 
             return item.transactions.last();
         },
+
+        getDelivery(order) {
+            if (!order.primaryOrderDelivery) {
+                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                return order.deliveries ? order.deliveries[0] : null;
+            }
+
+            return order.primaryOrderDelivery;
+        }
     },
 };

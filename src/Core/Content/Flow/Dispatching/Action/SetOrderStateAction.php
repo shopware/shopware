@@ -218,4 +218,28 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
         return $id ?: null;
     }
+
+    private function getMachineIdFromOrderDelivery(string $orderId): ?string
+    {
+        $primaryOrderDelivery = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(`primary_order_delivery_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        ) ?: null;
+
+        if (!$primaryOrderDelivery) {
+            // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility.
+            $primaryOrderDelivery = $this->connection->fetchOne(
+                'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
+                [
+                    'id' => Uuid::fromHexToBytes($orderId),
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+            ) ?: null;
+        }
+
+        return $primaryOrderDelivery;
+    }
 }

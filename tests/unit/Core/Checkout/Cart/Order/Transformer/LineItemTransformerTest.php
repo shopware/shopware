@@ -67,6 +67,7 @@ class LineItemTransformerTest extends TestCase
         $product->setMaxPurchase(50);
         $product->setMinPurchase(10);
         $product->setPurchaseSteps(5);
+        $product->setStock(1);
 
         $product->setWidth(100);
         $product->setHeight(100);

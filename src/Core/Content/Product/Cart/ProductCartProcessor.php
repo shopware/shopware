@@ -317,7 +317,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         if ($lineItem->hasState(State::IS_PHYSICAL)) {
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
-                    (int) $product->getAvailableStock(),
+                    $product->getStock(),
                     $weight,
                     $product->getShippingFree() === true,
                     $product->getRestockTime(),

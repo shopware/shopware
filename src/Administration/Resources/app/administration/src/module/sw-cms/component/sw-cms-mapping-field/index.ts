@@ -11,6 +11,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['cmsService'],
+
     props: {
         config: {
             type: Object as PropType<{

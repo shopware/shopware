@@ -151,7 +151,7 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string, "%%package%%": string} $params
+     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string, "%%package%%"?: string} $params
      */
     private function createMigrationFile(OutputInterface $output, string $directory, string $templatePatch, array $params): void
     {

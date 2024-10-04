@@ -88,6 +88,9 @@ class OrderDefinition extends EntityDefinition
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new ApiAware(), new Required()),
 
+            // Is read-only because it is set in the PrimaryOrderDeliverySubscriber.
+            (new FkField('primary_order_delivery_id', 'primaryOrderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new WriteProtected()),
+
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()),
@@ -115,6 +118,7 @@ class OrderDefinition extends EntityDefinition
             (new CreatedByField())->addFlags(new ApiAware()),
             (new UpdatedByField())->addFlags(new ApiAware()),
 
+            (new OneToOneAssociationField('primaryOrderDelivery', 'primary_order_delivery_id', 'id', OrderDeliveryDefinition::class, false))->addFlags(new ApiAware()),
             (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(0.5)),
             (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware()),

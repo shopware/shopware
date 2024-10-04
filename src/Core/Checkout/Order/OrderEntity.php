@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -175,6 +176,16 @@ class OrderEntity extends Entity
      * @var string
      */
     protected $stateId;
+
+    /**
+     * @var OrderDeliveryEntity|null
+     */
+    protected $primaryOrderDelivery;
+
+    /**
+     * @var string|null
+     */
+    protected $primaryOrderDeliveryId;
 
     /**
      * @var DocumentCollection|null
@@ -505,6 +516,26 @@ class OrderEntity extends Entity
     public function setShippingTotal(float $shippingTotal): void
     {
         $this->shippingTotal = $shippingTotal;
+    }
+
+    public function getPrimaryOrderDelivery(): ?OrderDeliveryEntity
+    {
+        return $this->primaryOrderDelivery;
+    }
+
+    public function setPrimaryOrderDelivery(?OrderDeliveryEntity $primaryOrderDelivery): void
+    {
+        $this->primaryOrderDelivery = $primaryOrderDelivery;
+    }
+
+    public function getPrimaryOrderDeliveryId(): ?string
+    {
+        return $this->primaryOrderDeliveryId;
+    }
+
+    public function setPrimaryOrderDeliveryId(?string $primaryOrderDeliveryId): void
+    {
+        $this->primaryOrderDeliveryId = $primaryOrderDeliveryId;
     }
 
     public function getDocuments(): ?DocumentCollection

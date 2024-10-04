@@ -120,7 +120,14 @@ export default {
         },
 
         deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
+            const primaryOrderDeliveryId = this.order.primaryOrderDelivery?.id;
+
+            if (!primaryOrderDeliveryId) {
+                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                return array.slice(this.order.deliveries, 1) || [];
+            }
+
+            return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
         },
 
         orderCriteria() {

@@ -85,7 +85,12 @@ export default {
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
         delivery() {
-            return this.order.deliveries.length > 0 && this.order.deliveries[0];
+            if (!this.order.primaryOrderDelivery) {
+                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         transaction() {

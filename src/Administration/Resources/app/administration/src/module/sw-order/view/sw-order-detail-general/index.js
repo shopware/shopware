@@ -73,11 +73,23 @@ export default {
         ]),
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!this.order.primaryOrderDelivery) {
+                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
+            const primaryOrderDeliveryId = this.delivery?.id;
+
+            if (!primaryOrderDeliveryId) {
+                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                return array.slice(this.order.deliveries, 1) || [];
+            }
+
+            return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
         },
 
         shippingCostsDetail() {

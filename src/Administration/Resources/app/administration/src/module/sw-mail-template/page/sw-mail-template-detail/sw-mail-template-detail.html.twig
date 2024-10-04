@@ -295,11 +295,11 @@
                     @modal-close="onCancelShowPreview"
                 >
                     <h5>{{ $tc('sw-mail-template.detail.previewModalSubtitleHtml') }}</h5>
-                    <sw-card v-if="!isLoading">
+                    <sw-card v-if="!isLoading" position-identifier="sw-mail-template-detail-basic-preview-html">
                         <span v-html="mailHtmlPreview"></span>
                     </sw-card>
                     <h5>{{ $tc('sw-mail-template.detail.previewModalSubtitlePlain') }}</h5>
-                    <sw-card v-if="!isLoading">
+                    <sw-card v-if="!isLoading" position-identifier="sw-mail-template-detail-basic-preview-plain">
                         <span v-text="mailPlainPreview"></span>
                     </sw-card>
 

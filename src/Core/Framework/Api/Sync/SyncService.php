@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -159,8 +158,9 @@ class SyncService implements SyncServiceInterface
         $values = \array_values($ids->getIds());
 
         $primaries = $definition->getPrimaryKeys()->filterInstance(IdField::class);
-        if (count($primaries) === 1) {
+        if (\count($primaries) === 1) {
             $first = $primaries->first();
+            \assert($first instanceof IdField); // we already checked with the count
             $values = \array_map(static fn ($id) => [$first->getPropertyName() => $id], $values);
         }
 

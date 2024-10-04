@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -222,21 +221,5 @@ class SyncServiceTest extends TestCase
         $behavior = new SyncBehavior('disable-indexing', ['product.indexer']);
 
         $service->sync([$delete], Context::createDefaultContext(), $behavior);
-    }
-}
-
-class TracedSearcher implements EntitySearcherInterface
-{
-    public Criteria $criteria;
-
-    public function __construct(private readonly EntitySearcherInterface $decorated)
-    {
-    }
-
-    public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
-    {
-        $this->criteria = $criteria;
-
-        return $this->decorated->search($definition, $criteria, $context);
     }
 }

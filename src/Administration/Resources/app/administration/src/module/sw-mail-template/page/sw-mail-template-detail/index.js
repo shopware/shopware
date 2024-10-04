@@ -44,7 +44,8 @@ export default {
             mailTemplate: false,
             testerMail: '',
             mailTemplateId: null,
-            mailPreview: null,
+            mailHtmlPreview: null,
+            mailPlainPreview: null,
             isLoading: false,
             isSaveSuccessful: false,
             mailTemplateType: {},
@@ -387,13 +388,15 @@ export default {
         onClickShowPreview() {
             this.isLoading = true;
 
-            this.mailPreview = this.mailService
+            this.mailService
                 .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
                 .then((response) => {
-                    this.mailPreview = response;
+                    this.mailHtmlPreview = response.html;
+                this.mailPlainPreview = response.plain;
                 })
                 .catch((error) => {
-                    this.mailPreview = null;
+                    this.mailHtmlPreview = null;
+                this.mailPlainPreview = null;
                     if (!error.response?.data?.errors?.[0]?.detail) {
                         this.createNotificationError({
                             message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
@@ -444,7 +447,8 @@ export default {
         },
 
         onCancelShowPreview() {
-            this.mailPreview = null;
+            this.mailHtmlPreview = null;
+            this.mailPlainPreview = null;
         },
 
         async onCopyVariable(variable) {

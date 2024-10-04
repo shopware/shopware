@@ -73,6 +73,8 @@
         "copyTooltip": "Copy to clipboard."
       },
       "previewModalTitle": "Preview",
+      "previewModalSubtitleHtml": "HTML Template",
+      "previewModalSubtitlePlain": "Plaintext Template",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "textHeadline": "New email template",

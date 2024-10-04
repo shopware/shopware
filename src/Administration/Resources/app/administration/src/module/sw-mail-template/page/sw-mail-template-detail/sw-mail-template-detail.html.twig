@@ -288,15 +288,20 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_preview_modal %}
                 <sw-modal
-                    v-if="mailPreview"
+                    v-if="mailHtmlPreview || mailPlainPreview"
                     class="sw-mail-template-preview-modal"
                     :title="$tc('sw-mail-template.detail.previewModalTitle')"
                     :is-loading="isLoading"
                     @modal-close="onCancelShowPreview"
                 >
-                    <template v-if="!isLoading">
-                        <span v-html="mailPreview"></span>
-                    </template>
+                    <h5>{{ $tc('sw-mail-template.detail.previewModalSubtitleHtml') }}</h5>
+                    <sw-card v-if="!isLoading">
+                        <span v-html="mailHtmlPreview"></span>
+                    </sw-card>
+                    <h5>{{ $tc('sw-mail-template.detail.previewModalSubtitlePlain') }}</h5>
+                    <sw-card v-if="!isLoading">
+                        <span v-text="mailPlainPreview"></span>
+                    </sw-card>
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_preview_modal_footer %}

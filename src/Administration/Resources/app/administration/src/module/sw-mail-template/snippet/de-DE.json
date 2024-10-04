@@ -73,6 +73,8 @@
         "copyTooltip": "In die Zwischenablage kopieren."
       },
       "previewModalTitle": "Vorschau",
+      "previewModalSubtitleHtml": "HTML-Template",
+      "previewModalSubtitlePlain": "Plaintext-Template",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "textHeadline": "Neues E-Mail-Template",

@@ -75,16 +75,21 @@ class MailActionController extends AbstractController
     {
         $data = $post->all();
         $templateData = $data['mailTemplateType']['templateData'] ?? [];
-        $template = $data['mailTemplate']['contentHtml'] ?? null;
+        $htmlTemplate = $data['mailTemplate']['contentHtml'] ?? null;
+        $textTemplate = $data['mailTemplate']['contentPlain'] ?? null;
 
-        if (!\is_string($template)) {
+        if (!\is_string($htmlTemplate)) {
             throw MailTemplateException::invalidMailTemplateContent();
         }
 
         $this->templateRenderer->enableTestMode();
-        $renderedTemplate = $this->templateRenderer->render($template, $templateData, $context);
+        $renderedHtmlTemplate = $this->templateRenderer->render($htmlTemplate, $templateData, $context);
+        $renderedTextTemplate = $this->templateRenderer->render($textTemplate, $templateData, $context);
         $this->templateRenderer->disableTestMode();
 
-        return new JsonResponse($renderedTemplate);
+        return new JsonResponse([
+            'html' => $renderedHtmlTemplate,
+            'plain' => $renderedTextTemplate,
+        ]);
     }
 }

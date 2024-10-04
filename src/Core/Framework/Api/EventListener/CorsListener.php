@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class CorsListener implements EventSubscriberInterface
 {
 
-    public function __construct(private EntityRepository $salesChannelDomainRepository)
+    public function __construct(private Connection $connection)
     {
     }
 
@@ -60,9 +60,10 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new PrefixFilter('url', $origin));
-        if (!$this->salesChannelDomainRepository->searchIds($criteria, Context::createDefaultContext())->getTotal()) {
+        $statement = $this->connection->prepare(
+            'SELECT 1 FROM `sales_channel_domain` LEFT JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id` WHERE `sales_channel`.`active` = 1 AND `sales_channel`.`type_id` = unhex(?) AND `sales_channel_domain`.`url` LIKE ? LIMIT 1'
+        );
+        if (!$statement->executeQuery([Defaults::SALES_CHANNEL_TYPE_STOREFRONT, $origin . '%',])->rowCount()) {
             return;
         }
 

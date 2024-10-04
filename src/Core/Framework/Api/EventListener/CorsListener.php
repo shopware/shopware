@@ -46,10 +46,6 @@ class CorsListener implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
-        if ($request->getRealMethod() !== 'OPTIONS') {
-            return;
-        }
-
         $origin = $request->headers->get('Origin');
         if ($origin === null) {
             return;
@@ -72,6 +68,10 @@ class CorsListener implements EventSubscriberInterface
          */
         $response = $event->getResponse();
         $response->headers->set('Access-Control-Allow-Origin', $request->headers->get('origin'));
+
+        if ($request->getRealMethod() !== 'OPTIONS') {
+            return;
+        }
         $response->setPrivate();
 
         /**

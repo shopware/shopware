@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 #[CoversClass(MailActionController::class)]
 class MailActionControllerTest extends TestCase
 {
+    /**
+     * @var array<string, string>
+     */
     private static array $assertions;
 
     private AbstractMailService&MockObject $mailService;

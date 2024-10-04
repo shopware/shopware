@@ -9,6 +9,7 @@ use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
@@ -43,7 +44,8 @@ class CategoryBreadcrumbBuilder
     public function __construct(
         private readonly EntityRepository $categoryRepository,
         private readonly SalesChannelRepository $productRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly SalesChannelEntrypointService $entrypointService
     ) {
     }
 
@@ -154,9 +156,7 @@ class CategoryBreadcrumbBuilder
         ];
 
         if ($salesChannel !== null) {
-            $entryPoints[] = $salesChannel->getNavigationCategoryId();
-            $entryPoints[] = $salesChannel->getServiceCategoryId();
-            $entryPoints[] = $salesChannel->getFooterCategoryId();
+            $entryPoints = array_merge($entryPoints, $this->entrypointService->getEntrypointIds($salesChannel));
         }
 
         $entryPoints = array_filter($entryPoints);
@@ -242,11 +242,7 @@ class CategoryBreadcrumbBuilder
 
     private function getSalesChannelFilter(SalesChannelEntity $salesChannel): MultiFilter
     {
-        $ids = array_filter([
-            $salesChannel->getNavigationCategoryId(),
-            $salesChannel->getServiceCategoryId(),
-            $salesChannel->getFooterCategoryId(),
-        ]);
+        $ids = $this->entrypointService->getEntrypointIds($salesChannel);
 
         return new OrFilter(array_map(static fn (string $id) => new ContainsFilter('path', '|' . $id . '|'), $ids));
     }

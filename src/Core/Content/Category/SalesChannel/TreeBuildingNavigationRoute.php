@@ -7,8 +7,8 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,8 +20,10 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractNavigationRoute $decorated)
-    {
+    public function __construct(
+        private readonly AbstractNavigationRoute $decorated,
+        private readonly SalesChannelEntrypointService $entrypointService,
+    ) {
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -33,7 +35,7 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         try {
-            $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
+            $activeId = $this->resolveAliasId($activeId, $context);
         } catch (CategoryException $e) {
             if (!$e->is(CategoryException::FOOTER_CATEGORY_NOT_FOUND, CategoryException::SERVICE_CATEGORY_NOT_FOUND)) {
                 throw $e;
@@ -45,7 +47,7 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
             return $response;
         }
 
-        $rootId = $this->resolveAliasId($rootId, $context->getSalesChannel());
+        $rootId = $this->resolveAliasId($rootId, $context);
 
         $response = $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
 
@@ -92,28 +94,28 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return $items;
     }
 
-    private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): string
+    private function resolveAliasId(string $id, SalesChannelContext $context): string
     {
+        $salesChannelEntity = $context->getSalesChannel();
         $name = $salesChannelEntity->getTranslation('name') ?? '';
         \assert(\is_string($name));
 
-        switch ($id) {
-            case 'main-navigation':
-                return $salesChannelEntity->getNavigationCategoryId();
-            case 'service-navigation':
-                if ($salesChannelEntity->getServiceCategoryId() === null) {
-                    throw CategoryException::serviceCategoryNotFoundForSalesChannel($name);
-                }
-
-                return $salesChannelEntity->getServiceCategoryId();
-            case 'footer-navigation':
-                if ($salesChannelEntity->getFooterCategoryId() === null) {
-                    throw CategoryException::footerCategoryNotFoundForSalesChannel($name);
-                }
-
-                return $salesChannelEntity->getFooterCategoryId();
-            default:
-                return $id;
+        if (Uuid::isValid($id)) {
+            return $id;
         }
+
+        $entrypointId = $this->entrypointService->getEntrypointId($id, $context->getSalesChannel(), $context);
+        if ($entrypointId === null) {
+            if ($id === 'service-navigation' && $salesChannelEntity->getServiceCategoryId() === null) {
+                throw CategoryException::serviceCategoryNotFoundForSalesChannel($name);
+            }
+            if ($id === 'footer-navigation' && $salesChannelEntity->getFooterCategoryId() === null) {
+                throw CategoryException::footerCategoryNotFoundForSalesChannel($name);
+            }
+
+            return $id;
+        }
+
+        return $entrypointId->getCategoryId();
     }
 }

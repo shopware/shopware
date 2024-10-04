@@ -14,7 +14,6 @@ import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import extensionMainModules from './main-module.store';
 import modals from './modals.store';
-import actionButtons from './action-button.store';
 import ruleConditionsConfig from './rule-conditions-config.store';
 import sdkLocation from './sdk-location.store';
 import usageData from './usage-data.store';
@@ -33,7 +32,6 @@ export default {
     menuItem,
     modals,
     extensionMainModules,
-    actionButtons,
     ruleConditionsConfig,
     sdkLocation,
     usageData,

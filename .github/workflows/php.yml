@@ -17,13 +17,33 @@ on:
   workflow_call:
 
 env:
-  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     name: "PHP lint"
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: ""
+          tools: symfony-cli
+
+      - name: Debug
+        run: |
+          cat composer.json
+          composer validate --no-check-publish --no-check-lock
+
+      - uses: "ramsey/composer-install@v3"
+        with:
+          custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
+          working-directory: ''
+    
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:

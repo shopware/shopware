@@ -21,7 +21,7 @@ jobs:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
       BLUE_GREEN_DEPLOYMENT: 1
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -95,7 +95,7 @@ jobs:
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
 
     services:
       elasticsearch:
@@ -136,7 +136,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "Composer dependencies"
     env:
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     steps:
       - name: Clone platform
         uses: actions/checkout@v4
@@ -190,7 +190,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -265,7 +265,7 @@ jobs:
       - name: Setup new Shopware
         uses: shopware/setup-shopware@main
         env:
-          COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+          COMPOSER_ROOT_VERSION: 6.6.9999999-dev
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}

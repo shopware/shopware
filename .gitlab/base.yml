@@ -13,7 +13,7 @@ variables:
   ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
   STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
   COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
-  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.6.9999999-dev
   DD_ENV: ci
   DATADOG_SITE: datadoghq.eu
   MYSQL_INITDB_SKIP_TZINFO: 1

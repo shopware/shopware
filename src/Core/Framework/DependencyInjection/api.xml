@@ -15,6 +15,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\CorsListener">
+            <argument type="service" id="sales_channel_domain.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

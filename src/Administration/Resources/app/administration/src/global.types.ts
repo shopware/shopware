@@ -37,7 +37,6 @@ import type { TabsState } from './app/state/tabs.store';
 import type { MenuItemState } from './app/state/menu-item.store';
 import type { ModalsState } from './app/state/modals.store';
 import type { MainModuleState } from './app/state/main-module.store';
-import type { ActionButtonState } from './app/state/action-button.store';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
@@ -98,6 +97,7 @@ import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store
 import type { Extensions } from './app/store/extensions.store';
 import type { ErrorStore } from './app/store/error.store';
 import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
+import type { ActionButtonsStore } from './app/store/action-buttons.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -334,7 +334,6 @@ declare global {
         menuItem: MenuItemState;
         extensionMainModules: MainModuleState;
         modals: ModalsState;
-        actionButtons: ActionButtonState;
         shopwareExtensions: ShopwareExtensionsState;
         shopwareApps: ShopwareAppsState;
         sdkLocation: SdkLocationState;
@@ -353,6 +352,7 @@ declare global {
         extensions: Extensions;
         error: ErrorStore;
         adminHelpCenter: AdminHelpCenterStore;
+        actionButtons: ActionButtonsStore;
     }
 
     /**

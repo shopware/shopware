@@ -304,13 +304,7 @@ export default {
             this.$router.push({ name: 'sw.mail.template.index' });
         },
 
-        onSave() {
-            const updatePromises = [];
-            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
-
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
-
+        save(updatePromises, mailTemplateSubject) {
             updatePromises.push(
                 this.mailTemplateRepository
                     .save(this.mailTemplate)
@@ -336,6 +330,39 @@ export default {
                         });
                     }),
             );
+        },
+
+        handleError(error) {
+            if (!error.response?.data?.errors?.[0]?.detail) {
+                this.createNotificationError({
+                    message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                });
+            } else {
+                this.createNotificationError({
+                    message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
+                        errorMsg: error.response?.data?.errors?.[0]?.detail,
+                    }),
+                });
+            }
+        },
+
+        onSave() {
+            const updatePromises = [];
+            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
+
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            this.mailService.buildRenderPreview(
+                this.mailTemplateType,
+                this.mailPreviewContent(),
+            ).then(() => {
+                this.save(updatePromises, mailTemplateSubject);
+            }).catch((error) => {
+                this.handleError(error);
+            }).finally(() => {
+                this.isLoading = false;
+            });
 
             return Promise.all(updatePromises);
         },
@@ -397,19 +424,8 @@ export default {
                 .catch((error) => {
                     this.mailHtmlPreview = null;
                 this.mailPlainPreview = null;
-                    if (!error.response?.data?.errors?.[0]?.detail) {
-                        this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-                        });
-                    } else {
-                        this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
-                                errorMsg: error.response?.data?.errors?.[0]?.detail,
-                            }),
-                        });
-                    }
-                })
-                .finally(() => {
+                this.handleError(error);
+            }).finally(() => {
                     this.isLoading = false;
                 });
         },

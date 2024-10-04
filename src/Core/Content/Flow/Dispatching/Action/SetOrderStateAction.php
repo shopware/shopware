@@ -104,12 +104,17 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
 
         $data = new ParameterBag();
-        $machineId = $machine === self::ORDER ? $orderId : $this->getMachineId($machine, $orderId);
-        if (!$machineId) {
+        $targetEntityId = match ($machine) {
+            self::ORDER_DELIVERY => $this->getOrderDeliveryId($orderId),
+            self::ORDER_TRANSACTION => $this->getOrderTransactionId($orderId),
+            default => $orderId,
+        };
+
+        if (!$targetEntityId) {
             throw StateMachineException::stateMachineNotFound($machine);
         }
 
-        $actionName = $this->getAvailableActionName($machine, $machineId, $toPlace);
+        $actionName = $this->getAvailableActionName($machine, $targetEntityId, $toPlace);
         if (!$actionName) {
             $actionName = $toPlace;
         }
@@ -120,11 +125,11 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
                 return;
             case self::ORDER_DELIVERY:
-                $this->orderService->orderDeliveryStateTransition($machineId, $actionName, $data, $context);
+                $this->orderService->orderDeliveryStateTransition($targetEntityId, $actionName, $data, $context);
 
                 return;
             case self::ORDER_TRANSACTION:
-                $this->orderService->orderTransactionStateTransition($machineId, $actionName, $data, $context);
+                $this->orderService->orderTransactionStateTransition($targetEntityId, $actionName, $data, $context);
 
                 return;
             default:
@@ -132,10 +137,21 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
     }
 
-    private function getMachineId(string $machine, string $orderId): ?string
+    private function getOrderTransactionId(string $orderId): ?string
     {
         return $this->connection->fetchOne(
-            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
+            'SELECT LOWER(HEX(id)) FROM order_transaction WHERE order_id = :id AND version_id = :version ORDER BY created_at LIMIT 1',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        ) ?: null;
+    }
+
+    private function getOrderDeliveryId(string $orderId): ?string
+    {
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM order_delivery WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.unitPrice\') DESC LIMIT 1',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),

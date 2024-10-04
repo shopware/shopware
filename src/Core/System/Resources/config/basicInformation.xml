@@ -21,6 +21,20 @@
             <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
         </input-field>
 
+        <input-field>
+            <name>metaAuthor</name>
+            <label>Meta Author</label>
+            <label lang="de-DE">Meta-Author</label>
+            <placeholder>Enter author's name...</placeholder>
+            <placeholder lang="de-DE">Author-Namen eingeben ...</placeholder>
+            <helpText>Enter the name that will appear as the author of the website in search results or on social
+                media. This name will be used by default for all pages on the website.
+            </helpText>
+            <helpText lang="de-DE">Hier kannst du den Namen eintragen, der als Verfasser der Webseite in den
+                Suchergebnissen oder in sozialen Netzwerken angezeigt wird. Dieser Name wird standardmäßig für alle
+                Seiten der Webseite verwendet.</helpText>
+        </input-field>
+
         <input-field type="bool">
             <name>familyFriendly</name>
             <label>Family friendly shop</label>

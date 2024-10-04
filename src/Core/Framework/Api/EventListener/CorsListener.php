@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -10,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Doctrine\DBAL\Connection;
 
 /**
  * @internal
@@ -18,7 +18,6 @@ use Doctrine\DBAL\Connection;
 #[Package('core')]
 class CorsListener implements EventSubscriberInterface
 {
-
     public function __construct(private Connection $connection)
     {
     }
@@ -61,7 +60,7 @@ class CorsListener implements EventSubscriberInterface
         $statement = $this->connection->prepare(
             'SELECT 1 FROM `sales_channel_domain` LEFT JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id` WHERE `sales_channel`.`active` = 1 AND `sales_channel`.`type_id` = unhex(?) AND `sales_channel_domain`.`url` LIKE ? LIMIT 1'
         );
-        if (!$statement->executeQuery([Defaults::SALES_CHANNEL_TYPE_STOREFRONT, $origin . '%',])->rowCount()) {
+        if (!$statement->executeQuery([Defaults::SALES_CHANNEL_TYPE_STOREFRONT, $origin . '%'])->rowCount()) {
             return;
         }
 
@@ -78,6 +77,7 @@ class CorsListener implements EventSubscriberInterface
 
         /**
          * depends on the shopware version. only valid frontend api headers needed
+         *
          * @link vendor/shopware/core/PlatformRequest.php
          * @link \Shopware\Core\Framework\Api\EventListener\CorsListener::onKernelResponse
          */
@@ -94,7 +94,7 @@ class CorsListener implements EventSubscriberInterface
         ];
         if ($headers = $request->headers->get('Access-Control-Request-Headers')) {
             $corsHeaders = array_merge($corsHeaders, explode(',', $headers));
-            $corsHeaders = array_map(fn(string $header) => trim(strtolower($header)), $corsHeaders);
+            $corsHeaders = array_map(fn (string $header) => trim(strtolower($header)), $corsHeaders);
             $corsHeaders = array_unique($corsHeaders);
         }
         $corsHeaders = implode(', ', $corsHeaders);
@@ -107,7 +107,7 @@ class CorsListener implements EventSubscriberInterface
         $corsMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
         if ($methods = $request->headers->get('Access-Control-Request-Method')) {
             $corsMethods = array_merge($corsMethods, explode(',', $methods));
-            $corsMethods = array_map(fn(string $header) => trim(strtoupper($methods)), $corsMethods);
+            $corsMethods = array_map(fn (string $header) => trim(strtoupper($methods)), $corsMethods);
             $corsMethods = array_unique($corsMethods);
         }
         $corsMethods = implode(', ', $corsMethods);

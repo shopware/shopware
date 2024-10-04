@@ -1,34 +1,37 @@
-<sw-single-select
-    v-model:value="addressId"
-    v-bind="$attrs"
-    class="sw-order-customer-address-select"
-    value-property="id"
-    required
-    :is-loading="isLoading"
-    :options="customerAddresses"
-    :disabled="disabled"
-    :search-function="searchAddressResults"
-    @search="searchAddress"
->
-    <template #selection-label-property="{ item }">
-        {{ getSelectionLabel(item) }}
-    </template>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_order_customer_address_select %}
+    <sw-single-select
+        v-model:value="addressId"
+        v-bind="$attrs"
+        class="sw-order-customer-address-select"
+        value-property="id"
+        required
+        :is-loading="isLoading"
+        :options="customerAddresses"
+        :disabled="disabled"
+        :search-function="searchAddressResults"
+        @search="searchAddress"
+    >
+        <template #selection-label-property="{ item }">
+            {{ getSelectionLabel(item) }}
+        </template>
 
-    <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-        <sw-select-result
-            :selected="isSelected(item)"
-            v-bind="{ item, index }"
-            @item-select="setValue"
-        >
-            <sw-highlight-text
-                v-if="highlightSearchTerm && !isSelected(item)"
-                :text="getCustomerAddress(item)"
-                :search-term="searchTerm"
-            />
+        <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+            <sw-select-result
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                @item-select="setValue"
+            >
+                <sw-highlight-text
+                    v-if="highlightSearchTerm && !isSelected(item)"
+                    :text="getCustomerAddress(item)"
+                    :search-term="searchTerm"
+                />
 
-            <template v-else>
-                {{ getCustomerAddress(item) }}
-            </template>
-        </sw-select-result>
-    </template>
-</sw-single-select>
+                <template v-else>
+                    {{ getCustomerAddress(item) }}
+                </template>
+            </sw-select-result>
+        </template>
+    </sw-single-select>
+{% endblock %}

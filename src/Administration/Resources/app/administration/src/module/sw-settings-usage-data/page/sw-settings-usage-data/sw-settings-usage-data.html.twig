@@ -1,47 +1,50 @@
-<sw-page class="sw-settings-usage-data">
-    <template #search-bar>
-        <sw-search-bar />
-    </template>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_usage_data %}
+    <sw-page class="sw-settings-usage-data">
+        <template #search-bar>
+            <sw-search-bar />
+        </template>
 
-    <template #smart-bar-header>
-        <h2>
-            {{ $tc('sw-settings.index.title') }}
-            <sw-icon
-                name="regular-chevron-right-xs"
-                small
-            />
-            {{ $tc('sw-settings.index.tabSystem') }}
-            <sw-icon
-                name="regular-chevron-right-xs"
-                small
-            />
-            {{ $tc('sw-settings-usage-data.general.textHeadline') }}
-        </h2>
-    </template>
+        <template #smart-bar-header>
+            <h2>
+                {{ $tc('sw-settings.index.title') }}
+                <sw-icon
+                    name="regular-chevron-right-xs"
+                    small
+                />
+                {{ $tc('sw-settings.index.tabSystem') }}
+                <sw-icon
+                    name="regular-chevron-right-xs"
+                    small
+                />
+                {{ $tc('sw-settings-usage-data.general.textHeadline') }}
+            </h2>
+        </template>
 
-    <template #content>
-        <sw-card-view>
-            <sw-tabs
-                position-identifier="sw-settings-usage-data"
-                default-item="general"
-            >
-                <sw-tabs-item
-                    name="general"
-                    :route="{ name: 'sw.settings.usage.data.index.general' }"
+        <template #content>
+            <sw-card-view>
+                <sw-tabs
+                    position-identifier="sw-settings-usage-data"
+                    default-item="general"
                 >
-                    {{ $tc('sw-settings-usage-data-general.tabHeadline') }}
-                </sw-tabs-item>
-
-                <template #content>
-                    <router-view
-                        v-slot="{ Component }"
+                    <sw-tabs-item
+                        name="general"
+                        :route="{ name: 'sw.settings.usage.data.index.general' }"
                     >
-                        <component
-                            :is="Component"
-                        />
-                    </router-view>
-                </template>
-            </sw-tabs>
-        </sw-card-view>
-    </template>
-</sw-page>
+                        {{ $tc('sw-settings-usage-data-general.tabHeadline') }}
+                    </sw-tabs-item>
+
+                    <template #content>
+                        <router-view
+                            v-slot="{ Component }"
+                        >
+                            <component
+                                :is="Component"
+                            />
+                        </router-view>
+                    </template>
+                </sw-tabs>
+            </sw-card-view>
+        </template>
+    </sw-page>
+{% endblock %}

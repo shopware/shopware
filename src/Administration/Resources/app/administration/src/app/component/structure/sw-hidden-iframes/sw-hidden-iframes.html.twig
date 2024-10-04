@@ -1,11 +1,14 @@
-<div
-    class="sw-hidden-iframes"
-    style="display: none;"
->
-    <sw-iframe-renderer
-        v-for="extension in extensions"
-        :key="`${extension.type}-${extension.name}`"
-        :src="extension.baseUrl"
-        :location-id="MAIN_HIDDEN"
-    />
-</div>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_hidden_iframes %}
+    <div
+        class="sw-hidden-iframes"
+        style="display: none;"
+    >
+        <sw-iframe-renderer
+            v-for="extension in extensions"
+            :key="`${extension.type}-${extension.name}`"
+            :src="extension.baseUrl"
+            :location-id="MAIN_HIDDEN"
+        />
+    </div>
+{% endblock %}

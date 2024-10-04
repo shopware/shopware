@@ -1,21 +1,24 @@
-<div class="sw-cms-block-app-preview-renderer">
-    <img
-        v-if="previewImage"
-        :src="previewImage"
-        :alt="'Preview image for app CMS block: ' + $tc(blockLabel)"
-    >
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_block_app_preview_renderer %}
+    <div class="sw-cms-block-app-preview-renderer">
+        <img
+            v-if="previewImage"
+            :src="previewImage"
+            :alt="'Preview image for app CMS block: ' + $tc(blockLabel)"
+        >
 
-    <sw-extension-teaser-popover
-        v-else-if="appName === 'SwagCeToRiseUpsellingApp'"
-        position-identifier="sw-cms-block-3d-object"
-    />
+        <sw-extension-teaser-popover
+            v-else-if="appName === 'SwagCeToRiseUpsellingApp'"
+            position-identifier="sw-cms-block-3d-object"
+        />
 
-    <section
-        v-else
-        class="sw-cms-block-app-preview-renderer__fallback-preview"
-    >
-        <h2>
-            {{ $tc(appName) }}
-        </h2>
-    </section>
-</div>
+        <section
+            v-else
+            class="sw-cms-block-app-preview-renderer__fallback-preview"
+        >
+            <h2>
+                {{ $tc(appName) }}
+            </h2>
+        </section>
+    </div>
+{% endblock %}

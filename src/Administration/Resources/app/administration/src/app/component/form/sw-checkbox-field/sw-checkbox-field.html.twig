@@ -1,38 +1,44 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-checkbox component #}
-<mt-checkbox
-    v-if="useMeteorComponent"
-    v-bind="$attrs"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_checkbox_field %}
+    <mt-checkbox
+        v-if="useMeteorComponent"
+        v-bind="$attrs"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-    <slot></slot>
-</mt-checkbox>
+            <slot
+                :name="name"
+                v-bind="data"
+            >
+            </slot>
+        </template>
+        <slot></slot>
+    </mt-checkbox>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<sw-checkbox-field-deprecated
-    v-else
-    v-bind="$attrs"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_checkbox_field_deprecated %}
+    <sw-checkbox-field-deprecated
+        v-else
+        v-bind="$attrs"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data || {}"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-</sw-checkbox-field-deprecated>
+            <slot
+                :name="name"
+                v-bind="data || {}"
+            >
+            </slot>
+        </template>
+    </sw-checkbox-field-deprecated>
+{% endblock %}

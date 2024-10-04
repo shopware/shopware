@@ -1,100 +1,103 @@
-<div v-if="isLoading">
-    <sw-skeleton />
-    <sw-skeleton />
-</div>
-
-<sw-meteor-card
-    v-else
-    class="sw-extension-my-extensions-account"
->
-    <div class="sw-extension-my-extensions-account__wrapper">
-        <div class="sw-extension-my-extensions-account__wrapper-illustration">
-            <img
-                :src="assetFilter('/administration/static/img/plugin-manager--login.png')"
-                :alt="$tc('sw-extension.my-extensions.account.headline')"
-            >
-        </div>
-        <div class="sw-extension-my-extensions-account__wrapper-content">
-
-            <template v-if="isLoggedIn">
-                <h3>{{ $tc('sw-extension.my-extensions.account.headline') }}</h3>
-                <p>{{ $tc('sw-extension.my-extensions.account.isLoggedIn') }}</p>
-
-                <div class="sw-extension-my-extensions-account__wrapper-content-login-status">
-                    <sw-avatar
-                        size="36px"
-                        color="#E3F3FF"
-                        placeholder
-                    />
-
-                    <span class="sw-extension-my-extensions-account__wrapper-content-login-status-id">{{ userInfo.email }}</span>
-
-                    <sw-button
-                        class="sw-extension-my-extensions-account__logout-button"
-                        variant="primary"
-                        size="small"
-                        @click="logout"
-                    >
-                        {{ $tc('sw-extension.my-extensions.account.logout') }}
-                    </sw-button>
-                </div>
-            </template>
-
-            <template v-else>
-                <h3>{{ $tc('sw-extension.my-extensions.account.headline') }}</h3>
-                <div class="sw-extension-my-extensions-account__wrapper-content-login-message">
-                    <p>{{ $tc('sw-extension.my-extensions.account.loginMessage') }}</p>
-                </div>
-                <div>
-                    <p>{{ $tc('sw-extension.my-extensions.account.register') }}</p>
-                    <a
-                        class="new-account-link"
-                        :href="$tc('sw-extension.my-extensions.account.registerUrl')"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        {{ $tc('sw-extension.my-extensions.account.registerNow') }}
-                    </a>
-                </div>
-
-                <div class="sw-extension-my-extensions-account__wrapper-content-login-form">
-                    <sw-text-field
-                        v-model:value="form.shopwareId"
-                        class="sw-extension-my-extensions-account__shopware-id-field"
-                        required
-                        :label="$tc('sw-extension.my-extensions.account.mailLabel')"
-                        :placeholder="$tc('sw-extension.my-extensions.account.mailPlaceholder')"
-                    />
-
-                    <sw-password-field
-                        v-model:value="form.password"
-                        class="sw-extension-my-extensions-account__password-field"
-                        :label="$tc('sw-extension.my-extensions.account.passwordLabel')"
-                        :placeholder="$tc('sw-extension.my-extensions.account.passwordPlaceholder')"
-                        @keyup.enter="login"
-                    />
-                </div>
-
-                <div class="sw-extension-my-extensions-account__wrapper-content-login-footer">
-                    <a
-                        :href="$tc('sw-extension.my-extensions.account.recoveryUrl')"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        {{ $tc('sw-extension.my-extensions.account.passwordForgot') }}
-                    </a>
-
-                    <sw-button
-                        class="sw-extension-my-extensions-account__login-button"
-                        variant="primary"
-                        size="small"
-                        @click="login"
-                    >
-                        {{ $tc('sw-extension.my-extensions.account.login') }}
-                    </sw-button>
-                </div>
-
-            </template>
-        </div>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_extension_my_extensions_account %}
+    <div v-if="isLoading">
+        <sw-skeleton />
+        <sw-skeleton />
     </div>
-</sw-meteor-card>
+
+    <sw-meteor-card
+        v-else
+        class="sw-extension-my-extensions-account"
+    >
+        <div class="sw-extension-my-extensions-account__wrapper">
+            <div class="sw-extension-my-extensions-account__wrapper-illustration">
+                <img
+                    :src="assetFilter('/administration/static/img/plugin-manager--login.png')"
+                    :alt="$tc('sw-extension.my-extensions.account.headline')"
+                >
+            </div>
+            <div class="sw-extension-my-extensions-account__wrapper-content">
+
+                <template v-if="isLoggedIn">
+                    <h3>{{ $tc('sw-extension.my-extensions.account.headline') }}</h3>
+                    <p>{{ $tc('sw-extension.my-extensions.account.isLoggedIn') }}</p>
+
+                    <div class="sw-extension-my-extensions-account__wrapper-content-login-status">
+                        <sw-avatar
+                            size="36px"
+                            color="#E3F3FF"
+                            placeholder
+                        />
+
+                        <span class="sw-extension-my-extensions-account__wrapper-content-login-status-id">{{ userInfo.email }}</span>
+
+                        <sw-button
+                            class="sw-extension-my-extensions-account__logout-button"
+                            variant="primary"
+                            size="small"
+                            @click="logout"
+                        >
+                            {{ $tc('sw-extension.my-extensions.account.logout') }}
+                        </sw-button>
+                    </div>
+                </template>
+
+                <template v-else>
+                    <h3>{{ $tc('sw-extension.my-extensions.account.headline') }}</h3>
+                    <div class="sw-extension-my-extensions-account__wrapper-content-login-message">
+                        <p>{{ $tc('sw-extension.my-extensions.account.loginMessage') }}</p>
+                    </div>
+                    <div>
+                        <p>{{ $tc('sw-extension.my-extensions.account.register') }}</p>
+                        <a
+                            class="new-account-link"
+                            :href="$tc('sw-extension.my-extensions.account.registerUrl')"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            {{ $tc('sw-extension.my-extensions.account.registerNow') }}
+                        </a>
+                    </div>
+
+                    <div class="sw-extension-my-extensions-account__wrapper-content-login-form">
+                        <sw-text-field
+                            v-model:value="form.shopwareId"
+                            class="sw-extension-my-extensions-account__shopware-id-field"
+                            required
+                            :label="$tc('sw-extension.my-extensions.account.mailLabel')"
+                            :placeholder="$tc('sw-extension.my-extensions.account.mailPlaceholder')"
+                        />
+
+                        <sw-password-field
+                            v-model:value="form.password"
+                            class="sw-extension-my-extensions-account__password-field"
+                            :label="$tc('sw-extension.my-extensions.account.passwordLabel')"
+                            :placeholder="$tc('sw-extension.my-extensions.account.passwordPlaceholder')"
+                            @keyup.enter="login"
+                        />
+                    </div>
+
+                    <div class="sw-extension-my-extensions-account__wrapper-content-login-footer">
+                        <a
+                            :href="$tc('sw-extension.my-extensions.account.recoveryUrl')"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            {{ $tc('sw-extension.my-extensions.account.passwordForgot') }}
+                        </a>
+
+                        <sw-button
+                            class="sw-extension-my-extensions-account__login-button"
+                            variant="primary"
+                            size="small"
+                            @click="login"
+                        >
+                            {{ $tc('sw-extension.my-extensions.account.login') }}
+                        </sw-button>
+                    </div>
+
+                </template>
+            </div>
+        </div>
+    </sw-meteor-card>
+{% endblock %}

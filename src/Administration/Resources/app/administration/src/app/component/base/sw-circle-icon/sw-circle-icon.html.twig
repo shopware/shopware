@@ -1,12 +1,15 @@
-<sw-label
-    class="sw-circle-icon"
-    :style="backgroundStyles"
-    :variant="variant"
-    appearance="circle"
-    :dismissable="false"
->
-    <sw-icon
-        :name="iconName"
-        :size="iconSize"
-    />
-</sw-label>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_circle_icon %}
+    <sw-label
+        class="sw-circle-icon"
+        :style="backgroundStyles"
+        :variant="variant"
+        appearance="circle"
+        :dismissable="false"
+    >
+        <sw-icon
+            :name="iconName"
+            :size="iconSize"
+        />
+    </sw-label>
+{% endblock %}

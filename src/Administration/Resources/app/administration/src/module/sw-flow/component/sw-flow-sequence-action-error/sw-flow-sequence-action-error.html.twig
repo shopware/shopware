@@ -1,17 +1,20 @@
-<div class="sw-flow-sequence-action-error">
-    <div class="sw-flow-sequence-action-error__content">
-        <slot name="content"></slot>
-    </div>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_flow_sequence_action_error %}
+    <div class="sw-flow-sequence-action-error">
+        <div class="sw-flow-sequence-action-error__content">
+            <slot name="content"></slot>
+        </div>
 
-    <sw-context-button
-        class="sw-flow-sequence-action-error__context-button"
-    >
-        <sw-context-menu-item
-            variant="danger"
-            class="sw-flow-sequence-action-error__delete-action"
-            @click="removeWarning(sequence.id)"
+        <sw-context-button
+            class="sw-flow-sequence-action-error__context-button"
         >
-            {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
-        </sw-context-menu-item>
-    </sw-context-button>
-</div>
+            <sw-context-menu-item
+                variant="danger"
+                class="sw-flow-sequence-action-error__delete-action"
+                @click="removeWarning(sequence.id)"
+            >
+                {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+    </div>
+{% endblock %}

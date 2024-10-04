@@ -17,6 +17,10 @@
             <tag name="shopware.dal.exception_handler"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\PrimaryOrderDeliveryService" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -145,7 +149,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Subscriber\PrimaryOrderDeliverySubscriber">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\PrimaryOrderDeliveryService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -159,6 +163,14 @@
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="order_delivery.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\Indexing\OrderIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\PrimaryOrderDeliveryService"/>
+
+            <tag name="shopware.entity_indexer"/>
         </service>
     </services>
 </container>

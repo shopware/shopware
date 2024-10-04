@@ -61,6 +61,7 @@ import '../../src/app/store/extension-sdk-module.store';
 import '../../src/app/store/extensions.store';
 import '../../src/app/store/error.store';
 import '../../src/app/store/admin-help-center.store';
+import '../../src/app/store/action-buttons.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

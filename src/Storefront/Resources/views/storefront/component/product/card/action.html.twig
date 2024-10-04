@@ -1,7 +1,7 @@
 {% block component_product_box_action_inner %}
     {% set id = product.id %}
     <div class="product-action">
-        {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
+        {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
         {% set displayFrom = product.calculatedPrices.count > 1 %}
         {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
 

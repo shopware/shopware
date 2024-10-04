@@ -124,7 +124,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
     public function testEnrichWithStaticConfig(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {
-            $this->systemConfig->method('get')->willReturn(true);
+            $this->systemConfig->method('getBool')->willReturn(true);
         }
 
         $salesChannelId = 'f3489c46df62422abdea4aa1bb03511c';
@@ -132,6 +132,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
         $product->setAvailableStock($availableStock);
+        $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
 
         $salesChannel = new SalesChannelEntity();

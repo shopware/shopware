@@ -115,6 +115,7 @@ export default {
                     });
                     return properties;
                 }
+
                 return completerFunction;
             })(this.entityMappingService, this.mailTemplateType);
         },

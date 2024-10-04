@@ -35,12 +35,12 @@ trait TestShortHands
     /**
      * @param array<string, mixed> $options
      */
-    protected function getContext(?string $token = null, array $options = []): SalesChannelContext
+    protected function getContext(?string $token = null, array $options = [], string $salesChannelId = TestDefaults::SALES_CHANNEL): SalesChannelContext
     {
         $token ??= Uuid::randomHex();
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, TestDefaults::SALES_CHANNEL, $options);
+            ->create($token, $salesChannelId, $options);
     }
 
     protected function addProductToCart(string $id, SalesChannelContext $context): Cart
@@ -132,7 +132,7 @@ trait TestShortHands
 
         return $this->getContext($context->getToken(), [
             SalesChannelContextService::CUSTOMER_ID => $customerId,
-        ]);
+        ], $context->getSalesChannelId());
     }
 
     protected function assertMailSent(MailEventListener $listener, string $type): void

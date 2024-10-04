@@ -105,7 +105,7 @@ Component.register('sw-app-actions', {
         },
 
         extensionSdkButtons() {
-            return Shopware.State.get('actionButtons').buttons.filter((button) => {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },

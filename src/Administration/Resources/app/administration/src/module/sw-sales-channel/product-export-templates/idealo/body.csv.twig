@@ -1,7 +1,7 @@
 "{%- if product.categories.count > 0 -%}
     {{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
 {%- endif -%}",{#- -#}
-"{{ product.manufacturer.translated.name }}",{#- -#}
+"{{ product.manufacturer.translated.name ?? '' }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
 {% set price = product.calculatedPrice %}
 {%- if product.calculatedPrices.count > 0 -%}

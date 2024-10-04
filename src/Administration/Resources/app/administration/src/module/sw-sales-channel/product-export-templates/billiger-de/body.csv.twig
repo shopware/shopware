@@ -1,5 +1,5 @@
 "{{ product.productNumber }}",{#- -#}
-"{{ product.manufacturer.translated.name }}",{#- -#}
+"{{ product.manufacturer.translated.name ?? '' }}",{#- -#}
 "{{ product.manufacturerNumber }}",{#- -#}
 "{{ product.ean }}",{#- -#}
 "{{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ '...' : product.translated.name }}",{#- -#}

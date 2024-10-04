@@ -117,12 +117,13 @@ export default {
                 }
             }
 
-            if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
+            const componentName = this.currentCustomField.config.componentName;
+            if (!componentName || !['sw-entity-single-select', 'sw-entity-multi-id-select'].includes(componentName)) {
                 this.currentCustomField.config.componentName = 'sw-entity-single-select';
             }
 
             this.multiSelectSwitchDisabled = !this.currentCustomField._isNew;
-            this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-entity-multi-id-select';
+            this.multiSelectSwitch = componentName === 'sw-entity-multi-id-select';
         },
 
         onChangeEntityType(entity) {

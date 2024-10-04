@@ -1,0 +1,44 @@
+{% block robots_txt %}{% apply remove_leading_spaces %}
+    {% block robots_txt_content %}
+        {% block robots_txt_content_user_agent %}
+            User-agent: *
+        {% endblock %}
+
+        {% if config('core.staging') %}
+            Disallow: /
+        {% else %}
+            {% block robots_txt_content_default_rules %}
+                Allow: /
+
+                {# Disallow requests with GET parameters to be indexed #}
+                Disallow: /*?
+
+                {# Allow all theme files to be indexed, including the GET requests with the cache buster #}
+                Allow: /*theme/
+
+                {# Allow all media files to be indexed, including the GET requests with the cache buster #}
+                Allow: /media/*?ts=
+            {% endblock %}
+
+            {% block robots_txt_content_domain_rules_container %}
+                {% for domainRules in page.domainRules %}
+                    {% block robots_txt_content_domain_rules %}
+                        {% for rule in domainRules.rules %}
+                            {% block robots_txt_content_domain_rules_rule %}
+                                {{ rule.type }}: {{ rule.path }}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+
+            {% block robots_txt_content_sitemap_container %}
+                {% for sitemap in page.sitemaps %}
+                    {% block robots_txt_content_sitemap %}
+                        Sitemap: {{ sitemap }}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+{% endapply %}{% endblock %}

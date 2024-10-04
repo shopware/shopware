@@ -1,5 +1,6 @@
 ---
 title: Add new inner block to order list bulk slot
+issue: NEXT-38702
 author: Ioannis Pourliotis
 author_email: dev@pourliotis.de 
 author_github: @PheysX

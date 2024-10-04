@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -17,16 +19,21 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[CoversClass(ThemeDumpCommand::class)]
 class ThemeDumpCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private string $themeId;
+    private string $parentThemeId;
+
+    private string $childThemeId;
 
     protected function tearDown(): void
     {
@@ -54,10 +61,78 @@ class ThemeDumpCommandTest extends TestCase
         $commandTester = new CommandTester($themeDumpCommand);
 
         $commandTester->execute([
-            'theme-id' => $this->themeId,
+            'theme-id' => $this->childThemeId,
+            'domain-url' => 'http://localhost/1/' . $this->childThemeId,
         ]);
 
         static::assertSame(['any' => 'expectedConfig'], $themeFileResolverMock->themeConfig->getThemeConfig());
+    }
+
+    #[DataProvider('getArguments')]
+    public function testExecuteShouldSuccess(?string $themeId = null, ?string $domainUrl = null): void
+    {
+        $this->setUpExampleThemes($themeId);
+
+        $themeFileResolverMock = new ThemeFileResolverMock();
+        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $themeFileResolverMock,
+            $this->getContainer()->get('theme.repository'),
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->createMock(StaticFileConfigDumper::class),
+            $themeFilesystemResolverMock
+        );
+
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+        $commandTester = new CommandTester($themeDumpCommand);
+
+        $userInput = [];
+
+        if (!$themeId) {
+            $userInput[] = 'parentTheme';
+        }
+
+        if (!$domainUrl) {
+            $userInput[] = 'http://localhost/1/' . $this->parentThemeId;
+        }
+
+        $commandTester->setInputs($userInput);
+        $commandTester->execute([
+            'theme-id' => $themeId,
+            'domain-url' => $domainUrl,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    /**
+     * @return array<array<string, string|null>>
+     */
+    public static function getArguments(): array
+    {
+        $themeId = Uuid::randomHex();
+
+        return [
+            [
+                'themeId' => $themeId,
+                'domainUrl' => null,
+            ],
+            [
+                'themeId' => $themeId,
+                'domainUrl' => 'http://localhost/1/' . $themeId,
+            ],
+            [
+                'themeId' => null,
+                'domainUrl' => 'http://localhost/2/' . $themeId,
+            ],
+            [
+                'themeId' => null,
+                'domainUrl' => null,
+            ],
+        ];
     }
 
     private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
@@ -84,16 +159,17 @@ class ThemeDumpCommandTest extends TestCase
         return $mock;
     }
 
-    private function setUpExampleThemes(): void
+    private function setUpExampleThemes(?string $parentThemeId = null): void
     {
         $themeRepository = $this->getContainer()->get('theme.repository');
         $themeSalesChannelRepository = $this->getContainer()->get('theme_sales_channel.repository');
         $context = Context::createDefaultContext();
 
-        $parentThemeId = Uuid::randomHex();
+        $parentThemeId = $parentThemeId ?? Uuid::randomHex();
         $childId = Uuid::randomHex();
 
-        $this->themeId = $childId;
+        $this->childThemeId = $childId;
+        $this->parentThemeId = $parentThemeId;
 
         $themes = [
             $parentThemeId => Uuid::randomHex(),
@@ -128,7 +204,13 @@ class ThemeDumpCommandTest extends TestCase
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                        'url' => 'http://localhost/' . $themeId,
+                        'url' => 'http://localhost/1/' . $themeId,
+                    ],
+                    [
+                        'languageId' => Defaults::LANGUAGE_SYSTEM,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                        'url' => 'http://localhost/2/' . $themeId,
                     ],
                 ],
             ]);

@@ -1,3 +1,5 @@
+const path = require('path');
+
 /* eslint no-console: 0 */
 const httpProxy = require('http-proxy');
 const nodeServer = require('node:http');
@@ -5,9 +7,14 @@ const fs = require('node:fs');
 const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
 
+const projectRootPath = process.env.PROJECT_ROOT
+    ? path.resolve(process.env.PROJECT_ROOT)
+    : path.resolve('../../../../..');
+const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
+const themeFiles = require(themeFilesConfigPath);
 const proxyPort = Number(process.env.STOREFRONT_PROXY_PORT) || 9998;
 const assetPort = Number(process.env.STOREFRONT_ASSETS_PORT) || 9999;
-const appUrlEnv = new URL(process.env.APP_URL);
+const appUrlEnv = new URL(themeFiles.domainUrl || process.env.APP_URL);
 const proxyUrlEnv = new URL(process.env.PROXY_URL || `${appUrlEnv.protocol}//${appUrlEnv.hostname}:${proxyPort}`);
 const keyPath = process.env.STOREFRONT_HTTPS_KEY_FILE || `${process.env.CAROOT}/localhost-key.pem`;
 const certPath = process.env.STOREFRONT_HTTPS_CERTIFICATE_FILE || `${process.env.CAROOT}/localhost.pem`;

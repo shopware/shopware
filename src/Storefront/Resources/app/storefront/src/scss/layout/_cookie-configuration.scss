@@ -27,6 +27,14 @@
     input:not([disabled]) ~ label {
         cursor: pointer;
     }
+
+    @supports (-webkit-hyphens:none) {
+        .form-check .form-check-input {
+            float: none;
+            display: inline-block;
+        }
+    }
+
 }
 
 

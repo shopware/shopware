@@ -6,4 +6,4 @@ author_email: felix.schneider@wimmelbach.de
 author_github: @schneider-felix
 ---
 # Core
-* Fixed the sorting in SetOrderStateAction to update the state of the correct delivery
+* Changed the sorting in SetOrderStateAction to update the state of the correct delivery

@@ -26,7 +26,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[CoversClass(ThemeDumpCommand::class)]
 class ThemeDumpCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -92,7 +91,7 @@ class ThemeDumpCommandTest extends TestCase
         $userInput = [];
 
         if (!$themeId) {
-            $userInput[] = 'parentTheme';
+            $userInput[] = 'Parent theme';
         }
 
         if (!$domainUrl) {

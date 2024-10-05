@@ -120,6 +120,7 @@
                             :index="index"
                             :allow-inline-edit="allowInlineEdit"
                             :class="['sw-grid__row--' + index, { 'is--selected': isSelected(item.id), 'is--deleted': item.isDeleted, 'is--new': item.isLocal }]"
+                            :columns="columns"
                             @inline-edit-finish="onInlineEditFinish"
                             @inline-edit-start="onInlineEditStart"
                         >

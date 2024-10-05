@@ -188,6 +188,16 @@ class OrderEntity extends Entity
     protected $primaryOrderDeliveryId;
 
     /**
+     * @var OrderTransactionEntity|null
+     */
+    protected $primaryOrderTransaction;
+
+    /**
+     * @var string|null
+     */
+    protected $primaryOrderTransactionId;
+
+    /**
      * @var DocumentCollection|null
      */
     protected $documents;
@@ -536,6 +546,26 @@ class OrderEntity extends Entity
     public function setPrimaryOrderDeliveryId(?string $primaryOrderDeliveryId): void
     {
         $this->primaryOrderDeliveryId = $primaryOrderDeliveryId;
+    }
+
+    public function getPrimaryOrderTransaction(): ?OrderTransactionEntity
+    {
+        return $this->primaryOrderTransaction;
+    }
+
+    public function setPrimaryOrderTransaction(?OrderTransactionEntity $primaryOrderTransaction): void
+    {
+        $this->primaryOrderTransaction = $primaryOrderTransaction;
+    }
+
+    public function getPrimaryOrderTransactionId(): ?string
+    {
+        return $this->primaryOrderTransactionId;
+    }
+
+    public function setPrimaryOrderTransactionId(?string $primaryOrderTransactionId): void
+    {
+        $this->primaryOrderTransactionId = $primaryOrderTransactionId;
     }
 
     public function getDocuments(): ?DocumentCollection

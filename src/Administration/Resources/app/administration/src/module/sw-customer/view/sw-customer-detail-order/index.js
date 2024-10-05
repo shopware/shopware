@@ -126,8 +126,8 @@ export default {
         navigateToCreateOrder() {
             this.$router.push({
                 name: 'sw.order.create',
-                params: {
-                    customer: this.customer,
+                query: {
+                    customerId: this.customer.id,
                 },
             });
         },

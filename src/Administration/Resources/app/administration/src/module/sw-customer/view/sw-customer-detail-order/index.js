@@ -127,7 +127,7 @@ export default {
             this.$router.push({
                 name: 'sw.order.create.initial',
                 params: {
-                    customerId: this.customer.id, // hier ist der customer da
+                    customerId: this.customer.id,
                 },
             });
         },

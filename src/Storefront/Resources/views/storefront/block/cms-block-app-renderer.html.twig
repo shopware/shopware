@@ -2,8 +2,8 @@
 {% set appTwigBlockName = "block_app_renderer_#{block.customFields.appBlockName}"|replace({'-': '_'}) %}
 
 {# Check if block exists and render it #}
-{% if block(appTwigBlockName) is defined %}
-    {{ block(appTwigBlockName) }}
+{% if sw_block(appTwigBlockName) is defined %}
+    {{ sw_block(appTwigBlockName) }}
 {% else %}
     {# Render fallback styling #}
     <div

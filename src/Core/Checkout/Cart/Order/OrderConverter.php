@@ -144,6 +144,21 @@ class OrderConverter
                 $context->getContext(),
                 $shippingAddresses
             );
+
+            // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
+            // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
+            if ($cart->getDeliveries()->count() > 0) {
+                $primaryOrderDeliveryId = Uuid::randomHex();
+                usort(
+                    $data['deliveries'],
+                    function (array $deliveryA, array $deliveryB) {
+                        return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['position']->getTotalPrice();
+                    }
+                );
+                $data['deliveries'] = array_values($data['deliveries']);
+                $data['deliveries'][0]['id'] = $primaryOrderDeliveryId;
+                $data['primaryOrderDeliveryId'] = $primaryOrderDeliveryId;
+            }
         }
 
         if ($conversionContext->shouldIncludeBillingAddress()) {
@@ -174,6 +189,12 @@ class OrderConverter
                 $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE),
                 $context->getContext()
             );
+
+            if ($cart->getTransactions()->count() > 0) {
+                $primaryOrderTransactionId = Uuid::randomHex();
+                $data['transactions'][0]['id'] = $primaryOrderTransactionId;
+                $data['primaryOrderTransactionId'] = $primaryOrderTransactionId;
+            }
         }
 
         $data['lineItems'] = array_values($convertedLineItems);

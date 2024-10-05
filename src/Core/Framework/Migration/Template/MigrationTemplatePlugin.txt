@@ -1,0 +1,22 @@
+<?php declare(strict_types=1);
+
+namespace %%namespace%%;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Migration\MigrationStep;
+
+/**
+ * @internal
+ */
+class Migration%%timestamp%%%%name%% extends MigrationStep
+{
+    public function getCreationTimestamp(): int
+    {
+        return %%timestamp%%;
+    }
+
+    public function update(Connection $connection): void
+    {
+
+    }
+}

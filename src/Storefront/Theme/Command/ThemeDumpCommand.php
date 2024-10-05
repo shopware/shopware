@@ -75,7 +75,7 @@ class ThemeDumpCommand extends Command
 
                 \assert(\is_string($themeName));
 
-                $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+                $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
         } else {
             $criteria->setIds([$themeId]);
@@ -147,11 +147,7 @@ class ThemeDumpCommand extends Command
         $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
 
         foreach ($themes as $theme) {
-            if (!$theme->getTechnicalName()) {
-                continue;
-            }
-
-            $choices[] = $theme->getTechnicalName();
+            $choices[] = $theme->getName();
         }
 
         return $choices;

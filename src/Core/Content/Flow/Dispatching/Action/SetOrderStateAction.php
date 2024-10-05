@@ -104,12 +104,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
 
         $data = new ParameterBag();
+        $machineId = null;
         if ($machine === self::ORDER) {
             $machineId = $orderId;
         } elseif ($machine === self::ORDER_DELIVERY) {
             $machineId = $this->getMachineIdFromOrderDelivery($orderId);
-        } else {
-            $machineId = $this->getMachineId($machine, $orderId);
+        } elseif ($machine === self::ORDER_TRANSACTION) {
+            $machineId = $this->getMachineIdFromOrderTransaction($orderId);
         }
         if (!$machineId) {
             throw StateMachineException::stateMachineNotFound($machine);
@@ -136,17 +137,6 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             default:
                 throw StateMachineException::stateMachineNotFound($machine);
         }
-    }
-
-    private function getMachineId(string $machine, string $orderId): ?string
-    {
-        return $this->connection->fetchOne(
-            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
-            [
-                'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]
-        ) ?: null;
     }
 
     private function getAvailableActionName(string $machine, string $machineId, string $toPlace): ?string
@@ -203,7 +193,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
     private function getMachineIdFromOrderDelivery(string $orderId): ?string
     {
-        $primaryOrderDelivery = $this->connection->fetchOne(
+        $primaryOrderDeliveryId = $this->connection->fetchOne(
             'SELECT LOWER(HEX(`primary_order_delivery_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
@@ -211,9 +201,9 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             ]
         ) ?: null;
 
-        if (!$primaryOrderDelivery) {
+        if (!$primaryOrderDeliveryId) {
             // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility.
-            $primaryOrderDelivery = $this->connection->fetchOne(
+            $primaryOrderDeliveryId = $this->connection->fetchOne(
                 'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
                 [
                     'id' => Uuid::fromHexToBytes($orderId),
@@ -222,6 +212,30 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             ) ?: null;
         }
 
-        return $primaryOrderDelivery;
+        return $primaryOrderDeliveryId;
+    }
+
+    private function getMachineIdFromOrderTransaction(string $orderId): ?string
+    {
+        $primaryOrderTransactionId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(`primary_order_transaction_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        ) ?: null;
+
+        if (!$primaryOrderTransactionId) {
+            // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility.
+            $primaryOrderTransactionId = $this->connection->fetchOne(
+                'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_TRANSACTION . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
+                [
+                    'id' => Uuid::fromHexToBytes($orderId),
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ]
+            ) ?: null;
+        }
+
+        return $primaryOrderTransactionId;
     }
 }

@@ -73,12 +73,17 @@ export default {
         },
 
         transaction() {
-            for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
-                    return this.order.transactions[i];
+            if (!this.order.primaryOrderTransaction) {
+                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                for (let i = 0; i < this.order.transactions.length; i += 1) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                        return this.order.transactions[i];
+                    }
                 }
+                return this.order.transactions.last();
             }
-            return this.order.transactions.last();
+
+            return this.order.primaryOrderTransaction;
         },
 
         delivery() {

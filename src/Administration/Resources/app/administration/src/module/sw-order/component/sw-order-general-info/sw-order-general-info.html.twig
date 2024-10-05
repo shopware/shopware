@@ -45,10 +45,10 @@
                 year: 'numeric'
                 }) }}
                 {{ $tc('sw-order.generalTab.info.summary.with') }}
-                {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
-                <template v-if="order.deliveries.last()">
+                {{ transaction.paymentMethod.translated.distinguishableName }}
+                <template v-if="delivery">
                     {{ $tc('sw-order.generalTab.info.summary.and') }}
-                    {{ order.deliveries.last().shippingMethod.translated.name }}
+                    {{ delivery.shippingMethod.translated.name }}
                 </template>
             </div>
             {% endblock %}

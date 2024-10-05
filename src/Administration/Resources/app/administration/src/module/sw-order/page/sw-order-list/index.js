@@ -162,8 +162,8 @@ export default {
                     toPlaceholder: this.$tc('global.default.to'),
                 },
                 'payment-status-filter': {
-                    property: 'transactions.stateMachineState',
-                    criteria: this.getStatusCriteria('order_transaction.state'),
+                    property: 'primaryOrderTransaction.stateMachineState',
+                    criteria: this.getStatusCriteria('primary_order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },

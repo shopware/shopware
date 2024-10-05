@@ -108,6 +108,10 @@ export default {
             this.showDeleteModal = id;
         },
 
+        canDelete(item) {
+            return !item.type.global;
+        },
+
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },

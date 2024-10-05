@@ -148,11 +148,6 @@
             <argument type="service" id="state_machine_state.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\Subscriber\PrimaryOrderDeliverySubscriber">
-            <argument type="service" id="Shopware\Core\Checkout\Order\PrimaryOrderDeliveryService"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
@@ -163,14 +158,6 @@
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="order_delivery.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Order\Indexing\OrderIndexer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\PrimaryOrderDeliveryService"/>
-
-            <tag name="shopware.entity_indexer"/>
         </service>
     </services>
 </container>

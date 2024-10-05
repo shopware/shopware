@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -97,6 +98,16 @@ class OrderEntity extends Entity
      * @var string|null
      */
     protected $primaryOrderDeliveryId;
+
+    /**
+     * @var OrderTransactionEntity|null
+     */
+    protected $primaryOrderTransaction;
+
+    /**
+     * @var string|null
+     */
+    protected $primaryOrderTransactionId;
 
     protected ?DocumentCollection $documents = null;
 
@@ -405,6 +416,26 @@ class OrderEntity extends Entity
     public function setPrimaryOrderDeliveryId(?string $primaryOrderDeliveryId): void
     {
         $this->primaryOrderDeliveryId = $primaryOrderDeliveryId;
+    }
+
+    public function getPrimaryOrderTransaction(): ?OrderTransactionEntity
+    {
+        return $this->primaryOrderTransaction;
+    }
+
+    public function setPrimaryOrderTransaction(?OrderTransactionEntity $primaryOrderTransaction): void
+    {
+        $this->primaryOrderTransaction = $primaryOrderTransaction;
+    }
+
+    public function getPrimaryOrderTransactionId(): ?string
+    {
+        return $this->primaryOrderTransactionId;
+    }
+
+    public function setPrimaryOrderTransactionId(?string $primaryOrderTransactionId): void
+    {
+        $this->primaryOrderTransactionId = $primaryOrderTransactionId;
     }
 
     public function getDocuments(): ?DocumentCollection

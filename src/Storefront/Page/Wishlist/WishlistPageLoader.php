@@ -89,6 +89,7 @@ class WishlistPageLoader
         $offset = $limit * ($page - 1);
 
         return (new Criteria())
+            ->setTitle('wishlist::page')
             ->addSorting(new FieldSorting('wishlists.updatedAt', FieldSorting::ASCENDING))
             ->addAssociation('manufacturer')
             ->addAssociation('options.group')

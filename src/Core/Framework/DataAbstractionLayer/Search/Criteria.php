@@ -597,9 +597,11 @@ class Criteria extends Struct implements \Stringable
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
+
+        return $this;
     }
 
     /**

@@ -84,8 +84,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
         $criteria = new Criteria([$orderId]);
-        $criteria->setTitle('order-route::order-loading');
         $criteria
+            ->setTitle('order-route::order-loading')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('orderCustomer.salutation')
             ->addAssociation('deliveries.shippingMethod')

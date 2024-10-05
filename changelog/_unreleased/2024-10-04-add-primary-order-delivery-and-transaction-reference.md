@@ -10,3 +10,9 @@ author_github: @hanneswernery
 delivery that is shown in the Administration for direct access and management of the delivery (e.g. changing the state).
 * A similar reference `primaryOrderTransaction` is added to `Core/Checkout/Order/OrderDefinition.php` for the same
 reasons.
+
+## Changes for plugins and apps
+From now on, these references must be set when creating or importing a new order manually.
+
+In the rare case that an order delivery or order transaction is added or edited for an existing order, these references
+must be evaluated and possible updated as well.

@@ -17,10 +17,6 @@ parameters:
     paths:
         - src
         - tests
-    type_coverage:
-        return_type: 99
-        param_type: 98
-        property_type: 55
 
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php

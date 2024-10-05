@@ -67,16 +67,4 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransaction extends Migration
             );
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        if ($this->columnExists($connection, 'order', 'primary_order_delivery_id')) {
-            $this->dropIndexIfExists($connection, 'order', 'uidx.order.primary_order_delivery');
-            $this->dropColumnIfExists($connection, 'order', 'primary_order_delivery_id');
-        }
-        if ($this->columnExists($connection, 'order', 'primary_order_transaction_id')) {
-            $this->dropIndexIfExists($connection, 'order', 'uidx.order.primary_order_transaction');
-            $this->dropColumnIfExists($connection, 'order', 'primary_order_transaction_id');
-        }
-    }
 }

@@ -88,8 +88,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new ApiAware(), new Required()),
 
-            // Is read-only because it is set in the PrimaryOrderDeliverySubscriber.
-            (new FkField('primary_order_delivery_id', 'primaryOrderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new WriteProtected()),
+            (new FkField('primary_order_delivery_id', 'primaryOrderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
 
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),

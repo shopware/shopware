@@ -6,5 +6,5 @@ author_email: joschi.mehta@heptacom.de
 author_github: @NinjaArmy
 ---
 # Storefront
-* Adjusting scss in `src/Storefront/Resources/app/storefront/src/scss/layout/_cookie-configuration.scss` to fix overlapping text in cookie configuration in safari. 
+* Changed scss in `src/Storefront/Resources/app/storefront/src/scss/layout/_cookie-configuration.scss` to fix overlapping text in cookie configuration in safari. 
 ___

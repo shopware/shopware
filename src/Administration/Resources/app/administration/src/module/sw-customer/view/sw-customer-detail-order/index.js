@@ -125,9 +125,9 @@ export default {
 
         navigateToCreateOrder() {
             this.$router.push({
-                name: 'sw.order.create',
+                name: 'sw.order.create.initial',
                 params: {
-                    customer: this.customer,
+                    customerId: this.customer.id, // hier ist der customer da
                 },
             });
         },

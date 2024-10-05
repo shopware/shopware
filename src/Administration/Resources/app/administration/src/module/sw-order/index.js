@@ -177,7 +177,7 @@ function orderCreateChildren() {
     return {
         initial: {
             component: 'sw-order-create-initial',
-            path: 'initial',
+            path: 'initial/:customerId?',
             meta: {
                 parentPath: 'sw.order.index',
                 privilege: 'order.creator',

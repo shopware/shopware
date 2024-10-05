@@ -12,13 +12,22 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['repositoryFactory'],
+
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            const { customer } = this.$route.params;
+            const customerRepository = this.repositoryFactory.create('customer');
+            const { customer, customerId }     = this.$route.params;
+
+            if(customerId) {
+                customerRepository.get(customerId).then(response => {
+                    State.commit('swOrder/setCustomer', response);
+                });
+            }
 
             if (!customer) {
                 return;

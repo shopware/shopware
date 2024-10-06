@@ -44,15 +44,15 @@
                 </button>
 
                 <button
+                    class="sw-select__select-indicator-hitbox"
                     @click="expanded ? collapse() : expand()"
                     @click.stop
-                    class="sw-select__select-indicator-hitbox"
                 >
                     <sw-icon
                         class="sw-select__select-indicator sw-select__select-indicator-expand"
                         :name="expanded ? `regular-chevron-up-xs`: `regular-chevron-down-xs`"
                         small
-                />
+                    />
                 </button>
             </div>
         </div>

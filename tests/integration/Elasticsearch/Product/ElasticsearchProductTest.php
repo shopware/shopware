@@ -76,6 +76,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -141,6 +142,7 @@ class ElasticsearchProductTest extends TestCase
         $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $this->languageRepository = $this->getContainer()->get('language.repository');
 
+        $this->getContainer()->get(SalesChannelLanguageLoader::class)->reset();
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->navigationId = $this->connection->fetchOne(

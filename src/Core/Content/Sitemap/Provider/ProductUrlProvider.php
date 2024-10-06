@@ -82,7 +82,7 @@ class ProductUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$product['id']])) {
                 $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']]));
+                $newUrl->setLoc(ltrim($this->router->generate('frontend.detail.page', ['productId' => $product['id']]), '/'));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -210,6 +211,25 @@ class ProductUrlProviderTest extends TestCase
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 2);
 
         static::assertCount(1, $urlResult->getUrls());
+    }
+
+    /**
+     * NEXT-38705
+     */
+    public function testContainsSlashNoSeoUrl(): void
+    {
+        $this->createProducts();
+
+        // delete all SEO urls
+        $seo = $this->getContainer()->get('seo_url.repository')->search(new Criteria(), $this->salesChannelContext->getContext());
+        foreach ($seo->getEntities() as $entity) {
+            $this->getContainer()->get('seo_url.repository')->delete([['id' => $entity->getId()]], $this->salesChannelContext->getContext());
+        }
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 1);
+
+        $urls = $urlResult->getUrls();
+        static::assertMatchesRegularExpression("/^detail\/.*/", $urls[0]->getLoc());
     }
 
     private function getProductUrlProvider(): ProductUrlProvider

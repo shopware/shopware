@@ -11,6 +11,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
@@ -41,7 +42,8 @@ class PluginCreateCommand extends Command
     {
         $this
             ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)')
-            ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)');
+            ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)')
+            ->addOption('static', null, null, 'Plugin will create in static-plugins folder');
 
         foreach ($this->generators as $generator) {
             if (!$generator->hasCommandOption()) {
@@ -66,12 +68,13 @@ class PluginCreateCommand extends Command
 
         try {
             $pluginName = $input->getArgument('plugin-name');
+            $staticPrefix = $input->getOption('static') ? 'static-' : '';
 
             if (!$pluginName) {
                 $pluginName = $this->askPascalCaseString('Please enter a plugin name (PascalCase)', $io);
             }
 
-            $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
+            $directory = $this->projectDir . "/custom/{$staticPrefix}plugins/" . $pluginName;
 
             if ($this->filesystem->exists($directory)) {
                 $io->error(\sprintf('Plugin directory %s already exists', $directory));

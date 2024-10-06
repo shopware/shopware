@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -221,8 +222,9 @@ class ProductUrlProviderTest extends TestCase
         $this->createProducts();
 
         // delete all SEO urls
-        $seo = $this->getContainer()->get('seo_url.repository')->search(new Criteria(), $this->salesChannelContext->getContext());
-        foreach ($seo->getEntities() as $entity) {
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $this->getContainer()->get('seo_url.repository')->search(new Criteria(), $this->salesChannelContext->getContext())->getEntities();
+        foreach ($seoUrls as $entity) {
             $this->getContainer()->get('seo_url.repository')->delete([['id' => $entity->getId()]], $this->salesChannelContext->getContext());
         }
 

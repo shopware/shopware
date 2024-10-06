@@ -226,6 +226,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper" />
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannelLanguageLoader" />
             <argument>%elasticsearch.product.exclude_source%</argument>
             <argument>%kernel.environment%</argument>
 

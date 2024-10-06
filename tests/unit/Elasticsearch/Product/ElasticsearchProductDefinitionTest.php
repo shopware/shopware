@@ -17,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
@@ -25,6 +27,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
+use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticSalesChannelLanguageLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -108,6 +111,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            'lang_en' => [TestDefaults::SALES_CHANNEL],
+            'lang_de' => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $parameterBag = new ParameterBag([
             'elasticsearch.product.custom_fields_mapping' => [
                 'bool' => CustomFieldTypes::BOOL,
@@ -130,6 +138,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
+            $salesChannelLanguageLoader,
             false,
             'dev'
         );
@@ -354,6 +363,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
+        $salesChannelLoader = new StaticSalesChannelLanguageLoader([
+            'lang_en' => [TestDefaults::SALES_CHANNEL],
+            'lang_de' => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $parameterBag = new ParameterBag([
             'elasticsearch.product.custom_fields_mapping' => [
                 'bool' => CustomFieldTypes::BOOL,
@@ -375,6 +389,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
+            $salesChannelLoader,
             false,
             'dev'
         );
@@ -468,6 +483,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(ProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
             $this->createMock(ElasticsearchFieldMapper::class),
+            $this->createMock(SalesChannelLanguageLoader::class),
             false,
             'dev'
         );
@@ -498,6 +514,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $searchQueryBuilder,
             $fieldBuilder,
             $fieldMapper,
+            $this->createMock(SalesChannelLanguageLoader::class),
             false,
             'dev'
         );
@@ -523,6 +540,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $definition);
 
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $connection = $this->getConnection();
         $definition = new ElasticsearchProductDefinition(
             $definition,
@@ -530,6 +551,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(ProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
             $this->createMock(ElasticsearchFieldMapper::class),
+            $salesChannelLanguageLoader,
             false,
             'dev'
         );
@@ -648,6 +670,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $parameterBag = new ParameterBag([
             'elasticsearch.product.custom_fields_mapping' => ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
         ]);
@@ -664,6 +690,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
+            $salesChannelLanguageLoader,
             false,
             'dev'
         );
@@ -701,11 +728,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'shippingFree' => true,
                         'markAsTopseller' => true,
                         'availableStock' => 5,
-                        'translation' => '[{"languageId": null, "name": null}, {"languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Test", "customFields": {"bool": "1", "int": 2, "unknown": "foo"}}]',
-                        'translation_parent' => '{}',
-                        'manufacturer_translation' => '{}',
                         'tags' => '{}',
-                        'categories' => '[{"id": null, "languageId": null, "name": null}, {"id": 1, "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Cat Test"}]',
                         'ratingAverage' => 4,
                         'sales' => 4,
                         'stock' => 4,
@@ -723,6 +746,15 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
                         'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                         'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
+                    ],
+                ],
+                [
+                    $this->ids->get('product-1') => [
+                        'id' => $this->ids->get('product-1'),
+                        'name' => 'Test',
+                        'customFields' => '{"bool": "1", "int": 2, "unknown": "foo"}',
+                        'manufacturerName' => 'Shopware AG',
+                        'categories' => '[{"id": null, "languageId": null, "name": null}, {"id": 1, "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Cat Test"}]',
                     ],
                 ],
                 [

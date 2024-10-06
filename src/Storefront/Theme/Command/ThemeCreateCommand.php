@@ -31,7 +31,7 @@ class ThemeCreateCommand extends Command
     {
         $this
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
-            ->addOption('static', null, null, 'Create Theme in custom/static-plugins folder');
+            ->addOption('static', null, null, 'Theme will be created in the static-plugins folder');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -62,7 +62,7 @@ class ThemeCreateCommand extends Command
 
         $pluginName = ucfirst((string) $themeName);
 
-        $directory = $this->projectDir . "/custom/{$staticPrefix}plugins/" . $pluginName;
+        $directory = \sprintf('%s/custom/%splugins/%s', $this->projectDir, $staticPrefix, $pluginName);
 
         if (file_exists($directory)) {
             $io->error(\sprintf('Plugin directory %s already exists', $directory));

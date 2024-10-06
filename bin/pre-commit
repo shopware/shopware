@@ -60,7 +60,7 @@ then
 
     echo "Fix code style"
 
-    composer run ecs-fix -- ${PHP_FILES_FOR_CHECKS}
+    composer run ecs-fix -- --config=.php-cs-fixer.dist.php ${PHP_FILES_FOR_CHECKS}
 
     composer run static-analyze -- --no-progress
 fi

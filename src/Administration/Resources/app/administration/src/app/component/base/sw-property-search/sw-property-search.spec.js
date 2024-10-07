@@ -382,4 +382,17 @@ describe('components/base/sw-property-search', () => {
 
         expect(addOptionCount).toHaveBeenCalled();
     });
+
+    it('should be able to set search term with property name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.useFakeTimers();
+
+        const searchInput = wrapper.find('.sw-block-field__block input');
+        await searchInput.setValue('property-A');
+        await searchInput.trigger('input');
+
+        expect(wrapper.vm.searchTerm).toBe('property-A');
+    });
 });

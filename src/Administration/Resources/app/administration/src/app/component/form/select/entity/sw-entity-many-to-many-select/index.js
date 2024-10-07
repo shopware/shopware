@@ -197,12 +197,11 @@ Component.register('sw-entity-many-to-many-select', {
 
         fetchDisplayItems() {
             this.isLoading = true;
-            return this.repository.search(this.entityCollection.criteria, this.entityCollection.context)
-                .then((result) => {
-                    this.displayAssigned(result);
-                    this.isLoading = false;
-                    return result;
-                });
+            return this.repository.search(this.entityCollection.criteria, this.entityCollection.context).then((result) => {
+                this.displayAssigned(result);
+                this.isLoading = false;
+                return result;
+            });
         },
 
         displayAssigned(collection) {
@@ -224,7 +223,7 @@ Component.register('sw-entity-many-to-many-select', {
             if (!this.resultCollection) {
                 this.resultCollection = result;
             } else {
-                result.forEach(item => {
+                result.forEach((item) => {
                     // Prevent duplicate entries
                     if (!this.resultCollection.has(item.id)) {
                         this.resultCollection.push(item);
@@ -242,21 +241,20 @@ Component.register('sw-entity-many-to-many-select', {
                 this.searchCriteria.sortings = this.criteria.sortings;
             }
 
-            return this.searchRepository.search(this.searchCriteria, Shopware.Context.api)
-                .then((searchResult) => {
-                    if (searchResult.length <= 0) {
-                        this.isLoading = false;
-                        return searchResult;
-                    }
+            return this.searchRepository.search(this.searchCriteria, Shopware.Context.api).then((searchResult) => {
+                if (searchResult.length <= 0) {
+                    this.isLoading = false;
+                    return searchResult;
+                }
 
-                    if (this.localMode) {
-                        this.displaySearch(searchResult);
-                        this.isLoading = false;
-                        return Promise.resolve(searchResult);
-                    }
+                if (this.localMode) {
+                    this.displaySearch(searchResult);
+                    this.isLoading = false;
+                    return Promise.resolve(searchResult);
+                }
 
-                    return this.findAssignedEntities(searchResult.getIds(), searchResult);
-                });
+                return this.findAssignedEntities(searchResult.getIds(), searchResult);
+            });
         },
 
         findAssignedEntities(ids, searchResult) {
@@ -296,8 +294,10 @@ Component.register('sw-entity-many-to-many-select', {
         },
 
         paginateResult() {
-            if (!this.resultCollection
-                    || this.resultCollection.total < this.searchCriteria.page * this.searchCriteria.limit) {
+            if (
+                !this.resultCollection ||
+                this.resultCollection.total < this.searchCriteria.page * this.searchCriteria.limit
+            ) {
                 return;
             }
 
@@ -343,7 +343,10 @@ Component.register('sw-entity-many-to-many-select', {
 
             this.$emit('item-add', item);
 
-            this.selectedIds = [...this.selectedIds, item.id];
+            this.selectedIds = [
+                ...this.selectedIds,
+                item.id,
+            ];
 
             this.$refs.selectionList.select();
             this.$refs.selectionList.focus();
@@ -446,13 +449,21 @@ Component.register('sw-entity-many-to-many-select', {
         onAdvancedSelectionSubmit(selectedItems) {
             this.isLoading = true;
 
-            const added = selectedItems.filter(value => !this.selectedIds.includes(value.id));
-            const removedIds = this.selectedIds.filter(id => !selectedItems.some((item) => { return item.id === id; }));
+            const added = selectedItems.filter((value) => !this.selectedIds.includes(value.id));
+            const removedIds = this.selectedIds.filter(
+                (id) =>
+                    !selectedItems.some((item) => {
+                        return item.id === id;
+                    }),
+            );
 
             const addPromises = added.map((item) => {
                 this.$emit('item-add', item);
 
-                this.selectedIds = [...this.selectedIds, item.id];
+                this.selectedIds = [
+                    ...this.selectedIds,
+                    item.id,
+                ];
 
                 if (this.localMode) {
                     this.totalAssigned += 1;
@@ -480,7 +491,10 @@ Component.register('sw-entity-many-to-many-select', {
                 });
             });
 
-            Promise.all([...addPromises, ...removePromises]).then(() => {
+            Promise.all([
+                ...addPromises,
+                ...removePromises,
+            ]).then(() => {
                 this.$refs.selectionList.select();
                 this.$refs.selectionList.focus();
                 this.isLoading = false;

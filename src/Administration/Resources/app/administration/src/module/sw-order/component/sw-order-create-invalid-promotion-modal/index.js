@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['close', 'confirm'],
+    emits: [
+        'close',
+        'confirm',
+    ],
 
     computed: {
         invalidPromotionCodes() {

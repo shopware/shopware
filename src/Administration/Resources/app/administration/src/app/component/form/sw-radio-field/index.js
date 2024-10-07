@@ -72,10 +72,12 @@ Component.register('sw-radio-field', {
 
     computed: {
         classes() {
-            return [{
-                'sw-field--radio-bordered': this.bordered,
-                'sw-field--radio-block': this.block,
-            }];
+            return [
+                {
+                    'sw-field--radio-bordered': this.bordered,
+                    'sw-field--radio-block': this.block,
+                },
+            ];
         },
         currentIndex() {
             const foundIndex = this.options.findIndex((item) => item.value === this.value);

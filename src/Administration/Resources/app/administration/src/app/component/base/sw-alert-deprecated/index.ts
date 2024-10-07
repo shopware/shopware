@@ -33,18 +33,38 @@ Component.register('sw-alert-deprecated', {
             type: String as PropType<NotificationType>,
             required: false,
             default: 'info',
-            validValues: ['info', 'warning', 'error', 'success', 'neutral'],
+            validValues: [
+                'info',
+                'warning',
+                'error',
+                'success',
+                'neutral',
+            ],
             validator(value: string): boolean {
-                return ['info', 'warning', 'error', 'success', 'neutral'].includes(value);
+                return [
+                    'info',
+                    'warning',
+                    'error',
+                    'success',
+                    'neutral',
+                ].includes(value);
             },
         },
         appearance: {
             type: String as PropType<AppearanceType>,
             required: false,
             default: 'default',
-            validValues: ['default', 'notification', 'system'],
+            validValues: [
+                'default',
+                'notification',
+                'system',
+            ],
             validator(value: string) {
-                return ['default', 'notification', 'system'].includes(value);
+                return [
+                    'default',
+                    'notification',
+                    'system',
+                ].includes(value);
             },
         },
         title: {

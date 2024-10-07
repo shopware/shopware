@@ -209,20 +209,16 @@ export default {
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
-            criteria.getAssociation('currencies')
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('currencies').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
-            criteria.getAssociation('languages')
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('languages').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('analytics');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
 
-            criteria.getAssociation('domains.language')
-                .addSorting(Criteria.sort('name', 'ASC'));
-            criteria.getAssociation('domains.snippetSet')
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('domains.language').addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('domains.snippetSet').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains.currency');
             criteria.addAssociation('domains.productExports');
 
@@ -267,14 +263,11 @@ export default {
             const criteria = new Criteria(1, 100);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
-            this.customFieldRepository
-                .search(criteria, Context.api)
-                .then((searchResult) => {
-                    this.customFieldSets = searchResult;
-                });
+            this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
+                this.customFieldSets = searchResult;
+            });
         },
 
         generateAccessUrl() {
@@ -284,8 +277,8 @@ export default {
             }
 
             const domainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
-            this.productComparison.productComparisonAccessUrl =
-                `${domainUrl}/store-api/product-export/${this.productExport.accessKey}/${this.productExport.fileName}`;
+            // eslint-disable-next-line max-len
+            this.productComparison.productComparisonAccessUrl = `${domainUrl}/store-api/product-export/${this.productExport.accessKey}/${this.productExport.fileName}`;
         },
 
         loadProductExportTemplates() {

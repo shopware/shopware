@@ -45,7 +45,7 @@ declare global {
             multipliedValue: ComputedRef<number>;
             addedValue: ComputedRef<number>;
             title: Ref<string, string>;
-        },
+        };
         // Fallback for untyped components
         [componentName: string]: { [key: string]: any };
     }
@@ -57,7 +57,7 @@ declare global {
  */
 export const _overridesMap: {
     // @ts-expect-error - previousState,props and context is any
-    [componentName: string]: Array<(previousState, props, context) => any>
+    [componentName: string]: Array<(previousState, props, context) => any>;
 } = reactive({});
 
 /**
@@ -96,8 +96,10 @@ const checkNestedStructure = ({
         }
 
         if (
-            typeof oldObj[key] === 'object' && oldObj[key] !== null &&
-            typeof newObj[key] === 'object' && newObj[key] !== null
+            typeof oldObj[key] === 'object' &&
+            oldObj[key] !== null &&
+            typeof newObj[key] === 'object' &&
+            newObj[key] !== null
         ) {
             // Recursively check nested objects
             const nestedResult = checkNestedStructure({
@@ -120,11 +122,7 @@ const checkNestedStructure = ({
 /**
  * This utility type is used to require the the exact shape of a type.
  */
-type Exact<T, Shape> = T extends Shape
-  ? Exclude<keyof T, keyof Shape> extends never
-    ? T
-    : never
-  : never;
+type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends never ? T : never) : never;
 
 /**
  * @experimental stableVersion:v6.7.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -135,29 +133,25 @@ export function createExtendableSetup<
     PROPS extends { [key: string]: any },
     CONTEXT,
     COMPONENT_NAME extends keyof ComponentPublicApiMapping,
-    SETUP_RESULT extends ComponentPublicApiMapping[COMPONENT_NAME]
+    SETUP_RESULT extends ComponentPublicApiMapping[COMPONENT_NAME],
 >(
     options: {
         name: COMPONENT_NAME;
         props: PROPS;
         context: CONTEXT;
     },
-    originalSetup: (
-        props: PROPS,
-        context: CONTEXT
-    ) => Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>,
+    originalSetup: (props: PROPS, context: CONTEXT) => Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>,
 ) {
     // Call the original setup function
-    const originalSetupResult = originalSetup(
-        options.props,
-        options.context,
-    );
+    const originalSetupResult = originalSetup(options.props, options.context);
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
         if (Object.keys(originalSetupResult).includes(key)) {
-            // eslint-disable-next-line max-len
-            console.error(`[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`);
+            console.error(
+                // eslint-disable-next-line max-len
+                `[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`,
+            );
 
             // Delete the prop values from the original setup result
             delete originalSetupResult[key];
@@ -193,14 +187,20 @@ export function createExtendableSetup<
             Object.keys(overrideResult).forEach((key) => {
                 // Skip if the key is a prop, as props should not be overridden
                 if (Object.keys(options.props).includes(key)) {
-                    // eslint-disable-next-line max-len
-                    console.error(`[${options.name}] Override result value not working. Cannot override props. Following prop should be changed: "${key}"`);
+                    console.error(
+                        // eslint-disable-next-line max-len
+                        `[${options.name}] Override result value not working. Cannot override props. Following prop should be changed: "${key}"`,
+                    );
                     return;
                 }
                 const resultValue = overrideResult[key];
 
-                // @ts-expect-error - "effect" is not part of the Ref type
-                if (!isReadonly(resultValue) && isRef(resultValue) && !resultValue?.effect) {
+                if (
+                    !isReadonly(resultValue) &&
+                    isRef(resultValue) &&
+                    // @ts-expect-error - "effect" is not part of the Ref type
+                    !resultValue?.effect
+                ) {
                     // Handle normal ref values with 2-Way sync
                     syncRef(resultValue, wrappedState[key]);
                 } else if (isReadonly(resultValue) && isRef(resultValue)) {
@@ -237,7 +237,11 @@ export function createExtendableSetup<
                 } else {
                     // Log an error for unhandled types
                     // eslint-disable-next-line max-len
-                    console.error(`[${options.name}] Override value not working. No handling declared for:`, key, resultValue);
+                    console.error(
+                        `[${options.name}] Override value not working. No handling declared for:`,
+                        key,
+                        resultValue,
+                    );
                 }
             });
 
@@ -255,10 +259,13 @@ export function createExtendableSetup<
 /**
  * Types for extracting the props of a component
  */
-type InferComponentProps<T> = T extends new () => { $props: infer P } ? P : never
-type ExtractedProps<T> = Omit<{
-    [key in keyof InferComponentProps<T>]: InferComponentProps<T>[key];
-}, keyof PublicProps>;
+type InferComponentProps<T> = T extends new () => { $props: infer P } ? P : never;
+type ExtractedProps<T> = Omit<
+    {
+        [key in keyof InferComponentProps<T>]: InferComponentProps<T>[key];
+    },
+    keyof PublicProps
+>;
 
 /**
  * @experimental stableVersion:v6.7.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -266,9 +273,7 @@ type ExtractedProps<T> = Omit<{
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function overrideComponentSetup<ORIGINAL_COMPONENT>() {
-    return function <
-        COMPONENT_NAME extends keyof ComponentPublicApiMapping
-    > (
+    return function <COMPONENT_NAME extends keyof ComponentPublicApiMapping>(
         componentName: COMPONENT_NAME,
         override: (
             previousState: ComponentPublicApiMapping[COMPONENT_NAME],

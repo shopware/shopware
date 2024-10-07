@@ -182,11 +182,9 @@ export default {
                 const domain = this.getDomainUsingValue(removed);
                 if (domain !== null) {
                     this.createNotificationError({
-                        message: this.$tc(
-                            'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
-                            0,
-                            { url: domain.url },
-                        ),
+                        message: this.$tc('sw-sales-channel.sw-sales-channel-defaults-select.messageError', 0, {
+                            url: domain.url,
+                        }),
                     });
                     return;
                 }
@@ -199,9 +197,11 @@ export default {
         },
 
         getDomainUsingValue(item) {
-            return this.salesChannel.domains.find((domain) => {
-                return domain[this.propertyNameInDomain] === item.id;
-            }) || null;
+            return (
+                this.salesChannel.domains.find((domain) => {
+                    return domain[this.propertyNameInDomain] === item.id;
+                }) || null
+            );
         },
 
         updateDefault(defaultId, defaultEntity) {

@@ -14,10 +14,10 @@ import './sw-generic-custom-entity-detail.scss';
 const { Mixin } = Shopware;
 
 type GenericCustomEntityDetailData = {
-    isLoading: boolean,
-    isSaveSuccessful: boolean,
-    customEntityData: Entity<'generic_custom_entity'>|null,
-    customEntityDataInstances?: EntityCollection<'generic_custom_entity'>,
+    isLoading: boolean;
+    isSaveSuccessful: boolean;
+    customEntityData: Entity<'generic_custom_entity'> | null;
+    customEntityDataInstances?: EntityCollection<'generic_custom_entity'>;
 };
 
 /**
@@ -50,11 +50,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        customEntityDataId(): string|string[] {
+        customEntityDataId(): string | string[] {
             return this.$route.params?.id;
         },
 
-        customEntityName(): string|string[] {
+        customEntityName(): string | string[] {
             return this.$route.params.entityName || '';
         },
 
@@ -71,8 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            return this.repositoryFactory
-                .create(this.customEntityDataDefinition.entity as 'generic_custom_entity');
+            return this.repositoryFactory.create(this.customEntityDataDefinition.entity as 'generic_custom_entity');
         },
 
         customEntityProperties(): CustomEntityProperties | undefined {
@@ -91,11 +90,11 @@ export default Shopware.Component.wrapComponentConfig({
             return this.customEntityDataDefinition?.flags['admin-ui']?.detail?.tabs ?? [];
         },
 
-        mainTabName(): string|undefined {
+        mainTabName(): string | undefined {
             return this.detailTabs?.[0]?.name;
         },
 
-        titlePropertyName(): string|undefined {
+        titlePropertyName(): string | undefined {
             return this.detailTabs?.[0]?.cards?.[0].fields?.[0]?.ref;
         },
     },
@@ -144,9 +143,7 @@ export default Shopware.Component.wrapComponentConfig({
                 // Methods from mixins are not recognized
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
-                    message: this.$tc(
-                        'global.notification.notificationLoadingDataErrorMessage',
-                    ),
+                    message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -160,22 +157,25 @@ export default Shopware.Component.wrapComponentConfig({
                 return Promise.reject();
             }
 
-            return this.customEntityDataRepository?.save(this.customEntityData).then(async () => {
-                this.isSaveSuccessful = true;
+            return this.customEntityDataRepository
+                ?.save(this.customEntityData)
+                .then(async () => {
+                    this.isSaveSuccessful = true;
 
-                if (!this.customEntityDataId && this.customEntityData?.id) {
-                    await this.$router.push({
-                        name: 'sw.custom.entity.detail',
-                        params: {
-                            id: this.customEntityData.id,
-                        },
-                    });
-                }
+                    if (!this.customEntityDataId && this.customEntityData?.id) {
+                        await this.$router.push({
+                            name: 'sw.custom.entity.detail',
+                            params: {
+                                id: this.customEntityData.id,
+                            },
+                        });
+                    }
 
-                void this.loadData();
-            }).finally(() => {
-                this.isLoading = false;
-            });
+                    void this.loadData();
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         saveFinish(): void {
@@ -188,7 +188,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getFieldTranslation(namespace: string, name: string, suffix = '', checkExistence = false): string {
-            const snippetKey = [this.customEntityName, namespace, name].join('.').concat(suffix);
+            const snippetKey = [
+                this.customEntityName,
+                namespace,
+                name,
+            ]
+                .join('.')
+                .concat(suffix);
             if (checkExistence && !this.$te(snippetKey)) {
                 return '';
             }

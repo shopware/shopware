@@ -141,7 +141,10 @@ describe('src/app/init-post/worker.init.ts', () => {
         // First run should create notification
         helper.go({
             queue: [
-                { name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage', size: 1 },
+                {
+                    name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
+                    size: 1,
+                },
             ],
             $root: {
                 $tc: (msg) => msg,
@@ -157,7 +160,10 @@ describe('src/app/init-post/worker.init.ts', () => {
         // Second run should update notification
         helper.go({
             queue: [
-                { name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage', size: 0 },
+                {
+                    name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
+                    size: 0,
+                },
             ],
             $root: {
                 $t: (msg) => msg,

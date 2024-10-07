@@ -212,10 +212,10 @@ export default {
 
         categoryCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.getAssociation('seoUrls')
-                .addFilter(Criteria.equals('isCanonical', true));
+            criteria.getAssociation('seoUrls').addFilter(Criteria.equals('isCanonical', true));
 
-            criteria.addAssociation('tags')
+            criteria
+                .addAssociation('tags')
                 .addAssociation('media')
                 .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
                 .addAssociation('serviceSalesChannels')
@@ -301,8 +301,11 @@ export default {
             return;
         }
 
-        const keysToDelete = ['id', 'versionId'];
-        const changedKeys = Object.keys(changes).filter(key => !keysToDelete.includes(key));
+        const keysToDelete = [
+            'id',
+            'versionId',
+        ];
+        const changedKeys = Object.keys(changes).filter((key) => !keysToDelete.includes(key));
         const hasDeletions = deletionQueue.length > 0;
 
         /*
@@ -395,9 +398,7 @@ export default {
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
             criteria.addAssociation('sections.blocks');
-            criteria.getAssociation('sections.blocks')
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('slots');
+            criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
 
             return this.cmsPageRepository.search(criteria).then((response) => {
                 const cmsPage = response.get(cmsPageId);
@@ -447,7 +448,8 @@ export default {
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
             criteria.addAssociation('sections.blocks');
-            criteria.getAssociation('sections.blocks')
+            criteria
+                .getAssociation('sections.blocks')
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .getAssociation('slots')
                 .addAssociation('translations');
@@ -498,8 +500,9 @@ export default {
                     return;
                 }
 
-
-                Shopware.State.commit('shopwareApps/setSelectedIds', [this.landingPageId]);
+                Shopware.State.commit('shopwareApps/setSelectedIds', [
+                    this.landingPageId,
+                ]);
                 await Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -526,23 +529,25 @@ export default {
             if (this.categoryId === null) {
                 Shopware.State.commit('shopwareApps/setSelectedIds', []);
 
-                return Shopware.State.dispatch('swCategoryDetail/setActiveCategory', { category: null })
-                    .then(() => {
-                        this.cmsPageState.resetCmsPageState();
-                        this.isLoading = false;
-                    });
+                return Shopware.State.dispatch('swCategoryDetail/setActiveCategory', { category: null }).then(() => {
+                    this.cmsPageState.resetCmsPageState();
+                    this.isLoading = false;
+                });
             }
 
-            Shopware.State.commit('shopwareApps/setSelectedIds', [this.categoryId]);
+            Shopware.State.commit('shopwareApps/setSelectedIds', [
+                this.categoryId,
+            ]);
             return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
                 repository: this.categoryRepository,
                 apiContext: Shopware.Context.api,
                 id: this.categoryId,
                 criteria: this.categoryCriteria,
-            }).then(() => {
-                this.cmsPageState.resetCmsPageState();
-                return Promise.resolve();
             })
+                .then(() => {
+                    this.cmsPageState.resetCmsPageState();
+                    return Promise.resolve();
+                })
                 .then(this.getAssignedCmsPage)
                 .then(this.loadCustomFieldSet)
                 .then(() => {
@@ -553,10 +558,12 @@ export default {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria)
+            return this.customFieldSetRepository
+                .search(this.customFieldSetCriteria)
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isCustomFieldLoading = true;
                 });
         },
@@ -564,10 +571,12 @@ export default {
         loadLandingPageCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository.search(this.customFieldSetLandingPageCriteria)
+            return this.customFieldSetRepository
+                .search(this.customFieldSetLandingPageCriteria)
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isCustomFieldLoading = true;
                 });
         },
@@ -588,16 +597,18 @@ export default {
 
         onLeaveModalConfirm(destination) {
             // Discard all category related errors that may have occurred
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                { expression: 'category' },
-            );
+            Shopware.State.dispatch('error/removeApiError', {
+                expression: 'category',
+            });
 
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
 
             this.$nextTick(() => {
-                this.$router.push({ name: destination.name, params: destination.params });
+                this.$router.push({
+                    name: destination.name,
+                    params: destination.params,
+                });
             });
         },
 
@@ -666,20 +677,21 @@ export default {
                 this.category.cmsPageId = null;
             }
 
-            return this.categoryRepository.save(this.category, { ...Shopware.Context.api }).then(() => {
-                this.isSaveSuccessful = true;
-                this.entryPointOverwriteConfirmed = false;
-                return this.setCategory();
-            }).catch(() => {
-                this.isLoading = false;
-                this.entryPointOverwriteConfirmed = false;
+            return this.categoryRepository
+                .save(this.category, { ...Shopware.Context.api })
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.entryPointOverwriteConfirmed = false;
+                    return this.setCategory();
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.entryPointOverwriteConfirmed = false;
 
-                this.createNotificationError({
-                    message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                    ),
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    });
                 });
-            });
         },
 
         checkForEntryPointOverwrite() {
@@ -734,53 +746,50 @@ export default {
             }
 
             this.isLoading = true;
-            return this.landingPageRepository.save(this.landingPage, Shopware.Context.api).then(() => {
-                this.isSaveSuccessful = true;
+            return this.landingPageRepository
+                .save(this.landingPage, Shopware.Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                if (this.landingPageId === 'create') {
-                    this.$router.push({ name: 'sw.category.landingPageDetail', params: { id: this.landingPage.id } });
-                    return Promise.resolve();
-                }
+                    if (this.landingPageId === 'create') {
+                        this.$router.push({
+                            name: 'sw.category.landingPageDetail',
+                            params: { id: this.landingPage.id },
+                        });
+                        return Promise.resolve();
+                    }
 
-                return this.setLandingPage();
-            }).catch(() => {
-                this.isLoading = false;
+                    return this.setLandingPage();
+                })
+                .catch(() => {
+                    this.isLoading = false;
 
-                if (this.landingPage.salesChannels.length === 0) {
-                    this.addLandingPageSalesChannelError();
+                    if (this.landingPage.salesChannels.length === 0) {
+                        this.addLandingPageSalesChannelError();
 
-                    return;
-                }
+                        return;
+                    }
 
-                this.createNotificationError({
-                    message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                    ),
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    });
                 });
-            });
         },
 
         addLandingPageSalesChannelError() {
-            const shopwareError = new Shopware.Classes.ShopwareError(
-                {
-                    code: 'landing_page_sales_channel_blank',
-                    detail: 'This value should not be blank.',
-                    status: '400',
-                },
-            );
+            const shopwareError = new Shopware.Classes.ShopwareError({
+                code: 'landing_page_sales_channel_blank',
+                detail: 'This value should not be blank.',
+                status: '400',
+            });
 
-            Shopware.State.dispatch(
-                'error/addApiError',
-                {
-                    expression: `landing_page.${this.landingPage.id}.salesChannels`,
-                    error: shopwareError,
-                },
-            );
+            Shopware.State.dispatch('error/addApiError', {
+                expression: `landing_page.${this.landingPage.id}.salesChannels`,
+                error: shopwareError,
+            });
 
             this.createNotificationError({
-                message: this.$tc(
-                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                ),
+                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 
@@ -858,14 +867,16 @@ export default {
 
             const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
 
-            return Promise.all(seoUrls.map((seoUrl) => {
-                if (seoUrl.seoPathInfo) {
-                    seoUrl.isModified = true;
-                    return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
-                }
+            return Promise.all(
+                seoUrls.map((seoUrl) => {
+                    if (seoUrl.seoPathInfo) {
+                        seoUrl.isModified = true;
+                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                    }
 
-                return Promise.resolve();
-            }));
+                    return Promise.resolve();
+                }),
+            );
         },
 
         onLandingPageDelete() {

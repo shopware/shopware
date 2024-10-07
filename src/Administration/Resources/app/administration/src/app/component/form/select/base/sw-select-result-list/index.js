@@ -48,9 +48,14 @@ Component.register('sw-select-result-list', {
         },
 
         focusEl: {
-            type: [HTMLDocument, HTMLElement],
+            type: [
+                HTMLDocument,
+                HTMLElement,
+            ],
             required: false,
-            default() { return document; },
+            default() {
+                return document;
+            },
         },
 
         isLoading: {
@@ -87,7 +92,10 @@ Component.register('sw-select-result-list', {
         },
 
         popoverClass() {
-            return [...this.popoverClasses, 'sw-select-result-list-popover-wrapper'];
+            return [
+                ...this.popoverClasses,
+                'sw-select-result-list-popover-wrapper',
+            ];
         },
     },
 

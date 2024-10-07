@@ -84,7 +84,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-card': await wrapTestComponent('sw-card', {
+                    sync: true,
+                }),
                 'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
@@ -102,18 +104,29 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': true,
-                'sw-context-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-context-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', { sync: true }),
+                'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', {
+                    sync: true,
+                }),
                 'sw-order-send-document-modal': true,
-                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', { sync: true }),
+                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', {
+                    sync: true,
+                }),
                 'sw-order-document-settings-delivery-note-modal': true,
                 // eslint-disable-next-line max-len
-                'sw-order-document-settings-invoice-modal': await wrapTestComponent('sw-order-document-settings-invoice-modal', { sync: true }),
+                'sw-order-document-settings-invoice-modal': await wrapTestComponent(
+                    'sw-order-document-settings-invoice-modal',
+                    { sync: true },
+                ),
                 'sw-order-document-settings-credit-note-modal': true,
                 'sw-order-document-settings-storno-modal': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
                 'sw-data-grid-column-boolean': {
                     props: ['value'],
                     template: '<div class="sw-data-grid-column-boolean"><slot></slot></div>',
@@ -146,16 +159,20 @@ async function createWrapper() {
             provide: {
                 documentService: {
                     setListener: () => ({}),
-                    getDocument: () => Promise.resolve({
-                        headers: {
-                            'content-disposition': 'attachment; filename=dummny.pdf',
-                        },
-                        data: 'https://shopware.test/dummny.pdf',
-                    }),
-                    createDocument: () => Promise.resolve({ data: {
-                        documentId: '1234',
-                        documentDeepLink: '12341234',
-                    } }),
+                    getDocument: () =>
+                        Promise.resolve({
+                            headers: {
+                                'content-disposition': 'attachment; filename=dummny.pdf',
+                            },
+                            data: 'https://shopware.test/dummny.pdf',
+                        }),
+                    createDocument: () =>
+                        Promise.resolve({
+                            data: {
+                                documentId: '1234',
+                                documentDeepLink: '12341234',
+                            },
+                        }),
                 },
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: 1000 }),
@@ -242,7 +259,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should not have an disabled create new button', async () => {
-        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
         wrapper = await createWrapper();
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
@@ -376,7 +396,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Select document type modal when click on Create new button', async () => {
-        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
         wrapper = await createWrapper();
 
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
@@ -601,7 +624,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             showModal: true,
         });
 
-
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
         await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
         await flushPromises();
@@ -620,7 +642,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show order unsaved tooltip message on Create document button correctly', async () => {
-        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
         wrapper = await createWrapper();
 
         Shopware.State.commit('swOrderDetail/setEditing', true);
@@ -646,11 +671,19 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.documentCriteria.queries).toEqual([
             {
                 score: 500,
-                query: { type: 'contains', field: 'config.documentDate', value: '1000' },
+                query: {
+                    type: 'contains',
+                    field: 'config.documentDate',
+                    value: '1000',
+                },
             },
             {
                 score: 500,
-                query: { type: 'equals', field: 'config.documentNumber', value: '1000' },
+                query: {
+                    type: 'equals',
+                    field: 'config.documentNumber',
+                    value: '1000',
+                },
             },
         ]);
     });

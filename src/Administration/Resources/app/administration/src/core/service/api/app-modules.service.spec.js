@@ -28,7 +28,7 @@ const exampleModule = {
                 'en-GB': 'Order list',
             },
             /* eslint-disable-next-line */
-            source: 'example/iframe/orderlist?shop-id=L5RW86IMxHFLkj4S&shop-url=http://localhost:8000&timestamp=1602699100&shopware-shop-signature=b00fd4a7d90616ff49580b78b9ad4f3855d7c11b673ccc0d2894daeb3caa1d04'
+            source: 'example/iframe/orderlist?shop-id=L5RW86IMxHFLkj4S&shop-url=http://localhost:8000&timestamp=1602699100&shopware-shop-signature=b00fd4a7d90616ff49580b78b9ad4f3855d7c11b673ccc0d2894daeb3caa1d04',
         },
     ],
 };
@@ -45,12 +45,9 @@ describe('appModulesService', () => {
         // const appModulesService = Shopware.Service('appActionButton');
         const { appModulesService, clientMock } = createAppModulesService();
 
-        clientMock.onGet('/app-system/modules').reply(
-            200,
-            {
-                modules: [exampleModule],
-            },
-        );
+        clientMock.onGet('/app-system/modules').reply(200, {
+            modules: [exampleModule],
+        });
 
         const modules = await appModulesService.fetchAppModules();
 

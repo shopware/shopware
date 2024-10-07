@@ -127,7 +127,9 @@ describe('app/component/form/sw-number-field-deprecated', () => {
     });
 
     it('should fill digits when appropriate', async () => {
-        const wrapper = await createWrapper({ propsData: { fillDigits: true } });
+        const wrapper = await createWrapper({
+            propsData: { fillDigits: true },
+        });
         await flushPromises();
 
         const input = wrapper.find('input');
@@ -349,7 +351,9 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         const input = wrapper.find('input');
         await input.setValue('5.');
 
-        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[true]]);
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
+            [true],
+        ]);
     });
 
     it('should emit "ends-with-decimal-separator" event with false value when input does not end with decimal separator', async () => {
@@ -359,6 +363,8 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         const input = wrapper.find('input');
         await input.setValue('5');
 
-        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[false]]);
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
+            [false],
+        ]);
     });
 });

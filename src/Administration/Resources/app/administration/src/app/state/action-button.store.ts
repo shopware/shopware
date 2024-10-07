@@ -6,10 +6,10 @@
 import type { Module } from 'vuex';
 import type { actionButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
 
-type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>
+type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>;
 
 interface ActionButtonState {
-    buttons: Array<ActionButtonConfig>,
+    buttons: Array<ActionButtonConfig>;
 }
 
 const ActionButtonStore: Module<ActionButtonState, VuexRootState> = {

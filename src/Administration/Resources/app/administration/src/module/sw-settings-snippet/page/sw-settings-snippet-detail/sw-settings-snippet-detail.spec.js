@@ -94,94 +94,97 @@ function getSnippets() {
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     async function createWrapper(privileges = []) {
-        return mount(await wrapTestComponent('sw-settings-snippet-detail', {
-            sync: true,
-        }), {
-            global: {
-                mocks: {
-                    $route: {
-                        meta: {
-                            $module: {
-                                color: 'blue',
-                                icon: 'icon',
+        return mount(
+            await wrapTestComponent('sw-settings-snippet-detail', {
+                sync: true,
+            }),
+            {
+                global: {
+                    mocks: {
+                        $route: {
+                            meta: {
+                                $module: {
+                                    color: 'blue',
+                                    icon: 'icon',
+                                },
+                            },
+                            query: {
+                                page: 1,
+                                limit: 25,
+                                ids: [],
+                            },
+                            params: {
+                                key: 'account.addressCreateBtn',
                             },
                         },
-                        query: {
-                            page: 1,
-                            limit: 25,
-                            ids: [],
-                        },
-                        params: {
-                            key: 'account.addressCreateBtn',
-                        },
                     },
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: () => ({
-                            search: () => Promise.resolve(getSnippetSets()),
-                            create: () => Promise.resolve(),
-                            save: () => Promise.resolve(),
-                        }),
-                    },
-                    acl: {
-                        can: (identifier) => {
-                            if (!identifier) {
-                                return true;
-                            }
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve(getSnippetSets()),
+                                create: () => Promise.resolve(),
+                                save: () => Promise.resolve(),
+                            }),
+                        },
+                        acl: {
+                            can: (identifier) => {
+                                if (!identifier) {
+                                    return true;
+                                }
 
-                            return privileges.includes(identifier);
+                                return privileges.includes(identifier);
+                            },
                         },
-                    },
-                    userService: {},
-                    snippetSetService: {
-                        getAuthors: () => {
-                            return Promise.resolve();
+                        userService: {},
+                        snippetSetService: {
+                            getAuthors: () => {
+                                return Promise.resolve();
+                            },
+                            getCustomList: () => {
+                                return Promise.resolve(getSnippets());
+                            },
                         },
-                        getCustomList: () => {
-                            return Promise.resolve(getSnippets());
+                        snippetService: {
+                            save: () => Promise.resolve(),
+                            delete: () => Promise.resolve(),
+                            getFilter: () => Promise.resolve(),
                         },
+                        validationService: {},
                     },
-                    snippetService: {
-                        save: () => Promise.resolve(),
-                        delete: () => Promise.resolve(),
-                        getFilter: () => Promise.resolve(),
+                    stubs: {
+                        'sw-page': await wrapTestComponent('sw-page'),
+                        'sw-card': await wrapTestComponent('sw-card'),
+                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                        'sw-card-view': await wrapTestComponent('sw-card-view'),
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': await wrapTestComponent('sw-field-error'),
+                        'sw-button-process': await wrapTestComponent('sw-button-process'),
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-skeleton': true,
+                        'sw-search-bar': true,
+                        'sw-icon': true,
+                        'router-link': true,
+                        'sw-app-actions': true,
+                        'sw-loader': true,
+                        'sw-error-summary': true,
+                        'sw-app-topbar-button': true,
+                        'sw-notification-center': true,
+                        'sw-help-center-v2': true,
+                        'sw-context-button': true,
+                        'sw-extension-component-section': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-help-text': true,
                     },
-                    validationService: {},
-                },
-                stubs: {
-                    'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-card-view': await wrapTestComponent('sw-card-view'),
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-skeleton': true,
-                    'sw-search-bar': true,
-                    'sw-icon': true,
-                    'router-link': true,
-                    'sw-app-actions': true,
-                    'sw-loader': true,
-                    'sw-error-summary': true,
-                    'sw-app-topbar-button': true,
-                    'sw-notification-center': true,
-                    'sw-help-center-v2': true,
-                    'sw-context-button': true,
-                    'sw-extension-component-section': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-help-text': true,
                 },
             },
-        });
+        );
     }
 
     beforeEach(() => {
@@ -195,10 +198,22 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     });
 
     it.each([
-        ['', 'snippet.viewer'],
-        [undefined, 'snippet.viewer, snippet.editor'],
-        [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
-        [undefined, 'snippet.viewer, snippet.editor, snippet.deleter'],
+        [
+            '',
+            'snippet.viewer',
+        ],
+        [
+            undefined,
+            'snippet.viewer, snippet.editor',
+        ],
+        [
+            undefined,
+            'snippet.viewer, snippet.editor, snippet.creator',
+        ],
+        [
+            undefined,
+            'snippet.viewer, snippet.editor, snippet.deleter',
+        ],
     ])('should only have disabled inputs', async (state, role) => {
         Shopware.State.get('session').currentUser = {
             username: 'testUser',
@@ -212,7 +227,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         });
         await flushPromises();
 
-        const [firstInput, secondInput] = wrapper.findAll('input[label="sw-settings-snippet.detail.labelContent"]');
+        const [
+            firstInput,
+            secondInput,
+        ] = wrapper.findAll('input[label="sw-settings-snippet.detail.labelContent"]');
 
         expect(firstInput.attributes('disabled')).toBe(state);
         expect(secondInput.attributes('disabled')).toBe(state);
@@ -228,7 +246,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     });
 
     it('should change translationKey while saving', async () => {
-        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor', 'snippet.creator']);
+        const wrapper = await createWrapper([
+            'snippet.viewer',
+            'snippet.editor',
+            'snippet.creator',
+        ]);
         await flushPromises();
 
         await wrapper.setData({

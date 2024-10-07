@@ -49,7 +49,7 @@ Shopware.Service('cmsService').registerCmsElement({
                 name: '1-3 days',
             },
             price: [
-                { gross: 0.00 },
+                { gross: 0.0 },
             ],
         },
     },

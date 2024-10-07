@@ -37,7 +37,10 @@ export default {
             context.children.default(),
         );
 
-        return [title, description];
+        return [
+            title,
+            description,
+        ];
     },
 
     props: {

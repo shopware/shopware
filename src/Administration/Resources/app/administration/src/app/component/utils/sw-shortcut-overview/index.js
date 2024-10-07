@@ -156,7 +156,6 @@ Component.register('sw-shortcut-overview', {
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPlugins'),
                         privilege: 'system.plugin_maintain',
                     },
-
                 ],
 
                 specialShortcuts: [

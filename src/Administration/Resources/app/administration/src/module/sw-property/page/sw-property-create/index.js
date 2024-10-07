@@ -39,7 +39,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.property.detail', params: { id: this.newId } });
+            this.$router.push({
+                name: 'sw.property.detail',
+                params: { id: this.newId },
+            });
         },
 
         onSave() {

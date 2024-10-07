@@ -16,10 +16,10 @@ const { Component, State, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface GridColumn {
-    property: string,
-    dataIndex?: string,
-    label: string,
-    primary?: boolean,
+    property: string;
+    dataIndex?: string;
+    label: string;
+    primary?: boolean;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -28,7 +28,10 @@ export default Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -36,17 +39,17 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        customers: EntityCollection<'customer'>|null,
-        isLoading: boolean,
-        isSwitchingCustomer: boolean,
-        showNewCustomerModal: boolean,
-        customer: Entity<'customer'>|null,
-        disableRouteParams: boolean,
-        showSalesChannelSelectModal: boolean,
-        showCustomerChangesModal: boolean,
-        salesChannelIds: string[],
-        customerDraft: Entity<'customer'>|null,
-        } {
+        customers: EntityCollection<'customer'> | null;
+        isLoading: boolean;
+        isSwitchingCustomer: boolean;
+        showNewCustomerModal: boolean;
+        customer: Entity<'customer'> | null;
+        disableRouteParams: boolean;
+        showSalesChannelSelectModal: boolean;
+        showCustomerChangesModal: boolean;
+        salesChannelIds: string[];
+        customerDraft: Entity<'customer'> | null;
+    } {
         return {
             customers: null,
             isLoading: false,
@@ -62,7 +65,7 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        customerData(): Entity<'customer'>| null {
+        customerData(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
@@ -110,25 +113,30 @@ export default Component.wrapComponentConfig({
         },
 
         customerColumns(): GridColumn[] {
-            return [{
-                property: 'select',
-                label: '',
-            }, {
-                property: 'firstName',
-                dataIndex: 'lastName,firstName',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
-                primary: true,
-            }, {
-                property: 'customerNumber',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
-            },
-            {
-                property: 'salesChannel',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
-            }, {
-                property: 'email',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
-            }];
+            return [
+                {
+                    property: 'select',
+                    label: '',
+                },
+                {
+                    property: 'firstName',
+                    dataIndex: 'lastName,firstName',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
+                    primary: true,
+                },
+                {
+                    property: 'customerNumber',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+                },
+                {
+                    property: 'salesChannel',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
+                },
+                {
+                    property: 'email',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
+                },
+            ];
         },
 
         showEmptyState(): boolean {
@@ -195,12 +203,14 @@ export default Component.wrapComponentConfig({
 
         getList(): Promise<void> {
             this.isLoading = true;
-            return this.customerRepository.search(this.customerCriteria)
+            return this.customerRepository
+                .search(this.customerCriteria)
                 .then((customers) => {
                     this.customers = customers;
                     // @ts-expect-error
                     this.total = customers.total;
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -219,8 +229,7 @@ export default Component.wrapComponentConfig({
                 this.customerDraft = this.customer;
             }
 
-            this.customer = await this.customerRepository
-                .get(item.id, Context.api, this.customerCriterion);
+            this.customer = await this.customerRepository.get(item.id, Context.api, this.customerCriterion);
 
             const isExists = (this.customer?.salesChannel?.languages || []).some(
                 (language) => language.id === Context.api.systemLanguageId,
@@ -261,7 +270,7 @@ export default Component.wrapComponentConfig({
             return State.dispatch('swOrder/createCart', { salesChannelId });
         },
 
-        setCustomer(customer: Entity<'customer'>|null): void {
+        setCustomer(customer: Entity<'customer'> | null): void {
             void State.dispatch('swOrder/selectExistingCustomer', { customer });
         },
 

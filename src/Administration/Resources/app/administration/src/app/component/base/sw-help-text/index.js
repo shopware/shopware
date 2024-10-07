@@ -33,9 +33,19 @@ Component.register('sw-help-text', {
             type: String,
             required: false,
             default: 'top',
-            validValues: ['top', 'bottom', 'left', 'right'],
+            validValues: [
+                'top',
+                'bottom',
+                'left',
+                'right',
+            ],
             validator(value) {
-                return ['top', 'bottom', 'left', 'right'].includes(value);
+                return [
+                    'top',
+                    'bottom',
+                    'left',
+                    'right',
+                ].includes(value);
             },
         },
         showDelay: {

@@ -15,14 +15,17 @@ export default Shopware.Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl', 'repositoryFactory'],
+    inject: [
+        'acl',
+        'repositoryFactory',
+    ],
 
     data(): {
-        isLoading: boolean,
-        term: string,
-        total: number,
-        showUploadModal: boolean,
-        } {
+        isLoading: boolean;
+        term: string;
+        total: number;
+        showUploadModal: boolean;
+    } {
         return {
             isLoading: false,
             term: '',

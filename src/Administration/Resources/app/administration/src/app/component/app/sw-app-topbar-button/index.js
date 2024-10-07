@@ -30,4 +30,3 @@ Component.register('sw-app-topbar-button', {
         },
     },
 });
-

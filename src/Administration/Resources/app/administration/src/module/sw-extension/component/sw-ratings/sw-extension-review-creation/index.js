@@ -62,8 +62,7 @@ export default {
         },
 
         hasError() {
-            return this.errors.headlineError !== null
-                || this.errors.ratingError !== null;
+            return this.errors.headlineError !== null || this.errors.ratingError !== null;
         },
 
         disabled() {

@@ -4,37 +4,40 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsOverride) {
-    return mount(await wrapTestComponent('sw-cms-el-product-name', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                config: {
-                    content: {
-                        source: 'static',
-                        value: null,
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null,
+    return mount(
+        await wrapTestComponent('sw-cms-el-product-name', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    config: {
+                        content: {
+                            source: 'static',
+                            value: null,
+                        },
+                        verticalAlign: {
+                            source: 'static',
+                            value: null,
+                        },
                     },
                 },
+                defaultConfig: {},
+                ...propsOverride,
             },
-            defaultConfig: {},
-            ...propsOverride,
+            global: {
+                mocks: {
+                    $sanitize: (key) => key,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-text-editor': true,
+                },
+            },
         },
-        global: {
-            mocks: {
-                $sanitize: key => key,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-            stubs: {
-                'sw-text-editor': true,
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/product-name/component', () => {

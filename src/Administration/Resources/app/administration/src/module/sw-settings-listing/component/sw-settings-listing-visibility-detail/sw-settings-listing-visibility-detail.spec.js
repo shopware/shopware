@@ -7,7 +7,10 @@ import { mount } from '@vue/test-utils';
 // Turn off known errors
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
-global.allowedErrors = [...global.allowedErrors, unknownOptionError];
+global.allowedErrors = [
+    ...global.allowedErrors,
+    unknownOptionError,
+];
 
 const defaultSalesChannel = {
     name: 'Headless',
@@ -21,13 +24,7 @@ const defaultProps = {
 };
 
 function createEntityCollection(entities = []) {
-    return new Shopware.Data.EntityCollection(
-        'sales_channel',
-        'sales_channel',
-        {},
-        null,
-        entities,
-    );
+    return new Shopware.Data.EntityCollection('sales_channel', 'sales_channel', {}, null, entities);
 }
 
 async function createWrapper(props = defaultProps) {
@@ -45,7 +42,9 @@ async function createWrapper(props = defaultProps) {
                         create: () => ({
                             search: () => {
                                 return Promise.resolve(
-                                    createEntityCollection([...props.salesChannels]),
+                                    createEntityCollection([
+                                        ...props.salesChannels,
+                                    ]),
                                 );
                             },
                         }),

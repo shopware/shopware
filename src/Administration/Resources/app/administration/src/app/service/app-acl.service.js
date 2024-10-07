@@ -21,41 +21,44 @@ export default class AppAclService {
         criteria.addFilter(Criteria.equals('app.active', true));
         const dependencies = [];
 
-        return this._appRepository.search(criteria).then(apps => {
-            return apps.map(app => {
-                dependencies.push(`app.${app.name}`);
+        return this._appRepository
+            .search(criteria)
+            .then((apps) => {
+                return apps.map((app) => {
+                    dependencies.push(`app.${app.name}`);
 
-                return {
+                    return {
+                        category: 'additional_permissions',
+                        parent: null,
+                        key: 'app',
+                        roles: {
+                            [app.name]: {
+                                privileges: [],
+                                dependencies: [],
+                            },
+                        },
+                    };
+                });
+            })
+            .then((appPermission) => {
+                appPermission.push({
                     category: 'additional_permissions',
                     parent: null,
                     key: 'app',
                     roles: {
-                        [app.name]: {
+                        all: {
                             privileges: [],
-                            dependencies: [],
+                            dependencies,
                         },
                     },
-                };
-            });
-        }).then((appPermission) => {
-            appPermission.push({
-                category: 'additional_permissions',
-                parent: null,
-                key: 'app',
-                roles: {
-                    all: {
-                        privileges: [],
-                        dependencies,
-                    },
-                },
-            });
+                });
 
-            return appPermission;
-        });
+                return appPermission;
+            });
     }
 
     addAppPermissions() {
-        return this.getAppPermissions().then(response => {
+        return this.getAppPermissions().then((response) => {
             this._privileges.addPrivilegeMappingEntries(response);
         });
     }

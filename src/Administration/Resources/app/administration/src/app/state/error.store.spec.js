@@ -2,13 +2,15 @@ import instance from './error.store';
 
 describe('Test actions at file src/app/state/error.store.js', () => {
     it('addApiError', () => {
-        const expectedMutations = [{
-            type: 'addApiError',
-            payload: {
-                expression: 'dummy expression',
-                error: 'dummy error',
+        const expectedMutations = [
+            {
+                type: 'addApiError',
+                payload: {
+                    expression: 'dummy expression',
+                    error: 'dummy error',
+                },
             },
-        }];
+        ];
 
         let count = 0;
         const commit = (commitType, commitPayload) => {
@@ -28,10 +30,12 @@ describe('Test actions at file src/app/state/error.store.js', () => {
     });
 
     it('resetApiErrors', () => {
-        const expectedMutations = [{
-            type: 'resetApiErrors',
-            payload: undefined,
-        }];
+        const expectedMutations = [
+            {
+                type: 'resetApiErrors',
+                payload: undefined,
+            },
+        ];
 
         let count = 0;
         const commit = (commitType, commitPayload) => {
@@ -51,12 +55,14 @@ describe('Test actions at file src/app/state/error.store.js', () => {
     });
 
     it('removeApiError', () => {
-        const expectedMutations = [{
-            type: 'removeApiError',
-            payload: {
-                expression: 'dummy expression',
+        const expectedMutations = [
+            {
+                type: 'removeApiError',
+                payload: {
+                    expression: 'dummy expression',
+                },
             },
-        }];
+        ];
 
         let count = 0;
         const commit = (commitType, commitPayload) => {
@@ -76,12 +82,14 @@ describe('Test actions at file src/app/state/error.store.js', () => {
     });
 
     it('removeSystemError', () => {
-        const expectedMutations = [{
-            type: 'removeSystemError',
-            payload: {
-                id: 'dummy id',
+        const expectedMutations = [
+            {
+                type: 'removeSystemError',
+                payload: {
+                    id: 'dummy id',
+                },
             },
-        }];
+        ];
 
         let count = 0;
         const commit = (commitType, commitPayload) => {
@@ -133,15 +141,22 @@ describe('Test mutations at file src/app/state/error.store.js', () => {
     });
 
     it('removeApiError', () => {
-        instance.mutations.removeApiError(state, { expression: 'dummy.expression' });
+        instance.mutations.removeApiError(state, {
+            expression: 'dummy.expression',
+        });
 
         expect(state.api).toEqual({});
     });
 
     it('addApiError', () => {
-        instance.mutations.addApiError(state, { expression: 'dummy.expression', error: {} });
+        instance.mutations.addApiError(state, {
+            expression: 'dummy.expression',
+            error: {},
+        });
 
-        expect(state.api).toEqual({ dummy: { expression: { selfLink: 'dummy.expression' } } });
+        expect(state.api).toEqual({
+            dummy: { expression: { selfLink: 'dummy.expression' } },
+        });
     });
 
     it('resetApiErrors', () => {
@@ -151,7 +166,10 @@ describe('Test mutations at file src/app/state/error.store.js', () => {
     });
 
     it('addSystemError', () => {
-        instance.mutations.addSystemError(state, { id: 'dummy id', error: { code: 'dummy code' } });
+        instance.mutations.addSystemError(state, {
+            id: 'dummy id',
+            error: { code: 'dummy code' },
+        });
 
         expect(state.system).toEqual({ 'dummy id': { code: 'dummy code' } });
     });
@@ -212,14 +230,19 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     });
 
     it('getApiErrorFromPath', () => {
-        const spy = jest.spyOn({
-            getErrorsForEntity: () => {
-                return {};
+        const spy = jest.spyOn(
+            {
+                getErrorsForEntity: () => {
+                    return {};
+                },
             },
-        }, 'getErrorsForEntity');
+            'getErrorsForEntity',
+        );
         spy.mockReturnValue({ 0: { age: { selfLink: 'dummy.expression' } } });
 
-        const result = instance.getters.getApiErrorFromPath(state, { getErrorsForEntity: spy })('dummyEntityName', 'dummyId', [
+        const result = instance.getters.getApiErrorFromPath(state, {
+            getErrorsForEntity: spy,
+        })('dummyEntityName', 'dummyId', [
             '0',
             'age',
         ]);
@@ -228,14 +251,19 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     });
 
     it('getApiErrorFromPath with empty', () => {
-        const spy = jest.spyOn({
-            getErrorsForEntity: () => {
-                return {};
+        const spy = jest.spyOn(
+            {
+                getErrorsForEntity: () => {
+                    return {};
+                },
             },
-        }, 'getErrorsForEntity');
+            'getErrorsForEntity',
+        );
         spy.mockReturnValue({ 0: { age: { selfLink: 'dummy.expression' } } });
 
-        const result = instance.getters.getApiErrorFromPath(state, { getErrorsForEntity: spy })('dummyEntityName', 'dummyId', [
+        const result = instance.getters.getApiErrorFromPath(state, {
+            getErrorsForEntity: spy,
+        })('dummyEntityName', 'dummyId', [
             'empty field',
             'empty field 2',
         ]);
@@ -250,66 +278,91 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         };
         const field = '0.age';
 
-        const spy = jest.spyOn({
-            getApiErrorFromPath: () => {
-                return {};
+        const spy = jest.spyOn(
+            {
+                getApiErrorFromPath: () => {
+                    return {};
+                },
             },
-        }, 'getApiErrorFromPath');
+            'getApiErrorFromPath',
+        );
         spy.mockReturnValue({ selfLink: 'dummy.expression' });
 
-        const result = instance.getters.getApiError(state, { getApiErrorFromPath: spy })(entity, field);
+        const result = instance.getters.getApiError(state, {
+            getApiErrorFromPath: spy,
+        })(entity, field);
 
         expect(result).toEqual({ selfLink: 'dummy.expression' });
     });
 
     it('getSystemConfigApiError', () => {
-        const spy = jest.spyOn({
-            getErrorsForEntity: () => {
-                return {
-                    dummyKey: { error: 'dummy error' },
-                };
+        const spy = jest.spyOn(
+            {
+                getErrorsForEntity: () => {
+                    return {
+                        dummyKey: { error: 'dummy error' },
+                    };
+                },
             },
-        }, 'getErrorsForEntity');
+            'getErrorsForEntity',
+        );
 
-        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
+        const result = instance.getters.getSystemConfigApiError(state, {
+            getErrorsForEntity: spy,
+        })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
 
         expect(result).toEqual({ error: 'dummy error' });
     });
 
     it('getSystemConfigApiError with null entity name', () => {
-        const spy = jest.spyOn({
-            getErrorsForEntity: () => {
-                return {};
+        const spy = jest.spyOn(
+            {
+                getErrorsForEntity: () => {
+                    return {};
+                },
             },
-        }, 'getErrorsForEntity');
+            'getErrorsForEntity',
+        );
 
-        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('empty entity name', 'dummySaleChannelId', 'dummyKey');
+        const result = instance.getters.getSystemConfigApiError(state, {
+            getErrorsForEntity: spy,
+        })('empty entity name', 'dummySaleChannelId', 'dummyKey');
 
         expect(result).toBeNull();
     });
 
     it('getSystemConfigApiError with null key', () => {
-        const spy = jest.spyOn({
-            getErrorsForEntity: () => {
-                return {
-                    dummyKey: { error: 'dummy error' },
-                };
+        const spy = jest.spyOn(
+            {
+                getErrorsForEntity: () => {
+                    return {
+                        dummyKey: { error: 'dummy error' },
+                    };
+                },
             },
-        }, 'getErrorsForEntity');
+            'getErrorsForEntity',
+        );
 
-        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'empty key');
+        const result = instance.getters.getSystemConfigApiError(state, {
+            getErrorsForEntity: spy,
+        })('dummySystemConfig', 'dummySaleChannelId', 'empty key');
 
         expect(result).toBeNull();
     });
 
     it('getSystemConfigApiError with null entity name and sale channel ud', () => {
-        const spy = jest.spyOn({
-            getErrorsForEntity: () => {
-                return null;
+        const spy = jest.spyOn(
+            {
+                getErrorsForEntity: () => {
+                    return null;
+                },
             },
-        }, 'getErrorsForEntity');
+            'getErrorsForEntity',
+        );
 
-        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
+        const result = instance.getters.getSystemConfigApiError(state, {
+            getErrorsForEntity: spy,
+        })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
 
         expect(result).toBeNull();
     });
@@ -318,7 +371,12 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         const result = instance.getters.getAllApiErrors(state)();
 
         const expected = [
-            { dummyId: { 0: { age: { selfLink: 'dummy.expression' } }, dummyField: { selfLink: 'dummy.expression' } } },
+            {
+                dummyId: {
+                    0: { age: { selfLink: 'dummy.expression' } },
+                    dummyField: { selfLink: 'dummy.expression' },
+                },
+            },
             { dummySaleChannelId: { dummyKey: { error: 'dummy error' } } },
         ];
 

@@ -46,9 +46,11 @@ class SystemConfigApiService extends ApiService {
             .get('_action/system-config', {
                 params: { domain, salesChannelId, ...additionalParams },
                 headers: this.getBasicHeaders(additionalHeaders),
-            }).then((response) => {
+            })
+            .then((response) => {
                 return ApiService.handleResponse(response);
-            }).then((data) => {
+            })
+            .then((data) => {
                 // If config is empty we will receive an empty array.
                 // We have to return an empty object instead because of reactivity
                 return Array.isArray(data) ? {} : data;
@@ -57,14 +59,10 @@ class SystemConfigApiService extends ApiService {
 
     saveValues(values, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
-            .post(
-                '_action/system-config',
-                values,
-                {
-                    params: { salesChannelId, ...additionalParams },
-                    headers: this.getBasicHeaders(additionalHeaders),
-                },
-            )
+            .post('_action/system-config', values, {
+                params: { salesChannelId, ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -72,19 +70,15 @@ class SystemConfigApiService extends ApiService {
 
     batchSave(values, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
-            .post(
-                '_action/system-config/batch',
-                values,
-                {
-                    params: { ...additionalParams },
-                    headers: this.getBasicHeaders(additionalHeaders),
-                },
-            )
+            .post('_action/system-config/batch', values, {
+                params: { ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
             .then((response) => {
                 this.errorResolver.cleanWriteErrors();
                 return ApiService.handleResponse(response);
             })
-            .catch(errors => {
+            .catch((errors) => {
                 this.errorResolver.handleWriteErrors(errors?.response?.data?.errors);
                 throw errors;
             });

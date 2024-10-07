@@ -22,7 +22,10 @@ export default {
 
     props: {
         activeMedia: {
-            type: [Object, null],
+            type: [
+                Object,
+                null,
+            ],
             required: false,
             default: null,
         },
@@ -71,8 +74,7 @@ export default {
         },
 
         styles() {
-            if (this.element.config.displayMode.value === 'cover' &&
-                this.element.config.minHeight.value !== 0) {
+            if (this.element.config.displayMode.value === 'cover' && this.element.config.minHeight.value !== 0) {
                 return {
                     'min-height': this.element.config.minHeight.value,
                 };

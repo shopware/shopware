@@ -35,15 +35,13 @@ describe('system-config.api.service', () => {
     });
 
     it('returns the config from api', async () => {
-        axiosMock.onGet(
-            '_action/system-config',
-            {
+        axiosMock
+            .onGet('_action/system-config', {
                 params: {
                     salesChannelId: null,
                     domain: 'system-config.domain',
                 },
-            },
-        )
+            })
             .reply(200, {
                 'system-config.value.text': 'some-text-value',
                 'system-config.value.bool': true,
@@ -58,15 +56,13 @@ describe('system-config.api.service', () => {
     });
 
     it('always return an plain object', async () => {
-        axiosMock.onGet(
-            '_action/system-config',
-            {
+        axiosMock
+            .onGet('_action/system-config', {
                 params: {
                     salesChannelId: null,
                     domain: 'system-config.domain',
                 },
-            },
-        )
+            })
             .reply(200, []);
 
         const values = await systemConfigService.getValues('system-config.domain', null);
@@ -88,10 +84,7 @@ describe('Test function batchSave at file src/core/service/api/system-config.api
     });
 
     it('should successfully', async () => {
-        axiosMock.onPost(
-            '_action/system-config/batch',
-        )
-            .reply(200, {});
+        axiosMock.onPost('_action/system-config/batch').reply(200, {});
 
         const res = await systemConfigService.batchSave([]);
         expect(res).toEqual({});
@@ -110,8 +103,7 @@ describe('Test getConfig at file src/core/service/api/system-config.api.service.
     });
 
     it('should successfully', async () => {
-        axiosMock.onGet('_action/system-config/schema')
-            .reply(200, {});
+        axiosMock.onGet('_action/system-config/schema').reply(200, {});
 
         const res = await systemConfigService.getConfig('dummy.domain');
 
@@ -131,8 +123,7 @@ describe('Test checkConfig at file src/core/service/api/system-config.api.servic
     });
 
     it('should successfully', async () => {
-        axiosMock.onGet('_action/system-config/check')
-            .reply(200, {});
+        axiosMock.onGet('_action/system-config/check').reply(200, {});
 
         const res = await systemConfigService.checkConfig('dummy.domain');
 

@@ -1,17 +1,17 @@
 type CmsPageState = {
-    currentPage: null | EntitySchema.Entity<'cms_page'>,
-    currentPageType: null | string,
-    currentMappingEntity: null | string,
-    currentMappingTypes: Record<string, unknown>,
-    currentDemoEntity: unknown,
-    currentDemoProducts: unknown[],
-    pageEntityName: string,
-    defaultMediaFolderId: null | string,
-    currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form',
-    selectedSection: null | EntitySchema.Entity<'cms_section'>,
-    selectedBlock: null | EntitySchema.Entity<'cms_block'>,
-    isSystemDefaultLanguage: boolean,
-}
+    currentPage: null | EntitySchema.Entity<'cms_page'>;
+    currentPageType: null | string;
+    currentMappingEntity: null | string;
+    currentMappingTypes: Record<string, unknown>;
+    currentDemoEntity: unknown;
+    currentDemoProducts: unknown[];
+    pageEntityName: string;
+    defaultMediaFolderId: null | string;
+    currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form';
+    selectedSection: null | EntitySchema.Entity<'cms_section'>;
+    selectedBlock: null | EntitySchema.Entity<'cms_block'>;
+    isSystemDefaultLanguage: boolean;
+};
 
 /**
  * @private

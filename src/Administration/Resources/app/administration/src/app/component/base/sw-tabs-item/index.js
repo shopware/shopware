@@ -59,7 +59,10 @@ Component.register('sw-tabs-item', {
 
     props: {
         route: {
-            type: [String, Object],
+            type: [
+                String,
+                Object,
+            ],
             required: false,
             default: '',
         },
@@ -131,7 +134,7 @@ Component.register('sw-tabs-item', {
     },
 
     watch: {
-        '$route'() {
+        $route() {
             this.checkIfRouteMatchesLink();
         },
     },
@@ -197,7 +200,7 @@ Component.register('sw-tabs-item', {
             this.$emit('click');
         },
         checkIfActive(item) {
-            this.isActive = (item.$vnode === this.$vnode);
+            this.isActive = item.$vnode === this.$vnode;
         },
         checkIfRouteMatchesLink() {
             this.$nextTick().then(() => {

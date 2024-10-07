@@ -60,21 +60,17 @@ export default {
 
             criteria.addAssociation('options.group');
 
-            criteria.addFilter(
-                Criteria.equals('parentId', this.product.id),
-            );
+            criteria.addFilter(Criteria.equals('parentId', this.product.id));
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
 
                 // split search term by words
-                const terms = this.searchTerm
-                    .split(' ')
-                    .filter(term => {
-                        return term !== '';
-                    });
+                const terms = this.searchTerm.split(' ').filter((term) => {
+                    return term !== '';
+                });
 
-                terms.forEach(term => {
+                terms.forEach((term) => {
                     criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
                     criteria.addQuery(Criteria.contains('product.options.name', term), 500);
                 });
@@ -113,7 +109,6 @@ export default {
             'metaTitle',
         ]),
     },
-
 
     watch: {
         'product.canonicalProductId': {
@@ -176,7 +171,7 @@ export default {
 
     methods: {
         fetchVariants() {
-            return this.productRepository.search(this.variantCriteria).then(variants => {
+            return this.productRepository.search(this.variantCriteria).then((variants) => {
                 this.variants = variants;
 
                 return variants;
@@ -194,7 +189,7 @@ export default {
         onSearch(searchTerm) {
             this.searchTerm = searchTerm;
 
-            this.fetchVariants().then(variants => {
+            this.fetchVariants().then((variants) => {
                 this.$refs.canonicalProductSelect.results = variants;
 
                 this.$nextTick().then(() => {

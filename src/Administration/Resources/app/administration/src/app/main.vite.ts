@@ -103,10 +103,9 @@ Object.keys(postInitializer).forEach((key) => {
 });
 
 // Add service providers
-Application
-    .addServiceProvider('feature', () => {
-        return new FeatureService(Feature);
-    })
+Application.addServiceProvider('feature', () => {
+    return new FeatureService(Feature);
+})
     .addServiceProvider('customEntityDefinitionService', () => {
         return new CustomEntityDefinitionService();
     })
@@ -236,4 +235,3 @@ Application
     .addServiceProvider('fileValidationService', () => {
         return FileValidationService();
     });
-

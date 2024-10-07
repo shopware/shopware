@@ -53,9 +53,7 @@ export default Shopware.Component.wrapComponentConfig({
         pageTypeCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.equals('type', this.pageType),
-            );
+            criteria.addFilter(Criteria.equals('type', this.pageType));
 
             return criteria;
         },
@@ -75,12 +73,18 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         getTranslations() {
-            const translatableFields = ['label', 'placeholder', 'helpText'];
+            const translatableFields = [
+                'label',
+                'placeholder',
+                'helpText',
+            ];
 
             const translations: {
-                [key: string]: {
-                    [key: string]: string
-                } | string;
+                [key: string]:
+                    | {
+                          [key: string]: string;
+                      }
+                    | string;
             } = {};
             translatableFields.forEach((field) => {
                 const value = this.$attrs[field];

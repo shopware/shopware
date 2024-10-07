@@ -63,7 +63,6 @@ export default {
             this.persistedStock = this.product.stock;
         },
 
-
         onSwitchInput(event) {
             if (event === false) {
                 this.product.stock = this.persistedStock;

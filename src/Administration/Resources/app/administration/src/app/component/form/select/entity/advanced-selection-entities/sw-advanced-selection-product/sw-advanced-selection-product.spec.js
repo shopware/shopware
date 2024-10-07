@@ -117,7 +117,7 @@ function getProductData(criteria) {
     ];
 
     // check if grid is sorting for currency
-    const sortingForCurrency = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('price'));
+    const sortingForCurrency = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('price'));
 
     if (sortingForCurrency) {
         const sortBy = criteria.sortings[0].field;
@@ -126,8 +126,8 @@ function getProductData(criteria) {
         products.sort((productA, productB) => {
             const currencyId = sortBy.split('.')[1];
 
-            const currencyValueA = productA.price.find(price => price.currencyId === currencyId).gross;
-            const currencyValueB = productB.price.find(price => price.currencyId === currencyId).gross;
+            const currencyValueA = productA.price.find((price) => price.currencyId === currencyId).gross;
+            const currencyValueB = productB.price.find((price) => price.currencyId === currencyId).gross;
 
             if (sortDirection === 'DESC') {
                 return currencyValueB - currencyValueA;
@@ -138,7 +138,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for name
-    const sortingForName = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('name'));
+    const sortingForName = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('name'));
 
     if (sortingForName) {
         const sortDirection = criteria.sortings[0].order;
@@ -155,7 +155,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for manufacturer name
-    const sortingForManufacturer = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('manufacturer'));
+    const sortingForManufacturer = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('manufacturer'));
 
     if (sortingForManufacturer) {
         const sortDirection = criteria.sortings[0].order;
@@ -193,7 +193,7 @@ function getCurrencyData() {
             id: CURRENCY_ID.EURO,
         },
         {
-            factor: 1.0457384950,
+            factor: 1.045738495,
             symbol: '£',
             isoCode: 'GBP',
             shortName: 'GBP',
@@ -208,135 +208,142 @@ function getCurrencyData() {
 
 async function createWrapper() {
     return {
-        wrapper: mount(await wrapTestComponent('sw-advanced-selection-product', { sync: true }), {
-            global: {
-                provide: {
-                    acl: {
-                        can: () => true,
-                    },
-                    filterFactory: {
-                        create: () => [],
-                    },
-                    filterService: {
-                        getStoredCriteria: () => {
-                            return Promise.resolve([]);
+        wrapper: mount(
+            await wrapTestComponent('sw-advanced-selection-product', {
+                sync: true,
+            }),
+            {
+                global: {
+                    provide: {
+                        acl: {
+                            can: () => true,
                         },
-                        mergeWithStoredFilters: (storeKey, criteria) => criteria,
-                    },
-                    shortcutService: {
-                        startEventListener() {
+                        filterFactory: {
+                            create: () => [],
                         },
-                        stopEventListener() {
+                        filterService: {
+                            getStoredCriteria: () => {
+                                return Promise.resolve([]);
+                            },
+                            mergeWithStoredFilters: (storeKey, criteria) => criteria,
                         },
-                    },
-                    numberRangeService: {},
-                    repositoryFactory: {
-                        create: (name) => {
-                            if (name === 'product') {
+                        shortcutService: {
+                            startEventListener() {},
+                            stopEventListener() {},
+                        },
+                        numberRangeService: {},
+                        repositoryFactory: {
+                            create: (name) => {
+                                if (name === 'product') {
+                                    return {
+                                        search: (criteria) => {
+                                            const productData = getProductData(criteria);
+
+                                            return Promise.resolve(productData);
+                                        },
+                                    };
+                                }
+                                if (name === 'user_config') {
+                                    return {
+                                        search: () => Promise.resolve([]),
+                                    };
+                                }
+
                                 return {
-                                    search: (criteria) => {
-                                        const productData = getProductData(criteria);
-
-                                        return Promise.resolve(productData);
-                                    },
+                                    search: () => Promise.resolve(getCurrencyData()),
                                 };
-                            }
-                            if (name === 'user_config') {
-                                return { search: () => Promise.resolve([]) };
-                            }
-
-                            return { search: () => Promise.resolve(getCurrencyData()) };
+                            },
+                        },
+                        searchRankingService: {
+                            getSearchFieldsByEntity: () => {
+                                return Promise.resolve({
+                                    name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                                });
+                            },
+                            buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                                return criteria;
+                            },
                         },
                     },
-                    searchRankingService: {
-                        getSearchFieldsByEntity: () => {
-                            return Promise.resolve({
-                                name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                            });
+                    stubs: {
+                        'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
+                        'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                        'sw-modal': await wrapTestComponent('sw-modal'),
+                        'sw-card': await wrapTestComponent('sw-card'),
+                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                        'sw-card-filter': await wrapTestComponent('sw-card-filter'),
+                        'sw-simple-search-field': {
+                            template: '<div></div>',
                         },
-                        buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                            return criteria;
+                        'sw-context-button': {
+                            template: '<div></div>',
                         },
+                        'sw-context-menu-item': {
+                            template: '<div></div>',
+                        },
+                        'sw-data-grid-settings': {
+                            template: '<div></div>',
+                        },
+                        'sw-empty-state': {
+                            template: '<div class="sw-empty-state"></div>',
+                        },
+                        'sw-pagination': {
+                            template: '<div></div>',
+                        },
+                        'sw-icon': {
+                            template: '<div></div>',
+                        },
+                        'router-link': true,
+                        'sw-button': {
+                            template: '<div></div>',
+                        },
+                        'sw-sidebar': {
+                            template: '<div></div>',
+                        },
+                        'sw-sidebar-item': {
+                            template: '<div></div>',
+                        },
+                        'sw-language-switch': {
+                            template: '<div></div>',
+                        },
+                        'sw-notification-center': {
+                            template: '<div></div>',
+                        },
+                        'sw-search-bar': {
+                            template: '<div></div>',
+                        },
+                        'sw-loader': {
+                            template: '<div></div>',
+                        },
+                        'sw-data-grid-skeleton': {
+                            template: '<div class="sw-data-grid-skeleton"></div>',
+                        },
+                        'sw-checkbox-field': {
+                            template: '<div></div>',
+                        },
+                        'sw-media-preview-v2': {
+                            template: '<div></div>',
+                        },
+                        'sw-color-badge': {
+                            template: '<div></div>',
+                        },
+                        'sw-extension-component-section': {
+                            template: '<div></div>',
+                        },
+                        'sw-ignore-class': {
+                            template: '<div></div>',
+                        },
+                        'sw-product-variant-info': true,
+                        'sw-label': true,
+                        'sw-filter-panel': true,
+                        'sw-context-menu': true,
+                        'sw-entity-advanced-selection-modal-grid': true,
+                        'mt-card': true,
+                        'sw-ai-copilot-badge': true,
                     },
-                },
-                stubs: {
-                    'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
-                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
-                    'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-card-filter': await wrapTestComponent('sw-card-filter'),
-                    'sw-simple-search-field': {
-                        template: '<div></div>',
-                    },
-                    'sw-context-button': {
-                        template: '<div></div>',
-                    },
-                    'sw-context-menu-item': {
-                        template: '<div></div>',
-                    },
-                    'sw-data-grid-settings': {
-                        template: '<div></div>',
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                    },
-                    'sw-pagination': {
-                        template: '<div></div>',
-                    },
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
-                    'router-link': true,
-                    'sw-button': {
-                        template: '<div></div>',
-                    },
-                    'sw-sidebar': {
-                        template: '<div></div>',
-                    },
-                    'sw-sidebar-item': {
-                        template: '<div></div>',
-                    },
-                    'sw-language-switch': {
-                        template: '<div></div>',
-                    },
-                    'sw-notification-center': {
-                        template: '<div></div>',
-                    },
-                    'sw-search-bar': {
-                        template: '<div></div>',
-                    },
-                    'sw-loader': {
-                        template: '<div></div>',
-                    },
-                    'sw-data-grid-skeleton': {
-                        template: '<div class="sw-data-grid-skeleton"></div>',
-                    },
-                    'sw-checkbox-field': {
-                        template: '<div></div>',
-                    },
-                    'sw-media-preview-v2': {
-                        template: '<div></div>',
-                    },
-                    'sw-color-badge': {
-                        template: '<div></div>',
-                    },
-                    'sw-extension-component-section': {
-                        template: '<div></div>',
-                    },
-                    'sw-ignore-class': {
-                        template: '<div></div>',
-                    },
-                    'sw-product-variant-info': true,
-                    'sw-label': true,
-                    'sw-filter-panel': true,
-                    'sw-context-menu': true,
-                    'sw-entity-advanced-selection-modal-grid': true,
-                    'mt-card': true,
-                    'sw-ai-copilot-badge': true,
                 },
             },
-        }),
+        ),
     };
 }
 
@@ -350,7 +357,9 @@ describe('components/sw-advanced-selection-product', () => {
 
         await flushPromises();
 
-        selectionModal = wrapper.getComponent({ name: 'sw-entity-advanced-selection-modal__wrapped' });
+        selectionModal = wrapper.getComponent({
+            name: 'sw-entity-advanced-selection-modal__wrapped',
+        });
     });
 
     afterEach(() => {
@@ -401,7 +410,10 @@ describe('components/sw-advanced-selection-product', () => {
     });
 
     it('should return true if product has variants', async () => {
-        const [, product] = getProductData(mockCriteria());
+        const [
+            ,
+            product,
+        ] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);

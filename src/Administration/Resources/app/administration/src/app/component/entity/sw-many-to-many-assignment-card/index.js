@@ -133,26 +133,29 @@ Component.register('sw-many-to-many-assignment-card', {
         },
 
         assignmentRepository() {
-            return this.repositoryFactory.create(
-                this.entityCollection.entity,
-                this.entityCollection.source,
-            );
+            return this.repositoryFactory.create(this.entityCollection.entity, this.entityCollection.source);
         },
 
         searchRepository() {
-            return this.repositoryFactory.create(
-                this.entityCollection.entity,
-            );
+            return this.repositoryFactory.create(this.entityCollection.entity);
         },
 
         page: {
-            get() { return this.gridCriteria.page; },
-            set(page) { this.gridCriteria.page = page; },
+            get() {
+                return this.gridCriteria.page;
+            },
+            set(page) {
+                this.gridCriteria.page = page;
+            },
         },
 
         limit: {
-            get() { return this.gridCriteria.limit; },
-            set(limit) { this.gridCriteria.page = limit; },
+            get() {
+                return this.gridCriteria.limit;
+            },
+            set(limit) {
+                this.gridCriteria.page = limit;
+            },
         },
 
         total() {
@@ -389,10 +392,7 @@ Component.register('sw-many-to-many-assignment-card', {
 
                 criteria.filters = [
                     ...this.criteria.filters,
-                    Criteria.multi(
-                        'OR',
-                        containsFilter,
-                    ),
+                    Criteria.multi('OR', containsFilter),
                 ];
                 criteria.term = null;
             }

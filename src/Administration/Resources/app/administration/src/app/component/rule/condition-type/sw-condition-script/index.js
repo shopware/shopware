@@ -38,10 +38,18 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
                         this.ensureValueExist();
 
                         if (type === 'bool' && !this.condition.value.hasOwnProperty(name)) {
-                            this.condition.value = { ...this.condition.value, [name]: false };
+                            this.condition.value = {
+                                ...this.condition.value,
+                                [name]: false,
+                            };
                         }
 
-                        if (['sw-entity-multi-id-select', 'sw-multi-select'].includes(config.componentName)) {
+                        if (
+                            [
+                                'sw-entity-multi-id-select',
+                                'sw-multi-select',
+                            ].includes(config.componentName)
+                        ) {
                             return this.condition.value[name] || [];
                         }
 
@@ -49,7 +57,10 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
                     },
                     set: (value) => {
                         this.ensureValueExist();
-                        this.condition.value = { ...this.condition.value, [name]: value };
+                        this.condition.value = {
+                            ...this.condition.value,
+                            [name]: value,
+                        };
                     },
                 });
             });

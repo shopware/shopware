@@ -12,7 +12,11 @@ export default {
 
     inject: ['feature'],
 
-    emits: ['change-value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'change-value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     props: {
         bulkEditData: {
@@ -57,10 +61,12 @@ export default {
         },
 
         showSelectBoxType(formField) {
-            return this.getConfigValue(formField, 'allowOverwrite') === true ||
+            return (
+                this.getConfigValue(formField, 'allowOverwrite') === true ||
                 this.getConfigValue(formField, 'allowClear') === true ||
                 this.getConfigValue(formField, 'allowAdd') === true ||
-                this.getConfigValue(formField, 'allowRemove') === true;
+                this.getConfigValue(formField, 'allowRemove') === true
+            );
         },
 
         onChangeValue(value, fieldName, valueChange = true) {

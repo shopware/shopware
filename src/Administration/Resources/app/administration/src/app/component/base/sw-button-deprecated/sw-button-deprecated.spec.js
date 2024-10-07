@@ -144,28 +144,32 @@ describe('components/base/sw-button-deprecated', () => {
     it('should not trigger an event if html5 disabled is removed', async () => {
         const onClick = jest.fn();
 
-        const wrapper = mount({
-            template: '<sw-button-deprecated :disabled="disabled" @click="onClick">I am clickable</sw-button-deprecated>',
-            components: {
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-            },
-            data() {
-                return {
-                    disabled: true,
-                };
-            },
-            methods: {
-                onClick,
-            },
-        }, {
-            global: {
-                stubs: {
+        const wrapper = mount(
+            {
+                template:
+                    '<sw-button-deprecated :disabled="disabled" @click="onClick">I am clickable</sw-button-deprecated>',
+                components: {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                    'router-link': true,
-                    'sw-loader': true,
+                },
+                data() {
+                    return {
+                        disabled: true,
+                    };
+                },
+                methods: {
+                    onClick,
                 },
             },
-        });
+            {
+                global: {
+                    stubs: {
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                        'router-link': true,
+                        'sw-loader': true,
+                    },
+                },
+            },
+        );
 
         const button = wrapper.find('button');
         expect(button.attributes('disabled')).toBe('');
@@ -198,23 +202,27 @@ describe('components/base/sw-button-deprecated', () => {
 
         await router.push({ name: 'sw.dashboard.index' });
 
-        const wrapper = mount({
-            template: '<sw-button-deprecated :disabled="true" :router-link="{ name: \'sw.order.index\' }">Disabled router link</sw-button-deprecated>',
-        }, {
-            global: {
-                stubs: {
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                    'router-link': true,
-                    'sw-loader': true,
-                },
-                plugins: [
-                    router,
-                ],
-                mocks: {
-                    $router: router,
+        const wrapper = mount(
+            {
+                template:
+                    '<sw-button-deprecated :disabled="true" :router-link="{ name: \'sw.order.index\' }">Disabled router link</sw-button-deprecated>',
+            },
+            {
+                global: {
+                    stubs: {
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                        'router-link': true,
+                        'sw-loader': true,
+                    },
+                    plugins: [
+                        router,
+                    ],
+                    mocks: {
+                        $router: router,
+                    },
                 },
             },
-        });
+        );
 
         expect(wrapper.vm.$router.currentRoute.value.name).toBe('sw.dashboard.index');
 
@@ -242,24 +250,27 @@ describe('components/base/sw-button-deprecated', () => {
             await router.isReady();
         }
 
-        const wrapper = mount({
-            template: `
+        const wrapper = mount(
+            {
+                template: `
                 <sw-button-deprecated :router-link="{ path: 'some/relative/link' }" @click="click">
                     Router link
                 </sw-button-deprecated>`,
-            methods: {
-                click,
-            },
-        }, {
-            global: {
-                stubs: {
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                    'router-link': process.env.DISABLE_JEST_COMPAT_MODE ? RouterLinkStub : RouterLink,
-                    'sw-loader': true,
+                methods: {
+                    click,
                 },
-                plugins: router ? [router] : [],
             },
-        });
+            {
+                global: {
+                    stubs: {
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                        'router-link': process.env.DISABLE_JEST_COMPAT_MODE ? RouterLinkStub : RouterLink,
+                        'sw-loader': true,
+                    },
+                    plugins: router ? [router] : [],
+                },
+            },
+        );
 
         await wrapper.find('a').trigger('click');
         expect(wrapper.emitted().click).toStrictEqual(expect.any(Array));

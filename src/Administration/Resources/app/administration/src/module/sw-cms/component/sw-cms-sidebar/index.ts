@@ -63,8 +63,16 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     emits: [
-        'page-type-change', 'demo-entity-change', 'page-save', 'block-stage-drop', 'current-block-change',
-        'section-duplicate', 'block-duplicate', 'page-update', 'open-layout-assignment', 'open-layout-set-as-default',
+        'page-type-change',
+        'demo-entity-change',
+        'page-save',
+        'block-stage-drop',
+        'current-block-change',
+        'section-duplicate',
+        'block-duplicate',
+        'page-update',
+        'open-layout-assignment',
+        'open-layout-set-as-default',
     ],
 
     mixins: [
@@ -133,9 +141,14 @@ export default Shopware.Component.wrapComponentConfig({
                 return {};
             }
 
-            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
-                return block && !block.hidden && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
-            });
+            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(
+                ([
+                    name,
+                    block,
+                ]) => {
+                    return block && !block.hidden && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+                },
+            );
 
             return Object.fromEntries(blocks);
         },
@@ -181,9 +194,11 @@ export default Shopware.Component.wrapComponentConfig({
             ];
 
             // Check if blocks with the category 'app' are available
-            if (Object.values(this.cmsService.getCmsBlockRegistry()).some(block => {
-                return block?.category === 'app';
-            })) {
+            if (
+                Object.values(this.cmsService.getCmsBlockRegistry()).some((block) => {
+                    return block?.category === 'app';
+                })
+            ) {
                 defaultCategories.push({
                     value: 'app',
                     label: 'sw-cms.detail.label.blockCategoryApp',
@@ -191,12 +206,12 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             // Get all missing categories from the block registry
-            const categories = Object.values(this.cmsService.getCmsBlockRegistry()).map(block => block?.category);
+            const categories = Object.values(this.cmsService.getCmsBlockRegistry()).map((block) => block?.category);
             const uniqueCategories = [...new Set(categories)] as string[];
 
             // Add all missing categories to the default categories
-            uniqueCategories.forEach(category => {
-                if (defaultCategories.some(defaultCategory => defaultCategory.value === category)) {
+            uniqueCategories.forEach((category) => {
+                if (defaultCategories.some((defaultCategory) => defaultCategory.value === category)) {
                     return;
                 }
 
@@ -268,7 +283,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         pageConfigErrors() {
-            return [this.pageNameError].filter(error => !!error);
+            return [this.pageNameError].filter((error) => !!error);
         },
 
         hasPageConfigErrors() {
@@ -277,10 +292,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         showDefaultLayoutSelection() {
             if (
-                !this.acl.can('system_config:read')
-                || !this.acl.can('system_config:update')
-                || !this.acl.can('system_config:create')
-                || !this.acl.can('system_config:delete')
+                !this.acl.can('system_config:read') ||
+                !this.acl.can('system_config:update') ||
+                !this.acl.can('system_config:create') ||
+                !this.acl.can('system_config:delete')
             ) {
                 return false;
             }
@@ -293,13 +308,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsBlocksBySelectedBlockCategory() {
-            const result = Object.values(this.cmsBlocks).filter(block => block && !block.hidden);
+            const result = Object.values(this.cmsBlocks).filter((block) => block && !block.hidden);
 
             if (this.currentBlockCategory === 'favorite') {
-                return result.filter(block => block && this.cmsBlockFavorites.isFavorite(block.name));
+                return result.filter((block) => block && this.cmsBlockFavorites.isFavorite(block.name));
             }
 
-            return result.filter(block => block && block.category === this.currentBlockCategory);
+            return result.filter((block) => block && block.category === this.currentBlockCategory);
         },
 
         ...mapPropertyErrors('page', ['name']),
@@ -311,7 +326,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
+            if (this.blockTypes.some((blockName) => this.cmsBlockFavorites.isFavorite(blockName))) {
                 this.currentBlockCategory = 'favorite';
             }
         },
@@ -345,7 +360,9 @@ export default Shopware.Component.wrapComponentConfig({
         openSectionSettings(sectionIndex: number) {
             Shopware.Store.get('cmsPage').setSection(this.page.sections![sectionIndex]);
 
-            const itemConfigSidebar = this.$refs.itemConfigSidebar as { openContent: () => void };
+            const itemConfigSidebar = this.$refs.itemConfigSidebar as {
+                openContent: () => void;
+            };
             itemConfigSidebar.openContent();
         },
 
@@ -382,8 +399,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             const dropSection = this.page.sections![dropSectionIndex];
 
-            if (dragSectionIndex < 0 || dragSectionIndex >= this.page.sections!.length ||
-                dropSectionIndex < 0 || dropSectionIndex >= this.page.sections!.length) {
+            if (
+                dragSectionIndex < 0 ||
+                dragSectionIndex >= this.page.sections!.length ||
+                dropSectionIndex < 0 ||
+                dropSectionIndex >= this.page.sections!.length
+            ) {
                 return;
             }
 
@@ -405,8 +426,10 @@ export default Shopware.Component.wrapComponentConfig({
                 // calculate the remove index (this may differ since the block is moved each time it enters a new
                 // section while the dragSectionIndex is the static start index of the drag
                 let removeIndex = dragSectionIndex;
-                if (this.currentDragSectionIndex !== dragSectionIndex &&
-                    Math.abs(this.currentDragSectionIndex - dropSectionIndex) === 1) {
+                if (
+                    this.currentDragSectionIndex !== dragSectionIndex &&
+                    Math.abs(this.currentDragSectionIndex - dropSectionIndex) === 1
+                ) {
                     removeIndex = this.currentDragSectionIndex;
                 }
 
@@ -450,7 +473,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSidebarNavigatorClick() {
-            const blockNavigator = this.$refs.blockNavigator as { isActive: boolean };
+            const blockNavigator = this.$refs.blockNavigator as {
+                isActive: boolean;
+            };
 
             if (!blockNavigator.isActive) {
                 return;
@@ -475,7 +500,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSidebarNavigationCancel() {
-            const pageConfigSidebar = this.$refs.pageConfigSidebar as { openContent: () => void };
+            const pageConfigSidebar = this.$refs.pageConfigSidebar as {
+                openContent: () => void;
+            };
 
             this.showSidebarNavigatorModal = false;
             void this.$nextTick(() => {
@@ -550,10 +577,7 @@ export default Shopware.Component.wrapComponentConfig({
                 mobile: true,
             };
 
-            Object.assign(
-                newBlock,
-                cloneDeep(blockConfig?.defaultConfig || {}),
-            );
+            Object.assign(newBlock, cloneDeep(blockConfig?.defaultConfig || {}));
 
             Object.keys(blockConfig?.slots as object).forEach((slotName) => {
                 const slotConfig = blockConfig?.slots![slotName];
@@ -570,8 +594,16 @@ export default Shopware.Component.wrapComponentConfig({
 
                     const slotDefaultData = slotConfig.default?.data;
 
-                    if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
-                        element.config = { ...element.config as object, ...slotDefaultData };
+                    if (
+                        [
+                            slotDefaultData?.media?.source,
+                            slotDefaultData?.sliderItems?.source,
+                        ].includes('default')
+                    ) {
+                        element.config = {
+                            ...(element.config as object),
+                            ...slotDefaultData,
+                        };
                     }
                 } else {
                     element.type = slotConfig as unknown as string;

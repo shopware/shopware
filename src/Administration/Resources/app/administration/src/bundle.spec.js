@@ -33,7 +33,9 @@ describe.skip('webpack/bundle', () => {
             await exec(`rm -rf ${path.resolve(projectRoot, 'custom/plugins-backup')}`);
             // backup Plugin Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(projectRoot, 'custom/plugins')} ${path.resolve(projectRoot, 'custom/plugins-backup')}`);
+            await exec(
+                `mv ${path.resolve(projectRoot, 'custom/plugins')} ${path.resolve(projectRoot, 'custom/plugins-backup')}`,
+            );
         }
 
         // if bundles folder exists
@@ -42,7 +44,9 @@ describe.skip('webpack/bundle', () => {
             await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles-backup')}`);
             // backup Bundle Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles-backup')}`);
+            await exec(
+                `mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles-backup')}`,
+            );
         }
     });
 
@@ -57,14 +61,18 @@ describe.skip('webpack/bundle', () => {
         if (fs.existsSync(`${path.resolve(projectRoot, 'custom/plugins-backup')}`)) {
             // restore Plugin Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(projectRoot, 'custom/plugins-backup')} ${path.resolve(projectRoot, 'custom/plugins')}`);
+            await exec(
+                `mv ${path.resolve(projectRoot, 'custom/plugins-backup')} ${path.resolve(projectRoot, 'custom/plugins')}`,
+            );
         }
 
         // if bundles-backup folder exists
         if (fs.existsSync(`${path.resolve(projectRoot, 'public/bundles-backup')}`)) {
             // restore Bundle Folder
             // eslint-disable-next-line max-len
-            await exec(`mv ${path.resolve(projectRoot, 'public/bundles-backup')} ${path.resolve(projectRoot, 'public/bundles')}`);
+            await exec(
+                `mv ${path.resolve(projectRoot, 'public/bundles-backup')} ${path.resolve(projectRoot, 'public/bundles')}`,
+            );
         }
     });
 
@@ -100,15 +108,21 @@ describe.skip('webpack/bundle', () => {
 
         // rename bundle to "bundles_without_plugin"
         // eslint-disable-next-line max-len
-        await exec(`cd ${projectRoot} && mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles_without_plugin')}`);
+        await exec(
+            `cd ${projectRoot} && mv ${path.resolve(projectRoot, 'public/bundles')} ${path.resolve(projectRoot, 'public/bundles_without_plugin')}`,
+        );
 
         // copy plugin to plugin folder
         // eslint-disable-next-line max-len
-        await exec(`cp -R ${path.resolve(__dirname, 'assets/ExamplePluginForTesting')} ${path.resolve(projectRoot, 'custom/plugins')}${sep}`);
+        await exec(
+            `cp -R ${path.resolve(__dirname, 'assets/ExamplePluginForTesting')} ${path.resolve(projectRoot, 'custom/plugins')}${sep}`,
+        );
 
         // remove temp extension from plugin php file
         // eslint-disable-next-line max-len
-        await exec(`cd ${projectRoot} && mv ${path.resolve(projectRoot, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php.temp')} ${path.resolve(projectRoot, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php')}`);
+        await exec(
+            `cd ${projectRoot} && mv ${path.resolve(projectRoot, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php.temp')} ${path.resolve(projectRoot, 'custom/plugins/ExamplePluginForTesting/src/ExamplePluginForTesting.php')}`,
+        );
 
         // refresh plugins
         await exec(`cd ${projectRoot} && php bin${sep}console plugin:refresh`);
@@ -122,7 +136,10 @@ describe.skip('webpack/bundle', () => {
         await exec(`cd ${projectRoot} && bin/console assets:install`);
 
         // eslint-disable-next-line max-len
-        const folderComparison = await dircompare.compare(`${path.resolve(projectRoot, 'public/bundles/administration')}`, `${path.resolve(projectRoot, 'public/bundles_without_plugin/administration')}`);
+        const folderComparison = await dircompare.compare(
+            `${path.resolve(projectRoot, 'public/bundles/administration')}`,
+            `${path.resolve(projectRoot, 'public/bundles_without_plugin/administration')}`,
+        );
 
         // uninstall and deactivate plugin
         await exec(`cd ${projectRoot} && php bin${sep}console plugin:deactivate ExamplePluginForTesting`);

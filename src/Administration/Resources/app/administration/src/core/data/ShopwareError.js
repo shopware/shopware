@@ -12,12 +12,7 @@ import utils from 'src/core/service/util.service';
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareError {
-    constructor({
-        code,
-        meta = {},
-        status = '',
-        detail = '',
-    } = {}) {
+    constructor({ code, meta = {}, status = '', detail = '' } = {}) {
         if (typeof code !== 'string' || code === '') {
             throw new Error('[ShopwareError] can not identify error by code');
         }

@@ -10,7 +10,9 @@ const register = ModuleFactory.register;
 describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
     const itemDeleteMock = (options = {}) => {
         return {
-            getEntityName: () => { return 'media'; },
+            getEntityName: () => {
+                return 'media';
+            },
             id: '4a12jd3kki9yyy765gkn5hdb',
             fileName: 'demo.jpg',
             avatarUsers: [],
@@ -87,23 +89,33 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             },
         };
 
-        await wrapper.setProps({ item: itemDeleteMock({ productMedia: [productMediaMock] }) });
-        expect(wrapper.vm.getUsages.some(usage => usage.name === productMediaMock.product.translated.name)).toBeTruthy();
+        await wrapper.setProps({
+            item: itemDeleteMock({ productMedia: [productMediaMock] }),
+        });
+        expect(wrapper.vm.getUsages.some((usage) => usage.name === productMediaMock.product.translated.name)).toBeTruthy();
     });
 
     it('should be correct show all of media in used information', async () => {
-        wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'a', translated: { name: 'Product Media Test' } },
-        ]));
-        wrapper.vm.categoryRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'b', translated: { name: 'Category Media Test' } },
-        ]));
-        wrapper.vm.landingPageRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'c', translated: { name: 'Landing Page Media Test' } },
-        ]));
-        wrapper.vm.cmsPageRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'd', name: 'CMS Page Media Test' },
-        ]));
+        wrapper.vm.productRepository.search = jest.fn(() =>
+            Promise.resolve([
+                { id: 'a', translated: { name: 'Product Media Test' } },
+            ]),
+        );
+        wrapper.vm.categoryRepository.search = jest.fn(() =>
+            Promise.resolve([
+                { id: 'b', translated: { name: 'Category Media Test' } },
+            ]),
+        );
+        wrapper.vm.landingPageRepository.search = jest.fn(() =>
+            Promise.resolve([
+                { id: 'c', translated: { name: 'Landing Page Media Test' } },
+            ]),
+        );
+        wrapper.vm.cmsPageRepository.search = jest.fn(() =>
+            Promise.resolve([
+                { id: 'd', name: 'CMS Page Media Test' },
+            ]),
+        );
 
         register('sw-settings-user', moduleMock);
         const avatarUserMock = { username: 'abc123' };
@@ -132,15 +144,28 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         const documentBaseConfigMock = { name: 'document test' };
 
         register('sw-settings-payment', moduleMock);
-        const paymentMock = { translated: { distinguishableName: 'payment test' } };
+        const paymentMock = {
+            translated: { distinguishableName: 'payment test' },
+        };
 
         register('sw-settings-shipping', moduleMock);
         const shippingMock = { translated: { name: 'shipping test' } };
 
         register('sw-cms', moduleMock);
-        const cmsBlockMock = { section: { pageId: 'cmsBlockId', page: { translated: { name: 'cms block test' } } } };
-        const cmsSectionMock = { pageId: 'cmsSectionId', page: { translated: { name: 'cms section test' } } };
-        const cmsPageMock = { id: 'cmsPageId', translated: { name: 'cms page test' } };
+        const cmsBlockMock = {
+            section: {
+                pageId: 'cmsBlockId',
+                page: { translated: { name: 'cms block test' } },
+            },
+        };
+        const cmsSectionMock = {
+            pageId: 'cmsSectionId',
+            page: { translated: { name: 'cms section test' } },
+        };
+        const cmsPageMock = {
+            id: 'cmsPageId',
+            translated: { name: 'cms page test' },
+        };
 
         await wrapper.setProps({
             item: itemDeleteMock({

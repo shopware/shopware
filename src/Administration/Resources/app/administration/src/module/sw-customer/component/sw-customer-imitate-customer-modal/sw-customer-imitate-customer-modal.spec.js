@@ -28,38 +28,47 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-customer-imitate-customer-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'i18n-t': true,
-                'sw-alert': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-loader': true,
-                'router-link': true,
-            },
-            provide: {
-                shortcutService: {
-                    stopEventListener: () => {},
-                    startEventListener: () => {},
+    return mount(
+        await wrapTestComponent('sw-customer-imitate-customer-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal', {
+                        sync: true,
+                    }),
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'i18n-t': true,
+                    'sw-alert': true,
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-loader': true,
+                    'router-link': true,
                 },
-                contextStoreService: {
-                    generateImitateCustomerToken: async () => ({ token: 'a-token' }),
-                    redirectToSalesChannelUrl: () => {},
+                provide: {
+                    shortcutService: {
+                        stopEventListener: () => {},
+                        startEventListener: () => {},
+                    },
+                    contextStoreService: {
+                        generateImitateCustomerToken: async () => ({
+                            token: 'a-token',
+                        }),
+                        redirectToSalesChannelUrl: () => {},
+                    },
+                },
+            },
+            props: {
+                customer: {
+                    id: 'customer-id',
+                    email: null,
+                    boundSalesChannelId: null,
                 },
             },
         },
-        props: {
-            customer: {
-                id: 'customer-id',
-                email: null,
-                boundSalesChannelId: null,
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-customer-imitate-customer-modal', () => {

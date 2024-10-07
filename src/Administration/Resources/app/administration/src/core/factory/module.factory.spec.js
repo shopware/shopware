@@ -149,12 +149,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foo-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foo.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foo.index',
+                },
+            ],
         });
 
         expect(module.navigation).toBeInstanceOf(Array);
@@ -173,18 +175,22 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foo-bar-index',
                 },
             },
-            navigation: [{
-                id: 'sw.foo.index',
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-            }, {
-                link: 'http://de.shopware.com',
-                label: 'ExternalLink',
-                parent: 'sw.foo.index',
-            }, {
-                label: 'InvalidEntry',
-            }],
+            navigation: [
+                {
+                    id: 'sw.foo.index',
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                },
+                {
+                    link: 'http://de.shopware.com',
+                    label: 'ExternalLink',
+                    parent: 'sw.foo.index',
+                },
+                {
+                    label: 'InvalidEntry',
+                },
+            ],
         });
 
         expect(module.navigation).toBeInstanceOf(Array);
@@ -391,17 +397,16 @@ describe('core/factory/module.factory.js', () => {
         });
 
         const expectedSettingsItem = {
-            fooGroup:
-                [
-                    {
-                        group: 'fooGroup',
-                        icon: 'fooIcon',
-                        id: 'sw-foo',
-                        label: 'barFoo',
-                        name: 'fooBar',
-                        to: 'foo.bar',
-                    },
-                ],
+            fooGroup: [
+                {
+                    group: 'fooGroup',
+                    icon: 'fooIcon',
+                    id: 'sw-foo',
+                    label: 'barFoo',
+                    name: 'fooBar',
+                    to: 'foo.bar',
+                },
+            ],
         };
         expect(Shopware.State.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
     });
@@ -442,12 +447,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foo-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foo.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foo.index',
+                },
+            ],
         });
 
         // Register a module of type plugin without a "parent" in the navigation object
@@ -476,12 +483,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foobar-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foobar.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foobar.index',
+                },
+            ],
         });
 
         expect(typeof coreModule.type).toBe('string');
@@ -502,12 +511,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foobar-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foobar.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foobar.index',
+                },
+            ],
         });
 
         expect(module).toBe(false);

@@ -33,7 +33,11 @@ export default {
 
     methods: {
         onChange(value) {
-            this.$emit('update:value', { id: this.id, group: this.group, value });
+            this.$emit('update:value', {
+                id: this.id,
+                group: this.group,
+                value,
+            });
         },
     },
 };

@@ -127,13 +127,18 @@ export default {
         },
 
         validateSmtpConfiguration() {
-            this.smtpHostError = !this.mailerSettings['core.mailerSettings.host'] ? {
-                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
-            } : null;
+            this.smtpHostError = !this.mailerSettings['core.mailerSettings.host']
+                ? {
+                      detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                  }
+                : null;
 
-            this.smtpPortError = typeof this.mailerSettings['core.mailerSettings.port'] !== 'number' ? {
-                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
-            } : null;
+            this.smtpPortError =
+                typeof this.mailerSettings['core.mailerSettings.port'] !== 'number'
+                    ? {
+                          detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                      }
+                    : null;
         },
 
         resetSmtpHostError() {

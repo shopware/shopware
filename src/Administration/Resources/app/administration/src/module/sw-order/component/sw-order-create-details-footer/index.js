@@ -125,7 +125,12 @@ export default {
 
     methods: {
         updateContext() {
-            const contextKeys = ['currencyId', 'languageId', 'shippingMethodId', 'paymentMethodId'];
+            const contextKeys = [
+                'currencyId',
+                'languageId',
+                'shippingMethodId',
+                'paymentMethodId',
+            ];
             contextKeys.forEach((key) => {
                 this.context[key] = this.context[key] || this.defaultSalesChannel[key];
             });

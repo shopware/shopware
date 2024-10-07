@@ -72,7 +72,7 @@ export default {
             // Handle deletion scenario where orderAddressId matches customerAddressId
             if (orderAddressId === customerAddressId && !edited) {
                 state.orderAddressIds = state.orderAddressIds.filter(
-                    ids => !(ids.orderAddressId === orderAddressId && ids.type === type),
+                    (ids) => !(ids.orderAddressId === orderAddressId && ids.type === type),
                 );
 
                 return;
@@ -80,7 +80,7 @@ export default {
 
             // Find index of the existing item
             const index = state.orderAddressIds.findIndex(
-                ids => ids.orderAddressId === orderAddressId && ids.type === type,
+                (ids) => ids.orderAddressId === orderAddressId && ids.type === type,
             );
 
             // If found, update the existing item

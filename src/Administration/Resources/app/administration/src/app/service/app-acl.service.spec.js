@@ -20,7 +20,8 @@ describe('app/service/app-acl.service.js', () => {
                         dependencies: [],
                     },
                 },
-            }, {
+            },
+            {
                 category: 'additional_permissions',
                 parent: null,
                 key: 'app',
@@ -37,11 +38,12 @@ describe('app/service/app-acl.service.js', () => {
 
         appAclService = new AppAclService({
             appRepository: {
-                search: () => Promise.resolve([
-                    {
-                        name: 'appExample',
-                    },
-                ]),
+                search: () =>
+                    Promise.resolve([
+                        {
+                            name: 'appExample',
+                        },
+                    ]),
             },
         });
     });

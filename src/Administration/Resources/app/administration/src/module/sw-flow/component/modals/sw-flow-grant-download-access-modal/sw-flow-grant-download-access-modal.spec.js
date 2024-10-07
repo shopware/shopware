@@ -31,31 +31,38 @@ Shopware.State.registerModule('swFlowState', {
 });
 
 async function createWrapper(config = null) {
-    return mount(await wrapTestComponent('sw-flow-grant-download-access-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-single-select': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+    return mount(
+        await wrapTestComponent('sw-flow-grant-download-access-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-single-select': true,
+                    'sw-button': {
+                        emits: ['click'],
+                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                    },
+                    'sw-icon': true,
+                    'sw-loader': true,
                 },
-                'sw-icon': true,
-                'sw-loader': true,
+                provide: {
+                    shortcutService: {
+                        stopEventListener: jest.fn(),
+                        startEventListener: jest.fn(),
+                    },
+                },
             },
-            provide: {
-                shortcutService: {
-                    stopEventListener: jest.fn(),
-                    startEventListener: jest.fn(),
-                },
+            props: {
+                sequence: config
+                    ? {
+                          config,
+                      }
+                    : {},
             },
         },
-        props: {
-            sequence: config ? {
-                config,
-            } : {},
-        },
-    });
+    );
 }
 
 describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
@@ -106,8 +113,7 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
         const valueField = wrapper.find('.sw-flow-grant-download-access-modal__value-field');
         expect(valueField.attributes('error')).toBeUndefined();
 
-        await wrapper.find('.sw-flow-grant-download-access-modal__save-button')
-            .trigger('click');
+        await wrapper.find('.sw-flow-grant-download-access-modal__save-button').trigger('click');
         await flushPromises();
 
         expect(valueField.attributes('error')).toBeUndefined();

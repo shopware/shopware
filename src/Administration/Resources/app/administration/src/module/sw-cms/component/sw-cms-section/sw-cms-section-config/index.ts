@@ -18,7 +18,10 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
     ],
 
-    emits: ['section-delete', 'section-duplicate'],
+    emits: [
+        'section-delete',
+        'section-duplicate',
+    ],
 
     mixins: [
         Mixin.getByName('cms-state'),
@@ -64,7 +67,7 @@ export default Shopware.Component.wrapComponentConfig({
         async successfulUpload(media: MediaUploadResult) {
             this.section.backgroundMediaId = media.targetId;
 
-            this.section.backgroundMedia = await this.mediaRepository.get(media.targetId) ?? undefined;
+            this.section.backgroundMedia = (await this.mediaRepository.get(media.targetId)) ?? undefined;
         },
 
         removeMedia() {

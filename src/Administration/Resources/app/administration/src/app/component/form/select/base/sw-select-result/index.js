@@ -16,7 +16,10 @@ Component.register('sw-select-result', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['setActiveItemIndex', 'feature'],
+    inject: [
+        'setActiveItemIndex',
+        'feature',
+    ],
 
     props: {
         index: {
@@ -41,9 +44,17 @@ Component.register('sw-select-result', {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right', 'left'],
+            validValues: [
+                'bottom',
+                'right',
+                'left',
+            ],
             validator(value) {
-                return ['bottom', 'right', 'left'].includes(value);
+                return [
+                    'bottom',
+                    'right',
+                    'left',
+                ].includes(value);
             },
         },
     },

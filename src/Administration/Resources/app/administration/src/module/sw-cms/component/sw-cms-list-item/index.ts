@@ -15,7 +15,13 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['feature'],
 
-    emits: ['preview-image-change', 'on-item-click', 'element-click', 'item-click', 'cms-page-delete'],
+    emits: [
+        'preview-image-change',
+        'on-item-click',
+        'element-click',
+        'item-click',
+        'cms-page-delete',
+    ],
 
     props: {
         page: {

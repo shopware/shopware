@@ -5,14 +5,19 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-extension-teaser-sales-channel', { sync: true }), {
-        global: {
-            stubs: {
-                'mt-icon': true,
-                'sw-extension-teaser-popover': true,
+    return mount(
+        await wrapTestComponent('sw-extension-teaser-sales-channel', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'mt-icon': true,
+                    'sw-extension-teaser-popover': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/app/component/extension-api/sw-extension-teaser-sales-channel', () => {
@@ -55,6 +60,8 @@ describe('src/app/component/extension-api/sw-extension-teaser-sales-channel', ()
         const salesChannel = salesChannels[0];
         expect(salesChannel.find('mt-icon-stub').attributes('name')).toBe('facebook');
         expect(salesChannel.find('.sw-extension-teaser-sales-channel__item-name').text()).toBe('Facebook');
-        expect(salesChannel.find('.sw-extension-teaser-sales-channel__item-description').text()).toBe('Sell products on Facebook');
+        expect(salesChannel.find('.sw-extension-teaser-sales-channel__item-description').text()).toBe(
+            'Sell products on Facebook',
+        );
     });
 });

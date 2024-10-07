@@ -74,7 +74,10 @@ Component.register('sw-form-field-renderer', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: ['update:value'],
 
@@ -211,7 +214,12 @@ Component.register('sw-form-field-renderer', {
         },
 
         optionTranslations() {
-            if (['sw-single-select', 'sw-multi-select'].includes(this.componentName)) {
+            if (
+                [
+                    'sw-single-select',
+                    'sw-multi-select',
+                ].includes(this.componentName)
+            ) {
                 if (!this.config.hasOwnProperty('options')) {
                     return {};
                 }
@@ -224,12 +232,8 @@ Component.register('sw-form-field-renderer', {
                     labelProperty = this.config.labelProperty;
                 }
 
-                this.config.options.forEach(option => {
-                    const translation = this.getTranslations(
-                        'options',
-                        option,
-                        [labelProperty],
-                    );
+                this.config.options.forEach((option) => {
+                    const translation = this.getTranslations('options', option, [labelProperty]);
                     // Merge original option with translation
                     const translatedOption = { ...option, ...translation };
                     options.push(translatedOption);
@@ -272,7 +276,12 @@ Component.register('sw-form-field-renderer', {
 
             if (this.type === 'price' && !Array.isArray(this.currentValue)) {
                 this.currentValue = [
-                    { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true },
+                    {
+                        currencyId: Shopware.Context.app.systemCurrencyId,
+                        gross: null,
+                        net: null,
+                        linked: true,
+                    },
                 ];
             }
         },
@@ -281,7 +290,15 @@ Component.register('sw-form-field-renderer', {
             this.$emit('update:value', data);
         },
 
-        getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
+        getTranslations(
+            componentName,
+            config = this.config,
+            translatableFields = [
+                'label',
+                'placeholder',
+                'helpText',
+            ],
+        ) {
             if (!translatableFields) {
                 return {};
             }
@@ -340,9 +357,11 @@ Component.register('sw-form-field-renderer', {
         fetchSystemCurrency() {
             const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
 
-            this.createRepository('currency').get(systemCurrencyId).then(response => {
-                this.currency = response;
-            });
+            this.createRepository('currency')
+                .get(systemCurrencyId)
+                .then((response) => {
+                    this.currency = response;
+                });
         },
 
         getScopedSlots() {

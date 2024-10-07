@@ -11,8 +11,14 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-settings-shipping-list', () => import('./page/sw-settings-shipping-list'));
 Shopware.Component.register('sw-settings-shipping-detail', () => import('./page/sw-settings-shipping-detail'));
 Shopware.Component.extend('sw-price-rule-modal', 'sw-rule-modal', () => import('./component/sw-price-rule-modal'));
-Shopware.Component.register('sw-settings-shipping-price-matrices', () => import('./component/sw-settings-shipping-price-matrices'));
-Shopware.Component.register('sw-settings-shipping-price-matrix', () => import('./component/sw-settings-shipping-price-matrix'));
+Shopware.Component.register(
+    'sw-settings-shipping-price-matrices',
+    () => import('./component/sw-settings-shipping-price-matrices'),
+);
+Shopware.Component.register(
+    'sw-settings-shipping-price-matrix',
+    () => import('./component/sw-settings-shipping-price-matrix'),
+);
 Shopware.Component.register('sw-settings-shipping-tax-cost', () => import('./component/sw-settings-shipping-tax-cost'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 

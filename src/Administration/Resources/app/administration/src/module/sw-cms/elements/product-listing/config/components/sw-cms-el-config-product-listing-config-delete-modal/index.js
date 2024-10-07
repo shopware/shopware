@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['confirm', 'cancel'],
+    emits: [
+        'confirm',
+        'cancel',
+    ],
 
     props: {
         productSorting: {

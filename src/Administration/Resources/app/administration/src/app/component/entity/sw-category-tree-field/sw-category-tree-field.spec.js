@@ -5,45 +5,41 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-const categoryData = [{
-    id: 'categoryId-2',
-    attributes: {
+const categoryData = [
+    {
         id: 'categoryId-2',
+        attributes: {
+            id: 'categoryId-2',
+        },
+        translated: {
+            name: 'categoryName-2',
+        },
+        relationships: {},
     },
-    translated: {
-        name: 'categoryName-2',
+    {
+        id: 'categoryId-3',
+        attributes: {
+            id: 'categoryId3',
+        },
+        translated: {
+            name: 'categoryName-3',
+        },
+        relationships: {},
     },
-    relationships: {},
-}, {
-    id: 'categoryId-3',
-    attributes: {
-        id: 'categoryId3',
-    },
-    translated: {
-        name: 'categoryName-3',
-    },
-    relationships: {},
-}, {
-    id: 'categoryId-4',
-    attributes: {
+    {
         id: 'categoryId-4',
+        attributes: {
+            id: 'categoryId-4',
+        },
+        translated: {
+            name: 'categoryName-4',
+        },
+        relationships: {},
     },
-    translated: {
-        name: 'categoryName-4',
-    },
-    relationships: {},
-}];
+];
 
 function createCategoryCollection(items = []) {
-    return new EntityCollection(
-        '/category',
-        'category',
-        null,
-        { isShopwareContext: true },
-        items,
-        2,
-        null,
-    );
+    return new EntityCollection('/category', 'category', null, { isShopwareContext: true }, items, 2, null);
 }
 
 const responses = global.repositoryFactoryMock.responses;
@@ -59,7 +55,15 @@ responses.addResponse({
     method: 'Post',
     url: '/search-ids/category',
     status: 200,
-    response: { data: ['categoryId-0', 'categoryId-1', 'categoryId-2', 'categoryId-3', 'categoryId-4'] },
+    response: {
+        data: [
+            'categoryId-0',
+            'categoryId-1',
+            'categoryId-2',
+            'categoryId-3',
+            'categoryId-4',
+        ],
+    },
 });
 
 async function createWrapper() {
@@ -76,7 +80,9 @@ async function createWrapper() {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
-                'sw-label': await wrapTestComponent('sw-label', { sync: true }),
+                'sw-label': await wrapTestComponent('sw-label', {
+                    sync: true,
+                }),
                 'sw-icon': true,
                 'sw-checkbox-field': true,
                 'sw-highlight-text': true,
@@ -107,7 +113,6 @@ async function createWrapper() {
     });
 }
 
-
 describe('src/app/component/entity/sw-category-tree-field', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
@@ -133,32 +138,39 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
 
-        wrapper.vm.onCheckItem({ id: 'categoryId-0', checked: true, data: { translated: { name: 'some-data' } } });
+        wrapper.vm.onCheckItem({
+            id: 'categoryId-0',
+            checked: true,
+            data: { translated: { name: 'some-data' } },
+        });
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
     });
 
     it('should remove the category item', async () => {
-        const intitalCategories = [{
-            id: 'categoryId-0',
-            attributes: {
+        const intitalCategories = [
+            {
                 id: 'categoryId-0',
+                attributes: {
+                    id: 'categoryId-0',
+                },
+                translated: {
+                    name: 'categoryName-0',
+                },
+                relationships: {},
             },
-            translated: {
-                name: 'categoryName-0',
+            {
+                id: 'categoryId-1',
+                attributes: {
+                    id: 'categoryId1',
+                },
+                translated: {
+                    name: 'categoryName-1',
+                },
+                relationships: {},
             },
-            relationships: {},
-        }, {
-            id: 'categoryId-1',
-            attributes: {
-                id: 'categoryId1',
-            },
-            translated: {
-                name: 'categoryName-1',
-            },
-            relationships: {},
-        }];
+        ];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -174,25 +186,28 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
     });
 
     it('should display more the category items', async () => {
-        const intitalCategories = [{
-            id: 'categoryId-0',
-            attributes: {
+        const intitalCategories = [
+            {
                 id: 'categoryId-0',
+                attributes: {
+                    id: 'categoryId-0',
+                },
+                translated: {
+                    name: 'categoryName-0',
+                },
+                relationships: {},
             },
-            translated: {
-                name: 'categoryName-0',
+            {
+                id: 'categoryId-1',
+                attributes: {
+                    id: 'categoryId1',
+                },
+                translated: {
+                    name: 'categoryName-1',
+                },
+                relationships: {},
             },
-            relationships: {},
-        }, {
-            id: 'categoryId-1',
-            attributes: {
-                id: 'categoryId1',
-            },
-            translated: {
-                name: 'categoryName-1',
-            },
-            relationships: {},
-        }];
+        ];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -214,25 +229,28 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
     });
 
     it('should have checked categories', async () => {
-        const selectedCategories = [{
-            id: 'categoryId-2',
-            attributes: {
+        const selectedCategories = [
+            {
                 id: 'categoryId-2',
+                attributes: {
+                    id: 'categoryId-2',
+                },
+                translated: {
+                    name: 'categoryName-2',
+                },
+                relationships: {},
             },
-            translated: {
-                name: 'categoryName-2',
-            },
-            relationships: {},
-        }, {
-            id: 'categoryId-4',
-            attributes: {
+            {
                 id: 'categoryId-4',
+                attributes: {
+                    id: 'categoryId-4',
+                },
+                translated: {
+                    name: 'categoryName-4',
+                },
+                relationships: {},
             },
-            translated: {
-                name: 'categoryName-4',
-            },
-            relationships: {},
-        }];
+        ];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

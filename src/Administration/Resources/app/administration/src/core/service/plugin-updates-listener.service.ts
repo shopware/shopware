@@ -6,10 +6,9 @@
 import type { LoginService } from './login.service';
 
 type UpdatedListResponse = {
-    total: number,
-    [key: string]: unknown,
+    total: number;
+    [key: string]: unknown;
 };
-
 
 /**
  * @private
@@ -23,13 +22,18 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
         const oneDay = 24 * 60 * 60 * 1000;
 
         if (Number.isNaN(lastUpdate) || lastUpdate < Date.now() - oneDay) {
-            // @ts-expect-error
-            void innerServiceContainer.storeService.getUpdateList().then((response: UpdatedListResponse) => {
-                localStorage.setItem(localStorageKey, Date.now().toString());
-                if (response.total > 0 && canUpdateExtensions()) {
-                    createUpdatesAvailableNotification();
-                }
-            }).catch(() => { /* ignore notification could not be created */ });
+            void innerServiceContainer.storeService
+                .getUpdateList()
+                // @ts-expect-error
+                .then((response: UpdatedListResponse) => {
+                    localStorage.setItem(localStorageKey, Date.now().toString());
+                    if (response.total > 0 && canUpdateExtensions()) {
+                        createUpdatesAvailableNotification();
+                    }
+                })
+                .catch(() => {
+                    /* ignore notification could not be created */
+                });
         }
     }
 
@@ -41,21 +45,14 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
         }
 
         const notification = {
-            title: root.$tc(
-                'global.notification-center.plugin-updates-listener.updatesAvailableTitle',
-            ),
-            message: root.$tc(
-                'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
-            ),
+            title: root.$tc('global.notification-center.plugin-updates-listener.updatesAvailableTitle'),
+            message: root.$tc('global.notification-center.plugin-updates-listener.updatesAvailableMessage'),
             variant: 'info',
             growl: true,
             system: true,
         };
 
-        void Shopware.State.dispatch(
-            'notification/createNotification',
-            notification,
-        );
+        void Shopware.State.dispatch('notification/createNotification', notification);
     }
 
     function canUpdateExtensions(): boolean {

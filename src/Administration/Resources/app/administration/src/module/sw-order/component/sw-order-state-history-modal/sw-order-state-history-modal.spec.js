@@ -62,24 +62,28 @@ const stateHistoryFixture = [
 const orderProp = {
     id: '1',
     orderDateTime: '2022-10-10T10:01:33.815+00:00',
-    transactions: [{
-        id: '2',
-        stateMachineState: {
-            technicalName: 'open',
-            translated: {
-                name: 'Open',
+    transactions: [
+        {
+            id: '2',
+            stateMachineState: {
+                technicalName: 'open',
+                translated: {
+                    name: 'Open',
+                },
             },
         },
-    }],
-    deliveries: [{
-        id: '3',
-        stateMachineState: {
-            technicalName: 'open',
-            translated: {
-                name: 'Open',
+    ],
+    deliveries: [
+        {
+            id: '3',
+            stateMachineState: {
+                technicalName: 'open',
+                translated: {
+                    name: 'Open',
+                },
             },
         },
-    }],
+    ],
     stateMachineState: {
         technicalName: 'open',
         translated: {
@@ -116,10 +120,16 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-modal': {
                         template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
                     },
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                        sync: true,
+                    }),
                     'sw-data-grid-skeleton': true,
-                    'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                    'sw-pagination': await wrapTestComponent('sw-pagination', {
+                        sync: true,
+                    }),
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-icon': true,
                     'sw-time-ago': true,
@@ -261,7 +271,13 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
 
         const wrapper = await createWrapper(
             {},
-            { ...orderProp, transactions: [...orderProp.transactions, { ...orderProp.transactions[0], id: '4' }] },
+            {
+                ...orderProp,
+                transactions: [
+                    ...orderProp.transactions,
+                    { ...orderProp.transactions[0], id: '4' },
+                ],
+            },
         );
 
         expect(wrapper.vm.hasMultipleTransactions).toBe(true);
@@ -271,8 +287,17 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         // add second transaction
         const wrapper = await createWrapper(
             {},
-            { ...orderProp, transactions: [...orderProp.transactions, { ...orderProp.transactions[0], id: '4' }] },
-            [...stateHistoryFixture, { ...stateHistoryFixture[1], referencedId: '4' }],
+            {
+                ...orderProp,
+                transactions: [
+                    ...orderProp.transactions,
+                    { ...orderProp.transactions[0], id: '4' },
+                ],
+            },
+            [
+                ...stateHistoryFixture,
+                { ...stateHistoryFixture[1], referencedId: '4' },
+            ],
         );
 
         const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
@@ -290,7 +315,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             'global.entities.order_transaction 2', // New-transaction-started entry
             'global.entities.order_transaction 2',
         ]);
-
 
         const allUserColumns = await wrapper.findAll('.sw-data-grid__cell--user > .sw-data-grid__cell-content');
         expect(allUserColumns.map((c) => c.text())).toEqual([

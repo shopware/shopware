@@ -40,24 +40,32 @@ Shopware.Application.addServiceProvider('shopwareExtensionService', () => {
 
 // Added service manually because `sw-extension-error` is using it
 Shopware.Application.addServiceProvider('extensionErrorService', () => {
-    return new ExtensionErrorService({}, {
-        title: 'global.default.error',
-        message: 'global.notification.unspecifiedSaveErrorMessage',
-    });
+    return new ExtensionErrorService(
+        {},
+        {
+            title: 'global.default.error',
+            message: 'global.notification.unspecifiedSaveErrorMessage',
+        },
+    );
 });
-
 
 async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $tc: (v1, v2, v3) => (v1 || v2 ? v1 : JSON.stringify([v1, v2, v3])),
+                $tc: (v1, v2, v3) =>
+                    v1 || v2
+                        ? v1
+                        : JSON.stringify([
+                              v1,
+                              v2,
+                              v3,
+                          ]),
             },
             mixins: [
                 Shopware.Mixin.getByName('sw-extension-error'),
             ],
             stubs: {
-
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
@@ -66,8 +74,12 @@ async function createWrapper(extension) {
                 },
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-                'sw-loader': await wrapTestComponent('sw-loader', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-loader': await wrapTestComponent('sw-loader', {
+                    sync: true,
+                }),
+                'sw-icon': await wrapTestComponent('sw-icon', {
+                    sync: true,
+                }),
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
@@ -84,7 +96,9 @@ async function createWrapper(extension) {
                         </div>
                     `,
                 },
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-extension-adding-failed': await wrapTestComponent('sw-extension-adding-failed', { sync: true }),
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
@@ -207,51 +221,53 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             type: 'plugin',
         });
 
-        expect(wrapper.find('.sw-extension-card-base__info-name')
-            .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-icon img')
-            .attributes('src')).toBe('https://example.com');
-        expect(wrapper.find('.sw-extension-card-base__meta-info')
-            .text().replace(/\s/g, ''))
-            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021');
+        expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
+        expect(wrapper.find('.sw-extension-icon img').attributes('src')).toBe('https://example.com');
+        expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+        );
     });
 
     it('should display a placeholder icon and the rent price', async () => {
-        const wrapper = await createWrapper({
-            id: 1,
-            name: 'Sample Extension',
-            label: 'Sample Extension Label',
-            languages: [],
-            rating: 3,
-            numberOfRatings: 10,
-            installedAt: {
-                date: '2021-02-01T03:30:35+01:00',
-            },
-            storeLicense: {
-                variants: [{}],
-            },
-            permissions: {},
-            images: [],
-            icon: null,
-            iconRaw: null,
-            active: false,
-            type: 'plugin',
-        }, {
-            licensedExtension: {
+        const wrapper = await createWrapper(
+            {
                 id: 1,
-                variant: 'rent',
-                netPrice: 497,
-                permissions: [],
+                name: 'Sample Extension',
+                label: 'Sample Extension Label',
+                languages: [],
+                rating: 3,
+                numberOfRatings: 10,
+                installedAt: {
+                    date: '2021-02-01T03:30:35+01:00',
+                },
+                storeLicense: {
+                    variants: [{}],
+                },
+                permissions: {},
+                images: [],
+                icon: null,
+                iconRaw: null,
+                active: false,
+                type: 'plugin',
             },
-        }, true);
+            {
+                licensedExtension: {
+                    id: 1,
+                    variant: 'rent',
+                    netPrice: 497,
+                    permissions: [],
+                },
+            },
+            true,
+        );
 
-        expect(wrapper.find('.sw-extension-card-base__info-name')
-            .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-icon img')
-            .attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
-        expect(wrapper.find('.sw-extension-card-base__meta-info')
-            .text().replace(/\s/g, ''))
-            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021');
+        expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
+        expect(wrapper.find('.sw-extension-icon img').attributes().src).toBe(
+            'administration/static/img/theme/default_theme_preview.jpg',
+        );
+        expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+        );
     });
 
     it('should link to the detail page', async () => {
@@ -278,8 +294,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         const detailLink = wrapper.getComponent('.sw-extension-card-bought__detail-link');
 
-        expect(detailLink.props('routerLink'))
-            .toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '1' } });
+        expect(detailLink.props('routerLink')).toStrictEqual({
+            name: 'sw.extension.store.detail',
+            params: { id: '1' },
+        });
     });
 
     it('should link to the detail page with a store extension', async () => {
@@ -310,7 +328,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         const detailLink = wrapper.getComponent('.sw-extension-card-bought__detail-link');
 
         expect(detailLink.text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel');
-        expect(detailLink.props('routerLink')).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '5' } });
+        expect(detailLink.props('routerLink')).toStrictEqual({
+            name: 'sw.extension.store.detail',
+            params: { id: '5' },
+        });
     });
 
     it('should open the rating modal', async () => {
@@ -493,7 +514,8 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal').exists()).toBe(true);
         expect(wrapper.vm.installationFailedError).toEqual({
             title: 'Download not allowed',
-            message: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
+            message:
+                'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
             details: null,
             parameters: {
                 documentationLink: 'https://docs.shopware.com/en/shopware-6-en',
@@ -501,47 +523,55 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         });
 
         expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3').text()).toBe('Download not allowed');
-        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3 + p').text())
-            .toBe('The download of the extension is not allowed, please purchase a corresponding license or contact the customer service');
-        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal p > a').text()).toBe('https://docs.shopware.com/en/shopware-6-en');
+        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3 + p').text()).toBe(
+            'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
+        );
+        expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal p > a').text()).toBe(
+            'https://docs.shopware.com/en/shopware-6-en',
+        );
     });
 
     describe('test display of rent and trail phase information', () => {
-        it.each([{
-            testCaseName: 'should display when a rent will expire',
-            storeLicense: {
-                variant: 'rent',
-                expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: false,
+        it.each([
+            {
+                testCaseName: 'should display when a rent will expire',
+                storeLicense: {
+                    variant: 'rent',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: false,
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
             },
-            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
-        }, {
-            testCaseName: 'should display when a rent is already expired',
-            storeLicense: {
-                variant: 'rent',
-                expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: true,
+            {
+                testCaseName: 'should display when a rent is already expired',
+                storeLicense: {
+                    variant: 'rent',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: true,
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
+                expectedIcon: 'solid-exclamation-circle',
             },
-            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
-            expectedIcon: 'solid-exclamation-circle',
-        }, {
-            testCaseName: 'should display when a test phase will expire',
-            storeLicense: {
-                variant: 'test',
-                expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: false,
+            {
+                testCaseName: 'should display when a test phase will expire',
+                storeLicense: {
+                    variant: 'test',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: false,
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
             },
-            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
-        }, {
-            testCaseName: 'should display when a test phase is already expired',
-            storeLicense: {
-                variant: 'test',
-                expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: true,
+            {
+                testCaseName: 'should display when a test phase is already expired',
+                storeLicense: {
+                    variant: 'test',
+                    expirationDate: '2021-06-08T00:00:00+02:00',
+                    expired: true,
+                },
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
+                expectedIcon: 'solid-exclamation-circle',
             },
-            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-            expectedIcon: 'solid-exclamation-circle',
-        }])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
+        ])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
             const wrapper = await createWrapper({
                 id: 555,
                 name: 'Test extension',

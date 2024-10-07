@@ -25,7 +25,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     watch: {
         showShortcutModal(value) {
-            const shortcutModal = this.$refs.shortcutModal as { onOpenShortcutOverviewModal: () => void };
+            const shortcutModal = this.$refs.shortcutModal as {
+                onOpenShortcutOverviewModal: () => void;
+            };
 
             if (!shortcutModal) {
                 return;
@@ -55,7 +57,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         setFocusToSidebar(): void {
-            const helpSidebar = this.$refs.helpSidebar as { setFocusToSidebar: () => void };
+            const helpSidebar = this.$refs.helpSidebar as {
+                setFocusToSidebar: () => void;
+            };
 
             if (!helpSidebar) {
                 return;

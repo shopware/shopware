@@ -23,7 +23,7 @@ export default {
 
     computed: {
         ...mapState('context', {
-            isAppUrlReachable: state => state.app.config.settings.appUrlReachable,
+            isAppUrlReachable: (state) => state.app.config.settings.appUrlReachable,
         }),
 
         isLoading() {
@@ -50,24 +50,21 @@ export default {
         extensionListPaginated() {
             const begin = (this.page - 1) * this.limit;
 
-            return this.extensionListSearched
-                .slice(begin, begin + this.limit);
+            return this.extensionListSearched.slice(begin, begin + this.limit);
         },
 
         extensionListSearched() {
-            return this.extensionList
-                .filter(extension => {
-                    const searchTerm = this.term && this.term.toLowerCase();
-                    if (!this.term) {
-                        return true;
-                    }
+            return this.extensionList.filter((extension) => {
+                const searchTerm = this.term && this.term.toLowerCase();
+                if (!this.term) {
+                    return true;
+                }
 
-                    const label = extension.label || '';
-                    const name = extension.name || '';
+                const label = extension.label || '';
+                const name = extension.name || '';
 
-                    return label.toLowerCase().includes(searchTerm) ||
-                        name.toLowerCase().includes(searchTerm);
-                });
+                return label.toLowerCase().includes(searchTerm) || name.toLowerCase().includes(searchTerm);
+            });
         },
 
         isAppRoute() {
@@ -193,7 +190,7 @@ export default {
         },
 
         filterExtensionsByType(extensions) {
-            return extensions.filter(extension => {
+            return extensions.filter((extension) => {
                 // app route and no theme
                 if (this.isAppRoute && !extension.isTheme) {
                     return true;
@@ -260,7 +257,7 @@ export default {
         },
 
         filterExtensionsByActiveState(extensions) {
-            return extensions.filter(extension => {
+            return extensions.filter((extension) => {
                 return extension.active;
             });
         },

@@ -16,7 +16,6 @@ function createAppActionButtonService() {
     return { appActionButtonService, clientMock };
 }
 
-
 describe('appActionButtonService', () => {
     it('is registered correctly', async () => {
         // const appActionButtonService = Shopware.Service('appActionButton');
@@ -31,9 +30,7 @@ describe('appActionButtonService', () => {
 
         expect(() => {
             appActionButtonService.getActionButtonsPerView();
-        }).toThrow(
-            new InvalidActionButtonParameterError('Parameter "entity" must have a valid value. Given: undefined'),
-        );
+        }).toThrow(new InvalidActionButtonParameterError('Parameter "entity" must have a valid value. Given: undefined'));
     });
 
     it('throws an exception if view is not set for getActionButtonsPerView', async () => {
@@ -42,29 +39,28 @@ describe('appActionButtonService', () => {
 
         expect(() => {
             appActionButtonService.getActionButtonsPerView('product');
-        }).toThrow(
-            new InvalidActionButtonParameterError('Parameter "view" must have a valid value. Given: undefined'),
-        );
+        }).toThrow(new InvalidActionButtonParameterError('Parameter "view" must have a valid value. Given: undefined'));
     });
 
     it('returns action button data', async () => {
         // const appActionButtonService = Shopware.Service('appActionButton');
         const { appActionButtonService, clientMock } = createAppActionButtonService();
 
-        clientMock.onGet('app-system/action-button/product/detail').reply(
-            200,
-            {
-                actions: [{
+        clientMock.onGet('app-system/action-button/product/detail').reply(200, {
+            actions: [
+                {
                     name: 'App',
-                }],
-            },
-        );
+                },
+            ],
+        });
 
         const actionButtons = await appActionButtonService.getActionButtonsPerView('product', 'detail');
 
-        expect(actionButtons).toEqual([{
-            name: 'App',
-        }]);
+        expect(actionButtons).toEqual([
+            {
+                name: 'App',
+            },
+        ]);
     });
 
     it('calls the correct api endpoint to run an action', async () => {
@@ -72,10 +68,7 @@ describe('appActionButtonService', () => {
         const { appActionButtonService, clientMock } = createAppActionButtonService();
         const actionButtonId = Shopware.Utils.createId();
 
-        clientMock.onPost(`app-system/action-button/run/${actionButtonId}`).reply(
-            200,
-            null,
-        );
+        clientMock.onPost(`app-system/action-button/run/${actionButtonId}`).reply(200, null);
 
         await appActionButtonService.runAction(actionButtonId);
 

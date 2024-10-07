@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['feature', 'acl'],
+    inject: [
+        'feature',
+        'acl',
+    ],
 
     data() {
         return {
@@ -57,7 +60,7 @@ export default {
             },
             set(newMainCategory) {
                 if (this.product.mainCategories && !newMainCategory) {
-                    this.product.mainCategories = this.product.mainCategories.filter(category => {
+                    this.product.mainCategories = this.product.mainCategories.filter((category) => {
                         return category.salesChannelId !== this.currentSalesChannelId;
                     });
 

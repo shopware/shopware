@@ -68,7 +68,9 @@ export default {
             Object.keys(this.propertyNames).forEach((property) => {
                 if (!this.config.hasOwnProperty(property)) {
                     if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.config, property, { [this.fallbackLocale]: null });
+                        this.$set(this.config, property, {
+                            [this.fallbackLocale]: null,
+                        });
                     } else {
                         this.config[property] = { [this.fallbackLocale]: null };
                     }

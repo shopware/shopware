@@ -70,14 +70,8 @@ async function setupCmsEnvironment() {
     };
 }
 
-
 /**
  * @private
  * @package buyers-experience
  */
-export {
-    runGenericCmsTest,
-    runCmsBlockRegistryTest,
-    runCmsElementRegistryTest,
-    setupCmsEnvironment,
-};
+export { runGenericCmsTest, runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };

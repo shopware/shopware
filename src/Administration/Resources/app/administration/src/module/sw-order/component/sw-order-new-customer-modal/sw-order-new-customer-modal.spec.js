@@ -8,7 +8,6 @@ import ShopwareError from 'src/core/data/ShopwareError';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
@@ -51,19 +50,21 @@ async function createWrapper() {
 
                         if (entity === 'language') {
                             return {
-                                searchIds: () => Promise.resolve({
-                                    total: 1,
-                                    data: ['1'],
-                                }),
+                                searchIds: () =>
+                                    Promise.resolve({
+                                        total: 1,
+                                        data: ['1'],
+                                    }),
                             };
                         }
 
                         if (entity === 'salutation') {
                             return {
-                                searchIds: () => Promise.resolve({
-                                    total: 1,
-                                    data: ['salutationId'],
-                                }),
+                                searchIds: () =>
+                                    Promise.resolve({
+                                        total: 1,
+                                        data: ['salutationId'],
+                                    }),
                             };
                         }
 
@@ -97,7 +98,6 @@ async function createWrapper() {
                 },
             },
         },
-
     });
 }
 
@@ -157,10 +157,12 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
         wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
 
-        wrapper.vm.languageRepository.searchIds = jest.fn(() => Promise.resolve({
-            total: 1,
-            data: [Shopware.Context.api.languageId],
-        }));
+        wrapper.vm.languageRepository.searchIds = jest.fn(() =>
+            Promise.resolve({
+                total: 1,
+                data: [Shopware.Context.api.languageId],
+            }),
+        );
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -235,16 +237,10 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                 ...wrapper.props().customer,
                 defaultBillingAddressId: 'billing-address-id',
                 shippingAddressId: 'shipping-address-id',
-                addresses: new EntityCollection(
-                    '/customer_address',
-                    'customer_address',
-                    Context.api,
-                    null,
-                    [
-                        { id: 'billing-address-id' },
-                        { id: 'shipping-address-id' },
-                    ],
-                ),
+                addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+                    { id: 'billing-address-id' },
+                    { id: 'shipping-address-id' },
+                ]),
                 isNew: jest.fn(() => true),
             },
         });
@@ -261,16 +257,10 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                 ...wrapper.props().customer,
                 defaultBillingAddressId: 'billing-address-id',
                 shippingAddressId: 'shipping-address-id',
-                addresses: new EntityCollection(
-                    '/customer_address',
-                    'customer_address',
-                    Context.api,
-                    null,
-                    [
-                        { id: 'billing-address-id' },
-                        { id: 'shipping-address-id' },
-                    ],
-                ),
+                addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+                    { id: 'billing-address-id' },
+                    { id: 'shipping-address-id' },
+                ]),
                 isNew: jest.fn(() => true),
             },
         });

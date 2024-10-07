@@ -23,12 +23,7 @@ export default function initializeWindow(): void {
         }
     });
 
-    Shopware.ExtensionAPI.handle('windowRouterPush', ({
-        name,
-        params,
-        path,
-        replace,
-    }) => {
+    Shopware.ExtensionAPI.handle('windowRouterPush', ({ name, params, path, replace }) => {
         const $router = Shopware.Application.view?.router as unknown as Router;
 
         if (!$router) {

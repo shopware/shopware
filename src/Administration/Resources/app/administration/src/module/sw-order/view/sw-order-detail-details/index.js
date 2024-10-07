@@ -50,7 +50,14 @@ export default {
         },
     },
 
-    emits: ['update-loading', 'save-and-recalculate', 'save-and-reload', 'save-edits', 'reload-entity-data', 'error'],
+    emits: [
+        'update-loading',
+        'save-and-recalculate',
+        'save-and-reload',
+        'save-edits',
+        'reload-entity-data',
+        'error',
+    ],
 
     props: {
         orderId: {
@@ -90,7 +97,12 @@ export default {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                if (
+                    ![
+                        'cancelled',
+                        'failed',
+                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
+                ) {
                     return this.order.transactions[i];
                 }
             }
@@ -141,12 +153,12 @@ export default {
         },
 
         selectedBillingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'billing');
+            const currentAddress = this.orderAddressIds.find((item) => item.type === 'billing');
             return currentAddress?.customerAddressId || this.billingAddress.id;
         },
 
         selectedShippingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
+            const currentAddress = this.orderAddressIds.find((item) => item.type === 'shipping');
             return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
 
@@ -223,7 +235,10 @@ export default {
         },
 
         updateLoading(loadingValue) {
-            State.commit('swOrderDetail/setLoading', ['order', loadingValue]);
+            State.commit('swOrderDetail/setLoading', [
+                'order',
+                loadingValue,
+            ]);
         },
 
         validateTrackingCode(searchTerm) {
@@ -233,7 +248,7 @@ export default {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            const isExist = this.delivery?.trackingCodes?.find((code) => code === trackingCode);
             return !isExist;
         },
 

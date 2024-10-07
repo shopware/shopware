@@ -75,22 +75,25 @@ Shopware.Module.register('sw-cms', {
         },
     },
 
-    navigation: [{
-        id: 'sw-content',
-        label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
-        color: '#ff68b4',
-        icon: 'regular-content',
-        position: 50,
-    }, {
-        id: 'sw-cms',
-        label: 'sw-cms.general.mainMenuItemGeneral',
-        color: '#ff68b4',
-        path: 'sw.cms.index',
-        icon: 'regular-content',
-        position: 10,
-        parent: 'sw-content',
-        privilege: 'cms.viewer',
-    }],
+    navigation: [
+        {
+            id: 'sw-content',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
+            color: '#ff68b4',
+            icon: 'regular-content',
+            position: 50,
+        },
+        {
+            id: 'sw-cms',
+            label: 'sw-cms.general.mainMenuItemGeneral',
+            color: '#ff68b4',
+            path: 'sw.cms.index',
+            icon: 'regular-content',
+            position: 10,
+            parent: 'sw-content',
+            privilege: 'cms.viewer',
+        },
+    ],
 
     defaultSearchConfiguration,
 });

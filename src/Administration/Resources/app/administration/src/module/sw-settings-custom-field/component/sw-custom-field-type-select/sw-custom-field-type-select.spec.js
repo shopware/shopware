@@ -48,14 +48,16 @@ const defaultProps = {
         apiAlias: null,
         id: 'd2667dfae415440592a0944fbea2d3ce',
         customFields: [],
-        relations: [{
-            customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
-            entityName: 'product',
-            createdAt: '2021-06-30T08:02:28.996+00:00',
-            updatedAt: null,
-            apiAlias: null,
-            id: '559b6ae735b04e199505fd4c5ac5f22c',
-        }],
+        relations: [
+            {
+                customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
+                entityName: 'product',
+                createdAt: '2021-06-30T08:02:28.996+00:00',
+                updatedAt: null,
+                apiAlias: null,
+                id: '559b6ae735b04e199505fd4c5ac5f22c',
+            },
+        ],
         products: [],
     },
 };

@@ -28,11 +28,12 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 },
                 searchRankingService: {},
                 configService: {
-                    getConfig: () => Promise.resolve({
-                        settings: {
-                            enableUrlFeature: false,
-                        },
-                    }),
+                    getConfig: () =>
+                        Promise.resolve({
+                            settings: {
+                                enableUrlFeature: false,
+                            },
+                        }),
                 },
                 mediaService: {
                     addListener: () => {},
@@ -54,15 +55,23 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 fileValidationService: {},
             },
             stubs: {
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
-                'sw-tree': await wrapTestComponent('sw-tree', { sync: true }),
+                'sw-tree': await wrapTestComponent('sw-tree', {
+                    sync: true,
+                }),
                 'sw-tree-item': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
                 'router-link': true,
                 'sw-label': true,
                 'sw-inheritance-switch': true,
@@ -88,7 +97,9 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 },
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-loader': true,
                 'sw-tree-input-field': true,
                 'sw-context-button': {
@@ -258,53 +269,61 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should add the downloads column when the product state is equal "is-download"', async () => {
-        const wrapper = await createWrapper({
-            productStates: ['is-download'],
-        }, {
-            create: (entity) => {
-                if (entity === 'media_default_folder') {
-                    return { search: () => Promise.resolve([
-                        {
-                            id: 'defaultMediaFolderId',
-                            entity: 'product_download',
-                        },
-                    ]) };
-                }
-                return { search: () => Promise.resolve() };
+        const wrapper = await createWrapper(
+            {
+                productStates: ['is-download'],
             },
-        });
+            {
+                create: (entity) => {
+                    if (entity === 'media_default_folder') {
+                        return {
+                            search: () =>
+                                Promise.resolve([
+                                    {
+                                        id: 'defaultMediaFolderId',
+                                        entity: 'product_download',
+                                    },
+                                ]),
+                        };
+                    }
+                    return { search: () => Promise.resolve() };
+                },
+            },
+        );
 
         expect(wrapper.find('.sw-data-grid__cell--downloads').exists()).toBeTruthy();
     });
 
     it('should remove file from digital variant item', async () => {
-        const item =
-            {
-                id: '1',
-                productNumber: '1',
-                name: 'Example product',
-                downloads: [
-                    {
-                        media: {
-                            fileName: 'example',
-                            fileExtension: 'png',
-                        },
+        const item = {
+            id: '1',
+            productNumber: '1',
+            name: 'Example product',
+            downloads: [
+                {
+                    media: {
+                        fileName: 'example',
+                        fileExtension: 'png',
                     },
-                    {
-                        media: {
-                            fileName: 'test',
-                            fileExtension: 'gif',
-                        },
+                },
+                {
+                    media: {
+                        fileName: 'test',
+                        fileExtension: 'gif',
                     },
-                ],
-            };
+                },
+            ],
+        };
 
-        const wrapper = await createWrapper({ productStates: ['is-download'] }, {
-            create: () => ({
-                search: () => Promise.resolve([item]),
-                save: () => Promise.resolve(),
-            }),
-        });
+        const wrapper = await createWrapper(
+            { productStates: ['is-download'] },
+            {
+                create: () => ({
+                    search: () => Promise.resolve([item]),
+                    save: () => Promise.resolve(),
+                }),
+            },
+        );
         await wrapper.vm.getList();
 
         // should be deleted
@@ -312,27 +331,28 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         // should not be deleted (because it's the last one)
         await wrapper.vm.removeFile('test.gif', wrapper.vm.variants.at(0));
 
-        const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
+        const previewItems = wrapper
+            .find('.sw-data-grid__cell--downloads')
+            .findAll('.sw-media-compact-upload-v2__preview-item');
         expect(previewItems).toHaveLength(1);
         expect(previewItems.at(0).find('.sw-context-menu-item').text()).toBe('test.gif');
     });
 
     it('should save successful uploaded files', async () => {
-        const item =
-            {
-                id: '1',
-                productNumber: '1',
-                name: 'Example product',
-                downloads: [
-                    {
-                        media: {
-                            id: 'lel',
-                            fileName: 'test',
-                            fileExtension: 'png',
-                        },
+        const item = {
+            id: '1',
+            productNumber: '1',
+            name: 'Example product',
+            downloads: [
+                {
+                    media: {
+                        id: 'lel',
+                        fileName: 'test',
+                        fileExtension: 'png',
                     },
-                ],
-            };
+                },
+            ],
+        };
 
         const file = {
             id: 'test-id',
@@ -340,14 +360,17 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             fileExtension: 'png',
         };
 
-        const wrapper = await createWrapper({ productStates: ['is-download'] }, {
-            create: () => ({
-                search: () => Promise.resolve([item]),
-                save: () => Promise.resolve(),
-                create: () => Promise.resolve(),
-                get: () => Promise.resolve(file),
-            }),
-        });
+        const wrapper = await createWrapper(
+            { productStates: ['is-download'] },
+            {
+                create: () => ({
+                    search: () => Promise.resolve([item]),
+                    save: () => Promise.resolve(),
+                    create: () => Promise.resolve(),
+                    get: () => Promise.resolve(file),
+                }),
+            },
+        );
         await wrapper.vm.getList();
 
         // not existing
@@ -355,7 +378,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         // existing
         await wrapper.vm.successfulUpload({ targetId: 'test-id', downloads: [] }, item);
 
-        const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
+        const previewItems = wrapper
+            .find('.sw-data-grid__cell--downloads')
+            .findAll('.sw-media-compact-upload-v2__preview-item');
         expect(previewItems).toHaveLength(2);
         expect(previewItems.at(1).find('.sw-context-menu-item').text()).toBe('example.png');
     });
@@ -374,13 +399,15 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
 
         await wrapper.vm.onEditItems();
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
-            name: 'sw.bulk.edit.product',
-            params: expect.objectContaining({
-                parentId: '72bfaf5d90214ce592715a9649d8760a',
-                includesDigital: '0',
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'sw.bulk.edit.product',
+                params: expect.objectContaining({
+                    parentId: '72bfaf5d90214ce592715a9649d8760a',
+                    includesDigital: '0',
+                }),
             }),
-        }));
+        );
 
         wrapper.vm.$router.push.mockRestore();
     });

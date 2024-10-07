@@ -74,19 +74,27 @@ const adapter = new VueAdapter(Application);
 Application.setViewAdapter(adapter);
 
 // Merge all initializer
-const allInitializers = { ...preInitializer, ...initializers, ...postInitializer };
+const allInitializers = {
+    ...preInitializer,
+    ...initializers,
+    ...postInitializer,
+};
 
 // Add initializers to application
-Object.entries(allInitializers).forEach(([key, initializer]) => {
-    // @ts-expect-error
-    Application.addInitializer(key, initializer);
-});
+Object.entries(allInitializers).forEach(
+    ([
+        key,
+        initializer,
+    ]) => {
+        // @ts-expect-error
+        Application.addInitializer(key, initializer);
+    },
+);
 
 // Add service providers
-Application
-    .addServiceProvider('feature', () => {
-        return new FeatureService(Feature);
-    })
+Application.addServiceProvider('feature', () => {
+    return new FeatureService(Feature);
+})
     .addServiceProvider('customEntityDefinitionService', () => {
         return new CustomEntityDefinitionService();
     })
@@ -216,4 +224,3 @@ Application
     .addServiceProvider('fileValidationService', () => {
         return FileValidationService();
     });
-

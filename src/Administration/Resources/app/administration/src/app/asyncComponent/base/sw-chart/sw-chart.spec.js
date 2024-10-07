@@ -17,8 +17,34 @@ const chartOptions = {
 };
 
 const chartSeries = [
-    { name: 'Demo Serie', data: [10, 41, 35, 51, 49, 62, 69, 91, 148] },
-    { name: 'Another demo Serie', data: [12, 24, 35, 58, 88, 95, 125, 145, 148] },
+    {
+        name: 'Demo Serie',
+        data: [
+            10,
+            41,
+            35,
+            51,
+            49,
+            62,
+            69,
+            91,
+            148,
+        ],
+    },
+    {
+        name: 'Another demo Serie',
+        data: [
+            12,
+            24,
+            35,
+            58,
+            88,
+            95,
+            125,
+            145,
+            148,
+        ],
+    },
 ];
 
 // initial component setup
@@ -41,7 +67,10 @@ describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'en-GB',
-            locales: ['en-GB', 'nl-NL'],
+            locales: [
+                'en-GB',
+                'nl-NL',
+            ],
         });
     });
 
@@ -81,15 +110,17 @@ describe('asyncComponent/base/sw-chart', () => {
         dateAgo.setDate(dateAgo.getDate() - numberOfDates);
 
         const wrapper = await setup({
-            series: [{
-                name: 'Demo dates',
-                data: [
-                    {
-                        x: new Date().setDate(new Date().getDate() - 20),
-                        y: Math.random() * 100,
-                    },
-                ],
-            }],
+            series: [
+                {
+                    name: 'Demo dates',
+                    data: [
+                        {
+                            x: new Date().setDate(new Date().getDate() - 20),
+                            y: Math.random() * 100,
+                        },
+                    ],
+                },
+            ],
             options: {
                 xaxis: { type: 'datetime', min: dateAgo },
             },
@@ -107,15 +138,17 @@ describe('asyncComponent/base/sw-chart', () => {
         dateAgo.setHours(dateAgo.getHours() - numberOfHours);
 
         const wrapper = await setup({
-            series: [{
-                name: 'Demo dates',
-                data: [
-                    {
-                        x: new Date().setHours(new Date().getHours() - 20),
-                        y: Math.random() * 100,
-                    },
-                ],
-            }],
+            series: [
+                {
+                    name: 'Demo dates',
+                    data: [
+                        {
+                            x: new Date().setHours(new Date().getHours() - 20),
+                            y: Math.random() * 100,
+                        },
+                    ],
+                },
+            ],
             options: {
                 xaxis: { type: 'datetime', min: dateAgo },
             },
@@ -133,15 +166,17 @@ describe('asyncComponent/base/sw-chart', () => {
         dateAgo.setMinutes(dateAgo.getMinutes() - numberOfMinutes);
 
         const wrapper = await setup({
-            series: [{
-                name: 'Demo dates',
-                data: [
-                    {
-                        x: new Date().setMinutes(new Date().getMinutes() - 20),
-                        y: Math.random() * 100,
-                    },
-                ],
-            }],
+            series: [
+                {
+                    name: 'Demo dates',
+                    data: [
+                        {
+                            x: new Date().setMinutes(new Date().getMinutes() - 20),
+                            y: Math.random() * 100,
+                        },
+                    ],
+                },
+            ],
             options: {
                 xaxis: { type: 'datetime', min: dateAgo },
             },
@@ -161,15 +196,17 @@ describe('asyncComponent/base/sw-chart', () => {
 
         // if fillEmptyValues is not present, there should be no additional values
         const wrapper = await setup({
-            series: [{
-                name: 'Demo dates',
-                data: [
-                    {
-                        x: new Date().setDate(new Date().getDate() - 20),
-                        y: Math.random() * 100,
-                    },
-                ],
-            }],
+            series: [
+                {
+                    name: 'Demo dates',
+                    data: [
+                        {
+                            x: new Date().setDate(new Date().getDate() - 20),
+                            y: Math.random() * 100,
+                        },
+                    ],
+                },
+            ],
             options: {
                 xaxis: { type: 'datetime', min: dateAgo },
             },
@@ -183,7 +220,17 @@ describe('asyncComponent/base/sw-chart', () => {
         const seriesToSort = [
             {
                 name: 'First series',
-                data: [4, 2, 1, 3, 6, 7, 9, 5, 8],
+                data: [
+                    4,
+                    2,
+                    1,
+                    3,
+                    6,
+                    7,
+                    9,
+                    5,
+                    8,
+                ],
             },
             {
                 name: 'Second series',
@@ -203,11 +250,11 @@ describe('asyncComponent/base/sw-chart', () => {
         });
 
         const isFirstSeriesSorted = wrapper.vm.optimizedSeries[0].data.reduce((acc, value) => {
-            return (acc !== false) && (acc <= value) ? value : false;
+            return acc !== false && acc <= value ? value : false;
         });
 
         const isSecondSeriesSorted = wrapper.vm.optimizedSeries[1].data.reduce((acc, value) => {
-            return (acc !== false) && (acc.x <= value.x) ? value : false;
+            return acc !== false && acc.x <= value.x ? value : false;
         });
 
         // check if sorted
@@ -223,7 +270,17 @@ describe('asyncComponent/base/sw-chart', () => {
         const seriesToSort = [
             {
                 name: 'First series',
-                data: [4, 2, 1, 3, 6, 7, 9, 5, 8],
+                data: [
+                    4,
+                    2,
+                    1,
+                    3,
+                    6,
+                    7,
+                    9,
+                    5,
+                    8,
+                ],
             },
             {
                 name: 'Second series',
@@ -266,7 +323,10 @@ describe('asyncComponent/base/sw-chart', () => {
 
         // check if conversion to label works
         const convertedLabelStructure = seriesToConvert.reduce((acc, serie) => {
-            acc = [...acc, ...serie.data.map((data) => data.x)];
+            acc = [
+                ...acc,
+                ...serie.data.map((data) => data.x),
+            ];
             return acc;
         }, []);
 
@@ -276,7 +336,7 @@ describe('asyncComponent/base/sw-chart', () => {
         const convertedSeriesStructure = seriesToConvert.map((serie) => {
             return {
                 name: serie.name,
-                data: serie.data.map(value => value.y),
+                data: serie.data.map((value) => value.y),
             };
         });
 
@@ -286,7 +346,10 @@ describe('asyncComponent/base/sw-chart', () => {
     it('should load the correct default locale', async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'nl-NL',
-            locales: ['en-GB', 'nl-NL'],
+            locales: [
+                'en-GB',
+                'nl-NL',
+            ],
         });
 
         const wrapper = await setup();
@@ -299,7 +362,11 @@ describe('asyncComponent/base/sw-chart', () => {
     it('should load the fallback locale when default locale does not exists', async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'foo-BAR',
-            locales: ['en-GB', 'nl-NL', 'foo-BAR'],
+            locales: [
+                'en-GB',
+                'nl-NL',
+                'foo-BAR',
+            ],
         });
 
         const wrapper = await setup();

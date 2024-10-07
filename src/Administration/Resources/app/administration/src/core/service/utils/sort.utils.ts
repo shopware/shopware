@@ -8,12 +8,11 @@ export default {
     afterSort,
 };
 
-
 interface SortElements {
-    id: string,
+    id: string;
     data: {
-        [key: string]: unknown
-    }
+        [key: string]: unknown;
+    };
 }
 
 /**
@@ -78,7 +77,7 @@ function afterSort(elements: SortElements[], property = 'afterId'): SortElements
                 break;
             }
 
-            lastId = nextItem && nextItem.data[property] as string;
+            lastId = nextItem && (nextItem.data[property] as string);
         }
     }
 

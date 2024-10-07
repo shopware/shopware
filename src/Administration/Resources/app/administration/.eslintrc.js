@@ -103,6 +103,7 @@ module.exports = {
             extends: [
                 'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
+                'prettier',
             ],
             files: ['**/*.js'],
             excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
@@ -234,7 +235,10 @@ module.exports = {
                     },
                 ],
             },
-            extends: ['plugin:jest/recommended'],
+            extends: [
+                'plugin:jest/recommended',
+                'prettier',
+            ],
         }, {
             files: ['**/snippet/*.json'],
             rules: {
@@ -247,6 +251,7 @@ module.exports = {
                 'plugin:@typescript-eslint/eslint-recommended',
                 'plugin:@typescript-eslint/recommended',
                 'plugin:@typescript-eslint/recommended-requiring-type-checking',
+                'prettier',
             ],
             parser: '@typescript-eslint/parser',
             parserOptions: {

@@ -100,33 +100,28 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
     describe('created', () => {
         function createInitialConditionsCollection() {
-            return new EntityCollection(
-                null,
-                'rule_condition',
-                null,
-                new Criteria(),
-                [
-                    {
-                        apiAlias: null,
-                        children: new EntityCollection('', 'rule_condition', Shopware.Context.api),
-                        customFields: null,
-                        id: 'first-initial_condition_id',
-                        parentId: null,
-                        ruleId: 'rule_uuid',
-                        position: 0,
-                        type: 'customerCustomerGroup',
-                    }, {
-                        apiAlias: null,
-                        children: new EntityCollection('', 'rule_condition', Shopware.Context.api),
-                        customFields: null,
-                        id: 'second-initial_condition_id',
-                        parentId: null,
-                        ruleId: 'rule_uuid',
-                        position: 1,
-                        type: 'customerCustomerGroup',
-                    },
-                ],
-            );
+            return new EntityCollection(null, 'rule_condition', null, new Criteria(), [
+                {
+                    apiAlias: null,
+                    children: new EntityCollection('', 'rule_condition', Shopware.Context.api),
+                    customFields: null,
+                    id: 'first-initial_condition_id',
+                    parentId: null,
+                    ruleId: 'rule_uuid',
+                    position: 0,
+                    type: 'customerCustomerGroup',
+                },
+                {
+                    apiAlias: null,
+                    children: new EntityCollection('', 'rule_condition', Shopware.Context.api),
+                    customFields: null,
+                    id: 'second-initial_condition_id',
+                    parentId: null,
+                    ruleId: 'rule_uuid',
+                    position: 1,
+                    type: 'customerCustomerGroup',
+                },
+            ]);
         }
 
         it('should emit initial-loading-done after initial loading', async () => {
@@ -150,54 +145,51 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
             expect(deletedIds).toEqual([]);
 
-            expect(conditions).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    id: 'id1',
-                    type: 'orContainer',
-                    parentId: null,
-                    ruleId: 'rule_uuid',
-                    children: expect.arrayContaining([
-                        expect.objectContaining({
-                            apiAlias: null,
-                            children: expect.arrayContaining([]),
-                            customFields: null,
-                            id: 'first-initial_condition_id',
-                            parentId: 'id1',
-                            ruleId: 'rule_uuid',
-                            position: 0,
-                            type: 'customerCustomerGroup',
-                        }), expect.objectContaining({
-                            apiAlias: null,
-                            children: expect.arrayContaining([]),
-                            customFields: null,
-                            id: 'second-initial_condition_id',
-                            parentId: 'id1',
-                            ruleId: 'rule_uuid',
-                            position: 1,
-                            type: 'customerCustomerGroup',
-                        }),
-                    ]),
-                }),
-            ]));
+            expect(conditions).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        id: 'id1',
+                        type: 'orContainer',
+                        parentId: null,
+                        ruleId: 'rule_uuid',
+                        children: expect.arrayContaining([
+                            expect.objectContaining({
+                                apiAlias: null,
+                                children: expect.arrayContaining([]),
+                                customFields: null,
+                                id: 'first-initial_condition_id',
+                                parentId: 'id1',
+                                ruleId: 'rule_uuid',
+                                position: 0,
+                                type: 'customerCustomerGroup',
+                            }),
+                            expect.objectContaining({
+                                apiAlias: null,
+                                children: expect.arrayContaining([]),
+                                customFields: null,
+                                id: 'second-initial_condition_id',
+                                parentId: 'id1',
+                                ruleId: 'rule_uuid',
+                                position: 1,
+                                type: 'customerCustomerGroup',
+                            }),
+                        ]),
+                    }),
+                ]),
+            );
         });
     });
 
     describe('provides', () => {
         function createInitialOrContainer() {
-            return new EntityCollection(
-                null,
-                'rule_condition',
-                Shopware.Context.api,
-                new Criteria(),
-                [
-                    {
-                        id: 'id1',
-                        children: new EntityCollection('', 'rule_condition', Shopware.Context.api),
-                        type: 'orContainer',
-                        parentId: null,
-                    },
-                ],
-            );
+            return new EntityCollection(null, 'rule_condition', Shopware.Context.api, new Criteria(), [
+                {
+                    id: 'id1',
+                    children: new EntityCollection('', 'rule_condition', Shopware.Context.api),
+                    type: 'orContainer',
+                    parentId: null,
+                },
+            ]);
         }
 
         describe('availableTypes', () => {
@@ -233,7 +225,8 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                         type: 'cart',
                         group: 'customer',
                         scopes: ['cart'],
-                    }), expect.objectContaining({
+                    }),
+                    expect.objectContaining({
                         type: 'checkout',
                         group: 'misc',
                         scopes: ['checkout'],
@@ -255,7 +248,8 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                         type: 'cart',
                         group: 'customer',
                         scopes: ['cart'],
-                    }), expect.objectContaining({
+                    }),
+                    expect.objectContaining({
                         type: 'checkout',
                         group: 'misc',
                         scopes: ['checkout'],
@@ -306,13 +300,16 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             it('provides correct groups from service and moves misc to the end', async () => {
                 const conditionDataProviderService = new RuleConditionService();
                 conditionDataProviderService.getGroups = () => {
-                    return [{
-                        id: 'misc',
-                        name: 'misc.group.name',
-                    }, {
-                        id: 'test-group',
-                        name: 'test.group.name',
-                    }];
+                    return [
+                        {
+                            id: 'misc',
+                            name: 'misc.group.name',
+                        },
+                        {
+                            id: 'test-group',
+                            name: 'test.group.name',
+                        },
+                    ];
                 };
 
                 const wrapper = await createWrapper({
@@ -324,27 +321,33 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
                 expect(node.vm.availableGroups).toBeDefined();
 
-                expect(node.vm.availableGroups).toEqual([{
-                    id: 'test-group',
-                    name: 'test.group.name',
-                    label: 'test.group.name',
-                }, {
-                    id: 'misc',
-                    name: 'misc.group.name',
-                    label: 'misc.group.name',
-                }]);
+                expect(node.vm.availableGroups).toEqual([
+                    {
+                        id: 'test-group',
+                        name: 'test.group.name',
+                        label: 'test.group.name',
+                    },
+                    {
+                        id: 'misc',
+                        name: 'misc.group.name',
+                        label: 'misc.group.name',
+                    },
+                ]);
             });
 
             it('should sort "general" group to the start', async () => {
                 const conditionDataProviderService = new RuleConditionService();
                 conditionDataProviderService.getGroups = () => {
-                    return [{
-                        id: 'test-group',
-                        name: 'test.group.name',
-                    }, {
-                        id: 'general',
-                        name: 'general.group.name',
-                    }];
+                    return [
+                        {
+                            id: 'test-group',
+                            name: 'test.group.name',
+                        },
+                        {
+                            id: 'general',
+                            name: 'general.group.name',
+                        },
+                    ];
                 };
 
                 const wrapper = await createWrapper({
@@ -356,15 +359,18 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
                 expect(node.vm.availableGroups).toBeDefined();
 
-                expect(node.vm.availableGroups).toEqual([{
-                    id: 'general',
-                    name: 'general.group.name',
-                    label: 'general.group.name',
-                }, {
-                    id: 'test-group',
-                    name: 'test.group.name',
-                    label: 'test.group.name',
-                }]);
+                expect(node.vm.availableGroups).toEqual([
+                    {
+                        id: 'general',
+                        name: 'general.group.name',
+                        label: 'general.group.name',
+                    },
+                    {
+                        id: 'test-group',
+                        name: 'test.group.name',
+                        label: 'test.group.name',
+                    },
+                ]);
             });
 
             it('return empty array if getGroups is not defined', async () => {
@@ -387,10 +393,12 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             it('provides correct conditions from conditionDataProviderService.getRestrictedConditions', async () => {
                 const conditionDataProviderService = new RuleConditionService();
                 conditionDataProviderService.getRestrictedConditions = () => {
-                    return [{
-                        type: 'checkout',
-                        id: 'test-condition',
-                    }];
+                    return [
+                        {
+                            type: 'checkout',
+                            id: 'test-condition',
+                        },
+                    ];
                 };
 
                 const wrapper = await createWrapper({
@@ -401,10 +409,12 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.restrictedConditions).toBeDefined();
-                expect(node.vm.restrictedConditions).toEqual([{
-                    type: 'checkout',
-                    id: 'test-condition',
-                }]);
+                expect(node.vm.restrictedConditions).toEqual([
+                    {
+                        type: 'checkout',
+                        id: 'test-condition',
+                    },
+                ]);
             });
 
             it('return empty array if getRestrictedConditions is not defined', async () => {
@@ -432,28 +442,33 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.createCondition).toBeDefined();
-                expect(node.vm.createCondition({ someField: 'foo' }, 'parent-id', 23)).toEqual(expect.objectContaining({
-                    id: 'id1',
-                    type: 'orContainer',
-                    someField: 'foo',
-                    position: 23,
-                    ruleId: 'rule_uuid',
-                }));
+                expect(node.vm.createCondition({ someField: 'foo' }, 'parent-id', 23)).toEqual(
+                    expect.objectContaining({
+                        id: 'id1',
+                        type: 'orContainer',
+                        someField: 'foo',
+                        position: 23,
+                        ruleId: 'rule_uuid',
+                    }),
+                );
             });
         });
 
         function createInitialTree() {
             return {
                 id: 'parent-id',
-                children: new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [{
-                    id: 'id-first-child',
-                    position: 0,
-                    parentId: 'parent-id',
-                }, {
-                    id: 'id-last-child',
-                    position: 1,
-                    parentId: 'parent-id',
-                }]),
+                children: new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+                    {
+                        id: 'id-first-child',
+                        position: 0,
+                        parentId: 'parent-id',
+                    },
+                    {
+                        id: 'id-last-child',
+                        position: 1,
+                        parentId: 'parent-id',
+                    },
+                ]),
             };
         }
 
@@ -475,19 +490,23 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
                 expect(tree).toEqual({
                     id: 'parent-id',
-                    children: expect.arrayContaining([{
-                        id: 'to-be-inserted-id',
-                        parentId: 'parent-id',
-                        position: 0,
-                    }, {
-                        id: 'id-first-child',
-                        position: 1,
-                        parentId: 'parent-id',
-                    }, {
-                        id: 'id-last-child',
-                        position: 2,
-                        parentId: 'parent-id',
-                    }]),
+                    children: expect.arrayContaining([
+                        {
+                            id: 'to-be-inserted-id',
+                            parentId: 'parent-id',
+                            position: 0,
+                        },
+                        {
+                            id: 'id-first-child',
+                            position: 1,
+                            parentId: 'parent-id',
+                        },
+                        {
+                            id: 'id-last-child',
+                            position: 2,
+                            parentId: 'parent-id',
+                        },
+                    ]),
                 });
             });
 
@@ -515,23 +534,28 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
                 expect(tree).toEqual({
                     id: 'parent-id',
-                    children: expect.arrayContaining([{
-                        id: 'should-be-position-0',
-                        parentId: 'parent-id',
-                        position: 0,
-                    }, {
-                        id: 'id-first-child',
-                        position: 1,
-                        parentId: 'parent-id',
-                    }, {
-                        id: 'id-last-child',
-                        position: 2,
-                        parentId: 'parent-id',
-                    }, {
-                        id: 'should-be-position-3',
-                        parentId: 'parent-id',
-                        position: 3,
-                    }]),
+                    children: expect.arrayContaining([
+                        {
+                            id: 'should-be-position-0',
+                            parentId: 'parent-id',
+                            position: 0,
+                        },
+                        {
+                            id: 'id-first-child',
+                            position: 1,
+                            parentId: 'parent-id',
+                        },
+                        {
+                            id: 'id-last-child',
+                            position: 2,
+                            parentId: 'parent-id',
+                        },
+                        {
+                            id: 'should-be-position-3',
+                            parentId: 'parent-id',
+                            position: 3,
+                        },
+                    ]),
                 });
             });
 
@@ -543,7 +567,9 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.insertNodeIntoTree).toBeDefined();
-                expect(() => { node.vm.insertNodeIntoTree(null, { id: 'id' }); }).toThrow();
+                expect(() => {
+                    node.vm.insertNodeIntoTree(null, { id: 'id' });
+                }).toThrow();
             });
         });
 
@@ -561,28 +587,34 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 const nodeToBeRemoved = tree.children[0];
 
                 nodeToBeRemoved.isNew = () => true;
-                nodeToBeRemoved.children = [{
-                    id: 'child-node-to-be-removed',
-                    parentId: nodeToBeRemoved.id,
-                    position: 0,
-                    isNew: () => false,
-                    children: [{
-                        id: 'child-of-child-node-to-be-removed',
-                        parentId: 'child-node-to-be-removed',
+                nodeToBeRemoved.children = [
+                    {
+                        id: 'child-node-to-be-removed',
+                        parentId: nodeToBeRemoved.id,
                         position: 0,
                         isNew: () => false,
-                    }],
-                }];
+                        children: [
+                            {
+                                id: 'child-of-child-node-to-be-removed',
+                                parentId: 'child-node-to-be-removed',
+                                position: 0,
+                                isNew: () => false,
+                            },
+                        ],
+                    },
+                ];
 
                 node.vm.removeNodeFromTree(tree, nodeToBeRemoved);
 
                 expect(tree).toEqual({
                     id: 'parent-id',
-                    children: expect.arrayContaining([{
-                        id: 'id-last-child',
-                        position: 0,
-                        parentId: 'parent-id',
-                    }]),
+                    children: expect.arrayContaining([
+                        {
+                            id: 'id-last-child',
+                            position: 0,
+                            parentId: 'parent-id',
+                        },
+                    ]),
                 });
 
                 // conditions-changes is also emitted at mounting
@@ -602,7 +634,9 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.removeNodeFromTree).toBeDefined();
-                expect(() => { node.vm.removeNodeFromTree(null, { id: 'id' }); }).toThrow();
+                expect(() => {
+                    node.vm.removeNodeFromTree(null, { id: 'id' });
+                }).toThrow();
             });
         });
     });

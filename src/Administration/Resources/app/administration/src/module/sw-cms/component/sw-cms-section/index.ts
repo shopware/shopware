@@ -9,7 +9,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 type SlotsErrorObject = {
     parameters?: {
         elements: Array<{
-            blockIds: string[]
+            blockIds: string[];
         }>;
     };
 };
@@ -17,7 +17,7 @@ type SlotsErrorObject = {
 type SlotConfigErrorObject = {
     parameters?: {
         elements: Array<{
-            blockId: string
+            blockId: string;
         }>;
     };
 };
@@ -42,7 +42,10 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    emits: ['page-config-open', 'block-duplicate'],
+    emits: [
+        'page-config-open',
+        'block-duplicate',
+    ],
 
     mixins: [
         Mixin.getByName('cms-state'),
@@ -153,14 +156,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         sideBarBlocks() {
-            const sideBarBlocks = this.section.blocks!.filter((block => this.blockTypeExists(block.type)
-                && block.sectionPosition === 'sidebar'));
+            const sideBarBlocks = this.section.blocks!.filter(
+                (block) => this.blockTypeExists(block.type) && block.sectionPosition === 'sidebar',
+            );
             return sideBarBlocks.sort((a, b) => a.position - b.position);
         },
 
         mainContentBlocks() {
-            const mainContentBlocks = this.section.blocks!.filter((block => this.blockTypeExists(block.type)
-                && block.sectionPosition !== 'sidebar'));
+            const mainContentBlocks = this.section.blocks!.filter(
+                (block) => this.blockTypeExists(block.type) && block.sectionPosition !== 'sidebar',
+            );
             return mainContentBlocks.sort((a, b) => a.position - b.position);
         },
 
@@ -177,9 +182,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             const visibility = this.section.visibility as CmsVisibility;
 
-            return (view === 'desktop' && !visibility.desktop) ||
+            return (
+                (view === 'desktop' && !visibility.desktop) ||
                 (view === 'tablet-landscape' && !visibility.tablet) ||
-                (view === 'mobile' && !visibility.mobile);
+                (view === 'mobile' && !visibility.mobile)
+            );
         },
 
         toggleButtonText() {

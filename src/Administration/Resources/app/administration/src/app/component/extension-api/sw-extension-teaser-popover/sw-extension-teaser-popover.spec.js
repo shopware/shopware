@@ -106,7 +106,6 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         expect(buttonComponent.text()).toBe('Upload flow');
     });
 
-
     it('should show popover content if mouse enter trigger component', async () => {
         store.addPopoverComponent({
             positionId: 'test-position',

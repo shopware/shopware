@@ -75,86 +75,85 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
     }
 
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-settings-listing-option-base', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                mocks: {
-                    $route: {
-                        params: {
-                            id: getProductSortings()[0].id,
+        return mount(
+            await wrapTestComponent('sw-settings-listing-option-base', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    mocks: {
+                        $route: {
+                            params: {
+                                id: getProductSortings()[0].id,
+                            },
                         },
                     },
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: repository => {
-                            if (repository === 'custom_field') {
+                    provide: {
+                        repositoryFactory: {
+                            create: (repository) => {
+                                if (repository === 'custom_field') {
+                                    return {
+                                        search: () => Promise.resolve(getCustomFields()),
+                                    };
+                                }
+
                                 return {
-                                    search: () => Promise.resolve(getCustomFields()),
-                                };
-                            }
+                                    get: (id) => {
+                                        let response = null;
 
-                            return {
-                                get: (id) => {
-                                    let response = null;
+                                        getProductSortings().forEach((element) => {
+                                            if (element.id === id) {
+                                                response = element;
+                                            }
+                                        });
 
-                                    getProductSortings().forEach(element => {
-                                        if (element.id === id) {
-                                            response = element;
-                                        }
-                                    });
+                                        return Promise.resolve(response);
+                                    },
+                                    search: (param) => {
+                                        let response = null;
 
-                                    return Promise.resolve(response);
-                                },
-                                search: (param) => {
-                                    let response = null;
+                                        getProductSortings().forEach((element) => {
+                                            if (element[param.filters[0].field] === param.filters[0].value) {
+                                                response = element;
+                                            }
+                                        });
 
-                                    getProductSortings().forEach(element => {
-                                        if (element[param.filters[0].field] === param.filters[0].value) {
-                                            response = element;
-                                        }
-                                    });
-
-                                    return Promise.resolve(
-                                        {
+                                        return Promise.resolve({
                                             first: () => {
                                                 return response;
                                             },
-                                        },
-                                    );
-                                },
-                                save: entity => {
-                                    if (entity.fail) {
-                                        return Promise.reject();
-                                    }
+                                        });
+                                    },
+                                    save: (entity) => {
+                                        if (entity.fail) {
+                                            return Promise.reject();
+                                        }
 
-                                    return Promise.resolve();
-                                },
-                            };
+                                        return Promise.resolve();
+                                    },
+                                };
+                            },
                         },
-                    },
-                    systemConfigApiService: {
-                        getValues: () => {
-                            return Promise.resolve(
-                                {
+                        systemConfigApiService: {
+                            getValues: () => {
+                                return Promise.resolve({
                                     'core.listing.defaultSorting': getDefaultSortingId(),
-                                },
-                            );
+                                });
+                            },
                         },
                     },
-                },
-                stubs: {
-                    'sw-page': true,
-                    'sw-button': true,
-                    'sw-language-switch': true,
-                    'sw-settings-listing-option-general-info': true,
-                    'sw-settings-listing-option-criteria-grid': true,
-                    'sw-settings-listing-delete-modal': true,
+                    stubs: {
+                        'sw-page': true,
+                        'sw-button': true,
+                        'sw-language-switch': true,
+                        'sw-settings-listing-option-general-info': true,
+                        'sw-settings-listing-option-criteria-grid': true,
+                        'sw-settings-listing-delete-modal': true,
+                    },
                 },
             },
-        });
+        );
     }
 
     let wrapper;

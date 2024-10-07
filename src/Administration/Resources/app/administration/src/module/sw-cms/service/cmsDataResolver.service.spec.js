@@ -67,7 +67,8 @@ function createPageMock(debugProperty = 'associations') {
                                     },
                                 },
                                 data: null,
-                            }, {
+                            },
+                            {
                                 id: 'slot-id-2',
                                 versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
                                 type: 'text',
@@ -121,7 +122,8 @@ function createPageMock(debugProperty = 'associations') {
                                     },
                                 },
                                 data: null,
-                            }, {
+                            },
+                            {
                                 id: 'slot-id-3',
                                 versionId: '0fa91ce3e96a4bc2be4bd9ce752c3421',
                                 type: 'invalid',
@@ -194,7 +196,8 @@ const invalidSlotsMock = [
             },
         },
         data: null,
-    }, {
+    },
+    {
         id: 'slot-id-12',
         versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
         type: 'text',
@@ -274,14 +277,10 @@ const cmsElements = {
                         searchCriteria.addAssociation('product');
                         break;
                     case 'filters':
-                        searchCriteria.addFilter(
-                            Criteria.equals('name', 'mock-data'),
-                        );
+                        searchCriteria.addFilter(Criteria.equals('name', 'mock-data'));
                         break;
                     case 'sortings':
-                        searchCriteria.addSorting(
-                            Criteria.sort('name', 'ASC'),
-                        );
+                        searchCriteria.addSorting(Criteria.sort('name', 'ASC'));
                         break;
                     case 'term':
                         searchCriteria.setTerm('mock-data');
@@ -436,7 +435,13 @@ describe('module/sw-cms/service/cmsDataResolver.service.js', () => {
         expect(Object.keys(cmsElements.enrichAssertHelper[0].slotEntities)).toContain('entity-products');
     });
 
-    const canBeMergedDataProvider = ['no additions', 'associations', 'filters', 'sortings', 'term'];
+    const canBeMergedDataProvider = [
+        'no additions',
+        'associations',
+        'filters',
+        'sortings',
+        'term',
+    ];
     it.each(canBeMergedDataProvider)('should not be merged if %s are set, but are still available', async (propertyName) => {
         const pageMock = createPageMock(propertyName);
 

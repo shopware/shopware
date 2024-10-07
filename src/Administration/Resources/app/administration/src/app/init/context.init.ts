@@ -38,12 +38,13 @@ export default function initializeContext(): void {
     });
 
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
-        return (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
+        return Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
     });
 
     Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {
-        const extension = Object.values(Shopware.State.get('extensions'))
-            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
+        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+            ext.baseUrl.startsWith(additionalInformation._event_.origin),
+        );
 
         if (!extension) {
             return {
@@ -52,11 +53,13 @@ export default function initializeContext(): void {
         }
 
         // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        const modules = Shopware.State.getters['extensionSdkModules/getRegisteredModuleInformation'](extension.baseUrl) as Array< {
-            displaySearchBar: boolean,
-            heading: string,
-            id: string,
-            locationId: string
+        const modules = Shopware.State.getters['extensionSdkModules/getRegisteredModuleInformation'](
+            extension.baseUrl,
+        ) as Array<{
+            displaySearchBar: boolean;
+            heading: string;
+            id: string;
+            locationId: string;
         }>;
 
         return {
@@ -82,10 +85,10 @@ export default function initializeContext(): void {
 
         return Promise.resolve({
             aclRoles: currentUser.aclRoles as unknown as Array<{
-                name: string,
-                type: string,
-                id: string,
-                privileges: Array<string>,
+                name: string;
+                type: string;
+                id: string;
+                privileges: Array<string>;
             }>,
             active: !!currentUser.active,
             admin: !!currentUser.admin,
@@ -109,7 +112,7 @@ export default function initializeContext(): void {
         });
 
         if (!extension || !extension[0] || !extension[1]) {
-            const type: 'app'|'plugin' = 'app';
+            const type: 'app' | 'plugin' = 'app';
 
             return {
                 name: 'unknown',
@@ -125,35 +128,41 @@ export default function initializeContext(): void {
         };
     });
 
-    Shopware.State.watch((state) => {
-        return {
-            languageId: state.context.api.languageId,
-            systemLanguageId: state.context.api.systemLanguageId,
-        };
-    }, ({ languageId, systemLanguageId }, { languageId: oldLanguageId, systemLanguageId: oldSystemLanguageId }) => {
-        if (languageId === oldLanguageId && systemLanguageId === oldSystemLanguageId) {
-            return;
-        }
+    Shopware.State.watch(
+        (state) => {
+            return {
+                languageId: state.context.api.languageId,
+                systemLanguageId: state.context.api.systemLanguageId,
+            };
+        },
+        ({ languageId, systemLanguageId }, { languageId: oldLanguageId, systemLanguageId: oldSystemLanguageId }) => {
+            if (languageId === oldLanguageId && systemLanguageId === oldSystemLanguageId) {
+                return;
+            }
 
-        void publish('contextLanguage', {
-            languageId: languageId ?? '',
-            systemLanguageId: systemLanguageId ?? '',
-        });
-    });
+            void publish('contextLanguage', {
+                languageId: languageId ?? '',
+                systemLanguageId: systemLanguageId ?? '',
+            });
+        },
+    );
 
-    Shopware.State.watch((state) => {
-        return {
-            fallbackLocale: state.context.app.fallbackLocale,
-            locale: state.session.currentLocale,
-        };
-    }, ({ fallbackLocale, locale }, { fallbackLocale: oldFallbackLocale, locale: oldLocale }) => {
-        if (fallbackLocale === oldFallbackLocale && locale === oldLocale) {
-            return;
-        }
+    Shopware.State.watch(
+        (state) => {
+            return {
+                fallbackLocale: state.context.app.fallbackLocale,
+                locale: state.session.currentLocale,
+            };
+        },
+        ({ fallbackLocale, locale }, { fallbackLocale: oldFallbackLocale, locale: oldLocale }) => {
+            if (fallbackLocale === oldFallbackLocale && locale === oldLocale) {
+                return;
+            }
 
-        void publish('contextLocale', {
-            locale: locale ?? '',
-            fallbackLocale: fallbackLocale ?? '',
-        });
-    });
+            void publish('contextLocale', {
+                locale: locale ?? '',
+                fallbackLocale: fallbackLocale ?? '',
+            });
+        },
+    );
 }

@@ -40,12 +40,30 @@ Component.register('sw-sorting-select', {
     computed: {
         sortOptions() {
             return [
-                { value: 'name:ASC', name: this.$tc('sw-cms.sorting.labelSortByNameAsc') },
-                { value: 'name:DESC', name: this.$tc('sw-cms.sorting.labelSortByNameDesc') },
-                { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
-                { value: 'createdAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc') },
-                { value: 'updatedAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc') },
+                {
+                    value: 'name:ASC',
+                    name: this.$tc('sw-cms.sorting.labelSortByNameAsc'),
+                },
+                {
+                    value: 'name:DESC',
+                    name: this.$tc('sw-cms.sorting.labelSortByNameDesc'),
+                },
+                {
+                    value: 'createdAt:DESC',
+                    name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc'),
+                },
+                {
+                    value: 'createdAt:ASC',
+                    name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc'),
+                },
+                {
+                    value: 'updatedAt:DESC',
+                    name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc'),
+                },
+                {
+                    value: 'updatedAt:ASC',
+                    name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc'),
+                },
                 ...this.additionalSortOptions,
             ];
         },
@@ -55,10 +73,12 @@ Component.register('sw-sorting-select', {
         },
     },
 
-
     methods: {
         onSortingChanged(value) {
-            const [sortBy, sortDirection] = value.split(':');
+            const [
+                sortBy,
+                sortDirection,
+            ] = value.split(':');
             this.$emit('sorting-changed', { sortBy, sortDirection });
         },
     },

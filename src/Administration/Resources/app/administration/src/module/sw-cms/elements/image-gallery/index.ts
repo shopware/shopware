@@ -18,7 +18,7 @@ type ImageGalleryItemConfig = {
     newTab: boolean;
     url: string;
     mediaId: string;
-}
+};
 
 type ImageGalleryItem = {
     newTab: boolean;

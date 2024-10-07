@@ -8,7 +8,6 @@ import {
     type StoreDefinition,
 } from 'pinia';
 
-
 /**
  * @package admin
  * @private
@@ -50,9 +49,7 @@ export default class Store {
     /**
      * Get the Pinia store with the given id.
      */
-    public get<
-        Id extends keyof PiniaRootState,
-    >(id: Id): PiniaRootState[Id] {
+    public get<Id extends keyof PiniaRootState>(id: Id): PiniaRootState[Id] {
         const piniaStore = Store.#stores.get(id);
         if (!piniaStore) {
             throw new Error(`Store with id "${id}" not found`);
@@ -68,7 +65,8 @@ export default class Store {
         Id extends keyof PiniaRootState,
         S extends StateTree = NonNullable<unknown>,
         G extends _GettersTree<S> = NonNullable<unknown>,
-        A = NonNullable<unknown>>(
+        A = NonNullable<unknown>,
+    >(
         storeDefinition: DefineStoreOptions<Id, S, G, A>,
     ) => {
         const store = defineStore(storeDefinition.id, storeDefinition);

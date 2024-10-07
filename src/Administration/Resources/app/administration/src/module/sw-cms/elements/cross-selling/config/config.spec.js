@@ -10,56 +10,59 @@ const productMock = {
 };
 
 async function createWrapper(customCmsElementConfig) {
-    return mount(await wrapTestComponent('sw-cms-el-config-cross-selling', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                config: {
-                    title: {
-                        value: '',
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-cross-selling', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    config: {
+                        title: {
+                            value: '',
+                        },
+                        product: {
+                            value: 'de8de156da134dabac24257f81ff282f',
+                            source: 'static',
+                        },
+                        ...customCmsElementConfig,
                     },
-                    product: {
-                        value: 'de8de156da134dabac24257f81ff282f',
-                        source: 'static',
-                    },
-                    ...customCmsElementConfig,
+                    data: {},
                 },
-                data: {},
+                defaultConfig: {},
             },
-            defaultConfig: {},
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-tabs': {
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-container': true,
+                    'sw-field': true,
+                    'sw-text-field': true,
+                    'sw-select-field': true,
+                    'sw-select-result': true,
+                    'sw-modal': true,
+                    'sw-entity-single-select': true,
+                    'sw-product-variant-info': true,
+                    'sw-alert': true,
+                    'sw-icon': true,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(productMock),
+                                search: () => Promise.resolve(productMock),
+                            };
+                        },
+                    },
+                },
+            },
         },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-tabs': {
-                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
-                },
-                'sw-tabs-item': true,
-                'sw-container': true,
-                'sw-field': true,
-                'sw-text-field': true,
-                'sw-select-field': true,
-                'sw-select-result': true,
-                'sw-modal': true,
-                'sw-entity-single-select': true,
-                'sw-product-variant-info': true,
-                'sw-alert': true,
-                'sw-icon': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(productMock),
-                            search: () => Promise.resolve(productMock),
-                        };
-                    },
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/cross-selling/config', () => {
@@ -85,7 +88,9 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
         });
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('sw-alert-stub').text()).toBe('sw-cms.elements.crossSelling.config.infoText.productDetailElement');
+        expect(wrapper.get('sw-alert-stub').text()).toBe(
+            'sw-cms.elements.crossSelling.config.infoText.productDetailElement',
+        );
     });
 
     it('onProductChange clears the product if no id provided', async () => {

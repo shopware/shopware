@@ -4,107 +4,117 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
-const productMock = [{
-    id: 'de8de156da134dabac24257f81ff282f',
-    name: 'Translated',
-    translated: {
-        name: 'Übersetzt',
+const productMock = [
+    {
+        id: 'de8de156da134dabac24257f81ff282f',
+        name: 'Translated',
+        translated: {
+            name: 'Übersetzt',
+        },
     },
-}, {
-    id: 'c336e6ad6a174c76bb201ce7ba0e2ab3',
-    name: 'Test',
-    translated: {},
-}];
-
+    {
+        id: 'c336e6ad6a174c76bb201ce7ba0e2ab3',
+        name: 'Test',
+        translated: {},
+    },
+];
 
 const productStreamMock = {
     name: 'Cheap pc parts',
-    apiFilter: ['foo', 'bar'],
+    apiFilter: [
+        'foo',
+        'bar',
+    ],
     invalid: false,
 };
 
-
 async function createWrapper(customCmsElementConfig) {
-    return mount(await wrapTestComponent('sw-cms-el-config-product-slider', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                config: {
-                    title: {
-                        value: '',
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-product-slider', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    config: {
+                        title: {
+                            value: '',
+                        },
+                        products: {
+                            value: [
+                                'de8de156da134dabac24257f81ff282f',
+                                '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                            ],
+                            source: 'static',
+                        },
+                        productStreamSorting: {
+                            value: 'name:ASC',
+                        },
+                        productStreamLimit: {
+                            value: 10,
+                        },
+                        ...customCmsElementConfig,
                     },
-                    products: {
-                        value: ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-                        source: 'static',
-                    },
-                    productStreamSorting: {
-                        value: 'name:ASC',
-                    },
-                    productStreamLimit: {
-                        value: 10,
-                    },
-                    ...customCmsElementConfig,
                 },
+                defaultConfig: {},
             },
-            defaultConfig: {},
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-tabs': {
-                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
-                },
-                'sw-tabs-item': true,
-                'sw-container': true,
-                'sw-text-field': true,
-                'sw-single-select': true,
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
-                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-select-result': true,
-                'sw-product-variant-info': true,
-                'sw-label': true,
-                'sw-modal': true,
-                'sw-block-field': true,
-                'sw-product-stream-modal-preview': true,
-                'sw-entity-single-select': true,
-                'sw-alert': true,
-                'sw-number-field': true,
-                'sw-icon': true,
-                'sw-loader': true,
-                'sw-popover': true,
-                'sw-select-field': true,
-                'sw-switch-field': true,
-                'sw-highlight-text': true,
-            },
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-tabs': {
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                     },
-                    getCmsElementRegistry: () => {
-                        return {};
-                    },
+                    'sw-tabs-item': true,
+                    'sw-container': true,
+                    'sw-text-field': true,
+                    'sw-single-select': true,
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                    'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-select-result': true,
+                    'sw-product-variant-info': true,
+                    'sw-label': true,
+                    'sw-modal': true,
+                    'sw-block-field': true,
+                    'sw-product-stream-modal-preview': true,
+                    'sw-entity-single-select': true,
+                    'sw-alert': true,
+                    'sw-number-field': true,
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'sw-popover': true,
+                    'sw-select-field': true,
+                    'sw-switch-field': true,
+                    'sw-highlight-text': true,
                 },
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(productStreamMock),
-                            search: (criteria) => {
-                                const products = criteria.ids.length ? productMock.slice(0, 1) : productMock;
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return {};
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(productStreamMock),
+                                search: (criteria) => {
+                                    const products = criteria.ids.length ? productMock.slice(0, 1) : productMock;
 
-                                products.has = id => products.some(i => i.id === id);
+                                    products.has = (id) => products.some((i) => i.id === id);
 
-                                return Promise.resolve(products);
-                            },
-                        };
+                                    return Promise.resolve(products);
+                                },
+                            };
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/product-slider/config', () => {
@@ -123,8 +133,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     it('should render product assignment type select', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-assignment-type-select')
-            .exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-slider__product-assignment-type-select').exists()).toBeTruthy();
     });
 
     it('should render manual product assignment by default', async () => {
@@ -153,7 +162,6 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-
         expect(wrapper.vm.productStream).toEqual(productStreamMock);
     });
 
@@ -181,8 +189,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-select').exists()).toBeTruthy();
 
         // Performance hint should exist
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-performance-hint')
-            .exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-performance-hint').exists()).toBeTruthy();
 
         // Sorting fields should exist
         expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-sorting').exists()).toBeTruthy();
@@ -196,7 +203,10 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        const expectedProductIds = ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'];
+        const expectedProductIds = [
+            'de8de156da134dabac24257f81ff282f',
+            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        ];
 
         expect(wrapper.vm.tempProductIds).toEqual(expectedProductIds);
         expect(wrapper.vm.element.config.products.value).toBeNull();
@@ -236,7 +246,6 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('sw-product-stream-modal-preview-stub')
-            .exists()).toBeTruthy();
+        expect(wrapper.find('sw-product-stream-modal-preview-stub').exists()).toBeTruthy();
     });
 });

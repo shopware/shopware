@@ -10,33 +10,36 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-product-description-reviews', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
+    return mount(
+        await wrapTestComponent('sw-cms-el-product-description-reviews', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return { 'product-description-reviews': {} };
+                        },
                     },
-                    getCmsElementRegistry: () => {
-                        return { 'product-description-reviews': {} };
+                },
+            },
+            props: {
+                element: {
+                    config: {},
+                    data: {},
+                },
+                defaultConfig: {
+                    alignment: {
+                        value: null,
                     },
                 },
             },
         },
-        props: {
-            element: {
-                config: {},
-                data: {},
-            },
-            defaultConfig: {
-                alignment: {
-                    value: null,
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/product-description-reviews/component', () => {

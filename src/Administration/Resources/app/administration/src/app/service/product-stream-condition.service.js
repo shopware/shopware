@@ -148,13 +148,27 @@ export default function conditionService() {
         until: {
             identifier: 'until',
             label: 'sw-product-stream.filter.type.until',
-            operators: ['equals', 'notEquals', 'lessThan', 'greaterThan', 'lessThanEquals', 'greaterThanEquals'],
+            operators: [
+                'equals',
+                'notEquals',
+                'lessThan',
+                'greaterThan',
+                'lessThanEquals',
+                'greaterThanEquals',
+            ],
         },
 
         since: {
             identifier: 'since',
             label: 'sw-product-stream.filter.type.since',
-            operators: ['equals', 'notEquals', 'lessThan', 'greaterThan', 'lessThanEquals', 'greaterThanEquals'],
+            operators: [
+                'equals',
+                'notEquals',
+                'lessThan',
+                'greaterThan',
+                'lessThanEquals',
+                'greaterThanEquals',
+            ],
         },
 
         not: {
@@ -277,10 +291,10 @@ export default function conditionService() {
      * @returns {boolean}
      */
     function isPropertyInAllowList(definition, property) {
-        return allowedProperties.includes(property)
-            || (entityAllowedProperties.hasOwnProperty(definition)
-                && entityAllowedProperties[definition].includes(property)
-            );
+        return (
+            allowedProperties.includes(property) ||
+            (entityAllowedProperties.hasOwnProperty(definition) && entityAllowedProperties[definition].includes(property))
+        );
     }
 
     /**
@@ -311,7 +325,7 @@ export default function conditionService() {
      */
     function removeFromGeneralAllowList(properties) {
         properties = Array.isArray(properties) ? properties : [properties];
-        properties.forEach(entry => {
+        properties.forEach((entry) => {
             allowedProperties.splice(allowedProperties.indexOf(entry), 1);
         });
     }
@@ -326,7 +340,7 @@ export default function conditionService() {
         }
 
         properties = Array.isArray(properties) ? properties : [properties];
-        properties.forEach(entry => {
+        properties.forEach((entry) => {
             entityAllowedProperties[entity].splice(entityAllowedProperties[entity].indexOf(entry), 1);
         });
     }
@@ -343,7 +357,12 @@ export default function conditionService() {
     }
 
     function getAndContainerData() {
-        return { type: 'multi', field: null, parameters: null, operator: 'AND' };
+        return {
+            type: 'multi',
+            field: null,
+            parameters: null,
+            operator: 'AND',
+        };
     }
 
     function isAndContainer(condition) {
@@ -359,7 +378,12 @@ export default function conditionService() {
     }
 
     function getPlaceholderData() {
-        return { type: 'equals', field: 'id', parameters: null, operator: null };
+        return {
+            type: 'equals',
+            field: 'id',
+            parameters: null,
+            operator: null,
+        };
     }
 
     function getComponentByCondition(condition) {

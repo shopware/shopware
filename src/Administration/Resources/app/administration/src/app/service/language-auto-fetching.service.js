@@ -26,9 +26,12 @@ export default function LanguageAutoFetchingService() {
     }
 
     // watch for changes of the languageId
-    Shopware.State.watch(state => state.context.api.languageId, (newValue, oldValue) => {
-        if (newValue === oldValue) return;
+    Shopware.State.watch(
+        (state) => state.context.api.languageId,
+        (newValue, oldValue) => {
+            if (newValue === oldValue) return;
 
-        loadLanguage(newValue);
-    });
+            loadLanguage(newValue);
+        },
+    );
 }

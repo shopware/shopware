@@ -76,10 +76,14 @@ class FirstRunWizardApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .post('/_action/store/verify-license-domain', {}, {
-                params,
-                headers,
-            })
+            .post(
+                '/_action/store/verify-license-domain',
+                {},
+                {
+                    params,
+                    headers,
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -97,10 +101,14 @@ class FirstRunWizardApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .post('/_action/store/frw/start', {}, {
-                params,
-                headers,
-            })
+            .post(
+                '/_action/store/frw/start',
+                {},
+                {
+                    params,
+                    headers,
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -118,10 +126,14 @@ class FirstRunWizardApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .post('/_action/store/frw/finish', {}, {
-                params,
-                headers,
-            })
+            .post(
+                '/_action/store/frw/finish',
+                {},
+                {
+                    params,
+                    headers,
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

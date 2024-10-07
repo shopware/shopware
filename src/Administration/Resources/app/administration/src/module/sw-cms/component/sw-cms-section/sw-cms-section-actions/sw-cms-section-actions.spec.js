@@ -4,18 +4,21 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-section-actions', {
-        sync: true,
-    }), {
-        props: {
-            section: {},
-        },
-        global: {
-            stubs: {
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-section-actions', {
+            sync: true,
+        }),
+        {
+            props: {
+                section: {},
+            },
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-section-actions', () => {

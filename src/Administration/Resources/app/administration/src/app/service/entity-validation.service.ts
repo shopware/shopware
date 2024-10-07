@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @package services-settings
  * @module app/entity-validation-service
@@ -12,18 +13,21 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
  * @private
  */
 export type ValidationError = {
-    code: string,
+    code: string;
     source: {
-        pointer: string
-    }
-}
+        pointer: string;
+    };
+};
 
 /**
  * @private
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,max-len,sw-deprecation-rules/private-feature-declarations
-export type CustomValidator = (errors: ValidationError[], entity: Entity<any>, definition: EntityDefinition<any>) => ValidationError[];
-
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type CustomValidator = (
+    errors: ValidationError[],
+    entity: Entity<any>,
+    definition: EntityDefinition<any>,
+) => ValidationError[];
 
 /**
  * A service for client side validation of entities

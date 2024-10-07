@@ -43,6 +43,5 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
             },
         },
-
     },
 });

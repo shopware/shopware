@@ -39,12 +39,9 @@ async function createWrapper(propsData = {}) {
                 mocks: {},
                 provide: {
                     conditionDataProviderService: {},
-                    createCondition: () => {
-                    },
-                    insertNodeIntoTree: () => {
-                    },
-                    removeNodeFromTree: () => {
-                    },
+                    createCondition: () => {},
+                    insertNodeIntoTree: () => {},
+                    removeNodeFromTree: () => {},
                     childAssociationField: 'childAssociationField',
                 },
                 attachTo: document.body,

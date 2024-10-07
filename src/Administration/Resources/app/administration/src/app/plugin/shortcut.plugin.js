@@ -21,25 +21,30 @@ export default {
                 }
 
                 // add shortcuts
-                Object.entries(shortcuts).forEach(([key, value]) => {
-                    if (typeof value !== 'string') {
-                        const activeFunction = typeof value.active === 'boolean' ? () => value.active : value.active;
+                Object.entries(shortcuts).forEach(
+                    ([
+                        key,
+                        value,
+                    ]) => {
+                        if (typeof value !== 'string') {
+                            const activeFunction = typeof value.active === 'boolean' ? () => value.active : value.active;
 
-                        activeShortcuts.push({
-                            key: key,
-                            functionName: value.method,
-                            instance: this,
-                            active: activeFunction.bind(this),
-                        });
-                    } else {
-                        activeShortcuts.push({
-                            key: key,
-                            functionName: value,
-                            instance: this,
-                            active: () => true,
-                        });
-                    }
-                });
+                            activeShortcuts.push({
+                                key: key,
+                                functionName: value.method,
+                                instance: this,
+                                active: activeFunction.bind(this),
+                            });
+                        } else {
+                            activeShortcuts.push({
+                                key: key,
+                                functionName: value,
+                                instance: this,
+                                active: () => true,
+                            });
+                        }
+                    },
+                );
 
                 // add event listener when one shortcut is registered
                 if (activeShortcuts.length <= 1) {
@@ -105,16 +110,15 @@ export default {
                     }
 
                     // check for situations where the shortcut should not trigger
-                    if (shouldNotTrigger ||
-                        !matchedShortcut ||
-                        !matchedShortcut.instance ||
-                        !matchedShortcut.functionName) {
+                    if (shouldNotTrigger || !matchedShortcut || !matchedShortcut.instance || !matchedShortcut.functionName) {
                         return false;
                     }
 
                     // blur rich text and code editor inputs on save shortcut to react on changes before saving
-                    if (matchedShortcut.key === 'SYSTEMKEY+S' &&
-                        (isEditableDiv || event.target.classList.contains('ace_text-input'))) {
+                    if (
+                        matchedShortcut.key === 'SYSTEMKEY+S' &&
+                        (isEditableDiv || event.target.classList.contains('ace_text-input'))
+                    ) {
                         event.target.blur();
                     }
 

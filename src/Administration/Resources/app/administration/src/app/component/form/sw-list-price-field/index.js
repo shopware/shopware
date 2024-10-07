@@ -161,12 +161,14 @@ Component.register('sw-list-price-field', {
                     return [price.listPrice];
                 }
 
-                return [{
-                    gross: null,
-                    currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
-                    linked: true,
-                    net: null,
-                }];
+                return [
+                    {
+                        gross: null,
+                        currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
+                        linked: true,
+                        net: null,
+                    },
+                ];
             },
 
             set(newValue) {
@@ -191,12 +193,14 @@ Component.register('sw-list-price-field', {
                     return [price.regulationPrice];
                 }
 
-                return [{
-                    gross: null,
-                    currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
-                    linked: true,
-                    net: null,
-                }];
+                return [
+                    {
+                        gross: null,
+                        currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
+                        linked: true,
+                        net: null,
+                    },
+                ];
             },
 
             set(newValue) {

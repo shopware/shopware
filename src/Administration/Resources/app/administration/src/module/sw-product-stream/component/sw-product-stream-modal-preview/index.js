@@ -17,7 +17,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'productStreamPreviewService'],
+    inject: [
+        'repositoryFactory',
+        'productStreamPreviewService',
+    ],
 
     emits: ['modal-close'],
 
@@ -34,10 +37,7 @@ export default {
             type: String,
             default: null,
             validator(value) {
-                return (
-                    value === null ||
-                    value.split(':').length === 2
-                );
+                return value === null || value.split(':').length === 2;
             },
         },
     },
@@ -63,16 +63,22 @@ export default {
 
         salesChannelCriteria() {
             return new Criteria(1, 1)
-                .addFilter(Criteria.not('OR', [
-                    Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                ])).addSorting(Criteria.sort('type.iconName', 'ASC'));
+                .addFilter(
+                    Criteria.not('OR', [
+                        Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
+                    ]),
+                )
+                .addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
         previewCriteria() {
             const criteria = new Criteria(this.page, this.limit).setTerm(this.searchTerm);
 
             if (this.sorting) {
-                const [field, direction] = this.sorting.split(':');
+                const [
+                    field,
+                    direction,
+                ] = this.sorting.split(':');
                 criteria.addSorting(Criteria.sort(field, direction));
             }
 
@@ -81,9 +87,12 @@ export default {
 
         previewSelectionCriteria() {
             return new Criteria()
-                .addFilter(Criteria.not('OR', [
-                    Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                ])).addSorting(Criteria.sort('name', 'ASC'));
+                .addFilter(
+                    Criteria.not('OR', [
+                        Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
+                    ]),
+                )
+                .addSorting(Criteria.sort('name', 'ASC'));
         },
 
         productColumns() {
@@ -93,18 +102,22 @@ export default {
                     label: this.$tc('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
-                }, {
+                },
+                {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-product-stream.filter.values.manufacturerId'),
-                }, {
+                },
+                {
                     property: 'active',
                     label: this.$tc('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
-                }, {
+                },
+                {
                     property: 'price',
                     label: this.$tc('sw-product-stream.filter.values.price'),
-                }, {
+                },
+                {
                     property: 'stock',
                     label: this.$tc('sw-product-stream.filter.values.stock'),
                     align: 'right',
@@ -129,11 +142,13 @@ export default {
         createdComponent() {
             this.isLoading = true;
 
-            return this.loadSalesChannels().then(() => {
-                return this.loadEntityData();
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.loadSalesChannels()
+                .then(() => {
+                    return this.loadEntityData();
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onSearchTermChange(searchTerm) {
@@ -148,11 +163,13 @@ export default {
         onSalesChannelChange() {
             this.page = 1;
             this.isLoading = true;
-            this.loadSalesChannelById().then(() => {
-                return this.loadEntityData();
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            this.loadSalesChannelById()
+                .then(() => {
+                    return this.loadEntityData();
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         loadEntityData() {
@@ -160,18 +177,15 @@ export default {
                 return false;
             }
 
-            return this.productStreamPreviewService.preview(
-                this.selectedSalesChannel,
-                this.previewCriteria,
-                this.mapFiltersForSearch(this.filters),
-                {
+            return this.productStreamPreviewService
+                .preview(this.selectedSalesChannel, this.previewCriteria, this.mapFiltersForSearch(this.filters), {
                     'sw-currency-id': this.selectedCurrencyId,
                     'sw-inheritance': true,
-                },
-            ).then((result) => {
-                this.products = Object.values(result.elements);
-                this.total = result.total;
-            });
+                })
+                .then((result) => {
+                    this.products = Object.values(result.elements);
+                    this.total = result.total;
+                });
         },
 
         loadSalesChannels() {
@@ -184,7 +198,14 @@ export default {
             return filters.map((condition) => {
                 const { field, type, operator, value, parameters, queries } = condition;
                 const mappedQueries = this.mapFiltersForSearch(queries, type);
-                const mapped = { field, type, operator, value, parameters, queries: mappedQueries };
+                const mapped = {
+                    field,
+                    type,
+                    operator,
+                    value,
+                    parameters,
+                    queries: mappedQueries,
+                };
 
                 if (field === 'id' || field === 'product.id') {
                     const newOperator = this.isNotEqualToAnyType(type, parentType) ? 'AND' : 'OR';
@@ -195,7 +216,10 @@ export default {
                         operator: newOperator,
                         value: null,
                         parameters: null,
-                        queries: [mapped, { ...mapped, ...{ field: 'parentId' } }],
+                        queries: [
+                            mapped,
+                            { ...mapped, ...{ field: 'parentId' } },
+                        ],
                     };
                 }
 

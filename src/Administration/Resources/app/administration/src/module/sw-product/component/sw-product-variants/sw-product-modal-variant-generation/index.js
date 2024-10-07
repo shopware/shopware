@@ -22,7 +22,10 @@ export default {
         'swProductDetailLoadAll',
     ],
 
-    emits: ['modal-close', 'variations-finish-generate'],
+    emits: [
+        'modal-close',
+        'variations-finish-generate',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -128,7 +131,6 @@ export default {
                 return item.downloads.length === 0 && item.productStates?.includes('is-download');
             });
         },
-
     },
 
     watch: {
@@ -221,11 +223,12 @@ export default {
          */
         removeFile(fileName, variant) {
             // keep all downloadable files expect the one that should be removed
-            variant.downloads = variant.downloads
-                .filter(download => `${download.fileName}.${download.fileExtension}` !== fileName);
+            variant.downloads = variant.downloads.filter(
+                (download) => `${download.fileName}.${download.fileExtension}` !== fileName,
+            );
 
             // check if file is used in another place
-            this.usageOfFiles[fileName] = this.usageOfFiles[fileName].filter(id => id !== variant.id);
+            this.usageOfFiles[fileName] = this.usageOfFiles[fileName].filter((id) => id !== variant.id);
             if (this.usageOfFiles[fileName].length === 0) {
                 delete this.usageOfFiles[fileName];
             }
@@ -233,8 +236,9 @@ export default {
 
             if (!fileUsedElsewhere) {
                 // removes file from the array, so it won't be shown inside the top upload component
-                this.downloadFilesForAllVariants = this.downloadFilesForAllVariants
-                    .filter(download => `${download.fileName}.${download.fileExtension}` !== fileName);
+                this.downloadFilesForAllVariants = this.downloadFilesForAllVariants.filter(
+                    (download) => `${download.fileName}.${download.fileExtension}` !== fileName,
+                );
             }
         },
 
@@ -246,14 +250,16 @@ export default {
                 usage.forEach((use) => {
                     const index = this.idToIndex[use];
                     const variant = this.variantGenerationQueue.createQueue[index];
-                    variant.downloads = variant.downloads
-                        .filter(download => `${download.fileName}.${download.fileExtension}` !== fileName);
+                    variant.downloads = variant.downloads.filter(
+                        (download) => `${download.fileName}.${download.fileExtension}` !== fileName,
+                    );
                 });
                 delete this.usageOfFiles[fileName];
             }
 
-            this.downloadFilesForAllVariants = this.downloadFilesForAllVariants
-                .filter(download => download.id !== file.id);
+            this.downloadFilesForAllVariants = this.downloadFilesForAllVariants.filter(
+                (download) => download.id !== file.id,
+            );
         },
 
         getList() {
@@ -308,27 +314,26 @@ export default {
                 item.downloads = mediaIds;
             });
 
-            this.variantsGenerator.saveVariants(this.variantGenerationQueue).then(() => {
-                this.addOriginalConfiguratorSettings();
-                return this.productRepository.save(this.product);
-            }).then(() => {
-                this.$emit('variations-finish-generate');
-                this.$emit('modal-close');
-                this.isLoading = false;
-                this.actualProgress = 0;
-                this.maxProgress = 0;
+            this.variantsGenerator
+                .saveVariants(this.variantGenerationQueue)
+                .then(() => {
+                    this.addOriginalConfiguratorSettings();
+                    return this.productRepository.save(this.product);
+                })
+                .then(() => {
+                    this.$emit('variations-finish-generate');
+                    this.$emit('modal-close');
+                    this.isLoading = false;
+                    this.actualProgress = 0;
+                    this.maxProgress = 0;
 
-                this.swProductDetailLoadAll();
-            });
+                    this.swProductDetailLoadAll();
+                });
         },
 
         showNextStep() {
             this.isLoading = true;
-            this.variantsGenerator.generateVariants(
-                this.currencies,
-                this.product,
-                this.isAddOnly,
-            );
+            this.variantsGenerator.generateVariants(this.currencies, this.product, this.isAddOnly);
             this.isLoading = false;
         },
 
@@ -351,10 +356,10 @@ export default {
             const groupedDataValues = Object.values(groupedData);
 
             // Multiply each group options when options are selected
-            this.variantsNumber = groupedDataValues.length > 0
-                ? groupedDataValues.map((group) => group.length)
-                    .reduce((curr, length) => curr * length)
-                : 0;
+            this.variantsNumber =
+                groupedDataValues.length > 0
+                    ? groupedDataValues.map((group) => group.length).reduce((curr, length) => curr * length)
+                    : 0;
         },
 
         onChangeAllVariantValues(checked) {
@@ -386,11 +391,12 @@ export default {
         onChangeVariantValue(checked, item) {
             if (!checked) {
                 Object.keys(this.usageOfFiles).forEach((key) => {
-                    this.usageOfFiles[key] = this.usageOfFiles[key].filter(id => id !== item.id);
+                    this.usageOfFiles[key] = this.usageOfFiles[key].filter((id) => id !== item.id);
                     if (this.usageOfFiles[key].length === 0) {
                         delete this.usageOfFiles[key];
-                        this.downloadFilesForAllVariants = this.downloadFilesForAllVariants
-                            .filter(download => `${download.fileName}.${download.fileExtension}` !== key);
+                        this.downloadFilesForAllVariants = this.downloadFilesForAllVariants.filter(
+                            (download) => `${download.fileName}.${download.fileExtension}` !== key,
+                        );
                     }
                 });
 
@@ -463,7 +469,6 @@ export default {
             this.usageOfFiles[fileName].push(id);
         },
 
-
         onModalCancel() {
             this.addOriginalConfiguratorSettings();
             this.$emit('modal-close');
@@ -498,9 +503,11 @@ export default {
             this.product.configuratorSettings.getIds().forEach((configSettingId) => {
                 const configSetting = that.product.configuratorSettings.get(configSettingId);
 
-                if (this.originalConfiguratorSettings.find((setting) => {
-                    return setting.optionId === configSetting.optionId;
-                }) !== undefined) {
+                if (
+                    this.originalConfiguratorSettings.find((setting) => {
+                        return setting.optionId === configSetting.optionId;
+                    }) !== undefined
+                ) {
                     that.product.configuratorSettings.remove(configSettingId);
                 }
             });

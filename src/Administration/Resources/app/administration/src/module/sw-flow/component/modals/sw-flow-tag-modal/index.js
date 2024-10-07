@@ -20,7 +20,10 @@ export default {
         'flowBuilderService',
     ],
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -84,7 +87,10 @@ export default {
             return '';
         },
 
-        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
+        ...mapState('swFlowState', [
+            'triggerEvent',
+            'triggerActions',
+        ]),
     },
 
     watch: {
@@ -122,8 +128,9 @@ export default {
         },
 
         getTagCollection() {
-            return this.tagRepository.search(this.tagCriteria)
-                .then(tags => {
+            return this.tagRepository
+                .search(this.tagCriteria)
+                .then((tags) => {
                     this.tagCollection = tags;
                 })
                 .catch(() => {
@@ -132,11 +139,7 @@ export default {
         },
 
         createTagCollection() {
-            return new EntityCollection(
-                this.tagRepository.route,
-                this.tagRepository.entityName,
-                Context.api,
-            );
+            return new EntityCollection(this.tagRepository.route, this.tagRepository.entityName, Context.api);
         },
 
         onAddTag(data) {
@@ -155,7 +158,9 @@ export default {
 
             const allowedAware = this.triggerEvent.aware ?? [];
             // eslint-disable-next-line max-len
-            const options = this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, ['tags']);
+            const options = this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, [
+                'tags',
+            ]);
 
             if (options.length) {
                 this.entity = options[0].value;
@@ -166,7 +171,7 @@ export default {
 
         getConfig() {
             const tagIds = {};
-            this.tagCollection.forEach(tag => {
+            this.tagCollection.forEach((tag) => {
                 Object.assign(tagIds, {
                     [tag.id]: tag.name,
                 });

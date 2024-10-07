@@ -18,7 +18,12 @@ export default {
             type: String,
             default: 'medium-preview',
             validator(value) {
-                return ['small-preview', 'medium-preview', 'large-preview', 'list-preview'].includes(value);
+                return [
+                    'small-preview',
+                    'medium-preview',
+                    'large-preview',
+                    'list-preview',
+                ].includes(value);
             },
         },
     },
@@ -63,22 +68,19 @@ export default {
         },
 
         clearSelectionOnClickOutside(event) {
-            if (!this.isEmittedFromChildren(event.target) &&
-                !this.originatesFromExcludedComponent(event)
-            ) {
+            if (!this.isEmittedFromChildren(event.target) && !this.originatesFromExcludedComponent(event)) {
                 this.emitSelectionCleared(event);
             }
         },
 
         originatesFromExcludedComponent(event) {
-            const eventPathClasses = event.composedPath().reduce(
-                (classes, eventParent) => {
-                    return eventParent.classList ? classes.concat(Array.from(eventParent.classList)) : classes;
-                },
-                [],
-            );
+            const eventPathClasses = event.composedPath().reduce((classes, eventParent) => {
+                return eventParent.classList ? classes.concat(Array.from(eventParent.classList)) : classes;
+            }, []);
 
-            return this.nonDeselectingComponents.some((cssClass) => { return eventPathClasses.includes(cssClass); });
+            return this.nonDeselectingComponents.some((cssClass) => {
+                return eventPathClasses.includes(cssClass);
+            });
         },
 
         isEmittedFromChildren(target) {

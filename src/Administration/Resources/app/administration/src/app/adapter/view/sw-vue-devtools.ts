@@ -38,17 +38,19 @@ const DATASET_ID_PREFIX = 'sw-extension-api-dataset__';
  * @private
  */
 export default function setupShopwareDevtools(app: App): void {
-    setupDevtoolsPlugin({
-        // Options
-        id: 'sw-admin-extension-plugin',
-        label: 'Shopware Admin extensions plugin',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        app,
-    }, (api) => {
-        // Add CSS for highlighting elements
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const highlightStyle = document.createElement('style');
-        highlightStyle.innerHTML = `
+    setupDevtoolsPlugin(
+        {
+            // Options
+            id: 'sw-admin-extension-plugin',
+            label: 'Shopware Admin extensions plugin',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            app,
+        },
+        (api) => {
+            // Add CSS for highlighting elements
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const highlightStyle = document.createElement('style');
+            highlightStyle.innerHTML = `
             .${HIGHLIGHT_CLASS} {
                 position: relative;
             }
@@ -73,188 +75,190 @@ export default function setupShopwareDevtools(app: App): void {
                 cursor: pointer;
             }
         `;
-        document.head.appendChild(highlightStyle);
+            document.head.appendChild(highlightStyle);
 
-        // Add new inspector for finding the extension positions
-        api.addInspector({
-            id: POSITION_INSPECTOR_ID,
-            label: 'Shopware Extension API',
-            icon: 'picture_in_picture_alt',
-            actions: [
-                {
-                    icon: 'flash_off',
-                    tooltip: 'Unhighlight all extension positions',
-                    action: (): void => {
-                        unhighlightElements();
+            // Add new inspector for finding the extension positions
+            api.addInspector({
+                id: POSITION_INSPECTOR_ID,
+                label: 'Shopware Extension API',
+                icon: 'picture_in_picture_alt',
+                actions: [
+                    {
+                        icon: 'flash_off',
+                        tooltip: 'Unhighlight all extension positions',
+                        action: (): void => {
+                            unhighlightElements();
+                        },
                     },
-                },
-                {
-                    icon: 'flash_on',
-                    tooltip: 'Highlight all extension positions',
-                    action: (): void => {
-                        unhighlightElements();
+                    {
+                        icon: 'flash_on',
+                        tooltip: 'Highlight all extension positions',
+                        action: (): void => {
+                            unhighlightElements();
 
-                        window._sw_extension_component_collection.forEach((component) => {
-                            makeElementClickable(component, api);
-                        });
+                            window._sw_extension_component_collection.forEach((component) => {
+                                makeElementClickable(component, api);
+                            });
+                        },
                     },
-                },
-            ],
-        });
+                ],
+            });
 
-        // Load all positions into the inspector tree
-        api.on.getInspectorTree((payload) => {
-            if (payload.inspectorId !== POSITION_INSPECTOR_ID) {
-                return;
-            }
-
-            payload.rootNodes = [];
-
-            window._sw_extension_component_collection.forEach((component) => {
-                const { property, positionId, view, entity } = getExtensionInformation(component);
-
-                // create new root node if none exists
-                const hasMatchingNode = payload.rootNodes.some(n => n.id === property);
-                if (!hasMatchingNode) {
-                    payload.rootNodes.push({
-                        id: property,
-                        label: property,
-                        children: [],
-                    });
+            // Load all positions into the inspector tree
+            api.on.getInspectorTree((payload) => {
+                if (payload.inspectorId !== POSITION_INSPECTOR_ID) {
+                    return;
                 }
 
-                const rootNode = payload.rootNodes.find(n => n.id === property);
+                payload.rootNodes = [];
 
-                // @ts-expect-error
-                rootNode.children?.push({
-                    id: `${property}_${positionId}`,
-                    label: positionId === 'unknown' ? `${entity}-${view}` : positionId,
+                window._sw_extension_component_collection.forEach((component) => {
+                    const { property, positionId, view, entity } = getExtensionInformation(component);
+
+                    // create new root node if none exists
+                    const hasMatchingNode = payload.rootNodes.some((n) => n.id === property);
+                    if (!hasMatchingNode) {
+                        payload.rootNodes.push({
+                            id: property,
+                            label: property,
+                            children: [],
+                        });
+                    }
+
+                    const rootNode = payload.rootNodes.find((n) => n.id === property);
+
+                    // @ts-expect-error
+                    rootNode.children?.push({
+                        id: `${property}_${positionId}`,
+                        label: positionId === 'unknown' ? `${entity}-${view}` : positionId,
+                    });
+                });
+
+                const publishedDatasets = Shopware.ExtensionAPI.getPublishedDataSets();
+                if (publishedDatasets.length <= 0) {
+                    return;
+                }
+
+                const children: CustomInspectorNode[] = [];
+
+                publishedDatasets.forEach(({ id }) => {
+                    children.push({
+                        id: DATASET_ID_PREFIX + id,
+                        label: id,
+                    });
+                });
+
+                payload.rootNodes.push({
+                    id: 'datasets',
+                    label: 'data.get',
+                    children: children,
                 });
             });
 
-            const publishedDatasets = Shopware.ExtensionAPI.getPublishedDataSets();
-            if (publishedDatasets.length <= 0) {
-                return;
-            }
+            // Update the state of the inspector depending on the selected node
+            api.on.getInspectorState((payload) => {
+                unhighlightElements();
 
-            const children: CustomInspectorNode[] = [];
+                if (payload.inspectorId !== POSITION_INSPECTOR_ID) {
+                    return;
+                }
 
-            publishedDatasets.forEach(({ id }) => {
-                children.push({
-                    id: DATASET_ID_PREFIX + id,
-                    label: id,
+                if (payload.nodeId.startsWith(DATASET_ID_PREFIX)) {
+                    payload.state = {
+                        General: [],
+                    };
+
+                    const datasetId = payload.nodeId.substring(DATASET_ID_PREFIX.length, payload.nodeId.length);
+                    const value =
+                        Shopware.ExtensionAPI.getPublishedDataSets().find((set) => set.id === datasetId)?.data ?? 'unknown';
+
+                    payload.state.General.push({
+                        key: 'id',
+                        value: datasetId,
+                    });
+
+                    payload.state.General.push({
+                        key: 'value',
+                        value: value,
+                    });
+
+                    return;
+                }
+
+                const matchingComponent = window._sw_extension_component_collection.find((component) => {
+                    const { nodeId } = getExtensionInformation(component);
+
+                    return nodeId === payload.nodeId;
                 });
-            });
 
-            payload.rootNodes.push({
-                id: 'datasets',
-                label: 'data.get',
-                children: children,
-            });
-        });
+                if (!matchingComponent) {
+                    return;
+                }
 
-        // Update the state of the inspector depending on the selected node
-        api.on.getInspectorState((payload) => {
-            unhighlightElements();
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                const devtoolInformation = matchingComponent?.$options?.extensionApiDevtoolInformation;
 
-            if (payload.inspectorId !== POSITION_INSPECTOR_ID) {
-                return;
-            }
-
-            if (payload.nodeId.startsWith(DATASET_ID_PREFIX)) {
+                // show information about selected node
                 payload.state = {
                     General: [],
                 };
 
-                const datasetId = payload.nodeId.substring(DATASET_ID_PREFIX.length, payload.nodeId.length);
-                const value = Shopware.ExtensionAPI.getPublishedDataSets()
-                    .find(set => set.id === datasetId)?.data ?? 'unknown';
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (devtoolInformation?.positionId?.(matchingComponent)) {
+                    payload.state.General.push({
+                        key: 'PositionId',
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                        value: devtoolInformation.positionId(matchingComponent),
+                    });
+                }
 
-                payload.state.General.push({
-                    key: 'id',
-                    value: datasetId,
-                });
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (devtoolInformation?.view?.(matchingComponent)) {
+                    payload.state.General.push({
+                        key: 'View',
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                        value: devtoolInformation.view(matchingComponent),
+                    });
+                }
 
-                payload.state.General.push({
-                    key: 'value',
-                    value: value,
-                });
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (devtoolInformation?.entity?.(matchingComponent)) {
+                    payload.state.General.push({
+                        key: 'Entity',
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                        value: devtoolInformation.entity(matchingComponent),
+                    });
+                }
 
-                return;
-            }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (devtoolInformation?.property) {
+                    payload.state.General.push({
+                        key: 'Property',
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                        value: devtoolInformation.property,
+                    });
+                }
 
-            const matchingComponent = window._sw_extension_component_collection.find((component) => {
-                const { nodeId } = getExtensionInformation(component);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (devtoolInformation?.method) {
+                    payload.state.General.push({
+                        key: 'Method',
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                        value: devtoolInformation?.method,
+                    });
+                }
 
-                return nodeId === payload.nodeId;
+                // highlight the component in browser window
+                highlightElement(matchingComponent);
             });
-
-            if (!matchingComponent) {
-                return;
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-            const devtoolInformation = matchingComponent?.$options?.extensionApiDevtoolInformation;
-
-            // show information about selected node
-            payload.state = {
-                General: [],
-            };
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation?.positionId?.(matchingComponent)) {
-                payload.state.General.push({
-                    key: 'PositionId',
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                    value: devtoolInformation.positionId(matchingComponent),
-                });
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation?.view?.(matchingComponent)) {
-                payload.state.General.push({
-                    key: 'View',
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                    value: devtoolInformation.view(matchingComponent),
-                });
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation?.entity?.(matchingComponent)) {
-                payload.state.General.push({
-                    key: 'Entity',
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                    value: devtoolInformation.entity(matchingComponent),
-                });
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation?.property) {
-                payload.state.General.push({
-                    key: 'Property',
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    value: devtoolInformation.property,
-                });
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation?.method) {
-                payload.state.General.push({
-                    key: 'Method',
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    value: devtoolInformation?.method,
-                });
-            }
-
-            // highlight the component in browser window
-            highlightElement(matchingComponent);
-        });
-    });
+        },
+    );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -286,8 +290,8 @@ function makeElementClickable(component: DevtoolComponent, api: DevtoolsPluginAp
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function unhighlightElements():void {
-    highlightedElements.forEach(highlightedElement => {
+function unhighlightElements(): void {
+    highlightedElements.forEach((highlightedElement) => {
         highlightedElement.classList.remove(HIGHLIGHT_CLASS);
         highlightedElement.classList.remove(CLICKABLE_CLASS);
 
@@ -303,26 +307,26 @@ function unhighlightElements():void {
 }
 
 function getExtensionInformation(component: DevtoolComponent): {
-    nodeId: string,
-    positionId: string,
-    property: string,
-    method: string,
-    view: string,
-    entity: string,
+    nodeId: string;
+    positionId: string;
+    property: string;
+    method: string;
+    view: string;
+    entity: string;
 } {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
     const devtoolInformation = component.$options?.extensionApiDevtoolInformation;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const property = devtoolInformation?.property as string ?? 'unknown';
+    const property = (devtoolInformation?.property as string) ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const method = devtoolInformation?.method as string ?? 'unknown';
+    const method = (devtoolInformation?.method as string) ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    const positionId = devtoolInformation?.positionId?.(component) as string ?? 'unknown';
+    const positionId = (devtoolInformation?.positionId?.(component) as string) ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    const view = devtoolInformation?.view?.(component) as string ?? 'unknown';
+    const view = (devtoolInformation?.view?.(component) as string) ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    const entity = devtoolInformation?.entity?.(component) as string ?? 'unknown';
+    const entity = (devtoolInformation?.entity?.(component) as string) ?? 'unknown';
 
     return {
         nodeId: `${property}_${positionId}`,

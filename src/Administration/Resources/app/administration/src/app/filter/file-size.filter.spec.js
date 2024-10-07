@@ -19,18 +19,12 @@ describe('src/app/filter/file-size.filter.js', () => {
     });
 
     it('should call the fileSize format util for formatting', () => {
-        fileSizeFilter(
-            1856165,
-            {
-                myLocaleOptions: 'foo',
-            },
-        );
+        fileSizeFilter(1856165, {
+            myLocaleOptions: 'foo',
+        });
 
-        expect(Shopware.Utils.format.fileSize).toHaveBeenCalledWith(
-            1856165,
-            {
-                myLocaleOptions: 'foo',
-            },
-        );
+        expect(Shopware.Utils.format.fileSize).toHaveBeenCalledWith(1856165, {
+            myLocaleOptions: 'foo',
+        });
     });
 });

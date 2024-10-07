@@ -20,7 +20,10 @@ Component.register('sw-button', {
 
     props: {
         routerLink: {
-            type: [String, Object],
+            type: [
+                String,
+                Object,
+            ],
             default: null,
             required: false,
         },

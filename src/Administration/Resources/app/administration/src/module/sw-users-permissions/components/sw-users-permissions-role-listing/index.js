@@ -38,13 +38,16 @@ export default {
 
     computed: {
         rolesColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-users-permissions.roles.role-grid.labelName'),
-            }, {
-                property: 'description',
-                label: this.$tc('sw-users-permissions.roles.role-grid.labelDescription'),
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-users-permissions.roles.role-grid.labelName'),
+                },
+                {
+                    property: 'description',
+                    label: this.$tc('sw-users-permissions.roles.role-grid.labelDescription'),
+                },
+            ];
         },
 
         roleRepository() {
@@ -90,12 +93,15 @@ export default {
             this.isLoading = true;
             this.roles = [];
 
-            return this.roleRepository.search(this.roleCriteria).then((roles) => {
-                this.total = roles.total;
-                this.roles = roles;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.roleRepository
+                .search(this.roleCriteria)
+                .then((roles) => {
+                    this.total = roles.total;
+                    this.roles = roles;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onSearch(searchTerm) {
@@ -132,25 +138,24 @@ export default {
             const role = this.confirmDelete;
             this.confirmDelete = null;
 
-            this.roleRepository.delete(role.id, context).then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc(
-                        'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
-                        0,
-                        { name: role.name },
-                    ),
-                });
+            this.roleRepository
+                .delete(role.id, context)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message', 0, {
+                            name: role.name,
+                        }),
+                    });
 
-                this.$emit('get-list');
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc(
-                        'sw-users-permissions.roles.role-grid.notification.deleteError.message',
-                        0,
-                        { name: role.name },
-                    ),
+                    this.$emit('get-list');
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message', 0, {
+                            name: role.name,
+                        }),
+                    });
                 });
-            });
         },
 
         onCloseConfirmPasswordModal() {

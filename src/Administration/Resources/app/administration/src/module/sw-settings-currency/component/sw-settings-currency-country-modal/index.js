@@ -15,7 +15,10 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['edit-cancel', 'save'],
+    emits: [
+        'edit-cancel',
+        'save',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -49,10 +52,7 @@ export default {
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('currencyCountryRoundings');
             criteria.addFilter(
-                Criteria.equals(
-                    'currencyCountryRoundings.currencyId',
-                    this.currencyCountryRounding.currencyId,
-                ),
+                Criteria.equals('currencyCountryRoundings.currencyId', this.currencyCountryRounding.currencyId),
             );
 
             return criteria;
@@ -67,7 +67,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.countryRepository.searchIds(this.assignedCountriesCriteria, Shopware.Context.api).then(res => {
+            this.countryRepository.searchIds(this.assignedCountriesCriteria, Shopware.Context.api).then((res) => {
                 this.assignedCountryIds = res.data;
             });
         },

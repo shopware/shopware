@@ -12,26 +12,29 @@ const usageDataService = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-usage-data-general', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                usageDataService,
-            },
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-usage-data-consent-banner': await wrapTestComponent('sw-usage-data-consent-banner'),
-                'sw-extension-component-section': true,
-                'sw-icon': true,
-                'sw-internal-link': true,
-                'i18n-t': true,
-                'sw-help-text': true,
-                'sw-external-link': true,
-                'sw-button': true,
+    return mount(
+        await wrapTestComponent('sw-settings-usage-data-general', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    usageDataService,
+                },
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-usage-data-consent-banner': await wrapTestComponent('sw-usage-data-consent-banner'),
+                    'sw-extension-component-section': true,
+                    'sw-icon': true,
+                    'sw-internal-link': true,
+                    'i18n-t': true,
+                    'sw-help-text': true,
+                    'sw-external-link': true,
+                    'sw-button': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-usage-data/component/sw-settings-usage-data-general', () => {

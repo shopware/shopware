@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -28,7 +31,7 @@ export default {
 
     computed: {
         ...mapState('swCategoryDetail', {
-            customFieldSetsArray: state => {
+            customFieldSetsArray: (state) => {
                 if (!state.customFieldSets) {
                     return [];
                 }

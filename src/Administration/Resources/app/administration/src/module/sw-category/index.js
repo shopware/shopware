@@ -17,8 +17,15 @@ Shopware.Component.register('sw-category-detail-menu', () => import('./component
 Shopware.Component.register('sw-category-seo-form', () => import('./component/sw-category-seo-form'));
 Shopware.Component.register('sw-category-entry-point-card', () => import('./component/sw-category-entry-point-card'));
 Shopware.Component.register('sw-category-entry-point-modal', () => import('./component/sw-category-entry-point-modal'));
-Shopware.Component.register('sw-category-entry-point-overwrite-modal', () => import('./component/sw-category-entry-point-overwrite-modal'));
-Shopware.Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-select', () => import('./component/sw-category-sales-channel-multi-select'));
+Shopware.Component.register(
+    'sw-category-entry-point-overwrite-modal',
+    () => import('./component/sw-category-entry-point-overwrite-modal'),
+);
+Shopware.Component.extend(
+    'sw-category-sales-channel-multi-select',
+    'sw-entity-multi-select',
+    () => import('./component/sw-category-sales-channel-multi-select'),
+);
 Shopware.Component.register('sw-category-detail', () => import('./page/sw-category-detail'));
 Shopware.Component.register('sw-category-detail-base', () => import('./view/sw-category-detail-base'));
 Shopware.Component.register('sw-category-detail-cms', () => import('./view/sw-category-detail-cms'));
@@ -63,7 +70,10 @@ Module.register('sw-category', {
                 name: manifest.name,
                 icon: manifest.icon,
                 color: manifest.color,
-                route: { ...manifest.routes.landingPageDetail, params: { id: 'create' } },
+                route: {
+                    ...manifest.routes.landingPageDetail,
+                    params: { id: 'create' },
+                },
                 entity: 'landing_page',
                 privilege: manifest.routes.landingPageDetail?.meta.privilege,
                 action: true,
@@ -185,14 +195,16 @@ Module.register('sw-category', {
         },
     },
 
-    navigation: [{
-        id: 'sw-category',
-        path: 'sw.category.index',
-        label: 'sw-category.general.mainMenuItemIndex',
-        parent: 'sw-catalogue',
-        privilege: 'category.viewer',
-        position: 20,
-    }],
+    navigation: [
+        {
+            id: 'sw-category',
+            path: 'sw.category.index',
+            label: 'sw-category.general.mainMenuItemIndex',
+            parent: 'sw-catalogue',
+            privilege: 'category.viewer',
+            position: 20,
+        },
+    ],
 
     defaultSearchConfiguration,
 });

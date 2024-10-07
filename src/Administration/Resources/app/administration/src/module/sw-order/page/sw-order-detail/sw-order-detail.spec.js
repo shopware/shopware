@@ -100,7 +100,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         window.dispatchEvent(new Event('beforeunload'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionContext.versionId, oldVersionContext);
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
+            wrapper.vm.orderId,
+            oldVersionContext.versionId,
+            oldVersionContext,
+        );
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
     });
@@ -114,7 +118,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
-        await Shopware.State.commit('swOrderDetail/setOrder', { orderNumber: 1 });
+        await Shopware.State.commit('swOrderDetail/setOrder', {
+            orderNumber: 1,
+        });
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
@@ -170,7 +176,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'documents',
             'tags',
             'billingAddress',
-        ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
+        ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {
@@ -237,7 +243,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             referencedId: null,
         };
 
-
         const deliveryDiscount = {
             id: 'deliveryId2',
         };
@@ -248,7 +253,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             },
             deliveryDiscount,
         ];
-
 
         wrapper = await createWrapper({
             lineItems: [
@@ -287,7 +291,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             type: 'promotion',
             referencedId: null,
         };
-
 
         const deliveryDiscount = {
             id: 'deliveryId2',
@@ -341,7 +344,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             type: 'promotion',
             referencedId: null,
         };
-
 
         const deliveryDiscount = {
             id: 'deliveryId2',

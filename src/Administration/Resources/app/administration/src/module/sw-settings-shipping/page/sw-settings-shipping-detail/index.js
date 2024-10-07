@@ -126,13 +126,12 @@ export default {
 
         ruleFilter() {
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.multi(
-                'OR',
-                [
+            criteria.addFilter(
+                Criteria.multi('OR', [
                     Criteria.contains('rule.moduleTypes.types', 'shipping'),
                     Criteria.equals('rule.moduleTypes', null),
-                ],
-            ));
+                ]),
+            );
 
             criteria.addAssociation('conditions');
 
@@ -217,16 +216,14 @@ export default {
 
             this.isLoading = true;
 
-            this.shippingMethodRepository.get(
-                this.shippingMethodId,
-                Shopware.Context.api,
-                this.shippingMethodCriteria,
-            ).then(res => {
-                Shopware.State.commit('swShippingDetail/setShippingMethod', res);
-                this.loadCustomFieldSets().then(() => {
-                    this.isLoading = false;
+            this.shippingMethodRepository
+                .get(this.shippingMethodId, Shopware.Context.api, this.shippingMethodCriteria)
+                .then((res) => {
+                    Shopware.State.commit('swShippingDetail/setShippingMethod', res);
+                    this.loadCustomFieldSets().then(() => {
+                        this.isLoading = false;
+                    });
                 });
-            });
         },
 
         loadCustomFieldSets() {
@@ -253,21 +250,28 @@ export default {
             this.isSaveSuccessful = false;
             this.isProcessLoading = true;
 
-            return this.shippingMethodRepository.save(this.shippingMethod, Context.api).then(() => {
-                this.isSaveSuccessful = true;
-                if (!this.shippingMethodId) {
-                    this.$router.push({ name: 'sw.settings.shipping.detail', params: { id: this.shippingMethod.id } });
-                }
-                this.$refs.mediaSidebarItem.getList();
-                this.loadEntityData();
-            }).catch((exception) => {
-                this.onError(exception);
-                warn(this._name, exception.message, exception.response);
-                this.isProcessLoading = false;
-                throw exception;
-            }).finally(() => {
-                this.isProcessLoading = false;
-            });
+            return this.shippingMethodRepository
+                .save(this.shippingMethod, Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    if (!this.shippingMethodId) {
+                        this.$router.push({
+                            name: 'sw.settings.shipping.detail',
+                            params: { id: this.shippingMethod.id },
+                        });
+                    }
+                    this.$refs.mediaSidebarItem.getList();
+                    this.loadEntityData();
+                })
+                .catch((exception) => {
+                    this.onError(exception);
+                    warn(this._name, exception.message, exception.response);
+                    this.isProcessLoading = false;
+                    throw exception;
+                })
+                .finally(() => {
+                    this.isProcessLoading = false;
+                });
         },
 
         onError(error) {
@@ -287,13 +291,13 @@ export default {
         },
 
         filterIncompletePrices() {
-            this.getIncompletePrices().forEach(incompletePrice => {
+            this.getIncompletePrices().forEach((incompletePrice) => {
                 this.shippingMethod.prices.remove(incompletePrice.id);
             });
         },
 
         getIncompletePrices() {
-            return this.shippingMethod.prices.filter(price => {
+            return this.shippingMethod.prices.filter((price) => {
                 return (!price.calculation && !price.calculationRuleId) || price._inNewMatrix;
             });
         },

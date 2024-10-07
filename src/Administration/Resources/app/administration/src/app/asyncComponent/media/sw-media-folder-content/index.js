@@ -95,7 +95,10 @@ export default {
             if (child.id === null) {
                 this.parentFolder = null;
             } else if (child.parentId === null) {
-                this.parentFolder = { id: null, name: this.$tc('sw-media.index.rootFolderName') };
+                this.parentFolder = {
+                    id: null,
+                    name: this.$tc('sw-media.index.rootFolderName'),
+                };
             } else {
                 this.parentFolder = await this.mediaFolderRepository.get(child.parentId, Context.api);
             }

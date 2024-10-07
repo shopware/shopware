@@ -8,16 +8,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 const productSortingRepositoryMock = {
     search() {
-        return Promise.resolve(
-            new EntityCollection(
-                '',
-                '',
-                Shopware.Context.api,
-                null,
-                [{}],
-                1,
-            ),
-        );
+        return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [{}], 1));
     },
     route: '/product_sorting',
     schema: {
@@ -35,7 +26,7 @@ const propertyGroupRepositoryMock = {
     search(criteria) {
         let properties = [...propertyGroupMock];
         if (criteria?.term) {
-            properties = properties.filter(propertyGroup => propertyGroup.name.includes(criteria.term));
+            properties = properties.filter((propertyGroup) => propertyGroup.name.includes(criteria.term));
         }
 
         return Promise.resolve(properties);
@@ -58,92 +49,93 @@ const repositoryMockFactory = (entity) => {
     throw new Error(`Repository for ${entity} is not implemented`);
 };
 
-
 async function createWrapper(activeTab = 'sorting') {
-    return mount(await wrapTestComponent('sw-cms-el-config-product-listing', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-cms-el-config-product-listing-config-sorting-grid': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-entity-single-select': true,
-                'sw-simple-search-field': true,
-                'sw-entity-multi-select': true,
-                'sw-select-field': true,
-                'sw-switch-field': true,
-                'sw-pagination': true,
-                'sw-container': true,
-                'sw-tabs-item': true,
-                'sw-alert': true,
-                'sw-empty-state': true,
-                'sw-tabs': {
-                    data() {
-                        return { active: activeTab };
-                    },
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-product-listing', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-cms-el-config-product-listing-config-sorting-grid': true,
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-entity-single-select': true,
+                    'sw-simple-search-field': true,
+                    'sw-entity-multi-select': true,
+                    'sw-select-field': true,
+                    'sw-switch-field': true,
+                    'sw-pagination': true,
+                    'sw-container': true,
+                    'sw-tabs-item': true,
+                    'sw-alert': true,
+                    'sw-empty-state': true,
+                    'sw-tabs': {
+                        data() {
+                            return { active: activeTab };
+                        },
+                        template: `
                         <div>
                             <slot></slot>
                             <slot name="content" v-bind="{ active }"></slot>
                         </div>
                     `,
+                    },
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-checkbox-field': true,
+                    'sw-icon': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-button': true,
+                    'sw-data-grid-skeleton': true,
                 },
-                'sw-highlight-text': true,
-                'sw-select-result': true,
-                'sw-checkbox-field': true,
-                'sw-icon': true,
-                'sw-context-menu-item': true,
-                'sw-context-button': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-inline-edit': true,
-                'router-link': true,
-                'sw-button': true,
-                'sw-data-grid-skeleton': true,
-            },
-            provide: {
-                cmsService: {
-                    getCmsElementRegistry: () => {
-                        return [];
+                provide: {
+                    cmsService: {
+                        getCmsElementRegistry: () => {
+                            return [];
+                        },
+                    },
+                    repositoryFactory: {
+                        create: (entity) => repositoryMockFactory(entity),
                     },
                 },
-                repositoryFactory: {
-                    create: (entity) => repositoryMockFactory(entity),
-                },
-
             },
+            props: reactive({
+                defaultConfig: {},
+                element: {
+                    config: {
+                        boxLayout: {
+                            value: {},
+                        },
+                        defaultSorting: {
+                            value: {},
+                        },
+                        availableSortings: {
+                            value: {},
+                        },
+                        showSorting: {
+                            value: true,
+                        },
+                        useCustomSorting: {
+                            value: true,
+                        },
+                        filters: {
+                            value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter',
+                        },
+                        // eslint-disable-next-line inclusive-language/use-inclusive-words
+                        propertyWhitelist: {
+                            value: [],
+                        },
+                    },
+                },
+            }),
         },
-        props: reactive({
-            defaultConfig: {},
-            element: {
-                config: {
-                    boxLayout: {
-                        value: {},
-                    },
-                    defaultSorting: {
-                        value: {},
-                    },
-                    availableSortings: {
-                        value: {},
-                    },
-                    showSorting: {
-                        value: true,
-                    },
-                    useCustomSorting: {
-                        value: true,
-                    },
-                    filters: {
-                        value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter',
-                    },
-                    // eslint-disable-next-line inclusive-language/use-inclusive-words
-                    propertyWhitelist: {
-                        value: [],
-                    },
-                },
-            },
-        }),
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/product-listing/config', () => {
@@ -169,14 +161,17 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain content for sorting when defaultSorting is deactivated', async () => {
         const wrapper = await createWrapper();
 
-        const showSortingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
-        const useDefaultSortingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
+        const showSortingSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
+        );
+        const useDefaultSortingSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]',
+        );
         const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
-        const cmsElConfigProductListingConfigSortingGrid = wrapper
-            .find('sw-cms-el-config-product-listing-config-sorting-grid-stub');
+        const cmsElConfigProductListingConfigSortingGrid = wrapper.find(
+            'sw-cms-el-config-product-listing-config-sorting-grid-stub',
+        );
 
         expect(showSortingSwitchField.exists()).toBeTruthy();
         expect(useDefaultSortingSwitchField.exists()).toBeTruthy();
@@ -192,14 +187,17 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        const showSortingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
-        const useDefaultSortingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
+        const showSortingSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
+        );
+        const useDefaultSortingSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]',
+        );
         const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
-        const cmsElConfigProductListingConfigSortingGrid = wrapper
-            .find('sw-cms-el-config-product-listing-config-sorting-grid-stub');
+        const cmsElConfigProductListingConfigSortingGrid = wrapper.find(
+            'sw-cms-el-config-product-listing-config-sorting-grid-stub',
+        );
 
         expect(showSortingSwitchField.exists()).toBeTruthy();
         expect(useDefaultSortingSwitchField.exists()).toBeTruthy();
@@ -300,14 +298,18 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const wrapper = await createWrapper('filter');
         await flushPromises();
 
-        const showFilterManufacturerSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]');
-        const showFilterRatingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByRating"]');
-        const showFilterPriceSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByPrice"]');
-        const showFilterForFreeShippingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]');
+        const showFilterManufacturerSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]',
+        );
+        const showFilterRatingSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByRating"]',
+        );
+        const showFilterPriceSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByPrice"]',
+        );
+        const showFilterForFreeShippingSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]',
+        );
 
         expect(showFilterManufacturerSwitchField.exists()).toBeTruthy();
         expect(showFilterRatingSwitchField.exists()).toBeTruthy();
@@ -324,12 +326,13 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // re-render view
 
-        const showUseFilterByPropertiesSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]');
-        const showPropertySearchField = wrapper
-            .find('sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search');
-        const showPropertyStatusGrid = wrapper
-            .find('.sw-cms-el-config-product-listing-property-grid');
+        const showUseFilterByPropertiesSwitchField = wrapper.find(
+            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]',
+        );
+        const showPropertySearchField = wrapper.find(
+            'sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search',
+        );
+        const showPropertyStatusGrid = wrapper.find('.sw-cms-el-config-product-listing-property-grid');
 
         expect(showUseFilterByPropertiesSwitchField.exists()).toBeTruthy();
         expect(showPropertySearchField.exists()).toBeTruthy();
@@ -346,8 +349,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        const expectedOrderWhenNoPropertiesAreActive = ['bar', 'baz', 'foo'];
-        const propertiesOrderByAPI = wrapper.vm.properties.map(item => item.name);
+        const expectedOrderWhenNoPropertiesAreActive = [
+            'bar',
+            'baz',
+            'foo',
+        ];
+        const propertiesOrderByAPI = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
 
@@ -357,8 +364,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedOrderWhenPropertyBazIsActive = ['baz', 'bar', 'foo'];
-        const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map(item => item.name);
+        const expectedOrderWhenPropertyBazIsActive = [
+            'baz',
+            'bar',
+            'foo',
+        ];
+        const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedOrderWhenPropertyBazIsActive).toEqual(propertiesOrderBySortingViaActiveState);
     });
@@ -369,8 +380,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.vm.$nextTick(); // fetch property_group call
         await flushPromises();
 
-        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
-        const displayedProperties = wrapper.vm.properties.map(item => item.name);
+        const expectedToDisplayProperties = [
+            'bar',
+            'baz',
+            'foo',
+        ];
+        const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         wrapper.vm.filterPropertiesTerm = 'bar';
@@ -379,14 +394,16 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await flushPromises();
 
         const expectedToDisplayFilteredProperties = ['bar'];
-        const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
+        const displayedFilteredProperties = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
         await wrapper.vm.$nextTick(); // await template re-render
         await flushPromises();
 
-        const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
+        const emptyStateElement = wrapper.findComponent({
+            name: 'sw-empty-state-stub',
+        });
         expect(emptyStateElement.exists()).toBe(false);
     });
 
@@ -395,8 +412,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
-        const displayedProperties = wrapper.vm.properties.map(item => item.name);
+        const expectedToDisplayProperties = [
+            'bar',
+            'baz',
+            'foo',
+        ];
+        const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         wrapper.vm.filterPropertiesTerm = 'notinlist';
@@ -404,12 +425,14 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.vm.$nextTick(); // fetch filtered list
 
         const expectedToDisplayFilteredProperties = [];
-        const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
+        const displayedFilteredProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
         await wrapper.vm.$nextTick(); // await template re-render
 
-        const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
+        const emptyStateElement = wrapper.findComponent({
+            name: 'sw-empty-state-stub',
+        });
         expect(emptyStateElement).toBeTruthy();
     });
 
@@ -419,8 +442,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
-        const displayedProperties = wrapper.vm.properties.map(item => item.name);
+        const expectedToDisplayProperties = [
+            'bar',
+            'baz',
+            'foo',
+        ];
+        const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         // check initial configuration
@@ -439,7 +466,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         // check that baz with the id x02 got added to the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
-        expect(selectedProperties).toEqual(['x03', 'x02']);
+        expect(selectedProperties).toEqual([
+            'x03',
+            'x02',
+        ]);
 
         // simulate a click on a switch to deselect the property foo
         wrapper.vm.propertyStatusChanged('x03');

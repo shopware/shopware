@@ -74,18 +74,18 @@ function handlePropertyMappings(propertyDefinitions, mapping) {
         const propSchema = propertyDefinitions[property];
 
         if (blocklist.includes(property) || propSchema.readOnly === true) {
-            delete (mapping[property]);
+            delete mapping[property];
             return;
         }
 
         if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
-            delete (mapping[property]);
+            delete mapping[property];
             return;
         }
 
         if (propSchema.type === 'array') {
             mapping[property.concat('[0]')] = mapping[property];
-            delete (mapping[property]);
+            delete mapping[property];
         }
     });
     return mapping;

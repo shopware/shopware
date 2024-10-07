@@ -14,7 +14,10 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['modal-close', 'process-finish'],
+    emits: [
+        'modal-close',
+        'process-finish',
+    ],
 
     props: {
         sequence: {
@@ -35,8 +38,14 @@ export default {
 
         options() {
             return [
-                { value: true, label: this.$tc('sw-flow.modals.customerStatus.active') },
-                { value: false, label: this.$tc('sw-flow.modals.customerStatus.inactive') },
+                {
+                    value: true,
+                    label: this.$tc('sw-flow.modals.customerStatus.active'),
+                },
+                {
+                    value: false,
+                    label: this.$tc('sw-flow.modals.customerStatus.inactive'),
+                },
             ];
         },
     },

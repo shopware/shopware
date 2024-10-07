@@ -7,53 +7,62 @@ async function createWrapper(privileges = [], isBasedItem = true) {
     // const localVue = createLocalVue();
     // localVue.directive('tooltip', {});
 
-    return mount(await wrapTestComponent('sw-settings-country-currency-dependent-modal', {
-        sync: true,
-    }), {
-        props: {
-            currencyDependsValue: [{
-                enabled: isBasedItem,
-                currencyId: '49a246dca3f245e6b83b8b3255c90038',
-                amount: 1,
-                extensions: [],
-            }],
-            countryId: '',
-            userConfig: {},
-            userConfigValues: {},
-            menuOptions: [{}],
-            taxFreeType: '',
-            isLoading: '',
-        },
-
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([]);
-                        },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
+    return mount(
+        await wrapTestComponent('sw-settings-country-currency-dependent-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                currencyDependsValue: [
+                    {
+                        enabled: isBasedItem,
+                        currencyId: '49a246dca3f245e6b83b8b3255c90038',
+                        amount: 1,
+                        extensions: [],
                     },
-                },
-                feature: {
-                    isActive: () => true,
-                },
+                ],
+                countryId: '',
+                userConfig: {},
+                userConfigValues: {},
+                menuOptions: [{}],
+                taxFreeType: '',
+                isLoading: '',
             },
 
-            stubs: {
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([]);
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    feature: {
+                        isActive: () => true,
+                    },
                 },
-                'sw-data-grid': {
-                    props: ['dataSource', 'columns'],
-                    template: `
+
+                stubs: {
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-data-grid': {
+                        props: [
+                            'dataSource',
+                            'columns',
+                        ],
+                        template: `
                     <div class="sw-data-grid-stub">
                     <template v-for="item in dataSource">
                         <slot name="column-amount" v-bind="{ item }"></slot>
@@ -62,16 +71,16 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                     </template>
                     </div>
                 `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-radio-field': true,
+                    'sw-number-field': true,
+                    'sw-button': true,
+                    'sw-settings-country-currency-hamburger-menu': true,
                 },
-                'sw-context-menu-item': true,
-                'sw-radio-field': true,
-                'sw-number-field': true,
-                'sw-button': true,
-                'sw-settings-country-currency-hamburger-menu': true,
             },
         },
-
-    });
+    );
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-dependent-modal', () => {
@@ -86,21 +95,25 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
         await flushPromises();
         const modalGrid = wrapper.findComponent('.sw-data-grid-stub');
 
-        expect(modalGrid.props().columns).toStrictEqual([{
-            inlineEdit: 'string',
-            label: '',
-            primary: true,
-            property: 'currencyId',
-        }, {
-            inlineEdit: 'string',
-            label: 'sw-settings-country.detail.taxFreeFrom',
-            primary: true,
-            property: 'amount',
-        }, {
-            inlineEdit: 'string',
-            label: 'sw-settings-country.detail.baseCurrency',
-            property: 'enabled',
-        }]);
+        expect(modalGrid.props().columns).toStrictEqual([
+            {
+                inlineEdit: 'string',
+                label: '',
+                primary: true,
+                property: 'currencyId',
+            },
+            {
+                inlineEdit: 'string',
+                label: 'sw-settings-country.detail.taxFreeFrom',
+                primary: true,
+                property: 'amount',
+            },
+            {
+                inlineEdit: 'string',
+                label: 'sw-settings-country.detail.baseCurrency',
+                property: 'enabled',
+            },
+        ]);
     });
 
     it('should able to show right data on grid', async () => {
@@ -108,12 +121,14 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
         await wrapper.vm.$nextTick();
         const modalGrid = wrapper.findComponent('.sw-data-grid-stub');
 
-        expect(modalGrid.props().dataSource).toStrictEqual([{
-            enabled: true,
-            currencyId: '49a246dca3f245e6b83b8b3255c90038',
-            amount: 1,
-            extensions: [],
-        }]);
+        expect(modalGrid.props().dataSource).toStrictEqual([
+            {
+                enabled: true,
+                currencyId: '49a246dca3f245e6b83b8b3255c90038',
+                amount: 1,
+                extensions: [],
+            },
+        ]);
     });
 
     it('should be disabled the context menu delete button', async () => {

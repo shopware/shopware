@@ -79,7 +79,10 @@ export default {
                 return this.$route.query.edit === 'true';
             },
             set(editMode) {
-                this.$router.push({ name: this.$route.name, query: { edit: editMode } });
+                this.$router.push({
+                    name: this.$route.name,
+                    query: { edit: editMode },
+                });
             },
         },
 
@@ -106,9 +109,7 @@ export default {
                 criteria.addAssociation('defaultPaymentMethod');
             }
 
-            criteria
-                .getAssociation('addresses')
-                .addSorting(Criteria.sort('firstName'), 'ASC', false);
+            criteria.getAssociation('addresses').addSorting(Criteria.sort('firstName'), 'ASC', false);
 
             return criteria;
         },
@@ -147,8 +148,9 @@ export default {
         },
 
         validCompanyField() {
-            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
-                this.customer.company?.trim().length : true;
+            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS
+                ? this.customer.company?.trim().length
+                : true;
         },
 
         salutationRepository() {
@@ -187,11 +189,7 @@ export default {
             });
             this.isLoading = true;
 
-            this.customerRepository.get(
-                this.customerId,
-                Shopware.Context.api,
-                this.defaultCriteria,
-            ).then((customer) => {
+            this.customerRepository.get(this.customerId, Shopware.Context.api, this.defaultCriteria).then((customer) => {
                 this.customer = customer;
                 if (!this.customer?.salutationId) {
                     this.customer.salutationId = defaultSalutationId;
@@ -223,32 +221,29 @@ export default {
         validateEmail() {
             const { id, email, boundSalesChannelId } = this.customer;
 
-            return this.customerValidationService.checkCustomerEmail({
-                id,
-                email,
-                boundSalesChannelId,
-            }).then((emailIsValid) => {
-                if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch(
-                        'error/addApiError',
-                        {
+            return this.customerValidationService
+                .checkCustomerEmail({
+                    id,
+                    email,
+                    boundSalesChannelId,
+                })
+                .then((emailIsValid) => {
+                    if (this.errorEmailCustomer) {
+                        Shopware.State.dispatch('error/addApiError', {
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
-                        },
-                    );
-                }
+                        });
+                    }
 
-                return emailIsValid;
-            }).catch((exception) => {
-                this.emailIsValid = false;
-                Shopware.State.dispatch(
-                    'error/addApiError',
-                    {
+                    return emailIsValid;
+                })
+                .catch((exception) => {
+                    this.emailIsValid = false;
+                    Shopware.State.dispatch('error/addApiError', {
                         expression: `customer.${this.customer.id}.email`,
                         error: new ShopwareError(exception.response.data.errors[0]),
-                    },
-                );
-            });
+                    });
+                });
         },
 
         async onSave() {
@@ -298,20 +293,23 @@ export default {
                 this.customer.vatIds = [];
             }
 
-            return this.customerRepository.save(this.customer).then(() => {
-                this.isSaveSuccessful = true;
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
-                        name: `${this.customer.firstName} ${this.customer.lastName}`,
-                    }),
+            return this.customerRepository
+                .save(this.customer)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
+                            name: `${this.customer.firstName} ${this.customer.lastName}`,
+                        }),
+                    });
+                })
+                .catch((exception) => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                    });
+                    this.isLoading = false;
+                    throw exception;
                 });
-            }).catch((exception) => {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
-                });
-                this.isLoading = false;
-                throw exception;
-            });
         },
 
         async onAbortButtonClick() {
@@ -339,18 +337,16 @@ export default {
 
         async validPassword(customer) {
             const { passwordNew, passwordConfirm } = customer;
-            const passwordSet = (passwordNew || passwordConfirm);
-            const passwordNotEquals = (passwordNew !== passwordConfirm);
+            const passwordSet = passwordNew || passwordConfirm;
+            const passwordNotEquals = passwordNew !== passwordConfirm;
 
             if (passwordSet && passwordNotEquals) {
                 Shopware.State.dispatch('error/addApiError', {
                     expression: `customer.${this.customer.id}.passwordConfirm`,
-                    error: new ShopwareError(
-                        {
-                            detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
-                            code: 'password_not_match',
-                        },
-                    ),
+                    error: new ShopwareError({
+                        detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
+                        code: 'password_not_match',
+                    }),
                 });
 
                 return false;
@@ -360,42 +356,48 @@ export default {
         },
 
         acceptCustomerGroupRegistration() {
-            this.customerGroupRegistrationService.accept(this.customer.id).then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-customer.customerGroupRegistration.acceptMessage'),
+            this.customerGroupRegistrationService
+                .accept(this.customer.id)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-customer.customerGroupRegistration.acceptMessage'),
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.customerGroupRegistration.errorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.createdComponent();
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.customerGroupRegistration.errorMessage'),
-                });
-            }).finally(() => {
-                this.createdComponent();
-            });
         },
 
         declineCustomerGroupRegistration() {
-            this.customerGroupRegistrationService.decline(this.customer.id).then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-customer.customerGroupRegistration.declineMessage'),
+            this.customerGroupRegistrationService
+                .decline(this.customer.id)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-customer.customerGroupRegistration.declineMessage'),
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.customerGroupRegistration.errorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.createdComponent();
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.customerGroupRegistration.errorMessage'),
-                });
-            }).finally(() => {
-                this.createdComponent();
-            });
         },
 
         createErrorMessageForCompanyField() {
             this.isLoading = false;
             Shopware.State.dispatch('error/addApiError', {
                 expression: `customer.${this.customer.id}.company`,
-                error: new ShopwareError(
-                    {
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                    },
-                ),
+                error: new ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                }),
             });
         },
 

@@ -23,8 +23,7 @@ async function createWrapper() {
             stubs: {
                 'sw-settings-logging-mail-sent-info': await wrapTestComponent('sw-settings-logging-mail-sent-info'),
                 'sw-page': {
-                    template:
-                        `<div class="sw-page">
+                    template: `<div class="sw-page">
                             <slot name="content"></slot>
                         </div>`,
                 },
@@ -35,7 +34,9 @@ async function createWrapper() {
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
                 'sw-tabs-item': true,
-                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
                 'sw-tabs-deprecated': {
                     template: '<div><slot /></div>',
                 },

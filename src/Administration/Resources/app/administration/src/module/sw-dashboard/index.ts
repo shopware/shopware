@@ -5,7 +5,10 @@ Shopware.Component.register('sw-dashboard-index', () => import('./page/sw-dashbo
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line max-len,sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-usage-data-consent-banner', () => import('src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner'));
+Shopware.Component.register(
+    'sw-usage-data-consent-banner',
+    () => import('src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner'),
+);
 
 /**
  * @package services-settings
@@ -32,12 +35,14 @@ Shopware.Module.register('sw-dashboard', {
         },
     },
 
-    navigation: [{
-        id: 'sw-dashboard',
-        label: 'sw-dashboard.general.mainMenuItemGeneral',
-        color: '#6AD6F0',
-        icon: 'regular-tachometer',
-        path: 'sw.dashboard.index',
-        position: 10,
-    }],
+    navigation: [
+        {
+            id: 'sw-dashboard',
+            label: 'sw-dashboard.general.mainMenuItemGeneral',
+            color: '#6AD6F0',
+            icon: 'regular-tachometer',
+            path: 'sw.dashboard.index',
+            position: 10,
+        },
+    ],
 });

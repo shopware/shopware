@@ -9,14 +9,7 @@ const { Criteria } = Shopware.Data;
 const { Context } = Shopware;
 
 function createEntityCollectionMock(entityName, items = [], criteria = {}) {
-    return new EntityCollection(
-        '/route',
-        entityName,
-        {},
-        criteria,
-        items,
-        items.length,
-    );
+    return new EntityCollection('/route', entityName, {}, criteria, items, items.length);
 }
 
 const testAssociationName = 'testAssociation';
@@ -33,7 +26,9 @@ const categoryMock = {
 const defaultProps = {
     rule: ruleMock,
     association: testAssociationName,
-    categoriesCollection: createEntityCollectionMock('category', [categoryMock]),
+    categoriesCollection: createEntityCollectionMock('category', [
+        categoryMock,
+    ]),
     hideHeadline: true,
     hideSearch: true,
 };
@@ -44,7 +39,9 @@ const categoryRepositoryMock = {
 
 async function createWrapper(props = defaultProps) {
     return mount(
-        await wrapTestComponent('sw-settings-rule-category-tree', { sync: true }),
+        await wrapTestComponent('sw-settings-rule-category-tree', {
+            sync: true,
+        }),
         {
             props,
             global: {
@@ -90,7 +87,9 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
     });
 
     it('should not re-get tree items category entity is empty', async () => {
-        const collection = createEntityCollectionMock('category', [categoryMock]);
+        const collection = createEntityCollectionMock('category', [
+            categoryMock,
+        ]);
         collection.entity = null;
 
         await createWrapper({
@@ -102,49 +101,41 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(categoryRepositoryMock.search).toHaveBeenCalledTimes(0);
     });
 
-    it.each([{ expected: true }, { expected: false }])(
-        'should hide headline: $expected',
-        async ({ expected }) => {
-            const wrapper = await createWrapper({
-                ...defaultProps,
-                hideHeadline: expected,
-            });
-            await flushPromises();
+    it.each([
+        { expected: true },
+        { expected: false },
+    ])('should hide headline: $expected', async ({ expected }) => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            hideHeadline: expected,
+        });
+        await flushPromises();
 
-            expect(wrapper.find('.sw-tree-actions__headline').exists()).toBe(
-                !expected,
-            );
-        },
-    );
+        expect(wrapper.find('.sw-tree-actions__headline').exists()).toBe(!expected);
+    });
 
-    it.each([{ expected: true }, { expected: false }])(
-        'should hide search: $expected',
-        async ({ expected }) => {
-            const wrapper = await createWrapper({
-                ...defaultProps,
-                hideSearch: expected,
-            });
-            await flushPromises();
+    it.each([
+        { expected: true },
+        { expected: false },
+    ])('should hide search: $expected', async ({ expected }) => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            hideSearch: expected,
+        });
+        await flushPromises();
 
-            expect(wrapper.find('.sw-tree__search').exists()).toBe(!expected);
-        },
-    );
+        expect(wrapper.find('.sw-tree__search').exists()).toBe(!expected);
+    });
 
     it('should load categories with association', async () => {
         await createWrapper();
         await flushPromises();
 
         const criteria = new Criteria(1, 500);
-        criteria
-            .getAssociation(testAssociationName)
-            .addFilter(Criteria.equals('id', ruleMock.id));
+        criteria.getAssociation(testAssociationName).addFilter(Criteria.equals('id', ruleMock.id));
         criteria.addFilter(Criteria.equals('parentId', null));
 
-        expect(categoryRepositoryMock.search).toHaveBeenNthCalledWith(
-            1,
-            criteria,
-            Context.api,
-        );
+        expect(categoryRepositoryMock.search).toHaveBeenNthCalledWith(1, criteria, Context.api);
     });
 
     it('should search tree items by card search field input', async () => {
@@ -161,16 +152,11 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         await flushPromises();
 
         const criteria = new Criteria(1, 500);
-        criteria
-            .getAssociation(testAssociationName)
-            .addFilter(Criteria.equals('id', ruleMock.id));
+        criteria.getAssociation(testAssociationName).addFilter(Criteria.equals('id', ruleMock.id));
         criteria.addFilter(Criteria.contains('name', term));
 
         expect(categoryRepositoryMock.search).toHaveBeenCalledTimes(2);
-        expect(categoryRepositoryMock.search).toHaveBeenLastCalledWith(
-            criteria,
-            Context.api,
-        );
+        expect(categoryRepositoryMock.search).toHaveBeenLastCalledWith(criteria, Context.api);
 
         // trigger re-run to test filters filter
         await wrapper.find('.sw-simple-search-field input').setValue(term);

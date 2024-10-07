@@ -22,7 +22,7 @@ Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
         validate: {
             type: Function,
             required: false,
-            default: searchTerm => string.isValidIp(searchTerm),
+            default: (searchTerm) => string.isValidIp(searchTerm),
         },
 
         knownIps: {
@@ -50,11 +50,11 @@ Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
         },
 
         validKnownIps() {
-            return this.knownIps.filter(ip => this.validate(ip.value));
+            return this.knownIps.filter((ip) => this.validate(ip.value));
         },
 
         validUnselectedKnownIps() {
-            return this.validKnownIps.filter(ip => this.value.indexOf(ip.value) === -1);
+            return this.validKnownIps.filter((ip) => this.value.indexOf(ip.value) === -1);
         },
     },
 
@@ -65,7 +65,7 @@ Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
         },
 
         getKnownIp(ip) {
-            const index = this.validKnownIps.findIndex(knownIp => knownIp.value === ip.value);
+            const index = this.validKnownIps.findIndex((knownIp) => knownIp.value === ip.value);
 
             if (index === -1) {
                 return null;

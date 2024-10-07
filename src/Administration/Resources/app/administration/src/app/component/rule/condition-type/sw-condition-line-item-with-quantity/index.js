@@ -40,7 +40,10 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line
             },
             set(quantity) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, quantity };
+                this.condition.value = {
+                    ...this.condition.value,
+                    quantity,
+                };
             },
         },
 
@@ -55,7 +58,11 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.quantity', 'value.id']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.quantity',
+            'value.id',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;

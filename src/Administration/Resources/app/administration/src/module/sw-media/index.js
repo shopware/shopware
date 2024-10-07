@@ -12,7 +12,10 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-media-index', () => import('./page/sw-media-index'));
 Shopware.Component.register('sw-media-grid', () => import('./component/sw-media-grid'));
 Shopware.Component.register('sw-media-sidebar', () => import('./component/sidebar/sw-media-sidebar'));
-Shopware.Component.register('sw-media-quickinfo-metadata-item', () => import('./component/sidebar/sw-media-quickinfo-metadata-item'));
+Shopware.Component.register(
+    'sw-media-quickinfo-metadata-item',
+    () => import('./component/sidebar/sw-media-quickinfo-metadata-item'),
+);
 Shopware.Component.register('sw-media-quickinfo-usage', () => import('./component/sidebar/sw-media-quickinfo-usage'));
 Shopware.Component.extend('sw-media-collapse', 'sw-collapse', () => import('./component/sw-media-collapse'));
 Shopware.Component.register('sw-media-folder-info', () => import('./component/sidebar/sw-media-folder-info'));
@@ -57,16 +60,18 @@ Module.register('sw-media', {
         },
     },
 
-    navigation: [{
-        id: 'sw-media',
-        label: 'sw-media.general.mainMenuItemGeneral',
-        color: '#ff68b4',
-        icon: 'regular-image',
-        path: 'sw.media.index',
-        position: 20,
-        parent: 'sw-content',
-        privilege: 'media.viewer',
-    }],
+    navigation: [
+        {
+            id: 'sw-media',
+            label: 'sw-media.general.mainMenuItemGeneral',
+            color: '#ff68b4',
+            icon: 'regular-image',
+            path: 'sw.media.index',
+            position: 20,
+            parent: 'sw-content',
+            privilege: 'media.viewer',
+        },
+    ],
 
     defaultSearchConfiguration,
 });

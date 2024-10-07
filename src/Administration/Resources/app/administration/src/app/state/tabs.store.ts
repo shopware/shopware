@@ -10,8 +10,8 @@ export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>
 
 interface TabsState {
     tabItems: {
-        [positionId: string]: TabItemEntry[]
-    }
+        [positionId: string]: TabItemEntry[];
+    };
 }
 
 const TabsStore: Module<TabsState, VuexRootState> = {

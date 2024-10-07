@@ -7,46 +7,58 @@ Shopware.State.registerModule('swShippingDetail', state);
  * @package checkout
  */
 const createWrapper = async () => {
-    return mount(await wrapTestComponent('sw-settings-shipping-price-matrix', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            store: Shopware.State._store,
-            stubs: {
-                'sw-card': true,
-                'sw-container': true,
-                'sw-select-rule-create': true,
-                'sw-button': true,
-                'sw-context-button': true,
-                'sw-data-grid': true,
-                'sw-context-menu-item': true,
-                'sw-alert': true,
-                'sw-price-rule-modal': true,
-                'sw-number-field': true,
-                'sw-inheritance-switch': true,
-                'sw-inherit-wrapper': true,
-                'sw-single-select': true,
+    return mount(
+        await wrapTestComponent('sw-settings-shipping-price-matrix', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                store: Shopware.State._store,
+                stubs: {
+                    'sw-card': true,
+                    'sw-container': true,
+                    'sw-select-rule-create': true,
+                    'sw-button': true,
+                    'sw-context-button': true,
+                    'sw-data-grid': true,
+                    'sw-context-menu-item': true,
+                    'sw-alert': true,
+                    'sw-price-rule-modal': true,
+                    'sw-number-field': true,
+                    'sw-inheritance-switch': true,
+                    'sw-inherit-wrapper': true,
+                    'sw-single-select': true,
+                },
             },
-        },
-        props: {
-            priceGroup: {
-                isNew: false,
-                ruleId: 'ruleId',
-                rule: {},
-                calculation: 1,
-                prices: [{
-                    _isNew: true,
-                    shippingMethodId: 'shippingMethodId',
-                    quantityStart: 1,
+            props: {
+                priceGroup: {
+                    isNew: false,
                     ruleId: 'ruleId',
                     rule: {},
                     calculation: 1,
-                    currencyPrice: [{ currencyId: 'euro', gross: 0, linked: false, net: 0 }],
-                }],
+                    prices: [
+                        {
+                            _isNew: true,
+                            shippingMethodId: 'shippingMethodId',
+                            quantityStart: 1,
+                            ruleId: 'ruleId',
+                            rule: {},
+                            calculation: 1,
+                            currencyPrice: [
+                                {
+                                    currencyId: 'euro',
+                                    gross: 0,
+                                    linked: false,
+                                    net: 0,
+                                },
+                            ],
+                        },
+                    ],
+                },
             },
         },
-    });
+    );
 };
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {

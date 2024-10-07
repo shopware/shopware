@@ -17,38 +17,41 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-buy-box', {
-        sync: true,
-    }), {
-        sync: false,
-        props: {
-            element: {
-                data: {},
-                config: {},
-            },
-            defaultConfig: {
-                alignment: {
-                    value: null,
+    return mount(
+        await wrapTestComponent('sw-cms-el-buy-box', {
+            sync: true,
+        }),
+        {
+            sync: false,
+            props: {
+                element: {
+                    data: {},
+                    config: {},
                 },
-            },
-        },
-        global: {
-            stubs: {
-                'sw-block-field': true,
-                'sw-icon': true,
-            },
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
-                    },
-                    getCmsElementRegistry: () => {
-                        return { 'buy-box': {} };
+                defaultConfig: {
+                    alignment: {
+                        value: null,
                     },
                 },
             },
+            global: {
+                stubs: {
+                    'sw-block-field': true,
+                    'sw-icon': true,
+                },
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return { 'buy-box': {} };
+                        },
+                    },
+                },
+            },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/buy-box/component', () => {

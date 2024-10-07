@@ -22,7 +22,7 @@ export default {
  * @private
  */
 export type Snippets = {
-    [key: string]: string|Snippets,
+    [key: string]: string | Snippets;
 };
 
 /**
@@ -55,12 +55,9 @@ function getLocaleRegistry() {
 /**
  * Registers a new locale
  */
-function register(localeName: string, localeMessages: Snippets = {}): boolean|string {
+function register(localeName: string, localeMessages: Snippets = {}): boolean | string {
     if (!localeName || !localeName.length) {
-        warn(
-            'LocaleFactory',
-            'A locale always needs a name',
-        );
+        warn('LocaleFactory', 'A locale always needs a name');
         return false;
     }
 
@@ -90,7 +87,7 @@ function register(localeName: string, localeMessages: Snippets = {}): boolean|st
 /**
  * Extends a given locale with the provided translations
  */
-function extend(localeName: string, localeMessages: Snippets = {}): boolean|string {
+function extend(localeName: string, localeMessages: Snippets = {}): boolean | string {
     if (localeName.split('-').length < 2) {
         warn(
             'LocaleFactory',
@@ -116,7 +113,7 @@ function extend(localeName: string, localeMessages: Snippets = {}): boolean|stri
 /**
  * Get translations for a specific locale
  */
-function getLocaleByName(localeName: string): Snippets|boolean {
+function getLocaleByName(localeName: string): Snippets | boolean {
     return localeRegistry.get(localeName) || false;
 }
 
@@ -144,7 +141,7 @@ function getBrowserLanguage(): string {
         shortLanguageCodes.set(lang.toLowerCase(), locale);
     });
 
-    let matchedLanguage: string|null = null;
+    let matchedLanguage: string | null = null;
 
     getBrowserLanguages().forEach((language) => {
         if (!matchedLanguage && localeRegistry.has(language)) {

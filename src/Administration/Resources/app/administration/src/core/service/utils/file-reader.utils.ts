@@ -9,18 +9,21 @@ function registerPromiseOnFileReader(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: (value?: any) => void,
     reject: (reason?: unknown) => void,
-):void {
-    fileReader.onerror = ():void => {
+): void {
+    fileReader.onerror = (): void => {
         fileReader.abort();
         reject(new DOMException('Problem parsing file.'));
     };
 
-    fileReader.onload = ():void => {
+    fileReader.onload = (): void => {
         resolve(fileReader.result);
     };
 }
 
-function splitFileNameAndExtension(completeFileName: string): {extension: string | undefined, fileName: string} {
+function splitFileNameAndExtension(completeFileName: string): {
+    extension: string | undefined;
+    fileName: string;
+} {
     const fileParts = completeFileName.split('.');
 
     // no dot in filename
@@ -75,11 +78,17 @@ function readFileAsText<FILE = unknown>(inputFile: Blob): Promise<FILE> {
     });
 }
 
-function getNameAndExtensionFromFile(fileHandle: File): {extension: string | undefined, fileName: string} {
+function getNameAndExtensionFromFile(fileHandle: File): {
+    extension: string | undefined;
+    fileName: string;
+} {
     return splitFileNameAndExtension(fileHandle.name);
 }
 
-function getNameAndExtensionFromUrl(urlObject: URL): {extension: string | undefined, fileName: string} {
+function getNameAndExtensionFromUrl(urlObject: URL): {
+    extension: string | undefined;
+    fileName: string;
+} {
     let ref = urlObject.href.split('/').pop();
 
     if (!ref) {

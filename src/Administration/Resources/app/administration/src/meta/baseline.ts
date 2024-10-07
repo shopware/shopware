@@ -497,8 +497,4 @@ const missingTests = [
 /**
  * @private
  */
-export {
-    missingTests,
-    positionIdentifiers,
-    dataSetIds,
-};
+export { missingTests, positionIdentifiers, dataSetIds };

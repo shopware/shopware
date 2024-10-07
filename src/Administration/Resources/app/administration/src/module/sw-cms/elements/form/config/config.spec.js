@@ -30,7 +30,8 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-tabs': {
-                    template: '<div class="sw-tabs"><slot name="default" :active="active"></slot><slot name="content" :active="active"></slot></div>',
+                    template:
+                        '<div class="sw-tabs"><slot name="default" :active="active"></slot><slot name="content" :active="active"></slot></div>',
                     data() {
                         return {
                             active: 'options',
@@ -39,21 +40,28 @@ async function createWrapper() {
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot></slot></div>',
-                    props: ['title', 'name', 'activeTab'],
+                    props: [
+                        'title',
+                        'name',
+                        'activeTab',
+                    ],
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-select-field': {
-                    template: '<select class="sw-select-field" :value="value" @change="$emit(`update:value`, $ev.target.value)"><slot></slot></select>',
+                    template:
+                        '<select class="sw-select-field" :value="value" @change="$emit(`update:value`, $ev.target.value)"><slot></slot></select>',
                     props: ['value'],
                 },
                 'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(`update:value`, $ev.target.value)" />',
+                    template:
+                        '<input class="sw-text-field" :value="value" @input="$emit(`update:value`, $ev.target.value)" />',
                     props: ['value'],
                 },
                 'sw-textarea-field': {
-                    template: '<textarea class="sw-textarea-field" :value="value" @input="$emit(`update:value`, $ev.target.value)" />',
+                    template:
+                        '<textarea class="sw-textarea-field" :value="value" @input="$emit(`update:value`, $ev.target.value)" />',
                     props: ['value'],
                 },
                 'sw-tagged-field': {
@@ -85,26 +93,39 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['doNotReply@localhost']);
+        expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
+            'doNotReply@localhost',
+        ]);
     });
 
     it('should keep email addresses at the end that do pass the check', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', ['valid@mail.com', 'alsovalid@mail.com']);
+        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', [
+            'valid@mail.com',
+            'alsovalid@mail.com',
+        ]);
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['valid@mail.com', 'alsovalid@mail.com']);
+        expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
+            'valid@mail.com',
+            'alsovalid@mail.com',
+        ]);
     });
 
     it('should remove email addresses from the end that do not pass the check', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', ['valid@mail.com', 'invalid']);
+        wrapper.getComponent('.sw-tagged-field').vm.$emit('update:value', [
+            'valid@mail.com',
+            'invalid',
+        ]);
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.element.config.mailReceiver.value).toEqual(['valid@mail.com']);
+        expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
+            'valid@mail.com',
+        ]);
     });
 });

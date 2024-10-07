@@ -22,7 +22,6 @@ export default class AclService {
             return true;
         }
 
-
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return (this.state.getters.userPrivileges as string[]).includes(privilegeKey);
     }
@@ -39,7 +38,7 @@ export default class AclService {
 
         const router = Shopware.Application.view.root.$router;
         // @ts-expect-error - meta is not defined in the type
-        const match = router.resolve(route) as { meta?: { privilege: string}};
+        const match = router.resolve(route) as { meta?: { privilege: string } };
 
         if (!match.meta) {
             return true;
@@ -48,11 +47,10 @@ export default class AclService {
         return this.can(match.meta.privilege);
     }
 
-
     hasActiveSettingModules(): boolean {
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
-        const groups = Object.values(this.state.get('settingsItems').settingsGroups) as [[{privilege?: string}]];
+        const groups = Object.values(this.state.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
 
         let hasActive = false;
 

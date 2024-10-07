@@ -420,15 +420,15 @@ export default {
                 .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
                 .then((response) => {
                     this.mailPreview = response.html;
-                this.mailPlainPreview = response.plain;
+                    this.mailPlainPreview = response.plain;
                 })
                 .catch((error) => {
                     this.mailPreview = null;
-                this.mailPlainPreview = null;
-                this.handleError(error);
-            }).finally(() => {
-                    this.isLoading = false;
-                });
+                    this.mailPlainPreview = null;
+                    this.handleError(error);
+                }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         mailPreviewContent() {

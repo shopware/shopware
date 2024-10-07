@@ -65,10 +65,12 @@ Component.register('sw-sales-channel-switch', {
         checkAbort() {
             // Check if abort function exists und reset the select field if the change should be aborted
             if (typeof this.abortChangeFunction === 'function') {
-                if (this.abortChangeFunction({
-                    oldSalesChannelId: this.lastSalesChannelId,
-                    newSalesChannelId: this.salesChannelId,
-                })) {
+                if (
+                    this.abortChangeFunction({
+                        oldSalesChannelId: this.lastSalesChannelId,
+                        newSalesChannelId: this.salesChannelId,
+                    })
+                ) {
                     this.showUnsavedChangesModal = true;
                     this.salesChannelId = this.lastSalesChannelId;
                     this.$refs.salesChannelSelect.loadSelected();

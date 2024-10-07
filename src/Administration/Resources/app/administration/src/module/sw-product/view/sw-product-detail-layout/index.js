@@ -16,7 +16,12 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'cmsService', 'feature', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'cmsService',
+        'feature',
+        'acl',
+    ],
 
     data() {
         return {
@@ -53,9 +58,7 @@ export default {
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
             criteria.addAssociation('sections.blocks');
-            criteria.getAssociation('sections.blocks')
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('slots');
+            criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
 
             return criteria;
         },
@@ -128,7 +131,10 @@ export default {
             if (!this.currentPage) {
                 this.$router.push({ name: 'sw.cms.create' });
             } else {
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.currentPage.id } });
+                this.$router.push({
+                    name: 'sw.cms.detail',
+                    params: { id: this.currentPage.id },
+                });
             }
         },
 

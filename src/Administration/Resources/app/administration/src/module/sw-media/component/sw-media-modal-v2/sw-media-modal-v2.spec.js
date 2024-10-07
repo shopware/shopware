@@ -41,7 +41,6 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-
     it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
         expect(fileInput.attributes()['file-accept']).toBe('image/*');

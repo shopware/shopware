@@ -13,21 +13,21 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface StateMachineHistoryData {
-    order: Entity<'state_machine_state'>,
-    transaction: Entity<'state_machine_state'>,
-    delivery: Entity<'state_machine_state'>,
-    createdAt: string,
+    order: Entity<'state_machine_state'>;
+    transaction: Entity<'state_machine_state'>;
+    delivery: Entity<'state_machine_state'>;
+    createdAt: string;
     user?: {
-        username: string
-    },
-    entity: string,
-    referencedId?: string,
+        username: string;
+    };
+    entity: string;
+    referencedId?: string;
 }
 
 interface CombinedStates {
-    order: Entity<'state_machine_state'>,
-    ['order_transaction']: Entity<'state_machine_state'>,
-    ['order_delivery']: Entity<'state_machine_state'>,
+    order: Entity<'state_machine_state'>;
+    ['order_transaction']: Entity<'state_machine_state'>;
+    ['order_delivery']: Entity<'state_machine_state'>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -57,20 +57,24 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        dataSource: StateMachineHistoryData[],
-        statesLoading: boolean,
-        limit: number,
-        page: number,
-        total: number,
-        steps: number[],
-        } {
+        dataSource: StateMachineHistoryData[];
+        statesLoading: boolean;
+        limit: number;
+        page: number;
+        total: number;
+        steps: number[];
+    } {
         return {
             dataSource: [],
             statesLoading: true,
             limit: 10,
             page: 1,
             total: 0,
-            steps: [5, 10, 25],
+            steps: [
+                5,
+                10,
+                25,
+            ],
         };
     },
 
@@ -92,17 +96,13 @@ export default Component.wrapComponentConfig({
                 }),
             ];
 
+            criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.referencedId',
-                    entityIds,
-                ),
-            );
-            criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.entityName',
-                    ['order', 'order_transaction', 'order_delivery'],
-                ),
+                Criteria.equalsAny('state_machine_history.entityName', [
+                    'order',
+                    'order_transaction',
+                    'order_delivery',
+                ]),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
@@ -116,14 +116,32 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        columns(): Array<{property: string, label: string}> {
+        columns(): Array<{ property: string; label: string }> {
             return [
-                { property: 'createdAt', label: this.$tc('sw-order.stateHistoryModal.column.createdAt') },
-                { property: 'entity', label: this.$tc('sw-order.stateHistoryModal.column.entity') },
-                { property: 'user', label: this.$tc('sw-order.stateHistoryModal.column.user') },
-                { property: 'transaction', label: this.$tc('sw-order.stateHistoryModal.column.transaction') },
-                { property: 'delivery', label: this.$tc('sw-order.stateHistoryModal.column.delivery') },
-                { property: 'order', label: this.$tc('sw-order.stateHistoryModal.column.order') },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('sw-order.stateHistoryModal.column.createdAt'),
+                },
+                {
+                    property: 'entity',
+                    label: this.$tc('sw-order.stateHistoryModal.column.entity'),
+                },
+                {
+                    property: 'user',
+                    label: this.$tc('sw-order.stateHistoryModal.column.user'),
+                },
+                {
+                    property: 'transaction',
+                    label: this.$tc('sw-order.stateHistoryModal.column.transaction'),
+                },
+                {
+                    property: 'delivery',
+                    label: this.$tc('sw-order.stateHistoryModal.column.delivery'),
+                },
+                {
+                    property: 'order',
+                    label: this.$tc('sw-order.stateHistoryModal.column.order'),
+                },
             ];
         },
 
@@ -162,25 +180,27 @@ export default Component.wrapComponentConfig({
         },
 
         getStateHistoryEntries(): Promise<EntityCollection<'state_machine_history'>> {
-            return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria)
-                .then((fetchedEntries) => {
-                    this.dataSource = this.buildStateHistory(fetchedEntries);
-                    this.total = fetchedEntries.total ?? 1;
-                    return Promise.resolve(fetchedEntries);
-                });
+            return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
+                this.dataSource = this.buildStateHistory(fetchedEntries);
+                this.total = fetchedEntries.total ?? 1;
+                return Promise.resolve(fetchedEntries);
+            });
         },
 
         buildStateHistory(allEntries: EntityCollection<'state_machine_history'>): StateMachineHistoryData[] {
             const states = {
-                order: allEntries.filter((entry) => {
-                    return entry.entityName === 'order';
-                })[0]?.fromStateMachineState ?? this.order.stateMachineState,
-                order_transaction: allEntries.filter((entry) => {
-                    return entry.entityName === 'order_transaction';
-                })[0]?.fromStateMachineState ?? this.order.transactions?.last()?.stateMachineState,
-                order_delivery: allEntries.filter((entry) => {
-                    return entry.entityName === 'order_delivery';
-                })[0]?.fromStateMachineState ?? this.order.deliveries?.first()?.stateMachineState,
+                order:
+                    allEntries.filter((entry) => {
+                        return entry.entityName === 'order';
+                    })[0]?.fromStateMachineState ?? this.order.stateMachineState,
+                order_transaction:
+                    allEntries.filter((entry) => {
+                        return entry.entityName === 'order_transaction';
+                    })[0]?.fromStateMachineState ?? this.order.transactions?.last()?.stateMachineState,
+                order_delivery:
+                    allEntries.filter((entry) => {
+                        return entry.entityName === 'order_delivery';
+                    })[0]?.fromStateMachineState ?? this.order.deliveries?.first()?.stateMachineState,
             };
 
             const entries = [] as Array<StateMachineHistoryData>;
@@ -195,11 +215,16 @@ export default Component.wrapComponentConfig({
             allEntries.forEach((entry: Entity<'state_machine_history'>) => {
                 if (entry.entityName === 'order_transaction' && !knownTransactionIds.includes(entry.referencedId)) {
                     if (knownTransactionIds.length > 0) {
-                        entries.push(this.createEntry(
-                            // @ts-expect-error - states exists
-                            { ...states, order_transaction: entry.fromStateMachineState },
-                            { ...entry, user: undefined },
-                        ));
+                        entries.push(
+                            this.createEntry(
+                                {
+                                    ...states,
+                                    // @ts-expect-error - states exists
+                                    order_transaction: entry.fromStateMachineState,
+                                },
+                                { ...entry, user: undefined },
+                            ),
+                        );
                     }
 
                     knownTransactionIds.push(entry.referencedId);
@@ -232,15 +257,14 @@ export default Component.wrapComponentConfig({
         getVariantState(entity: string, state: Entity<'state_machine_state'>): string {
             // eslint-disable-next-line max-len
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-            return this.stateStyleDataProviderService
-                .getStyle(`${entity}.state`, state.technicalName).variant;
+            return this.stateStyleDataProviderService.getStyle(`${entity}.state`, state.technicalName).variant;
         },
 
         onClose(): void {
             this.$emit('modal-close');
         },
 
-        onPageChange({ page, limit }: { page: number, limit: number }): void {
+        onPageChange({ page, limit }: { page: number; limit: number }): void {
             this.page = page;
             this.limit = limit;
 

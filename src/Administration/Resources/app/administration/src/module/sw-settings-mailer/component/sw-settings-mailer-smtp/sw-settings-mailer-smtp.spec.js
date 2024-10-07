@@ -5,41 +5,44 @@ import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () => {
     const createWrapper = async (mailerSettings = {}) => {
-        return mount(await wrapTestComponent('sw-settings-mailer-smtp', {
-            sync: true,
-        }), {
-            props: {
-                mailerSettings,
-            },
-            global: {
-                renderStubDefaultSlot: true,
-                provide: {
-                    validationService: {},
+        return mount(
+            await wrapTestComponent('sw-settings-mailer-smtp', {
+                sync: true,
+            }),
+            {
+                props: {
+                    mailerSettings,
                 },
-                stubs: {
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': true,
-                    'sw-single-select': true,
-                    'sw-switch-field': true,
-                    'sw-password-field': true,
-                    'sw-help-text': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                },
-                mocks: {
-                    $tc(translationKey) {
-                        return translationKey;
+                global: {
+                    renderStubDefaultSlot: true,
+                    provide: {
+                        validationService: {},
+                    },
+                    stubs: {
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-number-field': await wrapTestComponent('sw-number-field'),
+                        'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': true,
+                        'sw-single-select': true,
+                        'sw-switch-field': true,
+                        'sw-password-field': true,
+                        'sw-help-text': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                    },
+                    mocks: {
+                        $tc(translationKey) {
+                            return translationKey;
+                        },
                     },
                 },
             },
-        });
+        );
     };
 
     it('should be a vue js component', async () => {

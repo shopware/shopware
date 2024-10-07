@@ -156,7 +156,9 @@ export default function createCustomFieldService() {
     }
 
     function removeEntityName(entityName) {
-        remove($entityNameStore, (storeItem) => { return storeItem === entityName; });
+        remove($entityNameStore, (storeItem) => {
+            return storeItem === entityName;
+        });
     }
 
     function getCustomFieldSets(entityName) {

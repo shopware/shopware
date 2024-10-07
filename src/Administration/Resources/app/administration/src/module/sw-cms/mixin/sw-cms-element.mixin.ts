@@ -16,88 +16,88 @@ interface Entity {
  * @private
  * @package buyers-experience
  */
-export default Mixin.register('cms-element', defineComponent({
-    inject: ['cmsService'],
+export default Mixin.register(
+    'cms-element',
+    defineComponent({
+        inject: ['cmsService'],
 
-    props: {
-        element: {
-            type: Object as PropType<RuntimeSlot>,
-            required: true,
+        props: {
+            element: {
+                type: Object as PropType<RuntimeSlot>,
+                required: true,
+            },
+
+            defaultConfig: {
+                type: Object,
+                required: false,
+                default: null,
+            },
+
+            disabled: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
         },
 
-        defaultConfig: {
-            type: Object,
-            required: false,
-            default: null,
+        computed: {
+            cmsPageState() {
+                return Shopware.Store.get('cmsPage');
+            },
+
+            cmsElements() {
+                return this.cmsService.getCmsElementRegistry();
+            },
+
+            category(): EntitySchema.Entities['category'] {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                return Shopware.State.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
+            },
         },
 
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
+        methods: {
+            initElementConfig(elementName: string) {
+                let defaultConfig = this.defaultConfig;
+                if (!defaultConfig) {
+                    const elementConfig = this.cmsElements[elementName];
+                    defaultConfig = elementConfig?.defaultConfig || {};
+                }
 
-    computed: {
-        cmsPageState() {
-            return Shopware.Store.get('cmsPage');
-        },
+                let fallbackCategoryConfig = {};
+                if (this.category?.translations) {
+                    // @ts-expect-error
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                    fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
+                }
 
-        cmsElements() {
-            return this.cmsService.getCmsElementRegistry();
-        },
+                this.element.config = merge(
+                    cloneDeep(defaultConfig),
+                    this.element?.translated?.config || {},
+                    fallbackCategoryConfig || {},
+                    this.element?.config || {},
+                );
+            },
 
-        category(): EntitySchema.Entities['category'] {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
-        },
-    },
+            initElementData(elementName: string) {
+                if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
+                    return;
+                }
 
-    methods: {
-        initElementConfig(elementName: string) {
-            let defaultConfig = this.defaultConfig;
-            if (!defaultConfig) {
                 const elementConfig = this.cmsElements[elementName];
-                defaultConfig = elementConfig?.defaultConfig || {};
-            }
+                const defaultData = elementConfig?.defaultData ?? {};
+                this.element.data = merge(cloneDeep(defaultData), this.element.data || {});
+            },
 
-            let fallbackCategoryConfig = {};
-            if (this.category?.translations) {
-                // @ts-expect-error
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
-            }
+            getDemoValue(mappingPath: string) {
+                return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
+            },
 
-            this.element.config = merge(
-                cloneDeep(defaultConfig),
-                this.element?.translated?.config || {},
-                fallbackCategoryConfig || {},
-                this.element?.config || {},
-            );
+            getDefaultTranslations(entity: Entity) {
+                return entity.translations.find((translation) => {
+                    return translation.languageId === Shopware.Context.api.systemLanguageId;
+                });
+            },
         },
-
-        initElementData(elementName: string) {
-            if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
-                return;
-            }
-
-            const elementConfig = this.cmsElements[elementName];
-            const defaultData = elementConfig?.defaultData ?? {};
-            this.element.data = merge(cloneDeep(defaultData), this.element.data || {});
-        },
-
-        getDemoValue(mappingPath: string) {
-            return this.cmsService.getPropertyByMappingPath(
-                this.cmsPageState.currentDemoEntity,
-                mappingPath,
-            );
-        },
-
-        getDefaultTranslations(entity: Entity) {
-            return entity.translations.find((translation) => {
-                return translation.languageId === Shopware.Context.api.systemLanguageId;
-            });
-        },
-    },
-}));
+    }),
+);

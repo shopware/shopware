@@ -14,7 +14,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     data() {
         return {
@@ -39,7 +42,7 @@ export default {
         ]),
 
         ...mapState('context', {
-            contextLanguageId: state => state.api.languageId,
+            contextLanguageId: (state) => state.api.languageId,
         }),
 
         ...mapGetters('swProductDetail', {
@@ -131,10 +134,9 @@ export default {
 
         loadData() {
             if (!this.isStoreLoading) {
-                this.loadOptions()
-                    .then(() => {
-                        return this.loadGroups();
-                    });
+                this.loadOptions().then(() => {
+                    return this.loadGroups();
+                });
             }
         },
 
@@ -232,7 +234,6 @@ export default {
                 this.productProperties.aggregations,
             );
         },
-
 
         onCancelAddPropertiesModal() {
             this.closeAddPropertiesModal();

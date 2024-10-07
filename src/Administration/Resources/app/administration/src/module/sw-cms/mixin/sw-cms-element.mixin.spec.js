@@ -48,15 +48,17 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                 state: {
                     category: {
                         id: '12345',
-                        translations: [{
-                            languageId: Shopware.Context.api.systemLanguageId,
-                            name: 'Category name B',
-                            slotConfig: {
-                                'sw-cms-el-text-1234': {
-                                    overrideFromCategory: 'bar',
+                        translations: [
+                            {
+                                languageId: Shopware.Context.api.systemLanguageId,
+                                name: 'Category name B',
+                                slotConfig: {
+                                    'sw-cms-el-text-1234': {
+                                        overrideFromCategory: 'bar',
+                                    },
                                 },
                             },
-                        }],
+                        ],
                     },
                 },
             });
@@ -118,15 +120,17 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
         store.currentDemoEntity = {
             id: '12345',
-            translations: [{
-                languageId: Shopware.Context.api.systemLanguageId,
-                name: 'Category name B',
-                slotConfig: {
-                    'sw-cms-el-text-1234': {
-                        content: 'Demo content',
+            translations: [
+                {
+                    languageId: Shopware.Context.api.systemLanguageId,
+                    name: 'Category name B',
+                    slotConfig: {
+                        'sw-cms-el-text-1234': {
+                            content: 'Demo content',
+                        },
                     },
                 },
-            }],
+            ],
         };
 
         expect(wrapper.vm.getDemoValue('category.translations')).toMatchObject(store.currentDemoEntity.translations);

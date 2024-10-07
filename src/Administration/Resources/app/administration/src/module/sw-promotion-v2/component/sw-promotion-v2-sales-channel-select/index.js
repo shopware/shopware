@@ -84,11 +84,9 @@ export default {
 
     methods: {
         createdComponent() {
-            this.salesChannelRepository
-                .search(this.salesChannelCriteria)
-                .then(searchresult => {
-                    this.salesChannels = searchresult;
-                });
+            this.salesChannelRepository.search(this.salesChannelCriteria).then((searchresult) => {
+                this.salesChannels = searchresult;
+            });
         },
 
         getChangeset(salesChannelsIds) {

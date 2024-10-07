@@ -46,7 +46,13 @@ Component.register('sw-pagination', {
             type: Array,
             required: false,
             default() {
-                return [10, 25, 50, 75, 100];
+                return [
+                    10,
+                    25,
+                    50,
+                    75,
+                    100,
+                ];
             },
         },
 
@@ -80,7 +86,7 @@ Component.register('sw-pagination', {
 
             const even = maxLength % 2 === 0 ? 1 : 0;
             const left = Math.floor(maxLength / 2);
-            const right = (this.maxPage - left) + 1 + even;
+            const right = this.maxPage - left + 1 + even;
 
             if (currentPage === left || (left === 1 && currentPage === left + 1)) {
                 return [
@@ -99,10 +105,16 @@ Component.register('sw-pagination', {
             }
 
             if (currentPage > left && currentPage < right) {
-                const start = (currentPage - left) + 2;
-                const end = (currentPage + left) - 2 - even;
+                const start = currentPage - left + 2;
+                const end = currentPage + left - 2 - even;
 
-                return [1, '...', ...start > end ? [currentPage] : this.range(start, end), '...', this.maxPage];
+                return [
+                    1,
+                    '...',
+                    ...(start > end ? [currentPage] : this.range(start, end)),
+                    '...',
+                    this.maxPage,
+                ];
             }
 
             return [
@@ -125,7 +137,7 @@ Component.register('sw-pagination', {
             const stepsSorted = [...this.steps].sort((a, b) => a - b);
 
             let lastStep;
-            const possibleSteps = stepsSorted.filter(x => {
+            const possibleSteps = stepsSorted.filter((x) => {
                 if (lastStep > total) return false;
                 lastStep = x;
                 return true;

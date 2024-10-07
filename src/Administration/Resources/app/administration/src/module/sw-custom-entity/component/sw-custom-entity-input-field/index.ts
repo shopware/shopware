@@ -14,7 +14,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         value: {
-            type: [Object, String, Number, Boolean] as PropType<unknown>,
+            type: [
+                Object,
+                String,
+                Number,
+                Boolean,
+            ] as PropType<unknown>,
             required: false,
             default: null,
         },

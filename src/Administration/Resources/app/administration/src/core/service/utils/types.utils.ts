@@ -32,7 +32,6 @@ export default {
     isUndefined,
 };
 
-
 /**
  * Checks if a value is undefined
  */
@@ -40,4 +39,3 @@ export default {
 export function isUndefined(value: unknown): boolean {
     return typeof value === 'undefined';
 }
-

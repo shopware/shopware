@@ -47,19 +47,22 @@ const defaultProps = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-manufacturer-logo', {
-        sync: true,
-    }), {
-        props: {
-            defaultConfig: {},
-            ...defaultProps,
-        },
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-manufacturer-logo', {
+            sync: true,
+        }),
+        {
+            props: {
+                defaultConfig: {},
+                ...defaultProps,
+            },
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/manufacturer-logo/component', () => {

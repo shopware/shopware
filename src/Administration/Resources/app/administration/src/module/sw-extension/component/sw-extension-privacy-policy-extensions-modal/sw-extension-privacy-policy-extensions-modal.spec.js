@@ -13,11 +13,14 @@ async function createWrapper(props) {
                 },
             },
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-modal': {
                     // eslint-disable-next-line max-len
-                    template: '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
+                    template:
+                        '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
                     props: ['title'],
                 },
                 'router-link': true,
@@ -38,27 +41,27 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
         const wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
             extensionName: 'Tes11Test',
-
         });
-        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__text')
-            .text()).toBe('a privacy notice');
-        expect(wrapper.find('.title').text()).toBe(JSON.stringify({
-            path: 'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
-            choice: 0,
-            values: {
-                extensionLabel: 'Tes11Test',
-            },
-        }));
+        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__text').text()).toBe('a privacy notice');
+        expect(wrapper.find('.title').text()).toBe(
+            JSON.stringify({
+                path: 'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
+                choice: 0,
+                values: {
+                    extensionLabel: 'Tes11Test',
+                },
+            }),
+        );
 
-        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button')
-            .text()).toBe('global.default.confirm');
+        expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button').text()).toBe(
+            'global.default.confirm',
+        );
     });
 
     it('should close the modal', async () => {
         const wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
             extensionName: 'Tes11Test',
-
         });
         expect(wrapper.emitted()).not.toHaveProperty('modal-close');
 

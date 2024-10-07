@@ -129,11 +129,11 @@ Component.register('sw-search-bar-item', {
                 return this.$tc(`${title}`, 2);
             }
 
-            return action ? this.$tc(
-                'global.sw-search-bar-item.addNewEntity',
-                0,
-                { entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase() },
-            ) : label;
+            return action
+                ? this.$tc('global.sw-search-bar-item.addNewEntity', 0, {
+                      entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
+                  })
+                : label;
         },
 
         routeName() {
@@ -141,13 +141,19 @@ Component.register('sw-search-bar-item', {
         },
 
         iconName() {
-            return ['module', 'frequently_used'].includes(this.type) && this.item?.icon
+            return [
+                'module',
+                'frequently_used',
+            ].includes(this.type) && this.item?.icon
                 ? this.item.icon
                 : this.entityIconName;
         },
 
         iconColor() {
-            return ['module', 'frequently_used'].includes(this.type) && this.item?.color
+            return [
+                'module',
+                'frequently_used',
+            ].includes(this.type) && this.item?.color
                 ? this.item.color
                 : this.entityIconColor;
         },
@@ -159,10 +165,7 @@ Component.register('sw-search-bar-item', {
                 return false;
             }
 
-            return this.$tc(
-                `global.sw-search-bar-item.shortcuts.${name}`,
-                action ? 2 : 1,
-            );
+            return this.$tc(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
         },
 
         productDisplayName() {

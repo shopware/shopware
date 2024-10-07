@@ -75,50 +75,58 @@ export default {
         },
 
         actionsRequestGroup() {
-            return [{
-                value: 'accept',
-                label: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.options.accept'),
-            }, {
-                value: 'decline',
-                label: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.options.decline'),
-            }];
+            return [
+                {
+                    value: 'accept',
+                    label: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.options.accept'),
+                },
+                {
+                    value: 'decline',
+                    label: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.options.decline'),
+                },
+            ];
         },
 
         accountFormFields() {
-            const fields = [{
-                name: 'groupId',
-                config: {
-                    componentName: 'sw-entity-single-select',
-                    entity: 'customer_group',
-                    changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroup.label'),
-                    placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroup.placeholder'),
+            const fields = [
+                {
+                    name: 'groupId',
+                    config: {
+                        componentName: 'sw-entity-single-select',
+                        entity: 'customer_group',
+                        changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroup.label'),
+                        placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroup.placeholder'),
+                    },
                 },
-            }, {
-                name: 'active',
-                type: 'bool',
-                config: {
-                    type: 'switch',
-                    changeLabel: this.$tc('sw-bulk-edit.customer.account.status.label'),
+                {
+                    name: 'active',
+                    type: 'bool',
+                    config: {
+                        type: 'switch',
+                        changeLabel: this.$tc('sw-bulk-edit.customer.account.status.label'),
+                    },
                 },
-            }, {
-                name: 'languageId',
-                config: {
-                    componentName: 'sw-entity-single-select',
-                    entity: 'language',
-                    changeLabel: this.$tc('sw-bulk-edit.customer.account.language.label'),
-                    placeholder: this.$tc('sw-bulk-edit.customer.account.language.placeholder'),
+                {
+                    name: 'languageId',
+                    config: {
+                        componentName: 'sw-entity-single-select',
+                        entity: 'language',
+                        changeLabel: this.$tc('sw-bulk-edit.customer.account.language.label'),
+                        placeholder: this.$tc('sw-bulk-edit.customer.account.language.placeholder'),
+                    },
                 },
-            }, {
-                name: 'requestedCustomerGroupId',
-                labelHelpText: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.helpText'),
-                config: {
-                    componentName: 'sw-single-select',
-                    entity: 'customer_group',
-                    changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.label'),
-                    placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.placeholder'),
-                    options: this.actionsRequestGroup,
+                {
+                    name: 'requestedCustomerGroupId',
+                    labelHelpText: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.helpText'),
+                    config: {
+                        componentName: 'sw-single-select',
+                        entity: 'customer_group',
+                        changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.label'),
+                        placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.placeholder'),
+                        options: this.actionsRequestGroup,
+                    },
                 },
-            }];
+            ];
 
             if (this.feature.isActive('v6.7.0.0')) {
                 fields.splice(1, 0, {
@@ -177,17 +185,20 @@ export default {
 
             this.customer = this.customerRepository.create(Shopware.Context.api);
 
-            this.loadCustomFieldSets().then(() => {
-                this.loadBulkEditData();
-                this.isLoadedData = true;
-            }).catch(error => {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: error,
+            this.loadCustomFieldSets()
+                .then(() => {
+                    this.loadBulkEditData();
+                    this.isLoadedData = true;
+                })
+                .catch((error) => {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: error,
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         setRouteMetaModule() {
@@ -257,7 +268,7 @@ export default {
 
         onCustomFieldsChange(value) {
             if (Object.keys(value).length <= 0) {
-                this.bulkEditData = this.bulkEditData.filter(change => change.field !== 'customFields');
+                this.bulkEditData = this.bulkEditData.filter((change) => change.field !== 'customFields');
                 return;
             }
 
@@ -270,7 +281,7 @@ export default {
                 syncData: [],
             };
 
-            Object.keys(this.bulkEditData).forEach(key => {
+            Object.keys(this.bulkEditData).forEach((key) => {
                 const bulkEditField = cloneDeep(this.bulkEditData[key]);
 
                 let bulkEditValue = this.customer[key];
@@ -316,7 +327,7 @@ export default {
                 requests.push(bulkEditCustomerHandler.bulkEditRequestedGroup(this.selectedIds, requestData));
             }
 
-            payloadChunks.forEach(payload => {
+            payloadChunks.forEach((payload) => {
                 if (syncData.length) {
                     requests.push(this.bulkEditApiFactory.getHandler('customer').bulkEdit(payload, syncData));
                 }
@@ -325,10 +336,12 @@ export default {
             return Promise.all(requests)
                 .then(() => {
                     this.processStatus = 'success';
-                }).catch((e) => {
+                })
+                .catch((e) => {
                     console.error(e);
                     this.processStatus = 'fail';
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },

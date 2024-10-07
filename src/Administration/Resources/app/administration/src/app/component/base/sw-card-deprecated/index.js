@@ -73,21 +73,19 @@ Component.register('sw-card-deprecated', {
     computed: {
         showHeader() {
             if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.title
-                    || !!this.$slots.title
-                    || !!this.$scopedSlots.title
-                    || !!this.subtitle
-                    || !!this.$slots.subtitle
-                    || !!this.$scopedSlots.subtitle
-                    || !!this.$slots.avatar
-                    || !!this.$scopedSlots.avatar;
+                return (
+                    !!this.title ||
+                    !!this.$slots.title ||
+                    !!this.$scopedSlots.title ||
+                    !!this.subtitle ||
+                    !!this.$slots.subtitle ||
+                    !!this.$scopedSlots.subtitle ||
+                    !!this.$slots.avatar ||
+                    !!this.$scopedSlots.avatar
+                );
             }
 
-            return !!this.title
-                || !!this.$slots.title
-                || !!this.subtitle
-                || !!this.$slots.subtitle
-                || !!this.$slots.avatar;
+            return !!this.title || !!this.$slots.title || !!this.subtitle || !!this.$slots.subtitle || !!this.$slots.avatar;
         },
 
         hasAvatar() {

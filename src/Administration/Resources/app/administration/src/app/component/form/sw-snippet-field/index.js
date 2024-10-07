@@ -1,7 +1,11 @@
 import template from './sw-snippet-field.html.twig';
 import './sw-snippet-field.scss';
 
-const { Component, State, Data: { Criteria } } = Shopware;
+const {
+    Component,
+    State,
+    Data: { Criteria },
+} = Shopware;
 
 /**
  * @package admin
@@ -33,9 +37,15 @@ Component.register('sw-snippet-field', {
             type: String,
             required: false,
             default: 'text',
-            validValues: ['text', 'textarea'],
+            validValues: [
+                'text',
+                'textarea',
+            ],
             validator(value) {
-                return ['text', 'textarea'].includes(value);
+                return [
+                    'text',
+                    'textarea',
+                ].includes(value);
             },
         },
     },

@@ -26,11 +26,9 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         welcomeMessage() {
             const greetingName = this.greetingName;
-            const welcomeMessage = this.$tc(
-                this.cachedHeadlineGreetingKey,
-                1,
-                { greetingName },
-            );
+            const welcomeMessage = this.$tc(this.cachedHeadlineGreetingKey, 1, {
+                greetingName,
+            });
 
             // in the headline we want to greet the user by his firstname
             // if his first name is not available, we remove the personalized greeting part
@@ -104,12 +102,12 @@ export default Shopware.Component.wrapComponentConfig({
             // to find the right timeslot, we user array.find() which will stop after first match
             // for that reason the greetingTimes must be ordered from latest to earliest hour
             const greetingTimes = Object.keys(greetings)
-                .map(entry => parseInt(entry.replace('h', ''), 10))
+                .map((entry) => parseInt(entry.replace('h', ''), 10))
                 .sort((a, b) => a - b)
                 .reverse();
 
             /* find the current time slot */
-            const greetingTime = greetingTimes.find(time => hourNow >= time) || greetingTimes[0];
+            const greetingTime = greetingTimes.find((time) => hourNow >= time) || greetingTimes[0];
             const greetingIndex = Math.floor(Math.random() * greetings[`${greetingTime}h`].length);
 
             return `${translateKey}.${greetingTime}h[${greetingIndex}]`;

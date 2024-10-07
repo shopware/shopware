@@ -22,45 +22,51 @@ export default class FilterFactory {
      * @returns {Array} filters
      */
     create(entityName, filters) {
-        return Object.entries(filters).map(([key, filter]) => {
-            filter.name = key;
+        return Object.entries(filters).map(
+            ([
+                key,
+                filter,
+            ]) => {
+                filter.name = key;
 
-            const property = this.getFilterProperties(entityName, filter.property);
+                const property = this.getFilterProperties(entityName, filter.property);
 
-            if (filter.type || !property) {
-                return filter;
-            }
+                if (filter.type || !property) {
+                    return filter;
+                }
 
-            filter.schema = property;
+                filter.schema = property;
 
-            switch (property.type) {
-                case 'string':
-                    filter.type = this.STRING_FILTER_INPUT;
-                    break;
-                case 'int':
+                switch (property.type) {
+                    case 'string':
+                        filter.type = this.STRING_FILTER_INPUT;
+                        break;
+                    case 'int':
+                        filter.type = this.NUMBER_FILTER_INPUT;
+                        break;
+                    case 'date':
+                        filter.type = this.DATE_FILTER_INPUT;
+                        break;
+                    case 'association':
+                        filter.type =
+                            property.relation === 'many_to_many' || property.relation === 'many_to_one'
+                                ? this.ASSOCIATION_FILTER_INPUT
+                                : this.EXISTENCE_FILTER_INPUT;
+                        break;
+                    case 'boolean':
+                        filter.type = this.BOOLEAN_FILTER_INPUT;
+                        break;
+                    default:
+                        filter.type = this.STRING_FILTER_INPUT;
+                }
+
+                if (filter.property === 'price') {
                     filter.type = this.NUMBER_FILTER_INPUT;
-                    break;
-                case 'date':
-                    filter.type = this.DATE_FILTER_INPUT;
-                    break;
-                case 'association':
-                    filter.type = (property.relation === 'many_to_many' || property.relation === 'many_to_one')
-                        ? this.ASSOCIATION_FILTER_INPUT
-                        : this.EXISTENCE_FILTER_INPUT;
-                    break;
-                case 'boolean':
-                    filter.type = this.BOOLEAN_FILTER_INPUT;
-                    break;
-                default:
-                    filter.type = this.STRING_FILTER_INPUT;
-            }
+                }
 
-            if (filter.property === 'price') {
-                filter.type = this.NUMBER_FILTER_INPUT;
-            }
-
-            return filter;
-        });
+                return filter;
+            },
+        );
     }
 
     /**
@@ -94,7 +100,7 @@ export default class FilterFactory {
 
         // Check for foreign key association
         if (property.type === 'uuid') {
-            Object.keys(properties).forEach(key => {
+            Object.keys(properties).forEach((key) => {
                 if (properties[key].type === 'association' && properties[key].localField === first) {
                     returnProperty = properties[key];
                 }

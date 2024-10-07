@@ -24,7 +24,10 @@ describe('src/module/sw-order/state/order-detail.store', () => {
     });
 
     it('should be able to setLoading', () => {
-        Shopware.State.commit('swOrderDetail/setLoading', ['order', true]);
+        Shopware.State.commit('swOrderDetail/setLoading', [
+            'order',
+            true,
+        ]);
 
         expect(state.loading.order).toBe(true);
         expect(Shopware.State.getters['swOrderDetail/isLoading']).toBe(true);

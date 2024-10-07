@@ -13,9 +13,17 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'mediaService'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+    ],
 
-    emits: ['open-sidebar', 'upload-finish', 'item-sort', 'item-remove'],
+    emits: [
+        'open-sidebar',
+        'upload-finish',
+        'item-sort',
+        'item-remove',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -104,7 +112,8 @@ export default {
 
         updateColumnCount() {
             this.$nextTick(() => {
-                const cssColumns = window.getComputedStyle(this.$refs.grid, null)
+                const cssColumns = window
+                    .getComputedStyle(this.$refs.grid, null)
                     .getPropertyValue('grid-template-columns')
                     .split(' ');
                 this.columnCount = cssColumns.length;
@@ -113,7 +122,7 @@ export default {
         },
 
         createPlaceholders(count) {
-            return (new Array(count)).fill({
+            return new Array(count).fill({
                 isPlaceholder: true,
                 media: {
                     isPlaceholder: true,
@@ -157,7 +166,7 @@ export default {
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true || (dropData.position > this.currentCount) || (dragData.position > this.currentCount)) {
+            if (validDrop !== true || dropData.position > this.currentCount || dragData.position > this.currentCount) {
                 return;
             }
             this.$emit('item-sort', dragData, dropData);

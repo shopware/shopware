@@ -15,7 +15,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     data() {
         return {
@@ -48,9 +51,7 @@ export default {
         reviewCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addFilter(
-                Criteria.equals('productId', this.product.id),
-            );
+            criteria.addFilter(Criteria.equals('productId', this.product.id));
             criteria.setTotalCountMode(1);
 
             return criteria;
@@ -124,7 +125,7 @@ export default {
                 this.dataSource = reviews;
 
                 if (this.total > 0 && this.dataSource.length <= 0) {
-                    this.page = (this.page === 1) ? 1 : this.page - 1;
+                    this.page = this.page === 1 ? 1 : this.page - 1;
                     this.getReviews();
                 }
             });

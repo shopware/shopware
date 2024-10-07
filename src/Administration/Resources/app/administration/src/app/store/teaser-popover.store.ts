@@ -6,35 +6,35 @@
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TeaserPopoverConfig = {
-    positionId: string,
-    src: string,
-    component: string,
+    positionId: string;
+    src: string;
+    component: string;
     props: {
-        label?: string,
-        locationId: string,
-        locationTriggerId?: string,
-        variant?: string,
-        icon?: string,
+        label?: string;
+        locationId: string;
+        locationTriggerId?: string;
+        variant?: string;
+        icon?: string;
     };
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TeaserSalesChannelConfig = {
-    positionId: string,
+    positionId: string;
     salesChannel: {
-        title: string,
-        description: string,
-        iconName: string,
+        title: string;
+        description: string;
+        iconName: string;
     };
     popoverComponent: {
-        src: string,
-        component: string,
+        src: string;
+        component: string;
         props: {
-            label: string,
-            locationId: string,
-            variant: string,
-        }
-    }
+            label: string;
+            locationId: string;
+            variant: string;
+        };
+    };
 };
 
 const teaserPopoverStore = Shopware.Store.register({

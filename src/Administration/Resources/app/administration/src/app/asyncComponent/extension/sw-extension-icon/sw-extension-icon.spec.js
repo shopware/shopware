@@ -23,7 +23,10 @@ describe('src/module/sw-extension/component/sw-extension-icon', () => {
     });
 
     it('can take an alt text', async () => {
-        const wrapper = await createWrapper({ src: 'path-to-icon', alt: 'description of an image' });
+        const wrapper = await createWrapper({
+            src: 'path-to-icon',
+            alt: 'description of an image',
+        });
 
         const image = wrapper.get('img');
 

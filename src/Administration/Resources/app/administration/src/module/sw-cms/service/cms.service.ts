@@ -53,7 +53,7 @@ type CmsElementConfig = {
     allowedPageTypes?: string[];
     defaultConfig?: unknown;
     disabledConfigInfoTextKey?: string;
-    defaultData? : unknown;
+    defaultData?: unknown;
     hidden?: boolean;
     removable?: boolean;
     appData?: {
@@ -75,18 +75,22 @@ type CmsBlockConfig = {
     removable?: boolean;
     allowedPageTypes?: string[];
     defaultConfig: unknown;
-    slots?: Record<string, string | {
-        type: string;
-        default?: {
-            config?: CmsSlotConfig;
-            data?: {
-                [key: string]: {
-                    source: string;
-                    value: unknown;
-                };
-            };
-        };
-    }>;
+    slots?: Record<
+        string,
+        | string
+        | {
+              type: string;
+              default?: {
+                  config?: CmsSlotConfig;
+                  data?: {
+                      [key: string]: {
+                          source: string;
+                          value: unknown;
+                      };
+                  };
+              };
+          }
+    >;
 };
 
 type EntityMappings = {
@@ -122,7 +126,6 @@ type Property = {
         deprecated?: unknown;
         reversed_inherited?: string;
         extension?: boolean;
-
     };
     required?: boolean;
     type?: string;
@@ -131,7 +134,7 @@ type Property = {
 };
 
 type Properties = {
-    [key: string]: Property
+    [key: string]: Property;
 };
 
 class CmsService {
@@ -160,11 +163,7 @@ class CmsService {
             config.enrich = CmsElementEnrich;
         }
 
-        Shopware.Application.view?.setReactive(
-            this.elementRegistry,
-            config.name,
-            config,
-        );
+        Shopware.Application.view?.setReactive(this.elementRegistry, config.name, config);
 
         return true;
     }
@@ -218,10 +217,7 @@ class CmsService {
         return this.mappingTypesCache[entityName];
     }
 
-    public getPropertyByMappingPath(
-        entity: unknown,
-        propertyPath: string,
-    ): unknown {
+    public getPropertyByMappingPath(entity: unknown, propertyPath: string): unknown {
         const path = propertyPath.split('.');
 
         path.splice(0, 1);
@@ -265,12 +261,7 @@ class CmsService {
         return allowedPageTypes.includes(pageType);
     }
 
-    private addToMappingEntity(
-        mappings: EntityMappings,
-        propSchema: Property,
-        pathPrefix: string,
-        property: string,
-    ): void {
+    private addToMappingEntity(mappings: EntityMappings, propSchema: Property, pathPrefix: string, property: string): void {
         if (!mappings.entity) {
             mappings.entity = {};
         }
@@ -286,14 +277,19 @@ class CmsService {
         }
     }
 
-
     private handlePropertyMappings(
         propertyDefinitions: Properties,
         mappings: EntityMappings,
         pathPrefix: string,
         deep: boolean = true,
     ): void {
-        const blocklist = ['parent', 'cmsPage', 'translations', 'createdAt', 'updatedAt'];
+        const blocklist = [
+            'parent',
+            'cmsPage',
+            'translations',
+            'createdAt',
+            'updatedAt',
+        ];
         Object.keys(propertyDefinitions).forEach((property) => {
             const propSchema = propertyDefinitions[property];
 
@@ -319,8 +315,14 @@ class CmsService {
         property: string,
         deep: boolean = true,
     ): void {
-        const toOneAssociation = ['many_to_one', 'one_to_one'].includes(propSchema.relation!);
-        const toManyAssociation = ['one_to_many', 'many_to_many'].includes(propSchema.relation!);
+        const toOneAssociation = [
+            'many_to_one',
+            'one_to_one',
+        ].includes(propSchema.relation!);
+        const toManyAssociation = [
+            'one_to_many',
+            'many_to_many',
+        ].includes(propSchema.relation!);
 
         if (toOneAssociation && propSchema.entity) {
             this.addToMappingEntity(mappings, propSchema, pathPrefix, property);
@@ -332,7 +334,7 @@ class CmsService {
                     this.handlePropertyMappings(schema.properties, mappings, `${pathPrefix}.${property}`, false);
                 }
             }
-        } else if (toOneAssociation && (propSchema as { properties: Properties}).properties) {
+        } else if (toOneAssociation && (propSchema as { properties: Properties }).properties) {
             this.handlePropertyMappings(
                 (propSchema as { properties: Properties }).properties,
                 mappings,
@@ -421,7 +423,12 @@ function CmsElementCollect(slot: RuntimeSlot) {
 
     let entityCount = 0;
     Object.keys(slot.config).forEach((key) => {
-        if (['mapped', 'default'].includes(slot.config[key].source)) {
+        if (
+            [
+                'mapped',
+                'default',
+            ].includes(slot.config[key].source)
+        ) {
             return;
         }
 
@@ -452,7 +459,12 @@ function CmsElementCollectWithInheritance(slot: RuntimeSlot) {
 
     let entityCount = 0;
     Object.keys(slot.config).forEach((configKey) => {
-        if (['mapped', 'default'].includes(slot.config[configKey].source)) {
+        if (
+            [
+                'mapped',
+                'default',
+            ].includes(slot.config[configKey].source)
+        ) {
             return;
         }
 
@@ -526,10 +538,4 @@ Application.addServiceProvider('cmsService', () => new CmsService());
  * @private
  * @package buyers-experience
  */
-export {
-    CmsService,
-    type CmsElementConfig,
-    type CmsBlockConfig,
-    type CmsSlotConfig,
-    type RuntimeSlot,
-};
+export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };

@@ -34,7 +34,10 @@ export default function initializeTabs(): void {
 
             // Get all tab routes
             const tabRoutes = Object.values(Shopware.State.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
-                acc = [...acc, ...tabItems.map((tabItem) => tabItem.componentSectionId)];
+                acc = [
+                    ...acc,
+                    ...tabItems.map((tabItem) => tabItem.componentSectionId),
+                ];
                 return acc;
             }, []);
 
@@ -53,7 +56,6 @@ export default function initializeTabs(): void {
                 return;
             }
 
-
             // Get the parent route
             const parentPath = to.fullPath.replace(matchingTabRoute, '');
             const parentRoute = router.resolve(parentPath);
@@ -67,9 +69,11 @@ export default function initializeTabs(): void {
 
             // Get the $module information from parent and add it to the new route in meta
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-            const moduleInfo = Shopware?.Application?.$container?.container?.init?.router?.getModuleInfo?.(parentRoute) as {
-                manifest: Record<string, unknown>;
-            }|undefined;
+            const moduleInfo = Shopware?.Application?.$container?.container?.init?.router?.getModuleInfo?.(parentRoute) as
+                | {
+                      manifest: Record<string, unknown>;
+                  }
+                | undefined;
 
             // Create a new route for the tab
             const newRoute: RouteRecordRaw = {

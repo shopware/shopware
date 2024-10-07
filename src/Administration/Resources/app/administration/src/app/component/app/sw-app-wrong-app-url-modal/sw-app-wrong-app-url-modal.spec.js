@@ -37,24 +37,27 @@ describe('sw-app-wrong-app-url-modal', () => {
             'sw-loader': true,
         };
 
-        return mount(await wrapTestComponent('sw-app-wrong-app-url-modal', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-icon': await wrapTestComponent('sw-icon'),
-                    ...stubs,
-                },
-                provide: {
-                    shortcutService: {
-                        startEventListener() {
-                        },
-                        stopEventListener() {
+        return mount(
+            await wrapTestComponent('sw-app-wrong-app-url-modal', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-icon': await wrapTestComponent('sw-icon'),
+                        ...stubs,
+                    },
+                    provide: {
+                        shortcutService: {
+                            startEventListener() {},
+                            stopEventListener() {},
                         },
                     },
                 },
             },
-        });
+        );
     }
 
     beforeAll(() => {

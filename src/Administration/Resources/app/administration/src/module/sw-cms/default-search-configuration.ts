@@ -3,7 +3,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 type SearchRankingPoint = {
     HIGH_SEARCH_RANKING: number;
     LOW_SEARCH_RANKING: number;
-   MIDDLE_SEARCH_RANKING: number;
+    MIDDLE_SEARCH_RANKING: number;
 };
 
 const defaultSearchConfiguration = {

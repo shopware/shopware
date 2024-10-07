@@ -65,12 +65,14 @@ Component.register('sw-purchase-price-field', {
                     return [priceForCurrency];
                 }
 
-                return [{
-                    gross: null,
-                    currencyId: this.currency.id,
-                    linked: true,
-                    net: null,
-                }];
+                return [
+                    {
+                        gross: null,
+                        currencyId: this.currency.id,
+                        linked: true,
+                        net: null,
+                    },
+                ];
             },
 
             set(newPurchasePrice) {

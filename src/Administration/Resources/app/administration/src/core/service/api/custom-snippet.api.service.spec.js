@@ -25,14 +25,11 @@ describe('addressFormattingApiService', () => {
     it('get snippets used correctly', async () => {
         const { customSnippetApiService, clientMock } = createCustomSnippetApiService();
 
-        clientMock.onGet('/_action/custom-snippet').reply(
-            200,
-            {
-                data: [
-                    { type: 'plain', value: '-' },
-                ],
-            },
-        );
+        clientMock.onGet('/_action/custom-snippet').reply(200, {
+            data: [
+                { type: 'plain', value: '-' },
+            ],
+        });
 
         const { data } = await customSnippetApiService.snippets();
 
@@ -42,24 +39,21 @@ describe('addressFormattingApiService', () => {
     it('render address used correctly', async () => {
         const { customSnippetApiService, clientMock } = createCustomSnippetApiService();
 
-        clientMock.onPost('/_action/custom-snippet/render').reply(
-            200,
-            {
-                rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
-            },
-        );
+        clientMock.onPost('/_action/custom-snippet/render').reply(200, {
+            rendered:
+                'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+        });
 
-        const { rendered } = await customSnippetApiService.render(
-            { firstName: 'Y', lastName: 'Tran' },
+        const { rendered } = await customSnippetApiService.render({ firstName: 'Y', lastName: 'Tran' }, [
             [
-                [
-                    { value: 'address/first_name', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/last_name', type: 'snippet' },
-                ],
+                { value: 'address/first_name', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/last_name', type: 'snippet' },
             ],
-        );
+        ]);
 
-        expect(rendered).toBe('Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>');
+        expect(rendered).toBe(
+            'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+        );
     });
 });

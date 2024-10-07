@@ -4,48 +4,53 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-country-currency-hamburger-menu', {
-        sync: true,
-    }), {
-        props: {
-            isLoading: false,
-            options: [{}],
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            directives: {
-                tooltip: {},
+    return mount(
+        await wrapTestComponent('sw-settings-country-currency-hamburger-menu', {
+            sync: true,
+        }),
+        {
+            props: {
+                isLoading: false,
+                options: [{}],
             },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+            global: {
+                renderStubDefaultSlot: true,
+                directives: {
+                    tooltip: {},
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    feature: {
+                        isActive: () => true,
                     },
                 },
-                feature: {
-                    isActive: () => true,
-                },
-            },
 
-            stubs: {
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-popover': true,
-                'sw-icon': {
-                    template: '<div></div>',
+                stubs: {
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-popover': true,
+                    'sw-icon': {
+                        template: '<div></div>',
+                    },
+                    'sw-checkbox-field': {
+                        template: '<div class="checkbox"></div>',
+                    },
+                    'router-link': true,
+                    'sw-loader': true,
                 },
-                'sw-checkbox-field': {
-                    template: '<div class="checkbox"></div>',
-                },
-                'router-link': true,
-                'sw-loader': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu', () => {

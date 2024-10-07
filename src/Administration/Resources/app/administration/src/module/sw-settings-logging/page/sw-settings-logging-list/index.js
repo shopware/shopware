@@ -90,15 +90,18 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            return this.logEntryRepository.search(criteria).then((response) => {
-                this.total = response.total;
-                this.logs = response;
-                this.isLoading = false;
+            return this.logEntryRepository
+                .search(criteria)
+                .then((response) => {
+                    this.total = response.total;
+                    this.logs = response;
+                    this.isLoading = false;
 
-                return response;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return response;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         logLevelToString(level) {
@@ -106,36 +109,43 @@ export default {
                 return Math.abs(x - level);
             });
 
-            const stringLevel = Object.keys(this.logLevels)[distances.findIndex((x) => {
-                return x === Math.min(...distances);
-            })];
+            const stringLevel = Object.keys(this.logLevels)[
+                distances.findIndex((x) => {
+                    return x === Math.min(...distances);
+                })
+            ];
 
             return this.$tc(`sw-settings-logging.list.level${stringLevel}`);
         },
 
         getLogColumns() {
-            return [{
-                property: 'createdAt',
-                dataIndex: 'createdAt',
-                label: 'sw-settings-logging.list.columnDate',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'message',
-                dataIndex: 'message',
-                label: 'sw-settings-logging.list.columnMessage',
-                allowResize: true,
-            }, {
-                property: 'level',
-                dataIndex: 'level',
-                label: 'sw-settings-logging.list.columnLevel',
-                allowResize: true,
-            }, {
-                property: 'context',
-                dataIndex: 'context',
-                label: 'sw-settings-logging.list.columnContent',
-                allowResize: true,
-            }];
+            return [
+                {
+                    property: 'createdAt',
+                    dataIndex: 'createdAt',
+                    label: 'sw-settings-logging.list.columnDate',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'message',
+                    dataIndex: 'message',
+                    label: 'sw-settings-logging.list.columnMessage',
+                    allowResize: true,
+                },
+                {
+                    property: 'level',
+                    dataIndex: 'level',
+                    label: 'sw-settings-logging.list.columnLevel',
+                    allowResize: true,
+                },
+                {
+                    property: 'context',
+                    dataIndex: 'context',
+                    label: 'sw-settings-logging.list.columnContent',
+                    allowResize: true,
+                },
+            ];
         },
     },
 };

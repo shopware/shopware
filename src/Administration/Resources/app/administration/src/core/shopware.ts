@@ -44,10 +44,7 @@ import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import type { VueI18n } from 'vue-i18n';
 import Store from 'src/app/store';
-import {
-    createExtendableSetup,
-    overrideComponentSetup,
-} from 'src/app/adapter/composition-extension-system';
+import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
 import ExtensionApi from './extension-api';
 
 /** Initialize feature flags at the beginning */
@@ -272,7 +269,7 @@ class ShopwareClass implements CustomShopwareProperties {
      *     ...
      *     compatConfig: Shopware.compatConfig,
      *     ...
- *   * });
+     *   * });
      */
     public compatConfig = {
         GLOBAL_MOUNT: !window._features_.DISABLE_VUE_COMPAT,

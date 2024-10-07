@@ -16,31 +16,31 @@ class SeoUrlApiService extends ApiService {
 
         Object.assign(additionalHeaders, { 'sw-language-id': languageId });
 
-        return this.httpClient.patch(
-            apiRoute,
-            seoUrl,
-            {
+        return this.httpClient
+            .patch(apiRoute, seoUrl, {
                 params: additionalParams,
                 headers: this.getBasicHeaders(additionalHeaders),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     createCustomUrl(routeName, urls, additionalParams = {}, additionalHeaders = {}) {
         const apiRoute = `/_action/${this.getApiBasePath()}/create-custom-url`;
 
-        return this.httpClient.post(
-            apiRoute,
-            { routeName, urls },
-            {
-                params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                { routeName, urls },
+                {
+                    params: additionalParams,
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

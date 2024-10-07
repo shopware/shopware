@@ -18,23 +18,26 @@ const fieldClasses = [
 const btnConfirmClass = '.sw-flow-event-change-confirm-modal__confirm-button';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-event-change-confirm-modal', {
-        sync: true,
-    }), {
-        props: {
-            item: {
-                id: 'action-name',
-            },
-        },
-        global: {
-            stubs: {
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+    return mount(
+        await wrapTestComponent('sw-flow-event-change-confirm-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                item: {
+                    id: 'action-name',
                 },
-                'sw-icon': true,
+            },
+            global: {
+                stubs: {
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-icon': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', () => {
@@ -45,7 +48,7 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
 
-        fieldClasses.forEach(elementClass => {
+        fieldClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
         });
     });
@@ -54,27 +57,32 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('swFlowState/setSequences', new EntityCollection(
-            '/flow_sequence',
-            'flow_sequence',
-            null,
-            { isShopwareContext: true },
-            [{
-                id: '2',
-                actionName: '',
-                ruleId: null,
-                parentId: '1',
-                position: 1,
-                displayGroup: 1,
-                trueCase: false,
-                config: {
-                    entity: 'Customer',
-                    tagIds: ['123'],
-                },
-            }],
-            1,
-            null,
-        ));
+        Shopware.State.commit(
+            'swFlowState/setSequences',
+            new EntityCollection(
+                '/flow_sequence',
+                'flow_sequence',
+                null,
+                { isShopwareContext: true },
+                [
+                    {
+                        id: '2',
+                        actionName: '',
+                        ruleId: null,
+                        parentId: '1',
+                        position: 1,
+                        displayGroup: 1,
+                        trueCase: false,
+                        config: {
+                            entity: 'Customer',
+                            tagIds: ['123'],
+                        },
+                    },
+                ],
+                1,
+                null,
+            ),
+        );
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(1);

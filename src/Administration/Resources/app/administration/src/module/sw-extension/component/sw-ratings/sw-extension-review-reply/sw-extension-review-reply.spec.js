@@ -5,19 +5,24 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-extension-review-reply', { sync: true }), {
-            props: {
-                producerName: 'Howard Wolowitz',
-                reply: {
-                    text: 'Lorem ipsum dolor sit amet.',
-                    creationDate: {
-                        date: '2021-01-11 08:10:08.000000',
-                        timezone_type: 1,
-                        timezone: '+01:00',
+        return mount(
+            await wrapTestComponent('sw-extension-review-reply', {
+                sync: true,
+            }),
+            {
+                props: {
+                    producerName: 'Howard Wolowitz',
+                    reply: {
+                        text: 'Lorem ipsum dolor sit amet.',
+                        creationDate: {
+                            date: '2021-01-11 08:10:08.000000',
+                            timezone_type: 1,
+                            timezone: '+01:00',
+                        },
                     },
                 },
             },
-        });
+        );
     }
 
     it('should display the extension creator name', async () => {

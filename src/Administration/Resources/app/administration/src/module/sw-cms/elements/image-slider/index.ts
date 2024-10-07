@@ -18,7 +18,7 @@ type ImageSliderItemConfig = {
     newTab: boolean;
     url: string;
     mediaId: string;
-}
+};
 
 type ImageSliderItem = {
     newTab: boolean;

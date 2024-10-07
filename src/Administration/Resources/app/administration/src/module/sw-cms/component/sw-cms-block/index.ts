@@ -65,7 +65,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return errorCssClasses;
             }
 
-            return this.block?.cssClass?.split(' ').reduce((accumulator: { [ key: string]: boolean }, className) => {
+            return this.block?.cssClass?.split(' ').reduce((accumulator: { [key: string]: boolean }, className) => {
                 accumulator[className] = true;
 
                 return accumulator;
@@ -122,9 +122,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             const visibility = this.block.visibility as CmsVisibility;
 
-            return (view === 'desktop' && !visibility.desktop) ||
+            return (
+                (view === 'desktop' && !visibility.desktop) ||
                 (view === 'tablet-landscape' && !visibility.tablet) ||
-                (view === 'mobile' && !visibility.mobile);
+                (view === 'mobile' && !visibility.mobile)
+            );
         },
 
         toggleButtonText() {

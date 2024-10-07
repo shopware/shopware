@@ -31,9 +31,11 @@ describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
     });
 
     it('should contain a generateData as a computed property', async () => {
-        expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentComment: null,
-        }));
+        expect(wrapper.vm.generateData).toEqual(
+            expect.objectContaining({
+                documentComment: null,
+            }),
+        );
 
         Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
             type: 'credit_note',
@@ -43,10 +45,12 @@ describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
             },
         });
 
-        expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentDate: 'documentDate',
-            documentComment: 'documentComment',
-        }));
+        expect(wrapper.vm.generateData).toEqual(
+            expect.objectContaining({
+                documentDate: 'documentDate',
+                documentComment: 'documentComment',
+            }),
+        );
     });
 
     it('should be able to update generateData', async () => {

@@ -17,15 +17,17 @@ const customEntityDefinitionBare = {
     'read-protected': false,
     flags: {},
 };
-const customEntityCmsAwareTypes = [{
-    name: 'custom_entity_detail',
-    icon: 'regular-image-text',
-    // eslint-disable-next-line no-warning-comments
-    // ToDo NEXT-22655 - Re-implement, when custom_entity_list page is available
-    // }, {
-    //     name: 'custom_entity_list',
-    //     icon: 'regular-list',
-}];
+const customEntityCmsAwareTypes = [
+    {
+        name: 'custom_entity_detail',
+        icon: 'regular-image-text',
+        // eslint-disable-next-line no-warning-comments
+        // ToDo NEXT-22655 - Re-implement, when custom_entity_list page is available
+        // }, {
+        //     name: 'custom_entity_list',
+        //     icon: 'regular-list',
+    },
+];
 
 const withAdminUiName = 'custom_entity_with_admin_ui';
 const customEntityDefinitionWithAdminUi = {
@@ -126,21 +128,29 @@ describe('init/repository', () => {
     });
 
     it('should register custom entities to the customEntityDefinitionService', async () => {
-        await initializeRepositoryFactory.apply(thisMock, [containerWithCmsAware]);
+        await initializeRepositoryFactory.apply(thisMock, [
+            containerWithCmsAware,
+        ]);
 
-        expect(customEntityDefinitionStore).toStrictEqual(
-            [customEntityDefinitionBare, customEntityDefinitionWithAdminUi, shortHandCustomEntityDefinitionWithAdminUi],
-        );
+        expect(customEntityDefinitionStore).toStrictEqual([
+            customEntityDefinitionBare,
+            customEntityDefinitionWithAdminUi,
+            shortHandCustomEntityDefinitionWithAdminUi,
+        ]);
     });
 
     it('should register page types to the cmsPageTypeService if an entity is cms-aware', async () => {
-        await initializeRepositoryFactory.apply(thisMock, [containerWithCmsAware]);
+        await initializeRepositoryFactory.apply(thisMock, [
+            containerWithCmsAware,
+        ]);
 
         expect(cmsPageTypeDefinitionStore).toStrictEqual(customEntityCmsAwareTypes);
     });
 
     it('should register np page types to the cmsPageTypeService if no entities are cms-aware', async () => {
-        await initializeRepositoryFactory.apply(thisMock, [containerWithoutCmsAware]);
+        await initializeRepositoryFactory.apply(thisMock, [
+            containerWithoutCmsAware,
+        ]);
 
         expect(cmsPageTypeDefinitionStore).toStrictEqual([]);
     });

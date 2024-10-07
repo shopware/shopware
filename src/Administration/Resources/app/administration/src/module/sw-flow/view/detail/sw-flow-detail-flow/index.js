@@ -61,7 +61,7 @@ export default {
         },
 
         rootSequences() {
-            return this.sequences.filter(sequence => !sequence.parentId);
+            return this.sequences.filter((sequence) => !sequence.parentId);
         },
 
         showActionWarning() {
@@ -69,7 +69,7 @@ export default {
                 return false;
             }
 
-            return this.sequences.some(sequence => {
+            return this.sequences.some((sequence) => {
                 const { actionName, _isNew, ruleId } = sequence;
                 if (!actionName && ruleId) {
                     return false;
@@ -79,8 +79,15 @@ export default {
             });
         },
 
-        ...mapState('swFlowState', ['flow', 'triggerActions']),
-        ...mapGetters('swFlowState', ['sequences', 'availableActions', 'hasAvailableAction']),
+        ...mapState('swFlowState', [
+            'flow',
+            'triggerActions',
+        ]),
+        ...mapGetters('swFlowState', [
+            'sequences',
+            'availableActions',
+            'hasAvailableAction',
+        ]),
     },
 
     watch: {
@@ -173,16 +180,14 @@ export default {
         convertToTreeData(sequences) {
             let sequence = null;
 
-            sequences.forEach(node => {
+            sequences.forEach((node) => {
                 // Check if node is a root sequence
                 if (!node.parentId) {
-                    sequence = node.actionName === null
-                        ? node
-                        : { ...sequence, [node.id]: node }; // Generate action groups
+                    sequence = node.actionName === null ? node : { ...sequence, [node.id]: node }; // Generate action groups
                     return;
                 }
 
-                const parentIndex = sequences.findIndex(el => el.id === node.parentId);
+                const parentIndex = sequences.findIndex((el) => el.id === node.parentId);
 
                 // Skip node parent does not existed
                 if (!sequences[parentIndex]) {

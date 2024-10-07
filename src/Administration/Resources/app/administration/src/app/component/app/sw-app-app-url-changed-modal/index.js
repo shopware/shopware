@@ -79,7 +79,8 @@ Component.register('sw-app-app-url-changed-modal', {
         },
 
         confirm() {
-            this.appUrlChangeService.resolveUrlChange(this.selectedStrategy)
+            this.appUrlChangeService
+                .resolveUrlChange(this.selectedStrategy)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-app.component.sw-app-app-url-changed-modal.success'),

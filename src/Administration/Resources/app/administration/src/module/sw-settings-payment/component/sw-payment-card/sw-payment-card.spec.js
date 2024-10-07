@@ -5,39 +5,42 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-payment-card', {
-        sync: true,
-    }), {
-        props: {
-            paymentMethod: {
-                id: '5e6f7g8h',
-                translated: {
-                    name: 'Test settings-payment 2',
+    return mount(
+        await wrapTestComponent('sw-payment-card', {
+            sync: true,
+        }),
+        {
+            props: {
+                paymentMethod: {
+                    id: '5e6f7g8h',
+                    translated: {
+                        name: 'Test settings-payment 2',
+                    },
+                    active: true,
                 },
-                active: true,
             },
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-card': true,
-                'sw-internal-link': true,
-                'sw-switch-field': true,
-                'sw-media-preview-v2': true,
+                stubs: {
+                    'sw-card': true,
+                    'sw-internal-link': true,
+                    'sw-switch-field': true,
+                    'sw-media-preview-v2': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-payment/component/sw-payment-card', () => {
@@ -70,4 +73,3 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         expect(activeToggle.attributes().disabled).toBeFalsy();
     });
 });
-

@@ -40,43 +40,47 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-block-config', {
-        sync: true,
-    }), {
-        attachTo: document.body,
-        props: {
-            block,
-        },
-        global: {
-            provide: {
-                validationService: {},
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {
-                            text: block,
-                        };
+    return mount(
+        await wrapTestComponent('sw-cms-block-config', {
+            sync: true,
+        }),
+        {
+            attachTo: document.body,
+            props: {
+                block,
+            },
+            global: {
+                provide: {
+                    validationService: {},
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {
+                                text: block,
+                            };
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
-                'sw-colorpicker-deprecated': await wrapTestComponent('sw-colorpicker-deprecated'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-field-error': true,
-                'sw-icon': true,
-                'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value'],
+                stubs: {
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
+                    'sw-colorpicker-deprecated': await wrapTestComponent('sw-colorpicker-deprecated'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-field-error': true,
+                    'sw-icon': true,
+                    'sw-text-field': {
+                        template:
+                            '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                        props: ['value'],
+                    },
+                    'sw-media-compact-upload-v2': true,
+                    'sw-upload-listener': true,
+                    'sw-select-field': true,
+                    'sw-help-text': true,
                 },
-                'sw-media-compact-upload-v2': true,
-                'sw-upload-listener': true,
-                'sw-select-field': true,
-                'sw-help-text': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-block-config', () => {
@@ -136,8 +140,14 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
     });
 
     const eventEmittedDataProvider = [
-        ['block-delete', 'onBlockDelete'],
-        ['block-duplicate', 'onBlockDuplicate'],
+        [
+            'block-delete',
+            'onBlockDelete',
+        ],
+        [
+            'block-duplicate',
+            'onBlockDuplicate',
+        ],
     ];
     it.each(eventEmittedDataProvider)('should be able to push the %s event on delete', async (eventName, handler) => {
         const wrapper = await createWrapper();
@@ -148,13 +158,16 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': false });
     });
 
-    it.each(eventEmittedDataProvider)('should not be able to push the %s event on delete, when quickactions are disabled', async (eventName, handler) => {
-        Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(false);
-        const wrapper = await createWrapper();
+    it.each(eventEmittedDataProvider)(
+        'should not be able to push the %s event on delete, when quickactions are disabled',
+        async (eventName, handler) => {
+            Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(false);
+            const wrapper = await createWrapper();
 
-        wrapper.vm[handler]();
+            wrapper.vm[handler]();
 
-        expect(wrapper.emitted()).not.toHaveProperty(eventName);
-        expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': true });
-    });
+            expect(wrapper.emitted()).not.toHaveProperty(eventName);
+            expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': true });
+        },
+    );
 });

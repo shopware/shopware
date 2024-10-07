@@ -118,7 +118,8 @@ export default Shopware.Component.wrapComponentConfig({
                     dataIndex: 'name',
                     routerLink: 'sw.product.detail',
                     sortable: false,
-                }, {
+                },
+                {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.products.columnManufacturerLabel'),
                     routerLink: 'sw.manufacturer.detail',
@@ -211,13 +212,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return Promise.reject();
             }
 
-            return this.systemConfigApiService
-                .batchSave(shopPages)
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPagesSaveError'),
-                    });
+            return this.systemConfigApiService.batchSave(shopPages).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPagesSaveError'),
                 });
+            });
         },
 
         // eslint-disable-next-line consistent-return
@@ -260,15 +259,16 @@ export default Shopware.Component.wrapComponentConfig({
                     }
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPagesLoadError'),
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
-
 
         validateCategories() {
             // Skip validation when user has confirmed changes
@@ -279,8 +279,10 @@ export default Shopware.Component.wrapComponentConfig({
             const currentCategoryIds = this.page.categories!.getIds();
             const categoryDiff = difference(currentCategoryIds, this.previousCategoryIds);
 
-            if ((this.previousCategoryIds.length > currentCategoryIds.length) ||
-                (this.previousCategoryIds.length === currentCategoryIds.length && categoryDiff.length)) {
+            if (
+                this.previousCategoryIds.length > currentCategoryIds.length ||
+                (this.previousCategoryIds.length === currentCategoryIds.length && categoryDiff.length)
+            ) {
                 this.hasDeletedCategories = true;
                 this.openConfirmChangesModal();
                 return Promise.reject();
@@ -288,9 +290,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Search for categories which already have a different layout
             const foundCategoriesWithAssignedLayouts = this.page.categories!.find((category) => {
-                return category.hasOwnProperty('cmsPageId') &&
+                return (
+                    category.hasOwnProperty('cmsPageId') &&
                     category.cmsPageId !== null &&
-                    category.cmsPageId !== this.page.id;
+                    category.cmsPageId !== this.page.id
+                );
             });
 
             if (foundCategoriesWithAssignedLayouts) {
@@ -311,8 +315,10 @@ export default Shopware.Component.wrapComponentConfig({
             const currentLandingPageIds = this.page.landingPages!.getIds();
             const landingPageDiff = difference(currentLandingPageIds, this.previousLandingPageIds);
 
-            if ((this.previousLandingPageIds.length > currentLandingPageIds.length) ||
-                (this.previousLandingPageIds.length === currentLandingPageIds.length && landingPageDiff.length)) {
+            if (
+                this.previousLandingPageIds.length > currentLandingPageIds.length ||
+                (this.previousLandingPageIds.length === currentLandingPageIds.length && landingPageDiff.length)
+            ) {
                 this.hasDeletedLandingPages = true;
                 this.openConfirmChangesModal();
                 return Promise.reject();
@@ -320,9 +326,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Search for categories which already have a different layout
             const foundLandingPagesWithAssignedLayouts = this.page.landingPages!.find((landingPage) => {
-                return landingPage.hasOwnProperty('cmsPageId') &&
+                return (
+                    landingPage.hasOwnProperty('cmsPageId') &&
                     landingPage.cmsPageId !== null &&
-                    landingPage.cmsPageId !== this.page.id;
+                    landingPage.cmsPageId !== this.page.id
+                );
             });
 
             if (foundLandingPagesWithAssignedLayouts) {
@@ -343,17 +351,19 @@ export default Shopware.Component.wrapComponentConfig({
             const currentProductIds = this.page.products!.getIds();
             const productDiff = difference(currentProductIds, this.previousProductIds);
 
-            if ((this.previousProductIds.length > currentProductIds.length) ||
-                (this.previousProductIds.length === currentProductIds.length && productDiff.length)) {
+            if (
+                this.previousProductIds.length > currentProductIds.length ||
+                (this.previousProductIds.length === currentProductIds.length && productDiff.length)
+            ) {
                 this.hasDeletedProducts = true;
                 this.openConfirmChangesModal();
                 return Promise.reject();
             }
 
             const foundProductsWithAssignedLayouts = this.page.products!.find((product) => {
-                return product.hasOwnProperty('cmsPageId') &&
-                    product.cmsPageId !== null &&
-                    product.cmsPageId !== this.page.id;
+                return (
+                    product.hasOwnProperty('cmsPageId') && product.cmsPageId !== null && product.cmsPageId !== this.page.id
+                );
             });
 
             if (foundProductsWithAssignedLayouts) {
@@ -373,11 +383,13 @@ export default Shopware.Component.wrapComponentConfig({
                 this.saveShopPages(),
                 this.validateProducts(),
                 this.validateLandingPages(),
-            ]).then(() => {
-                this.onModalClose(true);
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            ])
+                .then(() => {
+                    this.onModalClose(true);
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         openConfirmChangesModal() {

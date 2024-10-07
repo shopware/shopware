@@ -19,7 +19,10 @@ Component.register('sw-popover-deprecated', {
 
     props: {
         zIndex: {
-            type: [Number, null],
+            type: [
+                Number,
+                null,
+            ],
             required: false,
             default: null,
         },
@@ -29,7 +32,11 @@ Component.register('sw-popover-deprecated', {
             default: false,
         },
         popoverClass: {
-            type: [String, Array, Object],
+            type: [
+                String,
+                Array,
+                Object,
+            ],
             required: false,
             default: '',
         },

@@ -16,7 +16,10 @@ describe('src/core/service/api/extension-sdk.service', () => {
 
         const extensionSdkService = new ExtensionSdkService(httpClientMock, loginServiceMock);
 
-        const result = await extensionSdkService.signIframeSrc('TestApp', 'http://localhost:7100/app-base/index.html?location-id=sw-main-hidden&privileges=%5B%5D');
+        const result = await extensionSdkService.signIframeSrc(
+            'TestApp',
+            'http://localhost:7100/app-base/index.html?location-id=sw-main-hidden&privileges=%5B%5D',
+        );
 
         expect(httpClientMock.post).toHaveBeenCalledWith(
             '/_action/extension-sdk/sign-uri',

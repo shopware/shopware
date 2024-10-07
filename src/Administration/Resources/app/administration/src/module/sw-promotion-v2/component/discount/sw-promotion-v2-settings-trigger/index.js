@@ -31,8 +31,7 @@ export default {
 
     computed: {
         ruleCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
         },
     },
 
@@ -45,15 +44,18 @@ export default {
     methods: {
         getTriggerSelection() {
             const prefix = 'sw-promotion-v2.detail.discounts.settings.trigger.triggerType';
-            return [{
-                value: 'single',
-                display: this.$tc(`${prefix}.displaySingleTrigger`),
-                disabled: false,
-            }, {
-                value: 'multi',
-                display: this.$tc(`${prefix}.displayMultiTrigger`),
-                disabled: true,
-            }];
+            return [
+                {
+                    value: 'single',
+                    display: this.$tc(`${prefix}.displaySingleTrigger`),
+                    disabled: false,
+                },
+                {
+                    value: 'multi',
+                    display: this.$tc(`${prefix}.displayMultiTrigger`),
+                    disabled: true,
+                },
+            ];
         },
     },
 };

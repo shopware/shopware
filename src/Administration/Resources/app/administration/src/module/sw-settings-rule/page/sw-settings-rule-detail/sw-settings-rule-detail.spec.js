@@ -54,12 +54,7 @@ const defaultAggregations = {
     },
 };
 
-function getCollection(
-    repository,
-    entities = [],
-    aggregations = defaultAggregations,
-    total = 0,
-) {
+function getCollection(repository, entities = [], aggregations = defaultAggregations, total = 0) {
     return new EntityCollection(
         `/${kebabCase(repository)}`,
         repository,
@@ -89,22 +84,26 @@ const ruleRepositoryMock = {
     hasChanges: jest.fn(() => false),
     save: jest.fn(() => Promise.resolve()),
     search: jest.fn(() => Promise.resolve(getCollection('rule', [ruleMock]))),
-    clone: jest.fn(() => Promise.resolve({
-        id: 'duplicated-rule-id',
-    })),
+    clone: jest.fn(() =>
+        Promise.resolve({
+            id: 'duplicated-rule-id',
+        }),
+    ),
 };
 
 const languageRepositoryMock = {
     get: jest.fn(() => Promise.resolve({})),
-    search: jest.fn(() => Promise.resolve(
-        getCollection('language', [
-            {
-                id: 'uuid1',
-                name: 'English',
-                label: 'English',
-            },
-        ]),
-    )),
+    search: jest.fn(() =>
+        Promise.resolve(
+            getCollection('language', [
+                {
+                    id: 'uuid1',
+                    name: 'English',
+                    label: 'English',
+                },
+            ]),
+        ),
+    ),
 };
 
 const appConditionRepositoryMock = {
@@ -199,110 +198,107 @@ async function createWrapper(props = defaultProps, provide = {}) {
         },
     });
 
-    return mount(
-        await wrapTestComponent('sw-settings-rule-detail', { sync: true }),
-        {
-            props,
-            global: {
-                plugins: [router],
-                stubs: {
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-tabs': await wrapTestComponent('sw-tabs'),
-                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-language-switch': await wrapTestComponent('sw-language-switch'),
-                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-popover': await wrapTestComponent('sw-popover'),
-                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
-                    'sw-page': {
-                        template: `
+    return mount(await wrapTestComponent('sw-settings-rule-detail', { sync: true }), {
+        props,
+        global: {
+            plugins: [router],
+            stubs: {
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-language-switch': await wrapTestComponent('sw-language-switch'),
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
+                'sw-page': {
+                    template: `
                         <div>
                             <slot name="smart-bar-actions"></slot>
                             <slot name="language-switch"></slot>
                             <slot name="content"></slot>
                         </div>
                     `,
-                    },
-                    'sw-icon': true,
-                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-button-group': await wrapTestComponent('sw-button-group'),
-                    'sw-skeleton': true,
-                    'sw-card-view': await wrapTestComponent('sw-card-view'),
-                    'sw-loader': true,
-                    'sw-product-variant-info': true,
-                    'sw-highlight-text': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                    'sw-field-error': true,
-                    'sw-custom-field-set-renderer': true,
-                    'sw-error-summary': true,
-                    'sw-condition-tree': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
-                    'sw-entity-tag-select': true,
-                    'sw-multi-select': true,
-                    'sw-textarea-field': true,
-                    'sw-extension-component-section': true,
-                    'sw-text-field': true,
-                    'sw-number-field': true,
-                    'sw-card-filter': true,
-                    'sw-settings-rule-assignment-listing': true,
-                    'sw-empty-state': true,
-                    'sw-settings-rule-add-assignment-modal': true,
-                    'sw-extension-teaser-popover': true,
                 },
-                provide: {
-                    ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
-                    ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
-                    repositoryFactory: {
-                        create: jest.fn((repository) => {
-                            switch (repository) {
-                                case 'rule': {
-                                    return ruleRepositoryMock;
-                                }
-                                case 'app_script_condition': {
-                                    return appConditionRepositoryMock;
-                                }
-                                case 'rule_condition': {
-                                    return conditionRepositoryMock;
-                                }
-                                case 'language': {
-                                    return languageRepositoryMock;
-                                }
-                                default: {
-                                    return {
-                                        search: () => Promise.resolve([]),
-                                    };
-                                }
+                'sw-icon': true,
+                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-button-group': await wrapTestComponent('sw-button-group'),
+                'sw-skeleton': true,
+                'sw-card-view': await wrapTestComponent('sw-card-view'),
+                'sw-loader': true,
+                'sw-product-variant-info': true,
+                'sw-highlight-text': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-error-summary': true,
+                'sw-condition-tree': true,
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
+                'sw-entity-tag-select': true,
+                'sw-multi-select': true,
+                'sw-textarea-field': true,
+                'sw-extension-component-section': true,
+                'sw-text-field': true,
+                'sw-number-field': true,
+                'sw-card-filter': true,
+                'sw-settings-rule-assignment-listing': true,
+                'sw-empty-state': true,
+                'sw-settings-rule-add-assignment-modal': true,
+                'sw-extension-teaser-popover': true,
+            },
+            provide: {
+                ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
+                ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
+                repositoryFactory: {
+                    create: jest.fn((repository) => {
+                        switch (repository) {
+                            case 'rule': {
+                                return ruleRepositoryMock;
                             }
-                        }),
-                    },
-                    customFieldDataProviderService: {
-                        getCustomFieldSets: () => Promise.resolve([]),
-                    },
-                    ...provide,
+                            case 'app_script_condition': {
+                                return appConditionRepositoryMock;
+                            }
+                            case 'rule_condition': {
+                                return conditionRepositoryMock;
+                            }
+                            case 'language': {
+                                return languageRepositoryMock;
+                            }
+                            default: {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                };
+                            }
+                        }
+                    }),
                 },
-                mocks: {
-                    $device: {
-                        getSystemKey: () => 'TEST',
-                        onResize: () => {},
-                        removeResizeListener: () => {},
-                    },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
+                ...provide,
+            },
+            mocks: {
+                $device: {
+                    getSystemKey: () => 'TEST',
+                    onResize: () => {},
+                    removeResizeListener: () => {},
                 },
             },
         },
-    );
+    });
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
@@ -371,7 +367,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const expectedRepositories = [
             ['app_script_condition'],
             ['rule'],
-            [ruleMock.conditions.entity, ruleMock.conditions.source],
+            [
+                ruleMock.conditions.entity,
+                ruleMock.conditions.source,
+            ],
             ['language'],
         ];
 
@@ -380,7 +379,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it.each([
-        { name: 'warning', roles: [], message: 'sw-privileges.tooltip.warning' },
+        {
+            name: 'warning',
+            roles: [],
+            message: 'sw-privileges.tooltip.warning',
+        },
         { name: 'save', roles: ['rule.editor'], message: 'TEST + S' },
     ])('should create tooltip for save button: $name', async ({ roles, message }) => {
         global.activeAclRoles = roles;
@@ -412,7 +415,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         { name: 'product association', entity: 'product' },
         { name: 'no product association', entity: 'order' },
     ])('should load entity data and condition config on creation: $name', async ({ entity }) => {
-        conditionRepositoryMock.search.mockResolvedValueOnce(getCollection(entity, [{ id: 'uuid1' }], defaultAggregations, 10));
+        conditionRepositoryMock.search.mockResolvedValueOnce(
+            getCollection(entity, [{ id: 'uuid1' }], defaultAggregations, 10),
+        );
 
         await createWrapper();
         await flushPromises();
@@ -429,7 +434,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         }
 
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);
-        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([criteria, Context.api]);
+        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([
+            criteria,
+            Context.api,
+        ]);
     });
 
     it.each([
@@ -579,7 +587,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should clone duplicate rule', async () => {
-        global.activeAclRoles = ['rule.editor', 'rule.creator'];
+        global.activeAclRoles = [
+            'rule.editor',
+            'rule.creator',
+        ];
 
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
@@ -618,47 +629,53 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
     });
 
-    it.each(routeLeaveOrUpdateTestCases)('should check for unsaved data when route updates: $name', async ({ from, to, discard, check }) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            forceDiscardChanges: discard,
-        });
-        await flushPromises();
+    it.each(routeLeaveOrUpdateTestCases)(
+        'should check for unsaved data when route updates: $name',
+        async ({ from, to, discard, check }) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                forceDiscardChanges: discard,
+            });
+            await flushPromises();
 
-        const nextMock = jest.fn();
+            const nextMock = jest.fn();
 
-        wrapper.vm.$options.beforeRouteUpdate.call(
-            wrapper.vm,
-            { name: to, params: { id: 'uuid2' } },
-            { name: from, params: { id: 'uuid1' } },
-            nextMock,
-        );
-        await flushPromises();
+            wrapper.vm.$options.beforeRouteUpdate.call(
+                wrapper.vm,
+                { name: to, params: { id: 'uuid2' } },
+                { name: from, params: { id: 'uuid1' } },
+                nextMock,
+            );
+            await flushPromises();
 
-        expect(nextMock).toHaveBeenCalledTimes(1);
-        expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(check);
-    });
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(check);
+        },
+    );
 
-    it.each(routeLeaveOrUpdateTestCases)('should check for unsaved data when leaving route: $name', async ({ from, to, discard, check }) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            forceDiscardChanges: discard,
-        });
-        await flushPromises();
+    it.each(routeLeaveOrUpdateTestCases)(
+        'should check for unsaved data when leaving route: $name',
+        async ({ from, to, discard, check }) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                forceDiscardChanges: discard,
+            });
+            await flushPromises();
 
-        const nextMock = jest.fn();
+            const nextMock = jest.fn();
 
-        wrapper.vm.$options.beforeRouteLeave.call(
-            wrapper.vm,
-            { name: to, params: { id: 'uuid2' } },
-            { name: from, params: { id: 'uuid1' } },
-            nextMock,
-        );
-        await flushPromises();
+            wrapper.vm.$options.beforeRouteLeave.call(
+                wrapper.vm,
+                { name: to, params: { id: 'uuid2' } },
+                { name: from, params: { id: 'uuid1' } },
+                nextMock,
+            );
+            await flushPromises();
 
-        expect(nextMock).toHaveBeenCalledTimes(1);
-        expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(check);
-    });
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(check);
+        },
+    );
 
     it.each([
         {
@@ -701,12 +718,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         const nextMock = jest.fn();
 
-        wrapper.vm.checkUnsavedData(
-            {
-                to: { name: 'sw.test.route', params: { id: 'uuid2' } },
-                next: nextMock,
-            },
-        );
+        wrapper.vm.checkUnsavedData({
+            to: { name: 'sw.test.route', params: { id: 'uuid2' } },
+            next: nextMock,
+        });
         await flushPromises();
 
         expect(nextMock).toHaveBeenNthCalledWith(1, ...nextArgs);
@@ -730,8 +745,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it.each([
-        { name: 'switch to assignments tab', to: 'sw.settings.rule.detail.assignments', loadCalls: 2 },
-        { name: 'switch to base tab', to: 'sw.settings.rule.detail.base', loadCalls: 1 },
+        {
+            name: 'switch to assignments tab',
+            to: 'sw.settings.rule.detail.assignments',
+            loadCalls: 2,
+        },
+        {
+            name: 'switch to base tab',
+            to: 'sw.settings.rule.detail.base',
+            loadCalls: 1,
+        },
     ])('should confirm discard changes', async ({ to, loadCalls }) => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -807,20 +830,17 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should prevent the user from saving the rule when rule awareness is violated', async () => {
         global.activeAclRoles = ['rule.editor'];
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            {
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {},
-                    getAwarenessKeysWithEqualsAnyConfig: () => ['someRuleRelation'],
-                    getRestrictionsByAssociation: () => ({
-                        isRestricted: true,
-                    }),
-                    getTranslatedConditionViolationList: () => ['someSnippetPath'],
-                },
+        const wrapper = await createWrapper(defaultProps, {
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => [],
+                addScriptConditions: () => {},
+                getAwarenessKeysWithEqualsAnyConfig: () => ['someRuleRelation'],
+                getRestrictionsByAssociation: () => ({
+                    isRestricted: true,
+                }),
+                getTranslatedConditionViolationList: () => ['someSnippetPath'],
             },
-        );
+        });
 
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
@@ -834,16 +854,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should save without any awareness config', async () => {
         global.activeAclRoles = ['rule.editor'];
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            {
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {},
-                    getAwarenessKeysWithEqualsAnyConfig: () => [],
-                },
+        const wrapper = await createWrapper(defaultProps, {
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => [],
+                addScriptConditions: () => {},
+                getAwarenessKeysWithEqualsAnyConfig: () => [],
             },
-        );
+        });
 
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
@@ -862,19 +879,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             isRestricted: false,
         }));
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            {
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {},
-                    getRestrictionsByAssociation: awarenessFunc,
-                    getAwarenessKeysWithEqualsAnyConfig: () => [
-                        'testRelation',
-                    ],
-                },
+        const wrapper = await createWrapper(defaultProps, {
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => [],
+                addScriptConditions: () => {},
+                getRestrictionsByAssociation: awarenessFunc,
+                getAwarenessKeysWithEqualsAnyConfig: () => [
+                    'testRelation',
+                ],
             },
-        );
+        });
 
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
@@ -893,19 +907,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             isRestricted: false,
         }));
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            {
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {},
-                    getRestrictionsByAssociation: awarenessFunc,
-                    getAwarenessKeysWithEqualsAnyConfig: () => [
-                        'testRelation',
-                    ],
-                },
+        const wrapper = await createWrapper(defaultProps, {
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => [],
+                addScriptConditions: () => {},
+                getRestrictionsByAssociation: awarenessFunc,
+                getAwarenessKeysWithEqualsAnyConfig: () => [
+                    'testRelation',
+                ],
             },
-        );
+        });
 
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
@@ -919,19 +930,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should not trigger rule awareness when rule is new and the entityCount was not generated', async () => {
         global.activeAclRoles = ['rule.editor'];
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            {
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {},
-                    getRestrictionsByAssociation: jest.fn(),
-                    getAwarenessKeysWithEqualsAnyConfig: () => [
-                        'testRelation',
-                    ],
-                },
+        const wrapper = await createWrapper(defaultProps, {
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => [],
+                addScriptConditions: () => {},
+                getRestrictionsByAssociation: jest.fn(),
+                getAwarenessKeysWithEqualsAnyConfig: () => [
+                    'testRelation',
+                ],
             },
-        );
+        });
         await flushPromises();
 
         await wrapper.setData({

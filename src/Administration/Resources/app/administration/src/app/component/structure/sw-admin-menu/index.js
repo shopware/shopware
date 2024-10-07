@@ -105,17 +105,23 @@ Component.register('sw-admin-menu', {
 
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
-                const levelOneParent = adminModuleNavigationEntries.find(e => entry.parent && e.id === entry.parent);
+                const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
                 // eslint-disable-next-line max-len
-                const levelTwoParent = adminModuleNavigationEntries.find(e => levelOneParent?.parent && e.id === levelOneParent?.parent);
+                const levelTwoParent = adminModuleNavigationEntries.find(
+                    (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
+                );
                 // eslint-disable-next-line max-len
-                const levelThreeParent = adminModuleNavigationEntries.find(e => levelTwoParent?.parent && e.id === levelTwoParent?.parent);
+                const levelThreeParent = adminModuleNavigationEntries.find(
+                    (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
+                );
 
                 if (levelThreeParent) {
-                    Shopware.Utils.debug.error(new Error(
-                        `The navigation entry "${entry.id}" is nested on level 4 or higher.\
+                    Shopware.Utils.debug.error(
+                        new Error(
+                            `The navigation entry "${entry.id}" is nested on level 4 or higher.\
 The admin menu only supports up to three levels of nesting.`,
-                    ));
+                        ),
+                    );
 
                     return false;
                 }
@@ -346,9 +352,11 @@ The admin menu only supports up to three levels of nesting.`,
                 }
 
                 this.removeClassesFromElements(
-                    Array.from(this.$el.querySelectorAll(
-                        '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active',
-                    )),
+                    Array.from(
+                        this.$el.querySelectorAll(
+                            '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active',
+                        ),
+                    ),
                     ['router-link-active'],
                     ignoreElementsList,
                 );
@@ -398,8 +406,7 @@ The admin menu only supports up to three levels of nesting.`,
         /**
          * @deprecated tag:v6.7.0 - Will be removed
          */
-        openKeyboardShortcutOverview() {
-        },
+        openKeyboardShortcutOverview() {},
 
         addScrollbarOffset() {
             const offset = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
@@ -434,11 +441,15 @@ The admin menu only supports up to three levels of nesting.`,
 
             const firstChild = target.firstChild;
             this.removeClassesFromElements(
-                Array.from(this.$el.querySelectorAll(
-                    '.sw-admin-menu__navigation-list-item',
-                )),
-                ['is--entry-expanded', 'is--flyout-expanded'],
-                [target, firstChild],
+                Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
+                [
+                    'is--entry-expanded',
+                    'is--flyout-expanded',
+                ],
+                [
+                    target,
+                    firstChild,
+                ],
             );
 
             const isEntryExpanded = target.classList.contains('is--entry-expanded');
@@ -539,7 +550,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         getChildren(entry) {
-            return entry.children.filter(child => {
+            return entry.children.filter((child) => {
                 if (!child.privilege) {
                     return true;
                 }
@@ -560,8 +571,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const xj = polygon[j][0];
                 const yj = polygon[j][1];
 
-                const intersect = ((yi > y) !== (yj > y)) &&
-                    (x < (((xj - xi) * (y - yi)) / (yj - yi)) + xi);
+                const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
                 if (intersect) inside = !inside;
             }
 
@@ -614,7 +624,7 @@ The admin menu only supports up to three levels of nesting.`,
                 let width = el.offsetWidth;
                 const style = el.currentStyle || getComputedStyle(el);
 
-                width += (parseInt(style.marginLeft, 10) || 0);
+                width += parseInt(style.marginLeft, 10) || 0;
                 return width;
             };
 
@@ -622,7 +632,7 @@ The admin menu only supports up to three levels of nesting.`,
                 let height = el.offsetHeight;
                 const style = el.currentStyle || getComputedStyle(el);
 
-                height += (parseInt(style.marginTop, 10) || 0);
+                height += parseInt(style.marginTop, 10) || 0;
                 return height;
             };
 
@@ -642,7 +652,7 @@ The admin menu only supports up to three levels of nesting.`,
             };
 
             const topRight = {
-                x: topLeft.x + (targetWidth * 2),
+                x: topLeft.x + targetWidth * 2,
                 y: topLeft.y,
             };
 
@@ -652,10 +662,22 @@ The admin menu only supports up to three levels of nesting.`,
             };
 
             return [
-                [topLeft.x, topLeft.y],
-                [bottomLeft.x, bottomLeft.y],
-                [bottomRight.x, bottomRight.y],
-                [topRight.x, topRight.y],
+                [
+                    topLeft.x,
+                    topLeft.y,
+                ],
+                [
+                    bottomLeft.x,
+                    bottomLeft.y,
+                ],
+                [
+                    bottomRight.x,
+                    bottomRight.y,
+                ],
+                [
+                    topRight.x,
+                    topRight.y,
+                ],
             ];
         },
 
@@ -672,9 +694,11 @@ The admin menu only supports up to three levels of nesting.`,
                 return 0;
             }
 
-            if (this.lastDelayLocation
-                && currentMousePosition.x === this.lastDelayLocation.x
-                && currentMousePosition.y === this.lastDelayLocation.y) {
+            if (
+                this.lastDelayLocation &&
+                currentMousePosition.x === this.lastDelayLocation.x &&
+                currentMousePosition.y === this.lastDelayLocation.y
+            ) {
                 return 0;
             }
 

@@ -102,14 +102,17 @@ Component.register('sw-property-search', {
             }
 
             if (this.searchTerm.length > 0) {
-                this.searchTerm.trim().split(' ').forEach((option) => {
-                    if (option.trim().length === 0) {
-                        return;
-                    }
+                this.searchTerm
+                    .trim()
+                    .split(' ')
+                    .forEach((option) => {
+                        if (option.trim().length === 0) {
+                            return;
+                        }
 
-                    criteria.addQuery(Criteria.contains('name', option.trim()), 1000);
-                    criteria.addQuery(Criteria.contains('group.name', option.trim()), 800);
-                });
+                        criteria.addQuery(Criteria.contains('name', option.trim()), 1000);
+                        criteria.addQuery(Criteria.contains('group.name', option.trim()), 800);
+                    });
 
                 criteria.addAssociation('group');
             } else {
@@ -247,17 +250,20 @@ Component.register('sw-property-search', {
         showSearch() {
             this.currentGroup = null;
 
-            this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
+            this.propertyGroupOptionRepository
+                .search(this.propertyGroupOptionCriteria, Shopware.Context.api)
                 .then((groupOptions) => {
                     this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
                     this.displaySearch = true;
                     this.displayTree = false;
-                }).then(() => {
+                })
+                .then(() => {
                     if (this.$refs.optionSearchGrid) {
                         this.selectOptions(this.$refs.optionSearchGrid);
                     }
-                }).catch((error) => {
+                })
+                .catch((error) => {
                     this.createNotificationError({ message: error.message });
                 });
         },
@@ -280,7 +286,8 @@ Component.register('sw-property-search', {
         },
 
         loadOptions() {
-            this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
+            this.propertyGroupOptionRepository
+                .search(this.propertyGroupOptionCriteria, Shopware.Context.api)
                 .then((groupOptions) => {
                     this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
@@ -288,12 +295,11 @@ Component.register('sw-property-search', {
                 });
         },
 
-
         sortOptions(options) {
             if (options.length > 0 && options[0].group.sortingType === 'alphanumeric') {
-                options.sort((a, b) => (a.translated.name.localeCompare(b.translated.name, undefined, { numeric: true })));
+                options.sort((a, b) => a.translated.name.localeCompare(b.translated.name, undefined, { numeric: true }));
             } else {
-                options.sort((a, b) => (a.position - b.position));
+                options.sort((a, b) => a.position - b.position);
             }
             const start = (this.optionPage - 1) * 10;
             const end = start + 10;

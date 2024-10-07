@@ -15,58 +15,61 @@ responses.addResponse({
 });
 
 async function createWrapper(privileges = [], isNew = true) {
-    return mount(await wrapTestComponent('sw-custom-field-type-entity', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $tc: () => {
-                    return 'foo';
-                },
-                $i18n: {
-                    fallbackLocale: 'en-GB',
-                },
-            },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
+    return mount(
+        await wrapTestComponent('sw-custom-field-type-entity', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $tc: () => {
+                        return 'foo';
+                    },
+                    $i18n: {
+                        fallbackLocale: 'en-GB',
                     },
                 },
-            },
-            stubs: {
-                'sw-custom-field-type-base': true,
-                'sw-custom-field-translated-labels': true,
-                'sw-single-select': true,
-                'sw-field': true,
-                'sw-switch-field': true,
-                'sw-button': true,
-                'sw-text-field': true,
-                'sw-container': true,
-            },
-        },
-        props: {
-            currentCustomField: {
-                id: 'id1',
-                name: 'custom_additional_field_1',
-                config: {
-                    label: { 'en-GB': 'Entity Type Field' },
-                    customFieldType: 'entity',
-                    customFieldPosition: 1,
-                    options: [],
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
                 },
-                _isNew: isNew,
+                stubs: {
+                    'sw-custom-field-type-base': true,
+                    'sw-custom-field-translated-labels': true,
+                    'sw-single-select': true,
+                    'sw-field': true,
+                    'sw-switch-field': true,
+                    'sw-button': true,
+                    'sw-text-field': true,
+                    'sw-container': true,
+                },
             },
-            set: {
-                config: {},
+            props: {
+                currentCustomField: {
+                    id: 'id1',
+                    name: 'custom_additional_field_1',
+                    config: {
+                        label: { 'en-GB': 'Entity Type Field' },
+                        customFieldType: 'entity',
+                        customFieldPosition: 1,
+                        options: [],
+                    },
+                    _isNew: isNew,
+                },
+                set: {
+                    config: {},
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-entity', () => {

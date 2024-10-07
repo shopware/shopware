@@ -14,7 +14,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -77,11 +81,9 @@ export default {
         onClickSave() {
             this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc(
-                        'sw-newsletter-recipient.detail.messageSaveSuccess',
-                        0,
-                        { key: this.newsletterRecipient.email },
-                    ),
+                    message: this.$tc('sw-newsletter-recipient.detail.messageSaveSuccess', 0, {
+                        key: this.newsletterRecipient.email,
+                    }),
                 });
             });
         },

@@ -118,7 +118,10 @@ Component.register('sw-select-option', {
         },
 
         onMouseEnter(originalDomEvent) {
-            this.$parent.$emit('option-mouse-over', { originalDomEvent, index: this.index });
+            this.$parent.$emit('option-mouse-over', {
+                originalDomEvent,
+                index: this.index,
+            });
             this.isActive = true;
         },
     },

@@ -608,7 +608,11 @@ Component.register('sw-tree-item', {
         renderContentSlotNode({ item, openTreeItem, getName }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.content({ item, openTreeItem, getName });
+                return this.$scopedSlots.content({
+                    item,
+                    openTreeItem,
+                    getName,
+                });
             }
 
             return this.$slots.content({ item, openTreeItem, getName });

@@ -78,25 +78,29 @@ async function createWrapper(customProps = {}) {
                     id: 'set1',
                     name: 'set1',
                     config: {},
-                    customFields: [{
-                        name: 'field1',
-                        type: 'text',
-                        config: {
-                            label: 'field1Label',
+                    customFields: [
+                        {
+                            name: 'field1',
+                            type: 'text',
+                            config: {
+                                label: 'field1Label',
+                            },
                         },
-                    }],
+                    ],
                 },
                 {
                     id: 'set2',
                     name: 'set2',
                     config: {},
-                    customFields: [{
-                        name: 'field2',
-                        type: 'bool',
-                        config: {
-                            label: 'field2Label',
+                    customFields: [
+                        {
+                            name: 'field2',
+                            type: 'bool',
+                            config: {
+                                label: 'field2Label',
+                            },
                         },
-                    }],
+                    ],
                 },
             ]),
             ...customProps,

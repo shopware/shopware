@@ -89,79 +89,87 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
 
     it('should be able to change search preference', async () => {
         await wrapper.setData({
-            searchPreferences: [{
-                entityName: 'product',
-                _searchable: false,
-                fields: [
-                    {
-                        fieldName: 'name',
-                        _searchable: false,
-                    },
-                    {
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    },
-                ],
-            }],
+            searchPreferences: [
+                {
+                    entityName: 'product',
+                    _searchable: false,
+                    fields: [
+                        {
+                            fieldName: 'name',
+                            _searchable: false,
+                        },
+                        {
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
 
         expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([expect.objectContaining({
-                entityName: 'product',
-                _searchable: true,
-                fields: expect.arrayContaining([
-                    expect.objectContaining({
-                        fieldName: 'name',
-                        _searchable: true,
-                    }),
-                    expect.objectContaining({
-                        fieldName: 'productNumber',
-                        _searchable: true,
-                    }),
-                ]),
-            })]),
+            expect.arrayContaining([
+                expect.objectContaining({
+                    entityName: 'product',
+                    _searchable: true,
+                    fields: expect.arrayContaining([
+                        expect.objectContaining({
+                            fieldName: 'name',
+                            _searchable: true,
+                        }),
+                        expect.objectContaining({
+                            fieldName: 'productNumber',
+                            _searchable: true,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 
     it('should not be able to change search preference', async () => {
         await wrapper.setData({
-            searchPreferences: [{
-                entityName: 'product',
-                _searchable: false,
-                fields: [
-                    {
-                        fieldName: 'name',
-                        _searchable: true,
-                    },
-                    {
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    },
-                ],
-            }],
+            searchPreferences: [
+                {
+                    entityName: 'product',
+                    _searchable: false,
+                    fields: [
+                        {
+                            fieldName: 'name',
+                            _searchable: true,
+                        },
+                        {
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
 
         expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([expect.objectContaining({
-                entityName: 'product',
-                _searchable: true,
-                fields: expect.arrayContaining([
-                    expect.objectContaining({
-                        fieldName: 'name',
-                        _searchable: true,
-                    }),
-                    expect.objectContaining({
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    }),
-                ]),
-            })]),
+            expect.arrayContaining([
+                expect.objectContaining({
+                    entityName: 'product',
+                    _searchable: true,
+                    fields: expect.arrayContaining([
+                        expect.objectContaining({
+                            fieldName: 'name',
+                            _searchable: true,
+                        }),
+                        expect.objectContaining({
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 });

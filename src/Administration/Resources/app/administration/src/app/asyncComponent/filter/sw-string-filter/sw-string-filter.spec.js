@@ -6,7 +6,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-string-filter', { sync: true }), {
         global: {
             stubs: {
-                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', {
+                    sync: true,
+                }),
             },
         },
         props: {
@@ -57,7 +59,9 @@ describe('components/sw-string-filter', () => {
     it('should emit `filter-reset` event when user clicks Reset button', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'cheap' } });
+        await wrapper.setProps({
+            filter: { ...wrapper.vm.filter, value: 'cheap' },
+        });
 
         // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');

@@ -18,7 +18,10 @@ export default {
         'importExportProfileMapping',
     ],
 
-    emits: ['close', 'profile-save'],
+    emits: [
+        'close',
+        'profile-save',
+    ],
 
     props: {
         profile: {
@@ -110,17 +113,20 @@ export default {
         },
 
         getParentProfileSelected() {
-            return this.profileRepository.search(this.parentProfileCriteria).then((results) => {
-                if (results.total > 0) {
-                    return results[0];
-                }
+            return this.profileRepository
+                .search(this.parentProfileCriteria)
+                .then((results) => {
+                    if (results.total > 0) {
+                        return results[0];
+                    }
 
-                return null;
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
+                    return null;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
+                    });
                 });
-            });
         },
 
         checkValidation(parentProfile) {
@@ -131,8 +137,7 @@ export default {
 
             const parentMapping = parentProfile ? parentProfile.mapping : [];
             const isOnlyUpdateProfile =
-                this.profile.config.createEntities === false &&
-                this.profile.config.updateEntities === true;
+                this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
 
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,

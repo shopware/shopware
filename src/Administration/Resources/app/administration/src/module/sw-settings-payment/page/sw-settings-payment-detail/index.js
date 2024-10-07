@@ -102,16 +102,14 @@ export default {
 
         ruleFilter() {
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.multi(
-                'OR',
-                [
+            criteria.addFilter(
+                Criteria.multi('OR', [
                     Criteria.contains('rule.moduleTypes.types', 'payment'),
                     Criteria.equals('rule.moduleTypes', null),
-                ],
-            ));
+                ]),
+            );
 
-            criteria.addAssociation('conditions')
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -134,19 +132,23 @@ export default {
             return criteria;
         },
 
-
         forbidDelete() {
-            return this.paymentMethod.orderTransactions?.length !== 0
-                || this.paymentMethod.salesChannels?.length !== 0
-                || this.paymentMethod.customers?.length !== 0
-                || this.paymentMethod.salesChannelDefaultAssignments?.length !== 0;
+            return (
+                this.paymentMethod.orderTransactions?.length !== 0 ||
+                this.paymentMethod.salesChannels?.length !== 0 ||
+                this.paymentMethod.customers?.length !== 0 ||
+                this.paymentMethod.salesChannelDefaultAssignments?.length !== 0
+            );
         },
 
         technicalNameIsProvided() {
             return !!this.paymentMethod?.pluginId || !!this.paymentMethod?.appPaymentMethod?.id;
         },
 
-        ...mapPropertyErrors('paymentMethod', ['name', 'technicalName']),
+        ...mapPropertyErrors('paymentMethod', [
+            'name',
+            'technicalName',
+        ]),
     },
 
     watch: {
@@ -191,8 +193,9 @@ export default {
         loadEntityData() {
             this.isLoading = true;
 
-            this.paymentMethodRepository.search(this.paymentMethodCriteria)
-                .then(response => response.first())
+            this.paymentMethodRepository
+                .search(this.paymentMethodCriteria)
+                .then((response) => response.first())
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
 
@@ -221,7 +224,8 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.paymentMethodRepository.save(this.paymentMethod)
+            return this.paymentMethodRepository
+                .save(this.paymentMethod)
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.$refs.mediaSidebarItem.getList();
@@ -258,11 +262,10 @@ export default {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId)
-                .then((updatedMedia) => {
-                    this.mediaItem = updatedMedia;
-                    this.paymentMethod.mediaId = targetId;
-                });
+            this.mediaRepository.get(targetId).then((updatedMedia) => {
+                this.mediaItem = updatedMedia;
+                this.paymentMethod.mediaId = targetId;
+            });
         },
 
         setMediaFromSidebar(mediaEntity) {
@@ -289,7 +292,9 @@ export default {
             this.deletionInProcess = true;
 
             await this.paymentMethodRepository.delete(this.paymentMethod.id);
-            await this.$router.replace({ name: 'sw.settings.payment.overview' });
+            await this.$router.replace({
+                name: 'sw.settings.payment.overview',
+            });
         },
     },
 };

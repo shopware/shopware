@@ -5,10 +5,20 @@
 import { mount } from '@vue/test-utils';
 
 const addressFormat = [
-    ['address/company', 'symbol/dash', 'address/department'],
-    ['address/first_name', 'address/last_name'],
+    [
+        'address/company',
+        'symbol/dash',
+        'address/department',
+    ],
+    [
+        'address/first_name',
+        'address/last_name',
+    ],
     ['address/street'],
-    ['address/zipcode', 'address/city'],
+    [
+        'address/zipcode',
+        'address/city',
+    ],
     ['address/country'],
 ];
 
@@ -16,7 +26,9 @@ let stubs = {};
 
 async function createWrapper(privileges = [], customPropsData = {}) {
     stubs = {
-        'sw-settings-country-address-handling': await wrapTestComponent('sw-settings-country-address-handling', { sync: true }),
+        'sw-settings-country-address-handling': await wrapTestComponent('sw-settings-country-address-handling', {
+            sync: true,
+        }),
         'sw-card': {
             template: '<div class="sw-card"><slot></slot></div>',
         },
@@ -70,110 +82,125 @@ async function createWrapper(privileges = [], customPropsData = {}) {
         'sw-ai-copilot-badge': true,
     };
 
-    return mount({
-        template: `
+    return mount(
+        {
+            template: `
 <sw-settings-country-address-handling
     :country="country"
     :isLoading="isLoading"
     @update:country="onUpdateCountry"
 />
 `,
-        props: {
-            country: {
-                type: Object,
-                required: true,
-            },
-            isLoading: {
-                type: Boolean,
-                required: true,
-            },
-        },
-        methods: {
-            onUpdateCountry(path, value) {
-                Shopware.Utils.object.set(this.country, path, value);
-            },
-        },
-    }, {
-        global: {
-            renderStubDefaultSlot: true,
-            directives: {
-                tooltip: {},
-                droppable: {},
-                draggable: {},
-            },
-            mocks: {
-                $tc: key => key,
-                $route: {
-                    params: {
-                        id: 'id',
-                    },
+            props: {
+                country: {
+                    type: Object,
+                    required: true,
                 },
-                $device: {
-                    getSystemKey: () => {},
-                    onResize: () => {},
+                isLoading: {
+                    type: Boolean,
+                    required: true,
                 },
             },
-
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([{
-                                id: 'id',
-                                defaultBillingAddress: {
-                                    firstName: 'Y',
-                                    lastName: 'Tran',
-                                    company: '',
-                                    department: '',
-                                    street: 'Ebbinghoff 10',
-                                    zipcode: '48624',
-                                    city: 'Schöppingen',
-                                    country: {
-                                        name: 'Germany',
-                                    },
-                                },
-                            }]);
+            methods: {
+                onUpdateCountry(path, value) {
+                    Shopware.Utils.object.set(this.country, path, value);
+                },
+            },
+        },
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                directives: {
+                    tooltip: {},
+                    droppable: {},
+                    draggable: {},
+                },
+                mocks: {
+                    $tc: (key) => key,
+                    $route: {
+                        params: {
+                            id: 'id',
                         },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
+                    },
+                    $device: {
+                        getSystemKey: () => {},
+                        onResize: () => {},
                     },
                 },
-                customSnippetApiService: {
-                    snippets: () => {
-                        return Promise.resolve({
-                            data: ['symbol/dash', 'symbol/comma', 'address/country_state', 'address/salutation'],
-                        });
+
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([
+                                    {
+                                        id: 'id',
+                                        defaultBillingAddress: {
+                                            firstName: 'Y',
+                                            lastName: 'Tran',
+                                            company: '',
+                                            department: '',
+                                            street: 'Ebbinghoff 10',
+                                            zipcode: '48624',
+                                            city: 'Schöppingen',
+                                            country: {
+                                                name: 'Germany',
+                                            },
+                                        },
+                                    },
+                                ]);
+                            },
+                        }),
                     },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                    render: () => Promise.resolve({
-                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
-                    }),
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    customSnippetApiService: {
+                        snippets: () => {
+                            return Promise.resolve({
+                                data: [
+                                    'symbol/dash',
+                                    'symbol/comma',
+                                    'address/country_state',
+                                    'address/salutation',
+                                ],
+                            });
+                        },
+
+                        render: () =>
+                            Promise.resolve({
+                                rendered:
+                                    'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+                            }),
+                    },
+                    countryApiService: {
+                        defaultCountryAddressFormat: () =>
+                            Promise.resolve({
+                                data: addressFormat,
+                            }),
+                    },
+                    userInputSanitizeService: {},
                 },
-                countryApiService: {
-                    defaultCountryAddressFormat: () => Promise.resolve({
-                        data: addressFormat,
-                    }),
-                },
-                userInputSanitizeService: {},
+
+                stubs,
             },
 
-            stubs,
-        },
-
-        props: {
-            country: {
-                isNew: () => false,
-                addressFormat,
-                ...customPropsData,
+            props: {
+                country: {
+                    isNew: () => false,
+                    addressFormat,
+                    ...customPropsData,
+                },
+                isLoading: false,
             },
-            isLoading: false,
         },
-    });
+    );
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-address-handling', () => {
@@ -190,11 +217,14 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to edit the address handling tab', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ], {
-            defaultPostalCodePattern: '\\d{5}',
-        });
+        wrapper = await createWrapper(
+            [
+                'country.editor',
+            ],
+            {
+                defaultPostalCodePattern: '\\d{5}',
+            },
+        );
         await flushPromises();
 
         const countryForceStateInRegistrationField = wrapper.find(
@@ -249,11 +279,14 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to toggle advanced postal code pattern', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ], {
-            defaultPostalCodePattern: '\\d{5}',
-        });
+        wrapper = await createWrapper(
+            [
+                'country.editor',
+            ],
+            {
+                defaultPostalCodePattern: '\\d{5}',
+            },
+        );
 
         await wrapper.setProps({
             country: {
@@ -266,10 +299,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
 
-        const checkAdvancedPostalCodePatternField = wrapper.findAll('.sw-settings-country-address-handling__option-items')[2];
-        await checkAdvancedPostalCodePatternField
-            .find('.sw-field--switch__input input')
-            .setChecked();
+        const checkAdvancedPostalCodePatternField = wrapper.findAll(
+            '.sw-settings-country-address-handling__option-items',
+        )[2];
+        await checkAdvancedPostalCodePatternField.find('.sw-field--switch__input input').setChecked();
 
         await flushPromises();
 
@@ -277,11 +310,14 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be not able to toggle advanced postal code pattern', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ], {
-            defaultPostalCodePattern: '\\d{5}',
-        });
+        wrapper = await createWrapper(
+            [
+                'country.editor',
+            ],
+            {
+                defaultPostalCodePattern: '\\d{5}',
+            },
+        );
 
         await wrapper.setProps({
             country: {
@@ -297,9 +333,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch')[2];
 
-        await checkPostalCodePatternField
-            .find('.sw-field--switch__input input')
-            .setChecked(false);
+        await checkPostalCodePatternField.find('.sw-field--switch__input input').setChecked(false);
 
         await flushPromises();
 
@@ -330,25 +364,19 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch')[2];
 
-        await checkPostalCodePatternField
-            .find('.sw-field--switch__input input')
-            .setChecked(false);
+        await checkPostalCodePatternField.find('.sw-field--switch__input input').setChecked(false);
 
         await flushPromises();
 
         expect(wrapper.vm.country.checkAdvancedPostalCodePattern).toBe(false);
 
-        await checkPostalCodePatternField
-            .find('.sw-field--switch__input input')
-            .setChecked();
+        await checkPostalCodePatternField.find('.sw-field--switch__input input').setChecked();
 
         await flushPromises();
 
         const checkAdvancedPostalCodePattern = wrapper.findAll('.sw-field--switch')[3];
 
-        await checkAdvancedPostalCodePattern
-            .find('.sw-field--switch__input input')
-            .setChecked();
+        await checkAdvancedPostalCodePattern.find('.sw-field--switch__input input').setChecked();
 
         await flushPromises();
 
@@ -490,10 +518,20 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            ['address/company', 'symbol/dash', 'address/department'],
-            ['address/first_name', 'address/last_name'],
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
+            [
+                'address/first_name',
+                'address/last_name',
+            ],
             ['address/street'],
-            ['address/zipcode', 'address/city'],
+            [
+                'address/zipcode',
+                'address/city',
+            ],
             ['address/country'],
         ]);
 
@@ -515,10 +553,20 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
         expect(addressHandlingWrapper.vm.addressFormat).toEqual([
             ['address/country'],
-            ['address/company', 'symbol/dash', 'address/department'],
-            ['address/first_name', 'address/last_name'],
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
+            [
+                'address/first_name',
+                'address/last_name',
+            ],
             ['address/street'],
-            ['address/zipcode', 'address/city'],
+            [
+                'address/zipcode',
+                'address/city',
+            ],
         ]);
 
         expect(swMultiSnippet[0].findAll('.sw-select-selection-list > li')).toHaveLength(2);
@@ -540,10 +588,20 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            ['address/company', 'symbol/dash', 'address/department'],
-            ['address/first_name', 'address/last_name'],
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
+            [
+                'address/first_name',
+                'address/last_name',
+            ],
             ['address/street'],
-            ['address/zipcode', 'address/city'],
+            [
+                'address/zipcode',
+                'address/city',
+            ],
             ['address/country'],
         ]);
 
@@ -563,11 +621,21 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            ['address/company', 'symbol/dash', 'address/department'],
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
             ['address/street'],
-            ['address/zipcode', 'address/city'],
+            [
+                'address/zipcode',
+                'address/city',
+            ],
             ['address/country'],
-            ['address/first_name', 'address/last_name'],
+            [
+                'address/first_name',
+                'address/last_name',
+            ],
         ]);
         expect(swMultiSnippet[1].findAll('.sw-select-selection-list > li')).toHaveLength(2);
         expect(swMultiSnippet[3].findAll('.sw-select-selection-list > li')).toHaveLength(2);
@@ -614,13 +682,21 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department'],
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
             },
         });
 
         expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
+            snippet: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
         });
     });
 
@@ -643,20 +719,35 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department'],
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
             },
         });
         await flushPromises();
 
         expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
+            snippet: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
         });
 
-        await addressHandlingWrapper.vm.onDragEnter({
-            index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
-        }, null);
+        await addressHandlingWrapper.vm.onDragEnter(
+            {
+                index: 0,
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+            },
+            null,
+        );
 
         expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
     });
@@ -674,26 +765,49 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department'],
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
             },
         });
 
         expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
+            snippet: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
         });
 
-        await addressHandlingWrapper.vm.onDragEnter({
-            index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
-        }, {
-            index: 1,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
-        });
+        await addressHandlingWrapper.vm.onDragEnter(
+            {
+                index: 0,
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+            },
+            {
+                index: 1,
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+            },
+        );
 
         expect(addressHandlingWrapper.vm.droppedItem).toEqual({
             index: 1,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
+            snippet: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
         });
     });
 
@@ -704,29 +818,43 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await flushPromises();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company', 'symbol/dash', 'address/department',
+            'address/company',
+            'symbol/dash',
+            'address/department',
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name', 'address/last_name',
+            'address/first_name',
+            'address/last_name',
         ]);
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
         addressHandlingWrapper.vm.draggedItem = {
             index: 1,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
+            snippet: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
         };
         addressHandlingWrapper.vm.droppedItem = {
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department'],
+            snippet: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+            ],
         };
 
         await addressHandlingWrapper.vm.onDrop();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/first_name', 'address/last_name',
+            'address/first_name',
+            'address/last_name',
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/company', 'symbol/dash', 'address/department',
+            'address/company',
+            'symbol/dash',
+            'address/department',
         ]);
     });
 
@@ -736,36 +864,42 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual(
-            ['address/company', 'symbol/dash', 'address/department'],
-        );
+        expect(wrapper.vm.country.addressFormat[0]).toEqual([
+            'address/company',
+            'symbol/dash',
+            'address/department',
+        ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name', 'address/last_name',
+            'address/first_name',
+            'address/last_name',
         ]);
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
-        await addressHandlingWrapper.vm.onDropEnd(
-            0,
-            {
-                dragData: {
-                    index: 2,
-                    linePosition: 0,
-                    snippet: 'address/department',
-                },
-                dropData: {
-                    index: 1,
-                    snippet: ['address/first_name', 'address/last_name'],
-                },
+        await addressHandlingWrapper.vm.onDropEnd(0, {
+            dragData: {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
             },
-        );
+            dropData: {
+                index: 1,
+                snippet: [
+                    'address/first_name',
+                    'address/last_name',
+                ],
+            },
+        });
         await flushPromises();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company', 'symbol/dash',
+            'address/company',
+            'symbol/dash',
         ]);
 
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name', 'address/last_name', 'address/department',
+            'address/first_name',
+            'address/last_name',
+            'address/department',
         ]);
     });
 
@@ -777,8 +911,15 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.setProps({
             country: {
                 addressFormat: [
-                    ['address/company', 'symbol/dash', 'address/department'],
-                    ['address/first_name', 'address/last_name'],
+                    [
+                        'address/company',
+                        'symbol/dash',
+                        'address/department',
+                    ],
+                    [
+                        'address/first_name',
+                        'address/last_name',
+                    ],
                 ],
             },
         });
@@ -788,21 +929,18 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/last_name');
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
-        await addressHandlingWrapper.vm.onDropEnd(
-            1,
-            {
-                dragData: {
-                    index: 1,
-                    linePosition: 1,
-                    snippet: 'address/last_name',
-                },
-                dropData: {
-                    index: 2,
-                    linePosition: 0,
-                    snippet: 'address/department',
-                },
+        await addressHandlingWrapper.vm.onDropEnd(1, {
+            dragData: {
+                index: 1,
+                linePosition: 1,
+                snippet: 'address/last_name',
             },
-        );
+            dropData: {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+            },
+        });
 
         expect(wrapper.vm.country.addressFormat[0][2]).toBe('address/last_name');
         expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/department');
@@ -832,7 +970,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         previewTemplate = wrapper.get('.sw-settings-country-preview-template > div');
 
-        expect(previewTemplate.html()).toBe('<div>Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>');
+        expect(previewTemplate.html()).toBe(
+            '<div>Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>',
+        );
     });
 
     it('should be able to revert address to the default', async () => {

@@ -70,7 +70,9 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
                     return false;
                 }
 
-                return msg.includes('Slot "page-tabs" invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead');
+                return msg.includes(
+                    'Slot "page-tabs" invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead',
+                );
             },
         });
     });
@@ -126,7 +128,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         'smart-bar-description',
         'smart-bar-actions',
         'smart-bar-context-buttons',
-    ].forEach(slotName => {
+    ].forEach((slotName) => {
         it(`should render the content of the slot "${slotName}"`, async () => {
             const wrapper = await createWrapper({
                 [slotName]: '<div id="test-slot">This slot works</div>',

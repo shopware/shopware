@@ -26,7 +26,10 @@ Component.register('sw-notifications', {
                 if (!value.length) {
                     return true;
                 }
-                return ['topRight', 'bottomRight'].includes(value);
+                return [
+                    'topRight',
+                    'bottomRight',
+                ].includes(value);
             },
         },
         notificationsGap: {

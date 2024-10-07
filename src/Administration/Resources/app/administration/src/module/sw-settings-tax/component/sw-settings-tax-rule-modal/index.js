@@ -14,7 +14,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: ['modal-close'],
 
@@ -66,7 +69,12 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate', 'activeFrom']),
+        ...mapPropertyErrors('taxRule', [
+            'taxRuleTypeId',
+            'countryId',
+            'taxRate',
+            'activeFrom',
+        ]),
     },
 
     created() {
@@ -92,13 +100,16 @@ export default {
         },
 
         onConfirm() {
-            this.taxRuleRepository.save(this.taxRule, Context.api).then(() => {
-                this.isSaveSuccessful = true;
+            this.taxRuleRepository
+                .save(this.taxRule, Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                this.$emit('modal-close');
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    this.$emit('modal-close');
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
     },
 };

@@ -18,48 +18,51 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-buy-box', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                data: {},
-                config: {},
-            },
-            defaultConfig: {
-                product: {
-                    value: null,
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-buy-box', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    data: {},
+                    config: {},
                 },
-                alignment: {
-                    value: null,
+                defaultConfig: {
+                    product: {
+                        value: null,
+                    },
+                    alignment: {
+                        value: null,
+                    },
                 },
             },
-        },
-        global: {
-            stubs: {
-                'sw-tabs': {
-                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+            global: {
+                stubs: {
+                    'sw-tabs': {
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-entity-single-select': true,
+                    'sw-alert': true,
+                    'sw-product-variant-info': true,
+                    'sw-select-result': true,
+                    'sw-select-field': true,
                 },
-                'sw-tabs-item': true,
-                'sw-entity-single-select': true,
-                'sw-alert': true,
-                'sw-product-variant-info': true,
-                'sw-select-result': true,
-                'sw-select-field': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(productMock),
-                            search: () => Promise.resolve(productMock),
-                        };
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(productMock),
+                                search: () => Promise.resolve(productMock),
+                            };
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/buy-box/config', () => {

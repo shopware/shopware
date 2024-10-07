@@ -38,7 +38,10 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.amount',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;

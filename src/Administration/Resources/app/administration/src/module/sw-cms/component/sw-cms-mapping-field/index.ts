@@ -30,7 +30,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         valueTypes: {
-            type: [String, Array],
+            type: [
+                String,
+                Array,
+            ],
             required: false,
             default: 'string',
         },
@@ -135,25 +138,24 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.valueTypes === 'entity') {
                 const mappingTypes = this.mappingTypes as {
                     entity: {
-                        [key: string]: string[]
+                        [key: string]: string[];
                     };
                 };
 
-                if (
-                    this.entity !== null &&
-                    mappingTypes.entity &&
-                    mappingTypes.entity[this.entity]
-                ) {
+                if (this.entity !== null && mappingTypes.entity && mappingTypes.entity[this.entity]) {
                     types = mappingTypes.entity[this.entity];
                 }
             } else {
                 const mappingTypes = this.mappingTypes as {
-                    [key: string]: string[]
+                    [key: string]: string[];
                 };
 
                 Object.keys(mappingTypes).forEach((type) => {
                     if (type === this.valueTypes || this.valueTypes.includes(type)) {
-                        types = [...types, ...mappingTypes[type]];
+                        types = [
+                            ...types,
+                            ...mappingTypes[type],
+                        ];
                         types.sort();
                     }
                 });
@@ -163,10 +165,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getDemoValue(mappingPath: string): unknown {
-            return this.cmsService.getPropertyByMappingPath(
-                this.cmsPageState.currentDemoEntity,
-                mappingPath,
-            );
+            return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
         },
     },
 });

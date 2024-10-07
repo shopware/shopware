@@ -36,9 +36,7 @@ export default {
         },
 
         parsedMsg() {
-            return this.text.split(
-                new RegExp(this.parsedSearch, 'gi'),
-            );
+            return this.text.split(new RegExp(this.parsedSearch, 'gi'));
         },
     },
 

@@ -15,7 +15,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

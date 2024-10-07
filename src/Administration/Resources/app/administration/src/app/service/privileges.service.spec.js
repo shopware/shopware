@@ -621,21 +621,23 @@ describe('src/app/service/privileges.service.js', () => {
         const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
             'promotion.creator',
         ]);
-        expect(allPrivilegesWithDependencies).toStrictEqual([
-            'promotion.viewer',
-            'promotion:read',
-            'promotion.editor',
-            'promotion:update',
-            'promotion.creator',
-            'promotion:create',
-            'rule:create',
-            'rule:read',
-            'rule:update',
-            'language:read',
-            'locale:read',
-            'log_entry:create',
-            'message_queue_stats:read',
-        ].sort());
+        expect(allPrivilegesWithDependencies).toStrictEqual(
+            [
+                'promotion.viewer',
+                'promotion:read',
+                'promotion.editor',
+                'promotion:update',
+                'promotion.creator',
+                'promotion:create',
+                'rule:create',
+                'rule:read',
+                'rule:update',
+                'language:read',
+                'locale:read',
+                'log_entry:create',
+                'message_queue_stats:read',
+            ].sort(),
+        );
     });
 
     it('should not call duplicated getPrivileges again', async () => {
@@ -734,24 +736,26 @@ describe('src/app/service/privileges.service.js', () => {
         const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
             'promotion.creator',
         ]);
-        expect(allPrivilegesWithDependencies).toStrictEqual([
-            'promotion.viewer',
-            'promotion:read',
-            'promotion.editor',
-            'promotion:update',
-            'promotion.creator',
-            'promotion:create',
-            'product:read',
-            'product:update',
-            'product:create',
-            'rule:create',
-            'rule:read',
-            'rule:update',
-            'language:read',
-            'locale:read',
-            'log_entry:create',
-            'message_queue_stats:read',
-        ].sort());
+        expect(allPrivilegesWithDependencies).toStrictEqual(
+            [
+                'promotion.viewer',
+                'promotion:read',
+                'promotion.editor',
+                'promotion:update',
+                'promotion.creator',
+                'promotion:create',
+                'product:read',
+                'product:update',
+                'product:create',
+                'rule:create',
+                'rule:read',
+                'rule:update',
+                'language:read',
+                'locale:read',
+                'log_entry:create',
+                'message_queue_stats:read',
+            ].sort(),
+        );
     });
 
     it('should merge existing roles', async () => {
@@ -772,7 +776,10 @@ describe('src/app/service/privileges.service.js', () => {
                 },
                 creator: {
                     privileges: ['product:create'],
-                    dependencies: ['product.viewer', 'product.editor'],
+                    dependencies: [
+                        'product.viewer',
+                        'product.editor',
+                    ],
                 },
             },
         };
@@ -799,33 +806,37 @@ describe('src/app/service/privileges.service.js', () => {
         let allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
             'product.editor',
         ]);
-        expect(allPrivilegesWithDependencies).toStrictEqual([
-            'language:read',
-            'locale:read',
-            'log_entry:create',
-            'message_queue_stats:read',
-            'product.editor',
-            'product.viewer',
-            'product:read',
-            'product:update',
-        ].sort());
+        expect(allPrivilegesWithDependencies).toStrictEqual(
+            [
+                'language:read',
+                'locale:read',
+                'log_entry:create',
+                'message_queue_stats:read',
+                'product.editor',
+                'product.viewer',
+                'product:read',
+                'product:update',
+            ].sort(),
+        );
 
         privilegesService.addPrivilegeMappingEntry(privilegeMappingPlugin);
 
         allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
             'product.editor',
         ]);
-        expect(allPrivilegesWithDependencies).toStrictEqual([
-            'language:read',
-            'locale:read',
-            'log_entry:create',
-            'message_queue_stats:read',
-            'plugin:update',
-            'plugin:read',
-            'product.editor',
-            'product.viewer',
-            'product:read',
-            'product:update',
-        ].sort());
+        expect(allPrivilegesWithDependencies).toStrictEqual(
+            [
+                'language:read',
+                'locale:read',
+                'log_entry:create',
+                'message_queue_stats:read',
+                'plugin:update',
+                'plugin:read',
+                'product.editor',
+                'product.viewer',
+                'product:read',
+                'product:update',
+            ].sort(),
+        );
     });
 });

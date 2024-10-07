@@ -235,9 +235,10 @@ export default {
             if (!currentSeoUrl) {
                 const entity = this.seoUrlRepository.create();
                 // Fetch any seo url as template, since we need to know foreignKey, pathInfo and the routeName
-                const seoUrl = this.seoUrlCollection.find((item) => {
-                    return item.pathInfo && item.routeName && item.foreignKey;
-                }) || {};
+                const seoUrl =
+                    this.seoUrlCollection.find((item) => {
+                        return item.pathInfo && item.routeName && item.foreignKey;
+                    }) || {};
 
                 entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? seoUrl.foreignKey;
                 entity.isCanonical = true;

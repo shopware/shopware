@@ -19,80 +19,79 @@ const text = {
 };
 
 async function createWrapper(additionalOptions = {}, privileges = []) {
-    const wrapper = mount(await wrapTestComponent('sw-settings-product-feature-sets-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-page': await wrapTestComponent('sw-page'),
-                'sw-notification-center': true,
-                'sw-help-center': true,
-                'sw-language-switch': true,
-                'sw-search-bar': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', {
-                    sync: true,
-                }),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-checkbox-field': true,
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-data-grid-settings': true,
-                'sw-pagination': true,
-                'router-link': true,
-                'sw-loader': true,
-                'sw-data-grid-skeleton': true,
-                i18n: true,
-                'sw-app-actions': true,
-                'sw-app-topbar-button': true,
-                'sw-help-center-v2': true,
-                'sw-bulk-edit-modal': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-inline-edit': true,
-            },
-            mocks: {
-                $route: {
-                    meta: {
-                        $module: {
-                            routes: {},
+    const wrapper = mount(
+        await wrapTestComponent('sw-settings-product-feature-sets-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-page': await wrapTestComponent('sw-page'),
+                    'sw-notification-center': true,
+                    'sw-help-center': true,
+                    'sw-language-switch': true,
+                    'sw-search-bar': true,
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing', {
+                        sync: true,
+                    }),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-checkbox-field': true,
+                    'sw-context-button': true,
+                    'sw-context-menu-item': true,
+                    'sw-data-grid-settings': true,
+                    'sw-pagination': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-data-grid-skeleton': true,
+                    i18n: true,
+                    'sw-app-actions': true,
+                    'sw-app-topbar-button': true,
+                    'sw-help-center-v2': true,
+                    'sw-bulk-edit-modal': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                routes: {},
+                            },
+                        },
+                        query: {},
+                    },
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
                         },
                     },
-                    query: {},
-                },
-            },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () =>
+                                Promise.resolve(
+                                    new EntityCollection('', '', Shopware.Context.api, new Criteria(1, 1), [], 0),
+                                ),
+                        }),
                     },
+                    validationService: {},
+                    mixins: [
+                        Mixin.getByName('listing'),
+                    ],
+                    searchRankingService: {},
                 },
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve(new EntityCollection(
-                            '',
-                            '',
-                            Shopware.Context.api,
-                            new Criteria(1, 1),
-                            [],
-                            0,
-                        )),
-                    }),
-                },
-                validationService: {},
-                mixins: [
-                    Mixin.getByName('listing'),
-                ],
-                searchRankingService: {},
+                ...additionalOptions,
             },
-            ...additionalOptions,
         },
-    });
+    );
 
     await wrapper.setData({
         productFeatureSets: new EntityCollection(
@@ -148,14 +147,14 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         const firstRow = listBody.get('.sw-data-grid__row');
 
         // Assert that all column labels are correct
-        expect(list.props().columns.map(column => column.label)).toEqual([
+        expect(list.props().columns.map((column) => column.label)).toEqual([
             text.columnLabelTemplate,
             text.columnLabelDescription,
             text.columnLabelValues,
         ]);
 
         // Assert that the column types are correct
-        expect(list.props().columns.map(column => column.property)).toEqual([
+        expect(list.props().columns.map((column) => column.property)).toEqual([
             'name',
             'description',
             'features',
@@ -164,10 +163,11 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         // Assert that the template's name links to the detail page
         expect(list.props().columns.shift().routerLink).toEqual(text.featureSetDetailRouterLink);
 
-        const firstRowContent = firstRow.findAll('.sw-data-grid__cell-content')
+        const firstRowContent = firstRow
+            .findAll('.sw-data-grid__cell-content')
             .slice(0, 4)
-            .map(cell => cell.text())
-            .filter(val => val !== '');
+            .map((cell) => cell.text())
+            .filter((val) => val !== '');
 
         // Assert that the template is rendered correctly
         expect(firstRowContent).toEqual([
@@ -274,9 +274,13 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         expect(successNotificationSpy).not.toHaveBeenCalled();
 
-        entityListing.vm.$emit('inline-edit-save', new Promise(resolve => {
-            resolve();
-        }), { name: 'fooBar' });
+        entityListing.vm.$emit(
+            'inline-edit-save',
+            new Promise((resolve) => {
+                resolve();
+            }),
+            { name: 'fooBar' },
+        );
 
         await wrapper.vm.$nextTick();
 
@@ -292,13 +296,16 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         expect(errorNotificationSpy).not.toHaveBeenCalled();
 
-        entityListing.vm.$emit('inline-edit-save', new Promise((resolve, reject) => {
-            reject();
-        }), { name: 'fooBar' });
+        entityListing.vm.$emit(
+            'inline-edit-save',
+            new Promise((resolve, reject) => {
+                reject();
+            }),
+            { name: 'fooBar' },
+        );
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
-
 
         expect(errorNotificationSpy).toHaveBeenCalledWith({
             message: 'sw-settings-product-feature-sets.detail.messageSaveError',
@@ -338,14 +345,16 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         const firstRow = listBody.get('.sw-data-grid__row--0');
         const secondRow = listBody.get('.sw-data-grid__row--1');
 
-        const firstRowContent = firstRow.findAll('.sw-data-grid__cell-content')
+        const firstRowContent = firstRow
+            .findAll('.sw-data-grid__cell-content')
             .slice(0, 4)
-            .map(cell => cell.text())
-            .filter(val => val !== '');
-        const secondRowContent = secondRow.findAll('.sw-data-grid__cell-content')
+            .map((cell) => cell.text())
+            .filter((val) => val !== '');
+        const secondRowContent = secondRow
+            .findAll('.sw-data-grid__cell-content')
             .slice(0, 4)
-            .map(cell => cell.text())
-            .filter(val => val !== '');
+            .map((cell) => cell.text())
+            .filter((val) => val !== '');
 
         // Assert that the template is rendered correctly
         expect(firstRowContent).toEqual([

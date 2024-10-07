@@ -18,25 +18,29 @@ const block = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-block-layout-config', {
-        sync: true,
-    }), {
-        attachTo: document.body,
-        props: {
-            block,
-        },
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-block-layout-config', {
+            sync: true,
+        }),
+        {
+            attachTo: document.body,
+            props: {
+                block,
             },
-            stubs: {
-                'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value'],
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-text-field': {
+                        template:
+                            '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                        props: ['value'],
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
@@ -61,4 +65,3 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
         expect(wrapper.get(selector).attributes('value')).toBe(value);
     });
 });
-

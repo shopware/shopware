@@ -37,7 +37,11 @@ export default {
             type: Array,
             required: false,
             default() {
-                return ['page', 'landingpage', 'product_list'];
+                return [
+                    'page',
+                    'landingpage',
+                    'product_list',
+                ];
             },
         },
 
@@ -77,9 +81,15 @@ export default {
 
         openInPagebuilder() {
             if (!this.cmsPage) {
-                this.$router.push({ name: 'sw.cms.create', params: { type: 'category', id: this.category.id } });
+                this.$router.push({
+                    name: 'sw.cms.create',
+                    params: { type: 'category', id: this.category.id },
+                });
             } else {
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.category.cmsPageId } });
+                this.$router.push({
+                    name: 'sw.cms.detail',
+                    params: { id: this.category.cmsPageId },
+                });
             }
         },
 

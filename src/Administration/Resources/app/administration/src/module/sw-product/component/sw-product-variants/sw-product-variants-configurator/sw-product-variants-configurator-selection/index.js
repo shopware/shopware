@@ -93,7 +93,7 @@ export default {
                 return;
             }
 
-            const exists = this.options.find(i => i.optionId === item.id);
+            const exists = this.options.find((i) => i.optionId === item.id);
 
             if (exists) {
                 this.options.remove(exists.id);

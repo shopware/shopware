@@ -26,8 +26,8 @@ describe('teaser-popover.store', () => {
             },
         });
 
-        expect(JSON.stringify(store.identifier)).toBe(JSON.stringify(
-            {
+        expect(JSON.stringify(store.identifier)).toBe(
+            JSON.stringify({
                 positionId: {
                     positionId: 'positionId',
                     src: 'http://localhost:8080',
@@ -37,8 +37,8 @@ describe('teaser-popover.store', () => {
                         label: 'Ask AI Copilot',
                     },
                 },
-            },
-        ));
+            }),
+        );
     });
 
     it('can update teaser sales channel', () => {

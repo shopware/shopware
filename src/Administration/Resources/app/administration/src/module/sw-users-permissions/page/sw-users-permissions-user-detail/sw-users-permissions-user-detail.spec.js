@@ -7,57 +7,63 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 let wrapper;
 
-async function createWrapper(privileges = [], options = {
-    global: {
-        stubs: {},
-    },
-}) {
-    wrapper = mount(await wrapTestComponent('sw-users-permissions-user-detail', {
-        sync: true,
-    }), {
+async function createWrapper(
+    privileges = [],
+    options = {
         global: {
-            directives: {
-                tooltip: {
-                    beforeMount(el, binding) {
-                        el.setAttribute('data-tooltip-message', binding.value.message);
-                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-                    },
-                    mounted(el, binding) {
-                        el.setAttribute('data-tooltip-message', binding.value.message);
-                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-                    },
-                    updated(el, binding) {
-                        el.setAttribute('data-tooltip-message', binding.value.message);
-                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+            stubs: {},
+        },
+    },
+) {
+    wrapper = mount(
+        await wrapTestComponent('sw-users-permissions-user-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                directives: {
+                    tooltip: {
+                        beforeMount(el, binding) {
+                            el.setAttribute('data-tooltip-message', binding.value.message);
+                            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                        },
+                        mounted(el, binding) {
+                            el.setAttribute('data-tooltip-message', binding.value.message);
+                            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                        },
+                        updated(el, binding) {
+                            el.setAttribute('data-tooltip-message', binding.value.message);
+                            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                        },
                     },
                 },
-            },
-            renderStubDefaultSlot: true,
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                renderStubDefaultSlot: true,
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
-                },
-                loginService: {},
-                userService: {
-                    getUser: () => Promise.resolve({ data: {} }),
-                },
-                mediaDefaultFolderService: {
-                    getDefaultFolderId: () => Promise.resolve('1234'),
-                },
-                userValidationService: {},
-                integrationService: {},
-                repositoryFactory: {
-                    create: (entityName) => {
-                        if (entityName === 'user') {
-                            return {
-                                search: () => Promise.resolve(),
-                                get: () => {
-                                    return Promise.resolve(
-                                        {
+                    loginService: {},
+                    userService: {
+                        getUser: () => Promise.resolve({ data: {} }),
+                    },
+                    mediaDefaultFolderService: {
+                        getDefaultFolderId: () => Promise.resolve('1234'),
+                    },
+                    userValidationService: {},
+                    integrationService: {},
+                    repositoryFactory: {
+                        create: (entityName) => {
+                            if (entityName === 'user') {
+                                return {
+                                    search: () => Promise.resolve(),
+                                    get: () => {
+                                        return Promise.resolve({
                                             localeId: '7dc07b43229843d387bb5f59233c2d66',
                                             username: 'admin',
                                             firstName: '',
@@ -66,112 +72,107 @@ async function createWrapper(privileges = [], options = {
                                             accessKeys: {
                                                 entity: 'product',
                                             },
-                                        },
-                                    );
-                                },
-                            };
-                        }
+                                        });
+                                    },
+                                };
+                            }
 
-                        if (entityName === 'language') {
-                            return {
-                                search: () => Promise.resolve(new EntityCollection(
-                                    '',
-                                    '',
-                                    Shopware.Context.api,
-                                    null,
-                                    [],
-                                    0,
-                                )),
-                                get: () => Promise.resolve(),
-                            };
-                        }
+                            if (entityName === 'language') {
+                                return {
+                                    search: () =>
+                                        Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
+                                    get: () => Promise.resolve(),
+                                };
+                            }
 
-                        if (entityName === 'media') {
-                            return {
-                                get: () => Promise.resolve({
-                                    id: '2142',
-                                }),
-                            };
-                        }
+                            if (entityName === 'media') {
+                                return {
+                                    get: () =>
+                                        Promise.resolve({
+                                            id: '2142',
+                                        }),
+                                };
+                            }
 
-                        return {};
+                            return {};
+                        },
+                    },
+                    validationService: {},
+                },
+                mocks: {
+                    $route: {
+                        params: {
+                            id: '1a2b3c4d',
+                        },
+                    },
+                    $device: {
+                        getSystemKey: () => 'STRG',
                     },
                 },
-                validationService: {},
-            },
-            mocks: {
-                $route: {
-                    params: {
-                        id: '1a2b3c4d',
-                    },
-                },
-                $device: {
-                    getSystemKey: () => 'STRG',
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
 <div>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>`,
-                },
-                'sw-card-view': true,
-                'sw-card': {
-                    template: `
+                    },
+                    'sw-card-view': true,
+                    'sw-card': {
+                        template: `
     <div class="sw-card-stub">
         <slot></slot>
         <slot name="grid"></slot>
     </div>
     `,
-                },
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-text-field': await wrapTestComponent('sw-text-field', {
-                    sync: true,
-                }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-password-field': await wrapTestComponent('sw-text-field', {
-                    sync: true,
-                }),
-                'sw-select-field': true,
-                'sw-switch-field': true,
-                'sw-entity-multi-select': true,
-                'sw-single-select': true,
-                'sw-icon': true,
-                'sw-data-grid': {
-                    props: ['dataSource'],
-                    template: `
+                    },
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field', {
+                        sync: true,
+                    }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': true,
+                    'sw-password-field': await wrapTestComponent('sw-text-field', {
+                        sync: true,
+                    }),
+                    'sw-select-field': true,
+                    'sw-switch-field': true,
+                    'sw-entity-multi-select': true,
+                    'sw-single-select': true,
+                    'sw-icon': true,
+                    'sw-data-grid': {
+                        props: ['dataSource'],
+                        template: `
                         <div>
                             <template v-for="item in dataSource">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
                     `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-empty-state': true,
+                    'sw-skeleton': true,
+                    'sw-loader': true,
+                    'sw-button': true,
+                    'sw-verify-user-modal': true,
+                    'sw-media-modal-v2': true,
+                    'sw-alert': true,
+                    'sw-text-field-deprecated': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-field-copyable': true,
+                    'sw-ai-copilot-badge': true,
+                    ...options.global.stubs,
                 },
-                'sw-context-menu-item': true,
-                'sw-empty-state': true,
-                'sw-skeleton': true,
-                'sw-loader': true,
-                'sw-button': true,
-                'sw-verify-user-modal': true,
-                'sw-media-modal-v2': true,
-                'sw-alert': true,
-                'sw-text-field-deprecated': true,
-                'sw-help-text': true,
-                'sw-inheritance-switch': true,
-                'sw-field-copyable': true,
-                'sw-ai-copilot-badge': true,
-                ...options.global.stubs,
             },
         },
-    });
+    );
 
     // wait until all loading promises are done
     await wrapper.vm.$nextTick();
@@ -285,8 +286,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
 
-        expect(aclRolesSelect.attributes()['data-tooltip-message'])
-            .toBe('sw-users-permissions.users.user-detail.disabledRoleSelectWarning');
+        expect(aclRolesSelect.attributes()['data-tooltip-message']).toBe(
+            'sw-users-permissions.users.user-detail.disabledRoleSelectWarning',
+        );
 
         expect(aclRolesSelect.attributes()['data-tooltip-disabled']).toBe('false');
     });

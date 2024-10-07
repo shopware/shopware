@@ -34,9 +34,15 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             type: String,
             required: false,
             default: 'float',
-            validValues: ['float', 'int'],
+            validValues: [
+                'float',
+                'int',
+            ],
             validator(value) {
-                return ['float', 'int'].includes(value);
+                return [
+                    'float',
+                    'int',
+                ].includes(value);
             },
         },
 
@@ -102,14 +108,14 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                 return this.numberType === 'int' ? 1 : 0.01;
             }
 
-            return (this.numberType === 'int') ? Math.round(this.step) : this.step;
+            return this.numberType === 'int' ? Math.round(this.step) : this.step;
         },
 
         realMinimum() {
             if (this.min === null) {
                 return null;
             }
-            return (this.numberType === 'int') ? Math.ceil(this.min) : this.min;
+            return this.numberType === 'int' ? Math.ceil(this.min) : this.min;
         },
 
         realMaximum() {
@@ -117,7 +123,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                 return null;
             }
 
-            return (this.numberType === 'int') ? Math.floor(this.max) : this.max;
+            return this.numberType === 'int' ? Math.floor(this.max) : this.max;
         },
 
         stringRepresentation() {
@@ -127,7 +133,9 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
 
             // remove scientific notation
             if (this.value !== null && /\d+\.?\d*e[+-]*\d+/i.test(this.value)) {
-                return this.value.toLocaleString('fullwide', { useGrouping: false });
+                return this.value.toLocaleString('fullwide', {
+                    useGrouping: false,
+                });
             }
 
             return this.fillDigits && this.numberType !== 'int'
@@ -239,9 +247,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             }
             const decimals = splits[splits.length - 1].length;
             const float = parseFloat(splits.join('.')).toFixed(decimals);
-            return decimals > this.digits
-                ? Math.round(float * (10 ** this.digits)) / (10 ** this.digits)
-                : Number(float);
+            return decimals > this.digits ? Math.round(float * 10 ** this.digits) / 10 ** this.digits : Number(float);
         },
 
         checkForInteger(value) {

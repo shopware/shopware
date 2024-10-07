@@ -5,25 +5,28 @@ import { mount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-bulk-edit-save-modal-process', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-alert': true,
-                'sw-loader': true,
-                'sw-label': true,
-            },
-            provide: {
-                orderDocumentApiService: {
-                    create: () => {
-                        return Promise.resolve();
+    return mount(
+        await wrapTestComponent('sw-bulk-edit-save-modal-process', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-alert': true,
+                    'sw-loader': true,
+                    'sw-label': true,
+                },
+                provide: {
+                    orderDocumentApiService: {
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                        generate: () => null,
                     },
-                    generate: () => null,
                 },
             },
         },
-    });
+    );
 }
 
 describe('sw-bulk-edit-save-modal-process', () => {
@@ -73,16 +76,19 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
         await wrapper.vm.createDocuments();
 
-        expect(wrapper.vm.createDocument).toHaveBeenCalledWith('invoice', expect.arrayContaining([
-            expect.objectContaining({
-                config: expect.objectContaining({
-                    documentComment: null,
+        expect(wrapper.vm.createDocument).toHaveBeenCalledWith(
+            'invoice',
+            expect.arrayContaining([
+                expect.objectContaining({
+                    config: expect.objectContaining({
+                        documentComment: null,
+                    }),
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
                 }),
-                fileType: 'pdf',
-                orderId: 'orderId',
-                type: 'invoice',
-            }),
-        ]));
+            ]),
+        );
         wrapper.vm.createDocument.mockRestore();
     });
 
@@ -96,16 +102,19 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
         await wrapper.vm.createDocuments();
 
-        expect(wrapper.vm.createDocument).toHaveBeenCalledWith('storno', expect.arrayContaining([
-            expect.objectContaining({
-                config: expect.objectContaining({
-                    documentComment: null,
+        expect(wrapper.vm.createDocument).toHaveBeenCalledWith(
+            'storno',
+            expect.arrayContaining([
+                expect.objectContaining({
+                    config: expect.objectContaining({
+                        documentComment: null,
+                    }),
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'storno',
                 }),
-                fileType: 'pdf',
-                orderId: 'orderId',
-                type: 'storno',
-            }),
-        ]));
+            ]),
+        );
         wrapper.vm.createDocument.mockRestore();
     });
 
@@ -119,16 +128,19 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
         await wrapper.vm.createDocuments();
 
-        expect(wrapper.vm.createDocument).toHaveBeenCalledWith('delivery_note', expect.arrayContaining([
-            expect.objectContaining({
-                config: expect.objectContaining({
-                    documentComment: null,
+        expect(wrapper.vm.createDocument).toHaveBeenCalledWith(
+            'delivery_note',
+            expect.arrayContaining([
+                expect.objectContaining({
+                    config: expect.objectContaining({
+                        documentComment: null,
+                    }),
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'delivery_note',
                 }),
-                fileType: 'pdf',
-                orderId: 'orderId',
-                type: 'delivery_note',
-            }),
-        ]));
+            ]),
+        );
         wrapper.vm.createDocument.mockRestore();
     });
 
@@ -142,16 +154,19 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
         await wrapper.vm.createDocuments();
 
-        expect(wrapper.vm.createDocument).toHaveBeenCalledWith('credit_note', expect.arrayContaining([
-            expect.objectContaining({
-                config: expect.objectContaining({
-                    documentComment: null,
+        expect(wrapper.vm.createDocument).toHaveBeenCalledWith(
+            'credit_note',
+            expect.arrayContaining([
+                expect.objectContaining({
+                    config: expect.objectContaining({
+                        documentComment: null,
+                    }),
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'credit_note',
                 }),
-                fileType: 'pdf',
-                orderId: 'orderId',
-                type: 'credit_note',
-            }),
-        ]));
+            ]),
+        );
         wrapper.vm.createDocument.mockRestore();
     });
 

@@ -34,4 +34,3 @@ export default class LocaleHelperService {
         await this._Shopware.State.dispatch('setAdminLocale', localeCode);
     }
 }
-

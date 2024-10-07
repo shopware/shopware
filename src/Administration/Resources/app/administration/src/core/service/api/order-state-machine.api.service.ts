@@ -19,11 +19,10 @@ class OrderStateMachineApiService extends ApiService {
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .post(route, mediaIds, {
-                ...additionalParams,
-                headers,
-            });
+        return this.httpClient.post(route, mediaIds, {
+            ...additionalParams,
+            headers,
+        });
     }
 
     transitionOrderTransactionState(
@@ -37,11 +36,10 @@ class OrderStateMachineApiService extends ApiService {
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .post(route, mediaIds, {
-                ...additionalParams,
-                headers,
-            });
+        return this.httpClient.post(route, mediaIds, {
+            ...additionalParams,
+            headers,
+        });
     }
 
     transitionOrderDeliveryState(
@@ -55,11 +53,10 @@ class OrderStateMachineApiService extends ApiService {
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .post(route, mediaIds, {
-                ...additionalParams,
-                headers,
-            });
+        return this.httpClient.post(route, mediaIds, {
+            ...additionalParams,
+            headers,
+        });
     }
 }
 

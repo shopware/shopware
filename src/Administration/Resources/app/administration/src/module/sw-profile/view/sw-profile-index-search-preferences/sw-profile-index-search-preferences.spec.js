@@ -29,60 +29,63 @@ const swProfileStateMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-profile-index-search-preferences', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-ignore-class': true,
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-checkbox-field': true,
-                'sw-loader': true,
-                'sw-extension-component-section': true,
-                'sw-alert': true,
-                'sw-ai-copilot-badge': true,
-                'sw-context-button': true,
-                'router-link': true,
-            },
+    return mount(
+        await wrapTestComponent('sw-profile-index-search-preferences', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-ignore-class': true,
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-checkbox-field': true,
+                    'sw-loader': true,
+                    'sw-extension-component-section': true,
+                    'sw-alert': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'router-link': true,
+                },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return Promise.resolve();
+                            },
+                            search: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                    userConfigService: {
+                        upsert: () => {
                             return Promise.resolve();
                         },
                         search: () => {
                             return Promise.resolve();
                         },
-                    }),
-                },
-                userConfigService: {
-                    upsert: () => {
-                        return Promise.resolve();
                     },
-                    search: () => {
-                        return Promise.resolve();
-                    },
-                },
-                searchPreferencesService: {
-                    getDefaultSearchPreferences: () => {},
-                    getUserSearchPreferences: () => {},
-                    processSearchPreferences: () => [],
-                    createUserSearchPreferences: () => {
-                        return {
-                            key: 'search.preferences',
-                            userId: 'userId',
-                        };
+                    searchPreferencesService: {
+                        getDefaultSearchPreferences: () => {},
+                        getUserSearchPreferences: () => {},
+                        processSearchPreferences: () => [],
+                        createUserSearchPreferences: () => {
+                            return {
+                                key: 'search.preferences',
+                                userId: 'userId',
+                            };
+                        },
                     },
                 },
+                attachTo: document.body,
             },
-            attachTo: document.body,
         },
-    });
+    );
 }
 
 describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () => {
@@ -158,22 +161,22 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _searchable: false,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: false,
-                    _score: 250,
-                    group: [],
-                },
-            ],
-        }]);
+        await Shopware.State.commit('swProfile/setSearchPreferences', [
+            {
+                entityName: 'product',
+                _searchable: false,
+                fields: [
+                    {
+                        fieldName: 'name',
+                        _searchable: false,
+                        _score: 250,
+                        group: [],
+                    },
+                ],
+            },
+        ]);
 
-        await wrapper.find(
-            '.sw-profile-index-search-preferences-searchable-elements__button-select-all',
-        ).trigger('click');
+        await wrapper.find('.sw-profile-index-search-preferences-searchable-elements__button-select-all').trigger('click');
 
         expect(wrapper.vm.searchPreferences).toEqual(
             expect.arrayContaining([
@@ -195,22 +198,22 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _searchable: true,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: true,
-                    _score: 250,
-                    group: [],
-                },
-            ],
-        }]);
+        await Shopware.State.commit('swProfile/setSearchPreferences', [
+            {
+                entityName: 'product',
+                _searchable: true,
+                fields: [
+                    {
+                        fieldName: 'name',
+                        _searchable: true,
+                        _score: 250,
+                        group: [],
+                    },
+                ],
+            },
+        ]);
 
-        await wrapper.find(
-            '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all',
-        ).trigger('click');
+        await wrapper.find('.sw-profile-index-search-preferences-searchable-elements__button-deselect-all').trigger('click');
 
         expect(wrapper.vm.searchPreferences).toEqual(
             expect.arrayContaining([
@@ -232,39 +235,43 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _searchable: false,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: false,
-                },
-                {
-                    fieldName: 'productNumber',
-                    _searchable: false,
-                },
-            ],
-        }]);
+        await Shopware.State.commit('swProfile/setSearchPreferences', [
+            {
+                entityName: 'product',
+                _searchable: false,
+                fields: [
+                    {
+                        fieldName: 'name',
+                        _searchable: false,
+                    },
+                    {
+                        fieldName: 'productNumber',
+                        _searchable: false,
+                    },
+                ],
+            },
+        ]);
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
 
         expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([expect.objectContaining({
-                entityName: 'product',
-                _searchable: true,
-                fields: expect.arrayContaining([
-                    expect.objectContaining({
-                        fieldName: 'name',
-                        _searchable: true,
-                    }),
-                    expect.objectContaining({
-                        fieldName: 'productNumber',
-                        _searchable: true,
-                    }),
-                ]),
-            })]),
+            expect.arrayContaining([
+                expect.objectContaining({
+                    entityName: 'product',
+                    _searchable: true,
+                    fields: expect.arrayContaining([
+                        expect.objectContaining({
+                            fieldName: 'name',
+                            _searchable: true,
+                        }),
+                        expect.objectContaining({
+                            fieldName: 'productNumber',
+                            _searchable: true,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 
@@ -272,39 +279,43 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _searchable: false,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: true,
-                },
-                {
-                    fieldName: 'productNumber',
-                    _searchable: false,
-                },
-            ],
-        }]);
+        await Shopware.State.commit('swProfile/setSearchPreferences', [
+            {
+                entityName: 'product',
+                _searchable: false,
+                fields: [
+                    {
+                        fieldName: 'name',
+                        _searchable: true,
+                    },
+                    {
+                        fieldName: 'productNumber',
+                        _searchable: false,
+                    },
+                ],
+            },
+        ]);
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
 
         expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([expect.objectContaining({
-                entityName: 'product',
-                _searchable: true,
-                fields: expect.arrayContaining([
-                    expect.objectContaining({
-                        fieldName: 'name',
-                        _searchable: true,
-                    }),
-                    expect.objectContaining({
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    }),
-                ]),
-            })]),
+            expect.arrayContaining([
+                expect.objectContaining({
+                    entityName: 'product',
+                    _searchable: true,
+                    fields: expect.arrayContaining([
+                        expect.objectContaining({
+                            fieldName: 'name',
+                            _searchable: true,
+                        }),
+                        expect.objectContaining({
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 
@@ -324,22 +335,24 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
         await flushPromises();
 
-        expect(wrapper.vm.defaultSearchPreferences).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                order: expect.objectContaining({
-                    documents: expect.objectContaining({
-                        documentNumber: expect.objectContaining({
-                            _score: 80,
-                            _searchable: false,
-                        }),
-                        documentInvoice: expect.objectContaining({
-                            _score: 80,
-                            _searchable: false,
+        expect(wrapper.vm.defaultSearchPreferences).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    order: expect.objectContaining({
+                        documents: expect.objectContaining({
+                            documentNumber: expect.objectContaining({
+                                _score: 80,
+                                _searchable: false,
+                            }),
+                            documentInvoice: expect.objectContaining({
+                                _score: 80,
+                                _searchable: false,
+                            }),
                         }),
                     }),
                 }),
-            }),
-        ]));
+            ]),
+        );
 
         await Shopware.State.commit('swProfile/setUserSearchPreferences', [
             {
@@ -352,22 +365,24 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             },
         ]);
 
-        expect(wrapper.vm.defaultSearchPreferences).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                order: expect.objectContaining({
-                    documents: expect.objectContaining({
-                        documentNumber: expect.objectContaining({
-                            _score: 80,
-                            _searchable: true,
-                        }),
-                        documentInvoice: expect.objectContaining({
-                            _score: 80,
-                            _searchable: true,
+        expect(wrapper.vm.defaultSearchPreferences).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    order: expect.objectContaining({
+                        documents: expect.objectContaining({
+                            documentNumber: expect.objectContaining({
+                                _score: 80,
+                                _searchable: true,
+                            }),
+                            documentInvoice: expect.objectContaining({
+                                _score: 80,
+                                _searchable: true,
+                            }),
                         }),
                     }),
                 }),
-            }),
-        ]));
+            ]),
+        );
     });
 
     it('should merge defaultSearchPreferences and userSearchPreferences correctly', async () => {
@@ -385,7 +400,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                         documentInvoice: { _score: 80, _searchable: false },
                     },
                 },
-            }, {
+            },
+            {
                 category: {
                     _searchable: false,
                     name: { _score: 80, _searchable: true },
@@ -394,7 +410,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                         name: { _score: 80, _searchable: true },
                     },
                 },
-            }, {
+            },
+            {
                 notInUserPreferences: {
                     _searchable: true,
                     name: { _score: 80, _searchable: true },
@@ -415,7 +432,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                         documentInvoice: { _score: 80, _searchable: true },
                     },
                 },
-            }, {
+            },
+            {
                 category: {
                     _searchable: true,
                     name: { _score: 80, _searchable: false },
@@ -424,7 +442,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                         name: { _score: 80, _searchable: false },
                     },
                 },
-            }, {
+            },
+            {
                 notInDefaultPreferences: {
                     _searchable: true,
                     name: { _score: 80, _searchable: true },
@@ -437,46 +456,65 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         const result = wrapper.vm.defaultSearchPreferences;
 
         expect(result).toHaveLength(3);
-        expect(result).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                order: expect.objectContaining({
-                    _searchable: true,
-                    number: expect.objectContaining({
-                        _score: 80,
+        expect(result).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    order: expect.objectContaining({
                         _searchable: true,
-                    }),
-                    documents: expect.objectContaining({
-                        _searchable: true,
-                        documentNumber: expect.objectContaining({ _score: 80, _searchable: true }),
-                        documentInvoice: expect.objectContaining({ _score: 80, _searchable: true }),
-                    }),
-                }),
-            }),
-            expect.objectContaining({
-                category: expect.objectContaining({
-                    _searchable: true,
-                    name: expect.objectContaining({ _score: 80, _searchable: false }),
-                    tags: expect.objectContaining({
-                        _searchable: true,
-                        name: expect.objectContaining({ _score: 80, _searchable: false }),
+                        number: expect.objectContaining({
+                            _score: 80,
+                            _searchable: true,
+                        }),
+                        documents: expect.objectContaining({
+                            _searchable: true,
+                            documentNumber: expect.objectContaining({
+                                _score: 80,
+                                _searchable: true,
+                            }),
+                            documentInvoice: expect.objectContaining({
+                                _score: 80,
+                                _searchable: true,
+                            }),
+                        }),
                     }),
                 }),
-            }),
-            expect.objectContaining({
-                notInUserPreferences: {
-                    _searchable: true,
-                    name: expect.objectContaining({ _score: 80, _searchable: true }),
-                },
-            }),
-        ]));
+                expect.objectContaining({
+                    category: expect.objectContaining({
+                        _searchable: true,
+                        name: expect.objectContaining({
+                            _score: 80,
+                            _searchable: false,
+                        }),
+                        tags: expect.objectContaining({
+                            _searchable: true,
+                            name: expect.objectContaining({
+                                _score: 80,
+                                _searchable: false,
+                            }),
+                        }),
+                    }),
+                }),
+                expect.objectContaining({
+                    notInUserPreferences: {
+                        _searchable: true,
+                        name: expect.objectContaining({
+                            _score: 80,
+                            _searchable: true,
+                        }),
+                    },
+                }),
+            ]),
+        );
 
-        expect(result).toEqual(expect.not.arrayContaining([
-            {
-                notInDefaultPreferences: {
-                    _searchable: true,
-                    name: { _score: 80, _searchable: true },
+        expect(result).toEqual(
+            expect.not.arrayContaining([
+                {
+                    notInDefaultPreferences: {
+                        _searchable: true,
+                        name: { _score: 80, _searchable: true },
+                    },
                 },
-            },
-        ]));
+            ]),
+        );
     });
 });

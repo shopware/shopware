@@ -23,7 +23,6 @@ function _getOriginalNotification(notificationId, state) {
     let originalNotification = state.notifications[notificationId];
     if (originalNotification === undefined) {
         originalNotification = {
-
             ...state.notificationDefaults,
             uuid: notificationId,
             timestamp: new Date(),
@@ -34,11 +33,10 @@ function _getOriginalNotification(notificationId, state) {
 
 function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
     return {
-
         ...originalNotification,
-        visited: notificationUpdate.metadata ?
-            (JSON.stringify(originalNotification.metadata) === JSON.stringify(notificationUpdate.metadata)) :
-            originalNotification.visited,
+        visited: notificationUpdate.metadata
+            ? JSON.stringify(originalNotification.metadata) === JSON.stringify(notificationUpdate.metadata)
+            : originalNotification.visited,
         ...notificationUpdate,
     };
 }
@@ -146,10 +144,7 @@ export default {
             state.threshold = threshold;
 
             if (state.growlNotifications.length > state.threshold) {
-                state.growlNotifications.splice(
-                    threshold,
-                    state.growlNotifications.length - state.threshold,
-                );
+                state.growlNotifications.splice(threshold, state.growlNotifications.length - state.threshold);
             }
         },
 
@@ -213,7 +208,6 @@ export default {
                 return;
             }
 
-
             state.growlNotifications[notificationUpdate.uuid] = notificationUpdate;
 
             const growlKeys = Object.keys(state.growlNotifications);
@@ -240,7 +234,6 @@ export default {
 
             delete notification.growl;
             const mergedNotification = {
-
                 ...state.notificationDefaults,
                 uuid: utils.createId(),
                 timestamp: new Date(),
@@ -257,7 +250,6 @@ export default {
 
         createGrowlNotification({ state, commit }, notification) {
             const mergedNotification = {
-
                 ...state.growlNotificationDefaults,
                 ...notification,
                 uuid: utils.createId(),
@@ -284,8 +276,7 @@ export default {
 
             commit('upsertNotification', mergedUpdate);
 
-            if (notificationUpdate.growl !== undefined &&
-                notificationUpdate.growl === true) {
+            if (notificationUpdate.growl !== undefined && notificationUpdate.growl === true) {
                 dispatch('createGrowlNotification', mergedUpdate);
             }
 

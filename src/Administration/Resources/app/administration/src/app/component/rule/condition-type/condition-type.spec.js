@@ -12,14 +12,16 @@ import path from 'path';
 import ruleConditionsConfig from './_mocks/ruleConditionsConfig.json';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
-const conditionTypes = fs.readdirSync(path.join(adminPath, conditionTypesRootPath)).filter(conditionType => {
+const conditionTypes = fs.readdirSync(path.join(adminPath, conditionTypesRootPath)).filter((conditionType) => {
     return conditionType.match(/^(?!_mocks)[a-z-]*(?<!\.spec)$/);
 });
 
 function importAllConditionTypes() {
-    return Promise.all(conditionTypes.map(conditionType => {
-        return import(path.join(adminPath, conditionTypesRootPath, conditionType));
-    }));
+    return Promise.all(
+        conditionTypes.map((conditionType) => {
+            return import(path.join(adminPath, conditionTypesRootPath, conditionType));
+        }),
+    );
 }
 
 async function createWrapperForComponent(componentName, props = {}) {
@@ -112,9 +114,11 @@ async function createWrapperForComponent(componentName, props = {}) {
 }
 
 function eachField(fieldTypes, callbackFunction) {
-    fieldTypes.forEach(fieldType => fieldType.forEach(field => {
-        callbackFunction(field);
-    }));
+    fieldTypes.forEach((fieldType) =>
+        fieldType.forEach((field) => {
+            callbackFunction(field);
+        }),
+    );
 }
 
 function getAllFields(wrapper) {

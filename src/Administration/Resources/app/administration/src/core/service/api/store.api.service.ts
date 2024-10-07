@@ -3,18 +3,18 @@ import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
 interface StoreParams {
-    language: string|null,
-    [key: string]: unknown,
+    language: string | null;
+    [key: string]: unknown;
 }
 
 interface UserInfo {
-    avatarUrl: string,
-    email: string,
-    name: string,
+    avatarUrl: string;
+    email: string;
+    name: string;
 }
 
 interface UserInfoResponse {
-    userInfo: UserInfo|null,
+    userInfo: UserInfo | null;
 }
 
 /**
@@ -33,11 +33,7 @@ export default class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        await this.httpClient.post(
-            `/_action/${this.getApiBasePath()}/login`,
-            { shopwareId, password },
-            { params, headers },
-        );
+        await this.httpClient.post(`/_action/${this.getApiBasePath()}/login`, { shopwareId, password }, { params, headers });
     }
 
     public async checkLogin() {
@@ -57,32 +53,28 @@ export default class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        await this.httpClient.post(
-            `/_action/${this.getApiBasePath()}/logout`,
-            {},
-            { params, headers },
-        );
+        await this.httpClient.post(`/_action/${this.getApiBasePath()}/logout`, {}, { params, headers });
     }
 
     public async getUpdateList(): Promise<unknown> {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        return ApiService.handleResponse(await this.httpClient.get<unknown>(
-            `/_action/${this.getApiBasePath()}/updates`,
-            { params, headers },
-        ));
+        return ApiService.handleResponse(
+            await this.httpClient.get<unknown>(`/_action/${this.getApiBasePath()}/updates`, { params, headers }),
+        );
     }
 
     public async getLicenseViolationList(): Promise<unknown> {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        return ApiService.handleResponse(await this.httpClient.post<unknown>(
-            `/_action/${this.getApiBasePath()}/plugin/search`,
-            null,
-            { params, headers },
-        ));
+        return ApiService.handleResponse(
+            await this.httpClient.post<unknown>(`/_action/${this.getApiBasePath()}/plugin/search`, null, {
+                params,
+                headers,
+            }),
+        );
     }
 
     private getBasicParams(additionalParams = {}): StoreParams {

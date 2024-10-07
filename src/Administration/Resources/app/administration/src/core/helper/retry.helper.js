@@ -4,15 +4,12 @@
  */
 export default class RetryHelper {
     static async retry(fn, maxTries, time) {
-        const wait = ms => new Promise((resolve) => {
-            setTimeout(() => resolve(), ms);
-        });
+        const wait = (ms) =>
+            new Promise((resolve) => {
+                setTimeout(() => resolve(), ms);
+            });
 
-        const retryWithDelay = async (
-            innerFn,
-            retries = 3,
-            interval = 5000,
-        ) => {
+        const retryWithDelay = async (innerFn, retries = 3, interval = 5000) => {
             try {
                 return await innerFn();
             } catch (err) {
@@ -22,7 +19,7 @@ export default class RetryHelper {
 
                 await wait(interval);
 
-                return retryWithDelay(innerFn, (retries - 1), interval);
+                return retryWithDelay(innerFn, retries - 1, interval);
             }
         };
 

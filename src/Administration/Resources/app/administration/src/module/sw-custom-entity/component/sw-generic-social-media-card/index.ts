@@ -40,8 +40,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): {
         ogImageEntity: Entity<'media'> | null;
-        mediaModalIsOpen: boolean
-        } {
+        mediaModalIsOpen: boolean;
+    } {
         return {
             ogImageEntity: null as Entity<'media'> | null,
             mediaModalIsOpen: false,

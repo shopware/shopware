@@ -5,40 +5,45 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
-    return mount(await wrapTestComponent('sw-product-stream-field-select', { sync: true }), {
-        props: {
-            index: 0,
-            definition: {
-                entity: 'product',
-                properties: {},
+    return mount(
+        await wrapTestComponent('sw-product-stream-field-select', {
+            sync: true,
+        }),
+        {
+            props: {
+                index: 0,
+                definition: {
+                    entity: 'product',
+                    properties: {},
+                },
+                ...propsData,
             },
-            ...propsData,
-        },
-        global: {
-            provide: {
-                conditionDataProviderService: {
-                    isPropertyInAllowList: () => true,
-                    allowedJsonAccessors: {
-                        'json.test': {
-                            value: 'json.test',
-                            type: 'string',
-                            trans: 'jsontest',
+            global: {
+                provide: {
+                    conditionDataProviderService: {
+                        isPropertyInAllowList: () => true,
+                        allowedJsonAccessors: {
+                            'json.test': {
+                                value: 'json.test',
+                                type: 'string',
+                                trans: 'jsontest',
+                            },
                         },
                     },
+                    productCustomFields: [],
                 },
-                productCustomFields: [],
-            },
-            stubs: {
-                'sw-arrow-field': true,
-                'sw-single-select': await wrapTestComponent('sw-single-select'),
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': true,
+                stubs: {
+                    'sw-arrow-field': true,
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-icon': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-product-stream/component/sw-product-stream-field-select', () => {
@@ -55,10 +60,12 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.options).toEqual([{
-            label: 'jsontest',
-            value: 'json.test',
-        }]);
+        expect(wrapper.vm.options).toEqual([
+            {
+                label: 'jsontest',
+                value: 'json.test',
+            },
+        ]);
     });
 
     it('should return gray arrow primary color without error', async () => {

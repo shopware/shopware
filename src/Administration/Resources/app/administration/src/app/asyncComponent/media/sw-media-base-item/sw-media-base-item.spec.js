@@ -18,8 +18,12 @@ const setup = async (itemChanges = {}) => {
         global: {
             stubs: {
                 'sw-context-button': true,
-                'sw-label': await wrapTestComponent('sw-label', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-label': await wrapTestComponent('sw-label', {
+                    sync: true,
+                }),
+                'sw-icon': await wrapTestComponent('sw-icon', {
+                    sync: true,
+                }),
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-color-badge': true,
                 'mt-icon': MtIcon,

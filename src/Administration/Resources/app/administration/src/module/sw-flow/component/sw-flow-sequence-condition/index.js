@@ -46,7 +46,10 @@ export default {
     },
 
     computed: {
-        ...mapState('swFlowState', ['restrictedRules', 'flow']),
+        ...mapState('swFlowState', [
+            'restrictedRules',
+            'flow',
+        ]),
 
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
@@ -86,7 +89,10 @@ export default {
             };
         },
 
-        ...mapState('swFlowState', ['invalidSequences', 'flow']),
+        ...mapState('swFlowState', [
+            'invalidSequences',
+            'flow',
+        ]),
         ...mapGetters('swFlowState', ['sequences']),
     },
 
@@ -147,9 +153,8 @@ export default {
 
             if (this.selectedRuleId) {
                 // Update other conditions which use the same rule
-                this.sequences.forEach(sequence => {
-                    if (sequence.ruleId !== this.selectedRuleId
-                        || sequence.id === this.sequence.id) {
+                this.sequences.forEach((sequence) => {
+                    if (sequence.ruleId !== this.selectedRuleId || sequence.id === this.sequence.id) {
                         return;
                     }
 
@@ -240,7 +245,7 @@ export default {
 
             const getRemoveIds = (sequence, sequenceIds = []) => {
                 if (sequence.trueBlock) {
-                    Object.values(sequence.trueBlock).forEach(trueSequence => {
+                    Object.values(sequence.trueBlock).forEach((trueSequence) => {
                         if (trueSequence._isNew) {
                             sequenceIds.push(trueSequence.id);
                         }
@@ -250,7 +255,7 @@ export default {
                 }
 
                 if (sequence.falseBlock) {
-                    Object.values(sequence.falseBlock).forEach(falseSequence => {
+                    Object.values(sequence.falseBlock).forEach((falseSequence) => {
                         if (falseSequence._isNew) {
                             sequenceIds.push(falseSequence.id);
                         }
@@ -300,7 +305,7 @@ export default {
             }
 
             this.fieldError = null;
-            const invalidSequences = this.invalidSequences?.filter(id => this.sequence.id !== id);
+            const invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
             State.commit('swFlowState/setInvalidSequences', invalidSequences);
         },
 

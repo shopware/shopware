@@ -5,66 +5,75 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-delivery-time-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
-                    },
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '123abc',
-                                    name: '1 - 3 weeks',
-                                    min: 1,
-                                    max: 3,
-                                    unit: 'week',
-                                },
-                            ]);
+    return mount(
+        await wrapTestComponent('sw-settings-delivery-time-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
                         },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([
+                                    {
+                                        id: '123abc',
+                                        name: '1 - 3 weeks',
+                                        min: 1,
+                                        max: 3,
+                                        unit: 'week',
+                                    },
+                                ]);
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    searchRankingService: {},
+                },
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
                     </div>`,
-                },
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-search-bar': true,
-                'sw-language-switch': true,
-                'sw-context-menu-item': true,
-                'sw-card-view': true,
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-ignore-class': true,
-                'sw-extension-component-section': true,
-                'sw-entity-listing': {
-                    props: ['items', 'allowEdit', 'allowDelete', 'detailRoute'],
-                    template: `
+                    },
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-search-bar': true,
+                    'sw-language-switch': true,
+                    'sw-context-menu-item': true,
+                    'sw-card-view': true,
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-ignore-class': true,
+                    'sw-extension-component-section': true,
+                    'sw-entity-listing': {
+                        props: [
+                            'items',
+                            'allowEdit',
+                            'allowDelete',
+                            'detailRoute',
+                        ],
+                        template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
@@ -84,14 +93,15 @@ async function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>`,
+                    },
+                    'sw-context-menu-item-stub': true,
+                    'sw-loader': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
                 },
-                'sw-context-menu-item-stub': true,
-                'sw-loader': true,
-                'sw-ai-copilot-badge': true,
-                'sw-context-button': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list', () => {

@@ -31,7 +31,10 @@ export default class VariantsGenerator extends EventEmitter {
     saveVariants(queues) {
         return new Promise((resolveDelete) => {
             // notify view to refresh progress
-            this.emit('progress-max', { type: 'delete', progress: queues.deleteQueue.length });
+            this.emit('progress-max', {
+                type: 'delete',
+                progress: queues.deleteQueue.length,
+            });
 
             // create mapping for api call
             const mapped = queues.deleteQueue.map((id) => {
@@ -40,33 +43,36 @@ export default class VariantsGenerator extends EventEmitter {
 
             // send api calls for delete
             this.processQueue('delete', mapped, 0, 10, resolveDelete);
-        }).then(() => {
-            // notify view to refresh progress
-            this.emit('progress-max', { type: 'upsert', progress: queues.createQueue.length });
+        })
+            .then(() => {
+                // notify view to refresh progress
+                this.emit('progress-max', {
+                    type: 'upsert',
+                    progress: queues.createQueue.length,
+                });
 
-            return new Promise((resolve) => {
-                // send api calls for create
-                this.processQueue('upsert', queues.createQueue, 0, 10, resolve);
+                return new Promise((resolve) => {
+                    // send api calls for create
+                    this.processQueue('upsert', queues.createQueue, 0, 10, resolve);
+                });
+            })
+            .then(() => {
+                this.indexProducts(this.productIds);
             });
-        }).then(() => {
-            this.indexProducts(this.productIds);
-        });
     }
 
-    generateVariants(
-        currencies,
-        product,
-        isAddOnly = false,
-    ) {
+    generateVariants(currencies, product, isAddOnly = false) {
         this.product = product;
         const configuratorSettings = this.product.configuratorSettings;
 
         // This check is done to set a default value for completely new generated variants
         // without changing existing configuration
-        if (!this.product.variantListingConfig
-            || (!this.product.variantListingConfig.displayParent
-                && !this.product.variantListingConfig.configuratorGroupConfig
-                && !this.product.variantListingConfig.mainVariantId)) {
+        if (
+            !this.product.variantListingConfig ||
+            (!this.product.variantListingConfig.displayParent &&
+                !this.product.variantListingConfig.configuratorGroupConfig &&
+                !this.product.variantListingConfig.mainVariantId)
+        ) {
             this.product.variantListingConfig = {};
             this.product.variantListingConfig.displayParent = true;
         }
@@ -77,8 +83,13 @@ export default class VariantsGenerator extends EventEmitter {
             // When nothing is selected
             if (grouped.length <= 0) {
                 this.loadExisting(this.product.id).then((variantsOnServer) => {
-                    const deleteArray = Object.keys(variantsOnServer).map((id) => { return id; });
-                    this.emit('queues', { createQueue: [], deleteQueue: isAddOnly ? [] : deleteArray });
+                    const deleteArray = Object.keys(variantsOnServer).map((id) => {
+                        return id;
+                    });
+                    this.emit('queues', {
+                        createQueue: [],
+                        deleteQueue: isAddOnly ? [] : deleteArray,
+                    });
                 });
                 return;
             }
@@ -86,21 +97,18 @@ export default class VariantsGenerator extends EventEmitter {
             // create permutations of variants
             const permutations = this.buildCombinations(grouped);
 
-            this.loadExisting(this.product.id).then((variantsOnServer) => {
-                // filter deletable and creatable variations
-                return this.filterVariations(permutations, variantsOnServer, currencies, isAddOnly);
-            }).then((queues) => {
-                this.emit('queues', queues);
-            });
+            this.loadExisting(this.product.id)
+                .then((variantsOnServer) => {
+                    // filter deletable and creatable variations
+                    return this.filterVariations(permutations, variantsOnServer, currencies, isAddOnly);
+                })
+                .then((queues) => {
+                    this.emit('queues', queues);
+                });
         });
     }
 
-    filterVariations(
-        newVariations,
-        variationOnServer,
-        currencies,
-        isAddOnly = false,
-    ) {
+    filterVariations(newVariations, variationOnServer, currencies, isAddOnly = false) {
         const configuratorSettings = this.product.configuratorSettings;
 
         return new Promise((resolve) => {
@@ -119,7 +127,10 @@ export default class VariantsGenerator extends EventEmitter {
             const numberMap = {};
 
             // eslint-disable-next-line
-            for (const [key, variant] of Object.entries(variationOnServer)) {
+            for (const [
+                key,
+                variant,
+            ] of Object.entries(variationOnServer)) {
                 const hash = md5(JSON.stringify(variant.options.sort()));
                 hashed[hash] = key;
                 numberMap[hash] = variant.productNumber;
@@ -145,7 +156,10 @@ export default class VariantsGenerator extends EventEmitter {
             }, []);
 
             // notify page that the generation starts now
-            this.emit('progress-max', { type: 'calc', progress: newVariationsSorted.length });
+            this.emit('progress-max', {
+                type: 'calc',
+                progress: newVariationsSorted.length,
+            });
 
             let increment = 1;
 
@@ -185,68 +199,70 @@ export default class VariantsGenerator extends EventEmitter {
                 let variationPrice = {};
 
                 // Go through each option and add price changes to main price of variation
-                variations.map((variationObject) => variationObject.id).forEach((variationId) => {
-                    priceChanges.forEach((option) => {
-                        if (!option.price) {
-                            return;
-                        }
-
-                        if (option.id !== variationId) {
-                            return;
-                        }
-
-                        // iterate through each currency
-                        option.price.forEach((price) => {
-                            const currencyId = price.currencyId;
-
-                            let refCurrencyPrice;
-
-                            if (variationPrice[currencyId]) {
-                                refCurrencyPrice = variationPrice[currencyId];
-                            } else {
-                                // get parent price for currency
-                                refCurrencyPrice = this.product.price.find((productPrice) => {
-                                    return productPrice.currencyId === price.currencyId;
-                                });
+                variations
+                    .map((variationObject) => variationObject.id)
+                    .forEach((variationId) => {
+                        priceChanges.forEach((option) => {
+                            if (!option.price) {
+                                return;
                             }
 
-                            let refPrice = refCurrencyPrice;
+                            if (option.id !== variationId) {
+                                return;
+                            }
 
-                            // use the default price as fallback when no custom price for the currency exists
-                            if (!refCurrencyPrice) {
-                                const defaultCurrency = currencies.find((currency) => {
-                                    return currency.isSystemDefault;
-                                });
+                            // iterate through each currency
+                            option.price.forEach((price) => {
+                                const currencyId = price.currencyId;
 
-                                const defaultCurrencyPrice = this.product.price.find((productPrice) => {
-                                    return productPrice.currencyId === defaultCurrency.id;
-                                });
+                                let refCurrencyPrice;
 
-                                const actualCurrency = currencies.find((currency) => {
-                                    return currency.id === price.currencyId;
-                                });
+                                if (variationPrice[currencyId]) {
+                                    refCurrencyPrice = variationPrice[currencyId];
+                                } else {
+                                    // get parent price for currency
+                                    refCurrencyPrice = this.product.price.find((productPrice) => {
+                                        return productPrice.currencyId === price.currencyId;
+                                    });
+                                }
 
-                                // recalculate price for currency with conversion factor
-                                refPrice = {
-                                    net: defaultCurrencyPrice.net * actualCurrency.factor,
-                                    gross: defaultCurrencyPrice.gross * actualCurrency.factor,
+                                let refPrice = refCurrencyPrice;
+
+                                // use the default price as fallback when no custom price for the currency exists
+                                if (!refCurrencyPrice) {
+                                    const defaultCurrency = currencies.find((currency) => {
+                                        return currency.isSystemDefault;
+                                    });
+
+                                    const defaultCurrencyPrice = this.product.price.find((productPrice) => {
+                                        return productPrice.currencyId === defaultCurrency.id;
+                                    });
+
+                                    const actualCurrency = currencies.find((currency) => {
+                                        return currency.id === price.currencyId;
+                                    });
+
+                                    // recalculate price for currency with conversion factor
+                                    refPrice = {
+                                        net: defaultCurrencyPrice.net * actualCurrency.factor,
+                                        gross: defaultCurrencyPrice.gross * actualCurrency.factor,
+                                    };
+                                }
+
+                                // calculate new price with surcharge
+                                const grossPrice = refPrice.gross + price.gross;
+                                const netPrice = refPrice.net + price.net;
+
+                                // push new currency price with surcharges to variation price
+                                variationPrice[currencyId] = {
+                                    currencyId: price.currencyId,
+                                    gross: grossPrice,
+                                    linked: price.linked,
+                                    net: netPrice,
                                 };
-                            }
-
-                            // calculate new price with surcharge
-                            const grossPrice = refPrice.gross + price.gross;
-                            const netPrice = refPrice.net + price.net;
-
-                            // push new currency price with surcharges to variation price
-                            variationPrice[currencyId] = {
-                                currencyId: price.currencyId,
-                                gross: grossPrice,
-                                linked: price.linked,
-                                net: netPrice,
-                            };
+                            });
                         });
                     });
-                });
 
                 // get generated number and increment
                 const generated = this.createNumber(this.product.productNumber, increment, numbers);
@@ -334,12 +350,13 @@ export default class VariantsGenerator extends EventEmitter {
 
     loadExisting(id) {
         // Return all existing variations from the server
-        return this.httpClient.get(
-            `/_action/product/${id}/combinations`,
-            { headers: this.syncService.getBasicHeaders() },
-        ).then((response) => {
-            return response.data;
-        });
+        return this.httpClient
+            .get(`/_action/product/${id}/combinations`, {
+                headers: this.syncService.getBasicHeaders(),
+            })
+            .then((response) => {
+                return response.data;
+            });
     }
 
     groupTheOptions(configurators) {
@@ -404,11 +421,13 @@ export default class VariantsGenerator extends EventEmitter {
         // Emit the progress to the view
         this.emit('progress-actual', { type: type, progress: offset });
 
-        const payload = [{
-            action: type,
-            entity: 'product',
-            payload: chunk,
-        }];
+        const payload = [
+            {
+                action: type,
+                entity: 'product',
+                payload: chunk,
+            },
+        ];
 
         // Send the payload to the server
         const header = { 'single-operation': 1 };

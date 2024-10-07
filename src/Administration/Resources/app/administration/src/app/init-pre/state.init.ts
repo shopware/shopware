@@ -28,7 +28,6 @@ function initVuexState(state: FullState) {
     return state;
 }
 
-
 function registerProperties(state: FullState, store: Store<VuexRootState>) {
     // eslint-disable-next-line max-len
     /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
@@ -37,7 +36,10 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
     state._registerProperty('get', <N extends keyof VuexRootState | 'cmsPageState' | 'cmsPage'>(name: N) => {
         /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
         if (name === 'cmsPageState' || name === 'cmsPage') {
-            Shopware.Utils.debug.warn('Core', 'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get("cmsPage") instead.');
+            Shopware.Utils.debug.warn(
+                'Core',
+                'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get("cmsPage") instead.',
+            );
 
             return Shopware.Store.get('cmsPage');
         }
@@ -50,7 +52,10 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
         const type = args[0] as unknown as string;
         /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
         if (type.startsWith('cmsPageState/')) {
-            Shopware.Utils.debug.warn('Core', 'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get("cmsPage") instead.');
+            Shopware.Utils.debug.warn(
+                'Core',
+                'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get("cmsPage") instead.',
+            );
 
             const cmsPageStore = Shopware.Store.get('cmsPage');
             const property = type.substring('cmsPageState/'.length);
@@ -67,14 +72,30 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
     state._registerProperty('dispatch', (...args: Parameters<typeof store.dispatch>) => store.dispatch(...args));
     state._registerProperty('watch', (...args: Parameters<typeof store.watch>) => store.watch(...args));
     state._registerProperty('subscribe', (...args: Parameters<typeof store.subscribe>) => store.subscribe(...args));
-    state._registerProperty('subscribeAction', (...args: Parameters<typeof store.subscribeAction>) => store.subscribeAction(...args));
-    state._registerProperty('registerModule', (...args: Parameters<typeof store.registerModule>) => store.registerModule(...args));
-    state._registerProperty('unregisterModule', (...args: Parameters<typeof store.unregisterModule>) => store.unregisterModule(...args));
+    state._registerProperty('subscribeAction', (...args: Parameters<typeof store.subscribeAction>) =>
+        store.subscribeAction(...args),
+    );
+    state._registerProperty('registerModule', (...args: Parameters<typeof store.registerModule>) =>
+        store.registerModule(...args),
+    );
+    state._registerProperty('unregisterModule', (...args: Parameters<typeof store.unregisterModule>) =>
+        store.unregisterModule(...args),
+    );
     /* eslint-enable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
 }
 
-function initVuexModules(modules: { [moduleName: string]: Module<keyof VuexRootState, VuexRootState> }, state: FullState) {
-    Object.entries(modules).forEach(([moduleName, module]) => {
-        state.registerModule(moduleName, module);
-    });
+function initVuexModules(
+    modules: {
+        [moduleName: string]: Module<keyof VuexRootState, VuexRootState>;
+    },
+    state: FullState,
+) {
+    Object.entries(modules).forEach(
+        ([
+            moduleName,
+            module,
+        ]) => {
+            state.registerModule(moduleName, module);
+        },
+    );
 }

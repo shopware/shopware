@@ -90,13 +90,9 @@ export default {
             ];
 
             aggregationEntities.forEach((entity) => {
-                criteria.addAggregation(Criteria.terms(
-                    entity,
-                    'id',
-                    null,
-                    null,
-                    Criteria.count(entity, `rule.${entity}.id`),
-                ));
+                criteria.addAggregation(
+                    Criteria.terms(entity, 'id', null, null, Criteria.count(entity, `rule.${entity}.id`)),
+                );
             });
 
             return criteria;
@@ -107,10 +103,7 @@ export default {
         },
 
         conditionRepository() {
-            return this.repositoryFactory.create(
-                this.rule.conditions.entity,
-                this.rule.conditions.source,
-            );
+            return this.repositoryFactory.create(this.rule.conditions.entity, this.rule.conditions.source);
         },
 
         tooltipSave() {
@@ -141,18 +134,27 @@ export default {
             return [
                 {
                     title: this.$tc('sw-settings-rule.detail.tabGeneral'),
-                    route: { name: 'sw.settings.rule.detail.base', params: { id: this.$route.params.id } },
+                    route: {
+                        name: 'sw.settings.rule.detail.base',
+                        params: { id: this.$route.params.id },
+                    },
                     cssClassSuffix: 'general',
                 },
                 {
                     title: this.$tc('sw-settings-rule.detail.tabAssignments'),
-                    route: { name: 'sw.settings.rule.detail.assignments', params: { id: this.$route.params.id } },
+                    route: {
+                        name: 'sw.settings.rule.detail.assignments',
+                        params: { id: this.$route.params.id },
+                    },
                     cssClassSuffix: 'assignments',
                 },
             ];
         },
 
-        ...mapPropertyErrors('rule', ['name', 'priority']),
+        ...mapPropertyErrors('rule', [
+            'name',
+            'priority',
+        ]),
     },
 
     watch: {
@@ -190,8 +192,10 @@ export default {
         $route(newRoute, oldRoute) {
             // Reload the rule data when switching from assignments to base tab because changes to the assignments
             // can affect the conditions that are selectable - rule awareness
-            if (newRoute.name === 'sw.settings.rule.detail.base' &&
-                oldRoute.name === 'sw.settings.rule.detail.assignments') {
+            if (
+                newRoute.name === 'sw.settings.rule.detail.base' &&
+                oldRoute.name === 'sw.settings.rule.detail.assignments'
+            ) {
                 this.isLoading = true;
                 this.loadEntityData(this.ruleId).then(() => {
                     this.isLoading = false;
@@ -211,7 +215,10 @@ export default {
 
     methods: {
         loadConditionData() {
-            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const context = {
+                ...Context.api,
+                languageId: Shopware.State.get('session').languageId,
+            };
             const criteria = new Criteria();
 
             return Promise.all([
@@ -258,8 +265,11 @@ export default {
                 return;
             }
 
-            if ((to.name === 'sw.settings.rule.detail.assignments' && from.name === 'sw.settings.rule.detail.base') ||
-                (to.name === 'sw.settings.rule.detail.base' || to.name === 'sw.settings.rule.create.base')) {
+            if (
+                (to.name === 'sw.settings.rule.detail.assignments' && from.name === 'sw.settings.rule.detail.base') ||
+                to.name === 'sw.settings.rule.detail.base' ||
+                to.name === 'sw.settings.rule.create.base'
+            ) {
                 this.conditionsTreeContainsUserChanges = false;
                 this.conditionTreeFinishedLoading = false;
                 next();
@@ -302,7 +312,10 @@ export default {
             }
 
             this.$nextTick(() => {
-                this.$router.push({ name: destination.name, params: destination.params });
+                this.$router.push({
+                    name: destination.name,
+                    params: destination.params,
+                });
             });
         },
 
@@ -320,10 +333,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(
-                conditions.criteria.page + 1,
-                conditions.criteria.limit,
-            );
+            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -340,7 +350,10 @@ export default {
 
         conditionsChanged({ conditions, deletedIds }) {
             this.conditionTree = conditions;
-            this.deletedIds = [...this.deletedIds, ...deletedIds];
+            this.deletedIds = [
+                ...this.deletedIds,
+                ...deletedIds,
+            ];
         },
 
         validateRuleAwareness() {
@@ -379,17 +392,13 @@ export default {
                 );
 
                 if (restrictions.isRestricted) {
-                    const message = this.$tc(
-                        'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                        0,
-                        {
-                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                                restrictions.equalsAnyNotMatched,
-                                'sw-restricted-rules.or',
-                            ),
-                            entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
-                        },
-                    );
+                    const message = this.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', 0, {
+                        conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                            restrictions.equalsAnyNotMatched,
+                            'sw-restricted-rules.or',
+                        ),
+                        entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                    });
 
                     this.createNotificationError({ message });
                     isValid = false;
@@ -422,13 +431,18 @@ export default {
 
             if (this.rule.isNew()) {
                 this.rule.conditions = this.conditionTree;
-                return this.saveRule().then(() => {
-                    this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
-                    this.isSaveSuccessful = true;
-                    this.conditionsTreeContainsUserChanges = false;
-                }).catch(() => {
-                    this.showErrorNotification();
-                });
+                return this.saveRule()
+                    .then(() => {
+                        this.$router.push({
+                            name: 'sw.settings.rule.detail',
+                            params: { id: this.rule.id },
+                        });
+                        this.isSaveSuccessful = true;
+                        this.conditionsTreeContainsUserChanges = false;
+                    })
+                    .catch(() => {
+                        this.showErrorNotification();
+                    });
             }
 
             return this.saveRule()
@@ -471,15 +485,14 @@ export default {
         },
 
         syncConditions() {
-            return this.conditionRepository.sync(this.conditionTree, Context.api)
-                .then(() => {
-                    if (this.deletedIds.length > 0) {
-                        return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
-                            this.deletedIds = [];
-                        });
-                    }
-                    return Promise.resolve();
-                });
+            return this.conditionRepository.sync(this.conditionTree, Context.api).then(() => {
+                if (this.deletedIds.length > 0) {
+                    return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
+                        this.deletedIds = [];
+                    });
+                }
+                return Promise.resolve();
+            });
         },
 
         showErrorNotification() {
@@ -512,12 +525,10 @@ export default {
                 };
 
                 return this.ruleRepository.clone(this.rule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
-                    this.$router.push(
-                        {
-                            name: 'sw.settings.rule.detail',
-                            params: { id: duplicatedData.id },
-                        },
-                    );
+                    this.$router.push({
+                        name: 'sw.settings.rule.detail',
+                        params: { id: duplicatedData.id },
+                    });
                 });
             });
         },

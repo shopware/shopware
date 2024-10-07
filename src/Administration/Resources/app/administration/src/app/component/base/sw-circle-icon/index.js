@@ -44,7 +44,14 @@ Component.register('sw-circle-icon', {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'primary'],
+            validValues: [
+                'info',
+                'danger',
+                'success',
+                'warning',
+                'neutral',
+                'primary',
+            ],
         },
     },
 

@@ -12,16 +12,20 @@ describe('src/app/service/api.service.js', () => {
         });
 
         it('should handle one param', async () => {
-            expect(ApiService.makeQueryParams({
-                key: 'value',
-            })).toBe('?key=value');
+            expect(
+                ApiService.makeQueryParams({
+                    key: 'value',
+                }),
+            ).toBe('?key=value');
         });
 
         it('should handle multiple params', async () => {
-            expect(ApiService.makeQueryParams({
-                key: 'value',
-                key2: 'value2',
-            })).toBe('?key=value&key2=value2');
+            expect(
+                ApiService.makeQueryParams({
+                    key: 'value',
+                    key2: 'value2',
+                }),
+            ).toBe('?key=value&key2=value2');
         });
     });
 });

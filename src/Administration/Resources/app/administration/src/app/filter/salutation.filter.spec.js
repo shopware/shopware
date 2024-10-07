@@ -17,41 +17,47 @@ describe('src/app/filter/salutation.filter.ts', () => {
     });
 
     it('should return the correct salutation', () => {
-        expect(salutationFilter({
-            salutation: {
-                id: '1',
-                salutationKey: 'mr',
-                displayName: 'Mr.',
-            },
-            title: 'Dr.',
-            firstName: 'Max',
-            lastName: 'Mustermann',
-        })).toBe('Mr. Dr. Max Mustermann');
+        expect(
+            salutationFilter({
+                salutation: {
+                    id: '1',
+                    salutationKey: 'mr',
+                    displayName: 'Mr.',
+                },
+                title: 'Dr.',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+            }),
+        ).toBe('Mr. Dr. Max Mustermann');
     });
 
     it('should hide salutation when no salutationKey was defined', () => {
-        expect(salutationFilter({
-            salutation: {
-                id: '1',
-                salutationKey: 'not_specified',
-                displayName: 'Mr.',
-            },
-            title: 'Dr.',
-            firstName: 'Max',
-            lastName: 'Mustermann',
-        })).toBe('Dr. Max Mustermann');
+        expect(
+            salutationFilter({
+                salutation: {
+                    id: '1',
+                    salutationKey: 'not_specified',
+                    displayName: 'Mr.',
+                },
+                title: 'Dr.',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+            }),
+        ).toBe('Dr. Max Mustermann');
     });
 
     it('should return the fallback snippet when no subvalues are given', () => {
-        expect(salutationFilter({
-            salutation: {
-                id: '1',
-                salutationKey: 'mr',
-                displayName: '',
-            },
-            title: '',
-            firstName: '',
-            lastName: '',
-        })).toBe('');
+        expect(
+            salutationFilter({
+                salutation: {
+                    id: '1',
+                    salutationKey: 'mr',
+                    displayName: '',
+                },
+                title: '',
+                firstName: '',
+                lastName: '',
+            }),
+        ).toBe('');
     });
 });

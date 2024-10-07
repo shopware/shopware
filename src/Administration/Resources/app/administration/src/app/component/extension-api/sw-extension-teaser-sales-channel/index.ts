@@ -15,8 +15,8 @@ interface TeaserSalesChannelConfig {
             label: string;
             locationId: string;
             variant: string;
-        }
-    }
+        };
+    };
 }
 
 /**
@@ -24,9 +24,9 @@ interface TeaserSalesChannelConfig {
  *
  * @private
  * @description A teaser sales channel for upselling service only, no public usage
-  * @example-type dynamic
-  * @component-example
-  * <sw-extension-teaser-sales-channel />
+ * @example-type dynamic
+ * @component-example
+ * <sw-extension-teaser-sales-channel />
  */
 Shopware.Component.register('sw-extension-teaser-sales-channel', {
     template,

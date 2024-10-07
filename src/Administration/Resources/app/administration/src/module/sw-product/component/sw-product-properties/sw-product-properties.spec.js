@@ -14,7 +14,7 @@ let productPropertiesMock = [
 ];
 
 productPropertiesMock.getIds = () => {
-    return productPropertiesMock.map(property => {
+    return productPropertiesMock.map((property) => {
         return property.id;
     });
 };
@@ -83,7 +83,10 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-inheritance-switch': {
-                    props: ['isInherited', 'disabled'],
+                    props: [
+                        'isInherited',
+                        'disabled',
+                    ],
                     template: `
                         <div class="sw-inheritance-switch">
                             <div v-if="isInherited"
@@ -208,7 +211,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
 
         expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining(['sizeId', 'colorId']),
+            expect.arrayContaining([
+                'sizeId',
+                'colorId',
+            ]),
         );
     });
 
@@ -221,9 +227,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await State.commit('swProductDetail/setProduct', {});
         await wrapper.vm.getGroupIds();
 
-        expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.groupIds).toEqual(expect.arrayContaining([]));
     });
 
     it('should get properties successful', async () => {
@@ -239,9 +243,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
         wrapper.vm.getProperties();
 
-        expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining(propertiesMock),
-        );
+        expect(wrapper.vm.properties).toEqual(expect.arrayContaining(propertiesMock));
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
@@ -258,9 +260,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
         wrapper.vm.getProperties();
 
-        expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
@@ -286,9 +286,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         };
         expect((await getError()).message).toBe('Whoops!');
 
-        expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.getProperties.mockRestore();
     });
 
@@ -309,9 +307,21 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
-                expect.objectContaining({ id: '03', groupId: 'colorId', name: 'white' }),
-                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
+                expect.objectContaining({
+                    id: '02',
+                    groupId: 'sizeId',
+                    name: '32',
+                }),
+                expect.objectContaining({
+                    id: '03',
+                    groupId: 'colorId',
+                    name: 'white',
+                }),
+                expect.objectContaining({
+                    id: '04',
+                    groupId: 'colorId',
+                    name: 'black',
+                }),
             ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -335,8 +345,16 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: '03', groupId: 'colorId', name: 'white' }),
-                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
+                expect.objectContaining({
+                    id: '03',
+                    groupId: 'colorId',
+                    name: 'white',
+                }),
+                expect.objectContaining({
+                    id: '04',
+                    groupId: 'colorId',
+                    name: 'black',
+                }),
             ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -360,8 +378,16 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: '01', groupId: 'sizeId', name: '30' }),
-                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
+                expect.objectContaining({
+                    id: '01',
+                    groupId: 'sizeId',
+                    name: '30',
+                }),
+                expect.objectContaining({
+                    id: '02',
+                    groupId: 'sizeId',
+                    name: '32',
+                }),
             ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -479,9 +505,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.onSaveAddPropertiesModal([]);
 
         expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.newProperties).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.newProperties).toEqual(expect.arrayContaining([]));
         wrapper.vm.turnOffAddPropertiesModal.mockRestore();
     });
 
@@ -490,7 +514,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
+        await wrapper.setData({
+            searchTerm: 'Size',
+            properties: propertiesMock,
+        });
 
         const createButton = wrapper.find('sw-button-stub');
 
@@ -502,7 +529,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
+        await wrapper.setData({
+            searchTerm: 'Size',
+            properties: propertiesMock,
+        });
 
         const createButton = wrapper.find('sw-button-stub');
         expect(createButton.attributes().disabled).toBe('true');

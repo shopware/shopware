@@ -14,7 +14,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['set-customer-address', 'close-modal'],
+    emits: [
+        'set-customer-address',
+        'close-modal',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -106,8 +109,8 @@ export default {
             try {
                 this.addresses = await this.addressRepository.search(this.addressCriteria);
 
-                this.selectedAddressId = this.activeCustomer[this.address.contextId]
-                    || this.activeCustomer[this.address.contextDataDefaultId];
+                this.selectedAddressId =
+                    this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];
 
                 await Shopware.State.dispatch('error/resetApiErrors');
             } catch {
@@ -138,7 +141,7 @@ export default {
         },
 
         findSelectedAddress() {
-            return this.addresses.find(address => address.id === this.selectedAddressId);
+            return this.addresses.find((address) => address.id === this.selectedAddressId);
         },
 
         async updateOrderContext() {
@@ -150,12 +153,11 @@ export default {
                 [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId],
             };
 
-            await State
-                .dispatch('swOrder/updateOrderContext', {
-                    context,
-                    salesChannelId: this.activeCustomer.salesChannelId,
-                    contextToken: this.cart.token,
-                });
+            await State.dispatch('swOrder/updateOrderContext', {
+                context,
+                salesChannelId: this.activeCustomer.salesChannelId,
+                contextToken: this.cart.token,
+            });
 
             this.$emit('set-customer-address', {
                 contextId: this.address.contextId,

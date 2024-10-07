@@ -7,7 +7,7 @@ export default {
     namespaced: true,
 
     state() {
-        const today = (new Date()).toISOString();
+        const today = new Date().toISOString();
 
         return {
             isFlowTriggered: true,
@@ -68,18 +68,23 @@ export default {
         documentTypeConfigs(state) {
             const documentTypeConfigs = [];
 
-            Object.entries(state.orderDocuments).forEach(([key, value]) => {
-                if (key === 'download') {
-                    return;
-                }
-                if (value.isChanged === true) {
-                    documentTypeConfigs.push({
-                        fileType: 'pdf',
-                        type: key,
-                        config: value.value,
-                    });
-                }
-            });
+            Object.entries(state.orderDocuments).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    if (key === 'download') {
+                        return;
+                    }
+                    if (value.isChanged === true) {
+                        documentTypeConfigs.push({
+                            fileType: 'pdf',
+                            type: key,
+                            config: value.value,
+                        });
+                    }
+                },
+            );
 
             return documentTypeConfigs;
         },

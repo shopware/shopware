@@ -20,129 +20,138 @@ const mediaDataMock = [
 ];
 
 async function createWrapper(activeTab = 'content') {
-    return mount(await wrapTestComponent('sw-cms-el-config-image-gallery', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(mediaDataMock),
-                        };
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-image-gallery', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(mediaDataMock),
+                            };
+                        },
                     },
+                    mediaService: {},
                 },
-                mediaService: {},
+                stubs: {
+                    'sw-tabs': {
+                        data() {
+                            return { active: activeTab };
+                        },
+                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-media-modal-v2': true,
+                    'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
+                    'sw-field': true,
+                    'sw-switch-field': true,
+                    'sw-select-field': {
+                        // eslint-disable-next-line max-len
+                        template:
+                            '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
+                        props: [
+                            'value',
+                            'options',
+                        ],
+                    },
+                    'sw-text-field': true,
+                    'sw-alert': true,
+                    'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': true,
+                    'sw-media-list-selection-item-v2': {
+                        template: '<div class="sw-media-item">{{item.id}}</div>',
+                        props: ['item'],
+                    },
+                    'sw-loader': true,
+                    'sw-context-button': true,
+                    'sw-context-menu-item': true,
+                    'sw-icon': true,
+                },
             },
-            stubs: {
-                'sw-tabs': {
-                    data() {
-                        return { active: activeTab };
+            props: {
+                element: {
+                    config: {
+                        sliderItems: {
+                            source: 'static',
+                            value: [],
+                        },
+                        navigationArrows: {
+                            source: 'static',
+                            value: 'inside',
+                        },
+                        navigationDots: {
+                            source: 'static',
+                            value: null,
+                        },
+                        galleryPosition: {
+                            source: 'static',
+                            value: 'left',
+                        },
+                        displayMode: {
+                            source: 'static',
+                            value: 'standard',
+                        },
+                        minHeight: {
+                            source: 'static',
+                            value: '340px',
+                        },
+                        verticalAlign: {
+                            source: 'static',
+                            value: null,
+                        },
+                        zoom: {
+                            source: 'static',
+                            value: false,
+                        },
+                        fullScreen: {
+                            source: 'static',
+                            value: false,
+                        },
+                        keepAspectRatioOnZoom: {
+                            source: 'static',
+                            value: true,
+                        },
+                        magnifierOverGallery: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
-                    template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                    data: {},
                 },
-                'sw-tabs-item': true,
-                'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
-                'sw-media-modal-v2': true,
-                'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
-                'sw-field': true,
-                'sw-switch-field': true,
-                'sw-select-field': {
-                    // eslint-disable-next-line max-len
-                    template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                    props: ['value', 'options'],
-                },
-                'sw-text-field': true,
-                'sw-alert': true,
-                'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-media-list-selection-item-v2': {
-                    template: '<div class="sw-media-item">{{item.id}}</div>',
-                    props: ['item'],
-                },
-                'sw-loader': true,
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-icon': true,
+                defaultConfig: {},
+            },
+            data() {
+                return {
+                    mediaItems: [
+                        {
+                            id: '0',
+                            position: 0,
+                        },
+                        {
+                            id: '1',
+                            position: 1,
+                        },
+                        {
+                            id: '2',
+                            position: 2,
+                        },
+                        {
+                            id: '3',
+                            position: 3,
+                        },
+                    ],
+                };
             },
         },
-        props: {
-            element: {
-                config: {
-                    sliderItems: {
-                        source: 'static',
-                        value: [],
-                    },
-                    navigationArrows: {
-                        source: 'static',
-                        value: 'inside',
-                    },
-                    navigationDots: {
-                        source: 'static',
-                        value: null,
-                    },
-                    galleryPosition: {
-                        source: 'static',
-                        value: 'left',
-                    },
-                    displayMode: {
-                        source: 'static',
-                        value: 'standard',
-                    },
-                    minHeight: {
-                        source: 'static',
-                        value: '340px',
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null,
-                    },
-                    zoom: {
-                        source: 'static',
-                        value: false,
-                    },
-                    fullScreen: {
-                        source: 'static',
-                        value: false,
-                    },
-                    keepAspectRatioOnZoom: {
-                        source: 'static',
-                        value: true,
-                    },
-                    magnifierOverGallery: {
-                        source: 'static',
-                        value: false,
-                    },
-                },
-                data: {},
-            },
-            defaultConfig: {},
-        },
-        data() {
-            return {
-                mediaItems: [
-                    {
-                        id: '0',
-                        position: 0,
-                    },
-                    {
-                        id: '1',
-                        position: 1,
-                    },
-                    {
-                        id: '2',
-                        position: 2,
-                    },
-                    {
-                        id: '3',
-                        position: 3,
-                    },
-                ],
-            };
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/image-gallery/config', () => {
@@ -212,7 +221,12 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         await flushPromises();
 
         const mediaListSelectionV2Vm = wrapper.findComponent('.sw-media-list-selection-v2').vm;
-        mediaListSelectionV2Vm.$emit('item-sort', mediaListSelectionV2Vm.mediaItems[1], mediaListSelectionV2Vm.mediaItems[2], true);
+        mediaListSelectionV2Vm.$emit(
+            'item-sort',
+            mediaListSelectionV2Vm.mediaItems[1],
+            mediaListSelectionV2Vm.mediaItems[2],
+            true,
+        );
         await wrapper.vm.$nextTick();
 
         const items = wrapper.findAll('.sw-media-item');

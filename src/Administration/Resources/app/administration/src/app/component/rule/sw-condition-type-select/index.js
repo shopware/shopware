@@ -155,10 +155,9 @@ Component.register('sw-condition-type-select', {
             return {
                 disabled: false,
                 width: 260,
-                message: this.$t(
-                    'sw-restricted-rules.restrictedConditions.restrictedConditionTooltip',
-                    { assignments: this.groupAssignments(item) },
-                ),
+                message: this.$t('sw-restricted-rules.restrictedConditions.restrictedConditionTooltip', {
+                    assignments: this.groupAssignments(item),
+                }),
             };
         },
 
@@ -187,25 +186,35 @@ Component.register('sw-condition-type-select', {
                 return accumulator;
             }, {});
 
-            return Object.entries(groups).reduce((accumulator, [key, value], index) => {
-                let snippet = '';
+            return Object.entries(groups).reduce(
+                (
+                    accumulator,
+                    [
+                        key,
+                        value,
+                    ],
+                    index,
+                ) => {
+                    let snippet = '';
 
-                value.forEach((currentValue, currentIndex) => {
-                    if (currentIndex > 0) {
-                        snippet += '<br />';
+                    value.forEach((currentValue, currentIndex) => {
+                        if (currentIndex > 0) {
+                            snippet += '<br />';
+                        }
+
+                        snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
+                            assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
+                        });
+                    });
+
+                    if (index > 0) {
+                        return `${accumulator} </br> ${snippet}`;
                     }
 
-                    snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                        assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
-                    });
-                });
-
-                if (index > 0) {
-                    return `${accumulator} </br> ${snippet}`;
-                }
-
-                return `${accumulator} ${snippet}`;
-            }, '');
+                    return `${accumulator} ${snippet}`;
+                },
+                '',
+            );
         },
     },
 });

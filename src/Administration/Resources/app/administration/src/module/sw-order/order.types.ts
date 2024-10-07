@@ -5,8 +5,8 @@ import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/En
  */
 
 interface TaxRule {
-    taxRate: number,
-    percentage: number | null,
+    taxRate: number;
+    percentage: number | null;
 }
 
 enum LineItemType {
@@ -29,91 +29,91 @@ interface CalculatedTax {
 }
 
 interface CalculatedPrice {
-    unitPrice: number,
-    totalPrice: number,
-    calculatedTaxes: CalculatedTax[],
-    taxRules: TaxRule[],
+    unitPrice: number;
+    totalPrice: number;
+    calculatedTaxes: CalculatedTax[];
+    taxRules: TaxRule[];
 }
 
 interface LineItem {
-    id: string,
-    versionId: string,
-    label: string,
-    description: string,
-    type: LineItemType,
-    payload: Record<string, unknown> | null,
-    quantity: number,
-    identifier: string,
-    _isNew: boolean,
-    price: CalculatedPrice | null,
-    children?: LineItem[],
+    id: string;
+    versionId: string;
+    label: string;
+    description: string;
+    type: LineItemType;
+    payload: Record<string, unknown> | null;
+    quantity: number;
+    identifier: string;
+    _isNew: boolean;
+    price: CalculatedPrice | null;
+    children?: LineItem[];
     priceDefinition: {
-        price: number,
-        taxRules: TaxRule[],
-        quantity: number,
-        type: PriceType,
-        isCalculated: boolean,
-    },
-    unitPrice: number,
-    totalPrice: number,
-    precision: number,
+        price: number;
+        taxRules: TaxRule[];
+        quantity: number;
+        type: PriceType;
+        isCalculated: boolean;
+    };
+    unitPrice: number;
+    totalPrice: number;
+    precision: number;
 }
 
 interface PromotionCodeTag {
-    discountId: string,
-    isInvalid: boolean,
-    code: string,
+    discountId: string;
+    isInvalid: boolean;
+    code: string;
 }
 
 interface CartError {
-    level: number,
-    message: string,
+    level: number;
+    message: string;
 }
 
 interface CartDelivery {
     id: string;
     deliveryDate: {
-        earliest: string,
-    }
-    shippingCosts: CalculatedPrice,
-    shippingMethod: Entity<'shipping_method'>,
+        earliest: string;
+    };
+    shippingCosts: CalculatedPrice;
+    shippingMethod: Entity<'shipping_method'>;
 }
 
 interface Cart {
-    token: string,
-    lineItems: Array<LineItem>,
-    errors: Array<CartError>,
-    deliveries: CartDelivery[],
+    token: string;
+    lineItems: Array<LineItem>;
+    errors: Array<CartError>;
+    deliveries: CartDelivery[];
     price: {
-        rawTotal: number,
-        totalPrice: number,
-        calculatedTaxes: CalculatedTax[],
-        taxStatus: string
-    }
+        rawTotal: number;
+        totalPrice: number;
+        calculatedTaxes: CalculatedTax[];
+        taxStatus: string;
+    };
 }
 
 interface Context {
-    currencyId: string,
-    languageIdChain: Array<string>,
+    currencyId: string;
+    languageIdChain: Array<string>;
 }
 
 interface SalesChannelContext {
-    token: string,
-    customer: Entity<'customer'> | null,
-    paymentMethod: Entity<'payment_method'>,
-    shippingMethod: Entity<'shipping_method'>,
-    currency: Entity<'currency'>,
-    context: Context,
-    salesChannel: Entity<'sales_channel'>,
+    token: string;
+    customer: Entity<'customer'> | null;
+    paymentMethod: Entity<'payment_method'>;
+    shippingMethod: Entity<'shipping_method'>;
+    currency: Entity<'currency'>;
+    context: Context;
+    salesChannel: Entity<'sales_channel'>;
 }
 
 interface ContextSwitchParameters {
-    currencyId: string | null,
-    languageId: string | null,
-    paymentMethodId: string | null,
-    shippingMethodId: string | null,
-    billingAddressId: string | null,
-    shippingAddressId: string | null,
+    currencyId: string | null;
+    languageId: string | null;
+    paymentMethodId: string | null;
+    shippingMethodId: string | null;
+    billingAddressId: string | null;
+    shippingAddressId: string | null;
 }
 
 /**
@@ -134,7 +134,4 @@ export type {
 /**
  * @private
  */
-export {
-    LineItemType,
-    PriceType,
-};
+export { LineItemType, PriceType };

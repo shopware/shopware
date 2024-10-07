@@ -111,7 +111,7 @@ Component.register('sw-meteor-single-select', {
 
         singleSelection: {
             get() {
-                return this.options.find(option => {
+                return this.options.find((option) => {
                     return this.getKey(option, this.valueProperty) === this.currentValue;
                 });
             },
@@ -174,7 +174,7 @@ Component.register('sw-meteor-single-select', {
         search() {
             this.$emit('search', this.searchTerm);
 
-            this.results = this.options.filter(option => {
+            this.results = this.options.filter((option) => {
                 const label = this.getKey(option, this.labelProperty);
                 if (!label) {
                     return false;

@@ -41,16 +41,20 @@ export default {
 
     computed: {
         entryPoints() {
-            return [{
-                value: 'navigationSalesChannels',
-                label: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation'),
-            }, {
-                value: 'footerSalesChannels',
-                label: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation'),
-            }, {
-                value: 'serviceSalesChannels',
-                label: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation'),
-            }];
+            return [
+                {
+                    value: 'navigationSalesChannels',
+                    label: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation'),
+                },
+                {
+                    value: 'footerSalesChannels',
+                    label: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation'),
+                },
+                {
+                    value: 'serviceSalesChannels',
+                    label: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation'),
+                },
+            ];
         },
 
         associatedCollection() {
@@ -90,9 +94,11 @@ export default {
             const criteria = new Criteria(1, 25);
 
             if (this.hasExistingNavigation) {
-                criteria.addFilter(Criteria.not('or', [
-                    Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds()),
-                ]));
+                criteria.addFilter(
+                    Criteria.not('or', [
+                        Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds()),
+                    ]),
+                );
             }
 
             return criteria;

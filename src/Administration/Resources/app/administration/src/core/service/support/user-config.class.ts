@@ -9,7 +9,7 @@ const { Criteria } = Data;
 enum USER_CONFIG_PERMISSIONS {
     READ = 'user_config:read',
     CREATE = 'user_config:create',
-    UPDATE = 'user_config:update'
+    UPDATE = 'user_config:update',
 }
 
 abstract class UserConfigClass {
@@ -92,7 +92,7 @@ abstract class UserConfigClass {
         return userConfig;
     }
 
-    private getCriteria(configKey : string): InstanceType<typeof Criteria> {
+    private getCriteria(configKey: string): InstanceType<typeof Criteria> {
         const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('key', configKey));

@@ -30,7 +30,10 @@ describe('src/app/store/index.ts', () => {
             id: 'bar',
         });
 
-        expect(store.list()).toStrictEqual(['foo', 'bar']);
+        expect(store.list()).toStrictEqual([
+            'foo',
+            'bar',
+        ]);
 
         store.unregister('foo');
         store.unregister('bar');
@@ -99,7 +102,10 @@ describe('src/app/store/index.ts', () => {
             id: 'bar',
         });
 
-        expect(root.list()).toStrictEqual(['foo', 'bar']);
+        expect(root.list()).toStrictEqual([
+            'foo',
+            'bar',
+        ]);
 
         root.clear();
         expect(root.list()).toStrictEqual([]);

@@ -52,7 +52,9 @@ async function createWrapper() {
                 'sw-product-media-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
-                'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+                'sw-icon': {
+                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+                },
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'router-link': true,
@@ -70,17 +72,19 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve({
-                            first: () => {
-                                return {
-                                    folder: {},
-                                };
-                            },
-                        }),
+                        search: () =>
+                            Promise.resolve({
+                                first: () => {
+                                    return {
+                                        folder: {},
+                                    };
+                                },
+                            }),
                         get: () => Promise.resolve({}),
-                        searchIds: () => Promise.resolve({
-                            data: [],
-                        }),
+                        searchIds: () =>
+                            Promise.resolve({
+                                data: [],
+                            }),
                         create: () => ({ id: 'id' }),
                     }),
                 },
@@ -101,13 +105,15 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 ...productStore.state,
                 parentProduct: {
                     media: [],
-                    reviews: [{
-                        id: '1a2b3c',
-                        entity: 'review',
-                        customerId: 'd4c3b2a1',
-                        productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1',
-                    }],
+                    reviews: [
+                        {
+                            id: '1a2b3c',
+                            entity: 'review',
+                            customerId: 'd4c3b2a1',
+                            productId: 'd4c3b2a1',
+                            salesChannelId: 'd4c3b2a1',
+                        },
+                    ],
                 },
                 product: {
                     id: 'productId',
@@ -115,25 +121,31 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     isNew: () => false,
                     media: new EntityCollection('', '', {}, {}, []),
                     coverId: null,
-                    reviews: [{
-                        id: '1a2b3c',
-                        entity: 'review',
-                        customerId: 'd4c3b2a1',
-                        productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1',
-                    }],
-                    purchasePrices: [{
-                        currencyId: '1',
-                        linked: true,
-                        gross: 0,
-                        net: 0,
-                    }],
-                    price: [{
-                        currencyId: '1',
-                        linked: true,
-                        gross: 100,
-                        net: 84.034,
-                    }],
+                    reviews: [
+                        {
+                            id: '1a2b3c',
+                            entity: 'review',
+                            customerId: 'd4c3b2a1',
+                            productId: 'd4c3b2a1',
+                            salesChannelId: 'd4c3b2a1',
+                        },
+                    ],
+                    purchasePrices: [
+                        {
+                            currencyId: '1',
+                            linked: true,
+                            gross: 0,
+                            net: 0,
+                        },
+                    ],
+                    price: [
+                        {
+                            currencyId: '1',
+                            linked: true,
+                            gross: 100,
+                            net: 84.034,
+                        },
+                    ],
                 },
                 loading: {
                     product: false,
@@ -311,7 +323,12 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('should be able to add a new media', async () => {
         const wrapper = await createWrapper();
 
-        const media = { id: 'id', fileName: 'fileName', fileSize: 101, url: 'http://image.jpg' };
+        const media = {
+            id: 'id',
+            fileName: 'fileName',
+            fileSize: 101,
+            url: 'http://image.jpg',
+        };
 
         const productMediaFrom = wrapper.findComponent('sw-product-media-form-stub');
         await productMediaFrom.vm.$emit('media-open');
@@ -319,15 +336,19 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const mediaModal = wrapper.findComponent('sw-media-modal-v2-stub');
         await mediaModal.vm.$emit('media-modal-selection-change', [media]);
 
-        expect(wrapper.vm.product.media).toEqual(expect.arrayContaining([{
-            id: 'id',
-            media: {
-                id: 'id',
-                url: 'http://image.jpg',
-            },
-            mediaId: 'id',
-            position: 0,
-        }]));
+        expect(wrapper.vm.product.media).toEqual(
+            expect.arrayContaining([
+                {
+                    id: 'id',
+                    media: {
+                        id: 'id',
+                        url: 'http://image.jpg',
+                    },
+                    mediaId: 'id',
+                    position: 0,
+                },
+            ]),
+        );
     });
 
     it('should not be able to add a new media', async () => {
@@ -335,7 +356,12 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        const media = { id: 'id', fileName: 'fileName', fileSize: 101, url: 'http://image.jpg' };
+        const media = {
+            id: 'id',
+            fileName: 'fileName',
+            fileSize: 101,
+            url: 'http://image.jpg',
+        };
 
         await Shopware.State.commit('swProductDetail/setProduct', {
             ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
@@ -446,7 +472,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'media'),
+            ...modeSettings.filter((item) => item !== 'media'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -460,7 +486,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'general_information'),
+            ...modeSettings.filter((item) => item !== 'general_information'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -474,7 +500,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'prices'),
+            ...modeSettings.filter((item) => item !== 'prices'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -488,7 +514,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'deliverability'),
+            ...modeSettings.filter((item) => item !== 'deliverability'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -502,7 +528,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'visibility_structure'),
+            ...modeSettings.filter((item) => item !== 'visibility_structure'),
         ]);
 
         await wrapper.vm.$nextTick();

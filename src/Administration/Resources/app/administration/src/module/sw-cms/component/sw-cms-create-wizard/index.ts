@@ -19,7 +19,10 @@ export default Shopware.Component.wrapComponentConfig({
         'customEntityDefinitionService',
     ],
 
-    emits: ['on-section-select', 'wizard-complete'],
+    emits: [
+        'on-section-select',
+        'wizard-complete',
+    ],
 
     props: {
         page: {
@@ -37,13 +40,13 @@ export default Shopware.Component.wrapComponentConfig({
                 pageName: 3,
             },
         } as {
-            step: number,
+            step: number;
             steps: {
-                pageType: number,
-                sectionType: number,
-                pageName: number,
-                [key: string]: number,
-            },
+                pageType: number;
+                sectionType: number;
+                pageName: number;
+                [key: string]: number;
+            };
         };
     },
 
@@ -64,7 +67,7 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 this.page.name,
                 !this.isCustomEntityType || this.page.entity,
-            ].every(condition => condition);
+            ].every((condition) => condition);
         },
 
         customEntities() {

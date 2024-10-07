@@ -10,7 +10,7 @@ import type { menuItemAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/menu';
 export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & { moduleId: string };
 
 interface MenuItemState {
-    menuItems: MenuItemEntry[],
+    menuItems: MenuItemEntry[];
 }
 
 const MenuItemStore: Module<MenuItemState, VuexRootState> = {

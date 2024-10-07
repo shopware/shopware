@@ -24,10 +24,14 @@ describe('topbar-button.store', () => {
             callback: () => {},
         });
 
-        expect(JSON.stringify(store.buttons)).toBe(JSON.stringify([{
-            label: 'Test action',
-            icon: 'solid-rocket',
-            callback: () => {},
-        }]));
+        expect(JSON.stringify(store.buttons)).toBe(
+            JSON.stringify([
+                {
+                    label: 'Test action',
+                    icon: 'solid-rocket',
+                    callback: () => {},
+                },
+            ]),
+        );
     });
 });

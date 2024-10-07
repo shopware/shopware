@@ -31,11 +31,12 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({}),
-                        get: () => Promise.resolve({
-                            productExports: {
-                                first: () => ({}),
-                            },
-                        }),
+                        get: () =>
+                            Promise.resolve({
+                                productExports: {
+                                    first: () => ({}),
+                                },
+                            }),
                         search: () => Promise.resolve([]),
                     }),
                 },

@@ -55,11 +55,9 @@ class UserConfigService extends ApiService {
     upsert(upsertData) {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient
-            .post(this.getApiBasePath(), upsertData, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return this.httpClient.post(this.getApiBasePath(), upsertData, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
     }
 }
 

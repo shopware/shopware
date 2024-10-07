@@ -7,47 +7,50 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 const mockHandleUpdateContent = jest.fn();
 
 async function createWrapper(props = {}) {
-    return mount(await wrapTestComponent('sw-cms-slot', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                type: 'example_cms_element_type',
+    return mount(
+        await wrapTestComponent('sw-cms-slot', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    type: 'example_cms_element_type',
+                },
+                ...props,
             },
-            ...props,
-        },
-        global: {
-            stubs: {
-                'foo-bar': {
-                    template: `
+            global: {
+                stubs: {
+                    'foo-bar': {
+                        template: `
                         <div class="foo-bar">
                             <slot></slot>
                         </div>
                     `,
-                    methods: {
-                        handleUpdateContent: () => {
-                            mockHandleUpdateContent();
+                        methods: {
+                            handleUpdateContent: () => {
+                                mockHandleUpdateContent();
+                            },
                         },
                     },
-                },
-                'sw-modal': {
-                    template: `
+                    'sw-modal': {
+                        template: `
                         <div class="sw-modal">
                              <slot></slot>
                         </div>
                     `,
+                    },
+                    'sw-sidebar-collapse': true,
+                    'sw-skeleton-bar': true,
+                    'sw-button': true,
+                    'sw-icon': true,
                 },
-                'sw-sidebar-collapse': true,
-                'sw-skeleton-bar': true,
-                'sw-button': true,
-                'sw-icon': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-                cmsElementFavorites: Shopware.Service('cmsElementFavorites'),
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    cmsElementFavorites: Shopware.Service('cmsElementFavorites'),
+                },
             },
         },
-    });
+    );
 }
 
 jest.useFakeTimers();
@@ -69,55 +72,59 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         };
 
         cmsService.registerCmsElement(buildConfig('product_list_slot'));
-        cmsService.registerCmsElement(buildConfig('product_detail_slot', {
-            allowedPageTypes: ['product_detail'],
-        }));
-        cmsService.registerCmsElement(buildConfig('product_detail_slot2', {
-            allowedPageTypes: ['product_detail'],
-        }));
-        cmsService.registerCmsElement(buildConfig('product_detail_slot3', {
-            allowedPageTypes: ['product_detail'],
-        }));
-        cmsService.registerCmsElement(buildConfig('landing_slot', {
-            allowedPageTypes: ['landingpage'],
-        }));
-        cmsService.registerCmsElement(buildConfig(
-            'example_cms_element_type',
-            {
+        cmsService.registerCmsElement(
+            buildConfig('product_detail_slot', {
+                allowedPageTypes: ['product_detail'],
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('product_detail_slot2', {
+                allowedPageTypes: ['product_detail'],
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('product_detail_slot3', {
+                allowedPageTypes: ['product_detail'],
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('landing_slot', {
+                allowedPageTypes: ['landingpage'],
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('example_cms_element_type', {
                 allowedPageTypes: ['landingpage'],
                 disabledConfigInfoTextKey: 'lorem',
                 defaultConfig: {
                     text: 'lorem',
                 },
-            },
-        ));
-        cmsService.registerCmsElement(buildConfig(
-            'with_locked',
-            {
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('with_locked', {
                 allowedPageTypes: ['landingpage'],
                 defaultConfig: {
                     text: 'lorem',
                 },
                 locked: true,
-            },
-        ));
-        cmsService.registerCmsElement(buildConfig(
-            'without_default_config',
-            {
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('without_default_config', {
                 allowedPageTypes: ['landingpage'],
                 locked: false,
-            },
-        ));
-        cmsService.registerCmsElement(buildConfig(
-            'with_config_and_unlocked',
-            {
+            }),
+        );
+        cmsService.registerCmsElement(
+            buildConfig('with_config_and_unlocked', {
                 allowedPageTypes: ['landingpage'],
                 defaultConfig: {
                     text: 'lorem',
                 },
                 locked: false,
-            },
-        ));
+            }),
+        );
     });
 
     beforeEach(() => {
@@ -216,14 +223,16 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             active: true,
         });
 
-        const actualFavorites = wrapper.vm.groupedCmsElements
-            .find(group => group.title === 'sw-cms.elements.general.switch.groups.favorites');
+        const actualFavorites = wrapper.vm.groupedCmsElements.find(
+            (group) => group.title === 'sw-cms.elements.general.switch.groups.favorites',
+        );
         expect(actualFavorites.items).toHaveLength(2);
         expect(actualFavorites.items[0].name).toBe('product_detail_slot');
         expect(actualFavorites.items[1].name).toBe('product_detail_slot2');
 
-        const actualNonFavorites = wrapper.vm.groupedCmsElements
-            .find(group => group.title === 'sw-cms.elements.general.switch.groups.all');
+        const actualNonFavorites = wrapper.vm.groupedCmsElements.find(
+            (group) => group.title === 'sw-cms.elements.general.switch.groups.all',
+        );
         expect(actualNonFavorites.items).toHaveLength(1);
         expect(actualNonFavorites.items[0].name).toBe('product_detail_slot3');
     });
@@ -250,20 +259,23 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             'having just a name',
             {
                 name: 'testElement',
-            }, {
+            },
+            {
                 type: 'testElement',
                 config: {},
                 data: {},
                 locked: false,
             },
-        ], [
+        ],
+        [
             'with a defaultConfig',
             {
                 name: 'testElement',
                 defaultConfig: {
                     imageId: 1234567980,
                 },
-            }, {
+            },
+            {
                 type: 'testElement',
                 config: {
                     imageId: 1234567980,
@@ -271,14 +283,16 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
                 data: {},
                 locked: false,
             },
-        ], [
+        ],
+        [
             'with defaultData set',
             {
                 name: 'testElement',
                 defaultData: {
                     text: 'Test text',
                 },
-            }, {
+            },
+            {
                 type: 'testElement',
                 config: {},
                 data: {
@@ -286,7 +300,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
                 },
                 locked: false,
             },
-        ], [
+        ],
+        [
             'with defaultConfig and defaultData set',
             {
                 name: 'testElement',
@@ -296,7 +311,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
                 defaultData: {
                     text: 'Test text',
                 },
-            }, {
+            },
+            {
                 type: 'testElement',
                 config: {
                     imageId: 1234567980,
@@ -308,15 +324,18 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             },
         ],
     ];
-    it.each(onSelectElementDataProvider)('should validate the results of onSelectElement %s', async (caseName, actual, expected) => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm.element).toEqual({
-            type: 'example_cms_element_type',
-        });
+    it.each(onSelectElementDataProvider)(
+        'should validate the results of onSelectElement %s',
+        async (caseName, actual, expected) => {
+            const wrapper = await createWrapper();
+            expect(wrapper.vm.element).toEqual({
+                type: 'example_cms_element_type',
+            });
 
-        wrapper.vm.onSelectElement(actual);
-        expect(wrapper.vm.element).toEqual(expected);
-    });
+            wrapper.vm.onSelectElement(actual);
+            expect(wrapper.vm.element).toEqual(expected);
+        },
+    );
 
     it('should reset previous translated config values on onSelectElement', async () => {
         const wrapper = await createWrapper();
@@ -337,7 +356,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     it('should filter slots based on pageType compatibility', async () => {
         const wrapper = await createWrapper();
 
-        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_slot']);
+        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual([
+            'product_list_slot',
+        ]);
     });
 
     it('should show an error state after 10s when element is not existing', async () => {
@@ -363,67 +384,94 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     const toggleElementSelectionModalDataProvider = [
-        ['onElementButtonClick', true],
-        ['onCloseElementModal', false],
+        [
+            'onElementButtonClick',
+            true,
+        ],
+        [
+            'onCloseElementModal',
+            false,
+        ],
     ];
-    it.each(toggleElementSelectionModalDataProvider)('should toggle the element selection modal according to %s', async (toggleMethod, expected) => {
-        const wrapper = await createWrapper();
+    it.each(toggleElementSelectionModalDataProvider)(
+        'should toggle the element selection modal according to %s',
+        async (toggleMethod, expected) => {
+            const wrapper = await createWrapper();
 
-        wrapper.vm[toggleMethod]();
-        expect(wrapper.vm.showElementSelection).toBe(expected);
-    });
+            wrapper.vm[toggleMethod]();
+            expect(wrapper.vm.showElementSelection).toBe(expected);
+        },
+    );
 
-    it.each([true, false])('should not toggle the element settings modal without defaultConfig and showElementSettings is %s', async (actualShowElementSettings) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            showElementSettings: actualShowElementSettings,
-        });
-        await wrapper.setProps({
-            element: {
-                type: 'without_default_config',
-                locked: false,
-            },
-        });
+    it.each([
+        true,
+        false,
+    ])(
+        'should not toggle the element settings modal without defaultConfig and showElementSettings is %s',
+        async (actualShowElementSettings) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                showElementSettings: actualShowElementSettings,
+            });
+            await wrapper.setProps({
+                element: {
+                    type: 'without_default_config',
+                    locked: false,
+                },
+            });
 
-        expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
-        wrapper.vm.onSettingsButtonClick();
-        expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
-    });
+            expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
+            wrapper.vm.onSettingsButtonClick();
+            expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
+        },
+    );
 
-    it.each([true, false])('should not toggle the element settings modal with a locked element and showElementSettings is %s', async (actualShowElementSettings) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            showElementSettings: actualShowElementSettings,
-        });
-        await wrapper.setProps({
-            element: {
-                type: 'with_locked',
-                locked: true,
-            },
-        });
+    it.each([
+        true,
+        false,
+    ])(
+        'should not toggle the element settings modal with a locked element and showElementSettings is %s',
+        async (actualShowElementSettings) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                showElementSettings: actualShowElementSettings,
+            });
+            await wrapper.setProps({
+                element: {
+                    type: 'with_locked',
+                    locked: true,
+                },
+            });
 
-        expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
-        wrapper.vm.onSettingsButtonClick();
-        expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
-    });
+            expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
+            wrapper.vm.onSettingsButtonClick();
+            expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
+        },
+    );
 
-    it.each([true, false])('should show the element settings modal with a defaultConfig, no locked element and showElementSettings is %s', async (actualShowElementSettings) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            showElementSettings: actualShowElementSettings,
-        });
-        await wrapper.setProps({
-            showElementSettings: false,
-            element: {
-                type: 'with_config_and_unlocked',
-                locked: false,
-            },
-        });
+    it.each([
+        true,
+        false,
+    ])(
+        'should show the element settings modal with a defaultConfig, no locked element and showElementSettings is %s',
+        async (actualShowElementSettings) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                showElementSettings: actualShowElementSettings,
+            });
+            await wrapper.setProps({
+                showElementSettings: false,
+                element: {
+                    type: 'with_config_and_unlocked',
+                    locked: false,
+                },
+            });
 
-        expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
-        wrapper.vm.onSettingsButtonClick();
-        expect(wrapper.vm.showElementSettings).toBe(true);
-    });
+            expect(wrapper.vm.showElementSettings).toBe(actualShowElementSettings);
+            wrapper.vm.onSettingsButtonClick();
+            expect(wrapper.vm.showElementSettings).toBe(true);
+        },
+    );
 
     it('should close the settings modal and call handleUpdateContent if the methods exists and showElementSettings is true', async () => {
         const wrapper = await createWrapper();

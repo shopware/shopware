@@ -43,55 +43,66 @@ const expectedVisiblePageTypes = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-create-wizard', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'router-link': true,
-                'sw-icon': true,
-                'sw-cms-stage-section-selection': await wrapTestComponent('sw-cms-stage-section-selection'),
-                'sw-single-select': true,
-                'sw-text-field': true,
-                'sw-button': true,
-            },
-            provide: {
-                cmsPageTypeService: {
-                    getType: (name) => {
-                        return expectedVisiblePageTypes[name];
+    return mount(
+        await wrapTestComponent('sw-cms-create-wizard', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'router-link': true,
+                    'sw-icon': true,
+                    'sw-cms-stage-section-selection': await wrapTestComponent('sw-cms-stage-section-selection'),
+                    'sw-single-select': true,
+                    'sw-text-field': true,
+                    'sw-button': true,
+                },
+                provide: {
+                    cmsPageTypeService: {
+                        getType: (name) => {
+                            return expectedVisiblePageTypes[name];
+                        },
+                        getVisibleTypes: () => {
+                            return Object.values(expectedVisiblePageTypes);
+                        },
                     },
-                    getVisibleTypes: () => {
-                        return Object.values(expectedVisiblePageTypes);
+                    customEntityDefinitionService: {
+                        getCmsAwareDefinitions: () => [
+                            'some-content-to-result-in-true',
+                        ],
                     },
                 },
-                customEntityDefinitionService: {
-                    getCmsAwareDefinitions: () => ['some-content-to-result-in-true'],
-                },
             },
-        },
-        props: {
-            page: {
-                type: 'landingpage',
-                sections: [{
-                    id: 'section-1',
-                    type: 'default',
-                    blocks: [{
-                        id: 'block-1',
-                        slots: [{
-                            id: 'slot-1',
-                            type: 'text',
-                            config: {
-                                content: {
-                                    source: 'static',
-                                    value: 'Lorem ipsum dolor sit amet',
+            props: {
+                page: {
+                    type: 'landingpage',
+                    sections: [
+                        {
+                            id: 'section-1',
+                            type: 'default',
+                            blocks: [
+                                {
+                                    id: 'block-1',
+                                    slots: [
+                                        {
+                                            id: 'slot-1',
+                                            type: 'text',
+                                            config: {
+                                                content: {
+                                                    source: 'static',
+                                                    value: 'Lorem ipsum dolor sit amet',
+                                                },
+                                            },
+                                        },
+                                    ],
                                 },
-                            },
-                        }],
-                    }],
-                }],
+                            ],
+                        },
+                    ],
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-create-wizard', () => {
@@ -120,29 +131,37 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     });
 
     const pageTypeDataProvider = [
-        ['page', false],
-        ['custom-entity-detail', true],
+        [
+            'page',
+            false,
+        ],
+        [
+            'custom-entity-detail',
+            true,
+        ],
     ];
-    it.each(pageTypeDataProvider)('should show the correct pageType selection for type "%s"', async (pageType, expectedHasCustomEntitySelection) => {
-        const wrapper = await createWrapper();
-        const typePage = wrapper.find(`.sw-cms-create-wizard__page-type-${pageType}`);
-        await typePage.trigger('click');
-        await flushPromises();
+    it.each(pageTypeDataProvider)(
+        'should show the correct pageType selection for type "%s"',
+        async (pageType, expectedHasCustomEntitySelection) => {
+            const wrapper = await createWrapper();
+            const typePage = wrapper.find(`.sw-cms-create-wizard__page-type-${pageType}`);
+            await typePage.trigger('click');
+            await flushPromises();
 
-        const noSidebarSection = wrapper.find('.sw-cms-stage-section-selection__default');
-        await noSidebarSection.trigger('click');
+            const noSidebarSection = wrapper.find('.sw-cms-stage-section-selection__default');
+            await noSidebarSection.trigger('click');
 
-        const nameField = wrapper.find('.sw-cms-create-wizard__page-completion-name');
-        expect(nameField.exists()).toBe(true);
+            const nameField = wrapper.find('.sw-cms-create-wizard__page-completion-name');
+            expect(nameField.exists()).toBe(true);
 
-        const customEntitySelection = wrapper.find('.sw-cms-create-wizard__page-completion-custom-entity');
-        expect(customEntitySelection.exists()).toBe(expectedHasCustomEntitySelection);
-    });
+            const customEntitySelection = wrapper.find('.sw-cms-create-wizard__page-completion-custom-entity');
+            expect(customEntitySelection.exists()).toBe(expectedHasCustomEntitySelection);
+        },
+    );
 
     it('should generate the correct pagePreviewMedia tag', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm.pagePreviewMedia)
-            .toBe('url(administration/static/img/cms/preview_landingpage_default.png)');
+        expect(wrapper.vm.pagePreviewMedia).toBe('url(administration/static/img/cms/preview_landingpage_default.png)');
     });
 
     it('should not generate any pagePreviewMedia, when no sections are set', async () => {

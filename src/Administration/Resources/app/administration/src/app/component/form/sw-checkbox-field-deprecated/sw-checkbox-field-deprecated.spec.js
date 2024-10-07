@@ -96,7 +96,11 @@ describe('app/component/form/sw-checkbox-field', () => {
         expect(thirdCheckboxInputId).toMatch(thirdLabelFor);
     });
 
-    ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
+    [
+        'checkOne',
+        'checkTwo',
+        'checkThree',
+    ].forEach((checkboxId, index) => {
         it(`should click on the label of Checkbox "${checkboxId}" and the corresponding data updates`, async () => {
             const wrapper = await createWrapper();
             await flushPromises();
@@ -107,7 +111,6 @@ describe('app/component/form/sw-checkbox-field', () => {
 
             expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
         });
-
 
         it(`should click on the input of Checkbox "${checkboxId}" and the corresponding data updates`, async () => {
             const wrapper = await createWrapper();
@@ -122,23 +125,28 @@ describe('app/component/form/sw-checkbox-field', () => {
     });
 
     it('should show the label from the property', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }), {
-            props: {
-                label: 'Label from prop',
-            },
-            global: {
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': true,
-                    'sw-field-error': {
-                        template: '<div></div>',
+        const wrapper = mount(
+            await wrapTestComponent('sw-checkbox-field-deprecated', {
+                sync: true,
+            }),
+            {
+                props: {
+                    label: 'Label from prop',
+                },
+                global: {
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-icon': true,
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
                     },
-                    'sw-help-text': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-inheritance-switch': true,
                 },
             },
-        });
+        );
 
         await flushPromises();
 
@@ -146,26 +154,31 @@ describe('app/component/form/sw-checkbox-field', () => {
     });
 
     it('should show the value from the label slot', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }), {
-            props: {
-                label: 'Label from prop',
-            },
-            global: {
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': true,
-                    'sw-field-error': {
-                        template: '<div></div>',
+        const wrapper = mount(
+            await wrapTestComponent('sw-checkbox-field-deprecated', {
+                sync: true,
+            }),
+            {
+                props: {
+                    label: 'Label from prop',
+                },
+                global: {
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-icon': true,
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
                     },
-                    'sw-help-text': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-inheritance-switch': true,
+                },
+                slots: {
+                    label: '<template>Label from slot</template>',
                 },
             },
-            slots: {
-                label: '<template>Label from slot</template>',
-            },
-        });
+        );
         await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');

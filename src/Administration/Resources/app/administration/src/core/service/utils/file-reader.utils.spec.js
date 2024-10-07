@@ -37,9 +37,13 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
     });
 
     it('should get Name and Extension from an URL', async () => {
-        const urlObject = { href: 'http://localhost/picture%20with%20blanks.png' };
+        const urlObject = {
+            href: 'http://localhost/picture%20with%20blanks.png',
+        };
 
-        expect(fileReaderUtils.getNameAndExtensionFromUrl(urlObject))
-            .toEqual({ extension: 'png', fileName: 'picture with blanks' });
+        expect(fileReaderUtils.getNameAndExtensionFromUrl(urlObject)).toEqual({
+            extension: 'png',
+            fileName: 'picture with blanks',
+        });
     });
 });

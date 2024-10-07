@@ -11,15 +11,15 @@ import type {
 } from './extension-store-action.service';
 
 type EXTENSION_VARIANT_TYPES = {
-    [Property in Uppercase<ExtensionVariantType>]: Lowercase<Property>
-}
+    [Property in Uppercase<ExtensionVariantType>]: Lowercase<Property>;
+};
 
 type EXTENSION_TYPES = {
-    [Property in Uppercase<ExtensionType>]: Lowercase<Property>
-}
+    [Property in Uppercase<ExtensionType>]: Lowercase<Property>;
+};
 
 interface LabeledLocation extends RouteLocation {
-    label: string|null
+    label: string | null;
 }
 
 /**
@@ -132,9 +132,11 @@ export default class ShopwareExtensionService {
     }
 
     public isVariantDiscounted(variant: ExtensionVariant): boolean {
-        if (!variant || !variant.discountCampaign
-            || typeof variant.discountCampaign.discountedPrice !== 'number'
-            || variant.discountCampaign.discountedPrice === variant.netPrice
+        if (
+            !variant ||
+            !variant.discountCampaign ||
+            typeof variant.discountCampaign.discountedPrice !== 'number' ||
+            variant.discountCampaign.discountedPrice === variant.netPrice
         ) {
             return false;
         }
@@ -165,7 +167,7 @@ export default class ShopwareExtensionService {
         }
     }
 
-    public async getOpenLink(extension: Extension): Promise<null|LabeledLocation|RouteLocationNamedRaw> {
+    public async getOpenLink(extension: Extension): Promise<null | LabeledLocation | RouteLocationNamedRaw> {
         if (extension.isTheme) {
             return this.getLinkToTheme(extension);
         }

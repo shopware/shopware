@@ -30,7 +30,6 @@ async function createWrapper() {
                 'sw-media-modal-v2': true,
                 'sw-alert': true,
                 'sw-upload-listener': true,
-
             },
         },
     });

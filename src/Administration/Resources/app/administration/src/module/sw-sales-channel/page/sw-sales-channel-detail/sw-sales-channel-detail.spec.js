@@ -31,17 +31,18 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({}),
-                        get: () => Promise.resolve({
-                            id: '1a2b3c4d',
-                            analyticsId: '1a2b3c',
-                            analytics: {
-                                id: '1a2b3c',
-                                trackingId: 'tracking-id',
-                            },
-                            productExports: {
-                                first: () => ({}),
-                            },
-                        }),
+                        get: () =>
+                            Promise.resolve({
+                                id: '1a2b3c4d',
+                                analyticsId: '1a2b3c',
+                                analytics: {
+                                    id: '1a2b3c',
+                                    trackingId: 'tracking-id',
+                                },
+                                productExports: {
+                                    first: () => ({}),
+                                },
+                            }),
                         search: () => Promise.resolve([]),
                         delete: () => Promise.resolve(),
                         save: () => Promise.resolve(),
@@ -130,14 +131,20 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         const criteria = wrapper.vm.getLoadSalesChannelCriteria();
 
-        expect(criteria.parse()).toEqual(expect.objectContaining({
-            associations: expect.objectContaining({
-                currencies: expect.objectContaining({
-                    sort: expect.arrayContaining([
-                        { field: 'name', order: 'ASC', naturalSorting: false },
-                    ]),
+        expect(criteria.parse()).toEqual(
+            expect.objectContaining({
+                associations: expect.objectContaining({
+                    currencies: expect.objectContaining({
+                        sort: expect.arrayContaining([
+                            {
+                                field: 'name',
+                                order: 'ASC',
+                                naturalSorting: false,
+                            },
+                        ]),
+                    }),
                 }),
             }),
-        }));
+        );
     });
 });

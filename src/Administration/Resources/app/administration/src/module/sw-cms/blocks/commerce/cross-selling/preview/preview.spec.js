@@ -4,15 +4,18 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-preview-cross-selling', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-preview-cross-selling', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/blocks/commerce/cross-selling/preview', () => {

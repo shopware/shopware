@@ -17,7 +17,10 @@ export default Shopware.Component.wrapComponentConfig({
         'cmsService',
     ],
 
-    emits: ['block-delete', 'block-duplicate'],
+    emits: [
+        'block-delete',
+        'block-duplicate',
+    ],
 
     mixins: [
         Shopware.Mixin.getByName('cms-state'),
@@ -71,7 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
         async successfulUpload(uploadedMedia: MediaUploadResult) {
             this.block.backgroundMediaId = uploadedMedia.targetId;
 
-            this.block.backgroundMedia = await this.mediaRepository.get(uploadedMedia.targetId) ?? undefined;
+            this.block.backgroundMedia = (await this.mediaRepository.get(uploadedMedia.targetId)) ?? undefined;
         },
 
         removeMedia() {

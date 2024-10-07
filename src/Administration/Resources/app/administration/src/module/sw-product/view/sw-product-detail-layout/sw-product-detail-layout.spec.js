@@ -18,19 +18,25 @@ async function createWrapper(privileges = []) {
                             }
                             return Promise.resolve({
                                 id,
-                                sections: [{
-                                    blocks: [{
-                                        slots: [{
-                                            id: 'slot1',
-                                            config: {
-                                                content: {
-                                                    value: 'product.name',
-                                                    source: 'mapped',
-                                                },
+                                sections: [
+                                    {
+                                        blocks: [
+                                            {
+                                                slots: [
+                                                    {
+                                                        id: 'slot1',
+                                                        config: {
+                                                            content: {
+                                                                value: 'product.name',
+                                                                source: 'mapped',
+                                                            },
+                                                        },
+                                                    },
+                                                ],
                                             },
-                                        }],
-                                    }],
-                                }],
+                                        ],
+                                    },
+                                ],
                             });
                         },
                     }),
@@ -40,7 +46,9 @@ async function createWrapper(privileges = []) {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -58,7 +66,6 @@ async function createWrapper(privileges = []) {
         },
     });
 }
-
 
 describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     beforeAll(() => {

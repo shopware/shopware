@@ -4,52 +4,57 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-users-permissions-role-listing', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
+    return mount(
+        await wrapTestComponent('sw-users-permissions-role-listing', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve([]),
+                        }),
                     },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    searchRankingService: {},
                 },
-                searchRankingService: {},
-            },
-            mocks: {
-                $route: { query: '' },
-            },
-            stubs: {
-                'sw-card': true,
-                'sw-container': true,
-                'sw-simple-search-field': true,
-                'sw-button': true,
-                'sw-empty-state': true,
-                'sw-data-grid': {
-                    props: ['dataSource'],
-                    template: `
+                mocks: {
+                    $route: { query: '' },
+                },
+                stubs: {
+                    'sw-card': true,
+                    'sw-container': true,
+                    'sw-simple-search-field': true,
+                    'sw-button': true,
+                    'sw-empty-state': true,
+                    'sw-data-grid': {
+                        props: ['dataSource'],
+                        template: `
 <div>
     <template v-for="item in dataSource">
         <slot name="actions" v-bind="{ item }"></slot>
     </template>
 </div>
 `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-verify-user-modal': true,
+                    'router-link': true,
+                    'sw-pagination': true,
                 },
-                'sw-context-menu-item': true,
-                'sw-verify-user-modal': true,
-                'router-link': true,
-                'sw-pagination': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/components/sw-users-permissions-role-listing', () => {

@@ -60,7 +60,7 @@ export default {
             const offset = (params.page - 1) * params.limit;
             this.total = this.config.length;
 
-            this.fetchSalesChannels().then(config => {
+            this.fetchSalesChannels().then((config) => {
                 this.items = config.slice(offset, offset + params.limit);
             });
         },
@@ -70,13 +70,13 @@ export default {
         },
 
         fetchSalesChannels() {
-            const salesChannelIds = this.config.map(config => config.id);
+            const salesChannelIds = this.config.map((config) => config.id);
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
 
-            return this.salesChannelRepository.search(criteria).then(salesChannels => {
-                return this.config.map(config => {
+            return this.salesChannelRepository.search(criteria).then((salesChannels) => {
+                return this.config.map((config) => {
                     const salesChannel = salesChannels.get(config.id);
                     if (!salesChannel) {
                         return config;

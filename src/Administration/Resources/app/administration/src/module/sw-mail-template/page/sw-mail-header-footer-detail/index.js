@@ -16,7 +16,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
+    inject: [
+        'entityMappingService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -83,7 +87,9 @@ export default {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(prefix, { salesChannel: 'sales_channel' }),
+                        entityMappingService.getEntityMapping(prefix, {
+                            salesChannel: 'sales_channel',
+                        }),
                     ).forEach((val) => {
                         properties.push({
                             value: val,
@@ -92,7 +98,7 @@ export default {
                     return properties;
                 }
                 return completerFunction;
-            }(this.entityMappingService));
+            })(this.entityMappingService);
         },
 
         allowSave() {
@@ -204,9 +210,7 @@ export default {
                 this.isSaveSuccessful = true;
             } catch (error) {
                 const notificationError = {
-                    message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                    ),
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 };
 
                 this.createNotificationError(notificationError);
@@ -221,7 +225,7 @@ export default {
             const criteria = new Criteria(1, 25);
             const salesChannelIds = [];
 
-            this.mailHeaderFooter.salesChannels.forEach(salesChannel => {
+            this.mailHeaderFooter.salesChannels.forEach((salesChannel) => {
                 salesChannelIds.push(salesChannel.id);
             });
 

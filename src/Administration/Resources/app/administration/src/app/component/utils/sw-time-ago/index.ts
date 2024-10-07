@@ -20,16 +20,19 @@ Component.register('sw-time-ago', {
 
     props: {
         date: {
-            type: [Date, String] as PropType<Date|string>,
+            type: [
+                Date,
+                String,
+            ] as PropType<Date | string>,
             required: true,
         },
     },
 
     data(): {
-        formattedRelativeTime: string|null,
-        interval: ReturnType<typeof setInterval>|null,
-        now: number,
-        } {
+        formattedRelativeTime: string | null;
+        interval: ReturnType<typeof setInterval> | null;
+        now: number;
+    } {
         return {
             formattedRelativeTime: null,
             interval: null,
@@ -86,9 +89,11 @@ Component.register('sw-time-ago', {
         isToday(): boolean {
             const today = new Date(Date.now());
 
-            return this.dateObject.getDate() === today.getDate() &&
+            return (
+                this.dateObject.getDate() === today.getDate() &&
                 this.dateObject.getMonth() === today.getMonth() &&
-                this.dateObject.getFullYear() === today.getFullYear();
+                this.dateObject.getFullYear() === today.getFullYear()
+            );
         },
     },
 

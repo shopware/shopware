@@ -40,8 +40,11 @@ describe('src/app/service/discount-campaign.service.ts', () => {
         });
 
         it('returns false if discountCampaign has no startDate', async () => {
-            expect(shopwareDiscountCampaignService.isDiscountCampaignActive({ startDate: null }))
-                .toBe(false);
+            expect(
+                shopwareDiscountCampaignService.isDiscountCampaignActive({
+                    startDate: null,
+                }),
+            ).toBe(false);
         });
 
         it('returns false if startDate is in the future', async () => {
@@ -84,19 +87,24 @@ describe('src/app/service/discount-campaign.service.ts', () => {
 
         const differences = [
             [
-                'startDate', {
+                'startDate',
+                {
                     startDate: '04-05-2022 00:00:00',
                     endDate: originalCampaign.endDate,
                     discountAppliesForMonths: originalCampaign.discountAppliesForMonths,
                 },
-            ], [
-                'endDate', {
+            ],
+            [
+                'endDate',
+                {
                     startDate: originalCampaign.startDate,
                     endDate: '05-01-2022 00:00:00',
                     discountAppliesForMonths: originalCampaign.discountAppliesForMonths,
                 },
-            ], [
-                'discountAppliesForMonths', {
+            ],
+            [
+                'discountAppliesForMonths',
+                {
                     startDate: originalCampaign.startDate,
                     endDate: originalCampaign.endDate,
                     discountAppliesForMonths: 5,

@@ -4,13 +4,17 @@ import { mount } from '@vue/test-utils';
  * @package customer-order
  */
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-country-preview-template', {
-        sync: true,
-    }), {
-        propsData: {
-            formattingAddress: 'Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)',
+    return mount(
+        await wrapTestComponent('sw-settings-country-preview-template', {
+            sync: true,
+        }),
+        {
+            propsData: {
+                formattingAddress:
+                    'Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)',
+            },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-preview-template', () => {

@@ -9,16 +9,16 @@ import type { Router } from 'vue-router';
 
 /** @private */
 export interface AuthObject {
-    access: string,
-    refresh: string,
-    expiry: number
+    access: string;
+    refresh: string;
+    expiry: number;
 }
 
 interface TokenResponse {
     /* eslint-disable camelcase */
-    access_token: string,
-    refresh_token: string,
-    expires_in: number,
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
     /* eslint-enable camelcase */
 }
 
@@ -26,23 +26,23 @@ const REMEMBER_ME_DURATION = 14;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
-    loginByUsername: (user: string, pass: string) => Promise<AuthObject>,
-    verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>,
-    refreshToken: () => Promise<AuthObject['access']>,
-    getToken: () => string,
-    getBearerAuthentication: <K extends keyof AuthObject>(section?: K) => AuthObject[K],
-    setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject,
-    logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean,
-    forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void,
-    isLoggedIn: () => boolean,
-    addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void,
-    addOnLogoutListener: (listener: () => void) => void,
-    addOnLoginListener: (listener: () => unknown) => void,
-    getStorageKey: () => string,
-    notifyOnLoginListener: () => (void[] | null),
-    verifyUserToken: (password: string) => Promise<string>,
-    getStorage: () => CookieStorage,
-    setRememberMe: (active?: boolean) => void,
+    loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
+    verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>;
+    refreshToken: () => Promise<AuthObject['access']>;
+    getToken: () => string;
+    getBearerAuthentication: <K extends keyof AuthObject>(section?: K) => AuthObject[K];
+    setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
+    logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
+    forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
+    isLoggedIn: () => boolean;
+    addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void;
+    addOnLogoutListener: (listener: () => void) => void;
+    addOnLoginListener: (listener: () => unknown) => void;
+    getStorageKey: () => string;
+    notifyOnLoginListener: () => void[] | null;
+    verifyUserToken: (password: string) => Promise<string>;
+    getStorage: () => CookieStorage;
+    setRememberMe: (active?: boolean) => void;
 }
 
 let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -91,7 +91,8 @@ export default function createLoginService(
                     return access;
                 }
                 throw new Error('access Token should be of type String');
-            }).catch((e) => {
+            })
+            .catch((e) => {
                 throw e;
             });
     }
@@ -101,30 +102,36 @@ export default function createLoginService(
      * password.
      */
     function loginByUsername(user: string, pass: string): Promise<AuthObject> {
-        return httpClient.post<TokenResponse>('/oauth/token', {
-            grant_type: 'password',
-            client_id: 'administration',
-            scopes: 'write',
-            username: user,
-            password: pass,
-        }, {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            baseURL: context.apiPath!,
-        }).then((response) => {
-            if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
-                cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
-            }
+        return httpClient
+            .post<TokenResponse>(
+                '/oauth/token',
+                {
+                    grant_type: 'password',
+                    client_id: 'administration',
+                    scopes: 'write',
+                    username: user,
+                    password: pass,
+                },
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    baseURL: context.apiPath!,
+                },
+            )
+            .then((response) => {
+                if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
+                    cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
+                }
 
-            const auth = setBearerAuthentication({
-                access: response.data.access_token,
-                refresh: response.data.refresh_token,
-                expiry: response.data.expires_in,
+                const auth = setBearerAuthentication({
+                    access: response.data.access_token,
+                    refresh: response.data.refresh_token,
+                    expiry: response.data.expires_in,
+                });
+
+                window.localStorage.setItem('redirectFromLogin', 'true');
+
+                return auth;
             });
-
-            window.localStorage.setItem('redirectFromLogin', 'true');
-
-            return auth;
-        });
     }
 
     /**
@@ -137,44 +144,56 @@ export default function createLoginService(
             return Promise.reject(new Error('No refresh token found.'));
         }
 
-        return httpClient.post<TokenResponse>('/oauth/token', {
-            grant_type: 'refresh_token',
-            client_id: 'administration',
-            scopes: 'write',
-            refresh_token: token,
-        }, {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            baseURL: context.apiPath!,
-        }).then((response) => {
-            const expiry = response.data.expires_in;
+        return httpClient
+            .post<TokenResponse>(
+                '/oauth/token',
+                {
+                    grant_type: 'refresh_token',
+                    client_id: 'administration',
+                    scopes: 'write',
+                    refresh_token: token,
+                },
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    baseURL: context.apiPath!,
+                },
+            )
+            .then((response) => {
+                const expiry = response.data.expires_in;
 
-            setBearerAuthentication({
-                access: response.data.access_token,
-                expiry: expiry,
-                refresh: response.data.refresh_token,
+                setBearerAuthentication({
+                    access: response.data.access_token,
+                    expiry: expiry,
+                    refresh: response.data.refresh_token,
+                });
+
+                return response.data.access_token;
             });
-
-            return response.data.access_token;
-        });
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {
-        return httpClient.post<TokenResponse>('/oauth/token', {
-            grant_type: 'password',
-            client_id: 'administration',
-            scope: 'user-verified',
-            username: user,
-            password: pass,
-        }, {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            baseURL: context.apiPath!,
-        }).then((response) => {
-            return {
-                access: response.data.access_token,
-                expiry: response.data.expires_in,
-                refresh: response.data.refresh_token,
-            };
-        });
+        return httpClient
+            .post<TokenResponse>(
+                '/oauth/token',
+                {
+                    grant_type: 'password',
+                    client_id: 'administration',
+                    scope: 'user-verified',
+                    username: user,
+                    password: pass,
+                },
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    baseURL: context.apiPath!,
+                },
+            )
+            .then((response) => {
+                return {
+                    access: response.data.access_token,
+                    expiry: response.data.expires_in,
+                    refresh: response.data.refresh_token,
+                };
+            });
     }
 
     /**
@@ -210,12 +229,11 @@ export default function createLoginService(
     /**
      * notifies the listener for the onLogoutEvent
      */
-    function notifyOnLogoutListener():void {
+    function notifyOnLogoutListener(): void {
         onLogoutListener.forEach((callback) => {
             callback.call(null);
         });
     }
-
 
     /**
      * notifies the listener for the onLoginEvent
@@ -237,7 +255,7 @@ export default function createLoginService(
      * object identifier.
      */
     function setBearerAuthentication({ access, refresh, expiry }: AuthObject): AuthObject {
-        expiry = Math.round(Date.now() + (expiry * 1000));
+        expiry = Math.round(Date.now() + expiry * 1000);
 
         const cookieOptions: CookieOptions = {
             expires: new Date(expiry),
@@ -268,7 +286,7 @@ export default function createLoginService(
     /**
      * Refresh token in half of expiry time
      */
-    function autoRefreshToken(expiryTimestamp: number):void {
+    function autoRefreshToken(expiryTimestamp: number): void {
         const needTokenUpdate = getBearerAuthentication('expiry') !== expiryTimestamp;
 
         if (autoRefreshTokenTimeoutId && needTokenUpdate) {
@@ -337,10 +355,12 @@ export default function createLoginService(
      * Returns saved bearer authentication object. Either you're getting the full object or when you're specifying
      * the `section` argument and getting either the token or the expiry date.
      */
-    function getBearerAuthentication<K extends keyof AuthObject>(section?: K): AuthObject[K]
+    function getBearerAuthentication<K extends keyof AuthObject>(section?: K): AuthObject[K];
 
     // eslint-disable-next-line max-len
-    function getBearerAuthentication<K extends keyof AuthObject>(section: K | null = null): false | AuthObject | AuthObject[K] {
+    function getBearerAuthentication<K extends keyof AuthObject>(
+        section: K | null = null,
+    ): false | AuthObject | AuthObject[K] {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             try {
                 bearerAuth = JSON.parse(cookieStorage.getItem(storageKey) as string) as AuthObject;
@@ -359,7 +379,7 @@ export default function createLoginService(
             return bearerAuth;
         }
 
-        return (bearerAuth[section] ? bearerAuth[section] : false);
+        return bearerAuth[section] ? bearerAuth[section] : false;
     }
 
     /**
@@ -396,10 +416,13 @@ export default function createLoginService(
         if (router) {
             const id = Shopware.Utils.createId();
 
-            sessionStorage.setItem(`sw-admin-previous-route_${id}`, JSON.stringify({
-                fullPath: router.currentRoute.value.fullPath,
-                name: router.currentRoute.value.name,
-            }));
+            sessionStorage.setItem(
+                `sw-admin-previous-route_${id}`,
+                JSON.stringify({
+                    fullPath: router.currentRoute.value.fullPath,
+                    name: router.currentRoute.value.name,
+                }),
+            );
 
             if (isInactivityLogout && shouldRedirect) {
                 // Prevent multiple logout calls
@@ -407,7 +430,9 @@ export default function createLoginService(
                     return;
                 }
                 // @ts-expect-error - The app element exists
-                void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
+                void html2canvas(document.querySelector('#app'), {
+                    scale: 0.1,
+                }).then((canvas) => {
                     try {
                         window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
                     } catch (e) {
@@ -420,7 +445,10 @@ export default function createLoginService(
 
                     window.processingInactivityLogout = true;
 
-                    void router.push({ name: 'sw.inactivity.login.index', params: { id } });
+                    void router.push({
+                        name: 'sw.inactivity.login.index',
+                        params: { id },
+                    });
                 });
             } else {
                 cookieStorage.setItem('refresh-after-logout', 'true');
@@ -476,14 +504,12 @@ export default function createLoginService(
         const path = context.basePath! + context.pathInfo!;
 
         // Set default cookie values
-        return new CookieStorage(
-            {
-                path: path,
-                domain: null,
-                secure: false, // only allow HTTPs
-                sameSite: 'Strict', // Should be Strict
-            },
-        );
+        return new CookieStorage({
+            path: path,
+            domain: null,
+            secure: false, // only allow HTTPs
+            sameSite: 'Strict', // Should be Strict
+        });
     }
 
     /**

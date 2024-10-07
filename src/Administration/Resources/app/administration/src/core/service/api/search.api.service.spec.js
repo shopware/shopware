@@ -21,11 +21,7 @@ describe('searchApiService', () => {
     it('is request elastic send correctly', async () => {
         const { searchApiService, clientMock } = getSearchApiService();
 
-        clientMock.onPost('/_admin/es-search')
-            .reply(
-                200,
-                { data: 'foo' },
-            );
+        clientMock.onPost('/_admin/es-search').reply(200, { data: 'foo' });
 
         const response = await searchApiService.elastic('bar', [], 10);
 
@@ -35,11 +31,7 @@ describe('searchApiService', () => {
     it('is request searchQuery send correctly', async () => {
         const { searchApiService, clientMock } = getSearchApiService();
 
-        clientMock.onPost('/_admin/search')
-            .reply(
-                200,
-                { data: 'foo' },
-            );
+        clientMock.onPost('/_admin/search').reply(200, { data: 'foo' });
 
         const response = await searchApiService.searchQuery({});
 
@@ -49,11 +41,7 @@ describe('searchApiService', () => {
     it('is request aborted correctly', async () => {
         const { searchApiService, clientMock } = getSearchApiService();
 
-        clientMock.onPost('/_admin/search')
-            .reply(
-                200,
-                { data: 'foo' },
-            );
+        clientMock.onPost('/_admin/search').reply(200, { data: 'foo' });
 
         const response = searchApiService.searchQuery({});
         searchApiService.searchAbortController.abort();

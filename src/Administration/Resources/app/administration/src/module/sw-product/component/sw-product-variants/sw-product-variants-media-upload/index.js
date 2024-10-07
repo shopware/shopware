@@ -14,7 +14,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'mediaDefaultFolderService'],
+    inject: [
+        'repositoryFactory',
+        'mediaDefaultFolderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -74,7 +77,7 @@ export default {
                 return null;
             }
 
-            return this.product.media.find(media => media.id === this.product.coverId);
+            return this.product.media.find((media) => media.id === this.product.coverId);
         },
 
         coverImageSource() {

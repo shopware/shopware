@@ -66,8 +66,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return {};
             }
 
-            const elements = Object.entries(this.cmsService.getCmsElementRegistry())
-                .filter(([name]) => this.cmsService.isElementAllowedInPageType(name, currentPageType));
+            const elements = Object.entries(this.cmsService.getCmsElementRegistry()).filter(([name]) =>
+                this.cmsService.isElementAllowedInPageType(name, currentPageType),
+            );
 
             return Object.fromEntries(elements);
         },
@@ -81,8 +82,10 @@ export default Shopware.Component.wrapComponentConfig({
 
                 return a.name.localeCompare(b.name);
             });
-            const favorites = elements.filter(element => element && this.cmsElementFavorites.isFavorite(element.name));
-            const nonFavorites = elements.filter(element => !element || !this.cmsElementFavorites.isFavorite(element.name));
+            const favorites = elements.filter((element) => element && this.cmsElementFavorites.isFavorite(element.name));
+            const nonFavorites = elements.filter(
+                (element) => !element || !this.cmsElementFavorites.isFavorite(element.name),
+            );
 
             if (favorites.length) {
                 result.push({
@@ -157,7 +160,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseSettingsModal() {
-            const childComponent = this.$refs.elementComponentRef as { handleUpdateContent: () => void };
+            const childComponent = this.$refs.elementComponentRef as {
+                handleUpdateContent: () => void;
+            };
 
             if (childComponent?.handleUpdateContent) {
                 childComponent.handleUpdateContent();

@@ -9,11 +9,11 @@ const { Utils } = Shopware;
  * @private
  */
 export type PageType = {
-    name: string,
-    icon: string,
-    title: string,
-    class: string[],
-    hideInList: boolean,
+    name: string;
+    icon: string;
+    title: string;
+    class: string[];
+    hideInList: boolean;
 };
 
 /**
@@ -21,11 +21,11 @@ export type PageType = {
  */
 export default class CmsPageTypeService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    #state: {pageTypes: PageType[]} = reactive({
+    #state: { pageTypes: PageType[] } = reactive({
         pageTypes: [] as PageType[],
     });
 
-    register(newTypeData: { name: string, icon: string, title?: string, class?: string[], hideInList?: boolean }): void {
+    register(newTypeData: { name: string; icon: string; title?: string; class?: string[]; hideInList?: boolean }): void {
         if (this.#state.pageTypes.some((type: PageType) => type.name === newTypeData.name)) {
             throw new Error(`Can't register new Page Type with "${newTypeData.name}" already in use.`);
         }
@@ -53,14 +53,14 @@ export default class CmsPageTypeService {
     }
 
     getVisibleTypes(): PageType[] {
-        return this.#state.pageTypes.filter(pageType => !pageType.hideInList);
+        return this.#state.pageTypes.filter((pageType) => !pageType.hideInList);
     }
 
     getTypeNames(): string[] {
-        return this.#state.pageTypes.map(pageType => pageType.name);
+        return this.#state.pageTypes.map((pageType) => pageType.name);
     }
 
     getType(type?: string): PageType | undefined {
-        return this.#state.pageTypes.find(pageType => pageType.name === type);
+        return this.#state.pageTypes.find((pageType) => pageType.name === type);
     }
 }

@@ -66,7 +66,7 @@ export default {
             this.documentTypeRepository.search(this.documentTypeCriteria).then((res) => {
                 this.documentTypes = res;
 
-                this.documentTypes.forEach(type => {
+                this.documentTypes.forEach((type) => {
                     this.value.documentType[type.technicalName] = null;
                 });
             });

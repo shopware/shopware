@@ -4,27 +4,32 @@
 
 import { mount } from '@vue/test-utils';
 
-const extendedRanges = [{
-    label: '90Days',
-    range: 90,
-    interval: 'day',
-    aggregate: 'day',
-}, {
-    label: '30Days',
-    range: 30,
-    interval: 'day',
-    aggregate: 'day',
-}, {
-    label: '14Days',
-    range: 14,
-    interval: 'day',
-    aggregate: 'day',
-}, {
-    label: '7Days',
-    range: 7,
-    interval: 'day',
-    aggregate: 'day',
-}];
+const extendedRanges = [
+    {
+        label: '90Days',
+        range: 90,
+        interval: 'day',
+        aggregate: 'day',
+    },
+    {
+        label: '30Days',
+        range: 30,
+        interval: 'day',
+        aggregate: 'day',
+    },
+    {
+        label: '14Days',
+        range: 14,
+        interval: 'day',
+        aggregate: 'day',
+    },
+    {
+        label: '7Days',
+        range: 7,
+        interval: 'day',
+        aggregate: 'day',
+    },
+];
 const defaultRangeIndex = 1;
 const defaultRange = extendedRanges[defaultRangeIndex];
 
@@ -57,7 +62,9 @@ describe('src/app/component/base/sw-chart-card', () => {
     });
 
     it('should set the correct range in the dropdown by default', async () => {
-        const wrapper = await createWrapper({ availableRanges: extendedRanges });
+        const wrapper = await createWrapper({
+            availableRanges: extendedRanges,
+        });
 
         expect(wrapper.vm.selectedRange).toStrictEqual(defaultRange);
     });
@@ -81,7 +88,9 @@ describe('src/app/component/base/sw-chart-card', () => {
         const expectedEvent = 'sw-chart-card-range-update';
         const expectedRange = extendedRanges[2];
 
-        const wrapper = await createWrapper({ availableRanges: extendedRanges });
+        const wrapper = await createWrapper({
+            availableRanges: extendedRanges,
+        });
         expect(wrapper.vm.selectedRange).toStrictEqual(defaultRange);
 
         await wrapper.setData({ selectedRange: expectedRange });

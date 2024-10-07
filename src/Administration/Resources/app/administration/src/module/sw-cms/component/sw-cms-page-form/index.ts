@@ -56,12 +56,20 @@ export default Shopware.Component.wrapComponentConfig({
                     });
 
                     if (!block.visibility) {
-                        block.visibility = { mobile: true, tablet: true, desktop: true };
+                        block.visibility = {
+                            mobile: true,
+                            tablet: true,
+                            desktop: true,
+                        };
                     }
                 });
 
                 if (!section.visibility) {
-                    section.visibility = { mobile: true, tablet: true, desktop: true };
+                    section.visibility = {
+                        mobile: true,
+                        tablet: true,
+                        desktop: true,
+                    };
                 }
             });
         },
@@ -108,15 +116,13 @@ export default Shopware.Component.wrapComponentConfig({
                 return section.name;
             }
 
-            return section.type === 'sidebar' ?
-                this.$tc('sw-cms.section.isSidebar') :
-                this.$tc('sw-cms.section.isDefault');
+            return section.type === 'sidebar' ? this.$tc('sw-cms.section.isSidebar') : this.$tc('sw-cms.section.isDefault');
         },
 
         getSectionPosition(block: EntitySchema.Entity<'cms_block'>) {
-            return block.sectionPosition === 'main' ?
-                this.$tc('sw-cms.section.positionRight') :
-                this.$tc('sw-cms.section.positionLeft');
+            return block.sectionPosition === 'main'
+                ? this.$tc('sw-cms.section.positionRight')
+                : this.$tc('sw-cms.section.positionLeft');
         },
 
         getDeviceActive(
@@ -124,21 +130,25 @@ export default Shopware.Component.wrapComponentConfig({
             section: EntitySchema.Entity<'cms_section'>,
             block: EntitySchema.Entity<'cms_block'> | null = null,
         ) {
-            const sectionVisibility = section.visibility as { [key: string]: boolean };
+            const sectionVisibility = section.visibility as {
+                [key: string]: boolean;
+            };
             const blockVisibility = block?.visibility as { [key: string]: boolean } | undefined;
 
             const isActive = blockVisibility
                 ? sectionVisibility[viewport] && blockVisibility[viewport]
                 : sectionVisibility[viewport];
 
-            return isActive
-                ? `regular-${viewport}`
-                : `regular-${viewport}-slash`;
+            return isActive ? `regular-${viewport}` : `regular-${viewport}-slash`;
         },
 
         displayNotification(section: EntitySchema.Entity<'cms_section'>, block: EntitySchema.Entity<'cms_block'>) {
-            const sectionVisibility = section.visibility as { [key: string]: boolean };
-            const blockVisibility = block?.visibility as { [key: string]: boolean };
+            const sectionVisibility = section.visibility as {
+                [key: string]: boolean;
+            };
+            const blockVisibility = block?.visibility as {
+                [key: string]: boolean;
+            };
 
             const isSectionDisplay = !(Object.values(sectionVisibility).indexOf(true) > -1);
             const isBlockDisplay = !(Object.values(blockVisibility).indexOf(true) > -1);

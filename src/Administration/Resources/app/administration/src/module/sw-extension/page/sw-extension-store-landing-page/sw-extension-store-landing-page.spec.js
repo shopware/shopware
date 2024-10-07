@@ -3,29 +3,34 @@ import { mount } from '@vue/test-utils';
 let successfulActivation = true;
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-extension-store-landing-page', { sync: true }), {
-        global: {
-            provide: {
-                extensionHelperService: {
-                    downloadAndActivateExtension: () => {
-                        if (successfulActivation) {
-                            return Promise.resolve();
-                        }
+    return mount(
+        await wrapTestComponent('sw-extension-store-landing-page', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    extensionHelperService: {
+                        downloadAndActivateExtension: () => {
+                            if (successfulActivation) {
+                                return Promise.resolve();
+                            }
 
-                        return Promise.reject();
+                            return Promise.reject();
+                        },
+                    },
+                },
+                stubs: {
+                    'sw-loader': true,
+                    'sw-icon': true,
+                    'sw-label': true,
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
                     },
                 },
             },
-            stubs: {
-                'sw-loader': true,
-                'sw-icon': true,
-                'sw-label': true,
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                },
-            },
         },
-    });
+    );
 }
 
 /**

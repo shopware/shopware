@@ -67,28 +67,33 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         defaultColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-product-stream.filter.values.product'),
-                type: 'text',
-                routerLink: 'sw.product.detail',
-            }, {
-                property: 'manufacturer.name',
-                label: this.$tc('sw-product-stream.filter.values.manufacturer'),
-            }, {
-                property: 'active',
-                label: this.$tc('sw-product-stream.filter.values.active'),
-                align: 'center',
-                type: 'bool',
-            }, {
-                property: 'price',
-                label: this.$tc('sw-product-stream.filter.values.price'),
-
-            }, {
-                property: 'stock',
-                label: this.$tc('sw-product-stream.filter.values.stock'),
-                align: 'right',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    type: 'text',
+                    routerLink: 'sw.product.detail',
+                },
+                {
+                    property: 'manufacturer.name',
+                    label: this.$tc('sw-product-stream.filter.values.manufacturer'),
+                },
+                {
+                    property: 'active',
+                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    align: 'center',
+                    type: 'bool',
+                },
+                {
+                    property: 'price',
+                    label: this.$tc('sw-product-stream.filter.values.price'),
+                },
+                {
+                    property: 'stock',
+                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    align: 'right',
+                },
+            ];
         },
 
         productColumns() {
@@ -175,23 +180,22 @@ Component.register('sw-product-stream-grid-preview', {
             this.criteria.addAssociation('options.group');
             this.criteria.addGroupField('displayGroup');
             this.criteria.addFilter(
-                Criteria.not(
-                    'AND',
-                    [
-                        Criteria.equals('displayGroup', null),
-                    ],
-                ),
+                Criteria.not('AND', [
+                    Criteria.equals('displayGroup', null),
+                ]),
             );
 
-            return this.productRepository.search(this.criteria, {
-                ...Context.api,
-                inheritance: true,
-            }).then((products) => {
-                this.products = products;
-                this.total = products.total;
+            return this.productRepository
+                .search(this.criteria, {
+                    ...Context.api,
+                    inheritance: true,
+                })
+                .then((products) => {
+                    this.products = products;
+                    this.total = products.total;
 
-                this.isLoading = false;
-            });
+                    this.isLoading = false;
+                });
         },
 
         onPageChange({ page = 1, limit = 25 }) {

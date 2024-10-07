@@ -10,16 +10,16 @@ const { Criteria, EntityCollection } = Shopware.Data;
 type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
 interface TextEditorLinkMenuConfig {
-    title: string,
-    icon: string,
-    expanded: boolean,
-    newTab: boolean,
-    displayAsButton: boolean,
-    buttonVariant: ButtonVariant,
-    value: string,
-    type: string,
-    tag: 'a',
-    active: false,
+    title: string;
+    icon: string;
+    expanded: boolean;
+    newTab: boolean;
+    displayAsButton: boolean;
+    buttonVariant: ButtonVariant;
+    value: string;
+    type: string;
+    tag: 'a';
+    active: false;
 }
 
 /**
@@ -44,16 +44,16 @@ Component.register('sw-text-editor-link-menu', {
     },
 
     data(): {
-        linkTitle: string,
-        linkTarget: string,
-        isHTTPs: boolean,
-        opensNewTab: boolean,
-        displayAsButton: boolean,
-        buttonVariant: ButtonVariant,
-        linkCategory: LinkCategories,
-        categoryCollection?: EntityCollectionType<'category'>,
-        buttonVariantList: Array<{ id: ButtonVariant, name: string }>
-        } {
+        linkTitle: string;
+        linkTarget: string;
+        isHTTPs: boolean;
+        opensNewTab: boolean;
+        displayAsButton: boolean;
+        buttonVariant: ButtonVariant;
+        linkCategory: LinkCategories;
+        categoryCollection?: EntityCollectionType<'category'>;
+        buttonVariantList: Array<{ id: ButtonVariant; name: string }>;
+    } {
         return {
             linkTitle: '',
             linkTarget: '',
@@ -63,19 +63,24 @@ Component.register('sw-text-editor-link-menu', {
             buttonVariant: 'primary',
             linkCategory: 'link',
             categoryCollection: undefined,
-            buttonVariantList: [{
-                id: 'primary',
-                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
-            }, {
-                id: 'secondary',
-                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
-            }, {
-                id: 'primary-sm',
-                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
-            }, {
-                id: 'secondary-sm',
-                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
-            }],
+            buttonVariantList: [
+                {
+                    id: 'primary',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
+                },
+                {
+                    id: 'secondary',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
+                },
+                {
+                    id: 'primary-sm',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
+                },
+                {
+                    id: 'secondary-sm',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+                },
+            ],
         };
     },
 
@@ -90,13 +95,10 @@ Component.register('sw-text-editor-link-menu', {
             criteria.addAssociation('options.group');
 
             criteria.addFilter(
-                Criteria.multi(
-                    'OR',
-                    [
-                        Criteria.equals('product.childCount', 0),
-                        Criteria.equals('product.childCount', null),
-                    ],
-                ),
+                Criteria.multi('OR', [
+                    Criteria.equals('product.childCount', 0),
+                    Criteria.equals('product.childCount', null),
+                ]),
             );
 
             return criteria;
@@ -110,9 +112,8 @@ Component.register('sw-text-editor-link-menu', {
     watch: {
         buttonConfig: {
             async handler(buttonConfig): Promise<void> {
-                const {
-                    title, newTab, displayAsButton, buttonVariant, value, type,
-                } = buttonConfig as TextEditorLinkMenuConfig;
+                const { title, newTab, displayAsButton, buttonVariant, value, type } =
+                    buttonConfig as TextEditorLinkMenuConfig;
                 this.linkTitle = title;
                 this.opensNewTab = newTab;
                 this.displayAsButton = displayAsButton;
@@ -144,7 +145,7 @@ Component.register('sw-text-editor-link-menu', {
         },
 
         getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
-            const categoryCriteria = (new Criteria(1, 25)).addFilter(Criteria.equals('id', categoryId));
+            const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
 
@@ -156,16 +157,26 @@ Component.register('sw-text-editor-link-menu', {
             );
         },
 
-        async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories, target: string }> {
+        async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories; target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
+            if (
+                link.startsWith(this.seoUrlReplacePrefix) &&
+                [
+                    'navigation',
+                    'detail',
+                    'mediaId',
+                ].includes(slicedLink[1])
+            ) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
                 } else if (slicedLink[1] === 'mediaId') {
                     slicedLink[1] = 'media';
                 }
-                return { type: slicedLink[1] as LinkCategories, target: slicedLink[2] };
+                return {
+                    type: slicedLink[1] as LinkCategories,
+                    target: slicedLink[2],
+                };
             }
 
             if (link.startsWith('mailto:')) {

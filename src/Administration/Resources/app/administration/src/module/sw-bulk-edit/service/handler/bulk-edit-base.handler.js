@@ -74,45 +74,44 @@ class BulkEditBaseHandler {
         this.groupedPayload.delete[this.entityName] = {};
         this.groupedPayload.upsert[this.entityName] = {};
 
-        await Promise.all(changes.map(async change => {
-            if (!Object.values(bulkSyncTypes).includes(change.type)) {
-                return;
-            }
-
-            // If the change type is not a toMany association change,
-            // grouped the change by entity's id so each entity can have a same sync payload
-            const field = definition.getField(change.field);
-
-            if (!field) {
-                Shopware.Utils.debug.warn(
-                    'Entity factory',
-                    `Property ${this.entityName}.${change.field} not found`,
-                );
-
-                return;
-            }
-
-            const isOneToOne = definition.isOneToOneAssociation(field);
-            if (definition.isToManyAssociation(field) || isOneToOne) {
-                try {
-                    await this._handleAssociationChange(field, change, isOneToOne);
-
-                    return;
-                } catch (e) {
-                    Shopware.Utils.debug.warn(e);
-
-                    // Ignore the failed change
+        await Promise.all(
+            changes.map(async (change) => {
+                if (!Object.values(bulkSyncTypes).includes(change.type)) {
                     return;
                 }
-            }
 
-            const value = this._castDefaultValueIfNecessary(change, field.type);
+                // If the change type is not a toMany association change,
+                // grouped the change by entity's id so each entity can have a same sync payload
+                const field = definition.getField(change.field);
 
-            this.entityIds.forEach(id => {
-                this.groupedPayload.upsert[this.entityName][id] ??= { id };
-                this.groupedPayload.upsert[this.entityName][id][change.field] = value;
-            });
-        }));
+                if (!field) {
+                    Shopware.Utils.debug.warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
+
+                    return;
+                }
+
+                const isOneToOne = definition.isOneToOneAssociation(field);
+                if (definition.isToManyAssociation(field) || isOneToOne) {
+                    try {
+                        await this._handleAssociationChange(field, change, isOneToOne);
+
+                        return;
+                    } catch (e) {
+                        Shopware.Utils.debug.warn(e);
+
+                        // Ignore the failed change
+                        return;
+                    }
+                }
+
+                const value = this._castDefaultValueIfNecessary(change, field.type);
+
+                this.entityIds.forEach((id) => {
+                    this.groupedPayload.upsert[this.entityName][id] ??= { id };
+                    this.groupedPayload.upsert[this.entityName][id][change.field] = value;
+                });
+            }),
+        );
 
         return this._transformSyncPayload(this.groupedPayload);
     }
@@ -128,14 +127,14 @@ class BulkEditBaseHandler {
     _transformSyncPayload(groupedPayload) {
         const syncPayload = {};
 
-        Object.keys(groupedPayload).forEach(operator => {
+        Object.keys(groupedPayload).forEach((operator) => {
             const operatorPayload = groupedPayload[operator];
 
             if (Object.keys(operatorPayload).length === 0) {
                 return;
             }
 
-            Object.keys(operatorPayload).forEach(payloadEntity => {
+            Object.keys(operatorPayload).forEach((payloadEntity) => {
                 const items = Object.values(operatorPayload[payloadEntity]);
                 if (items.length === 0) {
                     return;
@@ -167,14 +166,7 @@ class BulkEditBaseHandler {
      * change =[{ type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]];
      */
     async _handleAssociationChange(fieldDefinition, change, isOneToOne = false) {
-        const {
-            mapping,
-            entity,
-            local,
-            reference,
-            localField,
-            referenceField,
-        } = fieldDefinition;
+        const { mapping, entity, local, reference, localField, referenceField } = fieldDefinition;
 
         const isMappingField = !!mapping;
         let existAssociations;
@@ -203,7 +195,12 @@ class BulkEditBaseHandler {
         const { referenceEntity, localKey, referenceKey, type } = change;
 
         // if change type is CLEAR or REMOVE Delete existing associations
-        if ([bulkSyncTypes.CLEAR, bulkSyncTypes.REMOVE].includes(type)) {
+        if (
+            [
+                bulkSyncTypes.CLEAR,
+                bulkSyncTypes.REMOVE,
+            ].includes(type)
+        ) {
             this.groupedPayload.delete[referenceEntity] = {
                 ...this._transformDeletePayload(existAssociations, localKey, referenceKey),
             };
@@ -235,26 +232,19 @@ class BulkEditBaseHandler {
      * @private
      */
     _detectOneToManyChange(change, existAssociations) {
-        const {
-            referenceEntity,
-            referenceKey,
-            localKey,
-            mappingReferenceField,
-            value: changeItems,
-            type,
-        } = change;
+        const { referenceEntity, referenceKey, localKey, mappingReferenceField, value: changeItems, type } = change;
         const editableProperties = this._getEditableProperties(referenceEntity);
 
         if (mappingReferenceField) {
             editableProperties.push(mappingReferenceField);
         }
 
-        changeItems.forEach(changeItem => {
+        changeItems.forEach((changeItem) => {
             const original = changeItem;
             // Clean non-editable fields
             changeItem = object.pick(changeItem, editableProperties);
 
-            this.entityIds.forEach(entityId => {
+            this.entityIds.forEach((entityId) => {
                 const record = { ...changeItem };
                 record[referenceKey] = entityId;
 
@@ -295,17 +285,12 @@ class BulkEditBaseHandler {
      * @private
      */
     _detectOneToOneChange(change, existAssociations) {
-        const {
-            referenceEntity,
-            referenceKey,
-            localKey,
-            value: changeItems,
-        } = change;
+        const { referenceEntity, referenceKey, localKey, value: changeItems } = change;
         const editableProperties = this._getEditableProperties(referenceEntity);
-        changeItems.forEach(changeItem => {
+        changeItems.forEach((changeItem) => {
             changeItem = object.pick(changeItem, editableProperties);
 
-            this.entityIds.forEach(entityId => {
+            this.entityIds.forEach((entityId) => {
                 const record = { ...changeItem };
                 record[referenceKey] = entityId;
 
@@ -352,11 +337,10 @@ class BulkEditBaseHandler {
         }
 
         // Detect if there is any change in oneToMany association so we should update it, otherwise we can skip it
-        Object.keys(updatePayload).forEach(field => {
+        Object.keys(updatePayload).forEach((field) => {
             if (
-                !existedRecord
-                || (updatePayload[field] !== undefined
-                    && this._isFieldValueChanged(updatePayload[field], existedRecord[field]))
+                !existedRecord ||
+                (updatePayload[field] !== undefined && this._isFieldValueChanged(updatePayload[field], existedRecord[field]))
             ) {
                 actualChange[field] = updatePayload[field];
             }
@@ -368,7 +352,7 @@ class BulkEditBaseHandler {
         }
 
         // If the change payload has any properties other than localKey (id) we should update it
-        const hasChanged = Object.keys(actualChange).some(key => key !== localKey);
+        const hasChanged = Object.keys(actualChange).some((key) => key !== localKey);
 
         // the fields are not updated, skip it
         if (existedRecord && !hasChanged) {
@@ -386,15 +370,10 @@ class BulkEditBaseHandler {
      * @private
      */
     _detectManyToManyChange(change, existAssociations) {
-        const {
-            referenceEntity,
-            referenceKey,
-            localKey,
-            value: items,
-        } = change;
+        const { referenceEntity, referenceKey, localKey, value: items } = change;
 
-        items.forEach(fieldValue => {
-            this.entityIds.forEach(entityId => {
+        items.forEach((fieldValue) => {
+            this.entityIds.forEach((entityId) => {
                 const referenceValue = fieldValue.id;
                 const key = `${referenceValue}.${entityId}`;
 
@@ -404,10 +383,12 @@ class BulkEditBaseHandler {
                     return;
                 }
 
-                this.groupedPayload.upsert[referenceEntity][key] = [{
-                    [referenceKey]: referenceValue,
-                    [localKey]: entityId,
-                }];
+                this.groupedPayload.upsert[referenceEntity][key] = [
+                    {
+                        [referenceKey]: referenceValue,
+                        [localKey]: entityId,
+                    },
+                ];
             });
         });
     }
@@ -420,7 +401,12 @@ class BulkEditBaseHandler {
 
         // Cast the value to 0 if the we 'CLEAR' an int or float field
         if (type === bulkSyncTypes.CLEAR) {
-            return ['int', 'float'].includes(fieldType) ? 0 : null;
+            return [
+                'int',
+                'float',
+            ].includes(fieldType)
+                ? 0
+                : null;
         }
 
         if (value === '' || typeof value === 'undefined') {
@@ -436,10 +422,7 @@ class BulkEditBaseHandler {
      * Fetch OneToMany association ids and mapped each id using `${foreignId}.${localId}` as a key
      */
     async _fetchOneToManyAssociated(fieldDefinition, change, page = 1, mappedExistAssociations = {}) {
-        const {
-            entity,
-            referenceField: referenceKey,
-        } = fieldDefinition;
+        const { entity, referenceField: referenceKey } = fieldDefinition;
 
         const criteria = new Criteria(page, 500);
         criteria.addFilter(Criteria.equalsAny(referenceKey, this.entityIds));
@@ -451,7 +434,7 @@ class BulkEditBaseHandler {
          * e.g `product_visibility`.`product_id_sales_channel_id`
          */
         if (change.mappingReferenceField && change.type === bulkSyncTypes.REMOVE) {
-            const referenceIds = change.value.map(value => value[change.mappingReferenceField]);
+            const referenceIds = change.value.map((value) => value[change.mappingReferenceField]);
 
             if (referenceIds && referenceIds.filter(Boolean)) {
                 criteria.addFilter(Criteria.equalsAny(change.mappingReferenceField, referenceIds));
@@ -461,7 +444,7 @@ class BulkEditBaseHandler {
         const referenceRepository = this.repositoryFactory.create(entity);
         const existAssociations = await referenceRepository.search(criteria);
 
-        existAssociations.forEach(association => {
+        existAssociations.forEach((association) => {
             let key = association[referenceKey];
 
             if (change.mappingReferenceField) {
@@ -477,8 +460,10 @@ class BulkEditBaseHandler {
         });
 
         // Associations at key can be more than one, so they must be counted properly
-        const mappedExistAssociationsLen =
-            Object.keys(mappedExistAssociations).reduce((acc, key) => acc + mappedExistAssociations[key].length, 0);
+        const mappedExistAssociationsLen = Object.keys(mappedExistAssociations).reduce(
+            (acc, key) => acc + mappedExistAssociations[key].length,
+            0,
+        );
 
         if (existAssociations.total > mappedExistAssociationsLen) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
@@ -493,16 +478,10 @@ class BulkEditBaseHandler {
      * Fetch ManyToMany association ids and mapped each id using `${foreignId}.${localId}` as a key
      */
     async _fetchManyToManyAssociated(fieldDefinition, change, page = 1, mappedExistAssociations = {}) {
-        const {
-            referenceField,
-            mapping: entity,
-            local,
-            reference,
-        } = fieldDefinition;
+        const { referenceField, mapping: entity, local, reference } = fieldDefinition;
 
-        const referenceIds = change.type === bulkSyncTypes.REMOVE
-            ? change.value.map(value => value[referenceField])
-            : null;
+        const referenceIds =
+            change.type === bulkSyncTypes.REMOVE ? change.value.map((value) => value[referenceField]) : null;
 
         const criteria = new Criteria(page, 500);
         criteria.addFilter(Criteria.equalsAny(local, this.entityIds));
@@ -516,12 +495,9 @@ class BulkEditBaseHandler {
         const mappingIds = await mappingRepository.searchIds(criteria);
         const existAssociations = mappingIds.data;
 
-        existAssociations.forEach(association => {
+        existAssociations.forEach((association) => {
             // e.g: { productId: 'product_id_1', categoryId: 'product_cat_2' }
-            const {
-                [local]: localId,
-                [reference]: referenceId,
-            } = association;
+            const { [local]: localId, [reference]: referenceId } = association;
 
             const key = `${referenceId}.${localId}`;
 
@@ -538,26 +514,32 @@ class BulkEditBaseHandler {
 
     _getEditableProperties(entity) {
         const definition = Shopware.EntityDefinition.get(entity);
-        const fields = definition.filterProperties(property => {
-            return (definition.isScalarField(property) || definition.isJsonField(property))
-                || (!property.flags || property.flags.write_protected);
+        const fields = definition.filterProperties((property) => {
+            return (
+                definition.isScalarField(property) ||
+                definition.isJsonField(property) ||
+                !property.flags ||
+                property.flags.write_protected
+            );
         });
 
-        return Object.keys(fields).filter(field => !['updatedAt', 'createdAt'].includes(field));
+        return Object.keys(fields).filter(
+            (field) =>
+                ![
+                    'updatedAt',
+                    'createdAt',
+                ].includes(field),
+        );
     }
 
     _transformDeletePayload(deletePayload, localKey, referenceKey) {
         const transformedPayload = {};
 
-        Object.keys(deletePayload).forEach(key => {
+        Object.keys(deletePayload).forEach((key) => {
             const deleteItems = deletePayload[key] ?? [];
 
-            deleteItems.forEach(deleteItem => {
-                const {
-                    id,
-                    [localKey]: localId,
-                    [referenceKey]: referenceId,
-                } = deleteItem;
+            deleteItems.forEach((deleteItem) => {
+                const { id, [localKey]: localId, [referenceKey]: referenceId } = deleteItem;
 
                 transformedPayload[key] ??= [];
 

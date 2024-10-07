@@ -6,7 +6,6 @@
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
 
-
 const { Component } = Shopware;
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
@@ -199,7 +198,7 @@ Component.register('sw-tabs-deprecated', {
     },
 
     watch: {
-        '$route'() {
+        $route() {
             this.updateActiveItem();
         },
 
@@ -271,14 +270,16 @@ Component.register('sw-tabs-deprecated', {
             });
             this.recalculateSlider();
 
-            if (this.$slots.default &&
+            if (
+                this.$slots.default &&
                 // Check direct child
                 this.$slots.default({ active: this.active })?.[0]?.componentOptions?.propsData?.route
             ) {
                 this.hasRoutes = true;
             }
 
-            if (this.$slots.default &&
+            if (
+                this.$slots.default &&
                 // Check sub child
                 this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.componentOptions?.propsData?.route
             ) {
@@ -372,7 +373,12 @@ Component.register('sw-tabs-deprecated', {
         },
 
         scrollTo(direction) {
-            if (!['left', 'right'].includes(direction)) {
+            if (
+                ![
+                    'left',
+                    'right',
+                ].includes(direction)
+            ) {
                 return;
             }
 
@@ -380,7 +386,7 @@ Component.register('sw-tabs-deprecated', {
             const tabContentWidth = tabContent.offsetWidth;
 
             if (direction === 'right') {
-                tabContent.scrollLeft += (tabContentWidth / 2);
+                tabContent.scrollLeft += tabContentWidth / 2;
                 return;
             }
             tabContent.scrollLeft += -(tabContentWidth / 2);
@@ -409,8 +415,8 @@ Component.register('sw-tabs-deprecated', {
             const itemOffset = item.$el.offsetLeft;
             const itemWidth = item.$el.clientWidth;
 
-            if ((tabContentWidth / 2) < itemOffset) {
-                const scrollWidth = itemOffset - (tabContentWidth / 2) + (itemWidth / 2);
+            if (tabContentWidth / 2 < itemOffset) {
+                const scrollWidth = itemOffset - tabContentWidth / 2 + itemWidth / 2;
                 tabContent.scrollLeft = scrollWidth;
             }
         },

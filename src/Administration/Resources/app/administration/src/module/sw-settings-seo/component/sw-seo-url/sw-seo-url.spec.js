@@ -9,49 +9,58 @@ function createEntityCollection(entities = []) {
 }
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-seo-url', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-card': {
-                    template: '<div><slot name="toolbar"></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-seo-url', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-card': {
+                        template: '<div><slot name="toolbar"></slot></div>',
+                    },
+                    'sw-sales-channel-switch': true,
+                    'sw-text-field': true,
+                    'sw-inherit-wrapper': true,
                 },
-                'sw-sales-channel-switch': true,
-                'sw-text-field': true,
-                'sw-inherit-wrapper': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: (entity) => ({
-                        search: () => {
-                            if (entity === 'sales_channel') {
-                                return Promise.resolve(createEntityCollection([
-                                    {
-                                        name: 'Storefront',
-                                        translated: { name: 'Storefront' },
-                                        id: '863137935ecf48999d69096de547b090',
-                                    },
-                                    {
-                                        name: 'Headless',
-                                        translated: { name: 'Headless' },
-                                        id: '123456789',
-                                    },
-                                ]));
-                            }
+                provide: {
+                    repositoryFactory: {
+                        create: (entity) => ({
+                            search: () => {
+                                if (entity === 'sales_channel') {
+                                    return Promise.resolve(
+                                        createEntityCollection([
+                                            {
+                                                name: 'Storefront',
+                                                translated: {
+                                                    name: 'Storefront',
+                                                },
+                                                id: '863137935ecf48999d69096de547b090',
+                                            },
+                                            {
+                                                name: 'Headless',
+                                                translated: {
+                                                    name: 'Headless',
+                                                },
+                                                id: '123456789',
+                                            },
+                                        ]),
+                                    );
+                                }
 
-                            return Promise.resolve([]);
-                        },
-                        create: () => ({}),
-                        schema: {
-                            entity: {},
-                        },
-                    }),
+                                return Promise.resolve([]);
+                            },
+                            create: () => ({}),
+                            schema: {
+                                entity: {},
+                            },
+                        }),
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
@@ -87,15 +96,17 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
 
     it('should update currentSeoUrl when defaultSeoUrl empty', async () => {
         await wrapper.setProps({
-            urls: [{
-                id: 'c0221c1f712a4f369a79e924a10fa398',
-                foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
-                languageId: '12345678',
-                pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
-                routeName: 'frontend.navigation.page',
-                salesChannelId: '863137935ecf48999d69096de547b090',
-                seoPathInfo: 'Computers/',
-            }],
+            urls: [
+                {
+                    id: 'c0221c1f712a4f369a79e924a10fa398',
+                    foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
+                    languageId: '12345678',
+                    pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
+                    routeName: 'frontend.navigation.page',
+                    salesChannelId: '863137935ecf48999d69096de547b090',
+                    seoPathInfo: 'Computers/',
+                },
+            ],
             salesChannelId: '863137935ecf48999d69096de547b090',
         });
 
@@ -122,15 +133,17 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
 
     it('should update currentSeoUrl when defaultSeoUrl empty and the salesChannel has no seo urls yet', async () => {
         await wrapper.setProps({
-            urls: [{
-                id: 'c0221c1f712a4f369a79e924a10fa398',
-                foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
-                languageId: '12345678',
-                pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
-                routeName: 'frontend.navigation.page',
-                salesChannelId: '4066b6039fcf41f089bdf859cc6ce662',
-                seoPathInfo: 'Computers/',
-            }],
+            urls: [
+                {
+                    id: 'c0221c1f712a4f369a79e924a10fa398',
+                    foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
+                    languageId: '12345678',
+                    pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
+                    routeName: 'frontend.navigation.page',
+                    salesChannelId: '4066b6039fcf41f089bdf859cc6ce662',
+                    seoPathInfo: 'Computers/',
+                },
+            ],
             salesChannelId: '4066b6039fcf41f08rbdf859cc6ce662',
         });
 
@@ -157,23 +170,26 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
 
     it('should update currentSeoUrl when defaultSeoUrl not empty', async () => {
         await wrapper.setProps({
-            urls: [{
-                id: 'c0221c1f712a4f369a79e924a10fa398',
-                foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
-                languageId: '12345678',
-                pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
-                routeName: 'frontend.navigation.page',
-                salesChannelId: '863137935ecf48999d69096de547b090',
-                seoPathInfo: 'Computers/',
-            }, {
-                id: '123456789',
-                foreignKey: '12345678910111213',
-                languageId: '1234567891011',
-                pathInfo: '/navigation/123456789',
-                routeName: 'frontend.product-detail.page',
-                salesChannelId: null,
-                seoPathInfo: 'Product-detail/',
-            }],
+            urls: [
+                {
+                    id: 'c0221c1f712a4f369a79e924a10fa398',
+                    foreignKey: '4066b6039fcf41f089bdf859cc6ce662',
+                    languageId: '12345678',
+                    pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
+                    routeName: 'frontend.navigation.page',
+                    salesChannelId: '863137935ecf48999d69096de547b090',
+                    seoPathInfo: 'Computers/',
+                },
+                {
+                    id: '123456789',
+                    foreignKey: '12345678910111213',
+                    languageId: '1234567891011',
+                    pathInfo: '/navigation/123456789',
+                    routeName: 'frontend.product-detail.page',
+                    salesChannelId: null,
+                    seoPathInfo: 'Product-detail/',
+                },
+            ],
             salesChannelId: '863137935ecf48999d69096de547b090',
         });
 

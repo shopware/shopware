@@ -5,62 +5,64 @@ import { mount } from '@vue/test-utils';
  */
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     async function createWrapper(taxRule) {
-        return mount(await wrapTestComponent('sw-settings-tax-rule-type-individual-states', {
-            sync: true,
-        }), {
-            props: {
-                taxRule,
-            },
-
-            global: {
-                renderStubDefaultSlot: true,
-
-                stubs: {
-                    'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select', {
-                        sync: true,
-                    }),
-                    'sw-select-base': await wrapTestComponent('sw-select-base', {
-                        sync: true,
-                    }),
-                    'sw-block-field': await wrapTestComponent('sw-block-field', {
-                        sync: true,
-                    }),
-                    'sw-base-field': await wrapTestComponent('sw-base-field', {
-                        sync: true,
-                    }),
-                    'sw-select-selection-list': true,
-                    'sw-select-result-list': true,
-                    'sw-highlight-text': true,
-                    'sw-icon': true,
+        return mount(
+            await wrapTestComponent('sw-settings-tax-rule-type-individual-states', {
+                sync: true,
+            }),
+            {
+                props: {
+                    taxRule,
                 },
 
-                provide: {
-                    repositoryFactory: {
-                        create: (entityName) => {
-                            if (entityName !== 'country_state') {
-                                throw new Error('expected entity name to be country_state');
-                            }
+                global: {
+                    renderStubDefaultSlot: true,
 
-                            return {
-                                entityName: 'country_state',
-                                route: '/country_state',
-                                search: (criteria) => {
-                                    const states = criteria.ids.map((id) => {
-                                        return {
-                                            id,
-                                            name: `state ${id}`,
-                                        };
-                                    });
+                    stubs: {
+                        'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select', {
+                            sync: true,
+                        }),
+                        'sw-select-base': await wrapTestComponent('sw-select-base', {
+                            sync: true,
+                        }),
+                        'sw-block-field': await wrapTestComponent('sw-block-field', {
+                            sync: true,
+                        }),
+                        'sw-base-field': await wrapTestComponent('sw-base-field', {
+                            sync: true,
+                        }),
+                        'sw-select-selection-list': true,
+                        'sw-select-result-list': true,
+                        'sw-highlight-text': true,
+                        'sw-icon': true,
+                    },
 
-                                    return Promise.resolve(states);
-                                },
-                            };
+                    provide: {
+                        repositoryFactory: {
+                            create: (entityName) => {
+                                if (entityName !== 'country_state') {
+                                    throw new Error('expected entity name to be country_state');
+                                }
+
+                                return {
+                                    entityName: 'country_state',
+                                    route: '/country_state',
+                                    search: (criteria) => {
+                                        const states = criteria.ids.map((id) => {
+                                            return {
+                                                id,
+                                                name: `state ${id}`,
+                                            };
+                                        });
+
+                                        return Promise.resolve(states);
+                                    },
+                                };
+                            },
                         },
                     },
                 },
             },
-
-        });
+        );
     }
 
     it('should be a Vue.JS component', async () => {
@@ -102,12 +104,17 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
 
         const individualStates = wrapper.vm.individualStates;
         expect(individualStates).toHaveLength(2);
-        expect(individualStates).toEqual(expect.arrayContaining([{
-            id: states[0],
-            name: `state ${states[0]}`,
-        }, {
-            id: states[1],
-            name: `state ${states[1]}`,
-        }]));
+        expect(individualStates).toEqual(
+            expect.arrayContaining([
+                {
+                    id: states[0],
+                    name: `state ${states[0]}`,
+                },
+                {
+                    id: states[1],
+                    name: `state ${states[1]}`,
+                },
+            ]),
+        );
     });
 });

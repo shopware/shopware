@@ -17,30 +17,33 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-buy-box', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                data: {},
-                config: {},
+    return mount(
+        await wrapTestComponent('sw-cms-el-buy-box', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    data: {},
+                    config: {},
+                },
+                defaultConfig: {
+                    alignment: {
+                        value: null,
+                    },
+                },
             },
-            defaultConfig: {
-                alignment: {
-                    value: null,
+            global: {
+                stubs: {
+                    'sw-block-field': true,
+                    'sw-icon': true,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
                 },
             },
         },
-        global: {
-            stubs: {
-                'sw-block-field': true,
-                'sw-icon': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/buy-box/component', () => {
@@ -139,7 +142,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
                 name: '1-3 days',
             },
             price: [
-                { gross: 0.00 },
+                { gross: 0.0 },
             ],
         });
     });

@@ -38,7 +38,7 @@ const setup = async (itemChanges = {}) => {
 };
 
 describe('src/app/asyncComponent/media/sw-media-base-item', () => {
-    it('should show icon--regular-AR if spatial objet is AR ready', async () => {
+    it('should show icon--regular-AR if spatial objet is AR ready (glb)', async () => {
         const wrapper = await setup({
             fileExtension: 'glb',
             config: {
@@ -50,7 +50,7 @@ describe('src/app/asyncComponent/media/sw-media-base-item', () => {
         expect(wrapper.find('.icon--regular-AR').exists()).toBeTruthy();
     });
 
-    it('should show icon--regular-3d if the spatial object is not ready to use in AR', async () => {
+    it('should show icon--regular-3d if the spatial object (glb) is not ready to use in AR', async () => {
         const wrapper = await setup({
             fileExtension: 'glb',
             config: {
@@ -64,7 +64,7 @@ describe('src/app/asyncComponent/media/sw-media-base-item', () => {
         expect(wrapper.find('.icon--regular-3d').exists()).toBe(true);
     });
 
-    it('should check item.url if item.fileExtension is not defined', async () => {
+    it('should check item.url if item.fileExtension (glb) is not defined', async () => {
         const wrapper = await setup({
             fileExtension: undefined,
             config: {
@@ -73,6 +73,46 @@ describe('src/app/asyncComponent/media/sw-media-base-item', () => {
                 },
             },
             url: 'http://test/example.glb',
+        });
+
+        expect(wrapper.find('.icon--regular-3d').exists()).toBe(true);
+    });
+
+    it('should show icon--regular-AR if spatial objet is AR ready (gltf)', async () => {
+        const wrapper = await setup({
+            fileExtension: 'gltf',
+            config: {
+                spatial: {
+                    arReady: true,
+                },
+            },
+        });
+        expect(wrapper.find('.icon--regular-AR').exists()).toBeTruthy();
+    });
+
+    it('should show icon--regular-3d if the spatial object (gltf) is not ready to use in AR', async () => {
+        const wrapper = await setup({
+            fileExtension: 'gltf',
+            config: {
+                spatial: {
+                    arReady: false,
+                },
+            },
+        });
+
+        expect(wrapper.find('.icon--regular-AR').exists()).toBe(false);
+        expect(wrapper.find('.icon--regular-3d').exists()).toBe(true);
+    });
+
+    it('should check item.url if item.fileExtension (gltf) is not defined', async () => {
+        const wrapper = await setup({
+            fileExtension: undefined,
+            config: {
+                spatial: {
+                    arReady: false,
+                },
+            },
+            url: 'http://test/example.gltf',
         });
 
         expect(wrapper.find('.icon--regular-3d').exists()).toBe(true);

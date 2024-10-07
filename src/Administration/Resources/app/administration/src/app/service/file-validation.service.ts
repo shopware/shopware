@@ -149,6 +149,14 @@ export default function fileValidationService(): FileValidationService {
             }
 
             if (
+                mimeAccept === 'model/gltf+json' &&
+                file.name.split('.').at(-1) === 'gltf' &&
+                file.type === ''
+            ) {
+                return true;
+            }
+
+            if (
                 fileAcceptType[0] !== currentFileType[0] &&
                 fileAcceptType[0] !== '*'
             ) {

@@ -47,16 +47,15 @@ class OrderDeliveryStatusRule extends FlowRule
             return false;
         }
 
-        if (!$deliveries = $scope->getOrder()->getDeliveries()) {
+        if (!$scope->getOrder()->getPrimaryOrderDelivery()) {
             return false;
         }
 
-        $deliveryStateIds = [];
-        foreach ($deliveries->getElements() as $delivery) {
-            $deliveryStateIds[] = $delivery->getStateId();
-        }
-
-        return RuleComparison::uuids($deliveryStateIds, $this->stateIds, $this->operator);
+        return RuleComparison::uuids(
+            [$scope->getOrder()->getPrimaryOrderDelivery()->getStateId()],
+            $this->stateIds,
+            $this->operator,
+        );
     }
 
     public function getConfig(): RuleConfig

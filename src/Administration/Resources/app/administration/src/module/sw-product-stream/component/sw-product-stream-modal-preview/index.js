@@ -180,17 +180,19 @@ export default {
             });
         },
 
-        mapFiltersForSearch(filters = []) {
+        mapFiltersForSearch(filters = [], parentType = null) {
             return filters.map((condition) => {
                 const { field, type, operator, value, parameters, queries } = condition;
-                const mappedQueries = this.mapFiltersForSearch(queries);
+                const mappedQueries = this.mapFiltersForSearch(queries, type);
                 const mapped = { field, type, operator, value, parameters, queries: mappedQueries };
 
                 if (field === 'id' || field === 'product.id') {
+                    const newOperator = this.isNotEqualToAnyType(type, parentType) ? 'AND' : 'OR';
+
                     return {
                         type: 'multi',
                         field: null,
-                        operator: 'OR',
+                        operator: newOperator,
                         value: null,
                         parameters: null,
                         queries: [mapped, { ...mapped, ...{ field: 'parentId' } }],
@@ -246,6 +248,10 @@ export default {
                     this.selectedCurrencyIsoCode = salesChannel.currency.isoCode;
                     this.selectedCurrencyId = salesChannel.currencyId;
                 });
+        },
+
+        isNotEqualToAnyType(type, parentType) {
+            return type === 'equalsAny' && parentType === 'not';
         },
     },
 };

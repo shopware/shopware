@@ -11,6 +11,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['cmsService'],
+
     props: {
         config: {
             type: Object as PropType<{
@@ -68,7 +70,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
     },
 

@@ -172,7 +172,7 @@ export default Shopware.Component.wrapComponentConfig({
             const response = await this.cmsPageRepository.search(criteria);
             const cmsPage = this.applySlotOverrides(response[0]);
 
-            Shopware.Store.get('cmsPageState').setCurrentPage(cmsPage);
+            Shopware.Store.get('cmsPage').setCurrentPage(cmsPage);
             this.cmsPage = cmsPage;
 
             this.isLoading = false;

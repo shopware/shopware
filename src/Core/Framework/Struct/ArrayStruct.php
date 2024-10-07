@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @template-covariant TKey
- * @template-covariant TValue
- *
  * @implements \ArrayAccess<array-key, mixed>
  * @implements \IteratorAggregate<array-key, mixed>
  */

@@ -123,7 +123,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
-        const store = Shopware.Store.get('cmsPageState');
+        const store = Shopware.Store.get('cmsPage');
         store.resetCmsPageState();
         store.currentPageType = 'product_list';
 
@@ -201,7 +201,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('should collect grouped CMS elements, depending on favorites', async () => {
-        const store = Shopware.Store.get('cmsPageState');
+        const store = Shopware.Store.get('cmsPage');
         store.currentPageType = 'product_detail';
 
         const wrapper = await createWrapper();

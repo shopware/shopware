@@ -62,14 +62,14 @@ describe('src/app/init-pre/state.init.ts', () => {
         });
 
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 foo: 'bar',
             }),
         });
 
-        expect(Shopware.State.get('cmsPageState').foo).toBe('bar');
-        Shopware.Store.unregister('cmsPageState');
+        expect(Shopware.Store.get('cmsPage').foo).toBe('bar');
+        Shopware.Store.unregister('cmsPage');
     });
 
     it('should be able to commit cmsPageState backwards compatible', () => {
@@ -86,7 +86,7 @@ describe('src/app/init-pre/state.init.ts', () => {
         });
 
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 foo: 'bar',
             }),
@@ -97,12 +97,12 @@ describe('src/app/init-pre/state.init.ts', () => {
             },
         });
 
-        const store = Shopware.Store.get('cmsPageState');
+        const store = Shopware.Store.get('cmsPage');
         expect(store.foo).toBe('bar');
 
-        Shopware.State.commit('cmsPageState/setFoo', 'jest');
+        store.setFoo('jest');
         expect(store.foo).toBe('jest');
 
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
     });
 });

@@ -319,7 +319,7 @@ describe('app/plugins/shortcut.plugin', () => {
         let testString = 'foo';
 
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
         });
 
         Shopware.Component.register('base-component', {

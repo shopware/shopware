@@ -59,7 +59,7 @@ function runCmsElementRegistryTest(config) {
 }
 
 async function setupCmsEnvironment() {
-    await import('src/module/sw-cms/state/cms-page.state');
+    await import('src/module/sw-cms/store/cms-page.store');
     await import('src/module/sw-cms/service/cms.service');
     await import('src/module/sw-cms/service/cms-element-favorites.service');
     await import('src/module/sw-cms/mixin/sw-cms-element.mixin');

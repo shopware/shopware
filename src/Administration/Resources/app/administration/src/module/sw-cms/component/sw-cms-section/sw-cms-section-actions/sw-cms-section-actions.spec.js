@@ -21,7 +21,7 @@ async function createWrapper() {
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 selectedSection: {},
             }),

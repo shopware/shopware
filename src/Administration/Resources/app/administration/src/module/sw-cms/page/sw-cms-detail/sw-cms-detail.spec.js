@@ -6,7 +6,6 @@ import { mount } from '@vue/test-utils';
 import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/module/sw-cms/store/cms-page.store';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
@@ -197,7 +196,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
 
 describe('module/sw-cms/page/sw-cms-detail', () => {
     beforeEach(async () => {
-        Shopware.Store.get('cmsPageState').$reset();
+        Shopware.Store.get('cmsPage').$reset();
 
         jest.spyOn(global.console, 'warn').mockImplementation(() => {});
         jest.resetModules();
@@ -352,7 +351,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             },
         });
 
-        const State = Shopware.Store._rootState.state.value.cmsPageState;
+        const State = Shopware.Store._rootState.state.value.cmsPage;
 
         await wrapper.vm.$nextTick();
 
@@ -396,7 +395,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             },
         });
 
-        const State = Shopware.Store._rootState.state.value.cmsPageState;
+        const State = Shopware.Store._rootState.state.value.cmsPage;
 
         await wrapper.vm.$nextTick();
 
@@ -512,17 +511,17 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         });
     });
 
-    it('should set the currentPageType in the cmsPageState', async () => {
+    it('should set the currentPageType in the cmsPage', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let State = Shopware.Store._rootState.state.value.cmsPageState;
+        let State = Shopware.Store._rootState.state.value.cmsPage;
         expect(State.currentPageType).toBe(CMS.PAGE_TYPES.LANDING);
 
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('page-type-change', CMS.PAGE_TYPES.SHOP);
         await flushPromises();
 
-        State = Shopware.Store._rootState.state.value.cmsPageState;
+        State = Shopware.Store._rootState.state.value.cmsPage;
         expect(State.currentPageType).toBe(CMS.PAGE_TYPES.SHOP);
         expect(wrapper.vm.page.type).toBe(CMS.PAGE_TYPES.SHOP);
     });

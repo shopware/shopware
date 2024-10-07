@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
@@ -27,7 +26,6 @@ class SaleChannelsReadinessCheckTest extends TestCase
         $this->salesChannelReadinessCheck = new SaleChannelsReadinessCheck(
             $this->createMock(Kernel::class),
             $this->createMock(Router::class),
-            $this->createMock(RequestTransformerInterface::class),
             $this->createMock(Connection::class),
             $this->createMock(RequestStack::class)
         );

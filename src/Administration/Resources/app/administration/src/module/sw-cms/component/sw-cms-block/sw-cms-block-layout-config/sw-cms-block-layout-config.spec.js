@@ -45,7 +45,7 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should be a Vue.js component', async () => {

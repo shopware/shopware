@@ -39,17 +39,17 @@ async function createWrapper(propsOverride) {
 
 describe('module/sw-cms/elements/product-name/component', () => {
     beforeAll(async () => {
-        await import('src/module/sw-cms/state/cms-page.state');
+        await import('src/module/sw-cms/store/cms-page.store');
         await import('src/module/sw-cms/service/cms.service');
         await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should map to a product name if the component is in a product page', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();
@@ -87,7 +87,7 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('should display skeleton on product name block if entity demo is null', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();
@@ -156,7 +156,7 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('demoValue is retrieved from cms state, if it exists', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentDemoEntity({
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             name: 'Test product',
             ean: 'test-ean',
         });

@@ -9,7 +9,7 @@
         {% block cms_element_form_input_input %}
             <input name="{{ fieldName }}"
                    type="{{ type ?? 'text'}}"
-                   id="form-{{ fieldName }}"
+                   id="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-{{ fieldName }}"
                    {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
                    value="{{ data.get( fieldName ) }}"
                    placeholder="{{ placeholder|trans }}"

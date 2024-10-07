@@ -35,7 +35,7 @@ Shopware.Component.register('sw-extension-teaser-sales-channel', {
 
     computed: {
         teaserSalesChannels(): TeaserSalesChannelConfig[] {
-            return Shopware.Store.get('teaserPopoverState').salesChannels || [];
+            return Shopware.Store.get('teaserPopover').salesChannels || [];
         },
     },
 });

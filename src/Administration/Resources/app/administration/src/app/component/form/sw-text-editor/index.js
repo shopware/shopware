@@ -315,7 +315,7 @@ Component.register('sw-text-editor', {
                 nextColWidth: null,
             },
             isTableEdit: false,
-            cmsPageState: Shopware.Store.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPage'),
             minorElementTags: [
                 '#text',
                 'br',

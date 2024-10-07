@@ -18,5 +18,7 @@ module.exports = {
         'remove-empty-templates': require(path.resolve(__dirname, 'remove-empty-templates.js')),
         // eslint-disable-next-line global-require,import/no-dynamic-require
         'move-slots-to-wrap-blocks': require(path.resolve(__dirname, 'move-slots-to-wrap-blocks.js')),
+        // eslint-disable-next-line global-require,import/no-dynamic-require
+        'replace-top-level-blocks-to-extends': require(path.resolve(__dirname, 'replace-top-level-blocks-to-extends.js')),
     },
 };

@@ -6,11 +6,13 @@ import { ESLint } from 'eslint';
 interface TerminalOptions {
     shouldMoveConditionals: boolean;
     shouldMoveSlots: boolean;
+    isOverriding: boolean;
 }
 
 const BLOCK_START_REGEX = /\{%\s*block\s+([^%\s\}]+)\s*%\}/g;
 const BLOCK_END_REGEX = /\{%\s*endblock\s*%\}/g;
-const BLOCK_PARENT_REGEX = /\{%\s*block-parent\s*%\}/g;
+const BLOCK_PARENT_REGEX = /\{[\{|%]\s*parent\(?\)?\s*[\}|%]\}/g;
+const BLOCK_EXTENDS_REGEX = /\{%\s*extends\s+'[^']+'\s*%\}/g;
 const DEPRECATING_COMMENT = '<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->';
 
 /**
@@ -67,14 +69,17 @@ async function getOptions(): Promise<TerminalOptions> {
         output: process.stdout
     });
 
-    let givenAnswer = await terminalInterface.question('Do you want to move conditionals to the blocks elements? (y/n) \n');
+    let givenAnswer = await terminalInterface.question('Is it a plugin and/or overriding defined blocks? (y/n) \n');
+    const isOverriding = givenAnswer === 'y';
+
+    givenAnswer = await terminalInterface.question('Do you want to move conditionals to the blocks elements? (y/n) \n');
     const shouldMoveConditionals = givenAnswer === 'y';
 
     givenAnswer = await terminalInterface.question('Do you want to move slots to the blocks? (y/n) \n');
     const shouldMoveSlots = givenAnswer === 'y';
 
     terminalInterface.close();
-    return { shouldMoveConditionals, shouldMoveSlots }
+    return { shouldMoveConditionals, shouldMoveSlots, isOverriding }
 }
 
 function replaceBlocks(code: string) {
@@ -83,6 +88,7 @@ function replaceBlocks(code: string) {
     }
     return code
         .split('\n')
+        .filter((line) => !BLOCK_EXTENDS_REGEX.test(line))
         .filter((line) => line.trim() !== DEPRECATING_COMMENT)
         .map((line) => line.replace(DEPRECATING_COMMENT, ''))
         .map((line) => line.replace(BLOCK_START_REGEX, '<sw-block name="$1" :data="$dataScope">'))
@@ -91,14 +97,15 @@ function replaceBlocks(code: string) {
         .join('\n');
 }
 
-async function lintFile(filePath: string, options: TerminalOptions) {
+async function lintFile(filePath: string, { isOverriding, shouldMoveSlots, shouldMoveConditionals }: TerminalOptions) {
     const eslint = new ESLint({
         fix: true,
         overrideConfig: {
             rules: {
-                'sw-core-rules/move-slots-to-wrap-blocks': options.shouldMoveSlots ? 'error' : 'off',
-                'sw-core-rules/move-v-if-conditions-to-blocks': options.shouldMoveConditionals ? 'error' : 'off',
-                'sw-core-rules/remove-empty-templates': options.shouldMoveConditionals || options.shouldMoveSlots ? 'error' : 'off',
+                'sw-core-rules/replace-top-level-blocks-to-extends': isOverriding ? 'error' : 'off',
+                'sw-core-rules/move-slots-to-wrap-blocks': shouldMoveSlots ? 'error' : 'off',
+                'sw-core-rules/move-v-if-conditions-to-blocks': shouldMoveConditionals ? 'error' : 'off',
+                'sw-core-rules/remove-empty-templates': shouldMoveConditionals || shouldMoveSlots ? 'error' : 'off',
             },
         },
     });

@@ -21,6 +21,7 @@
     "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
     "generate-position-identifier-list": "ts-node --transpileOnly ./scripts/generate-position-identifier-list/index.ts",
     "generate-vue-compat-components-statistics": "ts-node --transpileOnly ./scripts/vueCompatComponentsStatistics/generate.ts",
+    "generate-block-list": "ts-node --transpileOnly ./scripts/generate-block-list/index.ts",
     "preinstall": "node ./scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
     "lighthouse": "node lighthouse-tests.js",

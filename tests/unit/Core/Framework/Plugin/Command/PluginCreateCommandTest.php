@@ -79,6 +79,7 @@ class PluginCreateCommandTest extends TestCase
                 'plugin-name' => 'TestPlugin',
                 'plugin-namespace' => 'Test',
                 '--test-option' => true,
+                '--static' => true,
             ],
             'inputs' => [],
             'generators' => [

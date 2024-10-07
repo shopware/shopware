@@ -77,9 +77,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
 
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 currentPage: null,
             }),

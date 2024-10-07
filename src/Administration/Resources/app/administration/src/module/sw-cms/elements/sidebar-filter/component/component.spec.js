@@ -29,7 +29,7 @@ async function createWrapper() {
 describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
         });
     });
 

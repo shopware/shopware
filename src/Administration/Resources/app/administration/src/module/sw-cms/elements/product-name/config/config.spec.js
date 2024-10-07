@@ -72,8 +72,8 @@ describe('module/sw-cms/elements/product-name/config', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
     });

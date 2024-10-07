@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 
-import 'src/module/sw-cms/store/cms-page.store';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
@@ -96,9 +95,9 @@ async function createWrapper(routeParams = {}) {
 
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 isSystemDefaultLanguage: true,
             }),

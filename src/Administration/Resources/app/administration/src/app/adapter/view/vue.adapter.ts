@@ -18,7 +18,7 @@ import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
 
-const { Component, State, Store, Mixin } = Shopware;
+const { Component, State, Mixin } = Shopware;
 
 /**
  * @private
@@ -57,7 +57,6 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        const piniaRoot = Store._rootState;
         // eslint-disable-next-line @typescript-eslint/ban-types
         const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
 
@@ -135,7 +134,6 @@ export default class VueAdapter extends ViewAdapter {
         this.initTitle(this.app);
         /* eslint-enable max-len */
 
-        this.app.use(piniaRoot);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.mount(renderElement);
 

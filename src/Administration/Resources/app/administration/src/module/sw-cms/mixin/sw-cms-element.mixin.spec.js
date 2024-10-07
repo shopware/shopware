@@ -38,7 +38,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('initElementConfig is properly merging configs from various sources', async () => {
@@ -114,7 +114,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
     it('getDemoValue is invoking cmsService.getPropertyByMappingPath', async () => {
         const wrapper = await createWrapper();
-        const store = Shopware.Store.get('cmsPageState');
+        const store = Shopware.Store.get('cmsPage');
 
         store.currentDemoEntity = {
             id: '12345',

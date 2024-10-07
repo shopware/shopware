@@ -1,4 +1,5 @@
 import { defineComponent } from 'vue';
+import '../store/cms-page.store';
 
 /**
  * @private
@@ -7,7 +8,7 @@ import { defineComponent } from 'vue';
 export default Shopware.Mixin.register('cms-state', defineComponent({
     computed: {
         cmsPageState() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
 
         selectedBlock: {

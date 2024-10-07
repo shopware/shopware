@@ -354,11 +354,11 @@ export default {
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
 
         currentPage() {
-            return Shopware.Store.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPage').currentPage;
         },
     },
 

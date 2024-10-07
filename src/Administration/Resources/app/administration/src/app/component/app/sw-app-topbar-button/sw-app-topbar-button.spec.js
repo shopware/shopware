@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import topBarButtonState from 'src/app/store/topbar-button.store';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-app-topbar-button', { sync: true }), {
@@ -28,7 +27,6 @@ const topbarButton = {
 };
 
 describe('sw-app-topbar-button', () => {
-    Shopware.Store.register(topBarButtonState);
     let wrapper = null;
 
     it('should be a Vue.js component', async () => {
@@ -37,7 +35,7 @@ describe('sw-app-topbar-button', () => {
     });
 
     it('should render button correctly', async () => {
-        const store = Shopware.Store.get('topBarButtonState');
+        const store = Shopware.Store.get('topBarButton');
         store.buttons.push(topbarButton);
 
         wrapper = await createWrapper();
@@ -47,7 +45,7 @@ describe('sw-app-topbar-button', () => {
     });
 
     it('should able to click button', async () => {
-        const store = Shopware.Store.get('topBarButtonState');
+        const store = Shopware.Store.get('topBarButton');
         store.buttons.push(topbarButton);
 
         wrapper = await createWrapper();

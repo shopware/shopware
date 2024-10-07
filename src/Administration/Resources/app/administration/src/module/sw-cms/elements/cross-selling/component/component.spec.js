@@ -49,7 +49,7 @@ describe('module/sw-cms/elements/cross-selling/component', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('getProductEl applies props to the config object', async () => {

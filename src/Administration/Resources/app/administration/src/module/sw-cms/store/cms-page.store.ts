@@ -1,57 +1,26 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type CmsPageState = {
-    state: {
-        currentPage: null | EntitySchema.Entity<'cms_page'>,
-        currentPageType: null | string,
-        currentMappingEntity: null | string,
-        currentMappingTypes: Record<string, unknown>,
-        currentDemoEntity: unknown,
-        currentDemoProducts: unknown[],
-        pageEntityName: string,
-        defaultMediaFolderId: null | string,
-        currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form',
-        selectedSection: null | EntitySchema.Entity<'cms_section'>,
-        selectedBlock: null | EntitySchema.Entity<'cms_block'>,
-        isSystemDefaultLanguage: boolean,
-    },
-    actions: {
-        setCurrentPage: (page: EntitySchema.Entity<'cms_page'>) => void,
-        removeCurrentPage: () => void,
-        setCurrentPageType: (type: string) => void,
-        setCurrentMappingEntity: (entity: string) => void,
-        removeCurrentMappingEntity: () => void,
-        setCurrentMappingTypes: (types: Record<string, unknown>) => void,
-        removeCurrentMappingTypes: () => void,
-        setCurrentDemoEntity: (entity: unknown) => void,
-        removeCurrentDemoEntity: () => void,
-        setCurrentDemoProducts: (products: unknown[]) => void,
-        removeCurrentDemoProducts: () => void,
-        setPageEntityName: (entity: string) => void,
-        removePageEntityName: () => void,
-        setDefaultMediaFolderId: (folderId: string) => void,
-        removeDefaultMediaFolderId: () => void,
-        setCurrentCmsDeviceView: (view: CmsPageState['state']['currentCmsDeviceView']) => void,
-        removeCurrentCmsDeviceView: () => void,
-        setSelectedSection: (section: EntitySchema.Entity<'cms_section'>) => void,
-        removeSelectedSection: () => void,
-        setSelectedBlock: (block: EntitySchema.Entity<'cms_block'>) => void,
-        removeSelectedBlock: () => void,
-        setIsSystemDefaultLanguage: (isSystemDefaultLanguage: boolean) => void,
-        resetCmsPageState: () => void,
-        setSection: (section: EntitySchema.Entity<'cms_section'>) => void,
-        setBlock: (block: EntitySchema.Entity<'cms_block'>) => void,
-    },
-    getters: unknown,
+type CmsPageState = {
+    currentPage: null | EntitySchema.Entity<'cms_page'>,
+    currentPageType: null | string,
+    currentMappingEntity: null | string,
+    currentMappingTypes: Record<string, unknown>,
+    currentDemoEntity: unknown,
+    currentDemoProducts: unknown[],
+    pageEntityName: string,
+    defaultMediaFolderId: null | string,
+    currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form',
+    selectedSection: null | EntitySchema.Entity<'cms_section'>,
+    selectedBlock: null | EntitySchema.Entity<'cms_block'>,
+    isSystemDefaultLanguage: boolean,
 }
 
 /**
  * @private
  * @package buyers-experience
  */
-Shopware.Store.register({
-    id: 'cmsPageState',
+const cmsPageStore = Shopware.Store.register({
+    id: 'cmsPage',
 
-    state: (): CmsPageState['state'] => ({
+    state: (): CmsPageState => ({
         currentPage: null,
         currentPageType: null,
         currentMappingEntity: null,
@@ -127,7 +96,7 @@ Shopware.Store.register({
             this.defaultMediaFolderId = null;
         },
 
-        setCurrentCmsDeviceView(view: CmsPageState['state']['currentCmsDeviceView']) {
+        setCurrentCmsDeviceView(view: CmsPageState['currentCmsDeviceView']) {
             this.currentCmsDeviceView = view;
         },
 
@@ -174,3 +143,13 @@ Shopware.Store.register({
         },
     },
 });
+
+/**
+ * @private
+ */
+export type CmsPageStore = ReturnType<typeof cmsPageStore>;
+
+/**
+ * @private
+ */
+export default cmsPageStore;

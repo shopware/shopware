@@ -37,27 +37,12 @@ export type TeaserSalesChannelConfig = {
     }
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type TeaserPopoverState = {
-    state: {
-        identifier: {
-            [positionId: string]: TeaserPopoverConfig,
-        },
-        salesChannels: TeaserSalesChannelConfig[],
-    },
-    actions: {
-        addPopoverComponent: (popoverComponent: TeaserPopoverConfig) => void,
-        addSalesChannel: (popoverComponent: TeaserSalesChannelConfig) => void,
-    },
-    getters: unknown,
-};
+const teaserPopoverStore = Shopware.Store.register({
+    id: 'teaserPopover',
 
-const TeaserPopoverState = Shopware.Store.wrapStoreDefinition({
-    id: 'teaserPopoverState',
-
-    state: (): TeaserPopoverState['state'] => ({
-        identifier: {},
-        salesChannels: [],
+    state: () => ({
+        identifier: {} as Record<string, TeaserPopoverConfig>,
+        salesChannels: [] as TeaserSalesChannelConfig[],
     }),
 
     actions: {
@@ -78,4 +63,9 @@ const TeaserPopoverState = Shopware.Store.wrapStoreDefinition({
 /**
  * @private
  */
-export default TeaserPopoverState;
+export type TeaserPopoverStore = ReturnType<typeof teaserPopoverStore>;
+
+/**
+ * @private
+ */
+export default teaserPopoverStore;

@@ -69,7 +69,7 @@ describe('module/sw-cms/elements/buy-box/config', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should show product selector if page type is not product detail', async () => {
@@ -82,7 +82,7 @@ describe('module/sw-cms/elements/buy-box/config', () => {
     });
 
     it('should show alert information if page type is product detail', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();

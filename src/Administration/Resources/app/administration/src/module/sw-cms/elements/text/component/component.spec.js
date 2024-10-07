@@ -38,7 +38,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('updates the demo value if demo entity changes', async () => {
@@ -57,7 +57,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         wrapper.vm.updateDemoValue = jest.fn();
 
-        await Shopware.Store.get('cmsPageState').setCurrentDemoEntity({
+        await Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             id: 'foo-bar',
         });
         expect(wrapper.vm.updateDemoValue).toHaveBeenCalled();

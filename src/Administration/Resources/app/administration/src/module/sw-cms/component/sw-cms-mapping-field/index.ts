@@ -68,7 +68,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
     },
 

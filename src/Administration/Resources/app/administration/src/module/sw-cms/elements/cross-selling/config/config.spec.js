@@ -68,7 +68,7 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should display a message if it is product page layout type', async () => {
@@ -80,7 +80,7 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
     });
 
     it('should display product select if it is product page layout type', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();

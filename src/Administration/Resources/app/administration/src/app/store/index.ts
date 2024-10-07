@@ -1,5 +1,12 @@
-import { createPinia, defineStore } from 'pinia';
-import type { Store as PiniaStore, Pinia, _GettersTree, DefineStoreOptions, StateTree } from 'pinia';
+import {
+    createPinia,
+    defineStore,
+    type Pinia,
+    type _GettersTree,
+    type DefineStoreOptions,
+    type StateTree,
+    type StoreDefinition,
+} from 'pinia';
 
 
 /**
@@ -11,7 +18,7 @@ export default class Store {
     // eslint-disable-next-line no-use-before-define
     static #instance: Store;
 
-    static #stores = new Map<keyof PiniaRootState, PiniaStore<keyof PiniaRootState>>();
+    static #stores = new Map<keyof PiniaRootState, StoreDefinition>();
 
     /**
      * @private - Only to be used by vue.adapter.ts
@@ -37,7 +44,7 @@ export default class Store {
      * Returns a list of all registered Pinia store ids.
      */
     public list(): string[] {
-        return Object.keys(this._rootState.state.value);
+        return Array.from(Store.#stores.keys());
     }
 
     /**
@@ -45,37 +52,31 @@ export default class Store {
      */
     public get<
         Id extends keyof PiniaRootState,
-        S extends PiniaRootState[Id]['state'],
-        G extends PiniaRootState[Id]['getters'],
-        A extends PiniaRootState[Id]['actions']
-    >(id: Id): PiniaStore<Id, S, G, A> {
+    >(id: Id): PiniaRootState[Id] {
         const piniaStore = Store.#stores.get(id);
         if (!piniaStore) {
             throw new Error(`Store with id "${id}" not found`);
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return piniaStore as unknown as PiniaStore<Id, S, G, A>;
+        return piniaStore() as PiniaRootState[Id];
     }
 
     /**
      * Register a new Pinia store. Works similar like Vuex's registerModule.
      */
-    public register<
+    public register: typeof defineStore = <
         Id extends keyof PiniaRootState,
         S extends StateTree = NonNullable<unknown>,
         G extends _GettersTree<S> = NonNullable<unknown>,
-        A = NonNullable<unknown>
-    >(
-        options: DefineStoreOptions<Id, S, G, A>,
-    ): void {
-        // Create new pinia store by calling the useStore function
-        const newStore = (defineStore(options))();
-
+        A = NonNullable<unknown>>(
+        storeDefinition: DefineStoreOptions<Id, S, G, A>,
+    ) => {
+        const store = defineStore(storeDefinition.id, storeDefinition);
         // Cache the store in internal map
         // @ts-expect-error - Pinia type includes internals, which we don't want to mirror here because of stability
-        Store.#stores.set(options.id, newStore);
-    }
+        Store.#stores.set(storeDefinition.id, store);
+        return store;
+    };
 
     /**
      * Unregister a Pinia store. Works similar like Vuex's unregisterModule.
@@ -87,7 +88,7 @@ export default class Store {
         }
 
         // Stop reactive effects
-        piniaStore.$dispose();
+        piniaStore().$dispose();
 
         // Delete store in root state
         delete this._rootState.state.value[piniaStore.$id];
@@ -96,15 +97,12 @@ export default class Store {
         Store.#stores.delete(id);
     }
 
-    /** Define a Pinia store without registering it, having types in the definition */
-    public wrapStoreDefinition<
-        Id extends string,
-        S extends StateTree = NonNullable<unknown>,
-        G extends _GettersTree<S> = NonNullable<unknown>,
-        A = NonNullable<unknown>
-    >(
-        options: DefineStoreOptions<Id, S, G, A>,
-    ) {
-        return options;
+    /**
+     * @private
+     * Clear all registered Pinia stores.
+     * This is needed for testing purposes.
+     */
+    public clear(): void {
+        Array.from(Store.#stores.keys()).forEach(Store.#instance.unregister.bind(Store.#instance));
     }
 }

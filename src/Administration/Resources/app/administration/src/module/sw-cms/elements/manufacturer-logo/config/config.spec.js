@@ -88,7 +88,7 @@ describe('module/sw-cms/elements/manufacturer-logo/config', () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/manufacturer-logo');
 
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
     });

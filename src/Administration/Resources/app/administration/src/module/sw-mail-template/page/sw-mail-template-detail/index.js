@@ -44,7 +44,7 @@ export default {
             mailTemplate: false,
             testerMail: '',
             mailTemplateId: null,
-            mailHtmlPreview: null,
+            mailPreview: null,
             mailPlainPreview: null,
             isLoading: false,
             isSaveSuccessful: false,
@@ -419,11 +419,11 @@ export default {
             this.mailService
                 .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
                 .then((response) => {
-                    this.mailHtmlPreview = response.html;
+                    this.mailPreview = response.html;
                 this.mailPlainPreview = response.plain;
                 })
                 .catch((error) => {
-                    this.mailHtmlPreview = null;
+                    this.mailPreview = null;
                 this.mailPlainPreview = null;
                 this.handleError(error);
             }).finally(() => {
@@ -464,7 +464,7 @@ export default {
         },
 
         onCancelShowPreview() {
-            this.mailHtmlPreview = null;
+            this.mailPreview = null;
             this.mailPlainPreview = null;
         },
 

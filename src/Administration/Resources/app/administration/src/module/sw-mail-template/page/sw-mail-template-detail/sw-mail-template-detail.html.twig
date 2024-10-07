@@ -288,7 +288,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_preview_modal %}
                 <sw-modal
-                    v-if="mailHtmlPreview || mailPlainPreview"
+                    v-if="mailPreview || mailPlainPreview"
                     class="sw-mail-template-preview-modal"
                     :title="$tc('sw-mail-template.detail.previewModalTitle')"
                     :is-loading="isLoading"
@@ -299,7 +299,7 @@
                         :title="$tc('sw-mail-template.detail.previewModalSubtitleHtml')"
                         position-identifier="sw-mail-template-detail-basic-preview-html"
                     >
-                        <span v-html="mailHtmlPreview"></span>
+                        <span v-html="mailPreview"></span>
                     </sw-card>
 
                     <sw-card

@@ -230,6 +230,10 @@ Component.register('sw-form-field-renderer', {
                         option,
                         [labelProperty],
                     );
+                    // if label is empty, use technical name
+                    if(translation.label === "") {
+                        translation.label = option.value;
+                    }
                     // Merge original option with translation
                     const translatedOption = { ...option, ...translation };
                     options.push(translatedOption);

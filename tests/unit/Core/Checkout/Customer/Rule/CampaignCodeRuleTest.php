@@ -44,11 +44,14 @@ class CampaignCodeRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'Constraint operator not found in Rule');
 
         static::assertEquals(RuleConstraints::stringOperators(), $constraints['operator']);
-        static::assertEquals(RuleConstraints::string(), $constraints['campaignCode']);
+        static::assertEquals(RuleConstraints::stringArray(), $constraints['campaignCode']);
     }
 
+    /**
+     * @param ?array<string> $campaignCodeConditionValue
+     */
     #[DataProvider('getMatchValues')]
-    public function testRuleMatching(?string $campaignCode, string $operator, ?string $campaignCodeConditionValue, bool $expected): void
+    public function testRuleMatching(?string $campaignCode, string $operator, ?array $campaignCodeConditionValue, bool $expected): void
     {
         $this->rule->assign([
             'operator' => $operator,
@@ -109,16 +112,22 @@ class CampaignCodeRuleTest extends TestCase
      */
     public static function getMatchValues(): \Traversable
     {
-        yield 'equal operator is matching' => ['code a', Rule::OPERATOR_EQ, 'code a', true];
-        yield 'equal operator is not matching' => ['code a', Rule::OPERATOR_EQ, 'code b', false];
-        yield 'equal operator is not match, with empty customer code ' => [null, Rule::OPERATOR_EQ, 'code a', false];
+        yield 'equal operator is matching' => ['code a', Rule::OPERATOR_EQ, ['Code a'], true];
+        yield 'equal operator is matching with multiple values' => ['code a', Rule::OPERATOR_EQ, ['Code a', 'Code b'], true];
+        yield 'equal operator is not matching' => ['code a', Rule::OPERATOR_EQ, ['Code b'], false];
+        yield 'equal operator is not matching with multiple values' => ['code a', Rule::OPERATOR_EQ, ['Code b', 'Code C'], false];
+        yield 'equal operator is not match, with empty customer code' => [null, Rule::OPERATOR_EQ, ['code a'], false];
+        yield 'equal operator is not match, with empty customer code and null code' => [null, Rule::OPERATOR_EQ, [null], false];
 
-        yield 'not equal operator is matching' => ['code a', Rule::OPERATOR_NEQ, 'code b', true];
-        yield 'not equal operator is not matching' => ['code a', Rule::OPERATOR_NEQ, 'code a', false];
-        yield 'not equal operator is matching, with empty customer code' => [null, Rule::OPERATOR_NEQ, 'code a', true];
+        yield 'not equal operator is matching' => ['code a', Rule::OPERATOR_NEQ, ['Code b'], true];
+        yield 'not equal operator is matching with multiple values' => ['code a', Rule::OPERATOR_NEQ, ['Code b', 'Code C'], true];
+        yield 'not equal operator is not matching' => ['code a', Rule::OPERATOR_NEQ, ['Code a', 'Code b'], false];
+        yield 'not equal operator is not matching with multiple values' => ['code a', Rule::OPERATOR_NEQ, ['Code a', 'Code b'], false];
+        yield 'not equal operator is matching, with empty customer code' => [null, Rule::OPERATOR_NEQ, ['Code a'], true];
+        yield 'not equal operator is matching, with empty customer code with multiple values' => [null, Rule::OPERATOR_NEQ, ['Code a', 'Code b'], true];
 
-        yield 'empty operator is matching, with empty customer code' => [null, Rule::OPERATOR_EMPTY, 'code a', true];
-        yield 'empty operator is not matching, with filled customer code' => ['code a', Rule::OPERATOR_EMPTY, 'code a', false];
+        yield 'empty operator is matching, with empty customer code' => [null, Rule::OPERATOR_EMPTY, ['Code a'], true];
+        yield 'empty operator is not matching, with filled customer code' => ['code a', Rule::OPERATOR_EMPTY, ['Code a'], false];
         yield 'empty operator is not matching, with empty rule code' => ['code a', Rule::OPERATOR_EMPTY, null, false];
     }
 }

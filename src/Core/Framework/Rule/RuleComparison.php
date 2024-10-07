@@ -60,6 +60,7 @@ class RuleComparison
         return match ($operator) {
             Rule::OPERATOR_EQ => \in_array(mb_strtolower($itemValue), $ruleValue, true),
             Rule::OPERATOR_NEQ => !\in_array(mb_strtolower($itemValue), $ruleValue, true),
+            Rule::OPERATOR_EMPTY => empty(trim($itemValue)),
             default => throw new UnsupportedOperatorException($operator, self::class),
         };
     }

@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Util\FloatComparator;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -46,7 +46,7 @@ abstract class ZipCodeRule extends Rule
             return $constraints;
         }
 
-        $constraints['zipCodes'] = [new NotBlank(), new ArrayOfType('string')];
+        $constraints['zipCodes'] = RuleConstraints::stringArray();
 
         return $constraints;
     }

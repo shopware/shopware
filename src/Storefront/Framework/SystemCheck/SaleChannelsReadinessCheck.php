@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\SystemCheck;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
@@ -34,7 +33,6 @@ class SaleChannelsReadinessCheck extends BaseCheck
     public function __construct(
         private readonly Kernel $kernel,
         private readonly RouterInterface $router,
-        private readonly RequestTransformerInterface $requestTransformer,
         private readonly Connection $connection,
         private readonly RequestStack $requestStack
     ) {
@@ -42,7 +40,11 @@ class SaleChannelsReadinessCheck extends BaseCheck
 
     public function run(): Result
     {
-        return $this->withSalesChannelRequest(fn () => $this->doRun());
+        return $this->asASalesChannelRequest(
+            fn () => $this->whileTrustingAllHosts(
+                fn () => $this->doRun()
+            )
+        );
     }
 
     public function category(): Category
@@ -67,7 +69,7 @@ class SaleChannelsReadinessCheck extends BaseCheck
         $requestStatus = [];
         foreach ($domains as $domain) {
             $url = $this->generateDomainUrl($domain);
-            $request = $this->requestTransformer->transform(Request::create($url));
+            $request = Request::create($url);
             $requestStart = microtime(true);
             $response = $this->kernel->handle($request, HttpKernelInterface::SUB_REQUEST);
             $responseTime = microtime(true) - $requestStart;
@@ -92,13 +94,16 @@ class SaleChannelsReadinessCheck extends BaseCheck
         );
     }
 
-    private function withSalesChannelRequest(callable $callback): Result
+    private function asASalesChannelRequest(callable $callback): Result
     {
         $mainRequest = $this->requestStack->getMainRequest();
+        // the requests originate from CLI, there is no HTTP request.
         if ($mainRequest === null) {
             return $callback();
         }
 
+        // If the request originates from a parent request, regardless of the main request
+        // ensure it is treated as a sales channel request to access the storefront
         $hasSalesChannelRequest = $mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
         $mainRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
 
@@ -128,5 +133,16 @@ class SaleChannelsReadinessCheck extends BaseCheck
     private function generateDomainUrl(string $url): string
     {
         return rtrim($url, '/') . $this->router->generate(self::INDEX_PAGE);
+    }
+
+    private function whileTrustingAllHosts(callable $callback): Result
+    {
+        $trustedHosts = Request::getTrustedHosts();
+        Request::setTrustedHosts([]);
+        try {
+            return $callback();
+        } finally {
+            Request::setTrustedHosts($trustedHosts);
+        }
     }
 }

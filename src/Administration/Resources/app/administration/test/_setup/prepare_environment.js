@@ -60,6 +60,7 @@ import '../../src/app/store/extension-entry-routes.store';
 import '../../src/app/store/extension-sdk-module.store';
 import '../../src/app/store/extensions.store';
 import '../../src/app/store/error.store';
+import '../../src/app/store/admin-help-center.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

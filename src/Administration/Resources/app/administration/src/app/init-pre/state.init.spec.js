@@ -37,7 +37,6 @@ describe('src/app/init-pre/state.init.ts', () => {
         expect(Shopware.State.get('ruleConditionsConfig')).toBeDefined();
         expect(Shopware.State.get('sdkLocation')).toBeDefined();
         expect(Shopware.State.get('usageData')).toBeDefined();
-        expect(Shopware.State.get('adminHelpCenter')).toBeDefined();
     });
 
     it('should be able to get cmsPageState backwards compatible', () => {

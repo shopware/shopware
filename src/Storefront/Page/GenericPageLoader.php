@@ -94,7 +94,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
         });
     }
 
-    public function getSystemConfig(string $config, string $salesChannelId): string
+    private function getSystemConfig(string $config, string $salesChannelId): string
     {
         return $this->systemConfigService->getString($config, $salesChannelId);
     }

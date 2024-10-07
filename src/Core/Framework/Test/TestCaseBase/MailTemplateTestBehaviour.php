@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\Event;
 
 trait MailTemplateTestBehaviour
 {
@@ -29,6 +30,12 @@ trait MailTemplateTestBehaviour
         TestCase::assertSame($expectedStruct->getRecipients(), $event->getMailStruct()->getRecipients());
     }
 
+    /**
+     * @template TEvent of Event
+     *
+     * @param class-string<TEvent> $eventName
+     * @param TEvent|null $eventResult
+     */
     protected function catchEvent(string $eventName, ?object &$eventResult): void
     {
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');

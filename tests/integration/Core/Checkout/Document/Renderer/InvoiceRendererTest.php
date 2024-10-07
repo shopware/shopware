@@ -605,7 +605,6 @@ class InvoiceRendererTest extends TestCase
 
         $data = $rendered->getSuccess();
         static::assertNotEmpty($data);
-        static::assertInstanceOf(RenderedDocument::class, $data[$orderId]);
 
         if ($expectedOutput) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getHtml());

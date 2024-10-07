@@ -246,13 +246,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         const visibleTabItem = [
             '.sw-product-detail__tab-seo',
+            '.sw-product-detail__tab-cross-selling',
             '.sw-product-detail__tab-reviews',
         ];
 
         const invisibleTabItem = [
             '.sw-product-detail__tab-variants',
             '.sw-product-detail__tab-layout',
-            '.sw-product-detail__tab-cross-selling',
         ];
 
         visibleTabItem.forEach(item => {

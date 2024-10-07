@@ -479,8 +479,17 @@
       "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
+      "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",
+      "notInheritedEmptyStateDescription": "You can now use custom Cross Selling configurations for this variant.",
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
-      "assignPlaceholder": "Search products..."
+      "assignPlaceholder": "Search products...",
+      "linkCrossSellingsOfParent": "Show cross sellings of parent product",
+      "inheritSwitchLabel": "Use cross sellings from parent product",
+      "buttonRestoreCrossSellingInheritance": "Restore inheritance",
+      "restoreInheritanceConfirmTitle": "Restore Cross Selling inheritance",
+      "restoreInheritanceConfirmText": "Are you sure you want to restore the Cross Selling inheritance? All Cross Selling configurations of this variant will be deleted.",
+      "restoreInheritanceButtonCancel": "Cancel",
+      "restoreInheritanceButtonRestore": "Restore inheritance"
     },
     "featureSets": {
       "cardTitle": "Essential Characteristics",

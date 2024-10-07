@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
@@ -43,9 +44,15 @@ class ProductCartProcessorTest extends TestCase
         $cart->setLineItems(new LineItemCollection([
             new LineItem('A', 'product', 'A'),
             new LineItem('B', 'product', 'B'),
+            new LineItem('C', 'product', 'C'),
+            (new LineItem('D', 'product', 'D'))->setStackable(true),
+            (new LineItem('E', 'product', 'E', 3))->setStackable(true),
+            (new LineItem('F', 'product', 'F', 3))->setStackable(true),
+            new LineItem('G', 'product', ''),
         ]));
 
         $products = [
+            // normal
             $a = (new SalesChannelProductEntity())->assign([
                 'id' => 'A',
                 'calculatedPrice' => new EmptyPrice(),
@@ -54,6 +61,7 @@ class ProductCartProcessorTest extends TestCase
                 'productNumber' => 'A',
                 'stock' => 1,
             ]),
+            // normal
             $b = (new SalesChannelProductEntity())->assign([
                 'id' => 'B',
                 'calculatedPrice' => new EmptyPrice(),
@@ -62,6 +70,47 @@ class ProductCartProcessorTest extends TestCase
                 'productNumber' => 'B',
                 'stock' => 1,
             ]),
+            // out of stock
+            $c = (new SalesChannelProductEntity())->assign([
+                'id' => 'C',
+                'calculatedPrice' => new EmptyPrice(),
+                'calculatedPrices' => new PriceCollection(),
+                'calculatedMaxPurchase' => 1,
+                'productNumber' => 'C',
+                'stock' => 1,
+                'minPurchase' => 2,
+            ]),
+            // min purchase
+            $d = (new SalesChannelProductEntity())->assign([
+                'id' => 'D',
+                'calculatedPrice' => new EmptyPrice(),
+                'calculatedPrices' => new PriceCollection(),
+                'calculatedMaxPurchase' => 4,
+                'productNumber' => 'D',
+                'stock' => 4,
+                'minPurchase' => 2,
+            ]),
+            // purchase step
+            $e = (new SalesChannelProductEntity())->assign([
+                'id' => 'E',
+                'calculatedPrice' => new EmptyPrice(),
+                'calculatedPrices' => new PriceCollection(),
+                'calculatedMaxPurchase' => 4,
+                'productNumber' => 'E',
+                'stock' => 4,
+                'minPurchase' => 2,
+                'purchaseSteps' => 2,
+            ]),
+            // no reference id
+            $f = (new SalesChannelProductEntity())->assign([
+                'id' => 'F',
+                'calculatedPrice' => new EmptyPrice(),
+                'calculatedPrices' => new PriceCollection(),
+                'calculatedMaxPurchase' => 2,
+                'productNumber' => 'F',
+                'stock' => 2,
+                'maxPurchase' => 2,
+            ]),
         ];
 
         $calculator = $this->createMock(ProductPriceCalculator::class);
@@ -69,8 +118,15 @@ class ProductCartProcessorTest extends TestCase
             ->method('calculate')
             ->with($products);
 
+        $gateway = $this->createMock(ProductGateway::class);
+        $gateway
+            ->expects(static::once())
+            ->method('get')
+            ->with(['C', 'D', 'E', 'F'])
+            ->willReturn(new ProductCollection([$c, $d, $e, $f]));
+
         $processor = new ProductCartProcessor(
-            $this->createMock(ProductGateway::class),
+            $gateway,
             $this->createMock(QuantityPriceCalculator::class),
             $this->createMock(ProductFeatureBuilder::class),
             $calculator,
@@ -85,6 +141,34 @@ class ProductCartProcessorTest extends TestCase
         $data->set('product-B', $b);
 
         $processor->collect($data, $cart, $context, new CartBehavior());
+        $errors = $cart->getErrors();
+        $lineItems = $cart->getLineItems();
+
+        static::assertCount(5, $lineItems);
+
+        static::assertNotNull($lineItems->get('A'));
+        static::assertNotNull($lineItems->get('B'));
+        static::assertNotNull($lineItems->get('D'));
+        static::assertNotNull($lineItems->get('E'));
+        static::assertNotNull($lineItems->get('F'));
+
+        static::assertNotNull($data->get('product-C'));
+        static::assertNotNull($data->get('product-D'));
+        static::assertNotNull($data->get('product-E'));
+        static::assertNotNull($data->get('product-F'));
+
+        static::assertNull($lineItems->get('C'));
+        static::assertNull($lineItems->get('G'));
+
+        static::assertNotNull($errors->get('product-out-of-stockC'));
+        static::assertNotNull($errors->get('min-order-quantityD'));
+        static::assertNotNull($errors->get('purchase-steps-quantityE'));
+        static::assertNotNull($errors->get('product-stock-reachedF'));
+        static::assertNotNull($errors->get('product-not-foundG'));
+
+        static::assertSame(2, $lineItems->get('D')->getQuantity());
+        static::assertSame(2, $lineItems->get('E')->getQuantity());
+        static::assertSame(2, $lineItems->get('F')->getQuantity());
     }
 
     public function testPayloadIsReplacedCorrectly(): void

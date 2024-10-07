@@ -145,7 +145,7 @@ class PaymentService
         if ($token->isInvalidated()) {
             // Token was already handled
             // Check current state of the transaction to determine if we need to throw an exception
-            $stateName = $transaction->getOrderTransaction()->getStateMachineState()->getTechnicalName();
+            $stateName = $transaction->getOrderTransaction()->getStateMachineState()?->getTechnicalName();
             if ($stateName === OrderTransactionStates::STATE_PAID  || $stateName === OrderTransactionStates::STATE_PARTIALLY_PAID) {
                 return $token;
             }

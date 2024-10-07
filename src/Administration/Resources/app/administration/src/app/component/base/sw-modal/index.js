@@ -133,7 +133,7 @@ Component.register('sw-modal', {
         },
 
         showHelpSidebar() {
-            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
+            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
         },
     },
 

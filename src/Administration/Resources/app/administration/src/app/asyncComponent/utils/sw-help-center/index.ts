@@ -15,11 +15,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         showHelpSidebar(): boolean {
-            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
+            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
         },
 
         showShortcutModal(): boolean {
-            return Shopware.State.get('adminHelpCenter').showShortcutModal;
+            return Shopware.Store.get('adminHelpCenter').showShortcutModal;
         },
     },
 
@@ -45,15 +45,15 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         openHelpSidebar(): void {
-            Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', true);
+            Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
         },
 
         openShortcutModal(): void {
-            Shopware.State.commit('adminHelpCenter/setShowShortcutModal', true);
+            Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
         },
 
         closeShortcutModal(): void {
-            Shopware.State.commit('adminHelpCenter/setShowShortcutModal', false);
+            Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
         },
 
         setFocusToSidebar(): void {

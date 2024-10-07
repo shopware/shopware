@@ -5,7 +5,6 @@
 import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';
-import adminHelpCenter from './admin-help-center.store';
 import context from './context.store';
 import licenseViolation from './license-violation.store';
 import settingsItems from './settings-item.store';
@@ -25,7 +24,6 @@ export default {
     notification,
     session,
     system,
-    adminHelpCenter,
     licenseViolation,
     context,
     settingsItems,

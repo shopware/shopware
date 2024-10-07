@@ -42,7 +42,7 @@ describe('src/app/asyncComponent/utils/sw-help-center', () => {
 
         expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeTruthy();
 
-        Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', false);
+        Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeFalsy();
@@ -55,12 +55,12 @@ describe('src/app/asyncComponent/utils/sw-help-center', () => {
         expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeTruthy();
         wrapper.vm.$refs.helpSidebar.setFocusToSidebar = jest.fn();
 
-        Shopware.State.commit('adminHelpCenter/setShowShortcutModal', true);
+        Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
         await wrapper.vm.$nextTick();
         expect(wrapper.find('sw-shortcut-overview-stub').exists()).toBeTruthy();
         expect(wrapper.vm.$refs.shortcutModal.onOpenShortcutOverviewModal).toHaveBeenCalled();
 
-        Shopware.State.commit('adminHelpCenter/setShowShortcutModal', false);
+        Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
         await wrapper.vm.$nextTick();
         expect(wrapper.find('sw-shortcut-overview-stub').exists()).toBeTruthy();
         expect(wrapper.vm.$refs.helpSidebar.setFocusToSidebar).toHaveBeenCalled();

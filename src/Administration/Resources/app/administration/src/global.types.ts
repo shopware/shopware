@@ -85,7 +85,6 @@ import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-
 import type PrivilegesService from './app/service/privileges.service';
 import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
-import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -98,6 +97,7 @@ import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.st
 import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store';
 import type { Extensions } from './app/store/extensions.store';
 import type { ErrorStore } from './app/store/error.store';
+import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -339,7 +339,6 @@ declare global {
         shopwareApps: ShopwareAppsState;
         sdkLocation: SdkLocationState;
         usageData: UsageDataModuleState;
-        adminHelpCenter: AdminHelpCenterState;
     }
 
     interface PiniaRootState {
@@ -353,6 +352,7 @@ declare global {
         extensionSdkModules: ExtensionSdkModules;
         extensions: Extensions;
         error: ErrorStore;
+        adminHelpCenter: AdminHelpCenterStore;
     }
 
     /**

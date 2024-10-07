@@ -45,9 +45,12 @@ export default {
                 this.addOption();
             }
 
-            if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
+            const componentName = this.currentCustomField.config.componentName;
+            if (!componentName || !['sw-single-select', 'sw-multi-select'].includes(componentName)) {
                 this.currentCustomField.config.componentName = 'sw-single-select';
             }
+
+            this.multiSelectSwitch = componentName === 'sw-multi-select';
 
             const options = this.currentCustomField.config.options.map(option => {
                 if (Array.isArray(option.label)) {
@@ -62,8 +65,6 @@ export default {
             } else {
                 this.currentCustomField.config.options = options;
             }
-
-            this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-multi-select';
         },
 
         addOption() {

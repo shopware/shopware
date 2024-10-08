@@ -15,6 +15,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -54,5 +55,30 @@ class CacheStoreTest extends TestCase
         $value = ReflectionHelper::getPropertyValue($item, 'expiry');
 
         static::assertEqualsWithDelta(time() + 3, $value, 1);
+    }
+
+    public function testWriteDoesNotWriteCacheIfCacheStateIsInvalid(): void
+    {
+        $request = new Request();
+        $response = new Response();
+
+        $cache = $this->createMock(TagAwareAdapterInterface::class);
+        $cache->expects(static::never())->method('save');
+
+        $stateValidator = $this->createMock(CacheStateValidator::class);
+        $stateValidator->expects(static::once())->method('isValid')->with($request)->willReturn(false);
+
+        $store = new CacheStore(
+            $cache,
+            $stateValidator,
+            new EventDispatcher(),
+            $this->createMock(AbstractCacheTracer::class),
+            new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
+            $this->createMock(MaintenanceModeResolver::class),
+            [],
+            $this->createMock(CacheTagCollector::class)
+        );
+
+        $store->write($request, $response);
     }
 }

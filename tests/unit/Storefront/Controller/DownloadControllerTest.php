@@ -70,6 +70,6 @@ class DownloadControllerTest extends TestCase
         $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn(new CustomerEntity());
         $response = $this->controller->downloadFile(new Request(), $salesChannelContext);
 
-        static::assertInstanceOf(Response::class, $response);
+        static::assertNotInstanceOf(RedirectResponse::class, $response);
     }
 }

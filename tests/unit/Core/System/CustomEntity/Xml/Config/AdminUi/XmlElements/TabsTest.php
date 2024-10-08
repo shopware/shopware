@@ -24,10 +24,7 @@ class TabsTest extends TestCase
         );
 
         $tabs = Tabs::fromXml($tabsElement);
-        static::assertInstanceOf(Tabs::class, $tabs);
-
         $tabsList = $tabs->getContent();
-        static::assertIsArray($tabsList);
         static::assertInstanceOf(Tab::class, \array_pop($tabsList));
     }
 

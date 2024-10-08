@@ -32,8 +32,6 @@ class AdminUiTest extends TestCase
         $adminUi = AdminUi::fromXml($adminUiElement);
 
         $adminUiEntities = $adminUi->getEntities();
-        static::assertInstanceOf(AdminUi::class, $adminUi);
-        static::assertIsArray($adminUiEntities);
         static::assertInstanceOf(AdminUiEntity::class, \array_pop($adminUiEntities));
     }
 }

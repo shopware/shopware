@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
-use Shopware\Core\Framework\Plugin\Event\PluginLifecycleEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
@@ -24,7 +23,6 @@ class PluginPostDeactivationFailedEventTest extends TestCase
             $activateContext,
             $exception
         );
-        static::assertInstanceOf(PluginLifecycleEvent::class, $event);
         static::assertEquals($activateContext, $event->getContext());
         static::assertEquals($exception, $event->getException());
     }

@@ -25,8 +25,6 @@ class ColumnTest extends TestCase
         }
 
         $column = Column::fromXml($columnElement);
-
-        static::assertInstanceOf(Column::class, $column);
         static::assertEquals($result, $column->isHidden());
         static::assertEquals('column ref', $column->getRef());
     }

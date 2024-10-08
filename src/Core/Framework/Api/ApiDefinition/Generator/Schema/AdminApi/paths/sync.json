@@ -65,6 +65,16 @@
                                             "items": {
                                                 "type": "object"
                                             }
+                                        },
+                                        "filter": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#\/components\/schemas\/CriteriaFilter"
+                                                },
+                                                {
+                                                    "description": "Only for delete operations: Instead of providing IDs in the payload, the filter by which should be deleted can be provided directly."
+                                                }
+                                            ]
                                         }
                                     },
                                     "type": "object"

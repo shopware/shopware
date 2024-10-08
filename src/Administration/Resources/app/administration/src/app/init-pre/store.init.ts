@@ -4,6 +4,7 @@ import '../store/block-override.store';
 import 'src/app/store/extension-entry-routes.store';
 import 'src/app/store/extension-sdk-module.store';
 import 'src/app/store/extensions.store';
+import 'src/app/store/error.store';
 
 /**
  * @package admin

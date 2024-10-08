@@ -8,7 +8,6 @@ import system from './system.store';
 import adminHelpCenter from './admin-help-center.store';
 import context from './context.store';
 import licenseViolation from './license-violation.store';
-import error from './error.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
 import marketing from './marketing.store';
@@ -29,7 +28,6 @@ export default {
     adminHelpCenter,
     licenseViolation,
     context,
-    error,
     settingsItems,
     shopwareApps,
     marketing,

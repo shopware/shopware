@@ -989,7 +989,7 @@ export default {
                     switch (response) {
                         case 'empty': {
                             this.isSaveSuccessful = true;
-                            Shopware.State.commit('error/resetApiErrors');
+                            Shopware.Store.get('error').resetApiErrors();
                             break;
                         }
 

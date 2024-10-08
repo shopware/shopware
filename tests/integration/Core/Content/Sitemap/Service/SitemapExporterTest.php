@@ -211,32 +211,39 @@ class SitemapExporterTest extends TestCase
 
     public function testGenerationWithSlashes(): void
     {
-        $url[0] = new Url();
-        $url[0]->setLoc('/test-with-slash');
-        $url[0]->setLastmod(new \DateTime());
-        $url[0]->setChangefreq('daily');
+        $url1 = new Url();
+        $url1->setLoc('/test-with-slash');
+        $url1->setLastmod(new \DateTime());
+        $url1->setChangefreq('daily');
 
-        $url[1] = new Url();
-        $url[1]->setLoc('test-without-slash');
-        $url[1]->setLastmod(new \DateTime());
-        $url[1]->setChangefreq('daily');
+        $url2 = new Url();
+        $url2->setLoc('test-without-slash');
+        $url2->setLastmod(new \DateTime());
+        $url2->setChangefreq('daily');
+
+        $urls = [$url1, $url2];
 
         $handler = $this->createMock(AbstractUrlProvider::class);
-        $handler->expects(static::once())->method('getUrls')->willReturn(new UrlResult($url, null));
+        $handler->expects(static::once())->method('getUrls')->willReturn(new UrlResult($urls, null));
 
         $factory = $this->createMock(SitemapHandleFactoryInterface::class);
-        $mockObject = $this->createMock(SitemapHandleInterface::class);
-        $mockObject->expects(static::once())->method('write')->willReturnCallback(function (array $urls): void {
+        $sitemapHandleMock = $this->createMock(SitemapHandleInterface::class);
+        $sitemapHandleMock->expects(static::once())->method('write')->willReturnCallback(function (array $urls): void {
             static::assertCount(2, $urls);
-            static::assertSame('https://test.com/de/test-with-slash', $urls[0]->getLoc()); // @phpstan-ignore-line
-            static::assertSame('https://test.com/de/test-without-slash', $urls[1]->getLoc()); // @phpstan-ignore-line
+            static::assertInstanceOf(Url::class, $urls[0]);
+            static::assertInstanceOf(Url::class, $urls[1]);
+            static::assertSame('https://test.com/de/test-with-slash', $urls[0]->getLoc());
+            static::assertSame('https://test.com/de/test-without-slash', $urls[1]->getLoc());
         });
 
-        $factory->expects(static::once())->method('create')->willReturn($mockObject);
+        $factory->expects(static::once())->method('create')->willReturn($sitemapHandleMock);
+
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
 
         $exporter = new SitemapExporter(
             [$handler],
-            $this->createMock(CacheItemPoolInterface::class),
+            $cache,
             10,
             $this->createMock(FilesystemOperator::class),
             $factory,

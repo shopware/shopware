@@ -77,5 +77,11 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\Cms\Subscriber\CmsLinksForStoreApiSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

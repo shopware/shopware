@@ -14,7 +14,7 @@ on:
 
 env:
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-  COMPOSER_ROOT_VERSION: 6.5.9999999.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.5.9999999-dev
 
 jobs:
   lint:
@@ -40,7 +40,7 @@ jobs:
         run: |
           npm run lint:js
           npm run lint:scss
-  
+
   jest:
     name: "Jest Storefront"
     runs-on: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
 
       - name: Run Jest Storefront
         run: npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent
-  
+
   license-check:
     runs-on: ubuntu-latest
     name: "License check"

@@ -23,7 +23,7 @@ jobs:
           - "6379:6379"
     env:
       REDIS_URL: redis://localhost:6379
-      COMPOSER_ROOT_VERSION: 6.5.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.5.9999999-dev
 
     steps:
       - name: Setup Shopware
@@ -34,7 +34,7 @@ jobs:
       - name: Run PHPUnit
         run: |
           ./vendor/bin/phpunit --group=redis
-                
+
   admin:
     uses: ./.github/workflows/admin.yml
   integration:

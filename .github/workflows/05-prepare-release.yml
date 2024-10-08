@@ -10,7 +10,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
-      COMPOSER_ROOT_VERSION: 6.5.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.5.9999999-dev
     services:
       database:
         image: mysql:8.0

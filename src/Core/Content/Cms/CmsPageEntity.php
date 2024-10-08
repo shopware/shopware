@@ -62,7 +62,7 @@ class CmsPageEntity extends Entity
     protected $cssClass;
 
     /**
-     * @var array|null
+     * @var array<string, array<string, mixed>>|null
      */
     protected $config;
 
@@ -177,11 +177,17 @@ class CmsPageEntity extends Entity
         $this->cssClass = $cssClass;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
@@ -244,6 +250,9 @@ class CmsPageEntity extends Entity
         $this->homeSalesChannels = $homeSalesChannels;
     }
 
+    /**
+     * @return list<CmsSlotEntity>
+     */
     public function getElementsOfType(string $type): array
     {
         $elements = [];
@@ -260,6 +269,29 @@ class CmsPageEntity extends Entity
                 if ($slot->getType() === $type) {
                     $elements[] = $slot;
                 }
+            }
+        }
+
+        return $elements;
+    }
+
+    /**
+     * @return list<CmsSlotEntity>
+     */
+    public function getAllElements(): array
+    {
+        if ($this->getSections() === null) {
+            return [];
+        }
+
+        $elements = [];
+        foreach ($this->getSections()->getBlocks() as $block) {
+            if ($block->getSlots() === null) {
+                continue;
+            }
+
+            foreach ($block->getSlots() as $slot) {
+                $elements[] = $slot;
             }
         }
 

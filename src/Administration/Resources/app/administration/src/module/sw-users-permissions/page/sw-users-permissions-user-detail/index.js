@@ -399,7 +399,7 @@ export default {
                                 detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
                             });
 
-                            Shopware.State.commit('error/addApiError', {
+                            Shopware.Store.get('error').addApiError({
                                 expression,
                                 error,
                             });

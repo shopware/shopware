@@ -26,7 +26,6 @@ describe('src/app/init-pre/state.init.ts', () => {
         expect(Shopware.State.get('system')).toBeDefined();
         expect(Shopware.State.get('licenseViolation')).toBeDefined();
         expect(Shopware.State.get('context')).toBeDefined();
-        expect(Shopware.State.get('error')).toBeDefined();
         expect(Shopware.State.get('settingsItems')).toBeDefined();
         expect(Shopware.State.get('shopwareApps')).toBeDefined();
         expect(Shopware.State.get('marketing')).toBeDefined();

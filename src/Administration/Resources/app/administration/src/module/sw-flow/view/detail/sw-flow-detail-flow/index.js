@@ -230,9 +230,7 @@ export default {
 
         onEventChange(eventName) {
             State.commit('swFlowState/setEventName', eventName);
-            State.commit('error/removeApiError', {
-                expression: `flow.${this.flow.id}.eventName`,
-            });
+            Shopware.Store.get('error').removeApiError(`flow.${this.flow.id}.eventName`);
 
             if (!this.rootSequences.length) {
                 const sequence = this.createSequence();

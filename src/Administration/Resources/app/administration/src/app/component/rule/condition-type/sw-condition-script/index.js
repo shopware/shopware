@@ -76,7 +76,7 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
                     return;
                 }
 
-                const errorProperty = Shopware.State.getters['error/getApiError'](this.condition, `value.${config.name}`);
+                const errorProperty = Shopware.Store.get('error').getApiError(this.condition, `value.${config.name}`);
 
                 if (errorProperty) {
                     error = errorProperty;

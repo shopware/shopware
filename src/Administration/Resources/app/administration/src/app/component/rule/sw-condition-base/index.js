@@ -91,9 +91,7 @@ Component.register('sw-condition-base', {
     watch: {
         value() {
             if (this.hasError) {
-                this.$store.commit('error/removeApiError', {
-                    expression: this.valueErrorPath,
-                });
+                Shopware.Store.get('error').removeApiError(this.valueErrorPath);
             }
             if (this.isEmpty && !!this.inputKey) {
                 if (this.isCompatEnabled('INSTANCE_DELETE')) {

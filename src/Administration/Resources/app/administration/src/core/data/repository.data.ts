@@ -170,7 +170,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (!this.options.keepApiErrors) {
-            await this.errorResolver.resetApiErrors();
+            this.errorResolver.resetApiErrors();
         }
 
         await this.sendDeletions(deletionQueue, context);
@@ -210,7 +210,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }
 
         if (!this.options.keepApiErrors) {
-            await this.errorResolver.resetApiErrors();
+            this.errorResolver.resetApiErrors();
         }
 
         return this.httpClient.post('_action/sync', operations, { headers }).catch((errorResponse: ErrorResponse) => {
@@ -281,7 +281,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const { changeset, deletions } = this.getSyncChangeset(entities);
 
         if (!this.options.keepApiErrors) {
-            await this.errorResolver.resetApiErrors();
+            this.errorResolver.resetApiErrors();
         }
 
         await this.sendDeletions(deletions, context);

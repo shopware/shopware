@@ -191,7 +191,7 @@ Component.register('sw-page', {
     },
 
     beforeUnmount() {
-        Shopware.State.dispatch('error/resetApiErrors');
+        Shopware.Store.get('error').resetApiErrors();
         this.beforeDestroyComponent();
     },
 

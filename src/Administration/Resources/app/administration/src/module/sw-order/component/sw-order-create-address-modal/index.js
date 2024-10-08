@@ -112,7 +112,7 @@ export default {
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];
 
-                await Shopware.State.dispatch('error/resetApiErrors');
+                await Shopware.Store.get('error').resetApiErrors();
             } catch {
                 this.createNotificationError({
                     message: this.$tc('sw-order.create.messageFetchCustomerAddressesError'),
@@ -190,7 +190,7 @@ export default {
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
 
-                await Shopware.State.dispatch('error/addApiError', {
+                await Shopware.Store.get('error').addApiError({
                     expression: `customer_address.${this.currentAddress.id}.company`,
                     error: companyError,
                 });

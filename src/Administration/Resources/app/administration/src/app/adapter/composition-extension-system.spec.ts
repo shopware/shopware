@@ -5,7 +5,7 @@
  * works correctly with the new Composition API extension system.
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call, filename-rules/match */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call */
 
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';

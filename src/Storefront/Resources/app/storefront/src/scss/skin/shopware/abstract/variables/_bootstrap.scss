@@ -37,7 +37,8 @@ $body-secondary-color: $sw-text-color !default;
 // Components
 $border-color: $sw-border-color !default;
 
-$focus-ring-opacity: .30 !default;
+$focus-ring-width: 0.2rem;
+$focus-ring-opacity: 0.6 !default;
 
 $border-radius: 0 !default;
 $border-radius-lg: 0 !default;
@@ -75,7 +76,7 @@ $link-hover-decoration: underline !default;
 $input-btn-padding-y: 0.5625rem !default;
 $input-btn-padding-x: 0.5625rem !default;
 
-$input-placeholder-color: #c3c3c3 !default;
+$input-placeholder-color: #666977 !default;
 
 $form-label-margin-bottom: 3px !default;
 

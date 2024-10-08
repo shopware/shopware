@@ -99,9 +99,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $associations = $this->getAssociations($productExport, $context);
 
         $criteria = new Criteria();
-        $criteria->setTitle('product-export::products');
-
         $criteria
+            ->setTitle('product-export::products')
             ->addFilter(...$filters)
             ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize);

@@ -81,6 +81,9 @@ return [
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$cart changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart',
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$salesChannelContext changed from having no type to Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
 
-        'The return type of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator#invalidateExpired\(\) changed from void'
+        'The return type of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator#invalidateExpired\(\) changed from void',
+
+        // Criteria is @final so changing from void should be fine
+        'The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria#setTitle\(\) changed from void'
     ],
 ];

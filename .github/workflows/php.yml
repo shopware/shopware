@@ -17,7 +17,7 @@ on:
   workflow_call:
 
 env:
-  COMPOSER_ROOT_VERSION: 6.5.9999999.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.5.9999999.9999999
 
 jobs:
   lint:
@@ -197,4 +197,3 @@ jobs:
       - name: Check license
         if: steps.changed-composer-json.outputs.any_changed == 'true'
         run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
-  

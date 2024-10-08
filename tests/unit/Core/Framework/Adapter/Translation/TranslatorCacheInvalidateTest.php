@@ -25,12 +25,9 @@ use Shopware\Core\System\Snippet\SnippetEvents;
 #[CoversClass(TranslatorCacheInvalidate::class)]
 class TranslatorCacheInvalidateTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
 
-    private mixed $cacheInvalidator;
+    private CacheInvalidator&MockObject $cacheInvalidator;
 
     private TranslatorCacheInvalidate $translatorCacheInvalidate;
 

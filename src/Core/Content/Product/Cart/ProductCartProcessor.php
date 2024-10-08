@@ -427,11 +427,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
-
-            $key = $this->getDataKey((string) $id);
+            if ($id === '' || $id === null) {
+                continue;
+            }
 
             // data already fetched?
-            if ($data->has($key)) {
+            if ($data->has($this->getDataKey($id))) {
                 continue;
             }
 

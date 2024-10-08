@@ -597,9 +597,7 @@ export default {
 
         onLeaveModalConfirm(destination) {
             // Discard all category related errors that may have occurred
-            Shopware.State.dispatch('error/removeApiError', {
-                expression: 'category',
-            });
+            Shopware.Store.get('error').removeApiError('category');
 
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
@@ -783,7 +781,7 @@ export default {
                 status: '400',
             });
 
-            Shopware.State.dispatch('error/addApiError', {
+            Shopware.Store.get('error').addApiError({
                 expression: `landing_page.${this.landingPage.id}.salesChannels`,
                 error: shopwareError,
             });

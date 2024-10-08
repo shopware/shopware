@@ -97,6 +97,7 @@ import type { ExtensionComponentSectionsStore } from './app/store/extension-comp
 import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';
 import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store';
 import type { Extensions } from './app/store/extensions.store';
+import type { ErrorStore } from './app/store/error.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -351,6 +352,7 @@ declare global {
         extensionEntryRoutes: ExtensionEntryRoutes;
         extensionSdkModules: ExtensionSdkModules;
         extensions: Extensions;
+        error: ErrorStore;
     }
 
     /**

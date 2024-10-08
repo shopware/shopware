@@ -4,7 +4,7 @@
 
 import template from './sw-login-recovery-recovery.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -93,7 +93,7 @@ Component.register('sw-login-recovery-recovery', {
                         this.$router.push({ name: 'sw.login.index' });
                     })
                     .catch((error) => {
-                        State.dispatch('error/addApiError', {
+                        Shopware.Store.get('error').addApiError({
                             expression: `user.${this.hash}.password`,
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });

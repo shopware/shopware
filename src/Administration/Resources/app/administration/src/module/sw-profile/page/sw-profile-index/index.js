@@ -312,7 +312,7 @@ export default {
                         Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
                     })
                     .catch((error) => {
-                        State.dispatch('error/addApiError', {
+                        Shopware.Store.get('error').addApiError({
                             expression: `user.${this.user?.id}.password`,
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });

@@ -25,7 +25,7 @@ Component.register('sw-error-summary', {
     computed: {
         errors(): { [key: string]: number } {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            const allErrors = (Shopware.State.getters['error/getAllApiErrors']() || []) as Array<unknown>;
+            const allErrors = (Shopware.Store.get('error').getAllApiErrors() || []) as Array<unknown>;
 
             // Helper function to recursively get all error objects
             const extractErrorObjects = (errors: Array<unknown>) => {

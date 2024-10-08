@@ -459,7 +459,7 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the Vue.set function
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setReactive(target: any, propertyName: string, value: unknown) {
+    setReactive(this: void, target: any, propertyName: string, value: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         target[propertyName] = value;
 

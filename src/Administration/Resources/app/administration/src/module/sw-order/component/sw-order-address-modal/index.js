@@ -123,7 +123,7 @@ export default {
                 .then((customer) => {
                     this.availableAddresses = customer[0].addresses;
 
-                    return Shopware.State.dispatch('error/resetApiErrors');
+                    return Shopware.Store.get('error').resetApiErrors();
                 })
                 .finally(() => {
                     this.isLoading = false;

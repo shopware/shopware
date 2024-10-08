@@ -684,11 +684,11 @@ export default {
                 meta: { parameters: payload },
             });
 
-            Shopware.State.commit('error/addApiError', { expression, error });
+            Shopware.Store.get('error').addApiError({ expression, error });
         },
 
         getError(property) {
-            return Shopware.State.getters['error/getApiError'](this.page, property);
+            return Shopware.Store.get('error').getApiError(this.page, property);
         },
 
         getSlotValidations() {
@@ -735,7 +735,7 @@ export default {
             }
 
             this.validationWarnings = [];
-            Shopware.State.dispatch('error/resetApiErrors');
+            Shopware.Store.get('error').resetApiErrors();
 
             const valid = [
                 this.missingFieldsValidation(),

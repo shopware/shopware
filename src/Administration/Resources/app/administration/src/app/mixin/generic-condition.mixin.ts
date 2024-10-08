@@ -137,8 +137,9 @@ export default Mixin.register(
                         return;
                     }
 
-                    const errorProperty = Shopware.State.getters['error/getApiError'](
+                    const errorProperty = Shopware.Store.get('error').getApiError(
                         // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         this.condition,
                         `value.${config.name}`,
                     ) as unknown;

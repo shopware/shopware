@@ -247,7 +247,7 @@ export default {
 
                 this.saveRule()
                     .then(() => {
-                        Shopware.State.dispatch('error/resetApiErrors');
+                        Shopware.Store.get('error').resetApiErrors();
                         this.getRuleDetail();
 
                         this.isSaveSuccessful = true;
@@ -265,7 +265,7 @@ export default {
             this.saveRule()
                 .then(this.syncConditions)
                 .then(() => {
-                    Shopware.State.dispatch('error/resetApiErrors');
+                    Shopware.Store.get('error').resetApiErrors();
                     this.getRuleDetail();
 
                     this.isSaveSuccessful = true;

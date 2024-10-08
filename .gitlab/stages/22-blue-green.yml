@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+# requires /.gitlab/base.yml
+
+# blue-green stage - This files contains all jobs belonging to the blue-green stage
+
+PHP blue green 6.5->6.6->6.5:
+  extends: .base-no-setup
+  stage: unit
+  needs: []
+  timeout: 30m
+  tags:
+    - shopware-amd64
+  services:
+    - name: mariadb:10.11
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command:
+        [
+          "bin/opensearch",
+          "-Ediscovery.type=single-node",
+          "-Eplugins.security.disabled=true",
+        ]
+  variables:
+    APP_ENV: "test"
+    FEATURE_ALL: "false"
+    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+    COMPOSER_ROOT_VERSION: ''
+    PREVIOUS_MAJOR_BRANCH: "6.5.x"
+    TEST_DB_URL: "mysql://root:app@database:3306/root_test"
+  rules:
+    # do not run in merge trains - PHP Full should cover all tests
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
+      when: never
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - when: always
+  before_script:
+    - mkdir -p config/jwt || true
+    - "rm -Rf /var/www/html/public || true"
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  script:
+    - git checkout $PREVIOUS_MAJOR_BRANCH
+    - rm -rf vendor-bin
+    - !reference [.scripts, init, composer_update]
+    - composer init:testdb
+    - git checkout $CI_COMMIT_BRANCH
+    - rm -rf vendor-bin
+    - !reference [ .scripts, init, composer_update ]
+    - DATABASE_URL="$TEST_DB_URL" bin/console system:update:finish
+    - git checkout $PREVIOUS_MAJOR_BRANCH
+    - rm -rf vendor-bin
+    - !reference [ .scripts, init, composer_update ]
+    - composer dump-autoload -o
+    - DATABASE_URL="$TEST_DB_URL" bin/console theme:refresh
+    - php vendor/bin/phpunit
+      --testsuite integration
+      --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
+      --stop-on-error
+      --stop-on-failure

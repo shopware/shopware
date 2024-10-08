@@ -83,7 +83,7 @@ export default class FocusHandler {
                 uniqueSelector,
             });
         } catch (e) {
-            // do nothing, if sessionStorage is blocked
+            console.warn('[FocusHandler] Unable to access sessionStorage', e);
         }
     }
 
@@ -109,7 +109,7 @@ export default class FocusHandler {
                 focusEl,
             });
         } catch (e) {
-            // do nothing, if sessionStorage is blocked
+            console.warn('[FocusHandler] Unable to access sessionStorage', e);
         }
     }
 

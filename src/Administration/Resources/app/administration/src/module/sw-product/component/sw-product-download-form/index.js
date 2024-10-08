@@ -51,10 +51,6 @@ export default {
     },
 
     computed: {
-        ...mapGetters('error', [
-            'getApiError',
-        ]),
-
         product() {
             const state = Shopware.State.get('swProductDetail');
 
@@ -89,7 +85,7 @@ export default {
         },
 
         error() {
-            return this.getApiError(this.product, 'downloads');
+            return Shopware.Store.get('error').getApiError(this.product, 'downloads');
         },
 
         hasError() {
@@ -156,9 +152,7 @@ export default {
 
             this.product.downloads.add(productDownload);
             if (this.error) {
-                Shopware.State.dispatch('error/removeApiError', {
-                    expression: this.error.selfLink,
-                });
+                Shopware.Store.get('error').removeApiError(this.error.selfLink);
             }
         },
 

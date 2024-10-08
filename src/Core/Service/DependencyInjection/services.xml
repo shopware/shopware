@@ -71,7 +71,7 @@
         </service>
 
         <service id="Shopware\Core\Service\ServiceSourceResolver">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory"/>
+            <argument type="service" id="Shopware\Core\Service\TemporaryDirectoryFactory"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppExtractor"/>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
@@ -96,6 +96,10 @@
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\TemporaryDirectoryFactory">
+            <argument>%kernel.project_dir%</argument>
         </service>
     </services>
 </container>

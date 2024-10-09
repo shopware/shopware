@@ -1,4 +1,5 @@
 import template from './sw-order-create-initial.html.twig';
+import RepositoryType from '../../../../core/data/repository.data';
 
 /**
  * @package checkout
@@ -18,22 +19,23 @@ export default {
         this.createdComponent();
     },
 
+    computed: {
+        customerRepository(): RepositoryType<'customer'> {
+            return this.repositoryFactory.create('customer');
+        },
+    },
+
     methods: {
         createdComponent() {
-            const customerRepository = this.repositoryFactory.create('customer');
-            const { customer, customerId }     = this.$route.params;
+            const { customerId } = this.$route.params;
 
-            if(customerId) {
-                customerRepository.get(customerId).then(response => {
-                    State.commit('swOrder/setCustomer', response);
-                });
-            }
-
-            if (!customer) {
+            if (!customerId) {
                 return;
             }
 
-            State.commit('swOrder/setCustomer', customer);
+            this.customerRepository.get(customerId).then(response => {
+                State.commit('swOrder/setCustomer', response);
+            });
         },
 
         onCloseCreateModal() {

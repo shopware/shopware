@@ -88,30 +88,6 @@ E2E:
       --spec "$TEST_DIRECTORY"
       --headless
 
-Changed E2E:
-  extends: E2E
-  parallel:
-    matrix:
-      - _DUMMY_VAR: ["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"]
-  rules:
-    - !reference [.rules, skip]
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
-      changes:
-        - "tests/e2e/cypress/e2e/administration/**/*.cy.js"
-        - "tests/e2e/cypress/e2e/storefront/**/*.cy.js"
-  script:
-    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/(administration|storefront)")'
-    - 'echo "Changed files: $CHANGED_FILES"'
-    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
-    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
-    - 'echo "Test spec: $TEST_SPEC"'
-    - composer run e2e:cypress-repeat -- run
-      -n 10
-      --config retries=0
-      --browser chrome
-      --spec "$TEST_SPEC"
-      --headless
-
 acceptance:
   extends:
     - .long-running

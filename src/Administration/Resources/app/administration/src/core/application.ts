@@ -684,6 +684,11 @@ class ApplicationBootstrapper {
         if (isDevelopmentMode) {
             const response = await fetch('./sw-plugin-dev.json');
             plugins = (await response.json()) as bundlesPluginResponse;
+
+            // Added via webpack.config.js@193
+            if (Shopware.Utils.object.hasOwnProperty(plugins, 'metadata')) {
+                delete plugins.metadata;
+            }
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;

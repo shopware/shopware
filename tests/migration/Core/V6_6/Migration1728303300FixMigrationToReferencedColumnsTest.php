@@ -6,30 +6,63 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_6\Migration1673964565MigrateToReferencedColumns;
+use Shopware\Core\Migration\V6_6\Migration1728303300FixMigrationToReferencedColumns;
 
 /**
  * @internal
  */
-#[CoversClass(Migration1673964565MigrateToReferencedColumns::class)]
-class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
+#[CoversClass(Migration1728303300FixMigrationToReferencedColumns::class)]
+class Migration1728303300FixMigrationToReferencedColumnsTest extends TestCase
 {
     private Connection $connection;
 
-    private Migration1673964565MigrateToReferencedColumns $migration;
+    private Migration1728303300FixMigrationToReferencedColumns $migration;
 
     protected function setUp(): void
     {
-        $this->migration = new Migration1673964565MigrateToReferencedColumns();
+        $this->migration = new Migration1728303300FixMigrationToReferencedColumns();
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1673964565, $this->migration->getCreationTimestamp());
+        static::assertSame(1728303300, $this->migration->getCreationTimestamp());
     }
 
     public function testUpdate(): void
+    {
+        $referencedIdColumnHasGeneratedValue = $this->referenceColumnHasGeneratedValue('referenced_id');
+        if ($referencedIdColumnHasGeneratedValue) {
+            $this->removeGeneratedValueForReferencedId();
+        }
+        $referencedVersionIdColumnHasGeneratedValue = $this->referenceColumnHasGeneratedValue('referenced_version_id');
+        if ($referencedVersionIdColumnHasGeneratedValue) {
+            $this->removeGeneratedValueForReferencedVersionId();
+        }
+        $entityIdColumnExists = $this->entityIdColumnExists();
+        if ($entityIdColumnExists) {
+            $this->removeEntityIdColumn();
+        }
+
+        $this->migration->update($this->connection);
+        $this->migration->update($this->connection);
+
+        static::assertTrue($this->entityIdColumnExists());
+        static::assertTrue($this->referenceColumnHasGeneratedValue('referenced_id'));
+        static::assertTrue($this->referenceColumnHasGeneratedValue('referenced_version_id'));
+
+        if (!$referencedIdColumnHasGeneratedValue) {
+            $this->removeGeneratedValueForReferencedId();
+        }
+        if (!$referencedVersionIdColumnHasGeneratedValue) {
+            $this->removeGeneratedValueForReferencedVersionId();
+        }
+        if (!$entityIdColumnExists) {
+            $this->removeEntityIdColumn();
+        }
+    }
+
+    public function testUpdateDestructive(): void
     {
         $entityIdColumnExists = $this->entityIdColumnExists();
         if (!$entityIdColumnExists) {
@@ -44,8 +77,8 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
             $this->addGeneratedValueForReferencedVersionId();
         }
 
-        $this->migration->update($this->connection);
-        $this->migration->update($this->connection);
+        $this->migration->updateDestructive($this->connection);
+        $this->migration->updateDestructive($this->connection);
 
         static::assertFalse($this->entityIdColumnExists());
         static::assertFalse($this->referenceColumnHasGeneratedValue('referenced_id'));
@@ -79,6 +112,14 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
         );
     }
 
+    private function removeEntityIdColumn(): void
+    {
+        $this->connection->executeStatement(
+            'ALTER TABLE `state_machine_history`
+             DROP COLUMN `entity_id`;'
+        );
+    }
+
     private function referenceColumnHasGeneratedValue(string $columnName): bool
     {
         return $this->connection->fetchOne(
@@ -102,6 +143,14 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
         );
     }
 
+    private function removeGeneratedValueForReferencedId(): void
+    {
+        $this->connection->executeStatement(
+            'ALTER TABLE `state_machine_history`
+             MODIFY COLUMN `referenced_id` BINARY(16) NOT NULL;'
+        );
+    }
+
     private function addGeneratedValueForReferencedVersionId(): void
     {
         $this->connection->executeStatement(
@@ -110,6 +159,14 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
              GENERATED ALWAYS AS (
                 COALESCE(UNHEX(JSON_UNQUOTE(JSON_EXTRACT(`entity_id`, \'$.version_id\'))), 0x0)
              ) STORED;'
+        );
+    }
+
+    private function removeGeneratedValueForReferencedVersionId(): void
+    {
+        $this->connection->executeStatement(
+            'ALTER TABLE `state_machine_history`
+             MODIFY COLUMN `referenced_version_id` BINARY(16) NOT NULL;'
         );
     }
 }

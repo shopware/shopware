@@ -20,7 +20,6 @@
     "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
     "generate-position-identifier-list": "ts-node --transpileOnly ./scripts/generate-position-identifier-list/index.ts",
     "generate-vue-compat-components-statistics": "ts-node --transpileOnly ./scripts/vueCompatComponentsStatistics/generate.ts",
-    "preinstall": "node ./scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
     "lighthouse": "node lighthouse-tests.js",
     "lint": "eslint --ext .js,.ts,.vue,.html.twig src test --cache --quiet",
@@ -53,7 +52,7 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "@shopware-ag/meteor-admin-sdk": "5.5.0",
+    "@shopware-ag/meteor-admin-sdk": "https://pkg.pr.new/shopware/meteor/@shopware-ag/meteor-admin-sdk@318",
     "@shopware-ag/meteor-component-library": "3.11.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",

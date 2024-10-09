@@ -115,7 +115,7 @@
                                         {% block component_address_editor_modal_accordion_action_edit %}
                                             <a class="address-editor-edit btn btn-link p-0"
                                                data-bs-toggle="collapse"
-                                               data-bs-target="#{{ typePrefix }}address-create-edit"
+                                               data-bs-target="#{{ typePrefix ~'edit-' }}address-create-edit"
                                             >
                                                 {% sw_icon 'paper-pencil' style {size: 'xs', ariaHidden: true} %}
 
@@ -159,7 +159,7 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                     address: address,
                                     addresses: page.addresses,
-                                    typePrefix: typePrefix,
+                                    typePrefix: typePrefix ~ 'edit-',
                                     postedData: postedData,
                                 } %}
                             {% endblock %}
@@ -277,13 +277,13 @@
                         <div class="row pt-2">
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_edit` instead. #}
                             {% block component_address_address_editor_modal_accordion_action_edit %}
-                                <div class="col-12 col-md-4">
-                                    <button class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
-                                         data-bs-toggle="collapse"
-                                         data-bs-target="#{{ typePrefix }}address-create-edit">
-                                        {{ 'account.addressEditBtn'|trans|sw_sanitize }}
-                                    </button>
-                                </div>
+                                    <div class="col-12 col-md-4">
+                                        <button class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
+                                             data-bs-toggle="collapse"
+                                             data-bs-target="#{{ typePrefix ~ 'edit-' }}address-create-edit">
+                                            {{ 'account.addressEditBtn'|trans|sw_sanitize }}
+                                        </button>
+                                    </div>
                             {% endblock %}
 
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_list` instead. #}
@@ -338,7 +338,7 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                     address: address,
                                     addresses: page.addresses,
-                                    typePrefix: typePrefix,
+                                    typePrefix: typePrefix ~ 'edit-',
                                     postedData: postedData,
                                 } %}
                             {% endblock %}

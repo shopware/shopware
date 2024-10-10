@@ -118,12 +118,7 @@ export default {
             this.$emit('element-update', this.element);
         },
 
-        onChangeDisplayMode(value) {
-            if (value === 'cover') {
-                this.element.config.verticalAlign.value = null;
-                this.element.config.horizontalAlign.value = null;
-            }
-
+        onChangeDisplayMode() {
             this.$emit('element-update', this.element);
         },
     },

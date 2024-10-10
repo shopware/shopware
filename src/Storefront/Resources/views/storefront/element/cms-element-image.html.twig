@@ -1,9 +1,10 @@
 {% block element_image %}
     {% set config = element.fieldConfig.elements %}
+    {% set isCover = element.translated.config.displayMode.value == 'cover' %}
 
-    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} d-flex has-vertical-alignment{% endif %}{% if config.horizontalAlign.value == "center" %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" %} justify-content-end{% else %} justify-content-start{% endif %}">
+    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value and not isCover %} d-flex has-vertical-alignment{% endif %}{% if config.horizontalAlign.value == "center" and not isCover %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" and not isCover %} justify-content-end{% else %} justify-content-start{% endif %}">
         {% block element_product_slider_alignment %}
-            {% if config.verticalAlign.value %}
+            {% if config.verticalAlign.value and not isCover %}
                 <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
             {% block element_image_inner %}
@@ -11,7 +12,7 @@
                     {% block element_image_container %}
                         {% if element.data.media.url %}
                             <div class="w-100 cms-image-container is-{{ element.translated.config.displayMode.value }}"
-                                {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
+                                {% if element.translated.config.minHeight.value and isCover %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                                 {% block element_image_media %}
                                     {% set attributes = {
                                         'class': 'cms-image',
@@ -20,7 +21,7 @@
                                         'loading': 'lazy'
                                     } %}
 
-                                    {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}
+                                    {% if isCover or element.translated.config.displayMode.value == 'contain' %}
                                         {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
                                     {% endif %}
 
@@ -43,7 +44,7 @@
                     {{ imageElement }}
                 {% endif %}
             {% endblock %}
-            {% if config.verticalAlign.value %}
+            {% if config.verticalAlign.value and not isCover %}
                 </div>
             {% endif %}
         {% endblock %}

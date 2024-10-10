@@ -220,6 +220,13 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Command\CacheClearAllCommand">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument>%kernel.environment%</argument>
+            <argument>%kernel.debug%</argument>
+            <tag name="console.command"/>
+        </service>
+
         <service id="shopware.reverse_proxy.http_client" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway">

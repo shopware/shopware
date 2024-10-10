@@ -445,7 +445,6 @@ const missingTests = [
     'src/module/sw-settings-mailer/index.js',
     'src/module/sw-settings-newsletter/index.js',
     'src/module/sw-settings-number-range/index.js',
-    'src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js',
     'src/module/sw-settings-payment/component/sw-plugin-box/index.js',
     'src/module/sw-settings-payment/default-search-configuration.js',
     'src/module/sw-settings-payment/index.js',

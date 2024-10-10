@@ -5,3 +5,18 @@
     <sw-language-switch disabled />
 </template>
 {% endblock %}
+
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_number_range_detail_content_global_product_warning %}
+<sw-alert
+    v-if="isShowProductWarning"
+    class="sw-number_range-quickinfo__alert-global-type sw-number_range-quickinfo__product-alert"
+    variant="warning"
+    :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', 0, { typeName: 'Product'})"
+>
+    {{ $tc('sw-settings-number-range.general.infoGlobalType', 0, { typeName: 'Product' }) }}
+</sw-alert>
+{% endblock %}
+
+{% block sw_settings_number_range_detail_assignment_card_global_warning %}
+{% endblock %}

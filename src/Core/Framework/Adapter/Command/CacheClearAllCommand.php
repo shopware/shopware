@@ -50,10 +50,6 @@ EOF
 
             $this->cacheClearer->clear();
 
-            if ($output->isVerbose()) {
-                $io->comment('Finished');
-            }
-
             $io->success(sprintf('Caches and pools for the "%s" environment (debug=%s) was successfully cleared.', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
 
             return self::SUCCESS;

@@ -46,11 +46,11 @@ EOF
         $kernel = $app->getKernel();
 
         try {
-            $io->comment(sprintf('Clearing the caches and pools for the <info>%s</info> environment with debug <info>%s</info>', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+            $io->comment(\sprintf('Clearing the caches and pools for the <info>%s</info> environment with debug <info>%s</info>', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
 
             $this->cacheClearer->clear();
 
-            $io->success(sprintf('Caches and pools for the "%s" environment (debug=%s) was successfully cleared.', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+            $io->success(\sprintf('Caches and pools for the "%s" environment (debug=%s) was successfully cleared.', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
 
             return self::SUCCESS;
         } catch (\Throwable $e) {

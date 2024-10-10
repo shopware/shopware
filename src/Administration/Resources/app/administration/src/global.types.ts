@@ -13,7 +13,6 @@ import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
-import type { ExtensionComponentSectionsState } from 'src/app/state/extension-component-sections.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
@@ -98,6 +97,7 @@ import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
+import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
 import type { BlockOverrideStore } from './app/store/block-override.store';
 
 // trick to make it an "external module" to support global type extension
@@ -329,7 +329,6 @@ declare global {
         context: ContextState;
         extensions: ExtensionsState;
         tabs: TabsState;
-        extensionComponentSections: ExtensionComponentSectionsState;
         paymentOverviewCardState: PaymentOverviewCardState;
         swOrder: SwOrderState;
         session: {
@@ -358,6 +357,7 @@ declare global {
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
+        extensionComponentSections: ExtensionComponentSectionsStore;
         blockOverride: BlockOverrideStore;
     }
 

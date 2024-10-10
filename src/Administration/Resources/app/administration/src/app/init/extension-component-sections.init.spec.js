@@ -20,7 +20,7 @@ describe('src/app/init/extension-component-sections.init.ts', () => {
 
     it('should commit the component section on Extension API event', async () => {
         const positionId = 'sw-test-position-id';
-        const extensionComponentSectionsState = Shopware.State.get('extensionComponentSections');
+        const extensionComponentSectionsState = Shopware.Store.get('extensionComponentSections');
 
         expect(extensionComponentSectionsState.identifier[positionId]).toBeUndefined();
 

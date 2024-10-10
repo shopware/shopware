@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[CoversClass((CacheClearAllCommand::class))]
+#[CoversClass(CacheClearAllCommand::class)]
 class CacheClearAllCommandTest extends TestCase
 {
     public function testExecute(): void

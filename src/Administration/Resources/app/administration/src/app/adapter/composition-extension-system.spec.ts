@@ -35,8 +35,8 @@ describe('src/app/adapter/composition-extension-system', () => {
             it('should be able to override ref values', async () => {
                 const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -46,15 +46,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 const count = ref(1);
 
                                 return {
-                                    count,
+                                    public: {
+                                        count,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -75,8 +72,8 @@ describe('src/app/adapter/composition-extension-system', () => {
             it('should be able to override ref values and access previous ones', async () => {
                 const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -86,15 +83,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 const count = ref(1);
 
                                 return {
-                                    count,
+                                    public: {
+                                        count,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -121,8 +115,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count">Count: {{ count }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -135,16 +129,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count,
-                                    increment,
+                                    public: {
+                                        count,
+                                        increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -178,8 +169,8 @@ describe('src/app/adapter/composition-extension-system', () => {
             it('should be able to override ref values (Multiple overridess)', async () => {
                 const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -189,15 +180,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 const count = ref(1);
 
                                 return {
-                                    count,
+                                    public: {
+                                        count,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -227,8 +215,8 @@ describe('src/app/adapter/composition-extension-system', () => {
             it('should be able to override ref values and access previous ones (Multiple overridess)', async () => {
                 const originalComponent = defineComponent({
                     template: '<div>Count: {{ count }}</div>',
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -238,15 +226,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 const count = ref(1);
 
                                 return {
-                                    count,
+                                    public: {
+                                        count,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -285,8 +270,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count">Count: {{ count }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -299,16 +284,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count,
-                                    increment,
+                                    public: {
+                                        count,
+                                        increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -360,8 +342,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -381,15 +363,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -430,8 +409,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -451,15 +430,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -497,8 +473,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -518,15 +494,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -574,8 +547,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -595,15 +568,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -646,8 +616,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -671,16 +641,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    complexObject: complexObject,
-                                    increment,
+                                    public: {
+                                        complexObject: complexObject,
+                                        increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -734,8 +701,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -755,15 +722,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -825,8 +789,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -846,15 +810,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -921,8 +882,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -942,15 +903,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1030,8 +988,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="greeting-message">Greeting: {{ complexObject.greeting.message }}</div>
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1051,15 +1009,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    complexObject,
+                                    public: {
+                                        complexObject,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1124,8 +1079,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="deep-message">Deep: {{ complexObject.greeting.deep.and.deeper }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1149,16 +1104,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    complexObject: complexObject,
-                                    increment,
+                                    public: {
+                                        complexObject: complexObject,
+                                        increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1238,8 +1190,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1253,17 +1205,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1294,8 +1243,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1310,18 +1259,15 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1356,8 +1302,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1372,18 +1318,15 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1419,8 +1362,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                         <input v-model="countDoubled" type="number"/>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1436,16 +1379,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1487,8 +1427,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <input v-model="countTripled" type="number"/>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1510,17 +1450,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1566,8 +1503,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                         <input v-model="countTripled" type="number"/>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1589,17 +1526,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1649,8 +1583,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1664,17 +1598,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1718,8 +1649,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1734,18 +1665,15 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1794,8 +1722,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1810,18 +1738,15 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1871,8 +1796,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count-doubled">Count Doubled: {{ countDoubled }}</div>
                     <input v-model="countDoubled" type="number"/>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1888,16 +1813,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -1957,8 +1879,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <input v-model="countTripled" type="number"/>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -1980,17 +1902,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2056,8 +1975,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count-tripled">Count Tripled: {{ countTripled }}</div>
                     <input v-model="countTripled" type="number"/>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2079,17 +1998,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 });
 
                                 return {
-                                    count: count,
-                                    countDoubled: countDoubled,
-                                    countTripled: countTripled,
+                                    public: {
+                                        count: count,
+                                        countDoubled: countDoubled,
+                                        countTripled: countTripled,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2161,8 +2077,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count">Count: {{ count }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2175,16 +2091,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2220,8 +2133,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count">Count: {{ count }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2234,16 +2147,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2279,8 +2189,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="count">Count: {{ count }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2293,16 +2203,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2356,8 +2263,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         <div class="count">Count: {{ count }}</div>
                         <button @click="increment">Increment</button>
                     `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2370,16 +2277,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2430,8 +2334,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="double-count">Double Count: {{ doubleCount }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2446,17 +2350,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    doubleCount: doubleCount,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        doubleCount: doubleCount,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2510,8 +2411,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     <div class="double-count">Double Count: {{ doubleCount }}</div>
                     <button @click="increment">Increment</button>
                 `,
-                    setup(props, context) {
-                        const publicApi = createExtendableSetup(
+                    setup: (props, context) =>
+                        createExtendableSetup(
                             {
                                 props,
                                 context,
@@ -2526,17 +2427,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                                 };
 
                                 return {
-                                    count: count,
-                                    doubleCount: doubleCount,
-                                    increment: increment,
+                                    public: {
+                                        count: count,
+                                        doubleCount: doubleCount,
+                                        increment: increment,
+                                    },
                                 };
                             },
-                        );
-
-                        return {
-                            ...publicApi,
-                        };
-                    },
+                        ),
                 });
 
                 const wrapper = mount(originalComponent);
@@ -2604,8 +2502,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -2616,16 +2514,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const multipliedCount = computed(() => count.value * props.multiplier);
 
                             return {
-                                count,
-                                multipliedCount,
+                                public: {
+                                    count,
+                                    multipliedCount,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             const wrapper = mount(originalComponent, {
@@ -2670,8 +2565,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -2682,16 +2577,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const multipliedCount = computed(() => count.value * props.multiplier);
 
                             return {
-                                count,
-                                multipliedCount,
+                                public: {
+                                    count,
+                                    multipliedCount,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             const wrapper = mount(originalComponent, {
@@ -2749,8 +2641,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 0,
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -2763,17 +2655,14 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const addedValue = computed(() => baseValue.value + props.added);
 
                             return {
-                                baseValue,
-                                multipliedValue,
-                                addedValue,
+                                public: {
+                                    baseValue,
+                                    multipliedValue,
+                                    addedValue,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             const wrapper = mount(originalComponent, {
@@ -2848,8 +2737,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -2860,18 +2749,15 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const multipliedCount = computed(() => count.value * props.multiplier);
 
                             return {
-                                count,
-                                multipliedCount,
-                                // This is not allowed and should cause an error
-                                multiplier: props.multiplier,
+                                public: {
+                                    count,
+                                    multipliedCount,
+                                    // This is not allowed and should cause an error
+                                    multiplier: props.multiplier,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             // Mock console.error
@@ -2903,8 +2789,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 1,
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -2915,18 +2801,15 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const multipliedCount = computed(() => count.value * props.multiplier);
 
                             return {
-                                count,
-                                multipliedCount,
-                                // This is not allowed and should cause an error
-                                multiplier: props.multiplier,
+                                public: {
+                                    count,
+                                    multipliedCount,
+                                    // This is not allowed and should cause an error
+                                    multiplier: props.multiplier,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             mount(originalComponent, {
@@ -2971,8 +2854,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         {{ secondMessage }}
                     </div>
                 `,
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -2983,16 +2866,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const secondMessage = ref('Original second message');
 
                             return {
-                                message,
-                                secondMessage,
+                                public: {
+                                    message,
+                                    secondMessage,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             const wrapper = mount(originalComponent, {
@@ -3035,8 +2915,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                     {{ secondMessage }}
                 </div>
             `,
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -3047,16 +2927,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const secondMessage = ref('Original second message');
 
                             return {
-                                message,
-                                secondMessage,
+                                public: {
+                                    message,
+                                    secondMessage,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             const wrapper = mount(originalComponent, {
@@ -3089,8 +2966,8 @@ describe('src/app/adapter/composition-extension-system', () => {
         it('should be able to modify exposed properties using context.expose', async () => {
             const originalComponent = defineComponent({
                 template: '<div>{{ exposedValue }}</div>',
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -3100,15 +2977,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const exposedValue = ref('Original');
 
                             return {
-                                exposedValue,
+                                public: {
+                                    exposedValue,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             const wrapper = mount(originalComponent);
@@ -3125,6 +2999,96 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             expect(wrapper.vm.exposedValue).toBe('Overridden');
             expect(wrapper.text()).toBe('Overridden');
+        });
+    });
+
+    describe('Private and Public API:', () => {
+        it('should be able to directly access public values', async () => {
+            const originalComponent = defineComponent({
+                template: '<div>Count: {{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => {
+                            const count = ref(1);
+                            const thisIsPrivate = ref('Private');
+
+                            return {
+                                private: {
+                                    thisIsPrivate,
+                                },
+                                public: {
+                                    count,
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            const wrapper = mount(originalComponent);
+            expect(wrapper.text()).toBe('Count: 1');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', (previousState) => {
+                const oldCount = previousState.count;
+                const newCount = ref(oldCount.value + 5);
+
+                return {
+                    count: newCount,
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.text()).toBe('Count: 6');
+        });
+
+        it('should be able to access private values using _private prefix', async () => {
+            const originalComponent = defineComponent({
+                template: '<div>Private: {{ thisIsPrivate }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => {
+                            const count = ref(1);
+                            const thisIsPrivate = ref('Private');
+
+                            return {
+                                private: {
+                                    thisIsPrivate,
+                                },
+                                public: {
+                                    count,
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            const wrapper = mount(originalComponent);
+            expect(wrapper.text()).toBe('Private: Private');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', (previousState) => {
+                const oldThisIsPrivate = previousState._private.thisIsPrivate;
+                const newThisIsPrivate = ref(`${oldThisIsPrivate.value} from plugin`);
+
+                return {
+                    thisIsPrivate: newThisIsPrivate,
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.text()).toBe('Private: Private from plugin');
         });
     });
 
@@ -3157,8 +3121,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: () => ({}),
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -3174,28 +3138,25 @@ describe('src/app/adapter/composition-extension-system', () => {
                             expectType<{ hello: string; world: number }>(props.complexProp);
 
                             return {
-                                count,
-                                multipliedCount,
+                                public: {
+                                    count,
+                                    multipliedCount,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
         });
 
         it('should have correct previousState types for the overrideComponentSetup', () => {
             const _InternalTestComponent = defineComponent({
                 template: `
-                <div class="base">Base: {{ baseValue }}</div>
-                <div class="multiplier">Multiplier: {{ multiplier }}</div>
-                <div class="multiplied">Multiplied: {{ multipliedValue }}</div>
-                <div class="addedValue">Added value: {{ addedValue }}</div>
-                <div class="added">Added: {{ added }}</div>
-            `,
+                    <div class="base">Base: {{ baseValue }}</div>
+                    <div class="multiplier">Multiplier: {{ multiplier }}</div>
+                    <div class="multiplied">Multiplied: {{ multipliedValue }}</div>
+                    <div class="addedValue">Added value: {{ addedValue }}</div>
+                    <div class="added">Added: {{ added }}</div>
+                `,
                 props: {
                     multiplier: {
                         type: Number,
@@ -3206,12 +3167,12 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: 0,
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
-                            name: '_internal_test_compponent',
+                            name: '_internal_test_component',
                         },
                         () => {
                             const baseValue = ref(1);
@@ -3219,38 +3180,89 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const multipliedValue = computed(() => baseValue.value * props.multiplier);
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                             const addedValue = computed(() => baseValue.value + props.added);
+                            const privateValue = ref('Private');
 
                             return {
-                                baseValue,
-                                multipliedValue,
-                                addedValue,
-                                title,
+                                private: {
+                                    privateValue,
+                                },
+                                public: {
+                                    baseValue,
+                                    multipliedValue,
+                                    addedValue,
+                                    title,
+                                },
                             };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
-            overrideComponentSetup<typeof _InternalTestComponent>()('_internal_test_compponent', (previousState, props) => {
+            overrideComponentSetup<typeof _InternalTestComponent>()('_internal_test_component', (previousState, props) => {
                 const newBaseValue = ref(5);
                 const newMultipliedValue = computed(() => newBaseValue.value * props.multiplier!);
 
                 previousState.baseValue.value = 2;
 
+                // Public values are typed correctly
                 expectType<number>(previousState.baseValue.value);
                 expectType<number>(previousState.multipliedValue.value);
                 expectType<number>(previousState.addedValue.value);
                 expectType<string>(previousState.title.value);
+
+                // Private values shouldn't be typed
+
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                expectType<string>(previousState.private.privateValue.value);
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                expectType<string>(previousState.privateValue.value);
 
                 return {
                     baseValue: newBaseValue,
                     multipliedValue: newMultipliedValue,
                 };
             });
+        });
+
+        it('should return the correct merged properties from createExtendableSetup', () => {
+            const props = {
+                multiplier: 1,
+                added: 2,
+            };
+            const extendableResult = createExtendableSetup(
+                {
+                    props,
+                    context: {},
+                    name: '_internal_test_component',
+                },
+                () => {
+                    const baseValue = ref(1);
+                    const title = ref('Original Title');
+                    const multipliedValue = computed(() => baseValue.value * props.multiplier);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    const addedValue = computed(() => baseValue.value + props.added);
+                    const privateValue = ref('Private');
+
+                    return {
+                        private: {
+                            privateValue,
+                        },
+                        public: {
+                            baseValue,
+                            multipliedValue,
+                            addedValue,
+                            title,
+                        },
+                    };
+                },
+            );
+
+            expectType<number>(extendableResult.baseValue.value);
+            expectType<number>(extendableResult.multipliedValue.value);
+            expectType<number>(extendableResult.addedValue.value);
+            expectType<string>(extendableResult.title.value);
+            expectType<string>(extendableResult.privateValue.value);
         });
 
         it('should have correct props types for the overrideComponentSetup', () => {
@@ -3279,8 +3291,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                         default: () => ({}),
                     },
                 },
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -3289,14 +3301,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                         () => {
                             const count = ref(1);
 
-                            return { count };
+                            return {
+                                public: {
+                                    count,
+                                },
+                            };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
@@ -3322,8 +3333,8 @@ describe('src/app/adapter/composition-extension-system', () => {
                 template: `
                     <div>Hello World</div>
                 `,
-                setup(props, context) {
-                    const publicApi = createExtendableSetup(
+                setup: (props, context) =>
+                    createExtendableSetup(
                         {
                             props,
                             context,
@@ -3332,14 +3343,13 @@ describe('src/app/adapter/composition-extension-system', () => {
                         () => {
                             const count = ref(1);
 
-                            return { count };
+                            return {
+                                public: {
+                                    count,
+                                },
+                            };
                         },
-                    );
-
-                    return {
-                        ...publicApi,
-                    };
-                },
+                    ),
             });
 
             overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props, context) => {

@@ -1,4 +1,4 @@
-import type { ComputedRef, Ref } from 'vue';
+import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
 import { computed, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
@@ -40,7 +40,7 @@ declare global {
      * overrides are compatible with the original component's public API.
      */
     interface ComponentPublicApiMapping {
-        _internal_test_compponent: {
+        _internal_test_component: {
             baseValue: Ref<number, number>;
             multipliedValue: ComputedRef<number>;
             addedValue: ComputedRef<number>;
@@ -134,16 +134,54 @@ export function createExtendableSetup<
     CONTEXT,
     COMPONENT_NAME extends keyof ComponentPublicApiMapping,
     SETUP_RESULT extends ComponentPublicApiMapping[COMPONENT_NAME],
+    PRIVATE_SETUP_RESULT extends object,
 >(
     options: {
         name: COMPONENT_NAME;
         props: PROPS;
         context: CONTEXT;
     },
-    originalSetup: (props: PROPS, context: CONTEXT) => Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>,
-) {
+    originalSetup: (
+        props: PROPS,
+        context: CONTEXT,
+    ) => {
+        public?: Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>;
+        private?: PRIVATE_SETUP_RESULT;
+    },
+): ToRefs<Reactive<Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT>> {
     // Call the original setup function
-    const originalSetupResult = originalSetup(options.props, options.context);
+    const originalSetupResultRaw = originalSetup(options.props, options.context);
+
+    // Stop execution and throw an error if the original setup function does not return a public or private property
+    if (!originalSetupResultRaw.public && !originalSetupResultRaw.private) {
+        console.error(
+            // eslint-disable-next-line max-len
+            `[${options.name}] The original setup function for the originalComponent component must return at least one public or private property.`,
+        );
+        return {} as any;
+    }
+
+    // Check if any other return value was returned from the original setup
+    Object.keys(originalSetupResultRaw).forEach((key) => {
+        if (key !== 'public' && key !== 'private') {
+            console.error(
+                // eslint-disable-next-line max-len
+                `[${options.name}] The original setup function for the originalComponent component returned an unexpected value. Only public and private properties at first level are allowed.`,
+            );
+        }
+    });
+
+    // eslint-disable-next-line max-len
+    const originalSetupResultPublic =
+        originalSetupResultRaw.public ?? ({} as Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>);
+    const originalSetupResultPrivate = originalSetupResultRaw.private ?? ({} as PRIVATE_SETUP_RESULT);
+
+    // Merge public and private properties
+    // eslint-disable-next-line max-len
+    const originalSetupResult: Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT = {
+        ...originalSetupResultPublic,
+        ...originalSetupResultPrivate,
+    };
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
@@ -180,8 +218,34 @@ export function createExtendableSetup<
                 return;
             }
 
+            /**
+             *  Filter the wrappedState to only include public setup result
+             *  and add the private ones in the "_private" property
+             */
+            type previousStateResultForExtensionsType = Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & {
+                _private: PRIVATE_SETUP_RESULT;
+            };
+
+            const previousStateResultForExtensions: previousStateResultForExtensionsType = Object.keys(wrappedState).reduce(
+                (acc, key) => {
+                    if (Object.keys(originalSetupResultPublic).includes(key)) {
+                        // @ts-expect-error - key is a string
+                        acc[key] = wrappedState[key];
+                    }
+                    return acc;
+                },
+                { _private: {} },
+            ) as previousStateResultForExtensionsType;
+            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce((acc, key) => {
+                if (!Object.keys(originalSetupResultPublic).includes(key)) {
+                    // @ts-expect-error - key is a string
+                    acc[key] = wrappedState[key];
+                }
+                return acc;
+            }, {}) as PRIVATE_SETUP_RESULT;
+
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
-            const overrideResult = override({ ...wrappedState }, options.props, options.context);
+            const overrideResult = override({ ...previousStateResultForExtensions }, options.props, options.context);
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
@@ -253,7 +317,7 @@ export function createExtendableSetup<
     // Watch for changes in the overrides array and reapply overrides when changed
     watch(overrides, applyOverrides, { deep: true, immediate: true });
 
-    return toRefs(reactiveWrappedState) as ComponentPublicApiMapping[COMPONENT_NAME];
+    return toRefs(reactiveWrappedState);
 }
 
 /**

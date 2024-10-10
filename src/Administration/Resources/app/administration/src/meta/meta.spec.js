@@ -170,16 +170,22 @@ describe('Administration meta tests', () => {
 
         it('should not remove existing blocks', () => {
             const blocks = extractBlocks(templateFiles);
-            const removedBlocks = blocksList.filter(block => !blocks.includes(block));
+            const removedBlocks = blocksList.filter((block) => !blocks.includes(block));
 
-            expect(removedBlocks, `Breaking change detected! Previously registered blocks are missing: \n${removedBlocks.join(', ')}`).toHaveLength(0);
+            expect(
+                removedBlocks,
+                `Breaking change detected! Previously registered blocks are missing: \n${removedBlocks.join(', ')}`,
+            ).toHaveLength(0);
         });
 
         it('should have new blocks in the blocks list', () => {
             const blocks = extractBlocks(templateFiles);
-            const newBlocks = blocks.filter(block => !blocksList.includes(block));
+            const newBlocks = blocks.filter((block) => !blocksList.includes(block));
 
-            expect(newBlocks, `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`).toHaveLength(0);
+            expect(
+                newBlocks,
+                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
+            ).toHaveLength(0);
         });
     });
 });

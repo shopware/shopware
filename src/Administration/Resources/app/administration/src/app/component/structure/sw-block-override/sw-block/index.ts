@@ -2,15 +2,7 @@
  * @package admin
  *
  */
-import {
-    computed,
-    onBeforeUnmount,
-    provide,
-    ref,
-    type ComponentInternalInstance,
-    type PropType,
-    type Slot,
-} from 'vue';
+import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type PropType, type Slot } from 'vue';
 import parentsInjectionKey from './parents-injection-key';
 
 /**
@@ -78,7 +70,7 @@ Shopware.Component.register('sw-block', {
         },
     },
     setup(props, { slots }) {
-        const store = Shopware.Store.get('blockOverrideState');
+        const store = Shopware.Store.get('blockOverride');
         if (props.extends) {
             store.addBlock(props.extends, slots.default);
 
@@ -91,7 +83,7 @@ Shopware.Component.register('sw-block', {
             return { template: null };
         }
 
-        const providedParents = ref<(ReturnType<Slot>)[]>([]);
+        const providedParents = ref<ReturnType<Slot>[]>([]);
         provide(parentsInjectionKey, providedParents);
 
         const template = computed(() => {
@@ -100,7 +92,10 @@ Shopware.Component.register('sw-block', {
             }
 
             const blocks = store.getBlocks(props.name);
-            const blocksAndParent = [slots.default ?? (() => []), ...blocks];
+            const blocksAndParent = [
+                slots.default ?? (() => []),
+                ...blocks,
+            ];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
             // The last block is not parent of any other block, and it is the one that renders all the blocks
@@ -117,4 +112,3 @@ Shopware.Component.register('sw-block', {
         return this.template;
     },
 });
-

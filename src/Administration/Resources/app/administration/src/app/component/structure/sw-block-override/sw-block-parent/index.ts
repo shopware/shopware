@@ -25,4 +25,3 @@ Shopware.Component.register('sw-block-parent', {
         return h(() => this.parent);
     },
 });
-

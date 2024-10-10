@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Command;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +18,9 @@ class CacheClearAllCommand extends Command
      * @internal
      */
     public function __construct(
-        private readonly CacheClearer $cacheClearer
+        private readonly CacheClearer $cacheClearer,
+        private readonly string $env,
+        private readonly bool $debug,
     ) {
         parent::__construct();
     }
@@ -41,16 +42,12 @@ EOF
     {
         $io = new ShopwareStyle($input, $output);
 
-        /** @var Application $app */
-        $app = $this->getApplication();
-        $kernel = $app->getKernel();
-
         try {
-            $io->comment(\sprintf('Clearing the caches and pools for the <info>%s</info> environment with debug <info>%s</info>', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+            $io->comment(\sprintf('Clearing the caches and pools for the <info>%s</info> environment with debug <info>%s</info>', $this->env, var_export($this->debug, true)));
 
             $this->cacheClearer->clear();
 
-            $io->success(\sprintf('Caches and pools for the "%s" environment (debug=%s) was successfully cleared.', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+            $io->success(\sprintf('Caches and pools for the "%s" environment (debug=%s) was successfully cleared.', $this->env, var_export($this->debug, true)));
 
             return self::SUCCESS;
         } catch (\Throwable $e) {

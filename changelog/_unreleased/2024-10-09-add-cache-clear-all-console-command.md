@@ -1,6 +1,6 @@
 ---
 title: Add new console command "cache:clear:all"
-issue: NEXT-00000
+issue: NEXT-38826
 author: Raffaele Carelle
 author_email: raffaele.carelle@gmail.com
 author_github: @raffaelecarelle

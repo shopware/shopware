@@ -2,14 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Command;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Command\CacheClearAllCommand;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Test\TestKernel;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -20,20 +16,10 @@ class CacheClearAllCommandTest extends TestCase
 {
     public function testExecute(): void
     {
-        $kernel = new TestKernel(
-            'test',
-            true,
-            $this->createMock(KernelPluginLoader::class),
-            'test',
-            '',
-            $this->createMock(Connection::class),
-            'test'
-        );
+        $cacheClearer = $this->createMock(CacheClearer::class);
+        $cacheClearer->expects(static::once())->method('clear');
 
-        $application = new Application($kernel);
-
-        $command = new CacheClearAllCommand($this->createMock(CacheClearer::class));
-        $command->setApplication($application);
+        $command = new CacheClearAllCommand($cacheClearer, 'dev', true);
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 

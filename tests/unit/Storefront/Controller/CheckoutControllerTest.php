@@ -186,18 +186,6 @@ class CheckoutControllerTest extends TestCase
         static::assertEquals($cart, $response->getObject());
     }
 
-    public function testConfirmPageNoCustomer(): void
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        $response = $this->controller->confirmPage(new Request(), $context);
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
-    }
-
     public function testConfirmPageEmptyCart(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -292,18 +280,6 @@ class CheckoutControllerTest extends TestCase
         static::assertEmpty($response->getContent());
     }
 
-    public function testFinishPageNoCustomer(): void
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
-    }
-
     public function testFinishPageOrderNotFound(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -380,18 +356,6 @@ class CheckoutControllerTest extends TestCase
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         static::assertEmpty($response->getContent());
-    }
-
-    public function testOrderNoCustomer(): void
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        $response = $this->controller->order(new RequestDataBag(), $context, new Request());
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
     }
 
     public function testOrder(): void

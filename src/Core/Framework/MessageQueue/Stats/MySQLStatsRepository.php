@@ -25,29 +25,12 @@ class MySQLStatsRepository extends AbstractStatsRepository
         parent::__construct($timeSpan);
     }
 
-    private function insertMessageStats(string $messageFqcn, int $timeInQueue, \DateTimeInterface $createdAt): void
-    {
-        $this->connection->insert('messenger_stats', [
-            'message_type' => $messageFqcn,
-            'time_in_queue' => $timeInQueue,
-            'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-    }
-
     public function updateMessageStats(string $messageFqcn, int $timeInQueue): void
     {
         $cutoffDate = $this->getCutOffDate();
         $now = $this->getNow();
         $this->insertMessageStats($messageFqcn, $timeInQueue, $now);
         $this->deleteStatsOlderThan($cutoffDate);
-    }
-
-    private function deleteStatsOlderThan(\DateTimeInterface $olderThan): void
-    {
-        $this->connection->createQueryBuilder()->delete('messenger_stats')
-            ->where('created_at < :olderThan')
-            ->setParameter('olderThan', $olderThan->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->executeQuery();
     }
 
     public function getStats(): MessageStatsEntity
@@ -89,5 +72,22 @@ class MySQLStatsRepository extends AbstractStatsRepository
         }
 
         return $stats;
+    }
+
+    private function insertMessageStats(string $messageFqcn, int $timeInQueue, \DateTimeInterface $createdAt): void
+    {
+        $this->connection->insert('messenger_stats', [
+            'message_type' => $messageFqcn,
+            'time_in_queue' => $timeInQueue,
+            'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function deleteStatsOlderThan(\DateTimeInterface $olderThan): void
+    {
+        $this->connection->createQueryBuilder()->delete('messenger_stats')
+            ->where('created_at < :olderThan')
+            ->setParameter('olderThan', $olderThan->format(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->executeQuery();
     }
 }

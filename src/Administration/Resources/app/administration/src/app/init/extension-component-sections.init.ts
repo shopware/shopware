@@ -1,3 +1,5 @@
+import '../store/extension-component-sections.store';
+
 /**
  * @package admin
  *
@@ -14,7 +16,7 @@ export default function initializeExtensionComponentSections(): void {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             ...componentConfig,
             extensionName: extension.name,
         });

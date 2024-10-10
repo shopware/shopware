@@ -7,26 +7,11 @@ import type { Slot } from 'vue';
 /**
  * @private
  */
-export type BlockOverrideState = {
-    state: {
-        blocks: Record<string, Slot[]>;
-    },
-    actions: {
-        getBlocks(blockName: string): Slot[],
-        addBlock(blockName: string, block?: Slot): void,
-        removeBlock(blockName: string, block?: Slot): void,
-    },
-    getters: unknown,
-};
+const blockOverrideStore = Shopware.Store.register({
+    id: 'blockOverride',
 
-/**
- * @private
- */
-export default Shopware.Store.wrapStoreDefinition({
-    id: 'blockOverrideState',
-
-    state: (): BlockOverrideState['state'] => ({
-        blocks: {},
+    state: () => ({
+        blocks: {} as Record<string, Slot[]>,
     }),
 
     actions: {
@@ -54,3 +39,12 @@ export default Shopware.Store.wrapStoreDefinition({
     },
 });
 
+/**
+ * @private
+ */
+export default blockOverrideStore;
+
+/**
+ * @private
+ */
+export type BlockOverrideStore = ReturnType<typeof blockOverrideStore>;

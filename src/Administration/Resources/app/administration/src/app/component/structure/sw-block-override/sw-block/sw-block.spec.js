@@ -6,18 +6,17 @@ import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
 import getBlockDataScope from './get-block-data-scope';
 
-async function createWrapper(
-    {
-        extensions = '',
-        defaultContent = '<div class="default-content"></div>',
-        renderExtensions = true,
-        moreBlockExtensions = '',
-        extraData = {},
-        extraOptions = {},
-    } = {},
-) {
-    const wrapper = mount({
-        template: `
+async function createWrapper({
+    extensions = '',
+    defaultContent = '<div class="default-content"></div>',
+    renderExtensions = true,
+    moreBlockExtensions = '',
+    extraData = {},
+    extraOptions = {},
+} = {}) {
+    const wrapper = mount(
+        {
+            template: `
             <div class="component-root">
                 <sw-block name="test-extension-point" :data="$dataScope()">
                     ${defaultContent}
@@ -28,24 +27,26 @@ async function createWrapper(
                 ${extensions}
             </template>
         `,
-        components: {
-            'sw-block': await wrapTestComponent('sw-block', { sync: true }),
-            'sw-block-parent': await wrapTestComponent('sw-block-parent', { sync: true }),
+            components: {
+                'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                'sw-block-parent': await wrapTestComponent('sw-block-parent', { sync: true }),
+            },
+            data() {
+                return {
+                    renderExtensions,
+                    ...extraData,
+                };
+            },
+            ...extraOptions,
         },
-        data() {
-            return {
-                renderExtensions,
-                ...extraData,
-            };
-        },
-        ...extraOptions,
-    }, {
-        global: {
-            mocks: {
-                $dataScope: getBlockDataScope,
+        {
+            global: {
+                mocks: {
+                    $dataScope: getBlockDataScope,
+                },
             },
         },
-    });
+    );
 
     async function toggleExtensions() {
         await wrapper.setData({
@@ -293,7 +294,13 @@ describe('sw-block', () => {
         expect(wrapper.find('.component-root > .extension-content-3').exists()).toBeTruthy();
         expect(wrapper.find('.component-root > .extension-content-2').exists()).toBeTruthy();
         expect(wrapper.find('.component-root > .extension-content-1').exists()).toBeTruthy();
-        expect(wrapper.find('.default-content + .default-content-2 + .default-content-3 + .extension-content-3 + .extension-content-2 + .extension-content-1').exists()).toBeTruthy();
+        expect(
+            wrapper
+                .find(
+                    '.default-content + .default-content-2 + .default-content-3 + .extension-content-3 + .extension-content-2 + .extension-content-1',
+                )
+                .exists(),
+        ).toBeTruthy();
     });
 
     it('has access to the component data scope', async () => {

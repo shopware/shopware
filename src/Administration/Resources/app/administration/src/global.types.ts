@@ -96,7 +96,7 @@ import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
-import type { BlockOverrideState } from './app/store/block-override.store';
+import type { BlockOverrideStore } from './app/store/block-override.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -351,7 +351,7 @@ declare global {
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
-        blockOverrideState: BlockOverrideState;
+        blockOverride: BlockOverrideStore;
     }
 
     /**

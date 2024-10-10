@@ -1,13 +1,10 @@
-import blockOverrideStore from './block-override.store';
+import './block-override.store';
 
 describe('block-override.store', () => {
     let store;
-    beforeAll(() => {
-        Shopware.Store.register(blockOverrideStore);
-    });
 
     beforeEach(() => {
-        store = Shopware.Store.get('blockOverrideState');
+        store = Shopware.Store.get('blockOverride');
     });
 
     it('has initial state', () => {

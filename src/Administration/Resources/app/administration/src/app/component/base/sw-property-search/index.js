@@ -215,6 +215,7 @@ Component.register('sw-property-search', {
 
             if (this.prevSearchTerm !== validInput) {
                 this.prevSearchTerm = validInput;
+                this.searchTerm = validInput;
                 this.optionPage = 1;
                 this.onFocusSearch();
             }

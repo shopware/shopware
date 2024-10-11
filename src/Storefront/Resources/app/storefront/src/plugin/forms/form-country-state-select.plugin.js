@@ -117,7 +117,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     _updateZipcodeRequired(labels, inputs, required) {
-        if (!label || !input) {
+        if (!labels.length || !inputs.length) {
             return;
         }
 

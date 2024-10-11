@@ -72,6 +72,11 @@ class ContextController extends StorefrontController
             $params = json_decode($params, true);
         }
 
+        $languageCode = $request->request->get('languageCode_' . $languageId);
+        if ($languageCode) {
+            $params['_locale'] = $languageCode;
+        }
+
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
         if (empty($route) || $this->routeTargetExists($route, $params) === false) {
             $route = 'frontend.home.page';

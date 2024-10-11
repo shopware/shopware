@@ -20,7 +20,7 @@ export default {
             return Service('repositoryFactory').create('customer');
         },
 
-        defaultCriteria() {
+        customerCriteria() {
             const criteria = new Criteria(1, 25);
             criteria
                 .addAssociation('addresses')
@@ -56,11 +56,10 @@ export default {
                 return;
             }
 
-            try {
-                const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.defaultCriteria);
+            const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.customerCriteria);
+            if (customer) {
                 State.commit('swOrder/setCustomer', customer);
-                // eslint-disable-next-line no-empty
-            } catch (error) {}
+            }
         },
 
         onCloseCreateModal() {

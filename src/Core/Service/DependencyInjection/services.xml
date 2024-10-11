@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="env(SERVICE_REGISTRY_URL)" type="string">https://services.shopware.io/services.json</parameter>
+        <parameter key="env(ENABLE_SERVICES)" type="string">false</parameter>
     </parameters>
 
     <services>
@@ -47,7 +48,7 @@
         </service>
 
         <service id="Shopware\Core\Service\AllServiceInstaller">
-            <argument>%shopware.services.enabled%</argument>
+            <argument>%env(bool:ENABLE_SERVICES)%</argument>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="app.repository"/>

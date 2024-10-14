@@ -31,6 +31,7 @@
     },
     "card": {
       "buttonImitateCustomer": "Log in as customer",
+      "tooltipImitateCustomerGuest": "Guest accounts cannot be imitated.",
       "placeholderTitle": "Title",
       "placeholderFirstName": "First name",
       "placeholderLastName": "Last name",

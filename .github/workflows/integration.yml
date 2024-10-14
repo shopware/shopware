@@ -15,10 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         project:
-          - id: OquVUx
-            name: Platform
-          - id: LhSCFb
-            name: Install
+          - name: Platform
+          - name: Install
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       SHOPWARE_DISABLE_UPDATE_CHECK: "true"
@@ -55,7 +53,7 @@ jobs:
       - name: Run your tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx pwc --project-id ${{ matrix.project.id }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.project.name }} --trace=on
+        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.project.name }} --trace=on
       - name: Run your tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
@@ -261,15 +259,13 @@ jobs:
       matrix:
         update:
           - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
-            project-id: pXkufA
           - version: ${{ needs.tested-update-versions.outputs.first-version }}
-            project-id: m9afF2
           - version: ${{ needs.tested-update-versions.outputs.latest-version }}
-            project-id: mR5suq
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       BLUE_GREEN_DEPLOYMENT: 1
       SHOPWARE_DISABLE_UPDATE_CHECK: "0"
+      SHOPWARE_UPDATE_FROM: ${{ matrix.update.version }}
       SW_RECOVERY_NEXT_VERSION: "6.6.9999999.9999999"
       SW_RECOVERY_NEXT_BRANCH: "6.6.9999999.9999999"
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
@@ -346,7 +342,7 @@ jobs:
       - name: Run update tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
-        run: npx pwc --project-id ${{ matrix.update.project-id }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance

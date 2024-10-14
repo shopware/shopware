@@ -2,7 +2,7 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 // eslint-disable-next-line playwright/no-skipped-test
-test('Update an existing Shopware instance.', { tag: '@Update' }, async ({
+test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`, { tag: '@Update' }, async ({
     page,
     AdminApiContext,
 }) => {

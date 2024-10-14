@@ -77,9 +77,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             ->add(self::STATE_ID, new Type('string'))
         ;
 
-        $event = new SwitchContextEvent($data, $definition, $parameters, $context);
+        $event = new SwitchContextEvent($data, $context, $definition, $parameters);
         $this->eventDispatcher->dispatch($event, SwitchContextEvent::CONSISTENT_CHECK);
-        $parameters = $event->parameters;
+        $parameters = $event->getParameters();
 
         $this->validator->validate($parameters, $definition);
 
@@ -128,9 +128,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $context->getContext()]))
         ;
 
-        $event = new SwitchContextEvent($data, $definition, $parameters, $context);
+        $event = new SwitchContextEvent($data, $context, $definition, $parameters);
         $this->eventDispatcher->dispatch($event, SwitchContextEvent::DATABASE_CHECK);
-        $parameters = $event->parameters;
+        $parameters = $event->getParameters();
 
         $this->validator->validate($parameters, $definition);
 

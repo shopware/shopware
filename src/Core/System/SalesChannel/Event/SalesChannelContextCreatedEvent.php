@@ -11,35 +11,36 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('core')]
 class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param array<string, mixed> $session
+     */
     public function __construct(
-        public readonly SalesChannelContext $context,
-        public readonly string $usedToken,
-        public readonly array $session = []
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly string $usedToken,
+        private readonly array $session = []
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Use `$event->context` instead
-     */
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Use `$event->context->getContext()` instead
-     * @return Context
-     */
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->salesChannelContext->getContext();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Use `$event->usedToken` instead
-     */
     public function getUsedToken(): string
     {
         return $this->usedToken;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getSession(): array
+    {
+        return $this->session;
     }
 }

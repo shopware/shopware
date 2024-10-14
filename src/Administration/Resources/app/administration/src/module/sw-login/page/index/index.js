@@ -48,11 +48,10 @@ Component.register('sw-login', {
     },
 
     beforeMount() {
-        const cookieStorage = Shopware.Service('loginService').getStorage();
-        const refreshAfterLogout = cookieStorage.getItem('refresh-after-logout');
+        const refreshAfterLogout = sessionStorage.getItem('refresh-after-logout');
 
         if (refreshAfterLogout) {
-            cookieStorage.removeItem('refresh-after-logout');
+            sessionStorage.removeItem('refresh-after-logout');
             window.location.reload();
         } else {
             this.shouldRenderDOM = true;

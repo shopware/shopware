@@ -62,6 +62,7 @@ interface ContextState {
         systemLanguageId: null | string;
         currencyId: null | string;
         versionId: null | string;
+        refreshTokenTtl: null | number;
     };
 }
 
@@ -100,6 +101,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             systemLanguageId: null,
             currencyId: null,
             versionId: null,
+            refreshTokenTtl: null,
         },
     }),
 

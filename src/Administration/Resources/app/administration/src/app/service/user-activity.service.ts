@@ -3,13 +3,19 @@
  * @package admin
  */
 export default class UserActivityService {
-    updateLastUserActivity(date?: Date): void {
-        const cookieStorage = Shopware.Service('loginService').getStorage();
+    getLastUserActivity(): Date {
+        const lastActivity = localStorage.getItem('lastActivity');
 
-        if (date === undefined) {
-            date = new Date();
+        if (!lastActivity) {
+            return new Date();
         }
 
-        cookieStorage.setItem('lastActivity', `${Math.round(+date / 1000)}`);
+        return new Date(+lastActivity);
+    }
+
+    updateLastUserActivity(date?: Date): void {
+        const lastActivity = date?.getTime() ?? Date.now();
+
+        localStorage.setItem('lastActivity', `${lastActivity}`);
     }
 }

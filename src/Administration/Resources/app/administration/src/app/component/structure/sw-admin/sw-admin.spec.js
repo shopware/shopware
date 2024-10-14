@@ -34,7 +34,7 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 licenseViolationService: {},
                 userActivityService: {
                     updateLastUserActivity: () => {
-                        localStorage.setItem('lastActivity', 'foo');
+                        localStorage.setItem('lastActivity', `${Date.now()}`);
                     },
                 },
                 loginService: {
@@ -70,18 +70,30 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should update user activity on click', async () => {
+    it('should update user activity on mousemove', async () => {
         wrapper = await createWrapper(false);
 
-        const lastActivity = localStorage.getItem('lastActivity');
+        const lastActivity = +(localStorage.getItem('lastActivity') ?? Date.now());
 
         const app = wrapper.find('#app');
         await app.trigger('mousemove');
 
-        const newLastActivity = localStorage.getItem('lastActivity');
+        const newLastActivity = +(localStorage.getItem('lastActivity') ?? 0);
 
-        expect(lastActivity).not.toBe(newLastActivity);
-        expect(newLastActivity).toBe('foo');
+        expect(newLastActivity).toBeGreaterThanOrEqual(lastActivity);
+    });
+
+    it('should update user activity on keyup', async () => {
+        wrapper = await createWrapper(false);
+
+        const lastActivity = +(localStorage.getItem('lastActivity') ?? Date.now());
+
+        const app = wrapper.find('#app');
+        await app.trigger('keyup');
+
+        const newLastActivity = +(localStorage.getItem('lastActivity') ?? 0);
+
+        expect(newLastActivity).toBeGreaterThanOrEqual(lastActivity);
     });
 
     it('should handle session_channel message', async () => {

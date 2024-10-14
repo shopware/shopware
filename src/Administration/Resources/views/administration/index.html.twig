@@ -55,7 +55,8 @@
                 liveVersionId: '{{ liveVersionId }}',
                 systemLanguageId: '{{ systemLanguageId }}',
                 apiVersion: {{ apiVersion }},
-                assetPath: '{{ asset('', 'asset') }}'
+                assetPath: '{{ asset('', 'asset') }}',
+                refreshTokenTtl: {{ refreshTokenTtl }},
             },
             appContext: {
                 features: window._features_,

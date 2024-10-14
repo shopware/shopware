@@ -16,7 +16,7 @@ class CartCalculator
 {
     public function __construct(
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly CartContextHasher $cartContextHahser
+        private readonly CartContextHasher $cartContextHasher
     ) {
     }
 
@@ -28,7 +28,7 @@ class CartCalculator
                 ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))
                 ->getCart();
 
-            $cart->setHash($this->cartContextHahser->generate($cart, $context));
+            $cart->setHash($this->cartContextHasher->generate($cart, $context));
 
             $cart->markUnmodified();
             foreach ($cart->getLineItems()->getFlat() as $lineItem) {

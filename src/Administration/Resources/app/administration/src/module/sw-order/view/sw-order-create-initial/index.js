@@ -50,7 +50,7 @@ export default {
 
     methods: {
         async createdComponent() {
-            const { customerId } = this.$route.query;
+            const customerId = this.$route.query?.customerId;
 
             if (!customerId) {
                 return;

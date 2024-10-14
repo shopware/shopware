@@ -1,3 +1,112 @@
+# 6.6.7.0
+## Shortened filenames with hashes for async JS built files
+When building the Storefront JS-files for production using `composer run build:storefront`, the async bundle filenames no longer contain the filepath.
+Instead, only the filename is used with a chunkhash / dynamic version number. This also helps to identify which files have changed after build. Similar to the main entry file like e.g. `cms-extensions.js?1720776107`.
+
+**JS Filename before change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── custom_plugins_CmsExtensions_src_Resources_app_storefront_src_cms-extensions-quickview.js  <-- Complete path in filename
+```
+
+**JS Filename after change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── cms-extensions-quickview.plugin.423fc1.js <-- Filename and chunkhash
+```
+## Persistent mode for `focusHandler`
+The `window.focusHandler` now supports a persistent mode that can be used in case the current focus is lost after a page reload.
+When using methods `saveFocusStatePersistent` and `resumeFocusStatePersistent` the focus element will be saved inside the `sessionStorage` instead of the window object / memory.
+
+The persistent mode requires a key name for the `sessionStorage` as well as a unique selector as string. It is not possible to save element references into the `sessionStorage`.
+The unique selector will be used to find the DOM element during `resumeFocusStatePersistent` and re-focus it.
+```js
+// Save the current focus state
+window.focusHandler.saveFocusStatePersistent('special-form', '#unique-id-on-this-page');
+
+// Something happens and the page reloads
+window.location.reload();
+
+// Resume the focus state for the key `special-form`. The unique selector will be retrieved from the `sessionStorage` 
+window.focusHandler.resumeFocusStatePersistent('special-form');
+```
+
+By default, the storage keys are prefixed with `sw-last-focus`. The above example will save the following to the `sessionStorage`:
+
+| key                          | value                     |
+|------------------------------|---------------------------|
+| `sw-last-focus-special-form` | `#unique-id-on-this-page` |
+
+## Automatic focus for `FormAutoSubmitPlugin`
+The `FormAutoSubmitPlugin` can now try to re-focus elements after AJAX submits or full page reloads using the `window.focusHandler`.
+This works automatically for all form input elements inside an auto submit form that have a `[data-focus-id]` attribute that is unique.
+
+The automatic focus is activated by default and be modified by the new JS-plugin options:
+
+```js
+export default class FormAutoSubmitPlugin extends Plugin {
+    static options = {
+        autoFocus: true,
+        focusHandlerKey: 'form-auto-submit'
+    }
+}
+```
+
+```diff
+<form action="/example/action" data-form-auto-submit="true">
+    <!-- FormAutoSubmitPlugin will try to restore previous focus on all elements with da focus-id -->
+    <input 
+        class="form-control"
++        data-focus-id="unique-id"
+    >
+</form>
+```
+## Improved formating behaviour of the text editor
+The text editor in the administration was changed to produce paragraph `<p>` elements for new lines instead of `<div>` elements. This leads to a more consistent text formatting. You can still create `<div>` elements on purpose via using the code editor.
+
+In addition, loose text nodes will be wrapped in a paragraph `<p>` element on initializing a new line via the enter key. In the past it could happen that when starting to write in an empty text editor, that text is not wrapped in a proper section element. Now this is automatically fixed when you add a first new line to your text. From then on everything is wrapped in paragraph elements and every new line will also create a new paragraph instead of `<div>` elements.
+## Change Storefront language and currency dropdown items to buttons
+The "top-bar" dropdown items inside `views/storefront/layout/header/top-bar.html.twig` will use `<button>` elements instead of hidden `<input type="radio">` when the `ACCESSIBILITY_TWEAKS` flag is `1`.
+This will improve the keyboard navigation because the user can navigate through all options first before submitting the form.
+
+Currently, every radio input change results in a form submit and thus in a page reload. Using button elements is also more aligned with Bootstraps dropdown HTML structure: [Bootstrap dropdown documentation](https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items)
+## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+* We want to change several list views that are currently using generic `<div>` elements to proper `<ul>` and `<li>`. This will not only improve the semantics but also the screen reader accessibility. 
+* To avoid breaking changes in the HTML and the styling, the change to `<ul>` and `<li>` is done behind the `ACCESSIBILITY_TWEAKS` feature flag.
+* With the next major version the `<ul>` and `<li>` will become the default. In the meantime, the `<div>` elements get `role="list"` and `role="listitem"`.
+* All `<ul>` will get a Bootstrap `list-unstyled` class to avoid the list bullet points and have the same appearance as `<div>`.
+* The general HTML structure and Twig blocks remain the same.
+
+### Affected templates:
+* Account order overview
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document.html.twig`
+* Cart table header (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/checkout/cart-header.html.twig`
+* Line-items wrapper (List wrapper element changed to `<ul>`)
+    * `src/Storefront/Resources/views/storefront/page/checkout/cart/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/finish/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/address/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+* Line-items (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/product.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
+## Correct order of app-cms blocks via xml files
+The order of app CMS blocks is now correctly applied when using XML files to define the blocks. This is achieved by using a position attribute in the JSON generated from the XML file, which reflects the order of the CMS slots within the file. Since it's not possible to determine the correct order of CMS blocks that have already been loaded into the database, this change will only affect newly loaded blocks.
+
+To ensure the correct order is applied, you should consider to reinstall apps that provide app CMS blocks.
+
 # 6.6.6.0
 ## Rework Storefront pagination to use anchor links and improve accessibility
 We want to change the Storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) to use anchor links `<a href="#"></a>` instead of radio inputs with styled labels.

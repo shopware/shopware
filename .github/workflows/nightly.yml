@@ -64,3 +64,5 @@ jobs:
   downstream:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
+    with:
+      nightly: true

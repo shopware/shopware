@@ -37,7 +37,6 @@ class BreadcrumbRoute extends AbstractBreadcrumbRoute
     {
         $id = $request->get('id', '');
         $type = $request->get('type', 'product');
-
         if ($type === 'category') {
             $categories = $this->getCategories($id, $salesChannelContext);
         } else {
@@ -59,6 +58,10 @@ class BreadcrumbRoute extends AbstractBreadcrumbRoute
     private function getCategories(string $id, SalesChannelContext $salesChannelContext): array
     {
         $category = $this->breadcrumbBuilder->loadCategory($id, $salesChannelContext->getContext());
+
+        if ($category === null) {
+            return [];
+        }
 
         return $this->breadcrumbBuilder->getCategoryBreadcrumbUrls(
             $category,

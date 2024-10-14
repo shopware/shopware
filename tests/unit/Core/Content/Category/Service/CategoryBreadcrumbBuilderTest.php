@@ -165,6 +165,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext->getContext());
+        if ($category === null) {
+            static::fail('Category is null');
+        }
         $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext->getContext(), $this->salesChannelContext->getSalesChannel());
         /** @var \Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb $firstBreadcrumb */
         $firstBreadcrumb = $result[0];
@@ -199,6 +202,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c02', $this->salesChannelContext->getContext());
+        if ($category === null) {
+            static::fail('Category is null');
+        }
         $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext->getContext(), $this->salesChannelContext->getSalesChannel());
         /** @var \Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb $firstBreadcrumb */
         $firstBreadcrumb = $result[0];
@@ -233,6 +239,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c03', $this->salesChannelContext->getContext());
+        if ($category === null) {
+            static::fail('Category is null');
+        }
         $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext->getContext(), $this->salesChannelContext->getSalesChannel());
         /** @var \Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb $firstBreadcrumb */
         $firstBreadcrumb = $result[0];

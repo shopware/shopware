@@ -27,20 +27,19 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_feature_set_form_config_information %}
-        <i18n
+        <i18n-t
             tag="p"
-            path="sw-product.featureSets.configInformation"
+            keypath="sw-product.featureSets.configInformation"
             class="sw-product-feature-set-form__description-config-info"
         >
             <span class="sw-product-feature-set-form__description-link">
                 <router-link
                     :to="{ name: 'sw.settings.product.feature.sets.index' }"
-                    class="sw-card__quick-link"
                 >
                     {{ $tc('sw-product.featureSets.linkFeatureSetsConfig') }}
                 </router-link>
             </span>
-        </i18n>
+        </i18n-t>
         {% endblock %}
 
     </sw-container>

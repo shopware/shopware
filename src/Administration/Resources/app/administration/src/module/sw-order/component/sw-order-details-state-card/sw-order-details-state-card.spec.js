@@ -121,7 +121,7 @@ async function createWrapper() {
                     template: '<div class="sw-time-ago"></div>',
                     props: ['date'],
                 },
-                i18n: {
+                'i18n-t': {
                     template: '<span><slot name="time"></slot><slot name="author"></slot></span>',
                 },
                 'sw-extension-component-section': true,

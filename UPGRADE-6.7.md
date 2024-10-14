@@ -1,4 +1,184 @@
 # 6.7.0.0
+## Introduced in 6.6.7.0
+## ThemeFileImporterInterface & ThemeFileImporter Removal
+Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
+
+`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object. 
+This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
+
+```php
+$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
+foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
+    $absolutePath = $fs->path('Resources', $relativePath);
+}
+```
+
+`\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException` is removed, if it was previously caught you should change your catch to `\Shopware\Core\System\SystemConfig\SystemConfigException` instead and inspect the code for `\Shopware\Core\System\SystemConfig\SystemConfigException::CONFIG_NOT_FOUND`.
+## SitemapHandleFactoryInterface::create
+
+We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
+If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
+## Accessibility - Storefront base font-size  
+In regard to better readability the base font-size of the storefront is updated to the browser standard of `1rem` (16px). Other text formatting is adjusted accordingly. The following variables and properties are changed:
+
+* `$font-size-base` changed from `0.875rem` to `1rem`.
+* `$font-size-lg` changed from `1rem` to `1.125rem`.
+* `$font-size-sm` changed from `0.75rem` to `0.875rem`.
+* `$paragraph-margin-bottom` changed from `1rem` to `2rem`.
+* `line-height` of `.quantity-selector-group-input` changed to `1rem`.
+* `font-size` of `.form-text` changed from `0.875rem` to `$font-size-base`.
+* `font-size` of `.account-profile-change` changed from `$font-size-sm` to `$font-size-base`.
+* `font-size` of `.product-description` changed from `0.875rem` to `$font-size-base`.
+* `line-height` of `.product-description` changed from `1.125rem` to `$line-height-base`.
+* `height` of `.product-description` changed from `3.375rem` to `4.5rem`.
+* `line-height` of `.quantity-selector-group-input` changed to `1rem`.
+* `font-size` of `.main-navigation-menu` changed from `$font-size-lg` to `$font-size-base`.
+* `font-size` of `.navigation-flyout-category-link`changed from `$font-size-lg` to `$font-size-base`.
+## Change Storefront language and currency dropdown items to buttons
+The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will contain `<button>` elements instead of a hidden `<input type="radio">` elements.
+
+**Affected templates:**
+* `Resources/views/storefront/layout/header/actions/language-widget.html.twig`
+* `Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
+
+### Before:
+```html
+<ul class="top-bar-list dropdown-menu dropdown-menu-end">
+    <li class="top-bar-list-item">
+        <label class="top-bar-list-label" for="top-bar-01918f15b7e2711083e85ec52ac29411">
+            <input class="top-bar-list-radio" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411" name="currencyId" type="radio">
+            £ GBP
+        </label>
+    </li>
+    <li class="top-bar-list-item">
+        <label class="top-bar-list-label" for="top-bar-01918f15b7e2711083e85ec52ac29411">
+            <input class="top-bar-list-radio" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411" name="currencyId" type="radio">
+            $ USD
+        </label>
+    </li>
+</ul>
+```
+
+### After:
+```html
+<ul class="top-bar-list dropdown-menu dropdown-menu-end">
+    <li class="top-bar-list-item">
+        <button class="dropdown-item" type="submit" name="currencyId" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411">
+            <span aria-hidden="true" class="top-bar-list-item-currency-symbol">£</span>
+            Pound
+        </button>
+    </li>
+    <li class="top-bar-list-item">
+        <button class="dropdown-item" type="submit" name="currencyId" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411">
+            <span aria-hidden="true" class="top-bar-list-item-currency-symbol">$</span>
+            US-Dollar
+        </button>
+    </li>
+</ul>
+```
+
+If you are modifying the dropdown item, please adjust to the new HTML structure and consider the deprecation comments in the code. 
+The example below shows `currency-widget.html.twig`. Inside `language-widget.html.twig` a similar structure can be found.
+
+### Before:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
+
+{% block layout_header_actions_currency_widget_form_items_element_input %}
+    <input type="radio">
+    Special list-item override
+{% endblock %}
+```
+
+### After:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
+
+{# The block `layout_header_actions_currency_widget_form_items_element_input` does no longer exist, use upper block `layout_header_actions_currency_widget_form_items_element_label` insted. #}
+{% block layout_header_actions_currency_widget_form_items_element_label %}
+    <button class="dropdown-item">
+        Special list-item override
+    </button>
+{% endblock %}
+```
+## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+To improve the accessibility and semantics, several generic `<div>` elements that are representing lists are changed to actual `<ul>` and `<li>` elements.
+This effects the account order overview area as well as the cart line-item templates.
+
+If you are adding custom line-item templates, please change the root element to an `<li>` element:
+
+change
+```twig
+<div class="{{ lineItemClasses }}">
+    <div class="row line-item-row">
+        {# Line item content #}
+    </div>
+<div>
+```
+to
+```twig
+<li class="{{ lineItemClasses }}">
+    <div class="row line-item-row">
+        {# Line item content #}
+    </div>
+<li>
+```
+
+If you are looping over line-items manually in your template, please change the nearest parent element to an `<ul>`:
+
+change
+```twig
+<div class="line-item-container-custom">
+    {% for lineItem in lineItems %}
+        {# Now renders `<li>` #}
+        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+    {% endfor %}
+</div>
+```
+to
+```twig
+<ul class="line-item-container-custom list-unstyled">
+    {% for lineItem in lineItems %}
+        {# Now renders `<li>` #}
+        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+    {% endfor %}
+</ul>
+```
+
+### List of affected templates:
+Please consider the documented deprecations inside the templates and adjust modified HTML accordingly.
+The overall HTML tree structure and the Twig blocks are not affected by this change.
+
+* Account order overview
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document.html.twig`
+* Cart table header (Root element changed to `<li>`)
+  * `src/Storefront/Resources/views/storefront/component/checkout/cart-header.html.twig`
+* Line-items wrapper (List wrapper element changed to `<ul>`)
+  * `src/Storefront/Resources/views/storefront/page/checkout/cart/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/checkout/finish/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/checkout/address/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+* Line-items (Root element changed to `<li>`)
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/product.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
+## ImportExportFactory::create
+
+We added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`.
+If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
+## Changed thrown exceptions in `TranslationsSerializer`
+* Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
+
+## Deprecated ImportExport domain exception
+* Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
+## Custom field names and field set names
+Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
+
 ## Introduced in 6.6.6.0
 ## Storefront pagination is using anchor links instead of radio inputs
 The storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) is no longer using radio inputs with styled labels. Anchor links are used instead.

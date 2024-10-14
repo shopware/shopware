@@ -204,6 +204,20 @@ class Kernel extends HttpKernel
         );
     }
 
+    public function getBuildDir(): string
+    {
+        if (EnvironmentHelper::hasVariable('APP_BUILD_DIR')) {
+            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment;
+        }
+
+        return parent::getBuildDir();
+    }
+
+    public function getLogDir(): string
+    {
+        return (string) EnvironmentHelper::getVariable('APP_LOG_DIR', parent::getLogDir());
+    }
+
     public function getPluginLoader(): KernelPluginLoader
     {
         return $this->pluginLoader;

@@ -122,6 +122,10 @@ export default {
         },
 
         canUseCustomerImitation() {
+            if (this.customer.guest) {
+                return false;
+            }
+
             if (this.customer.boundSalesChannel) {
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return false;

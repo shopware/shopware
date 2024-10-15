@@ -22,8 +22,8 @@
         {% block sw_customer_card_action_customer_impersonation %}
         <sw-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('api_proxy_imitate-customer'),
+                message: $tc(customer.guest ? 'sw-customer.card.tooltipImitateCustomerGuest' : 'sw-privileges.tooltip.warning'),
+                disabled: !customer.guest && acl.can('api_proxy_imitate-customer'),
                 showOnDisabledElements: true
             }"
             :disabled="!canUseCustomerImitation"

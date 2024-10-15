@@ -5,9 +5,6 @@
 import { mount } from '@vue/test-utils';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-const existingCustomerId = '1234';
-const notExistingCustomerId = '9876';
-
 const responses = global.repositoryFactoryMock.responses;
 
 responses.addResponse({
@@ -17,9 +14,9 @@ responses.addResponse({
     response: {
         data: [
             {
-                id: existingCustomerId,
+                id: '1234',
                 attributes: {
-                    id: existingCustomerId,
+                    id: '1234',
                 },
                 relationships: [],
             },
@@ -69,11 +66,15 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
     });
 
     it('should not load a customer if no customerId query parameter has been passed', async () => {
-        // ToDo: Implement test
+        wrapper = await createWrapper();
+        wrapper.vm.customerRepository.get = jest.fn();
+        await flushPromises();
+
+        expect(wrapper.vm.customerRepository.get).not.toHaveBeenCalled();
     });
 
     it('should not update the state if no customer is found', async () => {
-        wrapper = await createWrapper(notExistingCustomerId);
+        wrapper = await createWrapper('9876');
         await flushPromises();
 
         const customer = Shopware.State.get('swOrder').customer;
@@ -81,12 +82,12 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
     });
 
     it('should update the state if a customer is found', async () => {
-        wrapper = await createWrapper(existingCustomerId);
+        wrapper = await createWrapper('1234');
         await flushPromises();
 
         const customer = Shopware.State.get('swOrder').customer;
         expect(customer).toEqual(expect.objectContaining({
-            id: existingCustomerId,
+            id: '1234',
         }));
     });
 });

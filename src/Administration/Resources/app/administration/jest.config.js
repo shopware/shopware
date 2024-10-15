@@ -67,6 +67,7 @@ module.exports = {
     transform: {
         // stringify svg imports
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
+        '^.+\\.vue$': "@vue/vue3-jest",
     },
 
     transformIgnorePatterns: [

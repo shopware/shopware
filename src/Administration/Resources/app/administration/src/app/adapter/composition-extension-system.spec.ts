@@ -12,6 +12,7 @@ import { mount } from '@vue/test-utils';
 import type { EmitFn, PropType } from 'vue';
 import { ref, computed, reactive, defineComponent } from 'vue';
 import type { SetupContext, Slot } from '@vue/runtime-core';
+import ExampleExtendableScriptSetupComponent from './_mocks_/example-extendable-script-setup-component.vue';
 
 // Helper functions to test type safety, based on https://github.com/tsdjs/tsd
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -3366,5 +3367,224 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
         });
         /* eslint-enable jest/expect-expect */
+    });
+
+    /**
+     * The @vue/vue3-jest plugin does not work with the
+     * "vue$: '@vue/compat/dist/vue.cjs.js'" alias in the jest config.
+     *
+     * Therefore, we need to skip these tests for now and reactivte them
+     * once compat is removed.
+     *
+     * If you need to run these tests remove the alias in "moduleNameMapper"
+     * inside the jest config and remove global Vue registrations.
+     */
+    describe.skip('Script Setup usage', () => {
+        it('should be able to override refs in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+            });
+
+            expect(wrapper.find('.base').text()).toContain('Base: 1');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', () => {
+                return {
+                    baseValue: ref(5),
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.find('.base').text()).toContain('Base: 5');
+        });
+
+        it('should be able to override reactive in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+            });
+
+            expect(wrapper.find('.deep').text()).toContain('Deep: deep');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', () => {
+                const newReactiveValue = reactive({
+                    very: {
+                        deep: {
+                            value: 'Hello from the override',
+                        },
+                    },
+                });
+
+                return {
+                    reactiveValue: newReactiveValue,
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.find('.deep').text()).toContain('Deep: Hello from the override');
+        });
+
+        it('should be able to override computed in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+            });
+
+            expect(wrapper.find('.multiplied').text()).toContain('Multiplied: 7');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', (previousState) => {
+                const newMultipliedValue = computed(() => previousState.multipliedValue.value * 6);
+
+                return {
+                    multipliedValue: newMultipliedValue,
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.find('.multiplied').text()).toContain('Multiplied: 42');
+        });
+
+        it('should be able to override methods in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+            });
+
+            expect(wrapper.find('.base').text()).toContain('Base: 1');
+
+            // Increment the value by 1
+            await wrapper.find('button.increment').trigger('click');
+
+            expect(wrapper.find('.base').text()).toContain('Base: 2');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', (previousState) => {
+                const newIncrement = () => {
+                    // Call previous increment function and add 10 more
+                    previousState.increment();
+                    previousState.baseValue.value += 10;
+                };
+
+                return {
+                    increment: newIncrement,
+                };
+            });
+
+            await flushPromises();
+
+            // Increment the value by 1 and then by 10
+            await wrapper.find('button.increment').trigger('click');
+
+            expect(wrapper.find('.base').text()).toContain('Base: 13');
+        });
+
+        it('should be able to access props in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+            });
+
+            expect(wrapper.find('.base').text()).toContain('Base: 1');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', (previousState, props) => {
+                // @ts-expect-error - multiplier is defined in the original setup
+                const newBaseValue = ref(props.multiplier * 10);
+
+                return {
+                    baseValue: newBaseValue,
+                };
+            });
+
+            await flushPromises();
+
+            // The base value should be 7 * 10 = 70, so it accesses the props correctly
+            expect(wrapper.find('.base').text()).toContain('Base: 70');
+        });
+
+        it('should be able to access context in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+                slots: {
+                    header: 'Original Header',
+                },
+                attrs: {
+                    title: 'Original Title',
+                },
+            });
+
+            expect(wrapper.find('.message').text()).toContain('Message: Original message');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', (previousState, props, context) => {
+                // Access slots
+                const headerSlot = context.slots.header;
+
+                // Access attrs
+                const title = (context.attrs.title as string) ?? '';
+
+                const newMessage = ref(`Overriden: Title: ${title}. Header slot filled: ${!!headerSlot}`);
+
+                return {
+                    message: newMessage,
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.find('.message').text()).toContain(
+                'Message: Overriden: Title: Original Title. Header slot filled: true',
+            );
+        });
+
+        it('should be able to access private values in script setup', async () => {
+            const originalComponent = ExampleExtendableScriptSetupComponent;
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 7,
+                },
+            });
+
+            expect(wrapper.find('.private').text()).toContain('Private: Very private stuff');
+
+            // Override the setup function
+            overrideComponentSetup()('originalComponent', () => {
+                const newPrivateStuff = ref('Overridden private stuff');
+
+                return {
+                    privateStuff: newPrivateStuff,
+                };
+            });
+
+            await flushPromises();
+
+            expect(wrapper.find('.private').text()).toContain('Private: Overridden');
+        });
     });
 });

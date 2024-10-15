@@ -5,3 +5,4 @@ scripts/**/*
 test/eslint/error-reference.html.twig
 *.spec.vue2.js
 *.fixtures.js
+src/app/adapter/_mocks_/example-extendable-script-setup-component.vue

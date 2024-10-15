@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
+use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -30,10 +31,16 @@ class ProductUpdater implements EventSubscriberInterface
     {
         return [
             ProductIndexerEvent::class => 'update',
+            ProductStockAlteredEvent::class => 'stockUpdate',
         ];
     }
 
     public function update(ProductIndexerEvent $event): void
+    {
+        $this->indexer->updateIds($this->definition, $event->getIds());
+    }
+
+    public function stockUpdate(ProductStockAlteredEvent $event): void
     {
         $this->indexer->updateIds($this->definition, $event->getIds());
     }

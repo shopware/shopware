@@ -36,19 +36,11 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
         initState(Shopware);
 
-        if (Shopware.State.get('extensionEntryRoutes')) {
-            Shopware.State.unregisterModule('extensionEntryRoutes');
-        }
-        Shopware.State.registerModule('extensionEntryRoutes', {
-            namespaced: true,
-            state: {
-                routes: {
-                    ExamplePlugin: {
-                        route: 'test.foo',
-                    },
-                },
+        Shopware.Store.get('extensionEntryRoutes').routes = {
+            ExamplePlugin: {
+                route: 'test.foo',
             },
-        });
+        };
     });
 
     describe('it delegates lifecycle methods', () => {

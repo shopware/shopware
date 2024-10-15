@@ -10,7 +10,6 @@ based on: https://github.com/ganlanyuan/tiny-slider
     position: relative;
     overflow: hidden;
 
-    // styling works both for auto generated markup by the tiny-slider and normal template markup
     .tns-nav,
     .base-slider-dots {
         position: absolute;
@@ -44,9 +43,9 @@ based on: https://github.com/ganlanyuan/tiny-slider
         }
     }
 
-    // moves navigation dots outside the slider item
+    // Moves navigation dots outside the slider item
     &.has-dots-outside {
-        padding-bottom: 35px;
+        padding-bottom: 40px;
 
         .tns-nav,
         .base-slider-dots {

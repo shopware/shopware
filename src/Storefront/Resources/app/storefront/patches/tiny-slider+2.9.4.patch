@@ -1,5 +1,5 @@
 diff --git a/node_modules/tiny-slider/dist/tiny-slider.js b/node_modules/tiny-slider/dist/tiny-slider.js
-index 1b5d912..d9c52b6 100644
+index 1b5d912..8a167a1 100644
 --- a/node_modules/tiny-slider/dist/tiny-slider.js
 +++ b/node_modules/tiny-slider/dist/tiny-slider.js
 @@ -563,7 +563,8 @@ var tns = function (options) {
@@ -92,3 +92,21 @@ index 1b5d912..d9c52b6 100644
          addClass(navCurrent, navActiveClass);
          navCurrentIndexCached = navCurrentIndex;
        }
+@@ -3483,14 +3492,14 @@ var tns = function (options) {
+ 
+       if (!horizontal || fixedWidth || autoWidth) {
+         x += dist;
+-        x += 'px';
++        var xUnit = x + 'px';
+       } else {
+         var percentageX = TRANSFORM ? dist * items * 100 / ((viewport + gutter) * slideCountNew) : dist * 100 / (viewport + gutter);
+         x += percentageX;
+-        x += '%';
++        var xUnit = x + '%';
+       }
+ 
+-      container.style[transformAttr] = transformPrefix + x + transformPostfix;
++      container.style[transformAttr] = transformPrefix + xUnit + transformPostfix;
+     }
+   }
+ 

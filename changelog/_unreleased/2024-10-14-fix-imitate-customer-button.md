@@ -1,6 +1,6 @@
 ---
 title: Fix imitate customer button
-issue: NEXT-00000
+issue: NEXT-38948
 author: Benjamin Wittwer
 author_email: benjamin.wittwer@a-k-f.de
 author_github: akf-bw

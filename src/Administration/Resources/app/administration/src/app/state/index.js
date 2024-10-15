@@ -11,7 +11,6 @@ import licenseViolation from './license-violation.store';
 import error from './error.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
-import extensionEntryRoutes from './extension-entry-routes';
 import marketing from './marketing.store';
 import extensions from './extensions.store';
 import tabs from './tabs.store';
@@ -35,7 +34,6 @@ export default {
     error,
     settingsItems,
     shopwareApps,
-    extensionEntryRoutes,
     marketing,
     extensions,
     tabs,

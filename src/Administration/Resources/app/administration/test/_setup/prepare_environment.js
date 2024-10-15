@@ -56,6 +56,7 @@ import '../../src/app/store/teaser-popover.store';
 import '../../src/app/store/topbar-button.store';
 import '../../src/app/store/admin-menu.store';
 import '../../src/app/store/extension-component-sections.store';
+import '../../src/app/store/extension-entry-routes.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

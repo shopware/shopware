@@ -182,7 +182,7 @@ export default class ShopwareExtensionService {
         }
 
         /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
-        const entryRoutes = Shopware.State.get('extensionEntryRoutes').routes;
+        const entryRoutes = Shopware.Store.get('extensionEntryRoutes').routes;
 
         if (entryRoutes[extension.name] !== undefined) {
             return {

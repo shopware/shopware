@@ -551,7 +551,7 @@ function addEntryRouteToExtensionRouteStore(config: { extensionName: string; rou
         return;
     }
 
-    Shopware.State.commit('extensionEntryRoutes/addItem', config);
+    Shopware.Store.get('extensionEntryRoutes').addItem(config);
 }
 
 /**

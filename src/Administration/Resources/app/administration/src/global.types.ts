@@ -96,6 +96,7 @@ import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
 import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
+import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -336,7 +337,6 @@ declare global {
         modals: ModalsState;
         actionButtons: ActionButtonState;
         shopwareExtensions: ShopwareExtensionsState;
-        extensionEntryRoutes: $TSFixMe;
         shopwareApps: ShopwareAppsState;
         sdkLocation: SdkLocationState;
         usageData: UsageDataModuleState;
@@ -350,6 +350,7 @@ declare global {
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
         extensionComponentSections: ExtensionComponentSectionsStore;
+        extensionEntryRoutes: ExtensionEntryRoutes;
     }
 
     /**

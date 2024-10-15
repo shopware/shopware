@@ -1,5 +1,6 @@
 import Store from 'src/app/store';
 import '../store/admin-menu.store';
+import 'src/app/store/extension-entry-routes.store';
 
 /**
  * @package admin

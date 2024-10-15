@@ -21,7 +21,7 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should initialized all state modules', () => {
-        expect(Shopware.State.list()).toHaveLength(22);
+        expect(Shopware.State.list()).toHaveLength(21);
 
         expect(Shopware.State.get('notification')).toBeDefined();
         expect(Shopware.State.get('session')).toBeDefined();
@@ -31,7 +31,6 @@ describe('src/app/init-pre/state.init.ts', () => {
         expect(Shopware.State.get('error')).toBeDefined();
         expect(Shopware.State.get('settingsItems')).toBeDefined();
         expect(Shopware.State.get('shopwareApps')).toBeDefined();
-        expect(Shopware.State.get('extensionEntryRoutes')).toBeDefined();
         expect(Shopware.State.get('marketing')).toBeDefined();
         expect(Shopware.State.get('extensions')).toBeDefined();
         expect(Shopware.State.get('tabs')).toBeDefined();

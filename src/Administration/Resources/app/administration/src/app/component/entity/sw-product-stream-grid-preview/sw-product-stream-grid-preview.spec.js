@@ -30,12 +30,6 @@ const mockProducts = [
     },
 ];
 
-mockProducts.total = 4;
-mockProducts.criteria = {
-    page: 1,
-    limit: 25,
-};
-
 const mockCurrency = {
     id: 'uuid1337',
     name: 'Euro',
@@ -90,9 +84,23 @@ const createWrapper = async () => {
                         create: () => ({
                             get: () => Promise.resolve(mockCurrency),
                             search: () => Promise.resolve(mockProducts),
+                            searchIds: () =>
+                                Promise.resolve({
+                                    total: 1,
+                                    data: ['b3faca3079184aca8113494690736d76'],
+                                }),
                         }),
                     },
                     validationService: {},
+                    productStreamPreviewService: {
+                        preview: () =>
+                            Promise.resolve({
+                                elements: mockProducts,
+                                total: 4,
+                                page: 1,
+                                limit: 10,
+                            }),
+                    },
                 },
                 attachTo: document.body,
             },
@@ -120,7 +128,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     });
 
     it('should load products with correct criteria when filters are being set', async () => {
-        const spyLoadProducts = jest.spyOn(wrapper.vm, 'loadProducts');
+        const spyPreviewProduct = jest.spyOn(wrapper.vm.productStreamPreviewService, 'preview');
 
         await wrapper.setProps({
             filters: mockFilter,
@@ -140,9 +148,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(spyLoadProducts).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.products).toStrictEqual(mockProducts);
-        expect(wrapper.vm.total).toBe(mockProducts.total);
+        expect(spyPreviewProduct).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.systemCurrency).toStrictEqual(mockCurrency);
         expect(wrapper.vm.filters).toStrictEqual(mockFilter);
         expect(wrapper.vm.criteria.filters).toEqual([

@@ -8,8 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
+use Shopware\Core\Content\Sitemap\Service\SitemapHandleInterface;
+use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,11 +23,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -201,6 +207,55 @@ class SitemapExporterTest extends TestCase
 
             static::assertCount(1, iterator_to_array($files));
         }
+    }
+
+    public function testGenerationWithSlashes(): void
+    {
+        $url1 = new Url();
+        $url1->setLoc('/test-with-slash');
+        $url1->setLastmod(new \DateTime());
+        $url1->setChangefreq('daily');
+
+        $url2 = new Url();
+        $url2->setLoc('test-without-slash');
+        $url2->setLastmod(new \DateTime());
+        $url2->setChangefreq('daily');
+
+        $urls = [$url1, $url2];
+
+        $handler = $this->createMock(AbstractUrlProvider::class);
+        $handler->expects(static::once())->method('getUrls')->willReturn(new UrlResult($urls, null));
+
+        $factory = $this->createMock(SitemapHandleFactoryInterface::class);
+        $sitemapHandleMock = $this->createMock(SitemapHandleInterface::class);
+        $sitemapHandleMock->expects(static::once())->method('write')->willReturnCallback(function (array $urls): void {
+            static::assertCount(2, $urls);
+            static::assertInstanceOf(Url::class, $urls[0]);
+            static::assertInstanceOf(Url::class, $urls[1]);
+            static::assertSame('https://test.com/de/test-with-slash', $urls[0]->getLoc());
+            static::assertSame('https://test.com/de/test-without-slash', $urls[1]->getLoc());
+        });
+
+        $factory->expects(static::once())->method('create')->willReturn($sitemapHandleMock);
+
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
+
+        $exporter = new SitemapExporter(
+            [$handler],
+            $cache,
+            10,
+            $this->createMock(FilesystemOperator::class),
+            $factory,
+            $this->createMock(EventDispatcher::class)
+        );
+
+        $salesChannel = Generator::createSalesChannelContext();
+        $salesChannel->getSalesChannel()->setDomains(new SalesChannelDomainCollection([
+            (new SalesChannelDomainEntity())->assign(['id' => '11', 'url' => 'https://test.com/de', 'languageId' => Defaults::LANGUAGE_SYSTEM]),
+        ]));
+
+        $exporter->generate($salesChannel);
     }
 
     private function createCacheItem(string $key, ?bool $value, ?bool $isHit): CacheItemInterface

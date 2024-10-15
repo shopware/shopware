@@ -4,7 +4,7 @@ import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
 
 /**
- * @experimental stableVersion:v6.7.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  * @package admin
  *
  * Extendable Setup Utility for Vue Components
@@ -33,7 +33,7 @@ import type { SetupContext, PublicProps } from '@vue/runtime-core';
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 declare global {
     /**
-     * @experimental stableVersion:v6.7.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+     * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
      *
      * This interface defines the public API mapping for each component that can be extended.
      * It will be used to get the correct types for the overrides and to ensure that the
@@ -125,7 +125,7 @@ const checkNestedStructure = ({
 type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends never ? T : never) : never;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  * Main function to extend the setup of a component
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -332,7 +332,7 @@ type ExtractedProps<T> = Omit<
 >;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  * Function to add an override for a specific component
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -39,6 +39,13 @@ Component.register('sw-admin', {
         isLoggedIn() {
             return this.loginService.isLoggedIn();
         },
+
+        /**
+         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         */
+        overrideComponents() {
+            return Component.getOverrideComponents();
+        },
     },
 
     created() {

@@ -5,14 +5,20 @@ framework:
   secret: ''
   default_locale: en
   http_method_override: false
+  handle_all_throwables: true
   translator:
     fallbacks: [ 'en' ]
     cache_dir: null
     default_path: '%kernel.project_dir%/Resources/translations'
   session:
     name: 'shopware-recovery'
+    handler_id: ~
     cookie_secure: auto
     cookie_samesite: strict
+  validation:
+    email_validation_mode: html5
+  php_errors:
+    log: true
 
 twig:
   cache: false

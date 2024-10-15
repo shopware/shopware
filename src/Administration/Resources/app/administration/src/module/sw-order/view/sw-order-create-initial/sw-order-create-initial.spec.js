@@ -34,6 +34,9 @@ async function createWrapper(customerId = null) {
                     },
                 },
             },
+            stubs: {
+                'sw-order-create-initial-modal': true,
+            },
         },
     });
 }
@@ -86,8 +89,10 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
         await flushPromises();
 
         const customer = Shopware.State.get('swOrder').customer;
-        expect(customer).toEqual(expect.objectContaining({
-            id: '1234',
-        }));
+        expect(customer).toEqual(
+            expect.objectContaining({
+                id: '1234',
+            }),
+        );
     });
 });

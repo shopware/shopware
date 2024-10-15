@@ -1,11 +1,6 @@
 name: Storefront checks and tests
 
 on:
-  push:
-    branches:
-      - 6.5.x
-    paths:
-      - src/Storefront/Resources/app/storefront/**/*
   pull_request:
     paths:
       - src/Storefront/Resources/app/storefront/**/*

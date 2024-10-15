@@ -1,9 +1,6 @@
 name: PHP checks
 
 on:
-  push:
-    branches:
-      - 6.5.x
   pull_request:
     paths:
       - '**/composer.json'

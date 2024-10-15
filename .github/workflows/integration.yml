@@ -1,9 +1,6 @@
 name: Integration tests
 
 on:
-  push:
-    branches:
-      - 6.5.x
   pull_request:
   workflow_dispatch:
   workflow_call:

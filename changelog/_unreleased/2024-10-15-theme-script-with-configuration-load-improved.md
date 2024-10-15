@@ -6,4 +6,4 @@ author_email: raffaele.carelle@gmail.com
 author_github: @raffaelecarelle
 ---
 # Storefront
-* Use `AbstractConfigLoader` component inside `ThemeScript` to load theme configuration
+* Changed `ThemeScript` component to use `AbstractConfigLoader`  to load theme configuration

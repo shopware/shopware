@@ -362,7 +362,6 @@ const missingTests = [
     'src/module/sw-order/mixin/cart-notification.mixin.ts',
     'src/module/sw-order/order.types.ts',
     'src/module/sw-order/state/order.store.ts',
-    'src/module/sw-order/view/sw-order-create-initial/index.js',
     'src/module/sw-order/view/sw-order-detail-documents/index.js',
     'src/module/sw-privilege-error/index.js',
     'src/module/sw-product/component/sw-product-basic-form/index.js',

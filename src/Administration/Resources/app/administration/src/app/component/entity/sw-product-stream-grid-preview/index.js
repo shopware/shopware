@@ -1,7 +1,7 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context } = Shopware;
+const { Component, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -12,7 +12,10 @@ Component.register('sw-product-stream-grid-preview', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'productStreamPreviewService',
+    ],
 
     emits: ['selection-change'],
 
@@ -64,6 +67,20 @@ Component.register('sw-product-stream-grid-preview', {
 
         currencyRepository() {
             return this.repositoryFactory.create('currency');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannelCriteria() {
+            return new Criteria(1, 1)
+                .addFilter(
+                    Criteria.not('OR', [
+                        Criteria.equals('typeId', Defaults.productComparisonTypeId),
+                    ]),
+                )
+                .addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
         defaultColumns() {
@@ -185,15 +202,17 @@ Component.register('sw-product-stream-grid-preview', {
                 ]),
             );
 
-            return this.productRepository
-                .search(this.criteria, {
-                    ...Context.api,
-                    inheritance: true,
+            return this.salesChannelRepository
+                .searchIds(this.salesChannelCriteria)
+                .then(({ data }) => {
+                    return this.productStreamPreviewService.preview(data.at(0), this.criteria, [], {
+                        'sw-currency-id': Context.app.systemCurrencyId,
+                        'sw-inheritance': true,
+                    });
                 })
-                .then((products) => {
-                    this.products = products;
-                    this.total = products.total;
-
+                .then((result) => {
+                    this.products = Object.values(result.elements);
+                    this.total = result.total;
                     this.isLoading = false;
                 });
         },

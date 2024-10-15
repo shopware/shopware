@@ -205,7 +205,7 @@ export default {
         createdComponent() {
             this.initElementConfig('product-listing');
 
-            if (Shopware.Utils.types.isEmpty(this.productSortingsConfigValue)) {
+            if (Object.keys(this.productSortingsConfigValue).length === 0) {
                 this.productSortings = new EntityCollection(
                     this.productSortingRepository.route,
                     this.productSortingRepository.schema.entity,

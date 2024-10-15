@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -23,7 +24,8 @@ readonly class ThemeScripts
         private ThemeFileResolver $themeFileResolver,
         private RequestStack $requestStack,
         private AbstractThemePathBuilder $themePathBuilder,
-        private CacheInterface $cache
+        private CacheInterface $cache,
+        private AbstractConfigLoader $configLoader,
     ) {
     }
 
@@ -48,14 +50,11 @@ readonly class ThemeScripts
         }
 
         $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         $path = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
-        return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeName) {
-            $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($themeName);
-
-            if ($themeConfig === null) {
-                return [];
-            }
+        return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeId, $context) {
+            $themeConfig = $this->configLoader->load($themeId, $context);
 
             $resolvedFiles = $this->themeFileResolver->resolveFiles(
                 $themeConfig,

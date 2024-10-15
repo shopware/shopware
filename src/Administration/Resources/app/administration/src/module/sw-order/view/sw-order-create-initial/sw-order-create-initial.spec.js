@@ -66,8 +66,8 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
     });
 
     it('should not load a customer if no customerId query parameter has been passed', async () => {
-        wrapper = await createWrapper();
         wrapper.vm.customerRepository.get = jest.fn();
+        wrapper.vm.createdComponent();
         await flushPromises();
 
         expect(wrapper.vm.customerRepository.get).not.toHaveBeenCalled();

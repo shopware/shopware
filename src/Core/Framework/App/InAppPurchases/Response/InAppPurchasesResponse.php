@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class InAppPurchasesResponse extends Struct
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $purchases = [];
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPurchases(): array
     {
@@ -25,7 +25,7 @@ class InAppPurchasesResponse extends Struct
     }
 
     /**
-     * @param array<string> $purchases
+     * @param list<string> $purchases
      */
     public function setPurchases(array $purchases): void
     {

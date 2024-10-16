@@ -18,12 +18,12 @@ class InAppPurchasesPayload implements SourcedPayloadInterface
     private Source $source;
 
     /**
-     * @var list<string>
+     * @var array<int, string>
      */
     private array $purchases;
 
     /**
-     * @param list<string> $purchases
+     * @param array<int, string> $purchases
      */
     public function __construct(array $purchases)
     {
@@ -31,7 +31,7 @@ class InAppPurchasesPayload implements SourcedPayloadInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<int, string>
      */
     public function getPurchases(): array
     {
@@ -39,7 +39,7 @@ class InAppPurchasesPayload implements SourcedPayloadInterface
     }
 
     /**
-     * @param list<string> $purchases
+     * @param array<int, string> $purchases
      */
     public function setPurchases(array $purchases): void
     {

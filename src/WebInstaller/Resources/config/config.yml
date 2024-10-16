@@ -5,7 +5,7 @@ framework:
   secret: ''
   default_locale: en
   http_method_override: false
-  handle_all_throwables: true
+  handle_all_throwables: false
   translator:
     fallbacks: [ 'en' ]
     cache_dir: null
@@ -16,9 +16,10 @@ framework:
     cookie_secure: auto
     cookie_samesite: strict
   validation:
+    enabled: false
     email_validation_mode: html5
   php_errors:
-    log: true
+    log: false
 
 twig:
   cache: false

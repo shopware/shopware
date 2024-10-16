@@ -34,7 +34,7 @@ class UseHasherRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isInTestClass($scope) || $this->isInWebInstaller($scope)) {
+        if ($this->isInTestClass($scope) || $this->isInWebInstaller($scope) || str_contains($scope->getFile(), '/tests/')) {
             // if in a test namespace, don't care
             return [];
         }

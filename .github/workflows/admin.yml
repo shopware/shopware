@@ -1,11 +1,6 @@
 name: Admin checks and tests
 
 on:
-  push:
-    branches:
-      - trunk
-    paths:
-      - src/Administration/Resources/app/administration/**/*
   pull_request:
     paths:
       - src/Administration/Resources/app/administration/**/*

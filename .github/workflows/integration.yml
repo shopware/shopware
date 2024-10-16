@@ -24,7 +24,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     steps:
       - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+        uses: shopware/setup-shopware@9a52090478926f58ee7bfd6d6692b7ee046c18c9
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
@@ -271,7 +271,7 @@ jobs:
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
     steps:
       - name: Create shopware dirs
-        run: mkdir -p old-shopware new-shopware 
+        run: mkdir -p old-shopware new-shopware
       - name: Setup new Shopware
         uses: shopware/setup-shopware@main
         env:
@@ -290,7 +290,7 @@ jobs:
           composer run build:js:admin
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
-          
+
           composer -d src/Core config version ${SW_RECOVERY_NEXT_VERSION}
           composer -d src/Administration config version ${SW_RECOVERY_NEXT_VERSION}
           composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}

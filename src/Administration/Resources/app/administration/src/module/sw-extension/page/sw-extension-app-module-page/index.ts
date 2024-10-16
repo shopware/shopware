@@ -82,7 +82,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showSmartBar(): boolean {
-            const { hiddenSmartBars } = State.get('extensionSdkModules');
+            const { hiddenSmartBars } = Shopware.Store.get('extensionSdkModules');
 
             // The moduleName is null if the module is navigated from the extension listing page!
             if (!this.moduleName) {

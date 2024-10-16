@@ -27,30 +27,32 @@ export default function initializeSettingItems(): void {
             group = settingsItemConfig.tab;
         }
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', {
-            heading: settingsItemConfig.label,
-            locationId: settingsItemConfig.locationId,
-            displaySearchBar: settingsItemConfig.displaySearchBar,
-            baseUrl: extension.baseUrl,
-        }).then((moduleId) => {
-            if (typeof moduleId !== 'string') {
-                return;
-            }
+        await Shopware.Store.get('extensionSdkModules')
+            .addModule({
+                heading: settingsItemConfig.label,
+                locationId: settingsItemConfig.locationId,
+                displaySearchBar: settingsItemConfig.displaySearchBar!,
+                baseUrl: extension.baseUrl,
+            })
+            .then((moduleId) => {
+                if (typeof moduleId !== 'string') {
+                    return;
+                }
 
-            Shopware.State.commit('settingsItems/addItem', {
-                group: group,
-                icon: settingsItemConfig.icon,
-                id: settingsItemConfig.locationId,
-                label: settingsItemConfig.label,
-                name: settingsItemConfig.locationId,
-                to: {
-                    name: 'sw.extension.sdk.index',
-                    params: {
-                        id: moduleId,
-                        back: `sw.settings.index.${group}`,
+                Shopware.State.commit('settingsItems/addItem', {
+                    group: group,
+                    icon: settingsItemConfig.icon,
+                    id: settingsItemConfig.locationId,
+                    label: settingsItemConfig.label,
+                    name: settingsItemConfig.locationId,
+                    to: {
+                        name: 'sw.extension.sdk.index',
+                        params: {
+                            id: moduleId,
+                            back: `sw.settings.index.${group}`,
+                        },
                     },
-                },
+                });
             });
-        });
     });
 }

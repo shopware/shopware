@@ -37,7 +37,6 @@ import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import type { MenuItemState } from './app/state/menu-item.store';
 import type { ModalsState } from './app/state/modals.store';
-import type { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
 import type { MainModuleState } from './app/state/main-module.store';
 import type { ActionButtonState } from './app/state/action-button.store';
 import type StoreApiService from './core/service/api/store.api.service';
@@ -97,6 +96,7 @@ import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.s
 import type { CmsService } from './module/sw-cms/service/cms.service';
 import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
 import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';
+import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -332,7 +332,6 @@ declare global {
         };
         swCategoryDetail: $TSFixMe;
         menuItem: MenuItemState;
-        extensionSdkModules: ExtensionSdkModuleState;
         extensionMainModules: MainModuleState;
         modals: ModalsState;
         actionButtons: ActionButtonState;
@@ -351,6 +350,7 @@ declare global {
         inAppPurchaseCheckout: InAppPurchasesStore;
         extensionComponentSections: ExtensionComponentSectionsStore;
         extensionEntryRoutes: ExtensionEntryRoutes;
+        extensionSdkModules: ExtensionSdkModules;
     }
 
     /**

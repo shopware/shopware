@@ -133,7 +133,6 @@ const missingTests = [
     'src/app/service/shortcut.service.js',
     'src/app/state/action-button.store.ts',
     'src/app/state/context.store.ts',
-    'src/app/state/extension-sdk-module.store.ts',
     'src/app/state/extensions.store.ts',
     'src/app/state/index.js',
     'src/app/state/license-violation.store.js',

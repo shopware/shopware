@@ -53,7 +53,7 @@ export default function initializeContext(): void {
         }
 
         // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        const modules = Shopware.State.getters['extensionSdkModules/getRegisteredModuleInformation'](
+        const modules = Shopware.Store.get('extensionSdkModules').getRegisteredModuleInformation(
             extension.baseUrl,
         ) as Array<{
             displaySearchBar: boolean;

@@ -139,7 +139,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
         expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
 
-        Shopware.State.commit('extensionSdkModules/addHiddenSmartBar', 'standardModule');
+        Shopware.Store.get('extensionSdkModules').addHiddenSmartBar('standardModule');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();

@@ -13,7 +13,7 @@
                           placeholder="{{ placeholder|trans }}"
                           {% if rows %}rows="{{ rows }}"{% endif %}
                           {% if required %}required="required"{% endif %}
-                          class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) %} is-invalid{% endif %}">
+                          class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) is not empty %} is-invalid{% endif %}">
                     {{ data.get(fieldName) }}
                 </textarea>
             {% endapply %}

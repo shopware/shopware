@@ -17,7 +17,7 @@ describe('src/app/init/settings-item.init.ts', () => {
             writable: true,
             configurable: true,
         });
-        Shopware.State.get('extensionSdkModules').modules = [];
+        Shopware.Store.get('extensionSdkModules').modules = [];
         Shopware.State.get('settingsItems').settingsGroups = {
             shop: [],
             system: [],
@@ -34,6 +34,9 @@ describe('src/app/init/settings-item.init.ts', () => {
             integrationId: '123',
             active: true,
         });
+
+        // Clear mocks
+        jest.clearAllMocks();
     });
 
     it('should handle the settingsItemAdd requests', async () => {
@@ -45,8 +48,8 @@ describe('src/app/init/settings-item.init.ts', () => {
             tab: 'system',
         });
 
-        expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(1);
-        expect(Shopware.State.get('extensionSdkModules').modules[0]).toEqual({
+        expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(1);
+        expect(Shopware.Store.get('extensionSdkModules').modules[0]).toEqual({
             baseUrl: '',
             displaySearchBar: true,
             heading: 'App Settings',
@@ -79,8 +82,8 @@ describe('src/app/init/settings-item.init.ts', () => {
             displaySearchBar: true,
         });
 
-        expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(1);
-        expect(Shopware.State.get('extensionSdkModules').modules[0]).toEqual({
+        expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(1);
+        expect(Shopware.Store.get('extensionSdkModules').modules[0]).toEqual({
             baseUrl: '',
             displaySearchBar: true,
             heading: 'App Settings',
@@ -114,8 +117,8 @@ describe('src/app/init/settings-item.init.ts', () => {
             tab: 'not-allowed',
         });
 
-        expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(1);
-        expect(Shopware.State.get('extensionSdkModules').modules[0]).toEqual({
+        expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(1);
+        expect(Shopware.Store.get('extensionSdkModules').modules[0]).toEqual({
             baseUrl: '',
             displaySearchBar: true,
             heading: 'App Settings',
@@ -153,11 +156,11 @@ describe('src/app/init/settings-item.init.ts', () => {
             });
         }).rejects.toThrow(new Error('Extension with the origin "" not found.'));
 
-        expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(0);
+        expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(0);
     });
 
     it('should not commit the extension when moduleID could not be generated', async () => {
-        jest.spyOn(Shopware.State, 'dispatch').mockImplementationOnce(() => {
+        jest.spyOn(Shopware.Store.get('extensionSdkModules'), 'addModule').mockImplementationOnce(() => {
             return Promise.resolve(null);
         });
 
@@ -169,6 +172,6 @@ describe('src/app/init/settings-item.init.ts', () => {
             tab: 'plugins',
         });
 
-        expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(0);
+        expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(0);
     });
 });

@@ -166,9 +166,17 @@ const assetsPluginInstance = new AssetsPlugin({
     fileTypes: ['js', 'css'],
     includeAllFileTypes: false,
     fullPath: true,
-    path: path.resolve(__dirname, 'v_dist'),
     prettyPrint: true,
+
+    // The path is virtual as the file only exists in memory (virtual dist)
+    path: path.resolve(__dirname, 'v_dist'),
     keepInMemory: true,
+
+    // Fix: Admin watch failed without Storefront due to missing "sw-plugin-dev.json".
+    // Writing metadata even for empty plugins resolves this.
+    // @see application.ts@688
+    metadata: 'shopware',
+
     processOutput: function filterAssetsOutput(output) {
         const filteredOutput = { ...output };
 

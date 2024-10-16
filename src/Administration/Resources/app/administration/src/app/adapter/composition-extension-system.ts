@@ -1,5 +1,5 @@
 import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
-import { computed, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
+import { computed, getCurrentInstance, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { SetupContext, PublicProps } from '@vue/runtime-core';
 
@@ -119,6 +119,25 @@ const checkNestedStructure = ({
     return result;
 };
 
+const getComponentContext = (): SetupContext => {
+    // Get the component instance
+    const instance = getCurrentInstance();
+
+    // Construct a context object
+    return (
+        // @ts-expect-error - "setupContext" is available in the instance when using the setup function
+        instance?.setupContext ??
+        ({
+            attrs: instance?.attrs,
+            slots: instance?.slots,
+            emit: instance?.emit,
+            expose: () => {
+                console.error('expose is not available in the current context');
+            },
+        } as SetupContext)
+    );
+};
+
 /**
  * This utility type is used to require the the exact shape of a type.
  */
@@ -139,7 +158,7 @@ export function createExtendableSetup<
     options: {
         name: COMPONENT_NAME;
         props: PROPS;
-        context: CONTEXT;
+        context?: CONTEXT;
     },
     originalSetup: (
         props: PROPS,
@@ -149,8 +168,9 @@ export function createExtendableSetup<
         private?: PRIVATE_SETUP_RESULT;
     },
 ): ToRefs<Reactive<Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT>> {
+    const componentContext = options.context ? options.context : (getComponentContext() as CONTEXT);
     // Call the original setup function
-    const originalSetupResultRaw = originalSetup(options.props, options.context);
+    const originalSetupResultRaw = originalSetup(options.props, componentContext);
 
     // Stop execution and throw an error if the original setup function does not return a public or private property
     if (!originalSetupResultRaw.public && !originalSetupResultRaw.private) {
@@ -245,7 +265,7 @@ export function createExtendableSetup<
             }, {}) as PRIVATE_SETUP_RESULT;
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
-            const overrideResult = override({ ...previousStateResultForExtensions }, options.props, options.context);
+            const overrideResult = override({ ...previousStateResultForExtensions }, options.props, componentContext);
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {

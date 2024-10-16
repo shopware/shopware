@@ -16,7 +16,6 @@ use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -33,7 +32,7 @@ class SaleChannelsReadinessCheck extends BaseCheck
     public function __construct(
         private readonly Kernel $kernel,
         private readonly RouterInterface $router,
-        private readonly Connection $connection,
+        protected readonly Connection $connection,
         private readonly RequestStack $requestStack
     ) {
     }
@@ -62,6 +61,22 @@ class SaleChannelsReadinessCheck extends BaseCheck
         return SystemCheckExecutionContext::readiness();
     }
 
+    /**
+     * @return array<string>
+     */
+    protected function fetchSalesChannelDomains(): array
+    {
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT `url` FROM `sales_channel_domain`
+                    INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
+                    WHERE `sales_channel`.`type_id` = :typeId
+                    AND `sales_channel`.`active` = :active',
+            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
+        );
+
+        return array_map(fn (array $row): string => $row['url'], $result);
+    }
+
     private function doRun(): Result
     {
         $domains = $this->fetchSalesChannelDomains();
@@ -71,7 +86,7 @@ class SaleChannelsReadinessCheck extends BaseCheck
             $url = $this->generateDomainUrl($domain);
             $request = Request::create($url);
             $requestStart = microtime(true);
-            $response = $this->kernel->handle($request, HttpKernelInterface::SUB_REQUEST);
+            $response = $this->kernel->handle($request);
             $responseTime = microtime(true) - $requestStart;
             $status = $response->getStatusCode() >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
             $requestStatus[$status->name] = $status;
@@ -112,22 +127,6 @@ class SaleChannelsReadinessCheck extends BaseCheck
         } finally {
             $mainRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, $hasSalesChannelRequest);
         }
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function fetchSalesChannelDomains(): array
-    {
-        $result = $this->connection->fetchAllAssociative(
-            'SELECT `url` FROM `sales_channel_domain`
-                    INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
-                    WHERE `sales_channel`.`type_id` = :typeId
-                    AND `sales_channel`.`active` = :active',
-            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
-        );
-
-        return array_map(fn (array $row): string => $row['url'], $result);
     }
 
     private function generateDomainUrl(string $url): string

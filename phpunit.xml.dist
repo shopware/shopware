@@ -20,6 +20,7 @@
             <directory suffix=".php">src/Core/Maintenance</directory>
             <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Core/Installer</directory>
+            <directory suffix=".php">src/Core/Service</directory>
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>

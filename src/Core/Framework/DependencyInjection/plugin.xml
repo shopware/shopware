@@ -7,7 +7,6 @@
     <services>
         <service id="maker.auto_command.abstract" class="Shopware\Core\Framework\Plugin\Command\MakerCommand" abstract="true">
             <argument /> <!-- maker -->
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
         </service>

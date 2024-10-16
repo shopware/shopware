@@ -110,7 +110,7 @@ class SalesChannelContextServiceTest extends TestCase
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects(static::once())
             ->method('dispatch')
-            ->with(new SalesChannelContextCreatedEvent($context, $token));
+            ->with(new SalesChannelContextCreatedEvent($context, $token, $session));
 
         $service = new SalesChannelContextService(
             $factory,

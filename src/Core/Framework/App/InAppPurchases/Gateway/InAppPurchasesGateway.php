@@ -15,17 +15,17 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('checkout')]
-readonly class InAppPurchasesGateway
+class InAppPurchasesGateway
 {
     public function __construct(
-        private AppEntity $app,
-        private Context $context,
-        private InAppPurchasesPayloadService $payloadService,
-        private EventDispatcherInterface $eventDispatcher,
+        readonly private AppEntity $app,
+        readonly private Context $context,
+        readonly private InAppPurchasesPayloadService $payloadService,
+        readonly private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
-    public function process(InAppPurchasesPayload $payload): ?InAppPurchasesResponse
+    public function process(InAppPurchasesPayload $payload): InAppPurchasesResponse
     {
         $response = $this->payloadService->request($payload, $this->app, $this->context);
 

@@ -128,6 +128,6 @@ describe('src/app/init/modals.init.ts', () => {
             });
         }).rejects.toThrow(new Error('Extension with the origin "" not found.'));
 
-        expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(0);
+        expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(0);
     });
 });

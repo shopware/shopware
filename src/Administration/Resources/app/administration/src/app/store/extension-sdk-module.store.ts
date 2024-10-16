@@ -1,10 +1,7 @@
 /**
  * @package admin
- * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
+ * @private
  */
-/* Is covered by E2E tests */
-/* istanbul ignore file */
-import type { Module } from 'vuex';
 import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -21,13 +18,13 @@ export type ExtensionSdkModule = {
 interface ExtensionSdkModuleState {
     modules: ExtensionSdkModule[];
 
-    smartBarButtons: smartBarButtonAdd[];
+    smartBarButtons: Omit<smartBarButtonAdd, 'responseType'>[];
 
     hiddenSmartBars: string[];
 }
 
-const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = {
-    namespaced: true,
+const extensionSdkModules = Shopware.Store.register({
+    id: 'extensionSdkModules',
 
     state: (): ExtensionSdkModuleState => ({
         modules: [],
@@ -36,10 +33,21 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     }),
 
     actions: {
-        addModule(
-            { state },
-            { heading, locationId, displaySearchBar, displaySmartBar, displayLanguageSwitch, baseUrl }: ExtensionSdkModule,
-        ): Promise<string> {
+        addModule({
+            heading,
+            locationId,
+            displaySearchBar,
+            displaySmartBar,
+            displayLanguageSwitch,
+            baseUrl,
+        }: {
+            heading: ExtensionSdkModule['heading'];
+            locationId: ExtensionSdkModule['locationId'];
+            displaySearchBar: ExtensionSdkModule['displaySearchBar'];
+            displaySmartBar?: ExtensionSdkModule['displaySmartBar'];
+            displayLanguageSwitch?: ExtensionSdkModule['displayLanguageSwitch'];
+            baseUrl: ExtensionSdkModule['baseUrl'];
+        }): Promise<string> {
             const staticElements = {
                 heading,
                 locationId,
@@ -52,24 +60,22 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
             const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
 
             // Only push the module if it does not exist yet
-            if (!state.modules.some((module) => module.id === id)) {
-                state.modules.push({
+            if (!this.modules.some((module) => module.id === id)) {
+                this.modules.push({
                     id,
                     ...staticElements,
-                });
+                } as ExtensionSdkModule);
             }
 
             return Promise.resolve(id);
         },
-    },
 
-    mutations: {
-        addSmartBarButton(state, button: smartBarButtonAdd) {
-            state.smartBarButtons.push(button);
+        addSmartBarButton(button: Omit<smartBarButtonAdd, 'responseType'>) {
+            this.smartBarButtons.push(button);
         },
 
-        addHiddenSmartBar(state, locationId: string) {
-            state.hiddenSmartBars.push(locationId);
+        addHiddenSmartBar(locationId: string) {
+            this.hiddenSmartBars.push(locationId);
         },
     },
 
@@ -80,12 +86,14 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
                 return state.modules.filter((module) => module.baseUrl.startsWith(baseUrl));
             },
     },
-};
+});
 
 /**
  * @private
  */
-export default ExtensionSdkModuleStore;
+export type ExtensionSdkModules = ReturnType<typeof extensionSdkModules>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type { ExtensionSdkModuleState };
+/**
+ * @private
+ */
+export default extensionSdkModules;

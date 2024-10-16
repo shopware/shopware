@@ -82,7 +82,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('@slow should not time out with menu item', async () => {
-        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        const moduleId = await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
         expect(typeof moduleId).toBe('string');
         expect(moduleId).toBe(wrapper.vm.id);
 
@@ -93,7 +93,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('should show language switch', async () => {
-        await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
 
         expect(wrapper.findComponent('sw-language-switch-stub').exists()).toBe(true);
     });
@@ -101,8 +101,8 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     it('should show smart bar button', async () => {
         const spy = jest.fn();
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
-        Shopware.State.commit('extensionSdkModules/addSmartBarButton', {
+        await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
+        Shopware.Store.get('extensionSdkModules').addSmartBarButton({
             locationId: 'jest',
             buttonId: 'test-button-1',
             label: 'Test button 1',
@@ -140,7 +140,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
 
         mockModule.displaySmartBar = false;
-        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        const moduleId = await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
         await wrapper.setProps({
             id: moduleId,
         });

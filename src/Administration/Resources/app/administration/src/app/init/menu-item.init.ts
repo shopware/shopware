@@ -13,22 +13,24 @@ export default function initMenuItems(): void {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', {
-            heading: menuItemConfig.label,
-            locationId: menuItemConfig.locationId,
-            displaySearchBar: menuItemConfig.displaySearchBar,
-            displaySmartBar: menuItemConfig.displaySmartBar,
-            baseUrl: extension.baseUrl,
-        }).then((moduleId) => {
-            if (typeof moduleId !== 'string') {
-                return;
-            }
+        await Shopware.Store.get('extensionSdkModules')
+            .addModule({
+                heading: menuItemConfig.label,
+                locationId: menuItemConfig.locationId,
+                displaySearchBar: menuItemConfig.displaySearchBar!,
+                displaySmartBar: menuItemConfig.displaySmartBar,
+                baseUrl: extension.baseUrl,
+            })
+            .then((moduleId) => {
+                if (typeof moduleId !== 'string') {
+                    return;
+                }
 
-            Shopware.State.commit('menuItem/addMenuItem', {
-                ...menuItemConfig,
-                moduleId,
+                Shopware.State.commit('menuItem/addMenuItem', {
+                    ...menuItemConfig,
+                    moduleId,
+                });
             });
-        });
     });
 
     Shopware.ExtensionAPI.handle('menuCollapse', () => {

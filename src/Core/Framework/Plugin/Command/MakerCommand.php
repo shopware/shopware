@@ -7,23 +7,23 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 #[Package('core')]
 class MakerCommand extends Command
 {
     public function __construct(
         private readonly ScaffoldingGenerator $generator,
-        private readonly ScaffoldingCollector $scaffoldingCollector,
         private readonly ScaffoldingWriter $scaffoldingWriter,
-        private readonly PluginService $pluginService,
+        private readonly PluginService $pluginService
     ) {
         parent::__construct();
     }
@@ -54,7 +54,7 @@ class MakerCommand extends Command
                 continue;
             }
 
-            $value = $io->ask($argument->getDescription(), null, function ($value) {
+            $value = $io->ask($argument->getDescription(), null, function (mixed $value) {
                 if ($value === null || $value === '') {
                     // @phpstan-ignore-next-line RuntimeException is fine in console IO validators
                     throw new \RuntimeException('This value should not be blank');
@@ -100,13 +100,24 @@ class MakerCommand extends Command
                 $directory
             );
 
+            if (\method_exists($this->generator, 'disableAskConfirmQuestion')) {
+                $this->generator->disableAskConfirmQuestion();
+            }
+
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
-            $stubCollection = $this->scaffoldingCollector->collect($configuration);
+            $stubCollection = new StubCollection();
+            $this->generator->generateStubs($configuration, $stubCollection);
+
+            $configsStubs = $this->removeConfigsFromMainCollection($stubCollection);
 
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 
             $io->success('Scaffold created successfully');
+
+            foreach ($configsStubs as $stub) {
+                $io->warning(\sprintf('Remember to add this configuration %s to the file %s', $stub->getContent(), $configuration->directory . '/' . $stub->getPath()));
+            }
 
             return self::SUCCESS;
         } catch (\Throwable $exception) {
@@ -114,5 +125,23 @@ class MakerCommand extends Command
 
             return self::FAILURE;
         }
+    }
+
+    private function removeConfigsFromMainCollection(StubCollection $stubCollection): StubCollection
+    {
+        $configStubs = new StubCollection();
+        foreach ($stubCollection as $filename => $stub) {
+            if (str_starts_with($filename, 'src/Resources/config/')) {
+                $configStubs->add($stub);
+                $stubCollection->remove($stub->getPath());
+            }
+        }
+
+        return $configStubs;
+    }
+
+    private function isXml(string $filename): bool
+    {
+        return pathinfo($filename, \PATHINFO_EXTENSION) === XmlEncoder::FORMAT;
     }
 }

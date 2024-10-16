@@ -11,8 +11,9 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('core')]
 class ScaffoldingWriter
 {
-    public function __construct(private readonly Filesystem $filesystem)
-    {
+    public function __construct(
+        private readonly Filesystem $filesystem
+    ) {
     }
 
     public function write(StubCollection $stubCollection, PluginScaffoldConfiguration $configuration): void

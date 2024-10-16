@@ -55,10 +55,14 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
             return;
         }
 
-        if ($this->shouldAskCliQuestion && $io->confirm(self::CLI_QUESTION)) {
-            $config->addOption(self::OPTION_NAME, true);
-            $config->addOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME, true);
+        $proceed = true;
+
+        if ($this->shouldAskCliQuestion) {
+            $proceed = $io->confirm(self::CLI_QUESTION);
         }
+
+        $config->addOption(self::OPTION_NAME, $proceed);
+        $config->addOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME, $proceed);
     }
 
     public function generateStubs(

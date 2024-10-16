@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Command\MakerCommand;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -30,7 +29,7 @@ class MakerCommandTest extends TestCase
         $scaffoldingWriter->expects(static::once())
             ->method('write')
             ->with(static::callback(static function (StubCollection $stubCollection) {
-                $stub = $stubCollection->get('src/Resources/config/services.xml');
+                $stub = $stubCollection->get('src/Example/Service/Service.php');
 
                 return $stub !== null && str_contains($stub->getContent() ?? '', 'Dummy content');
             }), static::callback(static function (PluginScaffoldConfiguration $configuration) {
@@ -45,12 +44,11 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
-        $tester->setInputs(['ExamplePlugin']);
-        $res = $tester->execute([]);
+        $res = $tester->execute(['plugin-name' => 'ExamplePlugin']);
 
         static::assertEquals(Command::SUCCESS, $res);
     }
@@ -63,7 +61,7 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -85,7 +83,7 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -145,6 +143,6 @@ class DummyScaffoldingGenerator implements ScaffoldingGenerator
             return;
         }
 
-        $stubCollection->append('src/Resources/config/services.xml', 'Dummy content');
+        $stubCollection->append('src/Example/Service/Service.php', 'Dummy content');
     }
 }

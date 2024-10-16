@@ -98,6 +98,14 @@ There is a list of [hosting partners](https://www.shopware.com/en/partner/hostin
 
 We also provide a [web-based installer](https://www.shopware.com/en/download/), the [documentation](https://docs.shopware.com/en/shopware-6-en/first-steps/installing-shopware-6?category=shopware-6-en/getting-started) walks you through the necessary steps.
 
+### Self-Hosting
+
+#### Elestio
+
+You can deploy Shopware on Elestio using one-click deployment. Elestio handles version updates, maintenance, securtiy, backups, etc. Additionally, Elestio supports Shopware by providing revenue share so go ahead and click below to deploy and start using.
+
+[![Deploy on Elestio](https://elest.io/images/logos/deploy-to-elestio-btn.png)](https://elest.io/open-source/shopware)
+
 ### Code Contribution
 
 If you have decided to contribute code to Shopware and become a member of the Shopware community,

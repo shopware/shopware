@@ -24,12 +24,6 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         $output = [];
         $changelogFiles = $this->prepareChangelogFiles();
-        if (!$changelogFiles->count()) {
-            $output[] = 'There are not any unreleased changelog files at this moment.';
-
-            return $output;
-        }
-
         $output = $this->releaseChangelogFiles($output, $version, $changelogFiles, $dryRun);
         $output = $this->releaseChangelogGlobal($output, $version, $changelogFiles, $dryRun);
         $output = $this->releaseUpgradeInformation($output, $version, $changelogFiles, $dryRun);
@@ -83,6 +77,8 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         $releaseDir = $this->getTargetReleaseDir($version, false);
 
+        $printedIssues = [];
+
         foreach ($collection as $changelog) {
             $log = \sprintf(
                 '*  [%s - %s](./changelog/%s)',
@@ -99,7 +95,26 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             }
 
             $append[] = $log;
+            $printedIssues[$changelog->getDefinition()->getIssue()] = $changelog->getDefinition()->getIssue();
         }
+
+        $latestTag = $this->findLastestTag();
+        if ($latestTag) {
+            foreach ($this->getFixCommits($latestTag) as $issue) {
+                if (isset($printedIssues[$issue['fixes'][0]])) {
+                    continue;
+                }
+
+                $log = \sprintf('*  [%s - %s](https://github.com/shopware/shopware/issues/%s)', $issue['fixes'][0], $issue['headline'], ltrim($issue['fixes'][0], '#'));
+                if (isset($issue['author'])) {
+                    $login = $issue['author']['login'];
+                    $log .= \sprintf(' ([%s](https://github.com/%s))', '@' . $login, $login);
+                }
+                $append[] = $log;
+            }
+        }
+
+        sort($append);
 
         if (!$dryRun) {
             $content = file_get_contents($this->getChangelogGlobal()) ?: '';
@@ -135,7 +150,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
         array $output,
         string $version,
         ChangelogFileCollection $collection,
-        bool $dryRun = false
+        bool $dryRun = false,
     ): array {
         $append = [];
         foreach ($collection as $changelog) {
@@ -189,7 +204,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
         array $output,
         string $version,
         ChangelogFileCollection $collection,
-        bool $dryRun = false
+        bool $dryRun = false,
     ): array {
         $append = [];
         foreach ($collection as $changelog) {

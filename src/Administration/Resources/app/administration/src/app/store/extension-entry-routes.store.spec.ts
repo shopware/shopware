@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 describe('extension-entry-routes.store', () => {

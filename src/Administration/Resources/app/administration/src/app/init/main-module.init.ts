@@ -15,28 +15,30 @@ export default function initMainModules(): void {
 
         const extension = Shopware.State.get('extensions')?.[extensionName];
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', {
-            heading: mainModuleConfig.heading,
-            locationId: mainModuleConfig.locationId,
-            displaySearchBar: mainModuleConfig.displaySearchBar ?? true,
-            baseUrl: extension.baseUrl,
-        }).then((moduleId) => {
-            if (typeof moduleId !== 'string') {
-                return;
-            }
+        await Shopware.Store.get('extensionSdkModules')
+            .addModule({
+                heading: mainModuleConfig.heading,
+                locationId: mainModuleConfig.locationId,
+                displaySearchBar: mainModuleConfig.displaySearchBar ?? true,
+                baseUrl: extension.baseUrl,
+            })
+            .then((moduleId) => {
+                if (typeof moduleId !== 'string') {
+                    return;
+                }
 
-            Shopware.State.commit('extensionMainModules/addMainModule', {
-                extensionName,
-                moduleId,
+                Shopware.State.commit('extensionMainModules/addMainModule', {
+                    extensionName,
+                    moduleId,
+                });
             });
-        });
     });
 
     Shopware.ExtensionAPI.handle('smartBarButtonAdd', (configuration) => {
-        Shopware.State.commit('extensionSdkModules/addSmartBarButton', configuration);
+        Shopware.Store.get('extensionSdkModules').addSmartBarButton(configuration);
     });
 
     Shopware.ExtensionAPI.handle('smartBarHide', (configuration) => {
-        Shopware.State.commit('extensionSdkModules/addHiddenSmartBar', configuration.locationId);
+        Shopware.Store.get('extensionSdkModules').addHiddenSmartBar(configuration.locationId);
     });
 }

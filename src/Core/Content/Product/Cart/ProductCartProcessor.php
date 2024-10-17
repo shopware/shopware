@@ -301,9 +301,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $lineItem->setLabel($product->getTranslation('name'));
         }
 
-        if ($product->getCover()) {
-            $lineItem->setCover($product->getCover()->getMedia());
-        }
+        $lineItem->setCover($product->getCover()?->getMedia());
 
         $deliveryTime = null;
         if ($product->getDeliveryTime() !== null) {

@@ -1,25 +1,28 @@
-<div :class="classes">
-    <template v-if="componentName">
-        <component :is="componentName" />
-    </template>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_iframe_renderer %}
+    <div :class="classes">
+        <template v-if="componentName">
+            <component :is="componentName" />
+        </template>
 
-    <template v-else-if="extensionIsApp">
+        <template v-else-if="extensionIsApp">
+            <iframe
+                v-if="signedIframeSrc"
+                ref="iframe"
+                :src="signedIframeSrc"
+                :title="src"
+                width="100%"
+                :height="iFrameHeight"
+            ></iframe>
+        </template>
+
         <iframe
-            v-if="signedIframeSrc"
+            v-else
             ref="iframe"
-            :src="signedIframeSrc"
+            :src="iFrameSrc"
             :title="src"
             width="100%"
             :height="iFrameHeight"
         ></iframe>
-    </template>
-
-    <iframe
-        v-else
-        ref="iframe"
-        :src="iFrameSrc"
-        :title="src"
-        width="100%"
-        :height="iFrameHeight"
-    ></iframe>
-</div>
+    </div>
+{% endblock %}

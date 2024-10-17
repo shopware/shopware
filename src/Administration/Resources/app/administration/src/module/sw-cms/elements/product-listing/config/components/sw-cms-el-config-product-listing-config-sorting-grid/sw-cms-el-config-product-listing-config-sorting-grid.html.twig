@@ -1,46 +1,49 @@
-<div class="sw-cms-el-config-product-listing-config-sorting-grid">
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_el_config_product_listing_config_sorting_grid %}
+    <div class="sw-cms-el-config-product-listing-config-sorting-grid">
 
-    <sw-data-grid
-        class="sw-cms-el-config-product-listing-config-sorting-grid__grid"
-        :data-source="visibleProductSortings"
-        :columns="gridColumns"
-        :compact-mode="false"
-        :allow-inline-edit="true"
-        :show-selection="false"
-        plain-appearance
-    >
+        <sw-data-grid
+            class="sw-cms-el-config-product-listing-config-sorting-grid__grid"
+            :data-source="visibleProductSortings"
+            :columns="gridColumns"
+            :compact-mode="false"
+            :allow-inline-edit="true"
+            :show-selection="false"
+            plain-appearance
+        >
 
-        <template #actions="{ item }">
-            <sw-context-menu-item
-                v-if="!item.locked"
-                :class="'sw-cms-el-config-product-listing-config-sorting-grid__grid_item_' + item.id"
-                variant="danger"
-                :disabled="isDefaultSorting(item)"
-                @click="onDelete(item)"
-            >
-                {{ $tc('global.default.delete') }}
-            </sw-context-menu-item>
-        </template>
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    v-if="!item.locked"
+                    :class="'sw-cms-el-config-product-listing-config-sorting-grid__grid_item_' + item.id"
+                    variant="danger"
+                    :disabled="isDefaultSorting(item)"
+                    @click="onDelete(item)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
 
-        <template #column-fields="{ item }">
-            <span
-                class="sw-cms-el-config-product-listing-config-sorting-grid__criteria"
-                :title="formatProductSortingFields(item.fields)"
-            >
-                {{ formatProductSortingFields(item.fields) }}
-            </span>
-        </template>
+            <template #column-fields="{ item }">
+                <span
+                    class="sw-cms-el-config-product-listing-config-sorting-grid__criteria"
+                    :title="formatProductSortingFields(item.fields)"
+                >
+                    {{ formatProductSortingFields(item.fields) }}
+                </span>
+            </template>
 
-        <template #pagination>
-            <sw-pagination
-                v-if="paginationVisible"
-                :page="page"
-                :limit="limit"
-                :total="total"
-                :steps="steps"
-                :auto-hide="false"
-                @page-change="onPageChange"
-            />
-        </template>
-    </sw-data-grid>
-</div>
+            <template #pagination>
+                <sw-pagination
+                    v-if="paginationVisible"
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    :steps="steps"
+                    :auto-hide="false"
+                    @page-change="onPageChange"
+                />
+            </template>
+        </sw-data-grid>
+    </div>
+{% endblock %}

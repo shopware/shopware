@@ -1,121 +1,124 @@
-<sw-modal
-    v-if="visible"
-    :title="$tc('sw-license-violation.title')"
-    :closable="false"
-    variant="large"
-    class="sw-license-violation"
-    :is-loading="isLoading"
->
-
-    <span class="sw-license-violation__text">
-        {{ $tc('sw-license-violation.alertText') }}
-    </span>
-
-    <table class="sw-license-violation__table">
-        <tr>
-            <th width="200px">
-                {{ $tc('sw-license-violation.table.plugin') }}
-            </th>
-            <th>{{ $tc('sw-license-violation.table.warning') }}</th>
-            <th width="350px"></th>
-        </tr>
-
-        <tr
-            v-for="violation in violations"
-            :key="violation.name"
-        >
-
-            <td class="sw-license-violation__table-name">
-                <template v-if="getPluginForViolation(violation)">
-                    <img
-                        v-if="getPluginForViolation(violation).icon || getPluginForViolation(violation).iconRaw"
-                        :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
-                        alt=""
-                    >
-                    <strong>
-                        {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
-                    </strong>
-                </template>
-
-                <template v-else>
-                    <p>
-                        <strong>{{ violation.name }}</strong>
-                    </p>
-                </template>
-            </td>
-
-            <td>{{ violation.extensions.licenseViolation.text }}</td>
-
-            <td class="sw-license-violation__table-actions">
-                <div
-                    v-for="action in violation.extensions.licenseViolation.actions"
-                    :key="action.externalLink"
-                    class="sw-license-violation__table-actions-wrap"
-                >
-                    <sw-button
-                        class="sw-license-violation__table-action-remove"
-                        variant="ghost-danger"
-                        size="small"
-                        @click.prevent="deletePlugin(violation)"
-                    >
-                        {{ $tc('sw-license-violation.deletePlugin') }}
-                    </sw-button>
-
-                    <sw-button
-                        :link="action.externalLink"
-                        variant="ghost"
-                        size="small"
-                    >{{ action.label }}
-                    </sw-button>
-                </div>
-            </td>
-
-        </tr>
-    </table>
-
-    <template #modal-footer>
-        <sw-checkbox-field
-            v-model:value="readNotice"
-            :label="$tc('sw-license-violation.checkboxMessage')"
-        />
-
-        <sw-button
-            variant="primary"
-            :disabled="!readNotice"
-            size="small"
-            @click="deactivateTemporary"
-        >
-            {{ $tc('sw-license-violation.closeModal') }}
-        </sw-button>
-    </template>
-
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_license_violation %}
     <sw-modal
-        v-if="showDeleteModal"
+        v-if="visible"
         :title="$tc('sw-license-violation.title')"
-        class="sw-license-violation-confirm-delete"
-        variant="small"
-        @modal-close="onCloseDeleteModal"
+        :closable="false"
+        variant="large"
+        class="sw-license-violation"
+        :is-loading="isLoading"
     >
 
-        <p class="sw-plugin-list__confirm-delete-text">
-            {{ $tc('sw-license-violation.messageDeleteConfirm', '', { pluginName: deletePluginItem.label }) }}
-        </p>
+        <span class="sw-license-violation__text">
+            {{ $tc('sw-license-violation.alertText') }}
+        </span>
+
+        <table class="sw-license-violation__table">
+            <tr>
+                <th width="200px">
+                    {{ $tc('sw-license-violation.table.plugin') }}
+                </th>
+                <th>{{ $tc('sw-license-violation.table.warning') }}</th>
+                <th width="350px"></th>
+            </tr>
+
+            <tr
+                v-for="violation in violations"
+                :key="violation.name"
+            >
+
+                <td class="sw-license-violation__table-name">
+                    <template v-if="getPluginForViolation(violation)">
+                        <img
+                            v-if="getPluginForViolation(violation).icon || getPluginForViolation(violation).iconRaw"
+                            :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
+                            alt=""
+                        >
+                        <strong>
+                            {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
+                        </strong>
+                    </template>
+
+                    <template v-else>
+                        <p>
+                            <strong>{{ violation.name }}</strong>
+                        </p>
+                    </template>
+                </td>
+
+                <td>{{ violation.extensions.licenseViolation.text }}</td>
+
+                <td class="sw-license-violation__table-actions">
+                    <div
+                        v-for="action in violation.extensions.licenseViolation.actions"
+                        :key="action.externalLink"
+                        class="sw-license-violation__table-actions-wrap"
+                    >
+                        <sw-button
+                            class="sw-license-violation__table-action-remove"
+                            variant="ghost-danger"
+                            size="small"
+                            @click.prevent="deletePlugin(violation)"
+                        >
+                            {{ $tc('sw-license-violation.deletePlugin') }}
+                        </sw-button>
+
+                        <sw-button
+                            :link="action.externalLink"
+                            variant="ghost"
+                            size="small"
+                        >{{ action.label }}
+                        </sw-button>
+                    </div>
+                </td>
+
+            </tr>
+        </table>
 
         <template #modal-footer>
-            <sw-button
-                size="small"
-                @click="onCloseDeleteModal"
-            >
-                {{ $tc('global.default.cancel') }}
-            </sw-button>
+            <sw-checkbox-field
+                v-model:value="readNotice"
+                :label="$tc('sw-license-violation.checkboxMessage')"
+            />
 
             <sw-button
+                variant="primary"
+                :disabled="!readNotice"
                 size="small"
-                variant="danger"
-                @click="onConfirmDelete"
+                @click="deactivateTemporary"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $tc('sw-license-violation.closeModal') }}
             </sw-button>
         </template>
+
+        <sw-modal
+            v-if="showDeleteModal"
+            :title="$tc('sw-license-violation.title')"
+            class="sw-license-violation-confirm-delete"
+            variant="small"
+            @modal-close="onCloseDeleteModal"
+        >
+
+            <p class="sw-plugin-list__confirm-delete-text">
+                {{ $tc('sw-license-violation.messageDeleteConfirm', '', { pluginName: deletePluginItem.label }) }}
+            </p>
+
+            <template #modal-footer>
+                <sw-button
+                    size="small"
+                    @click="onCloseDeleteModal"
+                >
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+
+                <sw-button
+                    size="small"
+                    variant="danger"
+                    @click="onConfirmDelete"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-button>
+            </template>
+        </sw-modal>
     </sw-modal>
-</sw-modal>
+{% endblock %}

@@ -1,38 +1,44 @@
 {# v-on="listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-tabs component #}
-<template v-if="useMeteorComponent">
-    <mt-tabs
-        v-bind="$attrs"
-        ref="tabComponent"
-        :items="itemsBackwardCompatible"
-        v-on="listeners"
-        @new-item-active="onNewItemActive"
-    />
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_tabs %}
+    <template v-if="useMeteorComponent">
+        <mt-tabs
+            v-bind="$attrs"
+            ref="tabComponent"
+            :items="itemsBackwardCompatible"
+            v-on="listeners"
+            @new-item-active="onNewItemActive"
+        />
 
-    {# Render content slot as fallback #}
-    <slot
-        name="content"
-        v-bind="{ active: activeItem }"
-    >
-    </slot>
-</template>
-
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# Deprecated component #}
-<sw-tabs-deprecated
-    v-else
-    v-bind="$attrs"
-    ref="tabComponent"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
-    >
+        {# Render content slot as fallback #}
         <slot
-            :name="name"
-            v-bind="data || {}"
+            name="content"
+            v-bind="{ active: activeItem }"
         >
         </slot>
     </template>
-</sw-tabs-deprecated>
+{% endblock %}
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_tabs_deprecated %}
+    <sw-tabs-deprecated
+        v-else
+        v-bind="$attrs"
+        ref="tabComponent"
+        v-on="listeners"
+    >
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
+        >
+            <slot
+                :name="name"
+                v-bind="data || {}"
+            >
+            </slot>
+        </template>
+    </sw-tabs-deprecated>
+{% endblock %}

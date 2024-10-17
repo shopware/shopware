@@ -1,6 +1,9 @@
-<div class="sw-cms-el-config-location-renderer">
-    <sw-iframe-renderer
-        :src="src"
-        :location-id="configLocation"
-    />
-</div>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_el_config_location_renderer %}
+    <div class="sw-cms-el-config-location-renderer">
+        <sw-iframe-renderer
+            :src="src"
+            :location-id="configLocation"
+        />
+    </div>
+{% endblock %}

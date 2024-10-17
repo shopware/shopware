@@ -1,9 +1,12 @@
-<div
-    class="sw-cms-block-app-renderer"
-    :style="blockStyle"
->
-    <slot
-        v-for="slot in slots"
-        :name="slot.slot"
-    ></slot>
-</div>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_block_app_renderer %}
+    <div
+        class="sw-cms-block-app-renderer"
+        :style="blockStyle"
+    >
+        <slot
+            v-for="slot in slots"
+            :name="slot.slot"
+        ></slot>
+    </div>
+{% endblock %}

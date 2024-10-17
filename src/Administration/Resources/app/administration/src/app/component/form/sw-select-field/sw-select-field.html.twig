@@ -1,45 +1,51 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-select component #}
-<mt-select
-    v-if="useMeteorComponent"
-    v-bind="$attrs"
-    :options="options"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_select_field %}
+    <mt-select
+        v-if="useMeteorComponent"
+        v-bind="$attrs"
+        :options="options"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-    <template #default>
-        <slot></slot>
-    </template>
-</mt-select>
+            <slot
+                :name="name"
+                v-bind="data"
+            >
+            </slot>
+        </template>
+        <template #default>
+            <slot></slot>
+        </template>
+    </mt-select>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<sw-select-field-deprecated
-    v-else
-    v-bind="$attrs"
-    :options="options"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_select_field_deprecated %}
+    <sw-select-field-deprecated
+        v-else
+        v-bind="$attrs"
+        :options="options"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-    <template #default>
-        <slot></slot>
-    </template>
-</sw-select-field-deprecated>
+            <slot
+                :name="name"
+                v-bind="data"
+            >
+            </slot>
+        </template>
+        <template #default>
+            <slot></slot>
+        </template>
+    </sw-select-field-deprecated>
+{% endblock %}

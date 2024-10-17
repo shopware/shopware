@@ -51,6 +51,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createMessengerSection())
                 ->append($this->createSearchSection())
                 ->append($this->createTelemetrySection())
+                ->append($this->createRedisSection())
             ->end();
 
         return $treeBuilder;
@@ -431,7 +432,11 @@ class Configuration implements ConfigurationInterface
                                     ->defaultValue('redis')
                                 ->end()
                                 ->scalarNode('dsn')
+                                    ->setDeprecated('shopware/core', '6.7.0.0', 'dsn is deprecated and will be removed with Shopware 6.7. Use connection instead.')
                                     ->defaultValue('redis://localhost')
+                                ->end()
+                                ->scalarNode('connection')
+                                    ->defaultValue(null)
                                 ->end()
                             ->end()
                         ->end()
@@ -564,6 +569,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('config')
                             ->children()
                                 ->scalarNode('dsn')->end()
+                                ->scalarNode('connection')->defaultValue(null)->end()
                             ->end()
                     ->end()
             ->end();
@@ -586,6 +592,7 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('config')
                 ->children()
                     ->scalarNode('dsn')->end()
+                    ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
             ->end();
 
@@ -1001,6 +1008,27 @@ class Configuration implements ConfigurationInterface
                     ->end()
         ->end()
         ->end();
+
+        return $rootNode;
+    }
+
+    private function createRedisSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('redis');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->arrayNode('connections')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('dsn')->isRequired()->end()
+                            // Additional options if necessary
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
 
         return $rootNode;
     }

@@ -521,7 +521,10 @@
         </service>
 
         <service id="shopware.cart.redis" class="Redis">
-            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
+            <!-- @deprecated tag:v6.7.0 - Replace factory method with getConnection on the next line -->
+            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getOrCreateFromDsn"/>
+            <argument>%shopware.cart.storage.config.connection%</argument>
+            <!-- @deprecated tag:v6.7.0 - remove next line (dsn argument) -->
             <argument>%shopware.cart.storage.config.dsn%</argument>
         </service>
 

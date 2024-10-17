@@ -15,7 +15,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             500,
             self::CART_REDIS_NOT_CONFIGURED,
-            'Parameter "shopware.cart.storage.config.dsn" is required for redis storage'
+            // @deprecated tag:v6.7.0 - remove '"shopware.number_range.config.dsn or"' from this message - only "shopware.cart.storage.config.connection" would be supported
+            'Parameter "shopware.cart.storage.config.dsn" or "shopware.cart.storage.config.connection" is required for redis storage'
         );
     }
 }

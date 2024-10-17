@@ -22,7 +22,7 @@ class CartRedisCompilerPass implements CompilerPassInterface
         if ($container->hasParameter('shopware.cart.redis_url') && $container->getParameter('shopware.cart.redis_url') !== false) {
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
-                'Parameter "shopware.cart.redis_url" is deprecated and will be removed. Please use "shopware.cart.storage.config.dsn" instead.'
+                'Parameter "shopware.cart.redis_url" is deprecated and will be removed. Please use "shopware.cart.storage.config.connection" instead.'
             );
 
             $container->setParameter('shopware.cart.storage.config.dsn', $container->getParameter('shopware.cart.redis_url'));
@@ -49,13 +49,22 @@ class CartRedisCompilerPass implements CompilerPassInterface
                 $container->removeDefinition(RedisCartPersister::class);
                 break;
             case 'redis':
-                if (!$container->hasParameter('shopware.cart.storage.config.dsn')) {
+                if (
+                    !$container->hasParameter('shopware.cart.storage.config.dsn') // @deprecated tag:v6.7.0 - remove this line (as config.dsn will be removed)
+                    && $container->getParameter('shopware.cart.storage.config.connection') === null
+                ) {
                     throw DependencyInjectionException::redisNotConfiguredForCartStorage();
                 }
 
                 $container->removeDefinition(CartPersister::class);
                 $container->setAlias(CartPersister::class, RedisCartPersister::class);
                 break;
+        }
+
+        // @deprecated tag:v6.7.0 - remove this if block
+        if (!$container->hasParameter('shopware.cart.storage.config.dsn')) {
+            // to avoid changing default values in config or using expression language in service configuration
+            $container->setParameter('shopware.cart.storage.config.dsn', null);
         }
     }
 }

@@ -41,7 +41,7 @@ class ChangelogCommandTest extends TestCase
             [
                 __DIR__ . '/_fixture/stage/command-invalid-issue-number',
                 [
-                    '* The Jira ticket has an invalid format',
+                    '* The issue has an invalid format',
                     '[ERROR] You have 1 syntax errors in changelog files.',
                 ],
             ],

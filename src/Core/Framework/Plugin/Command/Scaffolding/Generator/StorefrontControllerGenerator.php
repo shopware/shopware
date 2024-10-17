@@ -6,10 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 /**
  * @internal
@@ -42,13 +40,6 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
         <import resource="../../Storefront/Controller/**/*Controller.php" type="attribute" />
 
     EOL;
-
-    public function __construct(
-        private readonly XmlScaffoldConfigManipulator $xmlConfigManipulator
-    )
-    {
-
-    }
 
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
@@ -85,30 +76,18 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createController($configuration));
         $stubCollection->add($this->createTemplate());
 
-        $stubContent = $this->xmlConfigManipulator->addConfig(
-            XmlScaffoldConfigManipulator::CONFIG_TYPE_SERVICE,
-            $configuration->directory . '/src/Resources/config/services.xml',
-            $configuration->namespace,
-            $this->servicesXmlEntry,
-            'container'
-        );
-
         $stubCollection->append(
-            '/src/Resources/config/services.xml',
-            $stubContent
-        );
-
-        $stubContent = $this->xmlConfigManipulator->addConfig(
-            XmlScaffoldConfigManipulator::CONFIG_TYPE_ROUTE,
-            $configuration->directory . '/src/Resources/config/routes.xml',
-            $configuration->namespace,
-            $this->routesXmlEntry,
-            'routes'
+            'src/Resources/config/services.xml',
+            str_replace(
+                '{{ namespace }}',
+                $configuration->namespace,
+                $this->servicesXmlEntry
+            )
         );
 
         $stubCollection->append(
             'src/Resources/config/routes.xml',
-            $stubContent
+            $this->routesXmlEntry
         );
     }
 

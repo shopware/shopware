@@ -223,6 +223,7 @@
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter">
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator">
@@ -251,7 +252,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StorefrontControllerGenerator">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator"/>
             <tag name="shopware.scaffold.generator"/>
         </service>
 

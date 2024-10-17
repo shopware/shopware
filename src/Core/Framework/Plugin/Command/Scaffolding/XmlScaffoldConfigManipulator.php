@@ -37,17 +37,21 @@ class XmlScaffoldConfigManipulator
 
             if($configType === self::CONFIG_TYPE_ROUTE) {
                 // Ensure services is array
-                if(\is_string($xml['#']) && trim($xml['#']) === "") {
+                if(isset($xml['#']) && \is_string($xml['#']) && trim($xml['#']) === "") {
                     $xml['#'] = ['import' => []];
                 }
 
                 // if only one service is defined, services plain array of that service
                 // services => ['@id' => ..., ... ] so I need to change it in array of services
-                if(array_key_exists('@resource', $xml['#'])) {
+                if(isset($xml['#']) && array_key_exists('@resource', $xml['#'])) {
                     $xml['#'] = [$xml['#']];
                 }
 
-                $imports = (array) $xml['#']['import'];
+                if(isset($xml['import']) && array_key_exists('@resource', $xml['import'])) {
+                    $xml['import'] = [$xml['import']];
+                }
+
+                $imports = (array) ($xml['#']['import'] ?? $xml['import']);
                 $imports[] = $nodeXml;
                 $xml['#']['import'] = $imports;
             }
@@ -66,7 +70,7 @@ class XmlScaffoldConfigManipulator
 
                 $services = (array) $xml['services']['service'];
                 $services[] = $nodeXml;
-                $xml['services'] = $services;
+                $xml['services']['service'] = $services;
             }
 
             $xmlEntry = $xmlEncoder->encode($xml, 'xml');

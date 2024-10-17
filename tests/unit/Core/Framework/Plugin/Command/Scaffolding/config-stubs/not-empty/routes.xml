@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xsi:schemaLocation="http://symfony.com/schema/routing         https://symfony.com/schema/routing/routing-1.0.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <import resource="../../Path/To/Another/**/*Controller.php" type="attribute" />
+</routes>

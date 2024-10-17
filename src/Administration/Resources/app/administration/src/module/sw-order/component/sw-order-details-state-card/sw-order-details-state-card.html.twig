@@ -42,14 +42,16 @@
                 v-if="lastStateChange"
                 class="sw-order-detail-state-card__state-history-text"
             >
-                <i18n path="sw-order.stateCard.labelHistory">
+                <i18n-t
+                    keypath="sw-order.stateCard.labelHistory"
+                >
                     <template #time>
                         <sw-time-ago :date="lastStateChange.createdAt" />
                     </template>
                     <template #author>
                         {{ lastStateChange.user ? lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName : $tc('sw-order.stateCard.labelSystemUser') }}
                     </template>
-                </i18n>
+                </i18n-t>
             </div>
             <div v-else></div>
             {% endblock %}

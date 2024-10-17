@@ -234,6 +234,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\TestsGenerator">
+            <argument type="service" id="filesystem"/>
             <tag name="shopware.scaffold.generator"/>
         </service>
 
@@ -250,6 +251,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StorefrontControllerGenerator">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator"/>
             <tag name="shopware.scaffold.generator"/>
         </service>
 

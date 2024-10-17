@@ -245,6 +245,11 @@ parameters:
             The query parts are implementation details and should not be relied upon\\.$#
         """
 
+        - # This test should ensure, that the default values are never changed
+            message: '#Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with .* and .* will always evaluate to true.#'
+            identifier: staticMethod.alreadyNarrowedType
+            path: tests/devops/Core/DefaultsTest.php
+
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

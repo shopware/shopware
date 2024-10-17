@@ -30,15 +30,11 @@ class ScaffoldingWriter
             $isXml = $this->isXml($stub->getPath());
             $stubContent = $stub->getContent();
 
-            if($isXml) {
-                $configType = $this->resolveConfigType($stub->getPath());
-                $rootNodeName = $this->resolveRootNodeName($stub->getPath());
+            if($isXml && $this->filesystem->exists($configPath)) {
                 $stubContent = $this->xmlConfigManipulator->addConfig(
-                    $configType,
                     $configPath,
                     $configuration->directory,
-                    $stubContent,
-                    $rootNodeName
+                    $stubContent
                 );
             }
 
@@ -51,19 +47,5 @@ class ScaffoldingWriter
         $extension = pathinfo($getPath, PATHINFO_EXTENSION);
 
         return $extension === 'xml';
-    }
-
-    private function resolveConfigType(string $getPath): string
-    {
-        $filename = pathinfo($getPath, PATHINFO_FILENAME);
-
-        return $filename === 'services' ? XmlScaffoldConfigManipulator::CONFIG_TYPE_SERVICE : XmlScaffoldConfigManipulator::CONFIG_TYPE_ROUTE;
-    }
-
-    private function resolveRootNodeName(string $getPath): string
-    {
-        $configType = pathinfo($getPath, PATHINFO_FILENAME);
-
-        return $configType === 'services' ? 'container' : 'routes';
     }
 }

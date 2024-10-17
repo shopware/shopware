@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <parameters>
+        <parameter key="param_1" type="string">true</parameter>
+        <parameter key="param_2" type="string">false</parameter>
+    </parameters>
+
+    <services>
+        <service id="id_service" public="true">
+            <argument type="service" id="test_argument"/>
+        </service>
+    </services>
+</container>

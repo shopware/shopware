@@ -712,8 +712,6 @@ base-uri 'self';
             <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator">
-            <argument type="service" id="filesystem" />
-        </service>
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator"/>
     </services>
 </container>

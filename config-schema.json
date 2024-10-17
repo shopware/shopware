@@ -105,6 +105,9 @@
                 "messenger": {
                     "$ref": "#/definitions/messenger"
                 },
+                "redis": {
+                    "$ref": "#/definitions/redis"
+                },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
                 },
@@ -443,6 +446,24 @@
             },
             "title": "Rate limiter config"
         },
+        "redis": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "connections": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "dsn": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "api_store": {
             "type": "object",
             "additionalProperties": false,
@@ -559,6 +580,9 @@
                         "dsn": {
                             "type": "string",
                             "default": "redis://localhost"
+                        },
+                        "connection": {
+                            "type": "string"
                         }
                     }
                 },
@@ -663,6 +687,10 @@
                             "additionalProperties": false,
                             "properties": {
                                 "dsn": {
+                                    "type": "string",
+                                    "deprecationMessage": "The `dsn` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                                },
+                                "connection": {
                                     "type": "string"
                                 }
                             }
@@ -694,6 +722,10 @@
                     "additionalProperties": false,
                     "properties": {
                         "dsn": {
+                            "type": "string",
+                            "deprecationMessage": "The `dsn` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                        },
+                        "connection": {
                             "type": "string"
                         }
                     }
@@ -1077,11 +1109,24 @@
                                 "additionalProperties": false,
                                 "properties": {
                                     "url": {
+                                        "type": "string",
+                                        "deprecationMessage": "The `url` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                                    },
+                                    "connection": {
                                         "type": "string"
                                     }
                                 },
-                                "required": [
-                                    "url"
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "url"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "connection"
+                                        ]
+                                    }
                                 ]
                             }
                         },

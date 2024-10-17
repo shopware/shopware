@@ -654,6 +654,12 @@ base-uri 'self';
             <argument>%shopware.cache.redis_prefix%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider">
+            <argument />  <!-- $serviceLocator will be set in the compiler pass -->
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
+        </service>
+
+
         <service id="Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory" public="true">
             <argument type="service" id="request_stack"/>
         </service>

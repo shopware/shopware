@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Category\DataAbstractionLayer\Indexing;
+namespace Shopware\Tests\Integration\Core\Content\Category\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -10,15 +10,21 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-class BreadcrumbIndexerTest extends TestCase
+class CategoryBreadcrumbUpdaterTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use BasicTestDataBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use QueueTestBehaviour;
 
     /**
      * @var EntityRepository<CategoryCollection>
@@ -250,6 +256,8 @@ class BreadcrumbIndexerTest extends TestCase
                 ],
             ],
         ], $context);
+
+        $this->runWorker();
 
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)

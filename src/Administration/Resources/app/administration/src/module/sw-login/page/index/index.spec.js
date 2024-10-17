@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import { CookieStorage } from 'cookie-storage';
 
 async function createWrapper() {
     const swLogin = await wrapTestComponent('sw-login', {
@@ -22,21 +21,6 @@ async function createWrapper() {
  */
 describe('src/module/sw-login/page/index/index.js', () => {
     let wrapper;
-    const cookieStorage = new CookieStorage({
-        domain: null,
-        secure: false, // only allow HTTPs
-        sameSite: 'Strict', // Should be Strict
-    });
-
-    beforeAll(() => {
-        Shopware.Service().register('loginService', () => {
-            return {
-                getStorage: () => {
-                    return cookieStorage;
-                },
-            };
-        });
-    });
 
     beforeEach(async () => {
         Object.defineProperty(window, 'location', {
@@ -44,8 +28,6 @@ describe('src/module/sw-login/page/index/index.js', () => {
             value: { reload: jest.fn() },
         });
 
-        // Clear all cookies
-        cookieStorage.clear();
         await flushPromises();
     });
 
@@ -54,6 +36,7 @@ describe('src/module/sw-login/page/index/index.js', () => {
             await wrapper.unmount();
         }
 
+        sessionStorage.removeItem('refresh-after-logout');
         await flushPromises();
     });
 
@@ -73,13 +56,13 @@ describe('src/module/sw-login/page/index/index.js', () => {
             value: { reload: jest.fn() },
         });
 
-        cookieStorage.setItem('refresh-after-logout', true);
+        sessionStorage.setItem('refresh-after-logout', 'true');
 
         wrapper = await createWrapper();
         expect(wrapper.find('.sw-login').attributes('style')).toBe('display: none;');
     });
 
-    it('should not trigger reload when "refresh-after-logout" cookie is not set', async () => {
+    it('should not trigger reload when "refresh-after-logout" storage key is not set', async () => {
         Object.defineProperty(window, 'location', {
             configurable: true,
             value: { reload: jest.fn() },
@@ -90,13 +73,13 @@ describe('src/module/sw-login/page/index/index.js', () => {
         expect(window.location.reload).not.toHaveBeenCalled();
     });
 
-    it('should trigger reload when "refresh-after-logout" cookie is set to true', async () => {
+    it('should trigger reload when "refresh-after-logout" storage key is set to true', async () => {
         Object.defineProperty(window, 'location', {
             configurable: true,
             value: { reload: jest.fn() },
         });
 
-        cookieStorage.setItem('refresh-after-logout', true);
+        sessionStorage.setItem('refresh-after-logout', 'true');
         wrapper = await createWrapper();
 
         expect(window.location.reload).toHaveBeenCalled();

@@ -21,11 +21,14 @@ const loginServiceFactory = () => {
 
     return {
         loginService: new LoginService(client, contextMock),
+        contextMock: contextMock,
         clientMock: clientMock,
     };
 };
 
 let cookieStorageMock = '';
+let lastUserActivity = null;
+
 describe('core/service/login.service.js', () => {
     beforeAll(async () => {
         Object.defineProperty(document, 'cookie', {
@@ -40,15 +43,29 @@ describe('core/service/login.service.js', () => {
         });
 
         const mockDate = new Date(1577881800000);
-        jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
-
         Date.now = jest.fn(() => +mockDate);
+
+        Shopware.Service().register('userActivityService', () => {
+            return {
+                getLastUserActivity: () => {
+                    return lastUserActivity ?? new Date();
+                },
+                updateLastUserActivity: () => {
+                    lastUserActivity = new Date();
+                },
+            };
+        });
     });
 
     beforeEach(() => {
-        window.localStorage.removeItem('redirectFromLogin');
         cookieStorageMock = '';
+        lastUserActivity = null;
         Shopware.Application.view.router = undefined;
+    });
+
+    afterEach(() => {
+        localStorage.removeItem('rememberMe');
+        sessionStorage.removeItem('redirectFromLogin');
     });
 
     it('should contain all public functions', async () => {
@@ -81,6 +98,75 @@ describe('core/service/login.service.js', () => {
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });
+    });
+
+    it('should set the bearer authentication with the right cookie expiry', async () => {
+        const { loginService } = loginServiceFactory();
+
+        loginService.setBearerAuthentication({
+            expiry: 300,
+            access: 'aCcEsS_tOkEn',
+            refresh: 'rEfReSh_ToKeN',
+        });
+
+        const expiresPart = cookieStorageMock.match(/expires=([^;]+)/);
+        expect(expiresPart).not.toBeNull();
+        expect(expiresPart).toHaveLength(2);
+        const date = new Date(expiresPart[1]);
+        expect(date.getTime()).toBe(Date.now() + 300 * 1000);
+    });
+
+    it('should set the bearer authentication with the right cookie expiry (remember me - default value)', async () => {
+        const { loginService } = loginServiceFactory();
+
+        loginService.setRememberMe(true);
+
+        loginService.setBearerAuthentication({
+            expiry: 300,
+            access: 'aCcEsS_tOkEn',
+            refresh: 'rEfReSh_ToKeN',
+        });
+
+        expect(localStorage.getItem('rememberMe')).toBe('true');
+
+        const expiresPart = cookieStorageMock.match(/expires=([^;]+)/);
+        expect(expiresPart).not.toBeNull();
+        expect(expiresPart).toHaveLength(2);
+        const date = new Date(expiresPart[1]);
+        expect(date.getTime()).toBe(Date.now() + 7 * 86400 * 1000);
+    });
+
+    it('should set the bearer authentication with the right cookie expiry (remember me - refreshTokenTtl)', async () => {
+        const { loginService, contextMock } = loginServiceFactory();
+
+        loginService.setRememberMe(true);
+
+        const refreshTokenTtl = 14 * 86400 * 1000;
+        contextMock.refreshTokenTtl = refreshTokenTtl;
+
+        loginService.setBearerAuthentication({
+            expiry: 300,
+            access: 'aCcEsS_tOkEn',
+            refresh: 'rEfReSh_ToKeN',
+        });
+
+        expect(localStorage.getItem('rememberMe')).toBe('true');
+
+        const expiresPart = cookieStorageMock.match(/expires=([^;]+)/);
+        expect(expiresPart).not.toBeNull();
+        expect(expiresPart).toHaveLength(2);
+        const date = new Date(expiresPart[1]);
+        expect(date.getTime()).toBe(Date.now() + refreshTokenTtl);
+    });
+
+    it('should set the remember me value', async () => {
+        const { loginService } = loginServiceFactory();
+
+        loginService.setRememberMe(true);
+        expect(localStorage.getItem('rememberMe')).toBe('true');
+
+        loginService.setRememberMe(false);
+        expect(localStorage.getItem('rememberMe')).toBeNull();
     });
 
     it('should login and return the bearer token', async () => {
@@ -274,7 +360,7 @@ describe('core/service/login.service.js', () => {
 
     it('should call the login listener when redirect from the login', async () => {
         const { loginService } = loginServiceFactory();
-        window.localStorage.setItem('redirectFromLogin', true);
+        sessionStorage.setItem('redirectFromLogin', true);
 
         const loginListener = jest.fn();
 
@@ -309,7 +395,6 @@ describe('core/service/login.service.js', () => {
 
     it('should start auto refresh the token after login', async () => {
         jest.useFakeTimers();
-        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
 
         const { loginService, clientMock } = loginServiceFactory();
 
@@ -390,7 +475,7 @@ describe('core/service/login.service.js', () => {
         expect(clientMock.history.post[1]).toBeUndefined();
     });
 
-    it('should set logout refresh cookie correctly', async () => {
+    it('should set logout refresh storage key correctly', async () => {
         // Mock Router
         Shopware.Application.view.router = {
             currentRoute: {
@@ -402,14 +487,36 @@ describe('core/service/login.service.js', () => {
         };
         const { loginService } = loginServiceFactory();
 
-        const cookieStorage = loginService.getStorage();
-
-        // Check if refresh-after-logout cookie is not set before logout
-        expect(cookieStorage.getItem('refresh-after-logout')).toBeNull();
+        // Check if refresh-after-logout storage key is not set before logout
+        expect(sessionStorage.getItem('refresh-after-logout')).toBeNull();
 
         loginService.logout();
 
-        // Check if refresh-after-logout cookie is set after logout
-        expect(cookieStorage.getItem('refresh-after-logout')).toBe('true');
+        // Check if refresh-after-logout storage key is set after logout
+        expect(sessionStorage.getItem('refresh-after-logout')).toBe('true');
+
+        sessionStorage.removeItem('refresh-after-logout');
+    });
+
+    it('should logout inactive user when user activity is over the threshold', async () => {
+        const { loginService, clientMock } = loginServiceFactory();
+
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
+
+        await loginService.loginByUsername('admin', 'shopware');
+
+        lastUserActivity = new Date(Date.now() - (30 * 60 * 1000) - 1);
+
+        const logoutListener = jest.fn();
+        loginService.addOnLogoutListener(logoutListener);
+
+        loginService.isLoggedIn();
+
+        expect(logoutListener).toHaveBeenCalled();
     });
 });

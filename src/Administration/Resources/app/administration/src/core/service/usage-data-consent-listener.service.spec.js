@@ -10,7 +10,7 @@ describe('src/core/service/usage-data-consent-listener.service.ts', () => {
     let serviceContainer = null;
 
     beforeEach(() => {
-        window.localStorage.setItem('redirectFromLogin', 'true');
+        window.sessionStorage.setItem('redirectFromLogin', 'true');
 
         loginService = createLoginService({}, Shopware.Context.api);
         serviceContainer = {

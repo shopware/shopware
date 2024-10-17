@@ -57,10 +57,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                             return;
                         }
 
-                        const duration = new Date();
-                        duration.setDate(duration.getDate() + 14);
-
-                        localStorage.setItem('rememberMe', `${+duration}`);
+                        localStorage.setItem('rememberMe', `true`);
                     },
                 },
                 shortcutService: {
@@ -89,7 +86,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     afterEach(() => {
         sessionStorage.removeItem('lastKnownUser');
         sessionStorage.removeItem('sw-admin-previous-route_foo');
-        localStorage.removeItem('inactivityBackground_foo');
+        sessionStorage.removeItem('inactivityBackground_foo');
         localStorage.removeItem('rememberMe');
     });
 
@@ -108,7 +105,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
     it('should set data:url as background image', async () => {
         sessionStorage.setItem('lastKnownUser', 'admin');
-        localStorage.setItem('inactivityBackground_foo', 'data:urlFoOBaR');
+        sessionStorage.setItem('inactivityBackground_foo', 'data:urlFoOBaR');
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -230,8 +227,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         );
         await flushPromises();
 
-        const rememberMe = wrapper.find('.sw-field--checkbox input');
-        await rememberMe.trigger('click');
+        const rememberMeInput = wrapper.find('.sw-field--checkbox input');
+        await rememberMeInput.trigger('click');
 
         const loginButton = wrapper.find('.sw-button');
         await loginButton.trigger('click');
@@ -239,10 +236,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(push).toHaveBeenCalledTimes(1);
         expect(push).toHaveBeenCalledWith('sw.example.route.index');
 
-        const expectedDuration = new Date();
-        expectedDuration.setDate(expectedDuration.getDate() + 14);
-        const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
-        expect(rememberMeDuration).toBeGreaterThan(1600000);
-        expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
+        const rememberMe = Boolean(localStorage.getItem('rememberMe'));
+        expect(rememberMe).toBe(true);
     });
 });

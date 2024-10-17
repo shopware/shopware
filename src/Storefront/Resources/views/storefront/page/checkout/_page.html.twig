@@ -24,7 +24,7 @@
                     {% block page_checkout_additional %}{% endblock %}
 
                     {% block page_checkout_aside %}
-                        <div class="checkout-aside {% if block('page_checkout_additional')|trim %}checkout-aside-no-offset{% endif %}">
+                        <div class="checkout-aside {% if sw_block('page_checkout_additional')|trim %}checkout-aside-no-offset{% endif %}">
                             {% block page_checkout_aside_container %}
                                 <div class="checkout-aside-container">
                                     {% block page_checkout_aside_summary %}

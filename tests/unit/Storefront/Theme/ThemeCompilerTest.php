@@ -10,8 +10,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInputFactory;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -94,9 +94,9 @@ class ThemeCompilerTest extends TestCase
     private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
 
     /**
-     * @var CopyBatchInputFactory&MockObject
+     * @var WriteBatchInputFactory&MockObject
      */
-    private CopyBatchInputFactory $copyBatchInputFactory;
+    private WriteBatchInputFactory $writeBatchInputFactory;
 
     protected function setUp(): void
     {
@@ -107,7 +107,7 @@ class ThemeCompilerTest extends TestCase
         $this->scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
         $this->messageBus = new MessageBus();
-        $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
+        $this->writeBatchInputFactory = $this->createMock(WriteBatchInputFactory::class);
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
@@ -165,7 +165,7 @@ class ThemeCompilerTest extends TestCase
             [ThemeFileResolver::STYLE_FILES => FileCollection::createFromArray(['foo'])]
         );
 
-        $this->copyBatchInputFactory->method('fromDirectory')->willThrowException(new \Exception());
+        $this->writeBatchInputFactory->method('fromDirectory')->willThrowException(new \Exception());
 
         $compiler = $this->getThemeCompiler();
 
@@ -506,9 +506,9 @@ PHP_EOL,
         $this->filesystem->write('temp/test.png', '');
         $png = $this->filesystem->readStream('temp/test.png');
 
-        $this->copyBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
+        $this->writeBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
             [
-                new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
+                new WriteBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
             ]
         );
 
@@ -586,7 +586,7 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/current');
         $this->filesystem->write('theme/current/all.js', '');
 
-        $this->copyBatchInputFactory->expects(static::never())
+        $this->writeBatchInputFactory->expects(static::never())
             ->method('fromDirectory');
 
         $this->scssPhpCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
@@ -796,7 +796,7 @@ PHP_EOL,
         return new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
-            $this->copyBatchInputFactory,
+            $this->writeBatchInputFactory,
             $this->themeFileResolver,
             true,
             $this->eventDispatcher,

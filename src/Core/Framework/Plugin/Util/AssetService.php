@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInput;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -219,13 +219,13 @@ class AssetService
         $batches = [];
 
         foreach ($uploads as $file) {
-            $batches[] = new CopyBatchInput(
+            $batches[] = new WriteBatchInput(
                 $originDir . '/' . $file,
                 [$targetDirectory . '/' . $file]
             );
         }
 
-        CopyBatch::copy($this->filesystem, ...$batches);
+        WriteBatch::write($this->filesystem, ...$batches);
     }
 
     /**

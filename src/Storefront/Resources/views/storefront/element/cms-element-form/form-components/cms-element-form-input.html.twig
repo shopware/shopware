@@ -14,7 +14,7 @@
                    value="{{ data.get( fieldName ) }}"
                    placeholder="{{ placeholder|trans }}"
                    {% if required %}required="required"{% endif %}
-                   class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) %} is-invalid{% endif %}">
+                   class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) is not empty %} is-invalid{% endif %}">
 
             {% if formViolations.getViolations( '/' ~ fieldName ) is not empty %}
                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {

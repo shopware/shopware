@@ -99,6 +99,10 @@ class MakerCommand extends Command
                 $directory
             );
 
+            if(\method_exists($this->generator, 'disableAskConfirmQuestion')) {
+                $this->generator->disableAskConfirmQuestion();
+            }
+
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
             $stubCollection = new StubCollection();

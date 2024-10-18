@@ -29,6 +29,18 @@ All available Hooks that can be used to load additional data.
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+#### product-reviews-widget-loaded
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | product-reviews-widget-loaded                         |
+| **Since**              | 6.6.7.0                        |
+| **Class**              | `Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook`                      |
+| **Description**        | Triggered when the ProductReviewsWidget is loaded<br>                  |
+| **Available Data**     | reviews: [`Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Product/SalesChannel/Review/ProductReviewResult.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 #### customer-group-registration-page-loaded
 
 | <!-- -->               | <!-- -->                                |
@@ -342,6 +354,8 @@ All available Hooks that can be used to load additional data.
 | **Stoppable**          | `false`                  |
 
 #### product-reviews-loaded
+
+**Deprecated:** Class "Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook" is deprecated and will be removed in v6.7.0.0. Use "Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook" instead.
 
 | <!-- -->               | <!-- -->                                |
 |:-----------------------|:----------------------------------------|

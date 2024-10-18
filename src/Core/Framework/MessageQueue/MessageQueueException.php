@@ -59,7 +59,7 @@ class MessageQueueException extends HttpException
         return new self(
             Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
             self::QUEUE_MESSAGE_SIZE_EXCEEDS,
-            'The message {{ message }} exceeds 256KB size limit',
+            'The message {{ message }} exceeds 256 kB size limit',
             ['message' => $messageName]
         );
     }

@@ -92,7 +92,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
-        static::expectExceptionObject(MessageQueueException::queueMessageSizeExceeded(\stdClass::class));
+        $this->expectExceptionObject(MessageQueueException::queueMessageSizeExceeded(\stdClass::class));
 
         $listener($event);
     }

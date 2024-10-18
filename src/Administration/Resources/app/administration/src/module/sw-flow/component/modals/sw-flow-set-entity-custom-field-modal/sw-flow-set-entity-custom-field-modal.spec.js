@@ -173,6 +173,8 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
             return {
                 mapActionType: () => {},
 
+                getEntityNameByAction: () => 'order',
+
                 getAvailableEntities: () => {
                     return [
                         {
@@ -211,6 +213,13 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
             customFieldSets: [],
             customFields: [],
         },
+    });
+
+    it('should preselect the entity', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.entity).toBe('order');
     });
 
     it('should show these fields on modal', async () => {

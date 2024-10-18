@@ -87,8 +87,11 @@ export default {
 
     methods: {
         createdComponent() {
+            const entityName = Service('flowBuilderService').getEntityNameByAction(this.action);
+
             if (this.entityOptions.length) {
-                this.entity = this.entityOptions[0].value;
+                this.entity = this.entityOptions
+                    .find((option) => option.value === entityName)?.value || this.entityOptions[0].value;
             }
 
             if (!this.sequence.config) {

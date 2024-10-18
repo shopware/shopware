@@ -237,7 +237,7 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(false)),
 
-            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
 
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
 

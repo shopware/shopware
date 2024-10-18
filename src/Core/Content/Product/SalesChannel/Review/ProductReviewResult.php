@@ -38,6 +38,11 @@ class ProductReviewResult extends EntitySearchResult
      */
     protected $totalReviews;
 
+    /**
+     * @var int
+     */
+    protected $totalNativeReviews;
+
     public function getProductId(): string
     {
         return $this->productId;
@@ -76,6 +81,16 @@ class ProductReviewResult extends EntitySearchResult
     public function setTotalReviews(int $totalReviews): void
     {
         $this->totalReviews = $totalReviews;
+    }
+
+    public function getTotalNativeReviews(): int
+    {
+        return $this->totalNativeReviews;
+    }
+
+    public function setTotalNativeReviews(int $totalNativeReviews): void
+    {
+        $this->totalNativeReviews = $totalNativeReviews;
     }
 
     public function getParentId(): ?string

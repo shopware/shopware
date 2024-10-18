@@ -152,7 +152,7 @@
                             <sw-context-menu-item
                                 class="sw-entity-listing__context-menu-edit-delete"
                                 variant="danger"
-                                :disabled="!acl.can('number_ranges.deleter') || undefined"
+                                :disabled="!canDelete(item) || !acl.can('number_ranges.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-number-range.list.contextMenuDelete') }}

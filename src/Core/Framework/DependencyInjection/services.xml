@@ -22,11 +22,13 @@
 object-src 'none';
 script-src 'none';
 base-uri 'self';
+frame-ancestors 'none';
             </parameter>
             <parameter key="administration">
 object-src 'none';
 script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
 base-uri 'self';
+frame-ancestors 'none';
             </parameter>
             <parameter key="storefront"/>
             <parameter key="installer"/>

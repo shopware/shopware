@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Seo\SeoUrlRoute;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -25,7 +26,8 @@ class NavigationPageSeoUrlRouteTest extends TestCase
     {
         $navigationPageSeoUrlRoute = new NavigationPageSeoUrlRoute(
             new CategoryDefinition(),
-            static::createStub(CategoryBreadcrumbBuilder::class)
+            static::createStub(CategoryBreadcrumbBuilder::class),
+            static::createStub(SalesChannelEntrypointService::class),
         );
 
         $salesChannel = new SalesChannelEntity();

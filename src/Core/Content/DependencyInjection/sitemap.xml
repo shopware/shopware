@@ -59,6 +59,7 @@
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

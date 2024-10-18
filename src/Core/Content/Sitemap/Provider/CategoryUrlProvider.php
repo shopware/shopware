@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -31,7 +32,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
         private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly SalesChannelEntrypointService $entrypointService,
     ) {
     }
 
@@ -115,11 +117,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         ]);
 
         $wheres = [];
-        $categoryIds = array_filter([
-            $context->getSalesChannel()->getNavigationCategoryId(),
-            $context->getSalesChannel()->getFooterCategoryId(),
-            $context->getSalesChannel()->getServiceCategoryId(),
-        ]);
+        $categoryIds = $this->entrypointService->getEntrypointIds($context->getSalesChannel(), $context);
 
         foreach ($categoryIds as $id) {
             $wheres[] = '`category`.path LIKE ' . $query->createNamedParameter('%|' . $id . '|%');

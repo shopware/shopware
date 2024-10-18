@@ -159,6 +159,11 @@ class SalesChannelEntity extends Entity
     protected $serviceCategoryVersionId;
 
     /**
+     * @var array<mixed>|null
+     */
+    protected $entrypointIds;
+
+    /**
      * @var string|null
      */
     protected $name;
@@ -753,6 +758,22 @@ class SalesChannelEntity extends Entity
     public function setNavigationCategory(CategoryEntity $navigationCategory): void
     {
         $this->navigationCategory = $navigationCategory;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getEntrypointIds(): ?array
+    {
+        return $this->entrypointIds;
+    }
+
+    /**
+     * @param string[]|null $entrypointIds
+     */
+    public function setEntrypointIds(?array $entrypointIds): void
+    {
+        $this->entrypointIds = $entrypointIds;
     }
 
     /**

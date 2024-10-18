@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -27,7 +28,8 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     public function __construct(
         private readonly CategoryDefinition $categoryDefinition,
-        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        private readonly SalesChannelEntrypointService $entrypointService
     ) {
     }
 
@@ -86,19 +88,10 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         }
         $path = array_filter(explode('|', (string) $category->getPath()));
 
-        $navigationId = $salesChannel->getNavigationCategoryId();
-        if ($navigationId === $category->getId() || \in_array($navigationId, $path, true)) {
-            return $navigationId;
-        }
-
-        $footerId = $salesChannel->getFooterCategoryId();
-        if ($footerId === $category->getId() || \in_array($footerId, $path, true)) {
-            return $footerId;
-        }
-
-        $serviceId = $salesChannel->getServiceCategoryId();
-        if ($serviceId === $category->getId() || \in_array($serviceId, $path, true)) {
-            return $serviceId;
+        foreach ($this->entrypointService->getEntrypointIds($salesChannel) as $entrypointId) {
+            if ($entrypointId === $category->getId() || \in_array($entrypointId, $path, true)) {
+                return $entrypointId;
+            }
         }
 
         return null;

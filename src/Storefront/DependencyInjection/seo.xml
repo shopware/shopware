@@ -14,6 +14,7 @@
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
 
             <tag name="shopware.seo_url.route"/>
         </service>

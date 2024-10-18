@@ -3,7 +3,9 @@
 namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -32,7 +34,8 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCurrencyRoute $currencyRoute,
         private readonly AbstractLanguageRoute $languageRoute,
-        private readonly NavigationLoaderInterface $navigationLoader
+        private readonly NavigationLoaderInterface $navigationLoader,
+        private readonly SalesChannelEntrypointService $entrypointService
     ) {
     }
 
@@ -77,7 +80,8 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $currencies,
             $contextLanguage,
             $context->getCurrency(),
-            $this->getServiceMenu($context)
+            $this->getServiceMenu($context),
+            $this->loadCustomEntrypoints($request, $context)
         );
 
         $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($page, $context, $request));
@@ -115,5 +119,29 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $this->eventDispatcher->dispatch($event);
 
         return $this->languageRoute->load($event->getStoreApiRequest(), $context, $criteria)->getLanguages();
+    }
+
+    /**
+     * @return array<string, Tree>
+     */
+    private function loadCustomEntrypoints(Request $request, SalesChannelContext $context): array
+    {
+        $entrypointIds = $this->entrypointService->getCustomEntrypointIds($context->getSalesChannel(), $context);
+
+        $entrypoints = [];
+        foreach ($entrypointIds as $entrypointKey => $entrypointId) {
+            if (!$entrypointId->getCategoryId()) {
+                continue;
+            }
+
+            $navigationId = $request->get('navigationId', $entrypointId->getCategoryId());
+            $entrypoints[(string) $entrypointKey] = $this->navigationLoader->load(
+                $navigationId,
+                $context,
+                $entrypointId->getCategoryId()
+            );
+        }
+
+        return $entrypoints;
     }
 }

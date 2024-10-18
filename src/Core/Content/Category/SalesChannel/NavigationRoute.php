@@ -39,7 +39,8 @@ class NavigationRoute extends AbstractNavigationRoute
     public function __construct(
         private readonly Connection $connection,
         private readonly SalesChannelRepository $categoryRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly SalesChannelEntrypointService $entrypointService
     ) {
     }
 
@@ -216,11 +217,7 @@ class NavigationRoute extends AbstractNavigationRoute
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        $ids = array_filter([
-            $context->getSalesChannel()->getFooterCategoryId(),
-            $context->getSalesChannel()->getServiceCategoryId(),
-            $context->getSalesChannel()->getNavigationCategoryId(),
-        ]);
+        $ids = $this->entrypointService->getEntrypointIds($context->getSalesChannel(), $context);
 
         foreach ($ids as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {

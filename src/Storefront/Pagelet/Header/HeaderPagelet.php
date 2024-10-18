@@ -40,7 +40,14 @@ class HeaderPagelet extends NavigationPagelet
     protected $serviceMenu;
 
     /**
+     * @var array|Tree[]
+     */
+    protected $customEntrypoints;
+
+    /**
      * @internal
+     *
+     * @param Tree[] $customEntrypoints
      */
     public function __construct(
         Tree $navigation,
@@ -48,13 +55,15 @@ class HeaderPagelet extends NavigationPagelet
         CurrencyCollection $currencies,
         LanguageEntity $activeLanguage,
         CurrencyEntity $activeCurrency,
-        CategoryCollection $serviceMenu
+        CategoryCollection $serviceMenu,
+        array $customEntrypoints
     ) {
         $this->languages = $languages;
         $this->currencies = $currencies;
         $this->activeLanguage = $activeLanguage;
         $this->activeCurrency = $activeCurrency;
         $this->serviceMenu = $serviceMenu;
+        $this->customEntrypoints = $customEntrypoints;
 
         parent::__construct($navigation);
     }
@@ -82,5 +91,13 @@ class HeaderPagelet extends NavigationPagelet
     public function getServiceMenu(): CategoryCollection
     {
         return $this->serviceMenu;
+    }
+
+    /**
+     * @return array|Tree[]
+     */
+    public function getCustomEntrypoints(): array
+    {
+        return $this->customEntrypoints;
     }
 }

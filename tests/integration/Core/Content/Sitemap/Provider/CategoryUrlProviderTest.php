@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
@@ -97,6 +98,7 @@ class CategoryUrlProviderTest extends TestCase
             $this->getContainer()->get(CategoryDefinition::class),
             $this->getContainer()->get(IteratorFactory::class),
             $this->getContainer()->get(RouterInterface::class),
+            $this->getContainer()->get(SalesChannelEntrypointService::class),
         );
     }
 

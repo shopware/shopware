@@ -55,6 +55,9 @@ async function createWrapper() {
                 knownIpsService: {
                     getKnownIps: () => Promise.resolve(),
                 },
+                entryPointService: {
+                    list: () => Promise.resolve(),
+                },
                 repositoryFactory: {
                     create: () => ({
                         search: () => {

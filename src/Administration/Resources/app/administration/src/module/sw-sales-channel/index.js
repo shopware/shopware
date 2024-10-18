@@ -5,6 +5,7 @@
 import './service/export-template.service';
 import './product-export-templates';
 import './service/domain-link.service';
+import EntryPointService from './service/entry-point.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
 import './component/structure/sw-sales-channel-menu';
@@ -58,6 +59,14 @@ Shopware.Component.register(
     () => import('./component/sw-sales-channel-products-assignment-modal'),
 );
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Service().register('entryPointService', () => {
+    return new EntryPointService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service().get('loginService'),
+    );
+});
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-sales-channel', {

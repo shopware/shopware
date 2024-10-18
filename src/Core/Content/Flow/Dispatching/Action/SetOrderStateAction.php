@@ -104,7 +104,14 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
 
         $data = new ParameterBag();
-        $machineId = $machine === self::ORDER ? $orderId : $this->getMachineId($machine, $orderId);
+        if ($machine === self::ORDER) {
+            $machineId = $orderId;
+        } elseif ($machine === self::ORDER_DELIVERY) {
+            $machineId = $this->getMachineIdFromOrderDelivery($orderId);
+        } else {
+            $machineId = $this->getMachineId($machine, $orderId);
+        }
+
         if (!$machineId) {
             throw StateMachineException::stateMachineNotFound($machine);
         }
@@ -140,6 +147,23 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
                 'id' => Uuid::fromHexToBytes($orderId),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]
+        ) ?: null;
+    }
+
+    /**
+     * Returns the Id of the primary delivery of the given order.
+     * This is the order delivery with the highest shipping costs as Shopware creates additional order deliveries with
+     * negative shipping costs when applying a discount to the shipping costs. Just using the first or last order delivery
+     * without sorting first can result in the wrong order delivery to be used.
+     */
+    private function getMachineIdFromOrderDelivery(string $orderId): ?string
+    {
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
         ) ?: null;
     }
 

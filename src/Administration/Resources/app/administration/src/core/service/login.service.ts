@@ -32,6 +32,7 @@ export interface LoginService {
     getToken: () => string;
     getBearerAuthentication: <K extends keyof AuthObject>(section?: K) => AuthObject[K];
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
+    restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
     isLoggedIn: () => boolean;
@@ -67,6 +68,7 @@ export default function createLoginService(
         getToken,
         getBearerAuthentication,
         setBearerAuthentication,
+        restartAutoTokenRefresh,
         logout,
         forwardLogout,
         isLoggedIn,
@@ -278,7 +280,7 @@ export default function createLoginService(
 
         context.authToken = authObject;
 
-        autoRefreshToken(expiry);
+        restartAutoTokenRefresh(expiry);
 
         return authObject;
     }
@@ -286,24 +288,13 @@ export default function createLoginService(
     /**
      * Refresh token in half of expiry time
      */
-    function autoRefreshToken(expiryTimestamp: number): void {
-        const needTokenUpdate = getBearerAuthentication('expiry') !== expiryTimestamp;
-
-        if (autoRefreshTokenTimeoutId && needTokenUpdate) {
+    function restartAutoTokenRefresh(expiryTimestamp: number): void {
+        if (autoRefreshTokenTimeoutId) {
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
 
-        if (shouldConsiderUserActivity() && lastActivityOverThreshold()) {
-            logout(true);
-            return;
-        }
-
-        if (!needTokenUpdate && autoRefreshTokenTimeoutId) {
-            return;
-        }
-
-        const timeUntilExpiry = expiryTimestamp - Date.now();
+        const timeUntilExpiry = (expiryTimestamp - Date.now()) / 2;
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
             autoRefreshTokenTimeoutId = undefined;
@@ -314,7 +305,7 @@ export default function createLoginService(
             }
 
             void refreshToken();
-        }, timeUntilExpiry / 2);
+        }, timeUntilExpiry);
     }
 
     /**
@@ -476,14 +467,15 @@ export default function createLoginService(
      * Checks if the user is logged in by checking if the bearer token exists
      * in the cookies.
      *
-     * A check for expiration is not possible because the refresh token is longer
-     * valid then the normal token.
+     * If the user was logged in but the last activity was over the threshold,
+     * the user will be logged out and the function will return false.
      */
     function isLoggedIn(): boolean {
         const tokenExists = !!getToken();
 
-        if (tokenExists) {
-            autoRefreshToken(getBearerAuthentication('expiry'));
+        if (tokenExists && shouldConsiderUserActivity() && lastActivityOverThreshold()) {
+            logout(true);
+            return false;
         }
 
         return tokenExists;

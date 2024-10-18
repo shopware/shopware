@@ -33,6 +33,14 @@
         {% set attributes = attributes|merge({ loading: 'eager' }) %}
     {% endif %}
 
+    {% if attributes.width is not defined and media.metaData.width %}
+        {% set attributes = attributes|merge({ 'width': media.metaData.width }) %}
+    {% endif %}
+
+    {% if attributes.height is not defined and media.metaData.height %}
+        {% set attributes = attributes|merge({ 'height': media.metaData.height }) %}
+    {% endif %}
+
     {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
     {% if media.thumbnails|length > 0 %}
         {% if autoColumnSizes and columns and sizes is not defined %}

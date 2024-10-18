@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -34,8 +35,10 @@ class ElasticsearchCleanIndicesCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation');
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this
+                ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation');
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -51,11 +54,13 @@ class ElasticsearchCleanIndicesCommand extends Command
 
         $io->table(['Indices to be deleted:'], array_map(static fn (string $name) => [$name], $indices));
 
-        if (!$input->getOption('force')) {
-            if (!$io->confirm(\sprintf('Delete these %d indices?', \count($indices)), false)) {
-                $io->writeln('Deletion aborted.');
+        if (Feature::isActive('v6.7.0.0') || !$input->getOption('force')) {
+            $confirm = $io->confirm(\sprintf('Delete these %d indices?', \count($indices)));
 
-                return self::FAILURE;
+            if (!$confirm) {
+                $io->caution('Deletion aborted.');
+
+                return self::SUCCESS;
             }
         }
 

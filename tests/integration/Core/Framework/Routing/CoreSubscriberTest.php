@@ -144,7 +144,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('OPTIONS', '/api/_info/swagger.html');
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertFalse($response->headers->has('Content-Security-Policy'));
     }
 
@@ -155,7 +155,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('OPTIONS', '/api/_info/stoplightio.html');
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertFalse($response->headers->has('Content-Security-Policy'));
     }
 

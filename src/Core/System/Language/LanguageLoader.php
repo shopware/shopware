@@ -27,9 +27,9 @@ class LanguageLoader implements LanguageLoaderInterface
         $data = $this->connection->createQueryBuilder()
             ->select('LOWER(HEX(language.id)) AS array_key, LOWER(HEX(language.id)) AS id, locale.code, parentLocale.code AS parentCode, LOWER(HEX(language.parent_id)) parentId')
             ->from('language')
-            ->leftJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
+            ->leftJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
             ->leftJoin('language', 'language', 'parentLanguage', 'language.parent_id = parentLanguage.id')
-            ->leftJoin('parentLanguage', 'locale', 'parentLocale', 'parentLanguage.translation_code_id = parentLocale.id')
+            ->leftJoin('parentLanguage', 'locale', 'parentLocale', 'parentLanguage.locale_id = parentLocale.id')
             ->executeQuery()
             ->fetchAllAssociative();
 

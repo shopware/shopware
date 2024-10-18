@@ -159,7 +159,7 @@ class PaymentServiceTest extends TestCase
         );
     }
 
-    public function testDuplicateFinalizeCall(): void
+    public function testDuplicateFinalizeCallProceedsWhenTransactionHandlingWasSuccessful(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
@@ -182,11 +182,11 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The provided token ' . $token . ' is invalidated and the payment could not be processed.');
+        $firstCallToken = $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
+        $secondCallToken = $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
 
-        $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
-        $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
+        static::assertSame($firstCallToken->getFinishUrl(), $secondCallToken->getFinishUrl());
+        static::assertSame($firstCallToken->getException(), $secondCallToken->getException());
     }
 
     public function testHandlePaymentByOrderDefaultPayment(): void

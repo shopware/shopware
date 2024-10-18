@@ -1,20 +1,26 @@
-<mt-banner
-    v-if="useMeteorComponent"
-    v-bind="$attrs"
-    v-on="listeners"
->
-    <template #default>
-        <slot></slot>
-    </template>
-</mt-banner>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_alert %}
+    <mt-banner
+        v-if="useMeteorComponent"
+        v-bind="$attrs"
+        v-on="listeners"
+    >
+        <template #default>
+            <slot></slot>
+        </template>
+    </mt-banner>
+{% endblock %}
 
-<sw-alert-deprecated
-    v-else
-    v-bind="$attrs"
-    v-on="listeners"
->
-    <slot></slot>
-    <template #actions>
-        <slot name="actions"></slot>
-    </template>
-</sw-alert-deprecated>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_alert_deprecated %}
+    <sw-alert-deprecated
+        v-else
+        v-bind="$attrs"
+        v-on="listeners"
+    >
+        <slot></slot>
+        <template #actions>
+            <slot name="actions"></slot>
+        </template>
+    </sw-alert-deprecated>
+{% endblock %}

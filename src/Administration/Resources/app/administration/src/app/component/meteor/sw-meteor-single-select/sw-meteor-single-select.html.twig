@@ -1,83 +1,92 @@
-<div class="sw-meteor-single-select">
-    <div
-        class="sw-meteor-single-select__preview"
-        role="button"
-        tabindex="0"
-        @click="toggleResultList"
-        @keydown.enter="toggleResultList"
-    >
-        <span class="sw-meteor-single-select__label">
-            {{ label }}:
-        </span>
-
-        <span class="sw-meteor-single-select__selected-value-label">
-            {{ selectedValueLabel }}
-        </span>
-
-        <sw-icon name="regular-chevron-down-xxs" />
-    </div>
-
-    <div class="sw-meteor-single-select__result-list">
-        <sw-select-result-list
-            v-if="isExpanded"
-            :popover-classes="['sw-meteor-single-select__popover']"
-            :popover-resize-width="false"
-            :options="results"
-            :is-loading="isLoading"
-            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', 0, { term: searchTerm })"
-            @paginate="$emit('paginate')"
-            @item-select="setValue"
-            @outside-click="closeResultList"
-        >
-
-            <template
-                v-if="searchable"
-                #before-item-list
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_meteor_single_select %}
+    <div class="sw-meteor-single-select">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_meteor_single_select_preview %}
+            <div
+                class="sw-meteor-single-select__preview"
+                role="button"
+                tabindex="0"
+                @click="toggleResultList"
+                @keydown.enter="toggleResultList"
             >
-                <slot name="before-item-list">
-                    <sw-simple-search-field
-                        ref="searchField"
-                        :value="searchTerm"
-                        size="small"
-                        variant="form"
-                        @update:value="searchTerm = $event"
-                        @search-term-change="onInputSearchTerm"
-                    />
-                </slot>
-            </template>
+                <span class="sw-meteor-single-select__label">
+                    {{ label }}:
+                </span>
 
-            <template #result-item="{ item, index }">
-                <slot
-                    name="result-item"
-                    v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+                <span class="sw-meteor-single-select__selected-value-label">
+                    {{ selectedValueLabel }}
+                </span>
+
+                <sw-icon name="regular-chevron-down-xxs" />
+            </div>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_meteor_single_select_result_list %}
+            <div class="sw-meteor-single-select__result-list">
+                <sw-select-result-list
+                    v-if="isExpanded"
+                    :popover-classes="['sw-meteor-single-select__popover']"
+                    :popover-resize-width="false"
+                    :options="results"
+                    :is-loading="isLoading"
+                    :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', 0, { term: searchTerm })"
+                    @paginate="$emit('paginate')"
+                    @item-select="setValue"
+                    @outside-click="closeResultList"
                 >
-                    <sw-select-result
-                        :class="'sw-meteor-select-option--' + item.value"
-                        :selected="isSelected(item)"
-                        v-bind="{ item, index }"
-                        @item-select="setValue"
+
+                    <template
+                        v-if="searchable"
+                        #before-item-list
                     >
-                        <slot
-                            name="result-label-property"
-                            v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }"
-                        >
-                            <sw-highlight-text
-                                v-if="highlightSearchTerm && !isSelected(item)"
-                                :text="getKey(item, labelProperty)"
-                                :search-term="searchTerm"
+                        <slot name="before-item-list">
+                            <sw-simple-search-field
+                                ref="searchField"
+                                :value="searchTerm"
+                                size="small"
+                                variant="form"
+                                @update:value="searchTerm = $event"
+                                @search-term-change="onInputSearchTerm"
                             />
-
-                            <template v-else>
-                                {{ getKey(item, labelProperty) }}
-                            </template>
                         </slot>
-                    </sw-select-result>
-                </slot>
-            </template>
+                    </template>
 
-            <template #after-item-list>
-                <slot name="after-item-list"></slot>
-            </template>
-        </sw-select-result-list>
+                    <template #result-item="{ item, index }">
+                        <slot
+                            name="result-item"
+                            v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+                        >
+                            <sw-select-result
+                                :class="'sw-meteor-select-option--' + item.value"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                @item-select="setValue"
+                            >
+                                <slot
+                                    name="result-label-property"
+                                    v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }"
+                                >
+                                    <sw-highlight-text
+                                        v-if="highlightSearchTerm && !isSelected(item)"
+                                        :text="getKey(item, labelProperty)"
+                                        :search-term="searchTerm"
+                                    />
+
+                                    <template v-else>
+                                        {{ getKey(item, labelProperty) }}
+                                    </template>
+                                </slot>
+                            </sw-select-result>
+                        </slot>
+                    </template>
+
+                    <template #after-item-list>
+                        <slot name="after-item-list"></slot>
+                    </template>
+                </sw-select-result-list>
+            </div>
+        {% endblock %}
     </div>
-</div>
+{% endblock %}

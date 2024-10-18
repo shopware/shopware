@@ -204,7 +204,7 @@ class MailService extends AbstractMailService
 
         if ($this->isTestMode()) {
             $headers = $mail->getHeaders();
-            $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? null);
+            $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? '');
             $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannelId);
             $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
             $mail->setHeaders($headers);

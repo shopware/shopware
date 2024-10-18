@@ -2,9 +2,7 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Platform\Github\Github;
 use Danger\Platform\Gitlab\Gitlab;
-use Danger\Rule\CommitRegex;
 use Danger\Rule\Condition;
 use Danger\Rule\DisallowRepeatedCommits;
 use Danger\Struct\File;
@@ -19,10 +17,9 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
         '^phpstan\/phpdoc-parser.*$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of no lock on their side',
         '^friendsofphp\/php-cs-fixer$' => 'Even patch updates for PHP-CS-Fixer may lead to a red CI pipeline, because of new style issues',
-        '^symplify\/phpstan-rules$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
-        '^rector\/type-perfect$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
-        '^tomasvotruba\/type-coverage$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
-        '^phpat\/phpat$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
+        '^symplify\/phpstan-rules$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
+        '^rector\/type-perfect$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpat\/phpat$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
         '^scssphp\/scssphp$' => 'Patch updates of scssphp might lead to UI breaks, therefore it is pinned.',
         '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
@@ -33,7 +30,7 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
 
 const BaseTestClasses = [
     'RuleTestCase',
-    'TestCase'
+    'TestCase',
 ];
 
 return (new Config())
@@ -90,7 +87,7 @@ return (new Config())
                 if (!$found) {
                     $context->failure('This MR should have a dependency on a trunk MR. Please add a thread with a link');
                 }
-            }
+            },
         ]
     ))
     ->useRule(new Condition(
@@ -238,8 +235,9 @@ return (new Config())
                 if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?(\[[\w.]+]\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
                     $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
                 }
-            }
-        ]))
+            },
+        ]
+    ))
     ->useRule(new Condition(
         function (Context $context) {
             return $context->platform instanceof Gitlab;
@@ -405,15 +403,15 @@ return (new Config())
         $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
         $excludedDirs = [];
         $excludedFiles = [];
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         $loaded = $dom->load($phpUnitConfig);
         if ($loaded) {
-            $xpath = new \DOMXPath($dom);
+            $xpath = new DOMXPath($dom);
             $dirsDomElements = $xpath->query('//source/exclude/directory');
 
             foreach ($dirsDomElements as $dirDomElement) {
                 $excludedDirs[] = [
-                    'path'=> rtrim($dirDomElement->nodeValue, '/') . '/',
+                    'path' => rtrim($dirDomElement->nodeValue, '/') . '/',
                     'suffix' => $dirDomElement->getAttribute('suffix') ?: '',
                 ];
             }
@@ -432,7 +430,7 @@ return (new Config())
 
             preg_match('/\s+extends\s+(?<class>\w+)/', $content, $matches);
 
-            if (isset($matches['class']) && in_array($matches['class'], BaseTestClasses)) {
+            if (isset($matches['class']) && in_array($matches['class'], BaseTestClasses, true)) {
                 $fqcn = str_replace('.php', '', $file->name);
                 $className = explode('/', $fqcn);
                 $testClass = end($className);
@@ -511,7 +509,7 @@ return (new Config())
             $context->warning(
                 'Please be kind and add unit tests for your new code in these files: <br/>'
                 . implode('<br/>', $missingUnitTests)
-                . '<br/>' . 'If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
+                . '<br/>If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
             );
         }
     })
@@ -524,7 +522,7 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
-            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string)$composerFile->name, 'src/WebInstaller') || str_contains((string)$composerFile->name, 'src/Core/DevOps/StaticAnalyze/PHPStan')) {
+            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string) $composerFile->name, 'src/WebInstaller') || str_contains((string) $composerFile->name, 'src/Core/DevOps/StaticAnalyze/PHPStan')) {
                 continue;
             }
 

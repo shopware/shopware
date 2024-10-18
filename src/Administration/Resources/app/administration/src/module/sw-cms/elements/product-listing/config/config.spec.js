@@ -455,14 +455,14 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(selectedProperties).toEqual([]);
 
         // simulate a click on a switch to select the property foo
-        wrapper.vm.propertyStatusChanged('x03');
+        wrapper.vm.propertyStatusChanged(true, 'x03');
 
         // check that foo with the id x03 got added to the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
         expect(selectedProperties).toEqual(['x03']);
 
         // simulate a click on a switch to select the property baz
-        wrapper.vm.propertyStatusChanged('x02');
+        wrapper.vm.propertyStatusChanged(true, 'x02');
 
         // check that baz with the id x02 got added to the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
@@ -472,7 +472,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         ]);
 
         // simulate a click on a switch to deselect the property foo
-        wrapper.vm.propertyStatusChanged('x03');
+        wrapper.vm.propertyStatusChanged(false, 'x03');
 
         // check that foo with the id x03 got removed from the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;

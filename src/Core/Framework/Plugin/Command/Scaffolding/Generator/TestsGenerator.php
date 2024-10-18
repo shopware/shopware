@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -15,6 +16,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('core')]
 class TestsGenerator implements ScaffoldingGenerator
 {
+    public function __construct(
+        private readonly Filesystem $filesystem
+    )
+    {
+    }
+
     public function hasCommandOption(): bool
     {
         return false;
@@ -41,8 +48,13 @@ class TestsGenerator implements ScaffoldingGenerator
         PluginScaffoldConfiguration $configuration,
         StubCollection $stubCollection
     ): void {
-        $stubCollection->add($this->createPhpunitXml($configuration));
-        $stubCollection->add($this->createTestBootstrap($configuration));
+        if($this->filesystem->exists($configuration->directory . 'phpunit.xml')) {
+            $stubCollection->add($this->createPhpunitXml($configuration));
+        }
+
+        if($this->filesystem->exists($configuration->directory . 'tests/TestBootstrap.php')) {
+            $stubCollection->add($this->createTestBootstrap($configuration));
+        }
     }
 
     private function createPhpunitXml(PluginScaffoldConfiguration $configuration): Stub

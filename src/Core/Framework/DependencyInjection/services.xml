@@ -717,5 +717,7 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator">
             <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\XmlScaffoldConfigManipulator"/>
     </services>
 </container>

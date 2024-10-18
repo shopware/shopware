@@ -332,9 +332,9 @@ shopware:
         expire_days: 120
         storage:
             # supported types: mysql, redis
-            type: "mysql"
-            # config:
-                # dsn: 'redis://localhost'
+            type: "redis"
+            config:
+                dsn: 'redis://127.0.0.1:6379/3?persistent=1'
 
     number_range:
         # supported types: mysql, redis

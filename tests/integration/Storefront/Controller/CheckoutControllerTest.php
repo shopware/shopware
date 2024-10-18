@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -137,7 +138,6 @@ class CheckoutControllerTest extends TestCase
         $request = $this->createRequest();
         $request->request->set('fail', true);
 
-        /** @var RedirectResponse|Response $response */
         $response = $this->getContainer()->get(CheckoutController::class)->order($requestDataBag, $salesChannelContext, $request);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -542,8 +542,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidgetSkipsCalculationAndRenderIfCartIsEmpty(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $contextToken = Uuid::randomHex();
 
         $cartService = $this->getContainer()->get(CartService::class);
@@ -570,6 +568,44 @@ class CheckoutControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(CheckoutOffcanvasWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    #[DataProvider('loggedInRedirectRouteDataProvider')]
+    public function testLoggedInRoutesRedirectWhenNotLoggedIn(string $url, string $route, string $method = 'GET'): void
+    {
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+
+        $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . $url);
+
+        $response = $browser->getResponse();
+        static::assertInstanceOf(RedirectResponse::class, $response);
+
+        static::assertEquals(302, $response->getStatusCode());
+        $targetUrl = $response->getTargetUrl();
+
+        $path = \parse_url($targetUrl, \PHP_URL_PATH);
+        static::assertIsString($path);
+        static::assertStringEndsWith('/account/login', $path);
+
+        $queryString = \parse_url($targetUrl, \PHP_URL_QUERY);
+        static::assertIsString($queryString);
+
+        $query = [];
+        \parse_str($queryString, $query);
+        static::assertArrayHasKey('redirectTo', $query);
+
+        $redirectTo = $query['redirectTo'];
+        static::assertSame($route, $redirectTo);
+    }
+
+    /**
+     * @return \Generator<string, array{url: string, route: string, method?: string}>
+     */
+    public static function loggedInRedirectRouteDataProvider(): \Generator
+    {
+        yield 'confirm' => ['url' => '/checkout/confirm', 'route' => 'frontend.checkout.confirm.page'];
+        yield 'finish' => ['url' => '/checkout/finish', 'route' => 'frontend.checkout.finish.page'];
+        yield 'order' => ['url' => '/checkout/order', 'route' => 'frontend.checkout.finish.order', 'method' => 'POST'];
     }
 
     private function updateSalesChannel(string $salesChannelId): void
@@ -660,7 +696,6 @@ class CheckoutControllerTest extends TestCase
             $request = $this->createRequest();
         }
 
-        /** @var RedirectResponse|Response $response */
         $response = $this->getContainer()->get(CheckoutController::class)->order($requestDataBag, $salesChannelContext, $request);
 
         static::assertInstanceOf(RedirectResponse::class, $response);

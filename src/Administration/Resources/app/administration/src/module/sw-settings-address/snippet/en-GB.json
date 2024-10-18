@@ -1,0 +1,12 @@
+{
+  "sw-settings-address": {
+    "general": {
+      "mainMenuItemGeneral": "Address settings",
+      "textHeadline": "Address settings",
+      "description": "Manage address settings here.",
+      "buttonSave": "Save",
+      "messageSaveSuccess": "The configuration has been saved.",
+      "textWarning": "There is a new option for formatting addresses in the <a href=\"{addressFormatSettingsLink}\">country settings</a>. The current option will be adjusted and removed with version 6.6."
+    }
+  }
+}

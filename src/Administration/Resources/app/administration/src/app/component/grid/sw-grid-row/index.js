@@ -61,11 +61,16 @@ Component.register('sw-grid-row', {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+
+        columns: {
+            type: Array,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
         return {
-            columns: [],
             isEditingActive: false,
             inlineEditingCls: 'is--inline-editing',
             id: utils.createId(),

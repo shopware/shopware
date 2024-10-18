@@ -13,10 +13,10 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -33,7 +33,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
         static::assertArrayHasKey('campaignCode', $constraints, 'Constraint campaign not found in Rule');
         static::assertEquals($constraints['campaignCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new ArrayOfType('string'),
         ]);
     }
 
@@ -50,13 +50,13 @@ class CampaignCodeOfOrderRuleTest extends TestCase
             'fields' => [
                 'campaignCode' => [
                     'name' => 'campaignCode',
-                    'type' => 'string',
+                    'type' => 'tagged',
                     'config' => [],
                 ],
             ],
             'operatorSet' => [
                 'operators' => [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY],
-                'isMatchAny' => false,
+                'isMatchAny' => true,
             ],
         ], $config->getData());
     }
@@ -84,8 +84,11 @@ class CampaignCodeOfOrderRuleTest extends TestCase
         static::assertFalse($match);
     }
 
+    /**
+     * @param ?array<string> $ruleCode
+     */
     #[DataProvider('getCaseTestMatchValues')]
-    public function testMatch(string $operator, ?string $ruleCode, ?string $orderCampaignCode, bool $isMatching): void
+    public function testMatch(string $operator, ?array $ruleCode, ?string $orderCampaignCode, bool $isMatching): void
     {
         $rule = new CampaignCodeOfOrderRule($operator, $ruleCode);
         $cart = new Cart('ABC');
@@ -104,28 +107,49 @@ class CampaignCodeOfOrderRuleTest extends TestCase
     {
         yield 'Equals Operator is matching' => [
             'operator' => Rule::OPERATOR_EQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
+            'orderCampaignCode' => 'testingCode',
+            'isMatching' => true,
+        ];
+
+        yield 'Equals Operator is matching with multiple values' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['foobar', 'testingCode'],
             'orderCampaignCode' => 'testingCode',
             'isMatching' => true,
         ];
 
         yield 'Equals Operator is not matching' => [
             'operator' => Rule::OPERATOR_EQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
+            'orderCampaignCode' => 'otherCode',
+            'isMatching' => false,
+        ];
+
+        yield 'Equals Operator is not matching with multiple values' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['foobar', 'testingCode'],
             'orderCampaignCode' => 'otherCode',
             'isMatching' => false,
         ];
 
         yield 'Not Equals Operator is matching' => [
             'operator' => Rule::OPERATOR_NEQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
+            'orderCampaignCode' => 'otherCode',
+            'isMatching' => true,
+        ];
+
+        yield 'Not Equals Operator is matching with multiple values' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleCode' => ['foobar', 'testingCode'],
             'orderCampaignCode' => 'otherCode',
             'isMatching' => true,
         ];
 
         yield 'Not Equals Operator is not matching' => [
             'operator' => Rule::OPERATOR_NEQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderCampaignCode' => 'testingCode',
             'isMatching' => false,
         ];
@@ -139,14 +163,14 @@ class CampaignCodeOfOrderRuleTest extends TestCase
 
         yield 'Empty Operator is matching, because cart code does not exist' => [
             'operator' => Rule::OPERATOR_EMPTY,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderCampaignCode' => null,
             'isMatching' => true,
         ];
 
         yield 'Empty Operator is not matching, because both codes are filled' => [
             'operator' => Rule::OPERATOR_EMPTY,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderCampaignCode' => 'testingCode',
             'isMatching' => false,
         ];

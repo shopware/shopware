@@ -18,10 +18,12 @@ class AffiliateCodeOfOrderRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string> $affiliateCode
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?string $affiliateCode = null
+        protected ?array $affiliateCode = null
     ) {
         parent::__construct();
     }
@@ -31,6 +33,7 @@ class AffiliateCodeOfOrderRule extends Rule
         if (!$scope instanceof FlowRuleScope) {
             return false;
         }
+
         if (!$this->affiliateCode && $this->operator !== self::OPERATOR_EMPTY) {
             throw CartException::unsupportedValue(\gettype($this->affiliateCode), self::class);
         }
@@ -39,7 +42,13 @@ class AffiliateCodeOfOrderRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        return RuleComparison::string($affiliateCode, $this->affiliateCode ?? '', $this->operator);
+        return RuleComparison::stringArray(
+            $affiliateCode,
+            $this->affiliateCode !== null ? array_values(
+                array_map('mb_strtolower', $this->affiliateCode)
+            ) : [],
+            $this->operator,
+        );
     }
 
     public function getConstraints(): array
@@ -52,7 +61,7 @@ class AffiliateCodeOfOrderRule extends Rule
             return $constraints;
         }
 
-        $constraints['affiliateCode'] = RuleConstraints::string();
+        $constraints['affiliateCode'] = RuleConstraints::stringArray();
 
         return $constraints;
     }
@@ -60,7 +69,7 @@ class AffiliateCodeOfOrderRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
-            ->stringField('affiliateCode');
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->taggedField('affiliateCode');
     }
 }

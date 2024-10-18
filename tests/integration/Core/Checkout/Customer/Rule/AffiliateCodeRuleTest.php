@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -71,7 +70,7 @@ class AffiliateCodeRuleTest extends TestCase
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
 
             static::assertSame('/0/value/affiliateCode', $exceptions[1]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
+            static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $exceptions[1]['code']);
         }
     }
 }

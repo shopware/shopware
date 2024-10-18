@@ -18,10 +18,12 @@ class CampaignCodeOfOrderRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string> $campaignCode
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?string $campaignCode = null
+        protected ?array $campaignCode = null
     ) {
         parent::__construct();
     }
@@ -31,6 +33,7 @@ class CampaignCodeOfOrderRule extends Rule
         if (!$scope instanceof FlowRuleScope) {
             return false;
         }
+
         if (!$this->campaignCode && $this->operator !== self::OPERATOR_EMPTY) {
             throw CartException::unsupportedValue(\gettype($this->campaignCode), self::class);
         }
@@ -38,7 +41,13 @@ class CampaignCodeOfOrderRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        return RuleComparison::string($campaignCode, $this->campaignCode ?? '', $this->operator);
+        return RuleComparison::stringArray(
+            $campaignCode,
+            $this->campaignCode !== null ? array_values(
+                array_map('mb_strtolower', $this->campaignCode)
+            ) : [],
+            $this->operator,
+        );
     }
 
     public function getConstraints(): array
@@ -51,7 +60,7 @@ class CampaignCodeOfOrderRule extends Rule
             return $constraints;
         }
 
-        $constraints['campaignCode'] = RuleConstraints::string();
+        $constraints['campaignCode'] = RuleConstraints::stringArray();
 
         return $constraints;
     }
@@ -59,7 +68,7 @@ class CampaignCodeOfOrderRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
-            ->stringField('campaignCode');
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->taggedField('campaignCode');
     }
 }

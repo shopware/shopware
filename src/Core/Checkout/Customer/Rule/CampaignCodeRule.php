@@ -18,10 +18,12 @@ class CampaignCodeRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string> $campaignCode
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?string $campaignCode = null
+        protected ?array $campaignCode = null
     ) {
         parent::__construct();
     }
@@ -44,7 +46,13 @@ class CampaignCodeRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        return RuleComparison::string($campaignCode, $this->campaignCode ?? '', $this->operator);
+        return RuleComparison::stringArray(
+            $campaignCode,
+            $this->campaignCode !== null ? array_values(
+                array_map('mb_strtolower', $this->campaignCode)
+            ) : [],
+            $this->operator,
+        );
     }
 
     public function getConstraints(): array
@@ -57,7 +65,7 @@ class CampaignCodeRule extends Rule
             return $constraints;
         }
 
-        $constraints['campaignCode'] = RuleConstraints::string();
+        $constraints['campaignCode'] = RuleConstraints::stringArray();
 
         return $constraints;
     }
@@ -66,6 +74,6 @@ class CampaignCodeRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
-            ->stringField('campaignCode');
+            ->taggedField('campaignCode');
     }
 }

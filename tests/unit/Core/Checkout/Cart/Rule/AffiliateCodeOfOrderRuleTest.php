@@ -13,10 +13,10 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -33,7 +33,7 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
         static::assertArrayHasKey('affiliateCode', $constraints, 'Constraint affiliateCode not found in Rule');
         static::assertEquals($constraints['affiliateCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new ArrayOfType('string'),
         ]);
     }
 
@@ -50,13 +50,13 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
             'fields' => [
                 'affiliateCode' => [
                     'name' => 'affiliateCode',
-                    'type' => 'string',
+                    'type' => 'tagged',
                     'config' => [],
                 ],
             ],
             'operatorSet' => [
                 'operators' => [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY],
-                'isMatchAny' => false,
+                'isMatchAny' => true,
             ],
         ], $config->getData());
     }
@@ -85,8 +85,11 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
         $rule->match($scope);
     }
 
+    /**
+     * @param ?array<string> $ruleCode
+     */
     #[DataProvider('getCaseTestMatchValues')]
-    public function testMatch(string $operator, ?string $ruleCode, ?string $orderAffiliateCode, bool $isMatching): void
+    public function testMatch(string $operator, ?array $ruleCode, ?string $orderAffiliateCode, bool $isMatching): void
     {
         $rule = new AffiliateCodeOfOrderRule($operator, $ruleCode);
 
@@ -108,30 +111,51 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
     {
         yield 'Equals Operator is matching' => [
             'operator' => Rule::OPERATOR_EQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
+            'orderAffiliateCode' => 'testingCode',
+            'isMatching' => true,
+        ];
+
+        yield 'Equals Operator is matching with multiple values' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['foobar', 'testingCode'],
             'orderAffiliateCode' => 'testingCode',
             'isMatching' => true,
         ];
 
         yield 'Equals Operator is not matching' => [
             'operator' => Rule::OPERATOR_EQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
+            'orderAffiliateCode' => 'otherCode',
+            'isMatching' => false,
+        ];
+
+        yield 'Equals Operator is not matching with multiple values' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['foobar', 'testingCode'],
             'orderAffiliateCode' => 'otherCode',
             'isMatching' => false,
         ];
 
         yield 'Not Equals Operator is matching' => [
             'operator' => Rule::OPERATOR_NEQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderAffiliateCode' => 'otherCode',
             'isMatching' => true,
         ];
 
         yield 'Not Equals Operator is not matching' => [
             'operator' => Rule::OPERATOR_NEQ,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderAffiliateCode' => 'testingCode',
             'isMatching' => false,
+        ];
+
+        yield 'Not Equals Operator is matching with multiple values' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleCode' => ['foobar', 'testingCode'],
+            'orderAffiliateCode' => 'otherCode',
+            'isMatching' => true,
         ];
 
         yield 'Empty Operator is matching, because both codes does not exist' => [
@@ -143,14 +167,14 @@ class AffiliateCodeOfOrderRuleTest extends TestCase
 
         yield 'Empty Operator is matching, because cart code does not exist' => [
             'operator' => Rule::OPERATOR_EMPTY,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderAffiliateCode' => null,
             'isMatching' => true,
         ];
 
         yield 'Empty Operator is not matching, because both codes are filled' => [
             'operator' => Rule::OPERATOR_EMPTY,
-            'ruleCode' => 'testingCode',
+            'ruleCode' => ['testingCode'],
             'orderAffiliateCode' => 'testingCode',
             'isMatching' => false,
         ];

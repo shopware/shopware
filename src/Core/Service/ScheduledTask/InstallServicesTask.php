@@ -11,6 +11,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 #[Package('core')]
 class InstallServicesTask extends ScheduledTask
 {
+    private const ONE_DAY_IN_SECONDS = 86_400;
+    
     public static function getTaskName(): string
     {
         return 'services.install';
@@ -18,6 +20,6 @@ class InstallServicesTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86_400; // 1 day
+        return self::ONE_DAY_IN_SECONDS;
     }
 }

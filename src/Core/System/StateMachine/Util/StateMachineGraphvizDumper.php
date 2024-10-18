@@ -171,8 +171,8 @@ class StateMachineGraphvizDumper
     {
         $code = [];
         foreach ($options as $k => $v) {
-            \assert(\is_string($k));
-            \assert(\is_string($v));
+            \assert($k === null || is_scalar($k) || $k instanceof \Stringable);
+            \assert($v === null || is_scalar($v) || $v instanceof \Stringable);
             $code[] = \sprintf('%s="%s"', $k, $v);
         }
 

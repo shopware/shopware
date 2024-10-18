@@ -198,6 +198,7 @@ export default Component.wrapComponentConfig({
 
             // @ts-expect-error
             this.$refs.customerFilter.term = this.customerData?.customerNumber;
+            void this.onSearch(this.customerData?.customerNumber);
             void this.onCheckCustomer(this.customerData);
         },
 

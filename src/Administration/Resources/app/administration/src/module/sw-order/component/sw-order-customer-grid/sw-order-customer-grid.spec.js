@@ -45,7 +45,7 @@ function generateCustomers() {
             lastName: 'Nguyen',
             email: `quynh${i}@example.com`,
             salesChannelId: '1234',
-            customerNumber: i,
+            customerNumber: `sw${i}`,
             salesChannel: {
                 translated: {
                     name: 'Storefront',
@@ -102,9 +102,11 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-empty-state': true,
                 'sw-card-filter': {
-                    props: ['value'],
+                    data() {
+                        return { term: '' };
+                    },
                     template:
-                        '<input class="sw-card-filter" :value="value" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
+                        '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
                 },
                 'sw-icon': true,
                 'sw-field': true,
@@ -380,11 +382,15 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         });
 
         const wrapper = await createWrapper();
+        const spyOnSearchList = jest.spyOn(wrapper.vm, 'onSearch');
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         const firstRowRadioField = firstRow.find('.sw-field__radio-input input');
 
         await flushPromises();
+
+        expect(wrapper.find('.sw-card-filter').element.value).toBe('sw1');
+        expect(spyOnSearchList).toHaveBeenCalledWith('sw1');
 
         expect(firstRowRadioField.element.checked).toBeTruthy();
     });

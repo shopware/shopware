@@ -18,6 +18,8 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
         this._formSubmitting = false;
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
 
+        this._setGoogleReCaptchaHandleSubmit();
+
         this._registerEvents();
     }
 
@@ -94,5 +96,13 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
         this._formSubmitting = true;
 
         this.onFormSubmit();
+    }
+
+    _setGoogleReCaptchaHandleSubmit() {
+        this.formPluginInstances.forEach(plugin => {
+            if (typeof plugin.sendAjaxFormSubmit === 'function' && plugin.options.useAjax !== false) {
+                plugin.formSubmittedByCaptcha = true;
+            }
+        });
     }
 }

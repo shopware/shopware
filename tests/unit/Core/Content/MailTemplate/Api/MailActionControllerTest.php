@@ -22,6 +22,11 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 #[CoversClass(MailActionController::class)]
 class MailActionControllerTest extends TestCase
 {
+    /**
+     * @var array<string, string>
+     */
+    private static array $assertions;
+
     private AbstractMailService&MockObject $mailService;
 
     private StringTemplateRenderer&MockObject $stringTemplateRenderer;
@@ -30,6 +35,13 @@ class MailActionControllerTest extends TestCase
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailService = $this->createMock(AbstractMailService::class);
+        self::$assertions = [];
+    }
+
+    protected function tearDown(): void
+    {
+        static::assertEmpty(self::$assertions);
+        parent::tearDown();
     }
 
     public function testSendSuccess(): void
@@ -67,9 +79,10 @@ class MailActionControllerTest extends TestCase
 
     public function testBuild(): void
     {
+        $orderId = Uuid::randomHex();
         $templateData = [
             'order' => [
-                'id' => Uuid::randomHex(),
+                'id' => $orderId,
             ],
         ];
 
@@ -79,6 +92,7 @@ class MailActionControllerTest extends TestCase
             ],
             'mailTemplate' => [
                 'contentHtml' => 'html',
+                'contentPlain' => 'text',
             ],
         ]);
 
@@ -88,10 +102,18 @@ class MailActionControllerTest extends TestCase
             ->method('enableTestMode');
         $this->stringTemplateRenderer->expects(static::once())
             ->method('disableTestMode');
-        $this->stringTemplateRenderer->expects(static::once())
+
+        // make sure render is called twice with the correct parameter
+        self::$assertions['html_' . $orderId] = 'rendered-html';
+        self::$assertions['text_' . $orderId] = 'rendered-text';
+        $this->stringTemplateRenderer->expects(static::exactly(2))
             ->method('render')
-            ->with('html', $templateData, $context)
-            ->willReturn('rendered');
+            ->willReturnCallback(static function ($template, $data): string {
+                $return = self::$assertions[$template . '_' . $data['order']['id']];
+                unset(self::$assertions[$template . '_' . $data['order']['id']]);
+
+                return $return;
+            });
 
         $mailActionController = new MailActionController(
             $this->mailService,
@@ -99,7 +121,11 @@ class MailActionControllerTest extends TestCase
         );
 
         $response = $mailActionController->build($data, $context);
-        static::assertEquals('"rendered"', $response->getContent());
+        $expected = json_encode([
+            'html' => 'rendered-html',
+            'plain' => 'rendered-text',
+        ], \JSON_THROW_ON_ERROR);
+        static::assertSame($expected, $response->getContent());
     }
 
     public function testBuildWithoutTemplateData(): void
@@ -107,6 +133,7 @@ class MailActionControllerTest extends TestCase
         $data = new RequestDataBag([
             'mailTemplate' => [
                 'contentHtml' => 'html',
+                'contentPlain' => 'text',
             ],
         ]);
 
@@ -116,10 +143,19 @@ class MailActionControllerTest extends TestCase
             ->method('enableTestMode');
         $this->stringTemplateRenderer->expects(static::once())
             ->method('disableTestMode');
-        $this->stringTemplateRenderer->expects(static::once())
+
+        // make sure render is called twice with the correct parameter
+        self::$assertions['html'] = 'rendered-html';
+        self::$assertions['text'] = 'rendered-text';
+
+        $this->stringTemplateRenderer->expects(static::exactly(2))
             ->method('render')
-            ->with('html', [], $context)
-            ->willReturn('rendered');
+            ->willReturnCallback(static function ($template, $data): string {
+                $return = self::$assertions[$template];
+                unset(self::$assertions[$template]);
+
+                return $return;
+            });
 
         $mailActionController = new MailActionController(
             $this->mailService,
@@ -127,7 +163,12 @@ class MailActionControllerTest extends TestCase
         );
 
         $response = $mailActionController->build($data, $context);
-        static::assertEquals('"rendered"', $response->getContent());
+
+        $expected = json_encode([
+            'html' => 'rendered-html',
+            'plain' => 'rendered-text',
+        ], \JSON_THROW_ON_ERROR);
+        static::assertSame($expected, $response->getContent());
     }
 
     public function testBuildWithoutTemplateContentThrows(): void

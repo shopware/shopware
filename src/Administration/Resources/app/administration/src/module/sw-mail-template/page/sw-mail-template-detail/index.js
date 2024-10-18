@@ -45,6 +45,7 @@ export default {
             testerMail: '',
             mailTemplateId: null,
             mailPreview: null,
+            mailPlainPreview: null,
             isLoading: false,
             isSaveSuccessful: false,
             mailTemplateType: {},
@@ -114,6 +115,7 @@ export default {
                     });
                     return properties;
                 }
+
                 return completerFunction;
             })(this.entityMappingService, this.mailTemplateType);
         },
@@ -303,13 +305,7 @@ export default {
             this.$router.push({ name: 'sw.mail.template.index' });
         },
 
-        onSave() {
-            const updatePromises = [];
-            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
-
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
-
+        save(updatePromises, mailTemplateSubject) {
             updatePromises.push(
                 this.mailTemplateRepository
                     .save(this.mailTemplate)
@@ -335,6 +331,39 @@ export default {
                         });
                     }),
             );
+        },
+
+        handleError(error) {
+            if (!error.response?.data?.errors?.[0]?.detail) {
+                this.createNotificationError({
+                    message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                });
+            } else {
+                this.createNotificationError({
+                    message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
+                        errorMsg: error.response?.data?.errors?.[0]?.detail,
+                    }),
+                });
+            }
+        },
+
+        onSave() {
+            const updatePromises = [];
+            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
+
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            this.mailService.buildRenderPreview(
+                this.mailTemplateType,
+                this.mailPreviewContent(),
+            ).then(() => {
+                this.save(updatePromises, mailTemplateSubject);
+            }).catch((error) => {
+                this.handleError(error);
+            }).finally(() => {
+                this.isLoading = false;
+            });
 
             return Promise.all(updatePromises);
         },
@@ -387,28 +416,19 @@ export default {
         onClickShowPreview() {
             this.isLoading = true;
 
-            this.mailPreview = this.mailService
+            this.mailService
                 .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
                 .then((response) => {
-                    this.mailPreview = response;
+                    this.mailPreview = response.html;
+                    this.mailPlainPreview = response.plain;
                 })
                 .catch((error) => {
                     this.mailPreview = null;
-                    if (!error.response?.data?.errors?.[0]?.detail) {
-                        this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-                        });
-                    } else {
-                        this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
-                                errorMsg: error.response?.data?.errors?.[0]?.detail,
-                            }),
-                        });
-                    }
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+                    this.mailPlainPreview = null;
+                    this.handleError(error);
+                }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         mailPreviewContent() {
@@ -445,6 +465,7 @@ export default {
 
         onCancelShowPreview() {
             this.mailPreview = null;
+            this.mailPlainPreview = null;
         },
 
         async onCopyVariable(variable) {

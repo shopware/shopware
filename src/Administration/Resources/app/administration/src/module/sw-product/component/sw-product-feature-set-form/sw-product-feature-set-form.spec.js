@@ -161,7 +161,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
 
         expect(description.text()).toEqual(text.descriptionBody);
 
-        expect(configInformation.attributes().path).toEqual(text.descriptionConfigInformation);
+        expect(configInformation.attributes().keypath).toEqual(text.descriptionConfigInformation);
     });
 
     it('has a link to the feature set config module', async () => {

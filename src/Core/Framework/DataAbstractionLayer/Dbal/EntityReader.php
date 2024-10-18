@@ -60,6 +60,8 @@ class EntityReader implements EntityReaderInterface
     ) {
     }
 
+    private bool $partial = false;
+
     /**
      * @return EntityCollection<Entity>
      */
@@ -72,6 +74,8 @@ class EntityReader implements EntityReaderInterface
         $collectionClass = $definition->getCollectionClass();
 
         $fields = $this->criteriaFieldsResolver->resolve($criteria, $definition);
+
+        $this->partial = !empty($fields);
 
         return $this->_read(
             $criteria,
@@ -483,7 +487,7 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        if ($partial !== []) {
+        if ($this->partial) {
             // Make sure our collection index will be loaded
             $partial[$propertyName] = [];
             $collectionClass = EntityCollection::class;
@@ -561,7 +565,7 @@ class EntityReader implements EntityReaderInterface
         Criteria $fieldCriteria,
         array $partial
     ): void {
-        $isPartial = $partial !== [];
+        $isPartial = $this->partial;
 
         $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
 
@@ -1169,7 +1173,7 @@ class EntityReader implements EntityReaderInterface
         $referenceDefinition = $association->getReferenceDefinition();
         $collectionClass = $referenceDefinition->getCollectionClass();
 
-        if ($partial !== []) {
+        if ($this->partial) {
             $collectionClass = EntityCollection::class;
         }
 
@@ -1235,7 +1239,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            if ($partial !== [] && !\array_key_exists($association->getPropertyName(), $partial)) {
+            if ($this->partial && !\array_key_exists($association->getPropertyName(), $partial)) {
                 continue;
             }
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInput;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -22,7 +22,7 @@ interface ThemeFileImporterInterface
     public function getConcatenableScriptPath(File $file, StorefrontPluginConfiguration $configuration): string;
 
     /**
-     * @return CopyBatchInput[]
+     * @return WriteBatchInput[]
      */
     public function getCopyBatchInputsForAssets(string $assetPath, string $outputPath, StorefrontPluginConfiguration $configuration): array;
 }

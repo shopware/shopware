@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use AsyncAws\S3\S3Client;
-use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
 
 /**
@@ -46,7 +46,7 @@ class AwsS3v3FactoryTest extends TestCase
         ]);
 
         static::assertEquals(
-            new AsyncAwsS3Adapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
+            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
             (new AwsS3v3Factory())->create($config)
         );
     }
@@ -76,7 +76,7 @@ class AwsS3v3FactoryTest extends TestCase
         ]);
 
         static::assertEquals(
-            new AsyncAwsS3Adapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
+            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
             (new AwsS3v3Factory())->create($config)
         );
     }

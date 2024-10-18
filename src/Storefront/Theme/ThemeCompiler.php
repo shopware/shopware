@@ -8,9 +8,9 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,7 +41,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly FilesystemOperator $tempFilesystem,
-        private readonly CopyBatchInputFactory $copyBatchInputFactory,
+        private readonly WriteBatchInputFactory $writeBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -120,7 +120,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $scriptFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
 
-        CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
+        WriteBatch::write($this->filesystem, ...$assets, ...$scriptFiles);
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -185,7 +185,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @return list<CopyBatchInput>
+     * @return list<WriteBatchInput>
      */
     private function copyScriptFilesToTheme(
         StorefrontPluginConfigurationCollection $configurationCollection,
@@ -219,7 +219,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
                 if (file_exists($file->getRealPath())) {
-                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
+                    $copyFiles[] = new WriteBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
                 }
             }
         }
@@ -262,7 +262,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @return list<CopyBatchInput>
+     * @return list<WriteBatchInput>
      */
     private function getAssets(
         StorefrontPluginConfiguration $configuration,
@@ -293,7 +293,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
+            $collected = [...$collected, ...$this->writeBatchInputFactory->fromDirectory($asset, $outputPath)];
         }
 
         return array_values($collected);
@@ -509,7 +509,7 @@ PHP_EOL;
     }
 
     /**
-     * @return list<CopyBatchInput>
+     * @return list<WriteBatchInput>
      */
     private function collectCompiledFiles(
         string $themePrefix,
@@ -528,7 +528,7 @@ PHP_EOL;
         rewind($tempStream);
 
         $files = [
-            new CopyBatchInput(
+            new WriteBatchInput(
                 $tempStream,
                 [
                     $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',

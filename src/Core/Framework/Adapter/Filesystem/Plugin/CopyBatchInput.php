@@ -2,46 +2,22 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.7.0 - CopyBatchInput will be removed. Use WriteBatchInput instead.
+ */
 #[Package('core')]
-class CopyBatchInput
+class CopyBatchInput extends WriteBatchInput
 {
-    /**
-     * @var string|resource
-     */
-    private $sourceFile;
-
-    /**
-     * @param string|resource $sourceFile Passing a path is recommended, resources should not be used for large files
-     * @param array<string> $targetFiles
-     */
-    public function __construct(
-        $sourceFile,
-        private readonly array $targetFiles
-    ) {
-        if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
-            throw new \InvalidArgumentException(\sprintf(
-                'CopyBatchInput expects first parameter to be either a resource or the filepath as a string, "%s" given.',
-                \gettype($sourceFile)
-            ));
-        }
-        $this->sourceFile = $sourceFile;
-    }
-
-    /**
-     * @return string|resource
-     */
-    public function getSourceFile()
+    public function __construct()
     {
-        return $this->sourceFile;
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', WriteBatchInput::class)
+        );
 
-    /**
-     * @return array<string>
-     */
-    public function getTargetFiles(): array
-    {
-        return $this->targetFiles;
+        parent::__construct(...\func_get_args());
     }
 }

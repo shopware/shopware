@@ -26,16 +26,22 @@ class MigrationCommand extends Command
 {
     /**
      * @var MigrationCollectionLoader
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $loader;
 
     /**
      * @var SymfonyStyle
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $io;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shopwareVersion;
 
@@ -69,7 +75,7 @@ class MigrationCommand extends Command
             ->addArgument('identifier', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'identifier to determine which migrations to run', ['core'])
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('until', 'u', InputOption::VALUE_OPTIONAL, 'timestamp cap for migrations')
-            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, default: 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -88,7 +94,7 @@ class MigrationCommand extends Command
         }
 
         if (\count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
-            throw new \InvalidArgumentException('Running migrations for mutliple identifiers without --all option or with --limit option is not supported.');
+            throw new \InvalidArgumentException('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         }
 
         $limit = (int) $input->getOption('limit');
@@ -113,10 +119,7 @@ class MigrationCommand extends Command
     protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
     {
         if ($identifier === 'core') {
-            return $this->loader->collectAllForVersion(
-                $this->shopwareVersion,
-                MigrationCollectionLoader::VERSION_SELECTION_ALL
-            );
+            return $this->loader->collectAllForVersion($this->shopwareVersion);
         }
 
         return $this->loader->collect($identifier);
@@ -142,10 +145,10 @@ class MigrationCommand extends Command
 
         try {
             $collection = $this->collectMigrations($input, $identifier);
-        } catch (UnknownMigrationSourceException $e) {
+        } catch (UnknownMigrationSourceException) {
             $this->io->note(\sprintf('No collection found for identifier: "%s", continuing', $identifier));
 
-            return self::SUCCESS;
+            return 0;
         }
 
         $collection->sync();
@@ -157,7 +160,7 @@ class MigrationCommand extends Command
         $migratedCounter = 0;
 
         try {
-            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $_return) {
+            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $ignored) {
                 $this->io->progressAdvance();
                 ++$migratedCounter;
             }

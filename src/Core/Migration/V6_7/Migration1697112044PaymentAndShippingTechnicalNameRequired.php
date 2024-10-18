@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -21,20 +20,21 @@ class Migration1697112044PaymentAndShippingTechnicalNameRequired extends Migrati
     public function update(Connection $connection): void
     {
         $manager = $connection->createSchemaManager();
-        $columns = $manager->listTableColumns(PaymentMethodDefinition::ENTITY_NAME);
 
+        $columns = $manager->listTableColumns('payment_method');
         if (\array_key_exists('technical_name', $columns) && !$columns['technical_name']->getNotnull()) {
-            $connection->executeStatement('ALTER TABLE `payment_method` MODIFY COLUMN `technical_name` VARCHAR(255) NOT NULL');
+            $connection->executeStatement(
+                'ALTER TABLE `payment_method`
+                 MODIFY COLUMN `technical_name` VARCHAR(255) NOT NULL'
+            );
         }
 
         $columns = $manager->listTableColumns('shipping_method');
-
         if (\array_key_exists('technical_name', $columns) && !$columns['technical_name']->getNotnull()) {
-            $connection->executeStatement('ALTER TABLE `shipping_method` MODIFY COLUMN `technical_name` VARCHAR(255) NOT NULL');
+            $connection->executeStatement(
+                'ALTER TABLE `shipping_method`
+                 MODIFY COLUMN `technical_name` VARCHAR(255) NOT NULL'
+            );
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

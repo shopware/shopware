@@ -18,8 +18,7 @@ class RefreshMigrationCommand extends Command
 {
     protected function configure(): void
     {
-        $this
-            ->addArgument('path', InputArgument::REQUIRED, 'Path to migration file');
+        $this->addArgument('path', InputArgument::REQUIRED, 'Path to migration file');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

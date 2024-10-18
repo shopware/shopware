@@ -83,7 +83,7 @@ class CreateMigrationCommand extends Command
         }
 
         // We create a core-migration in case no directory or plugin was given
-        [$_, $major] = explode('.', $this->shopwareVersion);
+        [, $major] = explode('.', $this->shopwareVersion);
         $directory = $this->coreDir . '/Migration/V6_' . $major;
         $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
         $params = [
@@ -107,7 +107,7 @@ class CreateMigrationCommand extends Command
 
     private function createPluginMigration(OutputInterface $output, string $pluginName, int $timestamp, string $name): void
     {
-        $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), (string) $pluginName) === 0);
+        $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), $pluginName) === 0);
 
         if (\count($pluginBundles) === 0) {
             throw new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
@@ -130,7 +130,7 @@ class CreateMigrationCommand extends Command
         $pluginBundle = array_values($pluginBundles)[0];
 
         $directory = $pluginBundle->getMigrationPath();
-        if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
             throw new \RuntimeException(\sprintf('Migration directory "%s" could not be created', $directory));
         }
 

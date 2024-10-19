@@ -14,7 +14,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'productStreamPreviewService'],
 
     emits: [
         'selection-change',
@@ -60,8 +60,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         productCriteria() {
-            const criteria = new Criteria(1, 500);
-
+            const criteria = new Criteria(1, 100);
             criteria.filters = this.productStreamFilter;
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
@@ -166,7 +165,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
 
         getProductsFromProductStreams(productStreams) {
             const promises = Object.keys(productStreams).map((id) => {
-                return this.getProductStreamFilter(id).then(() => this.getProducts());
+                return this.getProductStreamFilter(id).then(() => this.getProducts(id));
             });
 
             this.$emit('product-loading', true);
@@ -174,8 +173,9 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
 
             return Promise.all(promises)
                 .then((values) => {
-                    const products = values.flat();
-                    return products;
+                    return values.reduce((acc, value) => {
+                        return acc.concat(Object.values(value.elements));
+                    }, []);
                 })
                 .finally(() => {
                     this.$emit('product-loading', false);
@@ -196,8 +196,9 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         getProducts() {
-            return this.productRepository.search(this.productCriteria).then((products) => {
-                return products;
+            return this.productStreamPreviewService.preview(this.salesChannel.id, this.productCriteria, [], {
+                'sw-currency-id': this.salesChannel.currencyId,
+                'sw-inheritance': true,
             });
         },
     },

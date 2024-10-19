@@ -60,15 +60,29 @@ class AdminProductStreamController extends AbstractController
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('options.group');
 
-        $availableFilter = new ProductAvailableFilter($salesChannelId, ProductVisibilityDefinition::VISIBILITY_ALL);
-        $queries = $availableFilter->getQueries();
-        // remove query for active field as we also want to preview inactive products
-        array_pop($queries);
-        $availableFilter->assign(['queries' => $queries]);
-        $criteria->addFilter($availableFilter);
+        if (!$this->hasVisibilityFilter($criteria)) {
+            $availableFilter = new ProductAvailableFilter($salesChannelId, ProductVisibilityDefinition::VISIBILITY_ALL);
+            $queries = $availableFilter->getQueries();
+            // remove query for active field as we also want to preview inactive products
+            array_pop($queries);
+            $availableFilter->assign(['queries' => $queries]);
+            $criteria->addFilter($availableFilter);
+        }
 
         $previewResult = $this->salesChannelProductRepository->search($criteria, $salesChannelContext);
 
         return new JsonResponse($previewResult);
+    }
+
+    private function hasVisibilityFilter(Criteria $criteria): bool
+    {
+        // TODO implement
+        return true;
+
+        foreach ($criteria->getFilters() as $filter) {
+
+        }
+
+        return false;
     }
 }

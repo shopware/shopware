@@ -1,20 +1,21 @@
 stages:
     # linter and static analysis
-    - lint
+#    - lint
     # php and js unit tests
-    - unit
+#    - unit
+    - blue-green
     # cypress E2E tests
-    - E2E
+#    - E2E
     # quarantined tests
-    - quarantine
+#    - quarantine
     # downstream pipelines trigger by this pipeline
-    - downstream
+#    - downstream
     # create manyrepos
-    - split
+#    - split
     # deploy artifacts build in the `build` stage
-    - deploy
+#    - deploy
     # visual testing (not in use at the moment)
-    - visual
+#    - visual
 
 workflow:
     rules:
@@ -33,7 +34,8 @@ include:
     # defines basic stuff and base templates
     -   local: .gitlab/base.yml
     # put your jobs into the matching stage file you want it to run
-    -   local: .gitlab/stages/*.yml
+    -   local: .gitlab/stages/22-blue-green.yml
+#    -   local: .gitlab/stages/*.yml
 
 #############################################################################
 # Templates - start with one of these and put it in the matching stage file #

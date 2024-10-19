@@ -42,11 +42,11 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-//        if (!$this->hasAvailableFilter($criteria)) {
-//            $criteria->addFilter(
-//                new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
-//            );
-//        }
+        if (!$this->hasAvailableFilter($criteria) && !$this->hasVisibilityFilter($criteria)) {
+            $criteria->addFilter(
+                new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
+            );
+        }
 
         if ($criteria->getNestingLevel() !== Criteria::ROOT_NESTING_LEVEL) {
             return;
@@ -115,6 +115,17 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
     {
         foreach ($criteria->getFilters() as $filter) {
             if ($filter instanceof ProductAvailableFilter) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasVisibilityFilter(Criteria $criteria): bool
+    {
+        foreach ($criteria->getFilters() as $filter) {
+            if (\in_array('product.visibilities.salesChannelId', $filter->getFields(), true)) {
                 return true;
             }
         }

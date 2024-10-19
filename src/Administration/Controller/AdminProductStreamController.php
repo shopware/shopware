@@ -76,11 +76,10 @@ class AdminProductStreamController extends AbstractController
 
     private function hasVisibilityFilter(Criteria $criteria): bool
     {
-        // TODO implement
-        return true;
-
         foreach ($criteria->getFilters() as $filter) {
-
+            if (\in_array('product.visibilities.salesChannelId', $filter->getFields(), true)) {
+                return true;
+            }
         }
 
         return false;

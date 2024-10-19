@@ -18,6 +18,6 @@ class InstallServicesTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86_400; // 1 day
+        return parent::DAILY;
     }
 }

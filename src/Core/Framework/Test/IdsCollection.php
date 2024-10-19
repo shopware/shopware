@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Test;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
 #[Package('core')]
 class IdsCollection
 {

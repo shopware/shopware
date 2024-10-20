@@ -7,5 +7,5 @@ author_github: @florianliebig
 ---
 # Core
 * Removed default for hasAvailableFilter in `SalesChannelProductDefinition`
-* Adjusted `AdminProductStreamController` to not filter for visibility if there is a visibility filter in request
+* Changed `AdminProductStreamController` to not filter for visibility if there is a visibility filter in request
 * Changed `sw-sales-channel-products-assignment-dynamic-product-groups` to use `productStreamPreviewService` instead of regular product api

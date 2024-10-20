@@ -51,10 +51,6 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
     },
 
     computed: {
-        productRepository() {
-            return this.repositoryFactory.create('product');
-        },
-
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
         },

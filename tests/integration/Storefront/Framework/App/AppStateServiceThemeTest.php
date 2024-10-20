@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 

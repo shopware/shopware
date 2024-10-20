@@ -65,7 +65,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 

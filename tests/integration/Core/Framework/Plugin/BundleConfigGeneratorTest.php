@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal

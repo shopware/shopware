@@ -22,7 +22,7 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;

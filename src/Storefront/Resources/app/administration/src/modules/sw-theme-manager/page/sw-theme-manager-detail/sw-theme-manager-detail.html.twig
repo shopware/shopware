@@ -356,6 +356,7 @@
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue"
+                                                                                    zIndex="100"
                                                                                     @update:value="updateCurrentValue"
                                                                                 />
 

@@ -29,6 +29,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         align-items: center;
         background: $sw-page-smart-bar-background-color;
         border-bottom: 2px solid $sw-page-smart-bar-border-color;
+        z-index: 200;
     }
 
     .sw-page__search-bar {

@@ -1,6 +1,6 @@
 ---
 title: Allow generic store api response
-issue: 
+issue: NEXT-39169
 author: Oliver Skroblin
 author_email: oliver@goblin-coders.de
 author_github: OliverSkroblin

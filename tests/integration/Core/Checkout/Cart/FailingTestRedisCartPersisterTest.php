@@ -104,7 +104,7 @@ class FailingTestRedisCartPersisterTest extends TestCase
                 ]
             );
 
-        $firstContextToken = $this->browser1->getServerParameter('HTTP_sw-context-token');
+        $firstContextToken = $this->browser1->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
         $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $firstContextToken);
 
         $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);
@@ -140,7 +140,7 @@ class FailingTestRedisCartPersisterTest extends TestCase
                 ]
             );
 
-        $secondContextToken = $this->browser2->getServerParameter('HTTP_sw-context-token');
+        $secondContextToken = $this->browser2->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
         $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $secondContextToken);
 
         $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);

@@ -114,6 +114,17 @@ export default {
                 return;
             }
 
+            // Reset mailerSettings as local would take over certain values
+            if (this.mailerSettings['core.mailerSettings.emailAgent'] === 'local') {
+                this.mailerSettings['core.mailerSettings.host'] = null;
+                this.mailerSettings['core.mailerSettings.port'] = null;
+                this.mailerSettings['core.mailerSettings.username'] = null;
+                this.mailerSettings['core.mailerSettings.password'] = null;
+                this.mailerSettings['core.mailerSettings.encryption'] = null;
+                this.mailerSettings['core.mailerSettings.senderAddress'] = null;
+                this.mailerSettings['core.mailerSettings.deliveryAddress'] = null;
+            }
+
             await this.systemConfigApiService.saveValues(this.mailerSettings);
             this.isLoading = false;
         },

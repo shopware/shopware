@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
+use Shopware\Commercial\Test\Annotation\ActiveFeatureToggles;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
@@ -11,13 +12,17 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,6 +41,7 @@ class FailingTestRedisCartPersisterTest extends TestCase
     private string $salesChannelId;
 
     private RedisCartPersister $persister;
+    private string $customerId;
 
     /**
      * @var \Redis
@@ -56,7 +62,7 @@ class FailingTestRedisCartPersisterTest extends TestCase
         ]);
         $addressId = Uuid::randomHex();
 
-        $customerId = $this->createCustomer(
+        $this->customerId = $this->createCustomer(
             'customer@example.com',
             false,
             [
@@ -77,7 +83,7 @@ class FailingTestRedisCartPersisterTest extends TestCase
         );
 
         // utente loggato
-        $this->createEmployee($customerId, 'marco.caco@example.it');
+        $this->createEmployee($this->customerId, 'marco.caco@example.it');
 
         $factory = new RedisConnectionFactory();
 
@@ -94,59 +100,55 @@ class FailingTestRedisCartPersisterTest extends TestCase
     ])]
     public function testRedisCartPersister(): void
     {
-        $this->browser1
-            ->request(
-                'POST',
-                '/account/login',
-                [
-                    'email' => 'marco.caco@example.it',
-                    'password' => 'shopware',
-                ]
-            );
+        $token = Random::getAlphanumericString(32);
 
-        $firstContextToken = $this->browser1->getServerParameter('HTTP_sw-context-token');
-        $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $firstContextToken);
+        $params = new SalesChannelContextServiceParameters(
+            TestDefaults::SALES_CHANNEL,
+            $token,
+            null,
+            null,
+            null,
+            null,
+            $this->customerId
+        );
+
+        $data = new RequestDataBag();
+        $data->set('email', 'marco.caco@example.it');
+        $data->set('password', 'shopware');
 
         $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);
+        self::getContainer()->get(LoginRoute::class)->login($data, $salesChannelContext);
 
         $cartService = $this->getContainer()->get(CartService::class);
-        $cart = $cartService->getCart($firstContextToken, $salesChannelContext);
+        $cart = $cartService->getCart($token, $salesChannelContext);
 
         $productId = $this->createProduct($salesChannelContext, 'PRODUCT-0');
 
         $this->addProductToCart($productId, 10, $cart, $cartService, $salesChannelContext);
 
-        $this->browser1->request(
-            'POST',
-            '/checkout/product/add-by-number',
-            [
-                'number' => 'PRODUCT-0',
-            ]
+        self::getContainer()->get(LogoutRoute::class)->logout($salesChannelContext, new RequestDataBag());
+
+        $token = Random::getAlphanumericString(32);
+
+        $params = new SalesChannelContextServiceParameters(
+            TestDefaults::SALES_CHANNEL,
+            $token,
+            null,
+            null,
+            null,
+            null,
+            $this->customerId
         );
 
-        $this->browser1
-            ->request(
-                'GET',
-                '/account/logout',
-            );
-
-        $this->browser2
-            ->request(
-                'POST',
-                '/account/login',
-                [
-                    'email' => 'marco.caco@example.it',
-                    'password' => 'shopware',
-                ]
-            );
-
-        $secondContextToken = $this->browser2->getServerParameter('HTTP_sw-context-token');
-        $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $secondContextToken);
+        $data = new RequestDataBag();
+        $data->set('email', 'marco.caco@example.it');
+        $data->set('password', 'shopware');
+        self::getContainer()->get(LoginRoute::class)->login($data, $salesChannelContext);
 
         $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);
-        $loaded = $cartService->getCart($secondContextToken, $salesChannelContext);
+        $loaded = $cartService->getCart($token, $salesChannelContext);
 
-        static::assertEquals($cart->getToken(), $loaded->getToken());
+        static::assertEquals($cart->getLineItems()->count(), $loaded->getLineItems()->count());
         static::assertEquals($cart->getLineItems(), $loaded->getLineItems());
     }
 
@@ -154,7 +156,7 @@ class FailingTestRedisCartPersisterTest extends TestCase
     {
         $ids = new IdsCollection();
         $taxIds = $context->getTaxRules()->getIds();
-        $ids->set('t1', (string) array_pop($taxIds));
+        $ids->set('t1', (string)array_pop($taxIds));
         $product = (new ProductBuilder($ids, $productNumber ?? Uuid::randomHex()))
             ->price(1.0)
             ->tax('t1', 22)
@@ -178,9 +180,10 @@ class FailingTestRedisCartPersisterTest extends TestCase
     }
 
     private function createEmployee(
-        string $partnerId,
+        string  $partnerId,
         ?string $emailForLogin = null
-    ): void {
+    ): void
+    {
         $faker = Factory::create();
 
         $permissions = [

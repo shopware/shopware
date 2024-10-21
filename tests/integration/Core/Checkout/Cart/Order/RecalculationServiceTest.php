@@ -1005,6 +1005,70 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($zipcode, $orderAddress->getZipcode());
     }
 
+    public function testRecalculationControllerWithEmptyLineItems(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $order = $this->persistCart($cart);
+
+        $orderId = $order['orderId'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        // recalculate order
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/recalculate',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $versionContext)->get($orderId);
+        static::assertNotNull($order->getLineItems());
+        static::assertSame($order->getLineItems()->count(), 2);
+
+        // delete all line items
+        $ids = $order->getLineItems()->fmap(fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
+        $this->getContainer()->get('order_line_item.repository')->delete(array_values($ids), $versionContext);
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $versionContext)->get($orderId);
+        static::assertNotNull($order->getLineItems());
+        static::assertSame($order->getLineItems()->count(), 0);
+
+        // recalculate order 2nd time
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/recalculate',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
     protected function getValidCountryIdWithTaxes(): string
     {
         /** @var EntityRepository $repository */

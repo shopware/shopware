@@ -240,6 +240,22 @@ export default {
                 );
             }
 
+            if (this.order.lineItems.length === 0) {
+                this.createNotificationError({
+                    message: this.$tc('sw-order.detail.messageEmptyLineItems'),
+                });
+
+                State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+
+                this.createNewVersionId().then(() => {
+                    State.commit('swOrderDetail/setLoading', ['order', false]);
+                    State.commit('swOrderDetail/setSavedSuccessful', true);
+                    this.isLoading = false;
+                });
+
+                return;
+            }
+
             this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
                     this.hasOrderDeepEdit = false;

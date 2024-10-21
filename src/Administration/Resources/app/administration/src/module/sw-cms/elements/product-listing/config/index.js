@@ -385,11 +385,11 @@ export default {
             return this.loadFilterableProperties();
         },
 
-        propertyStatusChanged(id) {
+        propertyStatusChanged(enable, id) {
             // eslint-disable-next-line inclusive-language/use-inclusive-words
             const allowlist = this.element.config.propertyWhitelist.value;
 
-            if (!allowlist.includes(id)) {
+            if (enable) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
                 this.element.config.propertyWhitelist.value = [
                     ...allowlist,

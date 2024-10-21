@@ -96,7 +96,7 @@ class ThemeCompilerTest extends TestCase
     /**
      * @var CopyBatchInputFactory&MockObject
      */
-    private CopyBatchInputFactory $CopyBatchInputFactory;
+    private CopyBatchInputFactory $copyBatchInputFactory;
 
     protected function setUp(): void
     {
@@ -107,7 +107,7 @@ class ThemeCompilerTest extends TestCase
         $this->scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
         $this->messageBus = new MessageBus();
-        $this->CopyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
+        $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
@@ -165,7 +165,7 @@ class ThemeCompilerTest extends TestCase
             [ThemeFileResolver::STYLE_FILES => FileCollection::createFromArray(['foo'])]
         );
 
-        $this->CopyBatchInputFactory->method('fromDirectory')->willThrowException(new \Exception());
+        $this->copyBatchInputFactory->method('fromDirectory')->willThrowException(new \Exception());
 
         $compiler = $this->getThemeCompiler();
 
@@ -506,7 +506,7 @@ PHP_EOL,
         $this->filesystem->write('temp/test.png', '');
         $png = $this->filesystem->readStream('temp/test.png');
 
-        $this->CopyBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
+        $this->copyBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
             [
                 new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
             ]
@@ -586,7 +586,7 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/current');
         $this->filesystem->write('theme/current/all.js', '');
 
-        $this->CopyBatchInputFactory->expects(static::never())
+        $this->copyBatchInputFactory->expects(static::never())
             ->method('fromDirectory');
 
         $this->scssPhpCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
@@ -796,7 +796,7 @@ PHP_EOL,
         return new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
-            $this->CopyBatchInputFactory,
+            $this->copyBatchInputFactory,
             $this->themeFileResolver,
             true,
             $this->eventDispatcher,

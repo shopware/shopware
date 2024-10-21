@@ -41,7 +41,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly FilesystemOperator $tempFilesystem,
-        private readonly CopyBatchInputFactory $CopyBatchInputFactory,
+        private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -293,7 +293,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->CopyBatchInputFactory->fromDirectory($asset, $outputPath)];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
         }
 
         return array_values($collected);

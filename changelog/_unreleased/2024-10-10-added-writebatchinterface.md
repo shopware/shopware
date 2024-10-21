@@ -1,6 +1,6 @@
 ---
 title: Added WriteBatchInterface
-issue: NEXT-0000
+issue: NEXT-39174
 author: tinect
 author_email: s.koenig@tinect.de
 author_github: tinect

@@ -170,7 +170,7 @@
         "friendsofphp/php-cs-fixer": "3.64.0",
         "jdorn/sql-formatter": "^1.2.17",
         "league/construct-finder": "^1.1",
-        "league/flysystem-async-aws-s3": "^3.10.3",
+        "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^4.16.0",
         "opis/json-schema": "^2.3.0",
@@ -179,11 +179,11 @@
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.1",
+        "phpstan/phpdoc-parser": "1.32.0",
         "phpstan/phpstan": "1.12.5",
         "phpstan/phpstan-deprecation-rules": "1.2.1",
         "phpstan/phpstan-phpunit": "1.4.0",
         "phpstan/phpstan-symfony": "1.4.10",
-        "phpstan/phpdoc-parser": "1.32.0",
         "phpunit/phpunit": "^10.5",
         "predis/predis": "^2.2",
         "rector/type-perfect": "0.2.0",
@@ -330,7 +330,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
+            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | head -n 1)"
         ],
         "build:js": [
             "@build:js:admin",

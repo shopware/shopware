@@ -89,13 +89,14 @@ export default {
 
         loadBaseFiles() {
             return this.snippetSetService.getBaseFiles().then((response) => {
-                this.baseFiles = response.items;
+                this.baseFiles = Object.values(response.items ?? {});
+                this.baseFiles.sort((a, b) => a.name.localeCompare(b.name));
             });
         },
 
         onAddSnippetSet() {
             const newSnippetSet = this.snippetSetRepository.create();
-            newSnippetSet.baseFile = Object.values(this.baseFiles)[0].name;
+            newSnippetSet.baseFile = this.baseFiles[0].name;
 
             const result = this.snippetSets.splice(0, 0, newSnippetSet);
 
@@ -129,7 +130,7 @@ export default {
         onInlineEditSave(item) {
             this.isLoading = true;
 
-            const match = Object.values(this.baseFiles).find((element) => {
+            const match = this.baseFiles.find((element) => {
                 return element.name === item.baseFile;
             });
 

@@ -317,7 +317,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_base_options_hreflang %}
     <sw-sales-channel-detail-hreflang
-        v-if="salesChannel && isStoreFront"
+        v-if="salesChannel && isStorefront"
         :sales-channel="salesChannel"
         :disabled="!acl.can('sales_channel.editor') || undefined"
         :is-loading="isLoading"

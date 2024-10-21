@@ -24,7 +24,7 @@ describe('focus-handler.helper', () => {
 
             <div class="modal">
                 <button id="modal-close">X</button>
-            </div>`
+            </div>`;
 
         const modalButton = document.getElementById('modal-open');
         const modalCloseButton = document.getElementById('modal-close');
@@ -52,7 +52,7 @@ describe('focus-handler.helper', () => {
 
             <div class="modal">
                 <button id="modal-close">X</button>
-            </div>`
+            </div>`;
 
         const modalButton = document.getElementById('modal-open');
         const modalCloseButton = document.getElementById('modal-close');
@@ -81,7 +81,7 @@ describe('focus-handler.helper', () => {
 
             <div class="modal">
                 <button id="modal-close">X</button>
-            </div>`
+            </div>`;
 
         const modalButton = document.getElementById('modal-open');
         const modalCloseButton = document.getElementById('modal-close');

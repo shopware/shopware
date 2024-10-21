@@ -15,7 +15,15 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-tree-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: [
+        'selection-add',
+        'selection-remove',
+        'categories-load-more',
+    ],
 
     props: {
         categoriesCollection: {
@@ -47,13 +55,24 @@ Component.register('sw-category-tree-field', {
             required: false,
             default: false,
         },
+
+        pageId: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        isCategoriesLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
         return {
             isFetching: false,
             isComponentReady: false,
-            tagLimit: true,
             categories: [],
             selectedCategories: [],
             isExpanded: false,
@@ -63,6 +82,7 @@ Component.register('sw-category-tree-field', {
             setInputFocusClass: null,
             removeInputFocusClass: null,
             selectedTreeItem: '',
+            selectedCategoriesTotal: 0,
         };
     },
 
@@ -76,17 +96,21 @@ Component.register('sw-category-tree-field', {
         },
 
         visibleTags() {
-            return this.tagLimit ? this.categoriesCollection.slice(0, 5) : this.categoriesCollection;
+            return this.categoriesCollection;
         },
 
         numberOfHiddenTags() {
-            const hiddenTagsLength = this.categoriesCollection.length - this.visibleTags.length;
+            const hiddenTagsLength = this.selectedCategoriesItemsTotal - this.visibleTags.length;
 
             return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
         },
 
         selectedCategoriesItemsIds() {
-            return this.categoriesCollection.getIds();
+            return this.pageId ? this.selectedCategories : this.categoriesCollection.getIds();
+        },
+
+        selectedCategoriesItemsTotal() {
+            return this.pageId ? this.selectedCategoriesTotal : this.categoriesCollection.length;
         },
 
         selectedCategoriesPathIds() {
@@ -95,8 +119,27 @@ Component.register('sw-category-tree-field', {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [...acc, ...pathIds];
+                return [
+                    ...acc,
+                    ...pathIds,
+                ];
             }, []);
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+
+        pageCategoryCriteria() {
+            const categoryCriteria = new Criteria();
+
+            categoryCriteria.addFilter(Criteria.equals('cmsPageId', this.pageId));
+
+            return categoryCriteria;
         },
     },
 
@@ -156,7 +199,7 @@ Component.register('sw-category-tree-field', {
                     }
 
                     actualElement.scrollTo({
-                        top: offsetValue - (actualElement.clientHeight / 2) - 50,
+                        top: offsetValue - actualElement.clientHeight / 2 - 50,
                         behavior: 'smooth',
                     });
                 }, 50)();
@@ -176,6 +219,12 @@ Component.register('sw-category-tree-field', {
         createdComponent() {
             document.addEventListener('click', this.closeDropdownOnClickOutside);
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
+
+            if (this.pageId) {
+                this.globalCategoryRepository.searchIds(this.pageCategoryCriteria).then((result) => {
+                    this.selectedCategoriesTotal = result.total;
+                });
+            }
         },
 
         destroyedComponent() {
@@ -196,12 +245,21 @@ Component.register('sw-category-tree-field', {
                 if (parentId === null) {
                     this.categories = searchResult;
                     this.isFetching = false;
+
+                    if (this.pageId && searchResult[0].cmsPageId === this.pageId) {
+                        this.selectedCategories.push(searchResult[0].id);
+                    }
+
                     return Promise.resolve();
                 }
 
                 // add new categories
                 searchResult.forEach((category) => {
                     this.categories.add(category);
+
+                    if (this.pageId && category.cmsPageId === this.pageId) {
+                        this.selectedCategories.push(category.id);
+                    }
                 });
 
                 return Promise.resolve();
@@ -235,6 +293,11 @@ Component.register('sw-category-tree-field', {
                     this.isExpanded = false;
                 }
 
+                if (this.pageId) {
+                    this.selectedCategories.push(item.id);
+                    this.selectedCategoriesTotal += 1;
+                }
+
                 return true;
             }
 
@@ -244,6 +307,12 @@ Component.register('sw-category-tree-field', {
 
         removeItem(item) {
             this.categoriesCollection.remove(item.id);
+
+            if (this.pageId) {
+                const itemIndex = this.selectedCategories.findIndex((id) => id === item.id);
+                this.selectedCategories.splice(itemIndex, 1);
+                this.selectedCategoriesTotal -= 1;
+            }
 
             if (item.data) {
                 this.$emit('selection-remove', item.data);
@@ -277,7 +346,7 @@ Component.register('sw-category-tree-field', {
             if (item.breadcrumb) {
                 return item.breadcrumb.join(' / ');
             }
-            return item.translated.name || item.name;
+            return item.translated?.name || item.name;
         },
 
         getLabelName(item) {
@@ -297,7 +366,7 @@ Component.register('sw-category-tree-field', {
         },
 
         removeTagLimit() {
-            this.tagLimit = false;
+            this.$emit('categories-load-more');
         },
 
         openDropdown({ setFocusClass, removeFocusClass }) {
@@ -509,7 +578,7 @@ Component.register('sw-category-tree-field', {
         },
 
         changeSearchSelection(type = 'next') {
-            const typeValue = (type === 'previous') ? -1 : 1;
+            const typeValue = type === 'previous' ? -1 : 1;
 
             const actualIndex = this.searchResult.indexOf(this.searchResultFocusItem);
             const focusItem = this.searchResult[actualIndex + typeValue];

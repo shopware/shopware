@@ -41,14 +41,6 @@ Build:
     - when: always
   before_script: []
   script:
-    - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
-    - >
-      if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
-          PLATFORM_VERSION='6.6.99.99'
-      else
-          PLATFORM_VERSION="${LATEST_TAG#"v"}"
-      fi
-    - composer config version "$PLATFORM_VERSION"
     - !reference [.scripts, init, composer]
     - bin/console debug:container --parameter 'kernel.shopware_version'
     - mkdir -p config/jwt custom/plugins || true
@@ -66,15 +58,8 @@ Build:
     - "NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci"
     - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
 
-    - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
-    - composer run e2e:sdk-plugin:fixture-to-plugin
-    - "(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)"
-    - bin/console plugin:refresh
-    - bin/console plugin:install --activate TestPlugin
-    - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
     - composer run build:js
-    - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
     - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
     - bin/console theme:compile

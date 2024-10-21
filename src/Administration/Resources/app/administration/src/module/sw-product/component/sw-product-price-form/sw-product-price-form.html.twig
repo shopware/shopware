@@ -27,7 +27,7 @@
                     name="sw-field--product-taxId"
                     :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
                     validation="required"
-                    :disabled="isInherited || !allowEdit"
+                    :disabled="isInherited || !allowEdit || undefined"
                     :value="currentValue"
                     :error="productTaxIdError"
                     @update:value="updateCurrentValue"
@@ -64,7 +64,7 @@
                     :price="currentValue.price"
                     :purchase-prices="currentValue.purchasePrices"
                     :tax-rate="productTaxRate"
-                    :disabled="isInherited || !allowEdit"
+                    :disabled="isInherited || !allowEdit || undefined"
                     :error="productPriceError ? productPriceError[0] : null"
                     :currency="defaultCurrency"
                     :show-setting-price="showModeSetting"
@@ -124,8 +124,9 @@
         :prices="product.price"
         :default-price="defaultPrice"
         :tax-rate="productTaxRate"
-        :disabled="!allowEdit"
+        :disabled="!allowEdit || undefined"
         @modal-close="onMaintainCurrenciesClose"
+        @update-prices="updatePrices"
     />
     {% endblock %}
 </div>

@@ -11,6 +11,13 @@ const { Component } = Shopware;
 Component.register('sw-text-editor-toolbar-table-button', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'mounted',
+        'table-create',
+    ],
+
     props: {
         buttonConfig: {
             type: Object,

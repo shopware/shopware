@@ -6,8 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheKeyEvent;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('buyers-experience')]
 class CachedCountryStateRoute extends AbstractCountryStateRoute
@@ -42,12 +46,15 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
 
     public static function buildName(string $id): string
     {
-        return 'country-state-route-' . $id;
+        return CountryStateRoute::buildName($id);
     }
 
     #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($countryId, $request, $criteria, $context);
+        }
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($countryId, $request, $criteria, $context);
         }
@@ -90,7 +97,7 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
             return null;
         }
 
-        return self::buildName($countryId) . '-' . md5(Json::encode($event->getParts()));
+        return self::buildName($countryId) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

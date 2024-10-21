@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
@@ -34,6 +35,8 @@ class AccountService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -216,7 +219,7 @@ class AccountService
     {
         $criteria->setTitle('account-service::fetchCustomer');
 
-        $result = $this->customerRepository->search($criteria, $context->getContext());
+        $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
         $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
             // Skip not active users
             if (!$customer->getActive()) {
@@ -248,12 +251,7 @@ class AccountService
             $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
         }
 
-        $customer = $result->first();
-        if (!$customer instanceof CustomerEntity) {
-            return null;
-        }
-
-        return $customer;
+        return $result->first();
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void

@@ -13,7 +13,7 @@ class FeatureActiveException extends ShopwareHttpException
         string $feature,
         ?\Throwable $previous = null
     ) {
-        $message = sprintf('This function can only be used with feature flag %s inactive', $feature);
+        $message = \sprintf('This function can only be used with feature flag %s inactive', $feature);
         parent::__construct($message, [], $previous);
     }
 

@@ -319,7 +319,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -366,7 +366,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
 
-        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#0b539b';
+        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#0042a0';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -434,7 +434,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
         static::assertEquals($themeInheritedConfig, $theme);
     }
@@ -689,7 +689,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '#b1900f';
         $_expectedTheme = $childTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
-        $_expectedColor = '#0b539b';
+        $_expectedColor = '#0042a0';
         $_expectedTheme = $baseTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }
@@ -781,7 +781,7 @@ class ThemeTest extends TestCase
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
 
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "src/Storefront/Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
                 throw $e;
             }
         }
@@ -810,7 +810,7 @@ class ThemeTest extends TestCase
     public function testThemeServiceUpdateWrongId(): void
     {
         $randomId = Uuid::randomHex();
-        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $randomId));
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $randomId));
         $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
     }
 
@@ -892,7 +892,7 @@ class ThemeTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>              $customConfig
+     * @param array<string, mixed> $customConfig
      * @param array<int, array<string, string>> $saleSchannels
      */
     private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleSchannels = [], ?string $givenName = null): string

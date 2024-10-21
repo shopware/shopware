@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -8,167 +8,187 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
 
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
-        wrapper = mount(await wrapTestComponent('sw-settings-shopware-updates-wizard', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                provide: {
-                    updateService: {
-                        checkForUpdates: () => Promise.resolve({
-                            extensions: [],
-                            title: 'Release 6.4.18.0',
-                            body: 'This is a test release',
-                            date: '2022-12-08T09:04:06.000+00:00',
-                            version: '6.4.18.0',
-                            fixedVulnerabilities: [],
-                        }),
-                        checkRequirements: () => Promise.resolve([
-                            {
-                                name: 'writeableCheck',
-                                result: true,
-                                message: 'writeableCheckValid',
-                                vars: {
-                                    checkedDirectories: '',
-                                },
-                                extensions: [],
-                            },
-                            {
-                                name: 'validShopwareLicense',
-                                result: false,
-                                message: 'validShopwareLicense',
-                                vars: [],
-                                extensions: [],
-                            },
-                        ]),
-                        deactivatePlugins: () => {
-                            const error = new Error();
+        wrapper = mount(
+            await wrapTestComponent('sw-settings-shopware-updates-wizard', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    provide: {
+                        updateService: {
+                            checkForUpdates: () =>
+                                Promise.resolve({
+                                    extensions: [],
+                                    title: 'Release 6.4.18.0',
+                                    body: 'This is a test release',
+                                    date: '2022-12-08T09:04:06.000+00:00',
+                                    version: '6.4.18.0',
+                                    fixedVulnerabilities: [],
+                                }),
+                            checkRequirements: () =>
+                                Promise.resolve([
+                                    {
+                                        name: 'writeableCheck',
+                                        result: true,
+                                        message: 'writeableCheckValid',
+                                        vars: {
+                                            checkedDirectories: '',
+                                        },
+                                        extensions: [],
+                                    },
+                                    {
+                                        name: 'validShopwareLicense',
+                                        result: false,
+                                        message: 'validShopwareLicense',
+                                        vars: [],
+                                        extensions: [],
+                                    },
+                                ]),
+                            deactivatePlugins: () => {
+                                const error = new Error();
 
-                            error.response = {
-                                data: {
-                                    errors: [
-                                        {
-                                            code: 'THEME__THEME_ASSIGNMENT',
-                                            meta: {
-                                                parameters: {
-                                                    themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
-                                                    assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
+                                error.response = {
+                                    data: {
+                                        errors: [
+                                            {
+                                                code: 'THEME__THEME_ASSIGNMENT',
+                                                meta: {
+                                                    parameters: {
+                                                        themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
+                                                        assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
+                                                    },
                                                 },
                                             },
+                                        ],
+                                    },
+                                };
+
+                                return Promise.reject(error);
+                            },
+                            extensionCompatibility: () => Promise.resolve([]),
+                            downloadRecovery: () => Promise.resolve([]),
+                        },
+                    },
+                    mocks: {
+                        $route: {
+                            name: '',
+                            meta: {
+                                parentPath: 'sw.settings.index',
+                                $module: {
+                                    type: 'core',
+                                    name: 'settings',
+                                    title: 'sw-settings.general.mainMenuItemGeneral',
+                                    color: '#9AA8B5',
+                                    icon: 'default-action-settings',
+                                    favicon: 'icon-module-settings.png',
+                                    routes: {
+                                        index: {
+                                            path: '/sw/settings/index',
+                                            icon: 'default-action-settings',
+                                            name: 'sw.settings.index',
+                                            type: 'core',
+                                            components: {
+                                                default: {
+                                                    _custom: {
+                                                        type: 'function',
+                                                        display: '<span>ƒ</span> VueComponent(options)',
+                                                    },
+                                                },
+                                            },
+                                            isChildren: false,
+                                            routeKey: 'index',
+                                        },
+                                    },
+                                    navigation: [
+                                        {
+                                            id: 'sw-settings',
+                                            label: 'sw-settings.general.mainMenuItemGeneral',
+                                            color: '#9AA8B5',
+                                            icon: 'default-action-settings',
+                                            path: 'sw.settings.index',
+                                            position: 80,
+                                            children: [],
                                         },
                                     ],
                                 },
-                            };
-
-                            return Promise.reject(error);
-                        },
-                        extensionCompatibility: () => Promise.resolve([]),
-                        downloadRecovery: () => Promise.resolve([]),
-                    },
-                },
-                mocks: {
-                    $route: {
-                        name: '',
-                        meta: {
-                            parentPath: 'sw.settings.index',
-                            $module: {
-                                type: 'core',
-                                name: 'settings',
-                                title: 'sw-settings.general.mainMenuItemGeneral',
-                                color: '#9AA8B5',
-                                icon: 'default-action-settings',
-                                favicon: 'icon-module-settings.png',
-                                routes: {
-                                    index: {
-                                        path: '/sw/settings/index',
-                                        icon: 'default-action-settings',
-                                        name: 'sw.settings.index',
-                                        type: 'core',
-                                        components: {
-                                            default: {
-                                                _custom: {
-                                                    type: 'function',
-                                                    display: '<span>ƒ</span> VueComponent(options)',
-                                                },
-                                            },
-                                        },
-                                        isChildren: false,
-                                        routeKey: 'index',
-                                    },
-                                },
-                                navigation: [
-                                    {
-                                        id: 'sw-settings',
-                                        label: 'sw-settings.general.mainMenuItemGeneral',
-                                        color: '#9AA8B5',
-                                        icon: 'default-action-settings',
-                                        path: 'sw.settings.index',
-                                        position: 80,
-                                        children: [],
-                                    },
-                                ],
+                            },
+                            params: {
+                                id: '',
                             },
                         },
-                        params: {
-                            id: '',
+                        $i18n: {
+                            locale: 'de-De',
                         },
                     },
-                    $i18n: {
-                        locale: 'de-De',
+                    stubs: {
+                        'sw-page': await wrapTestComponent('sw-page'),
+                        'sw-search-bar': {
+                            template: '<div></div>',
+                        },
+                        'sw-notification-center': {
+                            template: '<div></div>',
+                        },
+                        'sw-help-center': true,
+                        'sw-tooltip': {
+                            template: '<div></div>',
+                        },
+                        'sw-settings-shopware-updates-requirements': await wrapTestComponent(
+                            'sw-settings-shopware-updates-requirements',
+                        ),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-card-view': await wrapTestComponent('sw-card-view'),
+                        'sw-card': await wrapTestComponent('sw-card'),
+                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                        'sw-ignore-class': true,
+                        'sw-settings-shopware-updates-info': {
+                            template: '<div></div>',
+                        },
+                        'sw-settings-shopware-updates-plugins': {
+                            template: '<div></div>',
+                        },
+                        'sw-loader': {
+                            template: '<div></div>',
+                        },
+                        'sw-icon': {
+                            template: '<div></div>',
+                        },
+                        'router-link': {
+                            template: '<a></a>',
+                        },
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-color-badge': await wrapTestComponent('sw-color-badge'),
+                        'sw-app-actions': true,
+                        'sw-extension-component-section': true,
+                        'sw-error-summary': true,
+                        'sw-modal': {
+                            template: '<div><slot name="modal-footer"></slot></div>',
+                        },
+                        'sw-progress-bar': true,
+                        'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
+                            sync: true,
+                        }),
+                        'sw-field-error': true,
+                        'sw-base-field': true,
+                        'sw-app-topbar-button': true,
+                        'sw-help-center-v2': true,
+                        'sw-empty-state': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-context-button': true,
+                        'sw-alert': true,
+                        'sw-radio-field': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-context-menu-item': true,
+                        'sw-data-grid-settings': true,
+                        'sw-data-grid-inline-edit': true,
+                        'sw-data-grid-skeleton': true,
                     },
+                    attachTo: document.body,
                 },
-                stubs: {
-                    'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-search-bar': {
-                        template: '<div></div>',
-                    },
-                    'sw-notification-center': {
-                        template: '<div></div>',
-                    },
-                    'sw-help-center': true,
-                    'sw-tooltip': {
-                        template: '<div></div>',
-                    },
-                    'sw-settings-shopware-updates-requirements':
-                        await wrapTestComponent('sw-settings-shopware-updates-requirements'),
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                    'sw-card-view': await wrapTestComponent('sw-card-view'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-ignore-class': true,
-                    'sw-settings-shopware-updates-info': {
-                        template: '<div></div>',
-                    },
-                    'sw-settings-shopware-updates-plugins': {
-                        template: '<div></div>',
-                    },
-                    'sw-loader': {
-                        template: '<div></div>',
-                    },
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
-                    'router-link': {
-                        template: '<a></a>',
-                    },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-color-badge': await wrapTestComponent('sw-color-badge'),
-                    'sw-app-actions': true,
-                    'sw-extension-component-section': true,
-                    'sw-error-summary': true,
-                    'sw-modal': {
-                        template: '<div><slot name="modal-footer"></slot></div>',
-                    },
-                    'sw-progress-bar': true,
-                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-field-error': true,
-                    'sw-base-field': true,
-                },
-                attachTo: document.body,
             },
-        });
+        );
 
         await flushPromises();
     });

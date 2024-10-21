@@ -10,6 +10,7 @@ use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +19,7 @@ use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -39,15 +41,15 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly FilesystemOperator $tempFilesystem,
+        private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver,
         private readonly iterable $packages,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
-        private readonly string $projectDir,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly MessageBusInterface $messageBus,
         private readonly int $themeFileDeleteDelay,
@@ -76,11 +78,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         try {
-            $concatenatedStyles = $this->concatenateStyles(
-                $styleFiles,
-                $themeConfig,
-                $salesChannelId
-            );
+            $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
         } catch (\Throwable $e) {
             throw new ThemeCompileException(
                 $themeConfig->getName() ?? '',
@@ -142,8 +140,19 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate([
+                CachedResolvedConfigLoader::buildName($themeId),
+            ]);
+
+            return;
+        }
+
         // Reset cache buster state for improving performance in getMetadata
-        $this->cacheInvalidator->invalidate(['theme-metaData'], true);
+        $this->cacheInvalidator->invalidate([
+            'theme-metaData',
+            'theme_scripts_' . $themePrefix,
+        ], true);
     }
 
     /**
@@ -151,7 +160,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     public function getResolveImportPathsCallback(array $resolveMappings): \Closure
     {
-        return function ($originalPath) use ($resolveMappings) {
+        return function (string $originalPath) use ($resolveMappings): ?string {
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
                 if (mb_strpos($originalPath, $resolve) === 0) {
@@ -188,15 +197,21 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $copyFiles = [];
 
-        foreach ($scriptsDist as $folderName => $basePath) {
+        foreach ($scriptsDist as $folderName => $pluginConfig) {
             // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
-            $path = str_replace('/Resources', '', $basePath);
-            $pathToJsFiles = $path . '/' . $distRelativePath . '/js/' . $folderName;
-            if ($folderName === 'storefront') {
-                $pathToJsFiles = $path . '/' . $distRelativePath;
+            $pathToJsFiles = $distRelativePath;
+            if ($folderName !== 'storefront') {
+                $pathToJsFiles .= '/js/' . $folderName;
             }
 
-            $files = $this->getScriptDistFiles($this->themeFileImporter->getRealPath($pathToJsFiles));
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
+
+            if ($fs->has($pathToJsFiles)) {
+                $pathToJsFiles = $fs->realpath($pathToJsFiles);
+            }
+
+            $files = $this->getScriptDistFiles($pathToJsFiles);
+
             if ($files === null) {
                 continue;
             }
@@ -213,7 +228,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, StorefrontPluginConfiguration>
      */
     private function getScriptDistFolders(StorefrontPluginConfigurationCollection $configurationCollection): array
     {
@@ -228,15 +243,8 @@ class ThemeCompiler implements ThemeCompilerInterface
             if ($scripts->count() === 0) {
                 continue;
             }
-            $distPath = $configuration->getBasePath();
-            $isVendor = str_contains($configuration->getBasePath(), 'vendor/');
-            $isTechnicalName = str_contains($configuration->getBasePath(), $configuration->getTechnicalName());
-            if (!$isVendor && !$isTechnicalName) {
-                $appPath = '/' . $configuration->getTechnicalName() . '/Resources';
-                $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
-            }
 
-            $scriptsDistFolders[$configuration->getAssetName()] = $distPath;
+            $scriptsDistFolders[$configuration->getAssetName()] = $configuration;
         }
 
         return $scriptsDistFolders;
@@ -280,13 +288,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if ($asset[0] !== '/' && file_exists($this->projectDir . '/' . $asset)) {
-                $asset = $this->projectDir . '/' . $asset;
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
+            if ($asset[0] !== '/' && $fs->has('Resources', $asset)) {
+                $asset = $fs->path('Resources', $asset);
             }
 
-            $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
-
-            $collected = [...$collected, ...$assets];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
         }
 
         return array_values($collected);
@@ -338,6 +345,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         if ($this->autoPrefix === true) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
+
             $autoPreFixer = new Autoprefixer($cssOutput);
             /** @var string|false $cssOutput */
             $cssOutput = $autoPreFixer->compile($this->debug);
@@ -381,9 +390,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     {
         $allFeatures = Feature::getAll();
 
-        $featuresScss = implode(',', array_map(fn ($value, $key) => sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
+        $featuresScss = implode(',', array_map(fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
 
-        return sprintf('$sw-features: (%s);', $featuresScss);
+        return \sprintf('$sw-features: (%s);', $featuresScss);
     }
 
     /**
@@ -393,7 +402,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(fn ($value, $key) => sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
+        return array_map(fn ($value, $key) => \sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
     }
 
     /**
@@ -420,7 +429,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         foreach ($this->packages as $key => $package) {
-            $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
+            $variables[\sprintf('sw-asset-%s-url', $key)] = \sprintf('\'%s\'', $package->getUrl(''));
         }
 
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent(
@@ -486,14 +495,14 @@ PHP_EOL;
 
     private function concatenateStyles(
         FileCollection $styleFiles,
-        StorefrontPluginConfiguration $themeConfig,
         string $salesChannelId
     ): string {
-        $concatenatedStyles = '';
-        foreach ($styleFiles as $file) {
-            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
-        }
-        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
+        $styles = $styleFiles->map(fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
+
+        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent(
+            implode("\n", $styles),
+            $salesChannelId
+        );
         $this->eventDispatcher->dispatch($concatenatedStylesEvent);
 
         return $concatenatedStylesEvent->getConcatenatedStyles();

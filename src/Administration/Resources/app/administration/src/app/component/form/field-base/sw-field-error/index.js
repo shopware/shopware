@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-field-error', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         error: {
             type: Object,
@@ -44,7 +46,7 @@ Component.register('sw-field-error', {
             }
 
             const formattedParameters = {};
-            Object.keys(parameters).forEach(key => {
+            Object.keys(parameters).forEach((key) => {
                 if (parameters.hasOwnProperty(key)) {
                     const formattedKey = key.replace(/{{\s*(.*?)\s*}}/, '$1');
                     formattedParameters[formattedKey] = parameters[key];

@@ -31,6 +31,8 @@ const IFRAME_KEY = 'app.action_button.iframe';
 Component.register('sw-app-actions', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     extensionApiDevtoolInformation: {
         property: 'ui.actionButton',
         entity: (currentComponent) => `${currentComponent.entity}`,
@@ -68,17 +70,17 @@ Component.register('sw-app-actions', {
         },
 
         view() {
-            const matchedRoute = this.matchedRoutes.filter((match) => {
-                return !!match?.meta?.appSystem?.view;
-            }).pop();
+            const matchedRoute = this.matchedRoutes
+                .filter((match) => {
+                    return !!match?.meta?.appSystem?.view;
+                })
+                .pop();
 
             return matchedRoute?.meta?.appSystem?.view;
         },
 
         areActionsAvailable() {
-            return !!this.actions
-                && this.actions.length > 0
-                && this.params.length > 0;
+            return !!this.actions && this.actions.length > 0 && this.params.length > 0;
         },
 
         params() {
@@ -137,7 +139,7 @@ Component.register('sw-app-actions', {
             const { data } = await this.appActionButtonService.runAction(action.id, entityIdList);
             const { actionType, redirectUrl, status, message } = data;
 
-            this.action = this.actions.find(actionsAction => {
+            this.action = this.actions.find((actionsAction) => {
                 return actionsAction.id === action.id;
             });
 
@@ -218,7 +220,7 @@ Component.register('sw-app-actions', {
         },
 
         getUserConfig() {
-            this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then(response => {
+            this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((response) => {
                 if (response.length) {
                     this.iframeUserConfig = response.first();
                 } else {

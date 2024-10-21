@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 const mailHeaderFooterMock = [
@@ -16,7 +19,6 @@ const mailHeaderFooterMock = [
         description: 'Shopware Default Template',
         name: 'Order Header',
         salesChannels: [],
-
     },
 ];
 
@@ -31,7 +33,7 @@ const createWrapper = async (privileges = []) => {
                         },
 
                         delete: (id) => {
-                            const hasSalesChannel = mailHeaderFooterMock.find(item => item.id === id).salesChannels.length;
+                            const hasSalesChannel = mailHeaderFooterMock.find((item) => item.id === id).salesChannels.length;
 
                             if (hasSalesChannel) {
                                 return Promise.reject();
@@ -43,7 +45,9 @@ const createWrapper = async (privileges = []) => {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -63,24 +67,30 @@ const createWrapper = async (privileges = []) => {
                     template: '<div><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
-                    props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
+                    props: [
+                        'items',
+                        'allowEdit',
+                        'allowView',
+                        'allowDelete',
+                        'detailRoute',
+                    ],
                     template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
-                                    <sw-context-menu-item-stub class="sw-entity-listing__context-menu-edit-action"
-                                                               v-if="detailRoute"
-                                                               :disabled="!allowEdit && !allowView"
-                                                               :routerLink="{ name: detailRoute, params: { id: item.id } }">
+                                    <div class="sw-entity-listing__context-menu-edit-action"
+                                         v-if="detailRoute"
+                                         :disabled="!allowEdit && !allowView"
+                                         :routerLink="{ name: detailRoute, params: { id: item.id } }">
                                         {{ !allowEdit && allowView ? 'global.default.view' : 'global.default.edit' }}
-                                    </sw-context-menu-item-stub>
+                                    </div>
                                 </slot>
                                 <slot name="more-actions" v-bind="{ item }"></slot>
                                 <slot name="delete-action" v-bind="{ item }">
-                                    <sw-context-menu-item-stub :disabled="!allowDelete"
-                                                               class="sw-entity-listing__context-menu-edit-delete">
-                                    </sw-context-menu-item-stub>
+                                    <div :disabled="!allowDelete || undefined"
+                                         class="sw-entity-listing__context-menu-edit-delete">
+                                    </div>
                                 </slot>
                             </slot>
                         </template>
@@ -91,6 +101,8 @@ const createWrapper = async (privileges = []) => {
                     },
                 },
                 'sw-context-menu-item': true,
+                'sw-empty-state': true,
+                'sw-button': true,
             },
         },
     });

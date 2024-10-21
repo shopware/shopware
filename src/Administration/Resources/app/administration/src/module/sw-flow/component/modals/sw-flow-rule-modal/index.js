@@ -13,11 +13,18 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
         'ruleConditionsConfigApiService',
         'feature',
+    ],
+
+    emits: [
+        'process-finish',
+        'modal-close',
     ],
 
     mixins: [
@@ -61,10 +68,7 @@ export default {
                 return null;
             }
 
-            return this.repositoryFactory.create(
-                this.rule?.conditions?.entity,
-                this.rule?.conditions?.source,
-            );
+            return this.repositoryFactory.create(this.rule?.conditions?.entity, this.rule?.conditions?.source);
         },
 
         appScriptConditionRepository() {
@@ -72,7 +76,7 @@ export default {
         },
 
         availableModuleTypes() {
-            return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
+            return this.ruleConditionDataProviderService.getModuleTypes((moduleType) => moduleType);
         },
 
         moduleTypes: {
@@ -95,16 +99,18 @@ export default {
 
         scopesOfRuleAwarenessKey() {
             const ruleAwarenessKey = `flowTrigger.${this.flow.eventName}`;
-            const awarenessConfig = this.ruleConditionDataProviderService
-                .getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
-
+            const awarenessConfig =
+                this.ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
 
             return awarenessConfig?.scopes ?? undefined;
         },
 
         ...mapState('swFlowState', ['flow']),
 
-        ...mapPropertyErrors('rule', ['name', 'priority']),
+        ...mapPropertyErrors('rule', [
+            'name',
+            'priority',
+        ]),
     },
 
     created() {
@@ -131,7 +137,10 @@ export default {
         },
 
         loadConditionData() {
-            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const context = {
+                ...Context.api,
+                languageId: Shopware.State.get('session').languageId,
+            };
             const criteria = new Criteria(1, 500);
 
             return Promise.all([
@@ -147,7 +156,9 @@ export default {
             this.conditions = this.rule?.conditions;
             this.conditionTree = this.conditions;
             this.rule.flowSequences = [];
-            this.rule.flowSequences.push({ flow: { eventName: this.flow.eventName } });
+            this.rule.flowSequences.push({
+                flow: { eventName: this.flow.eventName },
+            });
         },
 
         loadRule(ruleId) {
@@ -174,10 +185,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(
-                conditions.criteria.page + 1,
-                conditions.criteria.limit,
-            );
+            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -193,20 +201,22 @@ export default {
         },
 
         syncConditions() {
-            return this.conditionRepository.sync(this.conditionTree, Context.api)
-                .then(() => {
-                    if (this.deletedIds.length > 0) {
-                        return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
-                            this.deletedIds = [];
-                        });
-                    }
-                    return Promise.resolve();
-                });
+            return this.conditionRepository.sync(this.conditionTree, Context.api).then(() => {
+                if (this.deletedIds.length > 0) {
+                    return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
+                        this.deletedIds = [];
+                    });
+                }
+                return Promise.resolve();
+            });
         },
 
         onConditionsChanged({ conditions, deletedIds }) {
             this.conditionTree = conditions;
-            this.deletedIds = [...this.deletedIds, ...deletedIds];
+            this.deletedIds = [
+                ...this.deletedIds,
+                ...deletedIds,
+            ];
         },
 
         getRuleDetail() {
@@ -214,7 +224,8 @@ export default {
                 return null;
             }
 
-            return this.ruleRepository.get(this.rule.id)
+            return this.ruleRepository
+                .get(this.rule.id)
                 .then((rule) => {
                     this.$emit('process-finish', rule);
                 })
@@ -240,9 +251,11 @@ export default {
                         this.getRuleDetail();
 
                         this.isSaveSuccessful = true;
-                    }).catch(() => {
+                    })
+                    .catch(() => {
                         this.showErrorNotification();
-                    }).finally(() => {
+                    })
+                    .finally(() => {
                         this.isSaveLoading = false;
                     });
 

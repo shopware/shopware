@@ -35,11 +35,10 @@ class Migration1673420896RemoveUndefinedSalutation extends MigrationStep
             }
 
             // Drop FK constraints to change from restrict delete to set null on delete
-            $connection->executeStatement('ALTER TABLE `' . $table . '` DROP FOREIGN KEY `' . $fkName . '`');
+            $this->dropForeignKeyIfExists($connection, $table, $fkName);
             $connection->executeStatement('ALTER TABLE `' . $table . '` ADD CONSTRAINT `' . $fkName . '` FOREIGN KEY (`salutation_id`) REFERENCES `salutation` (`id`) ON DELETE SET NULL ON UPDATE CASCADE');
         }
 
-        /** @var string|false $undefinedSalutationId */
         $undefinedSalutationId = $connection->fetchOne('SELECT `id` FROM `salutation` WHERE `salutation_key` = "undefined"');
 
         if (!$undefinedSalutationId) {

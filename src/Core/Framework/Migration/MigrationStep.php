@@ -37,7 +37,7 @@ abstract class MigrationStep
     public function removeTrigger(Connection $connection, string $name): void
     {
         try {
-            $connection->executeStatement(sprintf('DROP TRIGGER IF EXISTS %s', $name));
+            $connection->executeStatement(\sprintf('DROP TRIGGER IF EXISTS %s', $name));
         } catch (Exception) {
         }
     }
@@ -48,7 +48,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @param mixed[] $params
+     * @param array<string, mixed> $params
      */
     protected function createTrigger(Connection $connection, string $query, array $params = []): void
     {
@@ -68,16 +68,6 @@ abstract class MigrationStep
         IndexerQueuer::registerIndexer($connection, $name, $indexerToRun);
     }
 
-    protected function columnExists(Connection $connection, string $table, string $column): bool
-    {
-        $exists = $connection->fetchOne(
-            'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
-            ['column' => $column]
-        );
-
-        return !empty($exists);
-    }
-
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
         $exists = $connection->fetchOne(
@@ -90,16 +80,39 @@ abstract class MigrationStep
 
     protected function dropTableIfExists(Connection $connection, string $table): void
     {
-        $sql = sprintf('DROP TABLE IF EXISTS `%s`', $table);
+        $sql = \sprintf('DROP TABLE IF EXISTS `%s`', $table);
         $connection->executeStatement($sql);
     }
 
     /**
-     * @return bool - Returns true when the foreign key has been really deleted
+     * @return bool - Returns true when the column has really been deleted
+     */
+    protected function dropColumnIfExists(Connection $connection, string $table, string $column): bool
+    {
+        try {
+            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $column));
+        } catch (\Throwable $e) {
+            if ($e instanceof TableNotFoundException) {
+                return false;
+            }
+
+            // column does not exists
+            if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool - Returns true when the foreign key has really been deleted
      */
     protected function dropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
     {
-        $sql = sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $column);
+        $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $column);
 
         try {
             $connection->executeStatement($sql);
@@ -120,11 +133,11 @@ abstract class MigrationStep
     }
 
     /**
-     * @return bool - Returns true when the index has been really deleted
+     * @return bool - Returns true when the index has really been deleted
      */
     protected function dropIndexIfExists(Connection $connection, string $table, string $index): bool
     {
-        $sql = sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $index);
+        $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $index);
 
         try {
             $connection->executeStatement($sql);
@@ -188,11 +201,13 @@ abstract class MigrationStep
      */
     private function fixRolePrivileges(array $privilegeChange, array $rolePrivileges): array
     {
+        $rolePrivilegesToBeAdded = [];
         foreach ($privilegeChange as $existingPrivilege => $newPrivileges) {
             if (\in_array($existingPrivilege, $rolePrivileges, true)) {
-                $rolePrivileges = \array_merge($rolePrivileges, $newPrivileges);
+                $rolePrivilegesToBeAdded[] = $newPrivileges;
             }
         }
+        $rolePrivileges = \array_merge($rolePrivileges, ...$rolePrivilegesToBeAdded);
 
         return \array_values(\array_unique($rolePrivileges));
     }

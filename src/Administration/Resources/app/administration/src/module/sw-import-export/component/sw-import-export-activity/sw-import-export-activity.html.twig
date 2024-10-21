@@ -197,6 +197,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_modal %}
     <sw-import-export-edit-profile-modal
+        v-if="selectedProfile"
         :profile="selectedProfile"
         @profile-save="saveSelectedProfile"
         @profile-close="closeSelectedProfile"

@@ -16,7 +16,7 @@
         {% block sw_settings_payment_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
-            :disabled="isLoading"
+            :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('sw-settings-payment.detail.buttonCancel') }}
@@ -30,7 +30,7 @@
             class="sw-payment-detail__save-action"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !acl.can('payment.editor')"
+            :disabled="isLoading || !acl.can('payment.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -96,7 +96,7 @@
                                 name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || undefined"
                                 :label="$tc('sw-settings-payment.detail.labelName')"
                                 :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
                                 :error="paymentMethodNameError"
@@ -110,7 +110,7 @@
                                 name="sw-field--paymentMethod-technicalName"
                                 class="sw-settings-payment-detail__field-technical-name"
                                 :required="feature.isActive('v6.7.0.0')"
-                                :disabled="!acl.can('payment.editor') || technicalNameIsProvided"
+                                :disabled="!acl.can('payment.editor') || technicalNameIsProvided || undefined"
                                 :label="$tc('sw-settings-payment.detail.labelTechnicalName')"
                                 :placeholder="placeholder(paymentMethod, 'technicalName', $tc('sw-settings-payment.detail.placeholderTechnicalName'))"
                                 :error="paymentMethodTechnicalNameError"
@@ -131,7 +131,7 @@
                                 v-model:value="paymentMethod.position"
                                 name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || undefined"
                                 :label="$tc('sw-settings-payment.detail.labelPosition')"
                                 :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
                             />
@@ -147,7 +147,7 @@
                             <sw-textarea-field
                                 v-model:value="paymentMethod.description"
                                 name="sw-field--paymentMethod-description"
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || undefined"
                                 :value="paymentMethod.description"
                                 class="sw-settings-payment-detail__description"
                                 :label="$tc('sw-settings-payment.detail.labelDescription')"
@@ -163,7 +163,7 @@
                                 @media-upload-finish="setMediaItem"
                             />
                             <sw-media-upload-v2
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || undefined"
                                 :upload-tag="uploadTag"
                                 :source="mediaItem"
                                 class="sw-settings-payment-detail__logo-image-upload"
@@ -188,7 +188,7 @@
                                 v-model:value="paymentMethod.active"
                                 name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || undefined"
                                 :label="$tc('sw-settings-payment.detail.labelActive')"
                             />
                             {% endblock %}
@@ -199,7 +199,7 @@
                                 v-model:value="paymentMethod.afterOrderEnabled"
                                 name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || undefined"
                                 :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
                             />
                             {% endblock %}
@@ -221,7 +221,7 @@
                     <sw-select-rule-create
                         v-if="!isLoading"
                         class="sw-settings-payment-detail__field-availability-rule"
-                        :disabled="!acl.can('payment.editor')"
+                        :disabled="!acl.can('payment.editor') || undefined"
                         :rule-id="paymentMethod.availabilityRuleId"
                         :rule-filter="ruleFilter"
                         :placeholder="$tc('sw-settings-payment.detail.placeholderAvailabilityRule')"
@@ -243,7 +243,7 @@
                 >
                     <sw-custom-field-set-renderer
                         :entity="paymentMethod"
-                        :disabled="!acl.can('payment.editor')"
+                        :disabled="!acl.can('payment.editor') || undefined"
                         :sets="customFieldSets"
                     />
                 </sw-card>
@@ -260,14 +260,15 @@
                 >
                     <sw-alert
                         v-if="forbidDelete"
-                        variant="info">
+                        variant="info"
+                    >
                         {{ $tc('sw-settings-payment.detail.delete.textAlert') }}
                     </sw-alert>
 
                     <div class="sw-settings-payment-detail-delete__container">
                         <sw-button
                             variant="ghost-danger"
-                            :disabled="forbidDelete || !acl.can('payment.deleter')"
+                            :disabled="forbidDelete || !acl.can('payment.deleter') || undefined"
                             @click="showDeleteModal = true"
                         >
                             {{ $tc('sw-settings-payment.detail.delete.textButton') }}
@@ -281,7 +282,8 @@
                     v-if="showDeleteModal && acl.can('payment.deleter')"
                     :title="$tc('global.default.warning')"
                     variant="default"
-                    @modal-close="showDeleteModal = false">
+                    @modal-close="showDeleteModal = false"
+                >
 
                     {% block sw_settings_payment_detail_delete_modal_info %}
                     <div class="sw_theme_manager__confirm-delete-text">
@@ -296,17 +298,19 @@
                         {% block sw_settings_payment_detail_reset_modal_cancel %}
                         <sw-button
                             size="small"
-                            @click="showDeleteModal = false">
+                            @click="showDeleteModal = false"
+                        >
                             {{ $tc('sw-settings-payment.detail.delete.modal.buttonCancel') }}
                         </sw-button>
                         {% endblock %}
 
                         {% block sw_settings_payment_detail_reset_modal_confirm %}
                         <sw-button
-                            :disabled="deletionInProcess"
+                            :disabled="deletionInProcess || undefined"
                             variant="danger"
                             size="small"
-                            @click="deletePaymentMethod">
+                            @click="deletePaymentMethod"
+                        >
                             {{ $tc('sw-settings-payment.detail.delete.modal.buttonDelete') }}
                         </sw-button>
                         {% endblock %}

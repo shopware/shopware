@@ -8,19 +8,28 @@ async function createWrapper(userConfig = {}) {
     const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-field-error': true,
                 'sw-modal': {
                     props: ['title'],
                     // eslint-disable-next-line max-len
-                    template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
+                    template:
+                        '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                 },
                 'sw-loader': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 extensionStoreActionService: {
@@ -153,7 +162,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
 
-        const hideCheckbox = warningModal.get('input[type=\'checkbox\']');
+        const hideCheckbox = warningModal.get("input[type='checkbox']");
         await hideCheckbox.setChecked();
 
         await wrapper.vm.handleUpload([createFile()]);
@@ -199,16 +208,18 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         expect(Object.keys(Shopware.State.get('notification').growlNotifications)).toHaveLength(0);
 
         // return an error from the upload
-        // eslint-disable-next-line prefer-promise-reject-errors
-        uploadSpy.mockImplementationOnce(() => Promise.reject({
-            response: {
-                data: {
-                    errors: [
-                        'Wrong file format',
-                    ],
+        uploadSpy.mockImplementationOnce(() =>
+            // eslint-disable-next-line prefer-promise-reject-errors
+            Promise.reject({
+                response: {
+                    data: {
+                        errors: [
+                            'Wrong file format',
+                        ],
+                    },
                 },
-            },
-        }));
+            }),
+        );
 
         // upload a wrong file
         const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
@@ -224,7 +235,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const growlNotifications = Shopware.State.get('notification').growlNotifications;
 
         expect(Object.keys(growlNotifications)).toHaveLength(1);
-        Object.keys(growlNotifications).forEach(key => {
+        Object.keys(growlNotifications).forEach((key) => {
             expect(growlNotifications[key]).toHaveProperty('message');
             expect(growlNotifications[key].message).toBe('sw-extension.errors.messageGenericFailure');
             expect(growlNotifications[key]).toHaveProperty('title');

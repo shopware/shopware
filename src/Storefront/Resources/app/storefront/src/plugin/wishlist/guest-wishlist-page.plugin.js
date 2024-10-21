@@ -51,7 +51,7 @@ export default class GuestWishlistPagePlugin extends Plugin {
             if (forms && forms.length > 0) {
                 forms.forEach(form => {
                     this._removeGuestProductFormHandler(form);
-                })
+                });
             }
 
             ElementLoadingIndicatorUtil.remove(this.el);
@@ -97,6 +97,6 @@ export default class GuestWishlistPagePlugin extends Plugin {
             if (validProductIds.indexOf(guestProductId) === -1) {
                 this._wishlistStorage.remove(guestProductId);
             }
-        })
+        });
     }
 }

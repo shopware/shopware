@@ -11,7 +11,18 @@ const { createId, types } = Shopware.Utils;
 Component.register('sw-admin-menu-item', {
     template,
 
-    inject: ['acl', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'acl',
+        'feature',
+    ],
+
+    emits: [
+        'menu-item-click',
+        'menu-item-enter',
+        'sub-menu-item-enter',
+    ],
 
     props: {
         entry: {
@@ -23,6 +34,7 @@ Component.register('sw-admin-menu-item', {
             required: false,
             default: () => [],
         },
+
         displayIcon: {
             type: Boolean,
             // eslint-disable-next-line vue/no-boolean-default
@@ -64,7 +76,7 @@ Component.register('sw-admin-menu-item', {
 
         getEntryLabel() {
             if (this.entry.label instanceof Object) {
-                return (this.entry.label.translated) ? this.entry.label.label : this.$tc(this.entry.label.label);
+                return this.entry.label.translated ? this.entry.label.label : this.$tc(this.entry.label.label);
             }
             return this.$tc(this.entry.label);
         },
@@ -97,7 +109,7 @@ Component.register('sw-admin-menu-item', {
         },
 
         children() {
-            return this.entry.children.filter(child => {
+            return this.entry.children.filter((child) => {
                 if (!child.privilege) {
                     return true;
                 }
@@ -112,7 +124,7 @@ Component.register('sw-admin-menu-item', {
             let route = '';
             let match = false;
 
-            route = `/${path.replace(/\./g, '/')}`;
+            route = `/${path.replace(/[\.\-]/g, '/')}`;
             match = this.$router.resolve({
                 path: route,
             });

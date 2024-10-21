@@ -1,31 +1,35 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-search-example-modal', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
+    return mount(
+        await wrapTestComponent('sw-settings-search-example-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
+                    acl: {
+                        can: () => true,
+                    },
                 },
-                acl: {
-                    can: () => true,
-                },
-            },
 
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-button': true,
-                'sw-icon': true,
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-loader': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-example-modal', () => {
@@ -48,8 +52,6 @@ describe('module/sw-settings-search/component/sw-settings-search-example-modal',
         const wrapper = await createWrapper();
         const title = await wrapper.find('.sw-settings-search-example-modal .sw-modal__title');
 
-        expect(title.text()).toBe(
-            'sw-settings-search.generalTab.titleExampleModal',
-        );
+        expect(title.text()).toBe('sw-settings-search.generalTab.titleExampleModal');
     });
 });

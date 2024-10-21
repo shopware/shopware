@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
 #[Package('core')]
 class RetryableTransaction
@@ -39,6 +41,7 @@ class RetryableTransaction
         try {
             return $connection->transactional($closure);
         } catch (RetryableException $retryableException) {
+            MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
             if ($connection->getTransactionNestingLevel() > 0) {
                 // If this RetryableTransaction was executed inside another transaction, do not retry this nested
                 // transaction. Remember that the whole (outermost) transaction was already rolled back by the database

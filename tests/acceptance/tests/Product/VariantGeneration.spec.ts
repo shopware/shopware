@@ -1,15 +1,19 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Shop administrator should be able to create product variants. @product', async ({
+test('Shop administrator should be able to create product variants.', { tag: '@Product' }, async ({
     ShopAdmin,
-    PropertiesData,
-    ProductData,
+    TestDataService,
     AdminProductDetail,
     GenerateVariants,
 }) => {
-    await ShopAdmin.goesTo(AdminProductDetail);
+    const product = await TestDataService.createBasicProduct();
+    await TestDataService.createColorPropertyGroup();
+    await TestDataService.createTextPropertyGroup();
+
+    await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
     await ShopAdmin.page.waitForLoadState('domcontentloaded');
 
+    await test.slow();
     await ShopAdmin.attemptsTo(GenerateVariants());
 
     /**

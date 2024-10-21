@@ -24,27 +24,32 @@ describe('sw-app-app-url-changed-modal', () => {
     let stubs;
 
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-app-app-url-changed-modal', { sync: true }), {
-            props: {
-                urlDiff: {
-                    oldUrl: 'https://old-url',
-                    newUrl: 'https://new-url',
-                },
-            },
-            global: {
-                stubs,
-                provide: {
-                    appUrlChangeService: {
-                        fetchResolverStrategies: () => Promise.resolve(strategies),
-                        resolveUrlChange: jest.fn(() => Promise.resolve()),
-                    },
-                    shortcutService: {
-                        startEventListener() {},
-                        stopEventListener() {},
+        return mount(
+            await wrapTestComponent('sw-app-app-url-changed-modal', {
+                sync: true,
+            }),
+            {
+                props: {
+                    urlDiff: {
+                        oldUrl: 'https://old-url',
+                        newUrl: 'https://new-url',
                     },
                 },
+                global: {
+                    stubs,
+                    provide: {
+                        appUrlChangeService: {
+                            fetchResolverStrategies: () => Promise.resolve(strategies),
+                            resolveUrlChange: jest.fn(() => Promise.resolve()),
+                        },
+                        shortcutService: {
+                            startEventListener() {},
+                            stopEventListener() {},
+                        },
+                    },
+                },
             },
-        });
+        );
     }
 
     beforeAll(async () => {
@@ -58,10 +63,9 @@ describe('sw-app-app-url-changed-modal', () => {
                         <slot name="modal-body">
                              <slot></slot>
                         </slot>
-                        <slot name="modal-footer>
+                        <slot name="modal-footer">
                         </slot>
-                    </div>
-                `,
+                    </div>`,
             },
             'sw-button': await wrapTestComponent('sw-button'),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
@@ -76,6 +80,8 @@ describe('sw-app-app-url-changed-modal', () => {
             'icons-regular-times-s': {
                 template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
             },
+            'mt-button': true,
+            'router-link': true,
         };
     });
 
@@ -85,15 +91,14 @@ describe('sw-app-app-url-changed-modal', () => {
 
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
-        await (wrapper.vm.$nextTick());
+        await wrapper.vm.$nextTick();
     });
 
     it('should select the first strategy by default', async () => {
         expect(wrapper.vm.$data.selectedStrategy.name).toMatch(strategies[0].name);
-        expect(wrapper.vm.getActiveStyle(strategies[0]))
-            .toEqual({
-                'sw-app-app-url-changed-modal__content-migration-strategy--active': true,
-            });
+        expect(wrapper.vm.getActiveStyle(strategies[0])).toEqual({
+            'sw-app-app-url-changed-modal__content-migration-strategy--active': true,
+        });
     });
 
     it('emmits modal-close if modal is closed', async () => {

@@ -15,7 +15,7 @@ class ProductStockReachedError extends Error
         private readonly int $quantity,
         private bool $resolved = true
     ) {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'The product %s is only available %d times',
             $name,
             $quantity

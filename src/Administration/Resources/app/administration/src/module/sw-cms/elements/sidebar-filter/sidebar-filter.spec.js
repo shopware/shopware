@@ -1,50 +1,14 @@
 /**
  * @package buyers-experience
  */
-import { mount } from '@vue/test-utils';
-import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
+import { runCmsElementRegistryTest } from 'src/module/sw-cms/test-utils';
 
-async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-sidebar-filter', {
-        sync: true,
-    }), {
-        props: {
-            element: {},
-        },
-        global: {
-            stubs: {
-                'sw-icon': true,
-            },
-            provide: {
-                cmsService: {
-                    getCmsElementRegistry: () => ({
-                        'sidebar-filter': {},
-                    }),
-                },
-            },
-        },
-    });
-}
-
-describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('set a is--disabled class to wrapper', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setProps({
-            disabled: true,
-        });
-
-        expect(wrapper.classes()).toContain('is--disabled');
-    });
-
-    it('do not set a is--disabled class to wrapper', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.classes()).not.toContain('is--disabled');
+describe('src/module/sw-cms/elements/sidebar-filter', () => {
+    runCmsElementRegistryTest({
+        import: 'src/module/sw-cms/elements/sidebar-filter',
+        name: 'sidebar-filter',
+        component: 'sw-cms-el-sidebar-filter',
+        config: 'sw-cms-el-config-sidebar-filter',
+        preview: 'sw-cms-el-preview-sidebar-filter',
     });
 });

@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -61,10 +63,7 @@ export default {
         },
 
         optionRepository() {
-            return this.repositoryFactory.create(
-                this.propertyGroup.options.entity,
-                this.propertyGroup.options.source,
-            );
+            return this.repositoryFactory.create(this.propertyGroup.options.entity, this.propertyGroup.options.source);
         },
 
         propertyRepository() {
@@ -136,11 +135,13 @@ export default {
         loadEntityData() {
             this.isLoading = true;
 
-            this.propertyRepository.get(this.groupId, Shopware.Context.api, this.defaultCriteria)
+            this.propertyRepository
+                .get(this.groupId, Shopware.Context.api, this.defaultCriteria)
                 .then((currentGroup) => {
                     this.propertyGroup = currentGroup;
                     this.isLoading = false;
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.isLoading = false;
                 });
         },
@@ -171,17 +172,20 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.propertyRepository.save(this.propertyGroup).then(() => {
-                this.loadEntityData();
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch((exception) => {
-                this.createNotificationError({
-                    message: this.$tc('sw-property.detail.messageSaveError'),
+            return this.propertyRepository
+                .save(this.propertyGroup)
+                .then(() => {
+                    this.loadEntityData();
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch((exception) => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-property.detail.messageSaveError'),
+                    });
+                    this.isLoading = false;
+                    throw exception;
                 });
-                this.isLoading = false;
-                throw exception;
-            });
         },
 
         onCancel() {

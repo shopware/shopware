@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -7,7 +10,9 @@ const removeNodeFromTree = jest.fn();
 
 async function createWrapper(customProps = {}) {
     return mount(
-        await wrapTestComponent('sw-condition-all-line-items-container', { sync: true }),
+        await wrapTestComponent('sw-condition-all-line-items-container', {
+            sync: true,
+        }),
         {
             props: {
                 parentCondition: {
@@ -15,20 +20,16 @@ async function createWrapper(customProps = {}) {
                 },
                 condition: {
                     type: 'allLineItemsContainer',
-                    children: new EntityCollection(
-                        '',
-                        'rule_condition',
-                        Shopware.Context.api,
-                        null,
-                        [{
+                    children: new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+                        {
                             id: 'rule-condition-id',
                             type: 'cartLineItemUnitPrice',
                             value: {
                                 amount: 12,
                                 operator: '<',
                             },
-                        }],
-                    ),
+                        },
+                    ]),
                 },
                 level: 0,
                 ...customProps,
@@ -41,8 +42,7 @@ async function createWrapper(customProps = {}) {
                 },
                 provide: {
                     conditionDataProviderService: {
-                        getPlaceholderData: () => {
-                        },
+                        getPlaceholderData: () => {},
                         getByType: () => {
                             return {
                                 component: 'sw-condition-goods-price',
@@ -82,13 +82,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should removeNodeFromTree when children length becomes 0', async () => {
         const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
-        condition.children = new EntityCollection(
-            '',
-            'rule_condition',
-            Shopware.Context.api,
-            null,
-            [],
-        );
+        condition.children = new EntityCollection('', 'rule_condition', Shopware.Context.api, null, []);
         await wrapper.setProps({ condition });
 
         expect(removeNodeFromTree).toHaveBeenCalled();
@@ -97,19 +91,15 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should call injections when children type changes to none line item type', async () => {
         const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
-        condition.children = new EntityCollection(
-            '',
-            'rule_condition',
-            Shopware.Context.api,
-            null,
-            [{
+        condition.children = new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+            {
                 type: 'cartGoodsPrice',
                 value: {
                     amount: 7,
                     operator: '=',
                 },
-            }],
-        );
+            },
+        ]);
 
         await wrapper.setProps({ condition });
 

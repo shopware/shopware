@@ -11,7 +11,12 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -62,67 +67,47 @@ export default {
         },
 
         productAssignmentTypes() {
-            return [{
-                label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.manual'),
-                value: 'static',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.productStream'),
-                value: 'product_stream',
-            }];
+            return [
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.manual'),
+                    value: 'static',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.productStream'),
+                    value: 'product_stream',
+                },
+            ];
         },
 
         productStreamSortingOptions() {
-            return [{
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameAsc'),
-                value: 'name:ASC',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameDesc'),
-                value: 'name:DESC',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateAsc'),
-                value: 'createdAt:ASC',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateDesc'),
-                value: 'createdAt:DESC',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
-                value: 'random',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
-                value: 'cheapestPrice:ASC',
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
-                value: 'cheapestPrice:DESC',
-            }];
-        },
-
-        productStreamCriteria() {
-            const criteria = new Criteria(1, 10);
-            const sorting = this.element.config.productStreamSorting.value;
-
-            if (!sorting || sorting === 'random') {
-                return criteria;
-            }
-
-            const field = sorting.split(':')[0];
-            const direction = sorting.split(':')[1];
-
-            criteria.addSorting(Criteria.sort(field, direction, false));
-
-            return criteria;
-        },
-
-        productStreamPreviewColumns() {
             return [
                 {
-                    property: 'name',
-                    label: this.$tc('sw-category.base.products.columnNameLabel'),
-                    dataIndex: 'name',
-                    sortable: false,
-                }, {
-                    property: 'manufacturer.name',
-                    label: this.$tc('sw-category.base.products.columnManufacturerLabel'),
-                    sortable: false,
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameAsc'),
+                    value: 'name:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameDesc'),
+                    value: 'name:DESC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateAsc'),
+                    value: 'createdAt:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateDesc'),
+                    value: 'createdAt:DESC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
+                    value: 'random',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
+                    value: 'cheapestPrice:ASC',
+                },
+                {
+                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
+                    value: 'cheapestPrice:DESC',
                 },
             ];
         },
@@ -151,7 +136,10 @@ export default {
                 criteria.setIds(this.element.config.products.value);
 
                 this.productRepository
-                    .search(criteria, { ...Shopware.Context.api, inheritance: true })
+                    .search(criteria, {
+                        ...Shopware.Context.api,
+                        inheritance: true,
+                    })
                     .then((result) => {
                         this.productCollection = result;
                     });
@@ -204,7 +192,11 @@ export default {
                 return;
             }
 
-            this.$set(this.element.data, 'products', this.productCollection);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.element.data, 'products', this.productCollection);
+            } else {
+                this.element.data.products = this.productCollection;
+            }
         },
 
         isSelected(itemId) {

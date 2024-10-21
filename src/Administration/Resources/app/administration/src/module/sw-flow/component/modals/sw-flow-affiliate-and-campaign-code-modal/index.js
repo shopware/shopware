@@ -11,6 +11,13 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
@@ -52,10 +59,18 @@ export default {
             const allowedAware = this.triggerEvent.aware ?? [];
             const properties = [];
             // eslint-disable-next-line max-len
-            return Service('flowBuilderService').getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
+            return Service('flowBuilderService').getAvailableEntities(
+                this.action,
+                this.triggerActions,
+                allowedAware,
+                properties,
+            );
         },
 
-        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
+        ...mapState('swFlowState', [
+            'triggerEvent',
+            'triggerActions',
+        ]),
     },
 
     watch: {

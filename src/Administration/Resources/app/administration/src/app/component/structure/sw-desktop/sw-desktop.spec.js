@@ -9,6 +9,9 @@ const routes = [
     {
         name: 'sw.dashboard.index',
         path: '/sw/dashboard/index',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 name: 'dashboard',
@@ -18,6 +21,9 @@ const routes = [
     {
         name: 'sw.product.index',
         path: '/sw/product/index',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 entity: 'product',
@@ -32,6 +38,9 @@ const routes = [
     {
         name: 'sw.product.create.base',
         path: '/sw/product/create/base',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 entity: 'product',
@@ -42,16 +51,20 @@ const routes = [
                 routes: {
                     index: { name: 'sw.product.index' },
                     create: {
-                        children: [{
-                            name: 'sw.product.create.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.create.base',
+                            },
+                        ],
                         name: 'sw.product.create',
                     },
                     detail: {
                         name: 'sw.product.detail',
-                        children: [{
-                            name: 'sw.product.detail.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.detail.base',
+                            },
+                        ],
                     },
                 },
             },
@@ -59,7 +72,10 @@ const routes = [
     },
     {
         name: 'sw.product.detail.base',
-        path: '/sw/product/detail/a34943fe8fe040cd9ce25742a7cf77b2/base',
+        path: '/sw/product/detail/:id/base',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 entity: 'product',
@@ -70,16 +86,20 @@ const routes = [
                 routes: {
                     index: { name: 'sw.product.index' },
                     create: {
-                        children: [{
-                            name: 'sw.product.create.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.create.base',
+                            },
+                        ],
                         name: 'sw.product.create',
                     },
                     detail: {
                         name: 'sw.product.detail',
-                        children: [{
-                            name: 'sw.product.detail.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.detail.base',
+                            },
+                        ],
                     },
                 },
             },

@@ -93,7 +93,7 @@ class FileService extends AbstractFileService
         $label = $profile->getTranslation('label');
         \assert(\is_string($label));
 
-        return sprintf('%s_%s.%s', $label, $timestamp, $extension);
+        return \sprintf('%s_%s.%s', $label, $timestamp, $extension);
     }
 
     /**

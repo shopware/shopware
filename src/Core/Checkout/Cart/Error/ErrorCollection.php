@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Error;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @extends Collection<Error>
@@ -92,6 +93,21 @@ class ErrorCollection extends Collection
     public function getApiAlias(): string
     {
         return 'cart_error_collection';
+    }
+
+    public function getUniqueHash(): string
+    {
+        if ($this->elements === []) {
+            return '';
+        }
+
+        $hash = '';
+
+        foreach ($this->elements as $element) {
+            $hash .= $element->getId() . json_encode($element->getParameters());
+        }
+
+        return Hasher::hash($hash, 'xxh64');
     }
 
     protected function getExpectedClass(): ?string

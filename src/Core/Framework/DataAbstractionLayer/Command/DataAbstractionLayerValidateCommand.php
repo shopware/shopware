@@ -58,7 +58,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if ($count <= 0) {
             $io->success('No notices found');
         } else {
-            $io->note(sprintf('Found %d notices in %d entities', $count, \count($notices)));
+            $io->note(\sprintf('Found %d notices in %d entities', $count, \count($notices)));
         }
 
         return $count;
@@ -79,7 +79,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if ($count <= 0) {
             $io->success('No errors found');
         } else {
-            $io->error(sprintf('Found %d errors in %d entities', $count, \count($violations)));
+            $io->error(\sprintf('Found %d errors in %d entities', $count, \count($violations)));
         }
 
         return $count;

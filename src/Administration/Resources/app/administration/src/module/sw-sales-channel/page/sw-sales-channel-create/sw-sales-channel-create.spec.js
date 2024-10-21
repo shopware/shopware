@@ -25,16 +25,18 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'router-view': true,
+                'sw-skeleton': true,
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({}),
-                        get: () => Promise.resolve({
-                            productExports: {
-                                first: () => ({}),
-                            },
-                        }),
+                        get: () =>
+                            Promise.resolve({
+                                productExports: {
+                                    first: () => ({}),
+                                },
+                            }),
                         search: () => Promise.resolve([]),
                     }),
                 },

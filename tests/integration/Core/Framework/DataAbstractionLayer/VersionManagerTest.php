@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,12 +33,18 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
+
     private const PRODUCT_ID = 'product-1';
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private VersionManager $versionManager;
@@ -60,6 +66,7 @@ class VersionManagerTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('
             ALTER TABLE `product`
@@ -71,7 +78,7 @@ class VersionManagerTest extends TestCase
             DROP COLUMN `many_to_one_id`
         ');
         $this->connection->beginTransaction();
-        $this->removeExtension(ToOneProductExtension::class);
+
         // reboot kernel to create a new container since we manipulated the original one
         KernelLifecycleManager::bootKernel();
     }
@@ -89,12 +96,11 @@ class VersionManagerTest extends TestCase
         $this->productRepository->create([$product], $this->context);
 
         $criteria = (new Criteria([$productId]))->addAssociation('manyToOne');
-        /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search($criteria, $this->context)->first();
+
+        $product = $this->productRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($product);
 
         static::assertTrue($product->hasExtension('manyToOne'));
-        /** @var ArrayEntity $extension */
         $extension = $product->getExtension('manyToOne');
 
         static::assertInstanceOf(ArrayEntity::class, $extension);
@@ -105,15 +111,7 @@ class VersionManagerTest extends TestCase
         $products = $this->productRepository->searchIds($criteria, $this->context);
         static::assertTrue($products->has($productId));
 
-        /** @var array<string, array<int, mixed>> $clonedAffected */
-        $clonedAffected = $this->versionManager->clone(
-            $this->getContainer()->get(ProductDefinition::class),
-            $productId,
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            WriteContext::createFromContext($this->context),
-            new CloneBehavior()
-        );
+        $clonedAffected = $this->getClone($productId);
 
         $clonedProduct = $clonedAffected['product'][0];
         static::assertInstanceOf(EntityWriteResult::class, $clonedProduct);
@@ -173,23 +171,13 @@ class VersionManagerTest extends TestCase
         $this->productRepository->create([$product], $this->context);
         $criteria = (new Criteria([$product['id']]))->addAssociation('manyToOne');
 
-        /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search($criteria, $this->context)->first();
+        $product = $this->productRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($product);
 
-        /** @var ArrayEntity|null $extension */
         $extension = $product->getExtension('manyToOne');
         static::assertEmpty($extension);
 
-        /** @var array<string, array<int, mixed>> $clonedAffected */
-        $clonedAffected = $this->versionManager->clone(
-            $this->getContainer()->get(ProductDefinition::class),
-            $product->getId(),
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-            WriteContext::createFromContext($this->context),
-            new CloneBehavior()
-        );
+        $clonedAffected = $this->getClone($product->getId());
 
         $clonedProduct = $clonedAffected['product'][0];
         static::assertInstanceOf(EntityWriteResult::class, $clonedProduct);
@@ -225,5 +213,20 @@ class VersionManagerTest extends TestCase
         ');
 
         $this->connection->beginTransaction();
+    }
+
+    /**
+     * @return array<string, array<EntityWriteResult>>
+     */
+    private function getClone(string $productId): array
+    {
+        return $this->versionManager->clone(
+            $this->getContainer()->get(ProductDefinition::class),
+            $productId,
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            WriteContext::createFromContext($this->context),
+            new CloneBehavior()
+        );
     }
 }

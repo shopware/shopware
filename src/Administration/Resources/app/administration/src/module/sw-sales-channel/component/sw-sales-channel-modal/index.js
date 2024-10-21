@@ -12,7 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['modal-close'],
 
     data() {
         return {
@@ -25,7 +29,9 @@ export default {
     computed: {
         modalTitle() {
             if (this.detailType) {
-                return this.$tc('sw-sales-channel.modal.titleDetailPrefix', 0, { name: this.detailType.name });
+                return this.$tc('sw-sales-channel.modal.titleDetailPrefix', 0, {
+                    name: this.detailType.name,
+                });
             }
 
             return this.$tc('sw-sales-channel.modal.title');
@@ -38,13 +44,11 @@ export default {
         addChannelAction() {
             return {
                 loading: (salesChannelTypeId) => {
-                    return this.isProductComparisonSalesChannelType(salesChannelTypeId) &&
-                        this.productStreamsLoading;
+                    return this.isProductComparisonSalesChannelType(salesChannelTypeId) && this.productStreamsLoading;
                 },
 
                 disabled: (salesChannelTypeId) => {
-                    return this.isProductComparisonSalesChannelType(salesChannelTypeId) &&
-                        !this.productStreamsExist;
+                    return this.isProductComparisonSalesChannelType(salesChannelTypeId) && !this.productStreamsExist;
                 },
             };
         },
@@ -77,7 +81,10 @@ export default {
             this.onCloseModal();
 
             if (id) {
-                this.$router.push({ name: 'sw.sales.channel.create', params: { typeId: id } });
+                this.$router.push({
+                    name: 'sw.sales.channel.create',
+                    params: { typeId: id },
+                });
             }
         },
 

@@ -27,6 +27,7 @@ async function createWrapper() {
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
                 'sw-sales-channel-menu': true,
+                'sw-admin-menu-item': true,
             },
             provide: {
                 loginService: {
@@ -40,7 +41,9 @@ async function createWrapper() {
                     fetchAppModules: () => Promise.resolve([]),
                 },
                 customEntityDefinitionService: {
-                    getMenuEntries: () => { return []; },
+                    getMenuEntries: () => {
+                        return [];
+                    },
                 },
             },
         },

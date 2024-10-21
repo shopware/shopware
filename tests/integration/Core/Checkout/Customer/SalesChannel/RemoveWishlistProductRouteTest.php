@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -169,7 +170,7 @@ class RemoveWishlistProductRouteTest extends TestCase
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND', $errors['code']);
         static::assertSame('Not Found', $errors['title']);
-        static::assertSame(sprintf('Could not find wishlist product with id "%s"', $productId), $errors['detail']);
+        static::assertSame(\sprintf('Could not find wishlist product with id "%s"', $productId), $errors['detail']);
     }
 
     private function createProduct(Context $context): string

@@ -47,7 +47,13 @@ export default {
     template,
     inheritAttrs: false,
 
-    emits: ['update:value'],
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     inject: ['feature'],
 
@@ -73,13 +79,21 @@ export default {
         dateType: {
             type: String,
             default: 'date',
-            validValues: ['time', 'date', 'datetime'],
+            validValues: [
+                'time',
+                'date',
+                'datetime',
+            ],
             validator(value) {
-                return ['time', 'date', 'datetime'].includes(value);
+                return [
+                    'time',
+                    'date',
+                    'datetime',
+                ].includes(value);
             },
         },
 
-        placeholderText: {
+        placeholder: {
             type: String,
             default: '',
             required: false,
@@ -125,9 +139,9 @@ export default {
             return this.flatpickrInstance.config;
         },
 
-        placeholder() {
-            if (this.placeholderText.length > 0) {
-                return this.placeholderText;
+        placeholderText() {
+            if (this.placeholder.length > 0) {
+                return this.placeholder;
             }
 
             if (this.flatpickrInstance === null) {
@@ -153,21 +167,51 @@ export default {
             return this.noCalendar || this.dateType === 'datetime';
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed. Event listeners are bound via additionalAttrs
+         */
         additionalEventListeners() {
             const listeners = {};
 
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                /**
+                 * Do not pass "change" or "input" event listeners to the form elements
+                 * because the component implements its own listeners for this event types.
+                 * The callback methods will emit the corresponding event to the parent.
+                 */
+                Object.keys(this.$listeners).forEach((key) => {
+                    if (
+                        ![
+                            'change',
+                            'input',
+                        ].includes(key)
+                    ) {
+                        listeners[key] = this.$listeners[key];
+                    }
+                });
+            }
+
+            return listeners;
+        },
+
+        additionalAttrs() {
+            const attrs = {};
+
             /**
-             * Do not pass "change" or "input" event listeners to the form elements
-             * because the component implements its own listeners for this event types.
-             * The callback methods will emit the corresponding event to the parent.
+             * Do not pass "change" or "input" event listeners to the form elements.
              */
-            Object.keys(this.$listeners).forEach((key) => {
-                if (!['change', 'input'].includes(key)) {
-                    listeners[key] = this.$listeners[key];
+            Object.keys(this.$attrs).forEach((key) => {
+                if (
+                    ![
+                        'onChange',
+                        'onInput',
+                    ].includes(key)
+                ) {
+                    attrs[key] = this.$attrs[key];
                 }
             });
 
-            return listeners;
+            return attrs;
         },
 
         userTimeZone() {
@@ -180,7 +224,12 @@ export default {
                     return null;
                 }
 
-                if (['time', 'date'].includes(this.dateType)) {
+                if (
+                    [
+                        'time',
+                        'date',
+                    ].includes(this.dateType)
+                ) {
                     return this.value;
                 }
 
@@ -197,7 +246,12 @@ export default {
                     return;
                 }
 
-                if (['time', 'date'].includes(this.dateType)) {
+                if (
+                    [
+                        'time',
+                        'date',
+                    ].includes(this.dateType)
+                ) {
                     this.$emit('update:value', newValue);
 
                     return;
@@ -212,12 +266,15 @@ export default {
         },
 
         showTimeZoneHint() {
-            const validMode = [
-                'datetime',
-                'datetime-local',
-            ].includes(this.dateType);
+            return !this.hideHint;
+        },
 
-            return validMode && !this.hideHint;
+        timeZoneHint() {
+            if (this.dateType === 'datetime') {
+                return this.userTimeZone;
+            }
+
+            return 'UTC';
         },
     },
 
@@ -312,14 +369,13 @@ export default {
         getMergedConfig(newConfig) {
             if (newConfig.mode !== undefined) {
                 console.warn(
-                    '[sw-datepicker] The only allowed mode is the default \'single\' mode ' +
-                    '(the specified mode will be ignored!). ' +
-                    'The modes \'multiple\' or \'range\' are currently not supported',
+                    "[sw-datepicker] The only allowed mode is the default 'single' mode " +
+                        '(the specified mode will be ignored!). ' +
+                        "The modes 'multiple' or 'range' are currently not supported",
                 );
             }
 
             return {
-
                 ...this.defaultConfig,
                 enableTime: this.enableTime,
                 noCalendar: this.noCalendar,
@@ -338,8 +394,10 @@ export default {
 
             const mergedConfig = this.getMergedConfig(this.config);
 
-            if (mergedConfig.enableTime !== undefined
-                    && mergedConfig.enableTime !== this.currentFlatpickrConfig.enableTime) {
+            if (
+                mergedConfig.enableTime !== undefined &&
+                mergedConfig.enableTime !== this.currentFlatpickrConfig.enableTime
+            ) {
                 // The instance must be recreated for some config options to take effect like 'enableTime' changes.
                 // See https://github.com/flatpickr/flatpickr/issues/1108 for details.
                 this.createFlatpickrInstance(this.config);
@@ -357,7 +415,10 @@ export default {
             this.flatpickrInstance.set(mergedConfig);
 
             // Workaround: Allow to change locale dynamically
-            ['locale', 'showMonths'].forEach((name) => {
+            [
+                'locale',
+                'showMonths',
+            ].forEach((name) => {
                 if (typeof mergedConfig[name] !== 'undefined') {
                     this.flatpickrInstance.set(name, mergedConfig[name]);
                 }
@@ -388,7 +449,8 @@ export default {
                 this.isDatepickerOpen = true;
             });
 
-            this.flatpickrInstance.config.onClose.push(() => {
+            this.flatpickrInstance.config.onClose.push((...args) => {
+                this.emitValue(args[1]);
                 this.isDatepickerOpen = false;
             });
 

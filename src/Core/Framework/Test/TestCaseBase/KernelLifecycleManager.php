@@ -162,7 +162,7 @@ class KernelLifecycleManager
     {
         if (!class_exists($class = (string) EnvironmentHelper::getVariable('KERNEL_CLASS', Kernel::class))) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',
                     $class,
                     static::class
@@ -172,7 +172,7 @@ class KernelLifecycleManager
 
         if (!is_a($class, Kernel::class, true)) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Class "%s" must extend "%s". Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',
                     $class,
                     Kernel::class,

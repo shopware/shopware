@@ -1,10 +1,10 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import Vue from 'vue';
+import { reactive } from 'vue';
 
 describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     let wrapper;
@@ -49,7 +49,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     };
 
     const productMock = (additionalProperties) => {
-        return Vue.observable({
+        return reactive({
             featureSet: featureSetMock,
             ...additionalProperties,
         });
@@ -62,57 +62,75 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
 
         const router = createRouter({
             routes: [
-                { name: 'sw.settings.product.feature.sets.index', params: {} },
+                {
+                    name: 'sw.settings.product.feature.sets.index',
+                    params: {},
+                    component: {},
+                },
             ],
             history: createWebHashHistory(),
         });
 
-        return mount(await wrapTestComponent('sw-product-feature-set-form', { sync: true }), {
-            global: {
-                plugins: [router],
-                stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                    'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
-                    'sw-icon': {
-                        template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+        return mount(
+            await wrapTestComponent('sw-product-feature-set-form', {
+                sync: true,
+            }),
+            {
+                global: {
+                    plugins: [router],
+                    stubs: {
+                        'sw-container': await wrapTestComponent('sw-container'),
+                        'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                        'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
+                        'sw-icon': {
+                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+                        },
+                        'sw-icons-custom-inherited': true,
+                        'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                        'sw-loader': true,
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': true,
+                        'sw-label': true,
+                        i18n: {
+                            template: '<div class="i18n-stub"><slot></slot></div>',
+                        },
+                        'sw-help-text': true,
+                        'sw-product-variant-info': true,
+                        'sw-highlight-text': true,
+                        'sw-select-result': true,
+                        'sw-select-result-list': true,
+                        'sw-ai-copilot-badge': true,
                     },
-                    'sw-icons-custom-inherited': true,
-                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                    'sw-loader': true,
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': true,
-                    'sw-label': true,
-                    i18n: {
-                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    provide: {
+                        repositoryFactory: {
+                            create() {
+                                return {
+                                    get() {
+                                        return new Promise((resolve) => {
+                                            resolve(featureSetMock);
+                                        });
+                                    },
+                                };
+                            },
+                            search() {
+                                return {};
+                            },
+                        },
                     },
                 },
-                provide: {
-                    repositoryFactory: {
-                        create() {
-                            return {
-                                get() {
-                                    return new Promise((resolve) => {
-                                        resolve(featureSetMock);
-                                    });
-                                },
-                            };
-                        },
-                        search() {
-                            return {};
-                        },
-                    },
+                computed: {
+                    product: () => productMock({ featureSetId: featureSetMock.id }),
+                    parentProduct: () =>
+                        productMock({
+                            featureSetId: featureSetMock.id,
+                            id: 'a12b3c',
+                        }),
+                    loading: () => {},
                 },
             },
-            computed: {
-                product: () => productMock({ featureSetId: featureSetMock.id }),
-                parentProduct: () => productMock({ featureSetId: featureSetMock.id, id: 'a12b3c' }),
-                loading: () => {
-                },
-            },
-        });
+        );
     }
 
     beforeEach(async () => {
@@ -141,7 +159,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         const description = descriptionContainer.get(`.${classes.descriptionBody}`);
         const configInformation = descriptionContainer.get(`.${classes.descriptionConfigInformation}`);
 
-
         expect(description.text()).toEqual(text.descriptionBody);
 
         expect(configInformation.attributes().path).toEqual(text.descriptionConfigInformation);
@@ -162,14 +179,18 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     it('has a sw-entity-single-select for selecting templates and supports inheritance', async () => {
         const form = wrapper.get(`.${classes.formContainer}`);
 
-        const inheritWrapper = form.getComponent({ name: 'sw-inherit-wrapper__wrapped' });
-        const singleSelect = inheritWrapper.getComponent({ name: 'sw-entity-single-select__wrapped' });
+        const inheritWrapper = form.getComponent({
+            name: 'sw-inherit-wrapper__wrapped',
+        });
+        const singleSelect = inheritWrapper.getComponent({
+            name: 'sw-entity-single-select__wrapped',
+        });
 
         expect(inheritWrapper.props().label).toEqual(text.templateSelectLabel);
         expect(singleSelect.props().placeholder).toEqual(text.templateSelectPlaceholder);
     });
 
-    it('shows the current product\'s featureSet', async () => {
+    it("shows the current product's featureSet", async () => {
         const singleSelect = wrapper.get(`.${classes.templateSingleSelect}`);
         const selection = singleSelect.get(`.${classes.singleSelectSelection}`);
 

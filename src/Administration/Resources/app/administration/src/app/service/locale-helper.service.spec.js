@@ -9,8 +9,13 @@ describe('app/service/locale-helper.service.js', () => {
 
     beforeEach(async () => {
         localeHelperService = new LocaleHelperService({
-            Shopware: { Context: { api: {} }, State: { dispatch: () => Promise.resolve() } },
-            localeRepository: { get: () => Promise.resolve({ code: 'abc123def456' }) },
+            Shopware: {
+                Context: { api: {} },
+                State: { dispatch: () => Promise.resolve() },
+            },
+            localeRepository: {
+                get: () => Promise.resolve({ code: 'abc123def456' }),
+            },
             snippetService: { getSnippets: () => Promise.resolve() },
             localeFactory: {},
         });
@@ -31,7 +36,9 @@ describe('app/service/locale-helper.service.js', () => {
 
     it('setLocaleWithId convert the locale id to code', async () => {
         localeHelperService.setLocaleWithCode = jest.fn();
-        localeHelperService._localeRepository.get = async () => ({ code: 'converted locale' });
+        localeHelperService._localeRepository.get = async () => ({
+            code: 'converted locale',
+        });
 
         await localeHelperService.setLocaleWithId('12345678');
 

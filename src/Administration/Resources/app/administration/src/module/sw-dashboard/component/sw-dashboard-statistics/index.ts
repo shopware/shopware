@@ -7,53 +7,56 @@ const { Criteria } = Shopware.Data;
 type OrderEntity = EntitySchema.order;
 
 type HistoryDateRange = {
-    label: string,
-    range: number,
-    interval: 'hour' | 'day',
-    aggregate: 'hour' | 'day',
-}
+    label: string;
+    range: number;
+    interval: 'hour' | 'day';
+    aggregate: 'hour' | 'day';
+};
 
 type BucketData = {
-    key: string,
-    count: number,
+    key: string;
+    count: number;
     totalAmount: {
-        sum: number,
-    },
-}
+        sum: number;
+    };
+};
 
 type HistoryOrderDataCount = {
-    apiAlias: 'order_sum_bucket_aggregation',
-    buckets: Array<BucketData>,
-    name: 'order_sum_bucket',
-}
+    apiAlias: 'order_sum_bucket_aggregation';
+    buckets: Array<BucketData>;
+    name: 'order_sum_bucket';
+};
 
 type HistoryOrderDataSum = {
-    apiAlias: 'order_sum_bucket_aggregation',
-    buckets: Array<BucketData>,
-    name: 'order_sum_bucket',
-}
+    apiAlias: 'order_sum_bucket_aggregation';
+    buckets: Array<BucketData>;
+    name: 'order_sum_bucket';
+};
 
 type HistoryOrderData = HistoryOrderDataCount | HistoryOrderDataSum | null;
 
 interface ComponentData {
-    historyOrderDataCount: HistoryOrderDataCount | null,
-    historyOrderDataSum: HistoryOrderDataSum | null,
-    todayOrderData: EntityCollection<'order'> | null,
-    todayOrderDataLoaded: boolean
-    todayOrderDataSortBy: 'orderDateTime',
-    todayOrderDataSortDirection: 'DESC' | 'ASC',
-    ordersDateRange: HistoryDateRange,
-    turnoverDateRange: HistoryDateRange,
-    isLoading: boolean,
+    historyOrderDataCount: HistoryOrderDataCount | null;
+    historyOrderDataSum: HistoryOrderDataSum | null;
+    todayOrderData: EntityCollection<'order'> | null;
+    todayOrderDataLoaded: boolean;
+    todayOrderDataSortBy: 'orderDateTime';
+    todayOrderDataSortDirection: 'DESC' | 'ASC';
+    ordersDateRange: HistoryDateRange;
+    turnoverDateRange: HistoryDateRange;
+    isLoading: boolean;
 }
 
 /**
  * @package services-settings
+ * @deprecated tag:v6.7.0 - Will be removed without replacement
  *
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -87,32 +90,38 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         rangesValueMap(): Array<HistoryDateRange> {
-            return [{
-                label: '30Days',
-                range: 30,
-                interval: 'day',
-                aggregate: 'day',
-            }, {
-                label: '14Days',
-                range: 14,
-                interval: 'day',
-                aggregate: 'day',
-            }, {
-                label: '7Days',
-                range: 7,
-                interval: 'day',
-                aggregate: 'day',
-            }, {
-                label: '24Hours',
-                range: 24,
-                interval: 'hour',
-                aggregate: 'hour',
-            }, {
-                label: 'yesterday',
-                range: 1,
-                interval: 'day',
-                aggregate: 'hour',
-            }];
+            return [
+                {
+                    label: '30Days',
+                    range: 30,
+                    interval: 'day',
+                    aggregate: 'day',
+                },
+                {
+                    label: '14Days',
+                    range: 14,
+                    interval: 'day',
+                    aggregate: 'day',
+                },
+                {
+                    label: '7Days',
+                    range: 7,
+                    interval: 'day',
+                    aggregate: 'day',
+                },
+                {
+                    label: '24Hours',
+                    range: 24,
+                    interval: 'hour',
+                    aggregate: 'hour',
+                },
+                {
+                    label: 'yesterday',
+                    range: 1,
+                    interval: 'day',
+                    aggregate: 'hour',
+                },
+            ];
         },
 
         availableRanges(): string[] {
@@ -133,7 +142,9 @@ export default Shopware.Component.wrapComponentConfig({
                     min: 0,
                     tickAmount: 3,
                     labels: {
-                        formatter: (value: string) => { return parseInt(value, 10); },
+                        formatter: (value: string) => {
+                            return parseInt(value, 10);
+                        },
                     },
                 },
             };
@@ -154,11 +165,12 @@ export default Shopware.Component.wrapComponentConfig({
                     tickAmount: 5,
                     labels: {
                         // price aggregations do not support currencies yet, see NEXT-5069
-                        formatter: (value: string) => Shopware.Utils.format.currency(
-                            Number.parseFloat(value),
-                            Shopware.Context.app.systemCurrencyISOCode as string,
-                            2,
-                        ),
+                        formatter: (value: string) =>
+                            Shopware.Utils.format.currency(
+                                Number.parseFloat(value),
+                                Shopware.Context.app.systemCurrencyISOCode as string,
+                                2,
+                            ),
                     },
                 },
             };
@@ -183,7 +195,12 @@ export default Shopware.Component.wrapComponentConfig({
                 seriesData.push({ x: this.today.getTime(), y: 0 });
             }
 
-            return [{ name: this.$tc('sw-dashboard.monthStats.numberOfOrders'), data: seriesData }];
+            return [
+                {
+                    name: this.$tc('sw-dashboard.monthStats.numberOfOrders'),
+                    data: seriesData,
+                },
+            ];
         },
 
         orderCountToday() {
@@ -204,7 +221,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             // format data for chart
             const seriesData = this.historyOrderDataSum.buckets.map((data: BucketData) => {
-                return { x: this.parseDate(data.key), y: data.totalAmount.sum };
+                return {
+                    x: this.parseDate(data.key),
+                    y: data.totalAmount.sum,
+                };
             });
 
             // add empty value for today if there isn't any order, otherwise today would be missing
@@ -212,7 +232,12 @@ export default Shopware.Component.wrapComponentConfig({
                 seriesData.push({ x: this.today.getTime(), y: 0 });
             }
 
-            return [{ name: this.$tc('sw-dashboard.monthStats.totalTurnover'), data: seriesData }];
+            return [
+                {
+                    name: this.$tc('sw-dashboard.monthStats.totalTurnover'),
+                    data: seriesData,
+                },
+            ];
         },
 
         orderSumToday() {
@@ -342,15 +367,18 @@ export default Shopware.Component.wrapComponentConfig({
             const timezone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
 
             return httpClient
-                .get<undefined, {
-                    data: {
-                        statistic: Array<{
-                            date: string,
-                            count: number,
-                            amount: number
-                        }>
+                .get<
+                    undefined,
+                    {
+                        data: {
+                            statistic: Array<{
+                                date: string;
+                                count: number;
+                                amount: number;
+                            }>;
+                        };
                     }
-                }>(`/_admin/dashboard/order-amount/${since}?timezone=${timezone}&paid=${paid.toString()}`, { headers })
+                >(`/_admin/dashboard/order-amount/${since}?timezone=${timezone}&paid=${paid.toString()}`, { headers })
                 .then((response) => {
                     const buckets = response.data.statistic.map((bucket) => {
                         return {
@@ -398,33 +426,39 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         orderGridColumns() {
-            return [{
-                property: 'orderNumber',
-                label: 'sw-order.list.columnOrderNumber',
-                routerLink: 'sw.order.detail',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'orderDateTime',
-                dataIndex: 'orderDateTime',
-                label: 'sw-dashboard.todayStats.orderTime',
-                allowResize: true,
-                primary: false,
-            }, {
-                property: 'orderCustomer.firstName',
-                dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
-                label: 'sw-order.list.columnCustomerName',
-                allowResize: true,
-            }, {
-                property: 'stateMachineState.name',
-                label: 'sw-order.list.columnState',
-                allowResize: true,
-            }, {
-                property: 'amountTotal',
-                label: 'sw-order.list.columnAmount',
-                align: 'right',
-                allowResize: true,
-            }];
+            return [
+                {
+                    property: 'orderNumber',
+                    label: 'sw-order.list.columnOrderNumber',
+                    routerLink: 'sw.order.detail',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'orderDateTime',
+                    dataIndex: 'orderDateTime',
+                    label: 'sw-dashboard.todayStats.orderTime',
+                    allowResize: true,
+                    primary: false,
+                },
+                {
+                    property: 'orderCustomer.firstName',
+                    dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
+                    label: 'sw-order.list.columnCustomerName',
+                    allowResize: true,
+                },
+                {
+                    property: 'stateMachineState.name',
+                    label: 'sw-order.list.columnState',
+                    allowResize: true,
+                },
+                {
+                    property: 'amountTotal',
+                    label: 'sw-order.list.columnAmount',
+                    align: 'right',
+                    allowResize: true,
+                },
+            ];
         },
 
         getVariantFromOrderState(order: OrderEntity): string {
@@ -433,14 +467,16 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order.state',
-                state,
-            ).variant;
+            return this.stateStyleDataProviderService.getStyle('order.state', state).variant;
         },
 
         parseDate(date: string): number {
-            const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' ').replace(/\..*|\+.*/, ''));
+            const parsedDate = new Date(
+                date
+                    .replace(/-/g, '/')
+                    .replace('T', ' ')
+                    .replace(/\..*|\+.*/, ''),
+            );
             return parsedDate.valueOf();
         },
 

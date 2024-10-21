@@ -21,15 +21,7 @@ const fixture = [
 ];
 
 function getCollection() {
-    return new EntityCollection(
-        '/test-entity',
-        'testEntity',
-        null,
-        new Criteria(1, 25),
-        fixture,
-        fixture.length,
-        null,
-    );
+    return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);
 }
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
@@ -60,6 +52,11 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                'sw-product-variant-info': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
+                'sw-loader': true,
             },
         },
     });
@@ -87,16 +84,14 @@ describe('components/sw-entity-multi-id-select', () => {
     it('should reset selected value if it is invalid', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds = jest.fn();
-        await wrapper.setProps(
-            {
-                value: [{ id: '123', name: 'random' }],
-                repository: {
-                    search: () => {
-                        return Promise.resolve([]);
-                    },
+        await wrapper.setProps({
+            value: [{ id: '123', name: 'random' }],
+            repository: {
+                search: () => {
+                    return Promise.resolve([]);
                 },
             },
-        );
+        });
 
         expect(wrapper.vm.updateIds).toHaveBeenCalled();
     });

@@ -9,7 +9,12 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['feature', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'feature',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

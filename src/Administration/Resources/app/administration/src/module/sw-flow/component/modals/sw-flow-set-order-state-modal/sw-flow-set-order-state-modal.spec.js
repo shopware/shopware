@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const stateMachineStateMock = [
     {
         technicalName: 'paid',
@@ -26,52 +30,60 @@ const stateMachineStateMock = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-set-order-state-modal', { sync: true }), {
-        props: {
-            sequence: {},
-        },
-
-        global: {
-            mocks: {
-                $i18n: {
-                    locale: 'en-US',
-                },
+    return mount(
+        await wrapTestComponent('sw-flow-set-order-state-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                sequence: {},
             },
-            stubs: {
-                'sw-modal': {
-                    template: `
+
+            global: {
+                mocks: {
+                    $i18n: {
+                        locale: 'en-US',
+                    },
+                },
+                stubs: {
+                    'sw-modal': {
+                        template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
+                    },
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-icon': true,
+                    'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                    'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-help-text': true,
+                    'sw-field-error': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-icon': true,
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-help-text': true,
-                'sw-field-error': true,
-            },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(stateMachineStateMock),
-                        };
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(stateMachineStateMock),
+                            };
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
@@ -109,13 +121,15 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
         await saveButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.emitted()['process-finish'][0]).toEqual([{
-            config: {
-                order: 'in_progress',
-                order_delivery: 'shipped',
-                order_transaction: 'paid',
-                force_transition: true,
+        expect(wrapper.emitted()['process-finish'][0]).toEqual([
+            {
+                config: {
+                    order: 'in_progress',
+                    order_delivery: 'shipped',
+                    order_transaction: 'paid',
+                    force_transition: true,
+                },
             },
-        }]);
+        ]);
     });
 });

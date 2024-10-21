@@ -8,6 +8,8 @@ import './sw-users-permissions-detailed-permissions-grid.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['privileges'],
 
     props: {

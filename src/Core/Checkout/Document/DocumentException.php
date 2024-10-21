@@ -59,7 +59,7 @@ class DocumentException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::GENERATION_ERROR,
-            sprintf('Unable to generate document. %s', $message),
+            \sprintf('Unable to generate document. %s', $message),
             [
                 '$message' => $message,
             ],

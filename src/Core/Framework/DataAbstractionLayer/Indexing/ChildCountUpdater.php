@@ -48,7 +48,7 @@ class ChildCountUpdater
         $entity = $definition->getEntityName();
         $versionAware = $definition->isVersionAware();
 
-        $sql = sprintf(
+        $sql = \sprintf(
             'UPDATE #entity#  as parent
                 LEFT JOIN
                 (

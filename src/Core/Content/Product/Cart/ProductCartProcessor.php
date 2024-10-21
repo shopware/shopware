@@ -25,10 +25,13 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxEntity;
 
 #[Package('inventory')]
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -65,8 +68,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             $items = array_column($lineItems, 'item');
 
+            $hash = $this->getDataContextHash($context);
+
             // find products in original cart which requires data from gateway
-            $ids = $this->getNotCompleted($data, $items, $context);
+            $ids = $this->getNotCompleted($data, $items, $hash);
 
             if (!empty($ids)) {
                 // fetch missing data over gateway
@@ -77,17 +82,22 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
 
-                $hash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
-
                 // refresh data timestamp to prevent unnecessary gateway calls
                 foreach ($items as $lineItem) {
-                    if (!\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
-                        $lineItem->setDataTimestamp(null);
+                    $product = $products->get((string) $lineItem->getReferencedId());
 
-                        continue;
+                    // product was fetched, update timestamp to not fetch it again
+                    if ($product) {
+                        if (Feature::isActive('v6.7.0.0')) {
+                            $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
+                        } else {
+                            $lineItem->setDataTimestamp(new \DateTimeImmutable());
+                        }
+                        $lineItem->setDataContextHash($hash);
+                    // we have asked for this product, but we didn't get it back, so we need to remove it
+                    } elseif (\in_array($lineItem->getReferencedId(), $ids, true)) {
+                        $lineItem->setDataTimestamp(null);
                     }
-                    $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                    $lineItem->setDataContextHash($hash);
                 }
             }
 
@@ -118,8 +128,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
         Profiler::trace('cart::product::process', function () use ($data, $original, $toCalculate, $context): void {
-            $hash = $this->generator->getSalesChannelContextHash($context);
-
             $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
             foreach ($items as $item) {
@@ -131,7 +139,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
-                $item->setDataContextHash($hash);
+                $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
             }
 
             $this->featureBuilder->add($items, $data, $context);
@@ -184,6 +192,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $cart->addErrors(new ProductNotFoundError($item->getLabel() ?: $item->getId()));
 
         $items->remove($item->getId());
+
+        foreach ($cart->getDeliveries() as $delivery) {
+            foreach ($delivery->getPositions() as $position) {
+                if ($position->getIdentifier() !== $item->getId()) {
+                    continue;
+                }
+
+                $delivery->getPositions()->remove($position->getIdentifier());
+            }
+        }
     }
 
     private function validateParents(LineItem $item, CartDataCollection $data, LineItemCollection $items): void
@@ -299,7 +317,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         if ($lineItem->hasState(State::IS_PHYSICAL)) {
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
-                    (int) $product->getAvailableStock(),
+                    $product->getStock(),
                     $weight,
                     $product->getShippingFree() === true,
                     $product->getRestockTime(),
@@ -406,21 +424,20 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      *
      * @return mixed[]
      */
-    private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context): array
+    private function getNotCompleted(CartDataCollection $data, array $lineItems, string $hash): array
     {
         $ids = [];
 
         $changes = [];
 
-        $hash = $this->generator->getSalesChannelContextHash($context);
-
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
-
-            $key = $this->getDataKey((string) $id);
+            if ($id === '' || $id === null) {
+                continue;
+            }
 
             // data already fetched?
-            if ($data->has($key)) {
+            if ($data->has($this->getDataKey($id))) {
                 continue;
             }
 
@@ -555,5 +572,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         $this->priceCalculator->calculate($affected, $context);
+    }
+
+    private function getDataContextHash(SalesChannelContext $context): string
+    {
+        $contextHash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
+
+        $activeTaxRules = array_map(static function (TaxEntity $taxRule) {
+            return $taxRule->getRules()?->getIds() ?: $taxRule->getId();
+        }, $context->getTaxRules()->getElements());
+
+        return Hasher::hash([$contextHash, $activeTaxRules]);
     }
 }

@@ -116,12 +116,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="twig"/>
             <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher">

@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -488,30 +489,33 @@ class CartServiceTest extends TestCase
             'mail' => $mail,
         ]);
 
-        $this->customerRepository->create([
-            [
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'not',
-                    'lastName' => 'not',
-                    'street' => 'test',
-                    'city' => 'not',
-                    'zipcode' => 'not',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $mail,
-                'password' => $password,
+        $customer = [
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
+                'firstName' => 'not',
                 'lastName' => 'not',
-                'firstName' => 'match',
+                'street' => 'test',
+                'city' => 'not',
+                'zipcode' => 'not',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => 'not',
+                'countryId' => $this->getValidCountryId(),
             ],
-        ], $context);
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $mail,
+            'password' => $password,
+            'lastName' => 'not',
+            'firstName' => 'match',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => 'not',
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->customerRepository->create([$customer], $context);
     }
 
     private function getSalesChannelContext(): SalesChannelContext

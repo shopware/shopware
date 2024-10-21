@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-custom-fields.html.twig';
 import './sw-bulk-edit-custom-fields.scss';
@@ -7,6 +7,10 @@ import './sw-bulk-edit-custom-fields.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['change'],
 
     props: {
         entity: {
@@ -42,9 +46,15 @@ export default {
 
         toggleItemCheck($event, item) {
             if ($event) {
-                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
-            } else {
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+                } else {
+                    this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+                }
+            } else if (this.isCompatEnabled('INSTANCE_DELETE')) {
                 this.$delete(this.selectedCustomFields, item.name);
+            } else {
+                delete this.selectedCustomFields[item.name];
             }
         },
 
@@ -56,7 +66,11 @@ export default {
                 return;
             }
 
-            this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+            } else {
+                this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+            }
         },
     },
 };

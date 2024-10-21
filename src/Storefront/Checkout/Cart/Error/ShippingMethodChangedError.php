@@ -43,7 +43,7 @@ class ShippingMethodChangedError extends Error
 
     public function getId(): string
     {
-        return sprintf('%s-%s-%s', self::KEY, $this->oldShippingMethodName, $this->newShippingMethodName);
+        return \sprintf('%s-%s-%s', self::KEY, $this->oldShippingMethodName, $this->newShippingMethodName);
     }
 
     public function getLevel(): int

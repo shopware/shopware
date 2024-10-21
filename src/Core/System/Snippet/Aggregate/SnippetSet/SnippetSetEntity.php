@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetSetEntity extends Entity
 {
     use EntityCustomFieldsTrait;

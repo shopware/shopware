@@ -90,7 +90,7 @@ class ContextControllerUnitTest extends TestCase
         $notExistingLang = Uuid::randomHex();
 
         $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage(sprintf('Could not find language with id "%s"', $notExistingLang));
+        $this->expectExceptionMessage(\sprintf('Could not find language with id "%s"', $notExistingLang));
 
         $controller->switchLanguage(
             new Request([], ['languageId' => $notExistingLang]),

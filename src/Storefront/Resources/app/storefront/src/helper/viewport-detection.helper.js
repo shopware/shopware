@@ -166,7 +166,7 @@ export default class ViewportDetection {
      * @returns {string}
      */
     static getCurrentViewport() {
-        const viewport = window.getComputedStyle(document.documentElement, ':before').content;
+        const viewport = window.getComputedStyle(document.documentElement).getPropertyValue('--sw-current-breakpoint');
         return viewport.replace(/['"]+/g, '').toUpperCase();
     }
 }

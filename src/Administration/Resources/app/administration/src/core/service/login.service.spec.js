@@ -42,7 +42,7 @@ describe('core/service/login.service.js', () => {
         const mockDate = new Date(1577881800000);
         jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
 
-        Date.now = jest.fn(() => 1577876400);
+        Date.now = jest.fn(() => +mockDate);
     });
 
     beforeEach(() => {
@@ -77,7 +77,7 @@ describe('core/service/login.service.js', () => {
         });
 
         expect(auth).toEqual({
-            expiry: 1577882100,
+            expiry: Date.now() + 300 * 1000,
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });
@@ -86,18 +86,17 @@ describe('core/service/login.service.js', () => {
     it('should login and return the bearer token', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         const auth = await loginService.loginByUsername('admin', 'shopware');
 
         expect(auth).toEqual({
-            expiry: 1577882400,
+            expiry: Date.now() + 600 * 1000,
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });
@@ -114,23 +113,21 @@ describe('core/service/login.service.js', () => {
     it('should get a new token', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn_TwO',
-                refresh_token: 'rEfReSh_ToKeN_tWo',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn_TwO',
+            refresh_token: 'rEfReSh_ToKeN_tWo',
+        });
 
         const refreshToken = await loginService.refreshToken();
         expect(refreshToken).toBe('aCcEsS_tOkEn_TwO');
@@ -139,30 +136,28 @@ describe('core/service/login.service.js', () => {
     it('should refresh the actual bearer auth', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 400,
-                access_token: 'aCcEsS_tOkEn_TwO',
-                refresh_token: 'rEfReSh_ToKeN_tWo',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 400,
+            access_token: 'aCcEsS_tOkEn_TwO',
+            refresh_token: 'rEfReSh_ToKeN_tWo',
+        });
 
         await loginService.refreshToken();
 
         const bearerAuthentication = loginService.getBearerAuthentication();
         expect(bearerAuthentication).toEqual({
             access: 'aCcEsS_tOkEn_TwO',
-            expiry: 1577882200,
+            expiry: Date.now() + 400 * 1000,
             refresh: 'rEfReSh_ToKeN_tWo',
         });
     });
@@ -170,19 +165,18 @@ describe('core/service/login.service.js', () => {
     it('should login and logout successfully', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
         const authLoggedIn = loginService.getBearerAuthentication();
         expect(authLoggedIn).toEqual({
-            expiry: 1577882400,
+            expiry: Date.now() + 600 * 1000,
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });
@@ -204,13 +198,12 @@ describe('core/service/login.service.js', () => {
 
         expect(loginService.isLoggedIn()).toBeFalsy();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
@@ -220,13 +213,12 @@ describe('core/service/login.service.js', () => {
     it('should return only the token', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
@@ -250,13 +242,12 @@ describe('core/service/login.service.js', () => {
         loginService.addOnLogoutListener(logoutListener);
         loginService.addOnTokenChangedListener(tokenChangedListener);
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         expect(tokenChangedListener).not.toHaveBeenCalled();
 
@@ -302,7 +293,8 @@ describe('core/service/login.service.js', () => {
 
     it('should be logged in when token exists', async () => {
         // eslint-disable-next-line max-len
-        document.cookie = 'bearerAuth=%7B%22access%22%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIn0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIiwiaWF0IjoxNjA2Mjk0MTM2LCJuYmYiOjE2MDYyOTQxMzYsImV4cCI6MTYwNjI5NDczNiwic3ViIjoiZTAzOWY0YzMyZjllNGMxZjgyMDNlMzVmZjdmZDQ1NzUiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.KNMWZqRJXM-lamNSuNvCsyZkR0zYkvS72DxjbJDAKqQex-PNUsDBDll9E4B7W5dLmIurTbxbzB4c8ztfPVkdXcZg5EORIIU8JRTjpbtwKhnXohEODsNqFPYGjFfhJnwcpt8tXvJ1BFXQdGR0UcHqPe-qLqWP9U1CZRht3A-9EvQFfzyqV9RJTs83tZ5MQI1LowjKIx1C6yxQ4CaQ-d-YUkerDguCukCg_z_Qkf2ME5tfdiiVp_uKCqknXNrNzs5y6LX0xnrLXBOGrcC3ZNF7RxmWxM-MzLaDa6kcYxc-k-QP3I89qDitZVU7LYTvK4WW_eH4qfOyVEzqSJuwtsoShA%22%2C%22refresh%22%3A%22def502006b139951ad0e625d58b94953b05b68ab5cd05abbc68b375ba21abf3e155a162020fd3175f2b057dc095c7ee53ac6686df506baba3053521be09354faa0142aee26a1548edf3f11fb724b1f0c60d044bc66c1c1304f59501a2f1b60378a5200e9254fcbde8c25fc9f745f31aacdaebbc77b3611226d22ee68128f28182a419ab2b04bfba9f240c4d743263dd8e798afccc7c0c2d2cc1c2df6ac6c097d17d9f991a408b5b6534a4a71fad3f7348139fa5b95b483fd2d3e206047fda7c60e099723dab5ff5197113faccd23a3aba8d8c948fd7e4d8da59dc74f9c160fd1de812900f51b5d06bd61dae754b87dc18efec9acdc82447042189871e69db6cbaaed1d82aef3cc8958c553cd5c75c98f0d174887c6a71a3f60aae584e2711198d3af88177f43bb630c6ee4e2453b11a6783953e1e6ef84ba2085f1414a4bf0638e65a047f1fb1b0b0dd59f4df68ef245d465c38dae2a7c887db636832b060c78e40b11667641653e5e4ec7a0eaacb1fdb1eef80e699d695183be585f4f3db16022e33f36ad300282487fcc17eee807085d079cdd2f129b30c5d5aea861d0%22%2C%22expiry%22%3A1606294737%7D';
+        document.cookie =
+            'bearerAuth=%7B%22access%22%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIn0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIiwiaWF0IjoxNjA2Mjk0MTM2LCJuYmYiOjE2MDYyOTQxMzYsImV4cCI6MTYwNjI5NDczNiwic3ViIjoiZTAzOWY0YzMyZjllNGMxZjgyMDNlMzVmZjdmZDQ1NzUiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.KNMWZqRJXM-lamNSuNvCsyZkR0zYkvS72DxjbJDAKqQex-PNUsDBDll9E4B7W5dLmIurTbxbzB4c8ztfPVkdXcZg5EORIIU8JRTjpbtwKhnXohEODsNqFPYGjFfhJnwcpt8tXvJ1BFXQdGR0UcHqPe-qLqWP9U1CZRht3A-9EvQFfzyqV9RJTs83tZ5MQI1LowjKIx1C6yxQ4CaQ-d-YUkerDguCukCg_z_Qkf2ME5tfdiiVp_uKCqknXNrNzs5y6LX0xnrLXBOGrcC3ZNF7RxmWxM-MzLaDa6kcYxc-k-QP3I89qDitZVU7LYTvK4WW_eH4qfOyVEzqSJuwtsoShA%22%2C%22refresh%22%3A%22def502006b139951ad0e625d58b94953b05b68ab5cd05abbc68b375ba21abf3e155a162020fd3175f2b057dc095c7ee53ac6686df506baba3053521be09354faa0142aee26a1548edf3f11fb724b1f0c60d044bc66c1c1304f59501a2f1b60378a5200e9254fcbde8c25fc9f745f31aacdaebbc77b3611226d22ee68128f28182a419ab2b04bfba9f240c4d743263dd8e798afccc7c0c2d2cc1c2df6ac6c097d17d9f991a408b5b6534a4a71fad3f7348139fa5b95b483fd2d3e206047fda7c60e099723dab5ff5197113faccd23a3aba8d8c948fd7e4d8da59dc74f9c160fd1de812900f51b5d06bd61dae754b87dc18efec9acdc82447042189871e69db6cbaaed1d82aef3cc8958c553cd5c75c98f0d174887c6a71a3f60aae584e2711198d3af88177f43bb630c6ee4e2453b11a6783953e1e6ef84ba2085f1414a4bf0638e65a047f1fb1b0b0dd59f4df68ef245d465c38dae2a7c887db636832b060c78e40b11667641653e5e4ec7a0eaacb1fdb1eef80e699d695183be585f4f3db16022e33f36ad300282487fcc17eee807085d079cdd2f129b30c5d5aea861d0%22%2C%22expiry%22%3A1606294737%7D';
         const { loginService } = loginServiceFactory();
 
         await expect(loginService.isLoggedIn()).toBe(true);
@@ -321,13 +313,12 @@ describe('core/service/login.service.js', () => {
 
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn_first',
-                refresh_token: 'rEfReSh_ToKeN_first',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn_first',
+            refresh_token: 'rEfReSh_ToKeN_first',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
@@ -344,23 +335,21 @@ describe('core/service/login.service.js', () => {
     it('should start auto refresh the token after token refresh', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 400,
-                access_token: 'aCcEsS_tOkEn_TwO',
-                refresh_token: 'rEfReSh_ToKeN_tWo',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 400,
+            access_token: 'aCcEsS_tOkEn_TwO',
+            refresh_token: 'rEfReSh_ToKeN_tWo',
+        });
 
         await loginService.refreshToken();
 
@@ -385,13 +374,12 @@ describe('core/service/login.service.js', () => {
         const logoutListener = jest.fn();
         loginService.addOnLogoutListener(logoutListener);
 
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn_first',
-                refresh_token: 'rEfReSh_ToKeN_first',
-            });
+        clientMock.onPost('/oauth/token').reply(200, {
+            token_type: 'Bearer',
+            expires_in: 600,
+            access_token: 'aCcEsS_tOkEn_first',
+            refresh_token: 'rEfReSh_ToKeN_first',
+        });
 
         await loginService.loginByUsername('admin', 'shopware');
 

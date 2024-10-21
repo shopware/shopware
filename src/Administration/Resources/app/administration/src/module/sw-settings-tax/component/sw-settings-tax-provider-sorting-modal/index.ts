@@ -15,6 +15,8 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
@@ -32,10 +34,10 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-            isSaving: boolean,
-            originalTaxProviders: EntityCollection<'tax_provider'>,
-            sortedTaxProviders: EntityCollection<'tax_provider'>,
-            } {
+        isSaving: boolean;
+        originalTaxProviders: EntityCollection<'tax_provider'>;
+        sortedTaxProviders: EntityCollection<'tax_provider'>;
+    } {
         return {
             isSaving: false,
             originalTaxProviders: this.taxProviders,
@@ -62,7 +64,8 @@ export default Component.wrapComponentConfig({
                 return taxProvider;
             });
 
-            this.taxProviderRepository.saveAll(this.sortedTaxProviders)
+            this.taxProviderRepository
+                .saveAll(this.sortedTaxProviders)
                 .then(() => {
                     this.isSaving = false;
                     this.$emit('modal-close');

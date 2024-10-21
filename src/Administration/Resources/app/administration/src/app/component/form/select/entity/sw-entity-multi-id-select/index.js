@@ -8,11 +8,14 @@ const { EntityCollection, Criteria } = Shopware.Data;
  */
 Component.register('sw-entity-multi-id-select', {
     template,
+
     inheritAttrs: false,
 
-    emits: ['update:value'],
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -63,15 +66,19 @@ Component.register('sw-entity-multi-id-select', {
 
     computed: {
         getListeners() {
-            const listeners = {};
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                const listeners = {};
 
-            Object.keys(this.$listeners).forEach(listener => {
-                if (listener !== 'change') {
-                    listeners[listener] = this.$listeners[listener];
-                }
-            });
+                Object.keys(this.$listeners).forEach((listener) => {
+                    if (listener !== 'change') {
+                        listeners[listener] = this.$listeners[listener];
+                    }
+                });
 
-            return listeners;
+                return listeners;
+            }
+
+            return {};
         },
     },
 
@@ -96,11 +103,7 @@ Component.register('sw-entity-multi-id-select', {
 
     methods: {
         createdComponent() {
-            const collection = new EntityCollection(
-                this.repository.route,
-                this.repository.entityName,
-                this.context,
-            );
+            const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 
             if (this.collection === null) {
                 this.collection = collection;

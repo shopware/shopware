@@ -6,7 +6,7 @@ const types = Shopware.Utils.types;
 /**
  * @class
  * @extends BulkEditBaseHandler
- * @package system-settings
+ * @package services-settings
  */
 class BulkEditCustomerHandler extends BulkEditBaseHandler {
     constructor() {
@@ -28,10 +28,14 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
         }
 
         return RetryHelper.retry(() => {
-            return this.syncService.sync(syncPayload, {}, {
-                'single-operation': 1,
-                'sw-language-id': Shopware.Context.api.languageId,
-            });
+            return this.syncService.sync(
+                syncPayload,
+                {},
+                {
+                    'single-operation': 1,
+                    'sw-language-id': Shopware.Context.api.languageId,
+                },
+            );
         });
     }
 

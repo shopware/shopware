@@ -224,7 +224,7 @@ class LanguageRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (UnsupportedValueException $exception) {
             static::assertSame(
-                sprintf('Unsupported value of type %s in %s', \gettype($value), LanguageRule::class),
+                \sprintf('Unsupported value of type %s in %s', \gettype($value), LanguageRule::class),
                 $exception->getMessage()
             );
         }

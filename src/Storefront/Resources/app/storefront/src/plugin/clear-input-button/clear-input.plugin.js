@@ -14,7 +14,7 @@ export default class ClearInputPlugin extends Plugin {
          * @type string
          */
         clearButtonSelector: '',
-    }
+    };
 
     init() {
         this.clearButtons = DomAccess.querySelectorAll(

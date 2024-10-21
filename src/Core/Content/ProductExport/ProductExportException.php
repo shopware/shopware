@@ -59,11 +59,6 @@ class ProductExportException extends HttpException
         );
     }
 
-    private static function getErrorMessage(string $message): string
-    {
-        return sprintf('Failed rendering string template using Twig: %s', $message);
-    }
-
     public static function salesChannelNotAllowed(): self
     {
         return new self(
@@ -71,5 +66,10 @@ class ProductExportException extends HttpException
             self::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION,
             'Only sales channels from type "Storefront" can be used for exports.'
         );
+    }
+
+    private static function getErrorMessage(string $message): string
+    {
+        return \sprintf('Failed rendering string template using Twig: %s', $message);
     }
 }

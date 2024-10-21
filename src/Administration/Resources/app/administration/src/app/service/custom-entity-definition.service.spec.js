@@ -14,31 +14,43 @@ const adminUiExampleConfig = {
     navigationParent: 'content',
     position: '50',
     listing: {
-        columns: [{
-            ref: 'title',
-        }, {
-            ref: 'description',
-        }, {
-            ref: 'position',
-            hidden: true,
-        }],
+        columns: [
+            {
+                ref: 'title',
+            },
+            {
+                ref: 'description',
+            },
+            {
+                ref: 'position',
+                hidden: true,
+            },
+        ],
     },
     detail: {
-        tabs: [{
-            name: 'main',
-            cards: [{
-                name: 'general',
-                fields: [{
-                    ref: 'title',
-                }, {
-                    ref: 'description',
-                    helpText: true,
-                    placeholder: true,
-                }, {
-                    ref: 'position',
-                }],
-            }],
-        }],
+        tabs: [
+            {
+                name: 'main',
+                cards: [
+                    {
+                        name: 'general',
+                        fields: [
+                            {
+                                ref: 'title',
+                            },
+                            {
+                                ref: 'description',
+                                helpText: true,
+                                placeholder: true,
+                            },
+                            {
+                                ref: 'position',
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
     },
 };
 
@@ -147,20 +159,23 @@ describe('src/app/service/custom-entity-definition.service', () => {
             position: '50',
         };
 
-        expect(service.getMenuEntries()).toStrictEqual([{
-            ...menuEntry,
-            id: `custom-entity/${withAdminUiName}`,
-            label: `${withAdminUiName}.moduleTitle`,
-            params: {
-                entityName: withAdminUiName,
+        expect(service.getMenuEntries()).toStrictEqual([
+            {
+                ...menuEntry,
+                id: `custom-entity/${withAdminUiName}`,
+                label: `${withAdminUiName}.moduleTitle`,
+                params: {
+                    entityName: withAdminUiName,
+                },
             },
-        }, {
-            ...menuEntry,
-            id: `custom-entity/${withAllFlagsName}`,
-            label: `${withAllFlagsName}.moduleTitle`,
-            params: {
-                entityName: withAllFlagsName,
+            {
+                ...menuEntry,
+                id: `custom-entity/${withAllFlagsName}`,
+                label: `${withAllFlagsName}.moduleTitle`,
+                params: {
+                    entityName: withAllFlagsName,
+                },
             },
-        }]);
+        ]);
     });
 });

@@ -43,7 +43,7 @@
             </call>
         </service>
 
-        <service id="pdf.merger" class="setasign\Fpdi\Tcpdf\Fpdi" />
+        <service id="pdf.merger" class="setasign\Fpdi\Tfpdf\Fpdi" />
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader">
             <argument type="service" id="document_base_config.repository"/>

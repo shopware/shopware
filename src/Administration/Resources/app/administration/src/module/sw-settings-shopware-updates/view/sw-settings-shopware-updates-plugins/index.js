@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-settings-shopware-updates-plugins', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {
@@ -39,7 +41,9 @@ Component.register('sw-settings-shopware-updates-plugins', {
 
     methods: {
         openMyExtensions() {
-            this.$router.push({ name: 'sw.extension.my-extensions.listing.app' });
+            this.$router.push({
+                name: 'sw.extension.my-extensions.listing.app',
+            });
         },
     },
 });

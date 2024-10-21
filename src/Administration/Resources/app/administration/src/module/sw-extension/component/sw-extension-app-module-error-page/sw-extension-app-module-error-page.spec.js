@@ -1,21 +1,34 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package checkout
+ */
+
 const routerMock = {
     go: jest.fn(),
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-extension-app-module-error-page', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-            },
-            mocks: {
-                $router: routerMock,
+    return mount(
+        await wrapTestComponent('sw-extension-app-module-error-page', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': true,
+                    'sw-loader': true,
+                },
+                mocks: {
+                    $router: routerMock,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-extension/component/sw-extension-app-module-error-page', () => {

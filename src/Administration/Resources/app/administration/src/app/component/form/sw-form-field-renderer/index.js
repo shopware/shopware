@@ -69,9 +69,17 @@ const { types } = Shopware.Utils;
  */
 Component.register('sw-form-field-renderer', {
     template,
+
     inheritAttrs: false,
 
-    inject: ['repositoryFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -110,8 +118,23 @@ Component.register('sw-form-field-renderer', {
 
     computed: {
         bind() {
-            const bind = {
-                ...this.$attrs,
+            let bind = {};
+
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                // Filter all listeners from the $attrs object
+                Object.keys(this.$attrs).forEach((key) => {
+                    if (!['onUpdate:value'].includes(key)) {
+                        bind[key] = this.$attrs[key];
+                    }
+                });
+            } else {
+                bind = {
+                    ...this.$attrs,
+                };
+            }
+
+            bind = {
+                ...bind,
                 ...this.config,
                 ...this.swFieldType,
                 ...this.translations,
@@ -191,7 +214,12 @@ Component.register('sw-form-field-renderer', {
         },
 
         optionTranslations() {
-            if (['sw-single-select', 'sw-multi-select'].includes(this.componentName)) {
+            if (
+                [
+                    'sw-single-select',
+                    'sw-multi-select',
+                ].includes(this.componentName)
+            ) {
                 if (!this.config.hasOwnProperty('options')) {
                     return {};
                 }
@@ -204,12 +232,8 @@ Component.register('sw-form-field-renderer', {
                     labelProperty = this.config.labelProperty;
                 }
 
-                this.config.options.forEach(option => {
-                    const translation = this.getTranslations(
-                        'options',
-                        option,
-                        [labelProperty],
-                    );
+                this.config.options.forEach((option) => {
+                    const translation = this.getTranslations('options', option, [labelProperty]);
                     // Merge original option with translation
                     const translatedOption = { ...option, ...translation };
                     options.push(translatedOption);
@@ -252,7 +276,12 @@ Component.register('sw-form-field-renderer', {
 
             if (this.type === 'price' && !Array.isArray(this.currentValue)) {
                 this.currentValue = [
-                    { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true },
+                    {
+                        currencyId: Shopware.Context.app.systemCurrencyId,
+                        gross: null,
+                        net: null,
+                        linked: true,
+                    },
                 ];
             }
         },
@@ -261,7 +290,15 @@ Component.register('sw-form-field-renderer', {
             this.$emit('update:value', data);
         },
 
-        getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
+        getTranslations(
+            componentName,
+            config = this.config,
+            translatableFields = [
+                'label',
+                'placeholder',
+                'helpText',
+            ],
+        ) {
             if (!translatableFields) {
                 return {};
             }
@@ -320,9 +357,21 @@ Component.register('sw-form-field-renderer', {
         fetchSystemCurrency() {
             const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
 
-            this.createRepository('currency').get(systemCurrencyId).then(response => {
-                this.currency = response;
-            });
+            this.createRepository('currency')
+                .get(systemCurrencyId)
+                .then((response) => {
+                    this.currency = response;
+                });
+        },
+
+        getScopedSlots() {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$scopedSlots,
+                };
+            }
+
+            return this.$slots;
         },
     },
 });

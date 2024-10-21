@@ -1,30 +1,33 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-snippet-sidebar', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-sidebar': {
-                    template: '<div><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-settings-snippet-sidebar', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-sidebar': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-sidebar-item': {
+                        template: '<div><slot name="headline-content"></slot><slot></slot></div>',
+                    },
+                    'sw-settings-snippet-filter-switch': true,
+                    'sw-sidebar-collapse': true,
                 },
-                'sw-sidebar-item': {
-                    template: '<div><slot name="headline-content"></slot><slot></slot></div>',
-                },
-                'sw-settings-snippet-filter-switch': true,
-                'sw-sidebar-collapse': true,
+            },
+            props: {
+                filterItems: [],
+                authorFilters: [],
             },
         },
-        props: {
-            filterItems: [],
-            authorFilters: [],
-        },
-    });
+    );
 }
 
 describe('sw-settings-snippet-sidebar', () => {

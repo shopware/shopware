@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -42,17 +43,17 @@ class State {
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface FullState extends State {
-    _store: Store<VuexRootState>,
-    list: () => (keyof VuexRootState)[],
-    get: <NAME extends keyof VuexRootState>(name: NAME) => VuexRootState[NAME],
-    getters: Store<VuexRootState>['getters'],
-    commit: Store<VuexRootState>['commit'],
-    dispatch: Store<VuexRootState>['dispatch'],
-    watch: Store<VuexRootState>['watch'],
-    subscribe: Store<VuexRootState>['subscribe'],
-    subscribeAction: Store<VuexRootState>['subscribeAction'],
-    registerModule: Store<VuexRootState>['registerModule'],
-    unregisterModule: Store<VuexRootState>['unregisterModule'],
+    _store: Store<VuexRootState>;
+    list: () => (keyof VuexRootState)[];
+    get: <NAME extends keyof VuexRootState>(name: NAME) => VuexRootState[NAME];
+    getters: Store<VuexRootState>['getters'];
+    commit: Store<VuexRootState>['commit'];
+    dispatch: Store<VuexRootState>['dispatch'];
+    watch: Store<VuexRootState>['watch'];
+    subscribe: Store<VuexRootState>['subscribe'];
+    subscribeAction: Store<VuexRootState>['subscribeAction'];
+    registerModule: Store<VuexRootState>['registerModule'];
+    unregisterModule: Store<VuexRootState>['unregisterModule'];
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

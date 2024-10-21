@@ -55,7 +55,7 @@ class MediaUrlGeneratorTest extends TestCase
 
         yield 'Test with date' => [
             new UrlParams('id', UrlParamsSource::MEDIA, 'test.jpg', new \DateTimeImmutable('2021-01-01')),
-            'http://localhost:8000/test.jpg?1609459200',
+            'http://localhost:8000/test.jpg?ts=1609459200',
         ];
     }
 }

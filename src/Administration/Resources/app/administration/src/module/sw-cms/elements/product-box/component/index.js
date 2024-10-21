@@ -10,6 +10,8 @@ const { Mixin, Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder'),
@@ -24,7 +26,7 @@ export default {
                     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                     sed diam voluptua.`,
                     price: [
-                        { gross: 19.90 },
+                        { gross: 19.9 },
                     ],
                     cover: {
                         media: {

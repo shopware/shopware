@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(AdminUiEntity::class)]
@@ -34,8 +32,6 @@ class EntityTest extends TestCase
         $adminUi = AdminUi::fromXml($adminUi);
 
         $adminUiEntities = $adminUi->getEntities();
-        static::assertInstanceOf(AdminUi::class, $adminUi);
-        static::assertIsArray($adminUiEntities);
         static::assertInstanceOf(AdminUiEntity::class, \array_pop($adminUiEntities));
     }
 }

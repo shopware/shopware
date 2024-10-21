@@ -21,7 +21,7 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     private SalesChannelProductDefinition $productDefinition;
 
-    private ?AbstractElasticsearchDefinition $elasticDefinition;
+    private AbstractElasticsearchDefinition $elasticDefinition;
 
     protected function setUp(): void
     {
@@ -32,10 +32,6 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     public function testMappingHasConditionField(): void
     {
-        if ($this->elasticDefinition === null) {
-            static::fail('EsProductDefinition is not defined');
-        }
-
         $js = file_get_contents(__DIR__ . '/../../../../src/Administration/Resources/app/administration/src/app/service/product-stream-condition.service.js');
 
         if (!$js) {
@@ -49,7 +45,7 @@ class StreamConditionPropertyMappingTest extends TestCase
             static::fail('could not find product properties in product-stream-condition.service.js');
         }
 
-        $json = sprintf('[%s]', rtrim(trim(str_replace(['\'', \PHP_EOL], ['"', ''], $matches[2])), ','));
+        $json = \sprintf('[%s]', rtrim(trim(str_replace(['\'', \PHP_EOL], ['"', ''], $matches[2])), ','));
         $properties = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($properties)) {
@@ -69,7 +65,7 @@ class StreamConditionPropertyMappingTest extends TestCase
             return !\in_array($property, $mappedProperties, true);
         });
 
-        static::assertEmpty($unmappedProperties, sprintf(
+        static::assertEmpty($unmappedProperties, \sprintf(
             'The following product fields available for filters in product streams are not mapped for elasticsearch: %s',
             implode(', ', $unmappedProperties)
         ));

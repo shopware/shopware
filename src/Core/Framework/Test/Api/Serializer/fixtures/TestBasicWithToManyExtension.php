@@ -44,7 +44,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                     'updatedAt' => null,
                 ],
                 'links' => [
-                    'self' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe', $baseUrl),
+                    'self' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe', $baseUrl),
                 ],
                 'relationships' => [
                     'extensions' => [
@@ -67,19 +67,19 @@ class TestBasicWithToManyExtension extends SerializationFixture
                         'extendableId' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96', $baseUrl),
+                        'self' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96', $baseUrl),
                     ],
                     'relationships' => [
                         'toOne' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-one', $baseUrl),
+                                'related' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-one', $baseUrl),
                             ],
                         ],
                         'toMany' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-many', $baseUrl),
+                                'related' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-many', $baseUrl),
                             ],
                         ],
                     ],
@@ -99,13 +99,13 @@ class TestBasicWithToManyExtension extends SerializationFixture
                                 ],
                             ],
                             'links' => [
-                                'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toMany', $baseUrl),
+                                'related' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toMany', $baseUrl),
                             ],
                         ],
                         'toOne' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
+                                'related' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
                             ],
                         ],
                     ],

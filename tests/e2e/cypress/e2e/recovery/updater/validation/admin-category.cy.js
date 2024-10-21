@@ -8,7 +8,7 @@ describe('Minimal auto update', () => {
      * - update-service-mock.js must be running
      */
 
-    it('@update: Check category', { tags: ['pa-system-settings'] }, () => {
+    it('@update: Check category', { tags: ['pa-services-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/category',

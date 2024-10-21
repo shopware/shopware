@@ -12,18 +12,21 @@ describe('core/helper/flattree.helper.js', () => {
     });
 
     it('should register new nodes', async () => {
-        flatTree.add({
-            label: 'Foobar',
-            id: 'sw.foo.bar',
-        }).add({
-            label: 'BarBatz',
-            id: 'sw.bar.batz',
-        });
+        flatTree
+            .add({
+                label: 'Foobar',
+                id: 'sw.foo.bar',
+            })
+            .add({
+                label: 'BarBatz',
+                id: 'sw.bar.batz',
+            });
 
         expect(flatTree.convertToTree()).toEqual([
             expect.objectContaining({
                 id: 'sw.foo.bar',
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 id: 'sw.bar.batz',
             }),
         ]);
@@ -32,20 +35,24 @@ describe('core/helper/flattree.helper.js', () => {
     it('expects a node to have a path or id property', async () => {
         const warnSpy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
-        flatTree.add({
-            label: 'with path',
-            path: '/foo/bar',
-        }).add({
-            label: 'with id',
-            id: 'foo.bar',
-        }).add({
-            label: 'without id and path',
-        });
+        flatTree
+            .add({
+                label: 'with path',
+                path: '/foo/bar',
+            })
+            .add({
+                label: 'with id',
+                id: 'foo.bar',
+            })
+            .add({
+                label: 'without id and path',
+            });
 
         expect(flatTree.convertToTree()).toEqual([
             expect.objectContaining({
                 label: 'with path',
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 label: 'with id',
             }),
         ]);
@@ -63,13 +70,15 @@ describe('core/helper/flattree.helper.js', () => {
         const warnSpy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
 
-        flatTree.add({
-            label: 'Foobar',
-            id: 'sw.foo.bar',
-        }).add({
-            label: 'BarBatz',
-            id: 'sw.foo.bar',
-        });
+        flatTree
+            .add({
+                label: 'Foobar',
+                id: 'sw.foo.bar',
+            })
+            .add({
+                label: 'BarBatz',
+                id: 'sw.foo.bar',
+            });
 
         const tree = flatTree.convertToTree();
 
@@ -128,65 +137,83 @@ describe('core/helper/flattree.helper.js', () => {
     });
 
     it('should not remove a node when the node identifier does not match', async () => {
-        flatTree.add({
-            label: 'Foobar',
-            id: 'sw.foo.bar',
-        }).remove('sw.foo.batz');
-
-        expect(flatTree.convertToTree()).not.toEqual(expect.arrayContaining[
-            expect.objectContaining({
+        flatTree
+            .add({
+                label: 'Foobar',
                 id: 'sw.foo.bar',
             })
-        ]);
+            .remove('sw.foo.batz');
+
+        expect(flatTree.convertToTree()).not.toEqual(
+            expect.arrayContaining[
+                expect.objectContaining({
+                    id: 'sw.foo.bar',
+                })
+            ],
+        );
     });
 
     it('should be possible to nest child nodes infinitely (4 levels here)', async () => {
-        flatTree.add({
-            id: 'sw.a',
-        }).add({
-            id: 'sw.b',
-            parent: 'sw.a',
-        }).add({
-            id: 'sw.c',
-            parent: 'sw.b',
-        }).add({
-            id: 'sw.d',
-            parent: 'sw.c',
-        });
+        flatTree
+            .add({
+                id: 'sw.a',
+            })
+            .add({
+                id: 'sw.b',
+                parent: 'sw.a',
+            })
+            .add({
+                id: 'sw.c',
+                parent: 'sw.b',
+            })
+            .add({
+                id: 'sw.d',
+                parent: 'sw.c',
+            });
 
         expect(flatTree.convertToTree()).toEqual([
             expect.objectContaining({
                 id: 'sw.a',
                 level: 1,
-                children: [expect.objectContaining({
-                    id: 'sw.b',
-                    level: 2,
-                    children: [expect.objectContaining({
-                        id: 'sw.c',
-                        level: 3,
-                        children: [expect.objectContaining({
-                            id: 'sw.d',
-                            level: 4,
-                            children: [],
-                        })],
-                    })],
-                })],
+                children: [
+                    expect.objectContaining({
+                        id: 'sw.b',
+                        level: 2,
+                        children: [
+                            expect.objectContaining({
+                                id: 'sw.c',
+                                level: 3,
+                                children: [
+                                    expect.objectContaining({
+                                        id: 'sw.d',
+                                        level: 4,
+                                        children: [],
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
             }),
         ]);
     });
 
     it('should create a tree hierarchy', async () => {
-        flatTree.add({
-            id: 'sw.a',
-        }).add({
-            id: 'sw.a_child_1',
-            parent: 'sw.a',
-        }).add({
-            id: 'sw.b',
-        }).add({
-            id: 'sw.a_child_2',
-            parent: 'sw.a',
-        })
+        flatTree
+            .add({
+                id: 'sw.a',
+            })
+            .add({
+                id: 'sw.a_child_1',
+                parent: 'sw.a',
+            })
+            .add({
+                id: 'sw.b',
+            })
+            .add({
+                id: 'sw.a_child_2',
+                parent: 'sw.a',
+            })
             .add({
                 id: 'sw.b_child_1',
                 parent: 'sw.b',
@@ -201,7 +228,8 @@ describe('core/helper/flattree.helper.js', () => {
                         id: 'sw.a_child_1',
                         parent: 'sw.a',
                         level: 2,
-                    }), expect.objectContaining({
+                    }),
+                    expect.objectContaining({
                         id: 'sw.a_child_2',
                         parent: 'sw.a',
                         level: 2,
@@ -227,28 +255,35 @@ describe('core/helper/flattree.helper.js', () => {
             return first.position - second.position;
         });
 
-        flatTree.add({
-            id: 'sw.30',
-            position: 30,
-        }).add({
-            id: 'sw.10',
-            position: 10,
-        }).add({
-            id: 'sw.20',
-            position: 20,
-        }).add({
-            id: 'sw.40',
-            position: 40,
-        });
+        flatTree
+            .add({
+                id: 'sw.30',
+                position: 30,
+            })
+            .add({
+                id: 'sw.10',
+                position: 10,
+            })
+            .add({
+                id: 'sw.20',
+                position: 20,
+            })
+            .add({
+                id: 'sw.40',
+                position: 40,
+            });
 
         expect(flatTree.convertToTree()).toEqual([
             expect.objectContaining({
                 position: 10,
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 position: 20,
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 position: 30,
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 position: 40,
             }),
         ]);

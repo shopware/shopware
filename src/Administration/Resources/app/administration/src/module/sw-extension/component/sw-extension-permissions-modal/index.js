@@ -8,6 +8,13 @@ import './sw-extension-permissions-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'modal-close',
+        'close-with-action',
+    ],
+
     props: {
         permissions: {
             type: Object,
@@ -58,31 +65,38 @@ export default {
                 return this.title;
             }
 
-            return this.$tc(
-                'sw-extension-store.component.sw-extension-permissions-modal.title',
-                1,
-                { extensionLabel: this.extensionLabel },
-            );
+            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.title', 1, {
+                extensionLabel: this.extensionLabel,
+            });
         },
 
         permissionsWithGroupedOperations() {
-            return Object.fromEntries(Object.entries(this.permissions)
-                .map(([category, permissions]) => {
-                    permissions = permissions.reduce((acc, permission) => {
-                        const entity = permission.entity;
+            return Object.fromEntries(
+                Object.entries(this.permissions).map(
+                    ([
+                        category,
+                        permissions,
+                    ]) => {
+                        permissions = permissions.reduce((acc, permission) => {
+                            const entity = permission.entity;
 
-                        if (entity === 'additional_privileges') {
-                            acc[permission.operation] = [];
+                            if (entity === 'additional_privileges') {
+                                acc[permission.operation] = [];
+
+                                return acc;
+                            }
+
+                            acc[entity] = (acc[entity] || []).concat(permission.operation);
 
                             return acc;
-                        }
-
-                        acc[entity] = (acc[entity] || []).concat(permission.operation);
-
-                        return acc;
-                    }, {});
-                    return [category, permissions];
-                }));
+                        }, {});
+                        return [
+                            category,
+                            permissions,
+                        ];
+                    },
+                ),
+            );
         },
 
         domainsList() {
@@ -106,15 +120,21 @@ export default {
                 return this.description;
             }
 
-            return this.$tc(
-                'sw-extension-store.component.sw-extension-permissions-modal.description',
-                1,
-                { extensionLabel: this.extensionLabel },
-            );
+            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.description', 1, {
+                extensionLabel: this.extensionLabel,
+            });
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

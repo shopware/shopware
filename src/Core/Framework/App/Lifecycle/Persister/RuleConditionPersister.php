@@ -61,10 +61,10 @@ class RuleConditionPersister
 
         foreach ($ruleConditions as $ruleCondition) {
             $payload = $ruleCondition->toArray($defaultLocale);
-            $payload['identifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
+            $payload['identifier'] = \sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
+                $app,
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),
-                $app->getPath()
             );
             $payload['appId'] = $appId;
             $payload['active'] = $app->isActive();

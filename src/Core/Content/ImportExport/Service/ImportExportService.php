@@ -109,10 +109,6 @@ class ImportExportService
     {
         $logEntity = $this->findLog($context, $logId);
 
-        if ($logEntity === null) {
-            throw ImportExportException::logEntityNotFound($logId);
-        }
-
         $canceledProgress = new Progress($logId, Progress::STATE_ABORTED);
         $canceledProgress->addProcessedRecords($logEntity->getRecords());
 
@@ -167,14 +163,20 @@ class ImportExportService
         });
     }
 
-    private function findLog(Context $context, string $logId): ?ImportExportLogEntity
+    public function findLog(Context $context, string $logId): ImportExportLogEntity
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
         $criteria->addAssociation('file');
         $criteria->addAssociation('invalidRecordsLog.file');
 
-        return $this->logRepository->search($criteria, $context)->getEntities()->get($logId);
+        $logEntity = $this->logRepository->search($criteria, $context)->getEntities()->first();
+
+        if ($logEntity === null) {
+            throw ImportExportException::logEntityNotFound($logId);
+        }
+
+        return $logEntity;
     }
 
     private function findProfile(Context $context, string $profileId): ImportExportProfileEntity

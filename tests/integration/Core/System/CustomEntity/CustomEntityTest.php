@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as DALEntity;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -43,6 +45,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
@@ -61,6 +64,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -89,6 +93,11 @@ class CustomEntityTest extends TestCase
         'payload' => ['foo' => 'Bar'],
         'email' => 'test@test.com',
     ];
+
+    protected function tearDown(): void
+    {
+        $this->getContainer()->get(SourceResolver::class)->reset();
+    }
 
     #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
@@ -200,11 +209,9 @@ class CustomEntityTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete');
 
-        $container = KernelLifecycleManager::bootKernel()->getContainer();
-
         $this->testAllowDisable(true);
 
-        self::cleanUp($container);
+        self::cleanUp($this->getContainer());
     }
 
     public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void
@@ -215,6 +222,49 @@ class CustomEntityTest extends TestCase
 
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
+
+        self::cleanUp($this->getContainer());
+    }
+
+    public function testInvalidDefaultTypesParsedCorrectly(): void
+    {
+        static::expectException(Feature::isActive('v6.7.0.0') ? CustomEntityXmlParsingException::class : XmlParsingException::class);
+        CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/Resources/invalid-default-value-entities.xml');
+    }
+
+    public function testDefaultValueIsRegistered(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/default-value');
+        $container = KernelLifecycleManager::bootKernel()->getContainer();
+
+        $schema = $this->getSchema();
+        static::assertTrue($schema->hasTable('ce_product_with_defaults'));
+        $expectedDefaults = [
+            'title' => 'default product title',
+            'stock' => 10,
+            'price' => 10.99,
+            'active' => true,
+            'releaseDate' => '2021-01-01 00:00:00',
+            'email' => 'example@shopware.com',
+            'description' => 'default product description',
+        ];
+
+        $context = Context::createDefaultContext();
+        $repo = $container->get('ce_product_with_defaults.repository');
+        static::assertInstanceOf(EntityRepository::class, $repo);
+        $repo->create([['id' => Uuid::randomHex()]], $context);
+        $entity = $repo->search(new Criteria(), $context)->first();
+        static::assertInstanceOf(DALEntity::class, $entity);
+
+        foreach ($expectedDefaults as $field => $defaultValue) {
+            $entityValue = $entity->get($field);
+            if ($field === 'releaseDate') {
+                static::assertInstanceOf(\DateTimeImmutable::class, $entityValue);
+                $entityValue = $entityValue->format('Y-m-d H:i:s');
+            }
+
+            static::assertSame($defaultValue, $entityValue);
+        }
 
         self::cleanUp($this->getContainer());
     }
@@ -641,15 +691,15 @@ class CustomEntityTest extends TestCase
         static::assertCount(2, $storage);
 
         $fields = [
-            ['name' => 'position', 'type' => 'int', 'storeApiAware' => true, 'required' => false],
-            ['name' => 'rating', 'type' => 'float', 'storeApiAware' => true, 'required' => false],
-            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'content', 'type' => 'text', 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true, 'required' => false],
-            ['name' => 'display', 'type' => 'bool', 'translatable' => true, 'storeApiAware' => true, 'required' => false],
+            ['name' => 'position', 'type' => 'int', 'storeApiAware' => true, 'required' => false, 'default' => null],
+            ['name' => 'rating', 'type' => 'float', 'storeApiAware' => true, 'required' => false, 'default' => null],
+            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true, 'default' => null],
+            ['name' => 'content', 'type' => 'text', 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true, 'required' => false, 'default' => null],
+            ['name' => 'display', 'type' => 'bool', 'translatable' => true, 'storeApiAware' => true, 'required' => false, 'default' => null],
             ['name' => 'payload', 'type' => 'json', 'storeApiAware' => false, 'required' => false],
-            ['name' => 'email', 'type' => 'email', 'storeApiAware' => false, 'required' => false],
+            ['name' => 'email', 'type' => 'email', 'storeApiAware' => false, 'required' => false, 'default' => null],
             ['name' => 'price', 'type' => 'price', 'storeApiAware' => false, 'required' => false],
-            ['name' => 'my_date', 'type' => 'date', 'storeApiAware' => false, 'required' => false],
+            ['name' => 'my_date', 'type' => 'date', 'storeApiAware' => false, 'required' => false, 'default' => null],
             ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade', 'required' => false],
             ['name' => 'top_seller_restrict', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'restrict'],
             ['name' => 'top_seller_cascade', 'type' => 'many-to-one', 'required' => true, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade'],
@@ -669,9 +719,9 @@ class CustomEntityTest extends TestCase
         static::assertEquals($fields, json_decode((string) $storage[0]['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
         $fields = [
-            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'content', 'type' => 'text', 'required' => false, 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'email', 'type' => 'email', 'required' => false, 'storeApiAware' => false],
+            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true, 'default' => null],
+            ['name' => 'content', 'type' => 'text', 'required' => false, 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true, 'default' => null],
+            ['name' => 'email', 'type' => 'email', 'required' => false, 'storeApiAware' => false, 'default' => null],
             ['name' => 'recommendation', 'type' => 'many-to-one', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'inherited' => false, 'onDelete' => 'set-null'],
         ];
         static::assertSame('ce_blog_comment', $storage[1]['name']);
@@ -1096,7 +1146,7 @@ class CustomEntityTest extends TestCase
                 $field->compile($container->get(DefinitionInstanceRegistry::class));
 
                 $name = $field->getPropertyName();
-                $message = sprintf('Assertion for field "%s" in entity "%s" failed', $name, $entity);
+                $message = \sprintf('Assertion for field "%s" in entity "%s" failed', $name, $entity);
 
                 static::assertTrue($definition->getFields()->has($name), $message . ' - field not found');
 

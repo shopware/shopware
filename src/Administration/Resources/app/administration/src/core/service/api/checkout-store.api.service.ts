@@ -20,8 +20,7 @@ class CheckoutStoreService extends ApiService {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken,
         };
-        return this.httpClient
-            .post(route, {}, { ...additionalParams, headers });
+        return this.httpClient.post(route, {}, { ...additionalParams, headers });
     }
 }
 

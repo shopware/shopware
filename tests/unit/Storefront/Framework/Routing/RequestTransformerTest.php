@@ -89,5 +89,36 @@ class RequestTransformerTest extends TestCase
             'registeredApiPrefixes' => ['api'],
             'requestUri' => 'http://shopware.com//api//',
         ];
+
+        // Allowedlist paths:
+        yield '_wdt case' => [
+            'registeredApiPrefixes' => ['api'],
+            'requestUri' => 'http://shopware.com/_wdt/',
+        ];
+
+        yield '_profiler case' => [
+            'registeredApiPrefixes' => ['api'],
+            'requestUri' => 'http://shopware.com/_profiler/',
+        ];
+
+        yield '_error case' => [
+            'registeredApiPrefixes' => ['api'],
+            'requestUri' => 'http://shopware.com/_error/',
+        ];
+
+        yield 'payment finalize-transaction case' => [
+            'registeredApiPrefixes' => ['api'],
+            'requestUri' => 'http://shopware.com/payment/finalize-transaction/',
+        ];
+
+        yield 'installer case' => [
+            'registeredApiPrefixes' => ['api'],
+            'requestUri' => 'http://shopware.com/installer',
+        ];
+
+        yield '_fragment case' => [
+            'registeredApiPrefixes' => ['api'],
+            'requestUri' => 'http://shopware.com/_fragment/',
+        ];
     }
 }

@@ -19,11 +19,11 @@ class StorageSingleton {
      * @private
      */
     _chooseStorage() {
-        if (StorageSingleton._isSupported(window.localStorage)) {
+        if (StorageSingleton._isSupported('localStorage')) {
             return this._storage = window.localStorage;
         }
 
-        if (StorageSingleton._isSupported(window.sessionStorage)) {
+        if (StorageSingleton._isSupported('sessionStorage')) {
             return this._storage = window.sessionStorage;
         }
 
@@ -44,8 +44,9 @@ class StorageSingleton {
     static _isSupported(storage) {
         try {
             const testKey = '__storage_test';
-            storage.setItem(testKey, '1');
-            storage.removeItem(testKey);
+            window[storage].setItem(testKey, '1');
+            window[storage].removeItem(testKey);
+
             return true;
         } catch (e) {
             return false;

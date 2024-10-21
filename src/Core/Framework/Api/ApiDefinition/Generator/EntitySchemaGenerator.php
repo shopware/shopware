@@ -188,7 +188,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
                 $primary = $reference->getPrimaryKeys()->first();
                 if (!$primary) {
-                    throw new \RuntimeException(sprintf('No primary key defined for %s', $reference->getEntityName()));
+                    throw new \RuntimeException(\sprintf('No primary key defined for %s', $reference->getEntityName()));
                 }
 
                 return [
@@ -229,10 +229,10 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 );
 
                 if (!$mappingReference) {
-                    throw new \RuntimeException(sprintf('Can not find mapping entity field for storage field %s', $field->getMappingReferenceColumn()));
+                    throw new \RuntimeException(\sprintf('Can not find mapping entity field for storage field %s', $field->getMappingReferenceColumn()));
                 }
                 if (!$mappingLocal) {
-                    throw new \RuntimeException(sprintf('Can not find mapping entity field for storage field %s', $field->getMappingLocalColumn()));
+                    throw new \RuntimeException(\sprintf('Can not find mapping entity field for storage field %s', $field->getMappingLocalColumn()));
                 }
 
                 return [

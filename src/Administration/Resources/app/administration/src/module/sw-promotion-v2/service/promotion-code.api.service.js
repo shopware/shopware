@@ -19,14 +19,13 @@ export default class PromotionCodeApiService extends ApiService {
     generateCodeFixed() {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.get(
-            `/_action/${this.getApiBasePath()}/codes/generate-fixed`,
-            {
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/codes/generate-fixed`, {
                 headers,
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     /**
@@ -38,15 +37,14 @@ export default class PromotionCodeApiService extends ApiService {
     generateIndividualCodes(codePattern, amount = 1) {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.get(
-            `/_action/${this.getApiBasePath()}/codes/generate-individual`,
-            {
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/codes/generate-individual`, {
                 params: { codePattern, amount },
                 headers,
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     /**
@@ -58,18 +56,20 @@ export default class PromotionCodeApiService extends ApiService {
     addIndividualCodes(promotionId, amount) {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.post(
-            `/_action/${this.getApiBasePath()}/codes/add-individual`,
-            {
-                promotionId,
-                amount,
-            },
-            {
-                headers,
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                `/_action/${this.getApiBasePath()}/codes/add-individual`,
+                {
+                    promotionId,
+                    amount,
+                },
+                {
+                    headers,
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     /**
@@ -82,19 +82,21 @@ export default class PromotionCodeApiService extends ApiService {
     replaceIndividualCodes(promotionId, codePattern, amount = 1) {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.patch(
-            `/_action/${this.getApiBasePath()}/codes/replace-individual`,
-            {
-                promotionId,
-                codePattern,
-                amount,
-            },
-            {
-                headers,
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .patch(
+                `/_action/${this.getApiBasePath()}/codes/replace-individual`,
+                {
+                    promotionId,
+                    codePattern,
+                    amount,
+                },
+                {
+                    headers,
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     /**
@@ -105,14 +107,13 @@ export default class PromotionCodeApiService extends ApiService {
     generatePreview(codePattern) {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.get(
-            `/_action/${this.getApiBasePath()}/codes/preview`,
-            {
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/codes/preview`, {
                 params: { codePattern },
                 headers,
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }

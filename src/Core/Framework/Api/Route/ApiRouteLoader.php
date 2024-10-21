@@ -14,6 +14,12 @@ use Symfony\Component\Routing\RouteCollection;
 #[Package('core')]
 class ApiRouteLoader extends Loader
 {
+    /**
+     * The dynamic API allows traverse associations over the route path. This key for an option
+     * holds the root path for each entity definition without further associations in the path.
+     */
+    public const DYNAMIC_RESOURCE_ROOT_PATH = 'resourceRootPath';
+
     private bool $isLoaded = false;
 
     /**
@@ -67,6 +73,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName . '/{id}');
             $routes->add('api.' . $entityName . '.detail', $route);
 
             $route = new Route('/api/' . $resourceName . '/{path}');
@@ -75,6 +82,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName . '/{id}');
             $routes->add('api.' . $entityName . '.update', $route);
 
             $route = new Route('/api/' . $resourceName . '/{path}');
@@ -83,6 +91,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName . '/{id}');
             $routes->add('api.' . $entityName . '.delete', $route);
 
             // list routes
@@ -92,6 +101,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName);
             $routes->add('api.' . $entityName . '.list', $route);
 
             $route = new Route('/api/search/' . $resourceName . '{path}');
@@ -100,6 +110,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/search/' . $resourceName);
             $routes->add('api.' . $entityName . '.search', $route);
 
             $route = new Route('/api/search-ids/' . $resourceName . '{path}');
@@ -108,6 +119,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/search-ids/' . $resourceName);
             $routes->add('api.' . $entityName . '.search-ids', $route);
 
             $route = new Route('/api/' . $resourceName . '{path}');
@@ -116,6 +128,7 @@ class ApiRouteLoader extends Loader
             $route->setDefault('entityName', $resourceName);
             $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName);
             $routes->add('api.' . $entityName . '.create', $route);
         }
     }

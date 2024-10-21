@@ -11,8 +11,9 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,6 +21,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('buyers-experience')]
 class CachedLandingPageRoute extends AbstractLandingPageRoute
@@ -53,6 +57,10 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
     #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($landingPageId, $request, $context);
+        }
+
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($landingPageId, $request, $context);
         }
@@ -86,7 +94,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
             return null;
         }
 
-        return self::buildName($landingPageId) . '-' . md5(Json::encode($event->getParts()));
+        return self::buildName($landingPageId) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

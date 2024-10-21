@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
 {
+    final public const FILTER_ENABLED_REQUEST_PARAM = 'manufacturer-filter';
+
     public function getDecorated(): AbstractListingFilterHandler
     {
         throw new DecorationPatternException(self::class);
@@ -20,7 +22,7 @@ class ManufacturerListingFilterHandler extends AbstractListingFilterHandler
 
     public function create(Request $request, SalesChannelContext $context): ?Filter
     {
-        if (!$request->request->get('manufacturer-filter', true)) {
+        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true)) {
             return null;
         }
 

@@ -6,12 +6,14 @@ use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('services-settings')]
@@ -23,13 +25,21 @@ class SitemapRoute extends AbstractSitemapRoute
     public function __construct(
         private readonly SitemapListerInterface $sitemapLister,
         private readonly SystemConfigService $systemConfigService,
-        private readonly SitemapExporterInterface $sitemapExporter
+        private readonly SitemapExporterInterface $sitemapExporter,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
+    }
+
+    public static function buildName(string $id): string
+    {
+        return 'sitemap-route-' . $id;
     }
 
     #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
+        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($context->getSalesChannelId())));
+
         $sitemaps = $this->sitemapLister->getSitemaps($context);
 
         if ($this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy') !== SitemapExporterInterface::STRATEGY_LIVE) {

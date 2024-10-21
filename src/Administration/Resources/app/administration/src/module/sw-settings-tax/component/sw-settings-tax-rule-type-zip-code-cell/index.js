@@ -8,6 +8,8 @@ import template from './sw-settings-tax-rule-type-zip-code-cell.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         taxRule: {
             type: Object,
@@ -20,7 +22,6 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-        },
+        createdComponent() {},
     },
 };

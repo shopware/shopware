@@ -1,7 +1,10 @@
 {% block component_privacy_notice %}
-    <div class="form-text privacy-notice">
+    <fieldset class="form-text privacy-notice">
         {% block component_privacy_title %}
-            <strong>{{ 'general.privacyTitle'|trans|sw_sanitize }}</strong><br>
+            <legend class="form-text privacy-notice-title">
+                <strong>{{ 'general.privacyTitle'|trans|sw_sanitize }}</strong>
+            </legend>
+            <br>
         {% endblock %}
 
         {% block component_privacy_dpi %}
@@ -32,15 +35,15 @@
             {% else %}
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
-                        <label>
+                        <div>
                             {{ 'general.privacyNoticeText'|trans({
                                 '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
                             })|raw }}
-                        </label>
+                        </div>
                     {% endblock %}
                 </div>
             {% endif %}
         {% endblock %}
-    </div>
+    </fieldset>
 {% endblock %}

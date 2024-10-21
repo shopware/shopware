@@ -5,33 +5,42 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs', () => {
     async function createWrapper(headlineError, ratingError) {
-        return mount(await wrapTestComponent('sw-extension-review-creation-inputs', { sync: true }), {
-            global: {
-                provide: {
-                    validationService: {},
+        return mount(
+            await wrapTestComponent('sw-extension-review-creation-inputs', {
+                sync: true,
+            }),
+            {
+                global: {
+                    provide: {
+                        validationService: {},
+                    },
+                    stubs: {
+                        'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                        'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                        'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                        'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+                        'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
+                        'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
+                        'sw-icon': true,
+                        'sw-textarea-field': {
+                            template: '<textarea></textarea>',
+                        },
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                    },
                 },
-                stubs: {
-                    'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
-                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                    'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
-                    'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
-                    'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
-                    'sw-icon': true,
-                    'sw-textarea-field': {
-                        template: '<textarea></textarea>',
+                props: {
+                    errors: {
+                        headlineError: headlineError || null,
+                        ratingError: ratingError || null,
                     },
                 },
             },
-            props: {
-                errors: {
-                    headlineError: headlineError || null,
-                    ratingError: ratingError || null,
-                },
-            },
-        });
+        );
     }
 
     it('headline input field should be required', async () => {

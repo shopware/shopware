@@ -19,21 +19,30 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'input-change',
+        'inheritance-restore',
+        'inheritance-remove',
+        'ends-with-decimal-separator',
     ],
-
-    inject: ['feature'],
 
     props: {
         numberType: {
             type: String,
             required: false,
             default: 'float',
-            validValues: ['float', 'int'],
+            validValues: [
+                'float',
+                'int',
+            ],
             validator(value) {
-                return ['float', 'int'].includes(value);
+                return [
+                    'float',
+                    'int',
+                ].includes(value);
             },
         },
 
@@ -99,14 +108,14 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                 return this.numberType === 'int' ? 1 : 0.01;
             }
 
-            return (this.numberType === 'int') ? Math.round(this.step) : this.step;
+            return this.numberType === 'int' ? Math.round(this.step) : this.step;
         },
 
         realMinimum() {
             if (this.min === null) {
                 return null;
             }
-            return (this.numberType === 'int') ? Math.ceil(this.min) : this.min;
+            return this.numberType === 'int' ? Math.ceil(this.min) : this.min;
         },
 
         realMaximum() {
@@ -114,7 +123,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                 return null;
             }
 
-            return (this.numberType === 'int') ? Math.floor(this.max) : this.max;
+            return this.numberType === 'int' ? Math.floor(this.max) : this.max;
         },
 
         stringRepresentation() {
@@ -124,7 +133,9 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
 
             // remove scientific notation
             if (this.value !== null && /\d+\.?\d*e[+-]*\d+/i.test(this.value)) {
-                return this.value.toLocaleString('fullwide', { useGrouping: false });
+                return this.value.toLocaleString('fullwide', {
+                    useGrouping: false,
+                });
             }
 
             return this.fillDigits && this.numberType !== 'int'
@@ -155,7 +166,8 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         },
 
         onInput(event) {
-            let val = Number.parseFloat(event.target.value);
+            const targetValue = event.target.value;
+            let val = this.getNumberFromString(event.target.value);
 
             if (!Number.isNaN(val)) {
                 if (this.max && val > this.max) {
@@ -165,11 +177,21 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                     val = this.min;
                 }
 
+                this.currentValue = val;
                 this.$emit('input-change', val);
             } else if (this.allowEmpty === true) {
+                this.currentValue = val;
                 this.$emit('input-change', val);
             } else {
+                this.currentValue = this.min ?? 0;
                 this.$emit('input-change', this.min ?? 0);
+            }
+
+            // When target value ends with a dot or comma, emit this information to the parent component
+            if (targetValue.endsWith('.') || targetValue.endsWith(',')) {
+                this.$emit('ends-with-decimal-separator', true);
+            } else {
+                this.$emit('ends-with-decimal-separator', false);
             }
         },
 
@@ -225,9 +247,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             }
             const decimals = splits[splits.length - 1].length;
             const float = parseFloat(splits.join('.')).toFixed(decimals);
-            return decimals > this.digits
-                ? Math.round(float * (10 ** this.digits)) / (10 ** this.digits)
-                : Number(float);
+            return decimals > this.digits ? Math.round(float * 10 ** this.digits) / 10 ** this.digits : Number(float);
         },
 
         checkForInteger(value) {

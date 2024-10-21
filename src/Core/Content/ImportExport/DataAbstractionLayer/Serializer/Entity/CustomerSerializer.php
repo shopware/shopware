@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -16,27 +17,19 @@ use Symfony\Contracts\Service\ResetInterface;
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
     /**
-     * @var array<string, string|null>
-     */
-    private array $cacheCustomerGroups = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private array $cachePaymentMethods = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private array $cacheSalesChannels = [];
-
-    /**
      * @internal
+     *
+     * @param array<string, string|null> $cacheCustomerGroups
+     * @param array<string, string|null> $cachePaymentMethods
+     * @param array<string, string|null> $cacheSalesChannels
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $paymentMethodRepository,
-        private readonly EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository,
+        private array $cacheCustomerGroups = [],
+        private array $cachePaymentMethods = [],
+        private array $cacheSalesChannels = [],
     ) {
     }
 
@@ -55,17 +48,15 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
             $id = $entity['group']['id'] ?? $this->getCustomerGroupId($name, $context);
 
             if ($id) {
-                $deserialized['groupId'] = $id;
                 $deserialized['group']['id'] = $id;
             }
         }
 
-        if (!isset($deserialized['defaultPaymentMethodId']) && isset($entity['defaultPaymentMethod'])) {
+        if (!Feature::isActive('v6.7.0.0') && !isset($deserialized['defaultPaymentMethodId']) && isset($entity['defaultPaymentMethod'])) {
             $name = $entity['defaultPaymentMethod']['translations']['DEFAULT']['name'] ?? null;
             $id = $entity['defaultPaymentMethod']['id'] ?? $this->getDefaultPaymentMethodId($name, $context);
 
             if ($id) {
-                $deserialized['defaultPaymentMethodId'] = $id;
                 $deserialized['defaultPaymentMethod']['id'] = $id;
             }
         }
@@ -75,8 +66,16 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
             $id = $entity['salesChannel']['id'] ?? $this->getSalesChannelId($name, $context);
 
             if ($id) {
-                $deserialized['salesChannelId'] = $id;
                 $deserialized['salesChannel']['id'] = $id;
+            }
+        }
+
+        if (!isset($deserialized['boundSalesChannelId']) && isset($entity['boundSalesChannel'])) {
+            $name = $entity['boundSalesChannel']['translations']['DEFAULT']['name'] ?? null;
+            $id = $entity['boundSalesChannel']['id'] ?? $this->getSalesChannelId($name, $context);
+
+            if ($id) {
+                $deserialized['boundSalesChannel']['id'] = $id;
             }
         }
 
@@ -115,6 +114,9 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
         return $this->cacheCustomerGroups[$name];
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
+     */
     private function getDefaultPaymentMethodId(?string $name, Context $context): ?string
     {
         if (!$name) {

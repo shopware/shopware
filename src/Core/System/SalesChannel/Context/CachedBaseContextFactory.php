@@ -4,7 +4,9 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\BaseContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -49,9 +51,17 @@ class CachedBaseContextFactory extends AbstractBaseContextFactory
             SalesChannelContextService::COUNTRY_STATE_ID => true,
         ]);
 
-        $key = implode('-', [$name, md5(json_encode($keys, \JSON_THROW_ON_ERROR))]);
+        $key = implode('-', [$name, Hasher::hash($keys)]);
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $salesChannelId, $options) {
+            if (Feature::isActive('cache_rework')) {
+                $item->tag([$name, CachedSalesChannelContextFactory::ALL_TAG]);
+
+                return CacheValueCompressor::compress(
+                    $this->decorated->create($salesChannelId, $options)
+                );
+            }
+
             $context = $this->tracer->trace($name, fn () => $this->decorated->create($salesChannelId, $options));
 
             $keys = array_unique(array_merge(

@@ -58,7 +58,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $commandTester = new CommandTester($this->productExportGenerateCommand);
         $commandTester->execute(['sales-channel-id' => $this->getSalesChannelDomain()->getSalesChannelId()]);
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
         $csvRows = explode(\PHP_EOL, $fileContent);
@@ -67,6 +67,20 @@ class ProductExportGenerateCommandTest extends TestCase
         static::assertTrue($this->fileSystem->fileExists($filePath));
 
         static::assertCount(4, $csvRows);
+    }
+
+    public function testExecuteWithNonStorefrontSalesChannel(): void
+    {
+        $nonStorefrontSalesChannelId = $this->createSalesChannel(['typeId' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON])['id'];
+
+        $commandTester = new CommandTester($this->productExportGenerateCommand);
+
+        static::expectException(ProductExportException::class);
+        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
+
+        $commandTester->execute([
+            'sales-channel-id' => $nonStorefrontSalesChannelId,
+        ]);
     }
 
     private function getSalesChannelId(): string
@@ -184,19 +198,5 @@ class ProductExportGenerateCommandTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
-    }
-
-    public function testExecuteWithNonStorefrontSalesChannel(): void
-    {
-        $nonStorefrontSalesChannelId = $this->createSalesChannel(['typeId' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON])['id'];
-
-        $commandTester = new CommandTester($this->productExportGenerateCommand);
-
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
-
-        $commandTester->execute([
-            'sales-channel-id' => $nonStorefrontSalesChannelId,
-        ]);
     }
 }

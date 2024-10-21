@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -53,7 +54,7 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->pluginRegistry = $this->getPluginRegistryMock();
         $salesChannels = $this->salesChannelRepository->search(
-            new Criteria(),
+            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
             Context::createDefaultContext()
         )->getEntities();
 
@@ -245,13 +246,11 @@ class ThemeChangeCommandTest extends TestCase
         $storePluginConfiguration1->setThemeConfig([
             'any' => 'expectedConfig',
         ]);
-        $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
             'any' => 'unexpectedConfig',
         ]);
-        $storePluginConfiguration2->setBasePath('');
 
         $mock = $this->getMockBuilder(StorefrontPluginRegistry::class)
             ->disableOriginalConstructor()

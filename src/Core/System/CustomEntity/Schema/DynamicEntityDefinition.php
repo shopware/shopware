@@ -66,6 +66,20 @@ class DynamicEntityDefinition extends EntityDefinition
         return $this->flags;
     }
 
+    public function getDefaults(): array
+    {
+        $values = [];
+        foreach ($this->fieldDefinitions as $fieldDefinition) {
+            if (!isset($fieldDefinition['default'])) {
+                continue;
+            }
+
+            $values[$fieldDefinition['name']] = $fieldDefinition['default'];
+        }
+
+        return $values;
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);

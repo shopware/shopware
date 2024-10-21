@@ -1,16 +1,10 @@
-/*
- * @package inventory
+/**
+ * @package services-settings
  */
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(
-    privileges = [],
-    fieldType = null,
-    conditionType = '',
-    entity = '',
-    render = false,
-) {
+async function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '', render = false) {
     let stubs = {
         'sw-container': {
             template: '<div class="sw-container"><slot></slot></div>',
@@ -22,6 +16,14 @@ async function createWrapper(
         },
         'sw-entity-single-select': true,
         'sw-entity-multi-id-select': true,
+        'sw-product-variant-info': true,
+        'sw-select-result': true,
+        'sw-tagged-field': true,
+        'sw-number-field': true,
+        'sw-inheritance-switch': true,
+        'sw-loader': true,
+        'sw-ai-copilot-badge': true,
+        'sw-help-text': true,
     };
 
     if (render) {
@@ -65,8 +67,7 @@ async function createWrapper(
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => {
-                        },
+                        search: () => {},
                     }),
                 },
                 conditionDataProviderService: {
@@ -79,7 +80,7 @@ async function createWrapper(
                     },
                 },
                 acl: {
-                    can: identifier => {
+                    can: (identifier) => {
                         if (!identifier) {
                             return true;
                         }
@@ -88,7 +89,20 @@ async function createWrapper(
                     },
                 },
                 productCustomFields: {
-                    test: 'customFields.test',
+                    test: {
+                        value: 'customFields.test',
+                        config: {
+                            customFieldType: 'entity',
+                            entity: 'product',
+                        },
+                    },
+                    countryTest: {
+                        value: 'customFields.test',
+                        config: {
+                            customFieldType: 'entity',
+                            entity: 'country',
+                        },
+                    },
                 },
             },
             stubs,
@@ -106,10 +120,27 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
     });
 
     it.each([
-        ['boolean', 'equals', 'sw-single-select-stub'],
-        ['empty', 'equals', 'sw-single-select-stub'],
-        ['uuid', 'equals', 'sw-entity-single-select-stub', 'product'],
-        ['uuid', 'equals', 'sw-entity-single-select-stub'],
+        [
+            'boolean',
+            'equals',
+            'sw-single-select-stub',
+        ],
+        [
+            'empty',
+            'equals',
+            'sw-single-select-stub',
+        ],
+        [
+            'uuid',
+            'equals',
+            'sw-entity-single-select-stub',
+            'product',
+        ],
+        [
+            'uuid',
+            'equals',
+            'sw-entity-single-select-stub',
+        ],
     ])('should have a disabled input with %s field type', async (fieldType, actualCondition, element, entity = '') => {
         const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity, false);
         await wrapper.setProps({ disabled: true });
@@ -168,9 +199,16 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 isJsonField: () => false,
             },
         });
+
         await flushPromises();
 
-        expect(wrapper.vm.fieldDefinition).toBe('customFields.test');
+        expect(wrapper.vm.fieldDefinition).toStrictEqual({
+            value: 'customFields.test',
+            config: {
+                customFieldType: 'entity',
+                entity: 'product',
+            },
+        });
     });
 
     it('should fire event when trigger value for boolean type', async () => {
@@ -187,7 +225,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
     });
 
-    it('should fire event with type \`equals\` when trigger value for boolean type YES', async () => {
+    it('should fire event with type `equals` when trigger value for boolean type YES', async () => {
         const wrapper = await createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
         await flushPromises();
 
@@ -206,7 +244,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         expect(wrapper.emitted('boolean-change')[0][0].value).toBe('1');
     });
 
-    it('should fire event with type \`not\` when trigger value for boolean type No', async () => {
+    it('should fire event with type `not` when trigger value for boolean type No', async () => {
         const wrapper = await createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
         await flushPromises();
 
@@ -314,12 +352,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
     });
 
     it('should able to show variant name if condition type is equalsAll and definition entity is product', async () => {
-        const wrapper = await createWrapper(
-            [],
-            'uuid',
-            'equalsAll',
-            'product',
-        );
+        const wrapper = await createWrapper([], 'uuid', 'equalsAll', 'product');
 
         const entityMultiIdSelect = wrapper.find('sw-entity-multi-id-select-stub');
         expect(entityMultiIdSelect.exists()).toBe(true);
@@ -328,17 +361,58 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
     });
 
     it('should able to show variant name if condition type is equalsAll and definition entity is property value', async () => {
-        const wrapper = await createWrapper(
-            [],
-            'uuid',
-            'equalsAll',
-            'property_group_option',
-        );
+        const wrapper = await createWrapper([], 'uuid', 'equalsAll', 'property_group_option');
 
         const entityMultiIdSelect = wrapper.find('sw-entity-multi-id-select-stub');
         expect(entityMultiIdSelect.exists()).toBe(true);
         expect(entityMultiIdSelect.attributes().criteria).toBeDefined();
         expect(entityMultiIdSelect.attributes()['advanced-selection-component']).toBeUndefined();
     });
-});
 
+    it('should render a single entity select component', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.countryTest',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false,
+            },
+        });
+
+        await wrapper.setData({
+            searchTerm: 'test',
+        });
+
+        await flushPromises();
+
+        const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
+        expect(entitySingleSelect.exists()).toBe(true);
+    });
+
+    it('should render a multiple entity select component', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.countryTest',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false,
+            },
+            condition: {
+                type: 'equalsAny',
+            },
+        });
+
+        await wrapper.setData({
+            searchTerm: 'test',
+        });
+
+        await flushPromises();
+
+        const entitySingleSelect = wrapper.find('sw-entity-multi-id-select-stub');
+        expect(entitySingleSelect.exists()).toBe(true);
+    });
+});

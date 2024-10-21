@@ -22,9 +22,11 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -55,10 +57,7 @@ class RegisterControllerTest extends TestCase
     use MailTemplateTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -115,6 +114,7 @@ class RegisterControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
     public function testGuestRegister(): void
@@ -130,6 +130,7 @@ class RegisterControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
     public function testRegisterWithDoubleOptIn(): void
@@ -164,6 +165,8 @@ class RegisterControllerTest extends TestCase
         $request = $this->createRequest();
 
         $response = $registerController->register($request, $data, $this->salesChannelContext);
+
+        static::assertFalse($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
 
         static::assertEquals(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -216,6 +219,8 @@ class RegisterControllerTest extends TestCase
         $request = $this->createRequest();
 
         $response = $registerController->register($request, $data, $this->salesChannelContext);
+
+        static::assertFalse($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
 
         static::assertEquals(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -275,15 +280,19 @@ class RegisterControllerTest extends TestCase
 
         $registerController->register($request, $data, $this->salesChannelContext);
 
+        static::assertFalse($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
+
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $event);
 
         $customer = $customerRepository->search(new Criteria([$event->getCustomer()->getId()]), $this->salesChannelContext->getContext())->getEntities();
         $queryData = new QueryDataBag();
         $queryData->set('redirectTo', 'frontend.checkout.confirm.page');
         $queryData->set('hash', $customer->first()?->getHash());
-        $queryData->set('em', hash('sha1', $event->getCustomer()->getEmail()));
+        $queryData->set('em', Hasher::hash($event->getCustomer()->getEmail(), 'sha1'));
 
         $response = $registerController->confirmRegistration($this->salesChannelContext, $queryData);
+
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
 
         static::assertEquals(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -368,8 +377,9 @@ class RegisterControllerTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'storefrontUrl' => 'http://localhost',
-
             'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
                 'countryId' => $this->getValidCountryId(),
                 'street' => 'Musterstrasse 13',
                 'zipcode' => '48599',
@@ -423,6 +433,7 @@ class RegisterControllerTest extends TestCase
             ),
             Context::createDefaultContext()
         )->getEntities()->first();
+
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $product = [

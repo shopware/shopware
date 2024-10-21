@@ -16,80 +16,87 @@ let contextService = null;
 const repositories = {};
 const slots = {};
 
-function resolve(page) {
+async function resolve(page) {
     const loadedData = [];
     const slotEntityList = {};
 
-    try {
-        contextService = Shopware.Context.api;
-        repoFactory = Shopware.Service('repositoryFactory');
-        cmsService = Shopware.Service('cmsService');
-        cmsElements = cmsService.getCmsElementRegistry();
+    contextService = Shopware.Context.api;
+    repoFactory = Shopware.Service('repositoryFactory');
+    cmsService = Shopware.Service('cmsService');
+    cmsElements = cmsService.getCmsElementRegistry();
 
-        page.sections.forEach((section) => {
-            initVisibility(section);
+    page.sections.forEach((section) => {
+        initVisibility(section);
 
-            section.blocks.forEach((block) => {
-                initVisibility(block);
+        section.blocks.forEach((block) => {
+            initVisibility(block);
 
-                block.slots.forEach((slot) => {
-                    slots[slot.id] = slot;
-                    initSlotConfig(slot);
-                    initSlotDefaultData(slot);
-                    const cmsElement = cmsElements[slot.type];
+            block.slots.forEach((slot) => {
+                slots[slot.id] = slot;
+                const cmsElement = cmsElements[slot.type];
 
-
-                    if (!cmsElement) {
-                        warn(`Missing registration for slot type ${slot.type}.
+                if (!cmsElement) {
+                    warn(`Missing registration for slot type ${slot.type}.
                         Slot ${slot.id} Block ${block.name} (${block.id}) Section ${section.name} (${section.id})`);
-                        return;
-                    }
+                    return;
+                }
 
-                    const slotData = cmsElement.collect(slot);
-                    if (Object.keys(slotData).length > 0) {
-                        slotEntityList[slot.id] = slotData;
-                    }
-                });
-            });
-        });
+                initSlotConfig(slot);
+                initSlotDefaultData(slot);
 
-        const { directReads, searches } = optimizeCriteriaObjects(slotEntityList);
+                const slotData = cmsElement.collect(slot);
 
-        loadedData.push(
-            fetchByIdentifier(directReads),
-        );
-
-        loadedData.push(
-            fetchByCriteria(searches),
-        );
-    } catch (e) {
-        return Promise.resolve(e);
-    }
-
-    return Promise.all(loadedData).then(([readResults, searchResults]) => {
-        Object.entries(slotEntityList).forEach(([slotId, slotEntityData]) => {
-            const slot = slots[slotId];
-            const slotEntities = [];
-
-            Object.entries(slotEntityData).forEach(([searchKey, slotData]) => {
-                if (canBeMerged(slotData)) {
-                    slotEntities[searchKey] = readResults[slotData.name];
-                } else {
-                    slotEntities[searchKey] = searchResults[slotId][searchKey];
+                if (Object.keys(slotData).length > 0) {
+                    slotEntityList[slot.id] = slotData;
                 }
             });
-
-            const cmsElement = cmsElements[slot.type];
-
-            if (cmsElement) {
-                cmsElement.enrich(slot, slotEntities);
-            }
         });
-
-        return true;
-    }).catch((exception) => {
-        return exception;
     });
+
+    const { directReads, searches } = optimizeCriteriaObjects(slotEntityList);
+
+    loadedData.push(fetchByIdentifier(directReads));
+
+    loadedData.push(fetchByCriteria(searches));
+
+    // Internal promises are allowed to fail, no need to catch
+    return Promise.all(loadedData).then(
+        ([
+            readResults,
+            searchResults,
+        ]) => {
+            Object.entries(slotEntityList).forEach(
+                ([
+                    slotId,
+                    slotEntityData,
+                ]) => {
+                    const slot = slots[slotId];
+                    const slotEntities = [];
+
+                    Object.entries(slotEntityData).forEach(
+                        ([
+                            searchKey,
+                            slotData,
+                        ]) => {
+                            if (canBeMerged(slotData)) {
+                                slotEntities[searchKey] = readResults[slotData.name];
+                            } else {
+                                slotEntities[searchKey] = searchResults[slotId][searchKey];
+                            }
+                        },
+                    );
+
+                    const cmsElement = cmsElements[slot.type];
+
+                    if (cmsElement) {
+                        cmsElement.enrich(slot, slotEntities);
+                    }
+                },
+            );
+
+            return true;
+        },
+    );
 }
 
 function initVisibility(element) {
@@ -97,7 +104,11 @@ function initVisibility(element) {
         element.visibility = {};
     }
 
-    const visibilityProperties = ['mobile', 'tablet', 'desktop'];
+    const visibilityProperties = [
+        'mobile',
+        'tablet',
+        'desktop',
+    ];
 
     visibilityProperties.forEach((key) => {
         if (typeof element.visibility[key] === 'boolean') {
@@ -107,7 +118,6 @@ function initVisibility(element) {
         element.visibility[key] = true;
     });
 }
-
 
 /**
  * @private
@@ -139,25 +149,35 @@ function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
     const searches = {};
 
-    Object.entries(slotEntityCollection).forEach(([slotId, criteriaList]) => {
-        Object.entries(criteriaList).forEach(([searchKey, entity]) => {
-            if (canBeMerged(entity)) {
-                if (!directReads[entity.name]) {
-                    directReads[entity.name] = [];
-                }
+    Object.entries(slotEntityCollection).forEach(
+        ([
+            slotId,
+            criteriaList,
+        ]) => {
+            Object.entries(criteriaList).forEach(
+                ([
+                    searchKey,
+                    entity,
+                ]) => {
+                    if (canBeMerged(entity)) {
+                        if (!directReads[entity.name]) {
+                            directReads[entity.name] = [];
+                        }
 
-                const entityId = Array.isArray(entity.value) ? entity.value : [entity.value];
+                        const entityId = Array.isArray(entity.value) ? entity.value : [entity.value];
 
-                directReads[entity.name].push(...entityId);
-            } else {
-                if (!searches[slotId]) {
-                    searches[slotId] = { [searchKey]: [] };
-                }
+                        directReads[entity.name].push(...entityId);
+                    } else {
+                        if (!searches[slotId]) {
+                            searches[slotId] = { [searchKey]: [] };
+                        }
 
-                searches[slotId][searchKey] = entity;
-            }
-        });
-    });
+                        searches[slotId][searchKey] = entity;
+                    }
+                },
+            );
+        },
+    );
 
     return {
         directReads,
@@ -188,47 +208,45 @@ function canBeMerged(entity) {
         return false;
     }
 
-    if (criteria.sortings.length > 0) {
-        return false;
-    }
-
-    return true;
+    return criteria.sortings.length <= 0;
 }
 
-function fetchByIdentifier(directReads) {
+async function fetchByIdentifier(directReads) {
     const entities = {};
     const fetchPromises = [];
 
-    Object.entries(directReads).forEach(([entityName, entityIds]) => {
-        if (entityIds.length > 0) {
-            const criteria = new Criteria(1, 25);
-            criteria.setIds(entityIds);
+    Object.entries(directReads).forEach(
+        ([
+            entityName,
+            entityIds,
+        ]) => {
+            if (entityIds.length > 0) {
+                const criteria = new Criteria(1, 25);
+                criteria.setIds(entityIds);
 
-            const repo = getRepository(entityName);
-            if (!repo) {
-                return;
+                const repo = getRepository(entityName);
+                if (!repo) {
+                    return;
+                }
+
+                fetchPromises.push(
+                    repo.search(criteria, contextService).then((response) => {
+                        entities[entityName] = response;
+                    }),
+                );
             }
+        },
+    );
 
-            fetchPromises.push(
-                repo.search(criteria, contextService).then((response) => {
-                    entities[entityName] = response;
-                }),
-            );
-        }
-    });
-
-    return Promise.all(fetchPromises).then(() => {
-        return entities;
-    }).catch(() => {
-        return entities;
-    });
+    await Promise.allSettled(fetchPromises);
+    return entities;
 }
 
 /**
  * @private
  * @package buyers-experience
  */
-function fetchByCriteria(searches) {
+async function fetchByCriteria(searches) {
     const results = {};
     const fetchPromises = [];
 
@@ -259,11 +277,8 @@ function fetchByCriteria(searches) {
         });
     });
 
-    return Promise.all(fetchPromises).then(() => {
-        return results;
-    }).catch(() => {
-        return results;
-    });
+    await Promise.allSettled(fetchPromises);
+    return results;
 }
 
 /**

@@ -23,13 +23,22 @@ export default {
             this.isLoading = true;
             this.set = await this.customFieldSetRepository.create(Shopware.Context.api, this.$route.params.id);
             this.set.name = 'custom_';
-            this.$set(this.set, 'config', {});
+
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.set, 'config', {});
+            } else {
+                this.set.config = {};
+            }
+
             this.setId = this.set.id;
             this.isLoading = false;
         },
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.settings.custom.field.detail', params: { id: this.setId } });
+            this.$router.push({
+                name: 'sw.settings.custom.field.detail',
+                params: { id: this.setId },
+            });
         },
         onSave() {
             this.isLoading = true;

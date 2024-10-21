@@ -48,7 +48,7 @@ class DeliveryTransformer
         Context $context,
         array $addresses = []
     ): array {
-        $addressId = $delivery->getLocation()->getAddress() ? $delivery->getLocation()->getAddress()->getId() : null;
+        $addressId = $delivery->getLocation()->getAddress()?->getId();
         $shippingAddress = null;
 
         if ($addressId !== null && \array_key_exists($addressId, $addresses)) {
@@ -56,6 +56,16 @@ class DeliveryTransformer
         } elseif ($delivery->getLocation()->getAddress() !== null) {
             $shippingAddress = AddressTransformer::transform($delivery->getLocation()->getAddress());
         }
+
+        $originalAddressId = $delivery->getExtensionOfType(
+            OrderConverter::ORIGINAL_ADDRESS_ID,
+            IdStruct::class
+        )?->getId();
+
+        $originalAddressVersionId = $delivery->getExtensionOfType(
+            OrderConverter::ORIGINAL_ADDRESS_VERSION_ID,
+            IdStruct::class
+        )?->getId();
 
         $deliveryData = [
             'id' => self::getId($delivery),
@@ -67,6 +77,11 @@ class DeliveryTransformer
             'positions' => [],
             'stateId' => $stateId,
         ];
+
+        if ($originalAddressId !== null && $originalAddressVersionId !== null) {
+            $deliveryData['shippingOrderAddressId'] = $originalAddressId;
+            $deliveryData['shippingOrderAddressVersionId'] = $originalAddressVersionId;
+        }
 
         $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 
@@ -84,12 +99,9 @@ class DeliveryTransformer
 
     private static function getId(Struct $struct): ?string
     {
-        /** @var IdStruct|null $idStruct */
-        $idStruct = $struct->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class);
-        if ($idStruct !== null) {
-            return $idStruct->getId();
-        }
-
-        return null;
+        return $struct->getExtensionOfType(
+            OrderConverter::ORIGINAL_ID,
+            IdStruct::class
+        )?->getId();
     }
 }

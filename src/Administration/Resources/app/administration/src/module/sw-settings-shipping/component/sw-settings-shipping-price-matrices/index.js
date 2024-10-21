@@ -1,7 +1,11 @@
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
 
-const { Mixin, Data: { Criteria }, Context } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+    Context,
+} = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
@@ -11,6 +15,8 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -49,10 +55,12 @@ export default {
 
         ruleFilter() {
             const criteria = new Criteria(1, 500);
-            criteria.addFilter(Criteria.multi('OR', [
-                Criteria.contains('rule.moduleTypes.types', 'price'),
-                Criteria.equals('rule.moduleTypes', null),
-            ]));
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('rule.moduleTypes.types', 'price'),
+                    Criteria.equals('rule.moduleTypes', null),
+                ]),
+            );
             return criteria;
         },
 
@@ -97,7 +105,7 @@ export default {
 
         onDuplicatePriceMatrix(priceGroup) {
             const newPrices = [];
-            priceGroup.prices.forEach(price => {
+            priceGroup.prices.forEach((price) => {
                 const newShippingPrice = this.shippingPriceRepository.create(Context.api);
                 // Create a flagged as new price matrix, if there is already an unrestricted.
                 if (this.unrestrictedPriceMatrixExists) {

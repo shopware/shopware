@@ -12,7 +12,7 @@
         "sort-packages": true
     },
     "support": {
-        "issues": "https://issues.shopware.com",
+        "issues": "https://github.com/shopware/shopware/issues",
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",
@@ -26,11 +26,11 @@
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0",
-        "doctrine/dbal": "^3.7",
+        "doctrine/dbal": "^3.9",
         "shopware/core": "*",
-        "symfony/framework-bundle": "~7.0.0",
-        "symfony/http-foundation": "~7.0.0",
-        "symfony/routing": "~7.0.0",
-        "symfony/mime": "~7.0.0"
+        "symfony/framework-bundle": "~7.1.1",
+        "symfony/http-foundation": "~7.1.1",
+        "symfony/routing": "~7.1.1",
+        "symfony/mime": "~7.1.1"
     }
 }

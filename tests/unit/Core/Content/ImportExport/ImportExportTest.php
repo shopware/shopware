@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
-use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRowEvent;
@@ -23,7 +22,9 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Strategy\Import\ImportStrategyService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -38,7 +39,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ImportExport::class)]
 class ImportExportTest extends TestCase
 {
@@ -64,6 +65,8 @@ class ImportExportTest extends TestCase
         ]);
 
         $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService->method('findLog')->willReturn($logEntity);
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
@@ -75,6 +78,7 @@ class ImportExportTest extends TestCase
             $reader,
             $writer,
             $this->createMock(FileService::class),
+            $this->createMock(ImportStrategyService::class)
         );
 
         $importExportService->method('getProgress')
@@ -128,7 +132,6 @@ class ImportExportTest extends TestCase
         ]);
 
         $importExportBeforeImportRowEventCount = 0;
-        $importExportAfterImportRecordEventCount = 0;
         $importExportBeforeImportRecordEventCount = 0;
 
         $eventDispatcher = new EventDispatcher();
@@ -139,12 +142,6 @@ class ImportExportTest extends TestCase
             }
         );
         $eventDispatcher->addListener(
-            ImportExportAfterImportRecordEvent::class,
-            function () use (&$importExportAfterImportRecordEventCount): void {
-                ++$importExportAfterImportRecordEventCount;
-            }
-        );
-        $eventDispatcher->addListener(
             ImportExportBeforeImportRecordEvent::class,
             function () use (&$importExportBeforeImportRecordEventCount): void {
                 ++$importExportBeforeImportRecordEventCount;
@@ -152,6 +149,12 @@ class ImportExportTest extends TestCase
         );
 
         $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService->method('findLog')->willReturn($logEntity);
+
+        $importStrategyService = $this->createMock(ImportStrategyService::class);
+        $importStrategyService->method('import')->willReturn(new ImportResult([], []));
+        $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
@@ -163,6 +166,7 @@ class ImportExportTest extends TestCase
             $reader,
             $writer,
             $this->createMock(FileService::class),
+            $importStrategyService
         );
 
         $importExportService->method('getProgress')
@@ -179,7 +183,6 @@ class ImportExportTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertSame(3, $importExportBeforeImportRowEventCount);
         static::assertSame(3, $importExportBeforeImportRecordEventCount);
-        static::assertSame(3, $importExportAfterImportRecordEventCount);
     }
 
     public function testExportWithFinishedProgress(): void
@@ -218,6 +221,7 @@ class ImportExportTest extends TestCase
             $reader,
             $writer,
             $this->createMock(FileService::class),
+            $this->createMock(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -323,6 +327,7 @@ class ImportExportTest extends TestCase
             $reader,
             $writer,
             $this->createMock(FileService::class),
+            $this->createMock(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -444,7 +449,7 @@ class ImportExportTest extends TestCase
         $writer = $this->createMock(AbstractWriter::class);
         $writer->expects(static::exactly(1))->method('append');
         $writer->expects(static::exactly(2))->method('flush');
-        $writer->expects(static::exactly(1))->method('finish');
+        $writer->expects(static::exactly(2))->method('finish');
 
         $importExport = new ImportExport(
             $importExportService,
@@ -457,6 +462,7 @@ class ImportExportTest extends TestCase
             $reader,
             $writer,
             $this->createMock(FileService::class),
+            $this->createMock(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -555,7 +561,7 @@ class ImportExportTest extends TestCase
             0
         );
         $writer->expects(static::exactly(1))->method('flush');
-        $writer->expects(static::never())->method('finish');
+        $writer->expects(static::exactly(1))->method('finish');
 
         $importExport = new ImportExport(
             $importExportService,
@@ -568,6 +574,7 @@ class ImportExportTest extends TestCase
             $reader,
             $writer,
             $this->createMock(FileService::class),
+            $this->createMock(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();

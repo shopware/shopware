@@ -8,6 +8,10 @@ import template from './sw-newsletter-recipient-filter-switch.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update:value'],
+
     props: {
         id: {
             type: String,
@@ -29,7 +33,11 @@ export default {
 
     methods: {
         onChange(value) {
-            this.$emit('update:value', { id: this.id, group: this.group, value });
+            this.$emit('update:value', {
+                id: this.id,
+                group: this.group,
+                value,
+            });
         },
     },
 };

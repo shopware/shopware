@@ -9,7 +9,7 @@
     :name="formFieldName"
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template
         v-if="hasPrefix"
@@ -24,7 +24,7 @@
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
         <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
-            v-bind="$attrs"
+            v-bind="filteredInputAttributes"
             :id="createInputId(identification)"
             type="text"
             :name="identification"

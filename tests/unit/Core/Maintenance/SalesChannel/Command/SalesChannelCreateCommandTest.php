@@ -19,8 +19,6 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[CoversClass(SalesChannelCreateCommand::class)]
@@ -50,7 +48,7 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
 
-        static::assertEquals(Command::SUCCESS, $result);
+        static::assertSame(Command::SUCCESS, $result);
     }
 
     /**
@@ -92,7 +90,7 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
 
-        static::assertEquals(Command::SUCCESS, $result);
+        static::assertSame(Command::SUCCESS, $result);
     }
 
     public static function dataProviderTestExecuteSuccess(): \Generator

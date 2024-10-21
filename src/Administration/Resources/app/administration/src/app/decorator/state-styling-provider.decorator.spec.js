@@ -1,11 +1,20 @@
+/**
+ * @package checkout
+ */
 import 'src/app/decorator/state-styling-provider.decorator';
 
 describe('src/app/decorator/state-styling-provider.decorator.ts', () => {
     it('should register state styles', async () => {
         const addStyleMock = jest.fn();
-        const styleMatcher = expect.objectContaining({ color: expect.any(String), icon: expect.any(String), variant: expect.any(String) });
+        const styleMatcher = expect.objectContaining({
+            color: expect.any(String),
+            icon: expect.any(String),
+            variant: expect.any(String),
+        });
 
-        Shopware.Service().register('stateStyleDataProviderService', () => { return { addStyle: addStyleMock, bind: () => {} }; });
+        Shopware.Service().register('stateStyleDataProviderService', () => {
+            return { addStyle: addStyleMock, bind: () => {} };
+        });
         Shopware.Service('stateStyleDataProviderService');
 
         expect(addStyleMock).toHaveBeenCalledWith('order.state', 'open', styleMatcher);

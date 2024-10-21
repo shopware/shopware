@@ -13,6 +13,7 @@ variables:
   ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
   STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
   COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
+  COMPOSER_ROOT_VERSION: 6.6.9999999-dev
   DD_ENV: ci
   DATADOG_SITE: datadoghq.eu
   MYSQL_INITDB_SKIP_TZINFO: 1
@@ -26,16 +27,16 @@ variables:
   PHP_MEMORY_LIMIT: 2g
   SHOPWARE_ES_INDEX_PREFIX: sw
   SHOPWARE_HTTP_CACHE_ENABLED: 0
-  KUBERNETES_CPU_REQUEST: "250m"
-  KUBERNETES_CPU_LIMIT: "1"
-  KUBERNETES_MEMORY_REQUEST: "1Gi"
-  KUBERNETES_MEMORY_LIMIT: "4Gi"
-  KUBERNETES_HELPER_CPU_REQUEST: "250m"
-  KUBERNETES_HELPER_CPU_LIMIT: "250m"
+  KUBERNETES_CPU_REQUEST: "100m"
+  KUBERNETES_CPU_LIMIT: "500m"
+  KUBERNETES_MEMORY_REQUEST: "250Mi"
+  KUBERNETES_MEMORY_LIMIT: "1Gi"
+  KUBERNETES_HELPER_CPU_REQUEST: "50m"
+  KUBERNETES_HELPER_CPU_LIMIT: "100m"
   KUBERNETES_HELPER_MEMORY_REQUEST: "250Mi"
   KUBERNETES_HELPER_MEMORY_LIMIT: "1Gi"
-  KUBERNETES_SERVICE_CPU_REQUEST: "250m"
-  KUBERNETES_SERVICE_CPU_LIMIT: "250m"
+  KUBERNETES_SERVICE_CPU_REQUEST: "100m"
+  KUBERNETES_SERVICE_CPU_LIMIT: "500m"
   KUBERNETES_SERVICE_MEMORY_REQUEST: "250Mi"
   KUBERNETES_SERVICE_MEMORY_LIMIT: "1Gi"
 
@@ -65,7 +66,6 @@ variables:
           bin/console assets:install
       else
           composer run setup
-          composer run e2e:sdk-plugin:fixture-to-plugin
       fi
     - echo -e "\e[0Ksection_end:`date +%s`:base_init\r\e[0K"
     - "rm -Rf /var/www/html/public || true"
@@ -109,11 +109,9 @@ variables:
       allow_failure: true
     - !reference [.rules, long-running]
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
     KUBERNETES_CPU_LIMIT: "2"
-    KUBERNETES_MEMORY_REQUEST: "3Gi"
+    KUBERNETES_MEMORY_REQUEST: "1Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
-
 
 # sames as .long-running just without initializing shopware and starting a web server
 .long-running-no-setup:

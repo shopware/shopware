@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
-use Defuse\Crypto\Key;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -19,6 +21,9 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\OutputStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal should be used over the CLI only
@@ -71,7 +76,6 @@ class SystemSetupCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string, string> $env */
         $env = [
             'APP_ENV' => $input->getOption('app-env'),
             'APP_URL' => trim((string) $input->getOption('app-url')),
@@ -132,32 +136,18 @@ class SystemSetupCommand extends Command
                 $this->generateJwt($input, $io);
             }
 
-            $key = Key::createNewRandomKey();
-            $env['APP_SECRET'] = $key->saveToAsciiSafeString();
+            $env['APP_SECRET'] = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
             $env['INSTANCE_ID'] = $this->generateInstanceId();
 
-            $this->createEnvFile($input, $io, $env);
-
-            return Command::SUCCESS;
+            return $this->createEnvFile($input, $io, $env);
         }
 
         $io->section('Application information');
         $env['APP_ENV'] = $io->choice('Application environment', ['prod', 'dev'], $input->getOption('app-env'));
 
         // TODO: optionally check http connection (create test file in public and request)
-        $env['APP_URL'] = $io->ask('URL to your /public folder', $input->getOption('app-url'), static function (string $value): string {
-            $value = trim($value);
-
-            if ($value === '') {
-                throw new \RuntimeException('Shop URL is required.');
-            }
-
-            if (!filter_var($value, \FILTER_VALIDATE_URL)) {
-                throw new \RuntimeException('Invalid URL.');
-            }
-
-            return $value;
-        });
+        $validator = Validation::createCallable(new NotBlank(), new Url());
+        $env['APP_URL'] = $io->ask('URL to your /public folder', $input->getOption('app-url'), $validator);
 
         $io->section('Application information');
         $env['BLUE_GREEN_DEPLOYMENT'] = $io->confirm('Blue Green Deployment', $input->getOption('blue-green') !== '0') ? '1' : '0';
@@ -168,8 +158,7 @@ class SystemSetupCommand extends Command
             $this->generateJwt($input, $io);
         }
 
-        $key = Key::createNewRandomKey();
-        $env['APP_SECRET'] = $key->saveToAsciiSafeString();
+        $env['APP_SECRET'] = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
         $env['INSTANCE_ID'] = $this->generateInstanceId();
 
         $io->section('Database information');
@@ -188,9 +177,7 @@ class SystemSetupCommand extends Command
             throw $exception;
         }
 
-        $this->createEnvFile($input, $io, $env);
-
-        return Command::SUCCESS;
+        return $this->createEnvFile($input, $io, $env);
     }
 
     /**
@@ -200,13 +187,7 @@ class SystemSetupCommand extends Command
     {
         $env = [];
 
-        $emptyValidation = static function (string $value): string {
-            if (trim($value) === '') {
-                throw new \RuntimeException('This value is required.');
-            }
-
-            return $value;
-        };
+        $emptyValidation = Validation::createCallable(new NotBlank());
 
         $dbUser = $io->ask('Database user', 'app', $emptyValidation);
         $dbPass = $io->askHidden('Database password') ?: '';
@@ -218,7 +199,7 @@ class SystemSetupCommand extends Command
         $dbSslKey = $io->ask('Database SSL Key Path', '');
         $dbSslDontVerify = $io->askQuestion(new ConfirmationQuestion('Skip verification of the database server\'s SSL certificate?', false));
 
-        $dsnWithoutDb = sprintf(
+        $dsnWithoutDb = \sprintf(
             'mysql://%s:%s@%s:%d',
             (string) $dbUser,
             rawurlencode((string) $dbPass),
@@ -262,9 +243,9 @@ class SystemSetupCommand extends Command
     }
 
     /**
-     * @param array<string, string> $configuration
+     * @param array<string, string|null> $configuration
      */
-    private function createEnvFile(InputInterface $input, SymfonyStyle $output, array $configuration): void
+    private function createEnvFile(InputInterface $input, SymfonyStyle $output, array $configuration): int
     {
         $output->note('Preparing .env');
 
@@ -272,7 +253,7 @@ class SystemSetupCommand extends Command
         $envFile = $this->projectDir . '/.env';
 
         foreach ($configuration as $key => $value) {
-            $envVars .= $key . '="' . str_replace('"', '\\"', $value) . '"' . \PHP_EOL;
+            $envVars .= $key . '="' . str_replace('"', '\\"', (string) $value) . '"' . \PHP_EOL;
         }
 
         $output->text($envFile);
@@ -280,7 +261,9 @@ class SystemSetupCommand extends Command
         $output->writeln($envVars);
 
         if ($input->isInteractive() && !$output->confirm('Check if everything is ok. Write into "' . $envFile . '"?', false)) {
-            throw new \RuntimeException('abort');
+            $output->error('Aborted!');
+
+            return Command::FAILURE;
         }
 
         $output->note('Writing into ' . $envFile);
@@ -288,14 +271,15 @@ class SystemSetupCommand extends Command
         file_put_contents($envFile, $envVars);
 
         if (!$input->getOption('dump-env')) {
-            return;
+            return Command::SUCCESS;
         }
 
         $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw MaintenanceException::consoleApplicationNotFound();
+        }
 
-        \assert($application !== null);
-
-        $application->doRun(
+        return $application->doRun(
             new ArrayInput(
                 [
                     'command' => $this->dumpEnvCommand->getName(),
@@ -306,23 +290,23 @@ class SystemSetupCommand extends Command
         );
     }
 
-    private function generateJwt(InputInterface $input, OutputStyle $io): int
+    private function generateJwt(InputInterface $input, OutputStyle $io): void
     {
         $jwtDir = $this->projectDir . '/config/jwt';
 
-        if (!file_exists($jwtDir) && !mkdir($jwtDir, 0700, true) && !is_dir($jwtDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $jwtDir));
+        if (!is_dir($jwtDir) && !mkdir($jwtDir, 0700, true) && !is_dir($jwtDir)) {
+            throw MaintenanceException::couldNotCreateDirectory($jwtDir);
         }
 
         // TODO: make it regenerate the public key if only private exists
         if (file_exists($jwtDir . '/private.pem') && !$input->getOption('force')) {
             $io->note('Private/Public key already exists. Skipping');
 
-            return self::SUCCESS;
+            return;
         }
 
         if (!$input->getOption('generate-jwt-keys') && !$input->getOption('jwt-passphrase')) {
-            return self::SUCCESS;
+            return;
         }
 
         $this->jwtCertificateGenerator->generate(
@@ -330,22 +314,11 @@ class SystemSetupCommand extends Command
             $jwtDir . '/public.pem',
             $input->getOption('jwt-passphrase')
         );
-
-        return self::SUCCESS;
     }
 
     private function generateInstanceId(): string
     {
-        $length = 32;
-        $keySpace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        $str = '';
-        $max = mb_strlen($keySpace, '8bit') - 1;
-        for ($i = 0; $i < $length; ++$i) {
-            $str .= $keySpace[random_int(0, $max)];
-        }
-
-        return $str;
+        return Random::getAlphanumericString(32);
     }
 
     private function getDefault(string $var, string $default): string

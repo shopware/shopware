@@ -21,6 +21,8 @@ async function createWrapper() {
                 'sw-language-switch': true,
                 'router-link': true,
                 'sw-media-upload-v2': true,
+                'sw-media-library': true,
+                'sw-loader': true,
             },
             mocks: {
                 $route: {

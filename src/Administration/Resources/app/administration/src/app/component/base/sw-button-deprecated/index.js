@@ -19,7 +19,10 @@ const { Component } = Shopware;
 Component.register('sw-button-deprecated', {
     template,
 
+    inheritAttrs: false,
+
     compatConfig: {
+        ...Shopware.compatConfig,
         // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
         INSTANCE_ATTRS_CLASS_STYLE: false,
     },
@@ -34,25 +37,45 @@ Component.register('sw-button-deprecated', {
             type: String,
             required: false,
             default: '',
-            validValues: ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'],
+            validValues: [
+                'primary',
+                'ghost',
+                'danger',
+                'ghost-danger',
+                'contrast',
+                'context',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'].includes(value);
+                return [
+                    'primary',
+                    'ghost',
+                    'danger',
+                    'ghost-danger',
+                    'contrast',
+                    'context',
+                ].includes(value);
             },
         },
         size: {
             type: String,
             required: false,
             default: '',
-            validValues: ['x-small', 'small'],
+            validValues: [
+                'x-small',
+                'small',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
 
-                return ['x-small', 'small'].includes(value);
+                return [
+                    'x-small',
+                    'small',
+                ].includes(value);
             },
         },
         square: {
@@ -97,6 +120,26 @@ Component.register('sw-button-deprecated', {
             return {
                 'is--hidden': this.isLoading,
             };
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+
+        filteredAttributes() {
+            const attributes = { ...this.$attrs };
+
+            if (this.disabled) {
+                // Remove onClick event if button is disabled
+                attributes.onClick = null;
+            }
+
+            return attributes;
         },
     },
 });

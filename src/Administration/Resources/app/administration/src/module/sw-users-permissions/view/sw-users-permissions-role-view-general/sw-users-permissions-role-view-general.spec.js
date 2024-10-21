@@ -1,36 +1,41 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-users-permissions-role-view-general', {
-        sync: true,
-    }), {
-        props: {
-            role: {},
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-card': true,
-                'sw-textarea-field': true,
-                'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-users-permissions-permissions-grid': true,
-                'sw-users-permissions-additional-permissions': true,
+    return mount(
+        await wrapTestComponent('sw-users-permissions-role-view-general', {
+            sync: true,
+        }),
+        {
+            props: {
+                role: {},
             },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-card': true,
+                    'sw-textarea-field': true,
+                    'sw-text-field': true,
+                    'sw-number-field': true,
+                    'sw-users-permissions-permissions-grid': true,
+                    'sw-users-permissions-additional-permissions': true,
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-general', () => {
@@ -43,8 +48,9 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
         const wrapper = await createWrapper();
 
         const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
-        const fieldRoleDescription = wrapper
-            .find('sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+        const fieldRoleDescription = wrapper.find(
+            'sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
+        );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 
@@ -58,8 +64,9 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
         const wrapper = await createWrapper(['users_and_permissions.editor']);
 
         const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
-        const fieldRoleDescription = wrapper
-            .find('sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+        const fieldRoleDescription = wrapper.find(
+            'sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
+        );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 

@@ -5,7 +5,7 @@
     v-model:value="product.properties"
     class="sw-product-properties"
     :is-association="isAssociation"
-    :disabled="disabled"
+    :disabled="disabled || undefined"
     :inherited-value="parentProduct.properties"
 >
     <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
@@ -33,7 +33,7 @@
                         v-if="isInheritField && showInheritanceSwitcher"
                         class="sw-inherit-wrapper__inheritance-icon"
                         :is-inherited="isInherited"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="!acl.can('product.editor') || undefined"
                         @inheritance-restore="restoreInheritance"
                         @inheritance-remove="removeInheritance"
                     />
@@ -71,7 +71,7 @@
                                 variant="form"
                                 size="small"
                                 :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
-                                :disabled="isPropertiesLoading"
+                                :disabled="isPropertiesLoading || undefined"
                                 @search-term-change="onChangeSearchTerm"
                             />
                             {% endblock %}
@@ -87,7 +87,7 @@
                                 class="sw-product-properties__button-add-property"
                                 variant="ghost"
                                 size="small"
-                                :disabled="!acl.can('product.editor')"
+                                :disabled="!acl.can('product.editor') || undefined"
                                 @click="turnOnAddPropertiesModal"
                             >
                                 {{ $tc('sw-product.properties.buttonAddProperty') }}
@@ -114,9 +114,9 @@
                         :show-settings="false"
                         :allow-column-edit="false"
                         :allow-inline-edit="false"
-                        :allow-view="acl.can('product.viewer')"
-                        :allow-edit="acl.can('property.editor')"
-                        :allow-delete="acl.can('product.deleter')"
+                        :allow-view="acl.can('product.viewer') || undefined"
+                        :allow-edit="acl.can('property.editor') || undefined"
+                        :allow-delete="acl.can('product.deleter') || undefined"
                     >
                         <template #column-values="{ item }">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -223,7 +223,7 @@
                             showOnDisabledElements: true
                         }"
                         variant="ghost"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="!acl.can('product.editor') || undefined"
                         @click="turnOnAddPropertiesModal"
                     >
                         {{ $tc('sw-product.properties.buttonAddProperties') }}

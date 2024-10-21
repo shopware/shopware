@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -37,46 +37,58 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-search-searchable-content-customfields', {
-        sync: true,
-    }), {
-        global: {
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
+    return mount(
+        await wrapTestComponent('sw-settings-search-searchable-content-customfields', {
+            sync: true,
+        }),
+        {
+            global: {
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
-            },
 
-            stubs: {
-                'sw-empty-state': true,
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-pagination': true,
-                'sw-data-grid-skeleton': await wrapTestComponent('sw-data-grid-skeleton'),
-                'sw-context-button': {
-                    template: `
+                stubs: {
+                    'sw-empty-state': true,
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-pagination': true,
+                    'sw-data-grid-skeleton': await wrapTestComponent('sw-data-grid-skeleton'),
+                    'sw-context-button': {
+                        template: `
                     <div class="sw-context-button">
                         <slot name="button"></slot>
                         <slot />
                         <slot name="context-menu"></slot>
                     </div>
                     `,
+                    },
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-button': true,
+                    'sw-entity-single-select': true,
+                    'sw-number-field': true,
+                    'sw-checkbox-field': true,
+                    'sw-icon': true,
+                    'sw-bulk-edit-modal': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
                 },
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-button': true,
+            },
+
+            props: {
+                isEmpty: false,
+                columns: [],
+                repository: {},
+                fieldConfigs: [],
             },
         },
-
-        props: {
-            isEmpty: false,
-            columns: [],
-            repository: {},
-            fieldConfigs: [],
-        },
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-customfields', () => {
@@ -136,13 +148,9 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
 
         await flushPromises();
 
-        const firstRow = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--0',
-        );
+        const firstRow = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
 
-        const buttonContext = await firstRow.find(
-            '.sw-settings-search__searchable-content-list-remove',
-        );
+        const buttonContext = await firstRow.find('.sw-settings-search__searchable-content-list-remove');
         expect(buttonContext.isVisible()).toBe(true);
         expect(buttonContext.classes()).toContain('is--disabled');
     });
@@ -176,13 +184,9 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
 
         await flushPromises();
 
-        const firstRow = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--0',
-        );
+        const firstRow = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
 
-        await firstRow.find(
-            '.sw-settings-search__searchable-content-list-remove',
-        ).trigger('click');
+        await firstRow.find('.sw-settings-search__searchable-content-list-remove').trigger('click');
 
         expect(wrapper.vm.onRemove).toHaveBeenCalled();
     });
@@ -247,13 +251,9 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         });
         await flushPromises();
 
-        const firstRow = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--0',
-        );
+        const firstRow = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
 
-        await firstRow.find(
-            '.sw-settings-search__searchable-content-list-reset',
-        ).trigger('click');
+        await firstRow.find('.sw-settings-search__searchable-content-list-reset').trigger('click');
 
         expect(wrapper.vm.onResetRanking).toHaveBeenCalled();
     });

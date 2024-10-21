@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -209,12 +210,17 @@ class AppRegistrationServiceTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
+        $shopIdMock = $this->createMock(ShopIdProvider::class);
+        $shopIdMock->expects(static::once())
+            ->method('getShopId')
+            ->willThrowException(new AppUrlChangeDetectedException('https://test.com', 'https://new.com', $shopId));
+
         $registrator = new AppRegistrationService(
             $handshakeFactory,
             $this->getContainer()->get('shopware.app_system.guzzle'),
             $this->getContainer()->get('app.repository'),
             $this->shopUrl,
-            $this->getContainer()->get(ShopIdProvider::class),
+            $shopIdMock,
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 

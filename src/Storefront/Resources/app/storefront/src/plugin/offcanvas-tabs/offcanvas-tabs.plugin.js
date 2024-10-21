@@ -45,7 +45,7 @@ export default class OffCanvasTabs extends Plugin {
             const pane = DomAccess.querySelector(document, tabTarget);
             OffCanvas.open(
                 pane.innerHTML,
-                () => { window.PluginManager.initializePlugins() },
+                () => { window.PluginManager.initializePlugins(); },
                 this.options.offcanvasPostion,
                 true,
                 OffCanvas.REMOVE_OFF_CANVAS_DELAY(),

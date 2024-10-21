@@ -109,7 +109,7 @@ class PasswordFieldTest extends TestCase
 
         static::assertIsNotArray($array);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
-        static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        static::assertCount(1, $exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 
     public function testValueIsRequiredOnUpdate(): void
@@ -138,7 +138,7 @@ class PasswordFieldTest extends TestCase
 
         static::assertIsNotArray($array);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
-        static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        static::assertCount(1, $exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 
     public function testAlreadyEncodedValueIsPassedThrough(): void

@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import ApiService from '../api.service';
 
 const { Service } = Shopware;
@@ -17,13 +20,15 @@ export default class TagApiService extends ApiService {
      * @returns {*} - ApiService.handleResponse(response)
      */
     filterIds(params, filters = {}, additionalHeaders = {}) {
-        return this.httpClient.post(
-            '_admin/tag-filter-ids',
-            { ...params, ...filters },
-            {
-                headers: this.getBasicHeaders(additionalHeaders),
-            },
-        ).then(response => ApiService.handleResponse(response));
+        return this.httpClient
+            .post(
+                '_admin/tag-filter-ids',
+                { ...params, ...filters },
+                {
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
+            .then((response) => ApiService.handleResponse(response));
     }
 
     /**
@@ -45,7 +50,10 @@ export default class TagApiService extends ApiService {
         tag._isNew = false;
 
         // eslint-disable-next-line
-        for (const [propertyName, property] of Object.entries(definitionProperties)) {
+        for (const [
+            propertyName,
+            property,
+        ] of Object.entries(definitionProperties)) {
             if (property.relation !== 'many_to_many') {
                 // eslint-disable-next-line
                 continue;
@@ -64,7 +72,9 @@ export default class TagApiService extends ApiService {
 
                 // eslint-disable-next-line
                 const { data, total } = await repository.searchIds(criteria, Shopware.Context.api);
-                tag[propertyName] = data.map((id) => { return { id }; });
+                tag[propertyName] = data.map((id) => {
+                    return { id };
+                });
 
                 if (total !== 0) {
                     bulkMergeProgress.total = total;

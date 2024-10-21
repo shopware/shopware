@@ -1,18 +1,26 @@
+import { h } from 'vue';
+
 const { Locale } = Shopware;
 const { debug } = Shopware.Utils;
 
 /**
  * Contains a list of allowed block categories
  * @type {string[]}
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const BLOCKS_CATEGORIES = [
-    'text', 'image', 'video', 'text-image', 'sidebar', 'commerce', 'form',
+    'text',
+    'image',
+    'video',
+    'text-image',
+    'sidebar',
+    'commerce',
+    'form',
 ];
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppCmsService {
@@ -82,10 +90,7 @@ export default class AppCmsService {
      */
     registerCmsBlock(block) {
         if (!this.validateBlockCategory(block.category)) {
-            debug.warn(
-                this.constructor.name,
-                `The category "${block.category}" is not a valid category.`,
-            );
+            debug.warn(this.constructor.name, `The category "${block.category}" is not a valid category.`);
             return false;
         }
 
@@ -131,17 +136,44 @@ export default class AppCmsService {
 
         const component = {
             name: componentName,
+            compatConfig: Shopware.compatConfig,
 
-            render(h) {
-                return h('div', {
-                    class: componentName,
-                }, [...Object.keys(block.slots).map((slotName) => {
-                    return this.$scopedSlots[slotName]();
-                })]);
+            render(createElement) {
+                const slotEntries = Object.entries(block.slots);
+                const hasPositions = slotEntries.every((entries) => !!entries[1].position);
+
+                if (hasPositions) {
+                    slotEntries.sort((a, b) => a[1].position - b[1].position);
+                }
+
+                // Vue2 syntax
+                if (typeof createElement === 'function') {
+                    const children = slotEntries.map(([slotName]) => this.$scopedSlots[slotName]());
+
+                    return createElement(
+                        'div',
+                        {
+                            class: componentName,
+                        },
+                        children,
+                    );
+                }
+
+                // Vue3 syntax
+                const children = slotEntries.map(([slotName]) => this.$slots[slotName]());
+
+                return h(
+                    'div',
+                    {
+                        class: componentName,
+                    },
+                    children,
+                );
             },
         };
 
         this.vueAdapter.buildAndCreateComponent(component);
+
         return component;
     }
 
@@ -160,6 +192,7 @@ export default class AppCmsService {
         };
 
         this.vueAdapter.buildAndCreateComponent(component);
+
         return component;
     }
 
@@ -172,10 +205,7 @@ export default class AppCmsService {
     registerBlockSnippets(blockName, label) {
         return Object.keys(label).reduce((accumulator, localeKey) => {
             if (!Locale.getByName(localeKey)) {
-                debug.warn(
-                    this.constructor.name,
-                    `The locale "${localeKey}" is not registered in Shopware.Locale.`,
-                );
+                debug.warn(this.constructor.name, `The locale "${localeKey}" is not registered in Shopware.Locale.`);
 
                 accumulator = false;
                 return accumulator;
@@ -207,6 +237,7 @@ export default class AppCmsService {
      */
     setDefaultConfig(config) {
         this.defaultBlockConfig = { ...this.defaultBlockConfig, ...config };
+
         return true;
     }
 
@@ -223,6 +254,7 @@ export default class AppCmsService {
         customStyles = block.styles;
 
         this.blockStyles = `${this.blockStyles}${customStyles}`;
+
         return true;
     }
 

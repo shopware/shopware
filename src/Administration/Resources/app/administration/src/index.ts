@@ -5,13 +5,17 @@
  * the Shopware Core with the Shopware object. And then starts to execute
  * the application.
  */
-// @ts-expect-error - we use an webpack alias for compat mode
 import { configureCompat } from 'vue';
 import 'src/core/shopware';
 import 'src/app/main';
 
 // Take all keys out of Shopware.compatConfig but set them to true
-const compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, true]));
+const compatConfig = Object.fromEntries(
+    Object.keys(Shopware.compatConfig).map((key) => [
+        key,
+        true,
+    ]),
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
 configureCompat(compatConfig);

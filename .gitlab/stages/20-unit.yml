@@ -9,9 +9,7 @@ Jest (Administration):
   needs: []
   services: []
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
     KUBERNETES_CPU_LIMIT: "2"
-    KUBERNETES_MEMORY_REQUEST: "3Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script:
     - !reference [.scripts, init, composer]
@@ -30,6 +28,14 @@ Jest (Administration):
       coverage_report:
         coverage_format: cobertura
         path: build/artifacts/jest/cobertura-coverage.xml
+
+Jest (Administration with disabled compat mode):
+  extends: Jest (Administration)
+  script:
+    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+    - npm --prefix $ADMIN_PATH run unit-setup
+    - npm --prefix $ADMIN_PATH run unit:disabled-compat -- --silent --maxWorkers=6 --no-cache | grep -A 5 -E '^(All files|Fail|    )'
+    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
 
 Jest (Storefront):
   extends: .base-with-node
@@ -103,45 +109,6 @@ PHP integration:
       --testsuite integration,devops
       --order-by default
 
-PHP legacy:
-  extends: .base-no-setup
-  stage: unit
-  timeout: 30m
-  needs: []
-  services:
-    - name: mariadb:10.11
-      alias: database
-      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
-    - name: redis:7.0
-      alias: redis
-  variables:
-    APP_ENV: "test"
-    FEATURE_ALL: "major"
-    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
-    REDIS_URL: redis://redis:6379
-  rules:
-    # do not run in merge trains
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
-      when: never
-    - !reference [.rules, skip]
-    - !reference [.rules, run]
-    - changes:
-        - "**/*.php"
-        - "**/*.xml"
-        - "composer.json"
-  before_script:
-    - !reference [.scripts, init, composer]
-    - mkdir -p config/jwt || true
-    - "rm -Rf /var/www/html/public || true"
-    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
-  script:
-    - php vendor/bin/phpunit
-      --configuration phpunit.xml.dist
-      --log-junit phpunit.junit.xml
-      --testsuite storefront,content,framework,migration
-      --order-by default
-
 PHP bench:
   extends: .base-no-setup
   stage: unit
@@ -183,7 +150,6 @@ Open Api Schema validation:
   image: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:${CI_BUILD_IMAGE_TAG}
   stage: unit
   timeout: 10m
-  allow_failure: true
   needs: [build image]
   tags:
     - shopware-amd64
@@ -192,15 +158,9 @@ Open Api Schema validation:
     TEST_WEB_INSTALLER: 1
     DATABASE_URL: mysql://root:app@database:3306/root
   services:
-    - name: mysql:8
+    - name: mariadb:10.11
       alias: database
-      pull_policy: always
-      entrypoint:
-        [
-          "sh",
-          "-c",
-          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON",
-        ]
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
     - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
       alias: shopware.test
       entrypoint: ["sh", "-c", "bin/console system:generate-jwt && /entrypoint"]
@@ -216,20 +176,31 @@ Open Api Schema validation:
         - "**/*.php"
         - "**/*.xml"
         - "composer.json"
+        - "src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*.json"
   before_script:
     - !reference [.scripts, init, composer]
     - composer run init:db
     - mkdir -p config/jwt || true
-    - bin/console system:generate-jwt || true
   script:
     - export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
     - export OPENAPI_ACCESS_KEY=$(mysql -u root -h database -papp root -se "SELECT access_key FROM sales_channel WHERE id = 0x${STOREFRONT_ID}";)
     - printf "OPENAPI_JSON_URL=http://shopware.test:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
-    - npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
-    - npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
+    - mkdir api-types
+    - touch api-types/storeApiSchema.json
+    - touch api-types/adminApiSchema.json
+    - npx @shopware/api-gen loadSchema --apiType=store --filename=storeApiSchema.json
+    - npx @shopware/api-gen loadSchema --apiType=admin --filename=adminApiSchema.json
     - npm i -g @redocly/cli@latest
-    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./storeApiSchema.json
-    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./adminApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
+    - "echo '{\"$schema\": \"https://raw.githubusercontent.com/shopware/frontends/main/packages/api-gen/api-gen.schema.json\", \"rules\": [\"COMPONENTS_API_ALIAS\"] }' > api-gen.config.json"
+    - npx @shopware/api-gen validateJson --apiType=store
+    - npx @shopware/api-gen validateJson --apiType=admin
+    - npx @shopware/api-gen generate --apiType=store
+    - npx @shopware/api-gen generate --apiType=admin
+    - npm i -g typescript
+    - npx tsc ./api-types/storeApiTypes.d.ts
+    - npx tsc ./api-types/adminApiTypes.d.ts
 
 PHP unit coverage:
   extends: .base-no-setup
@@ -298,7 +269,7 @@ PHP migration coverage:
     - php $PHP_OPTIONS vendor/bin/phpunit
       --configuration tests/migration/phpunit.xml
       --log-junit phpunit.junit.xml
-      --testsuite migration-tests
+      --testsuite migration
       --coverage-text
       --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
   coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
@@ -329,7 +300,7 @@ PHP Full:
     - name: redis:7.0
       alias: redis
   variables:
-    TEST_SUITES: "integration storefront content devops framework unit migration migration-tests"
+    TEST_SUITES: "integration devops migration"
     APP_ENV: test
     GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     ALLOW_FAILURE: "false"
@@ -360,25 +331,25 @@ PHP Full:
         MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON"
       - MYSQL_IMAGE: mysql:8.0.36
       - MYSQL_IMAGE: mysql:8.4
+      - MYSQL_IMAGE: mysql:9.0
       - MYSQL_IMAGE: mariadb:10.11
       - MYSQL_IMAGE: mariadb:10.11
         PREFER_LOWEST: "prefer lowest"
         # Don't run devops tests with lowest dependencies, as phpstan has known issues with mismatched in installed package versions: https://github.com/phpstan/phpdoc-parser/issues/188
         # Also running devops tests don't provide value with prefer lowest, as the scripts are always executed with the latest dependencies
-        TEST_SUITES: "integration storefront content framework unit migration migration-tests"
+        TEST_SUITES: "integration unit migration"
       - MYSQL_IMAGE: mariadb:10.11
         ONLY_CORE: "only core"
-        TEST_SUITES: "integration content framework migration"
+        TEST_SUITES: "integration migration"
       - MYSQL_IMAGE: mariadb:11.0
         DEPENDENCY_DEV: "dev dependencies"
         ALLOW_FAILURE: "true"
         MYSQL_CMD: "mariadbd"
-        TEST_SUITES: "integration content framework migration"
+        TEST_SUITES: "integration unit migration"
   before_script:
     - >
       if [ -n "$FAKE_PHP_VERSION" ]; then
         composer config platform.php $FAKE_PHP_VERSION
-        composer config -d vendor-bin/cs-fixer platform.php $FAKE_PHP_VERSION
         composer config -d vendor-bin/rector platform.php $FAKE_PHP_VERSION
       fi
     - !reference [.scripts, init, composer]
@@ -387,7 +358,6 @@ PHP Full:
     - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
     - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
   script:
-    - "bin/console plugin:deactivate TestPlugin || true"
     - "rm -Rf custom/plugins/* || true"
     - >
       if [ "$DEPENDENCY_DEV" == "dev dependencies" ]; then
@@ -409,7 +379,9 @@ PHP Full:
           rm -rf tests/integration/Administration
           rm -rf tests/integration/Elasticsearch
           rm -rf tests/integration/Storefront
+          rm -rf tests/migration/Administration
           composer dump-autoload -o
+          php bin/console lint:container
       fi
     - unset SHOPWARE_CACHE_ID
     - "sed -i -e 's|opcache.enable_cli = 1|opcache.enable_cli = 0|' /usr/local/etc/php/conf.d/docker.ini"
@@ -425,139 +397,6 @@ PHP Full:
     - "[[ $FAILED -eq 0 ]]"
   after_script:
     - !reference [.scripts, handle-failed-merge-train, after_script]
-
-PHP unit per area:
-  extends: PHP unit coverage
-  stage: unit
-  rules:
-    - !reference [.rules, skip]
-    - !reference [.rules, scheduled]
-  script:
-    - composer dump-autoload -o
-    - bin/console coverage:classes-per-area -g -q
-    - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
-    - php $PHP_OPTIONS vendor/bin/phpunit
-      --configuration phpunit.$PRODUCT_AREA.xml
-      --bootstrap tests/unit/Common/UnitTestBootstrap.php
-      --log-junit phpunit.junit.xml
-      --testsuite unit
-      --coverage-text
-      --coverage-html phpunit/
-      --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
-  coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
-  parallel:
-    matrix:
-      - PRODUCT_AREA:
-          [
-            "administration",
-            "buyers-experience",
-            "checkout",
-            "content",
-            "core",
-            "inventory",
-            "data-services",
-            "services-settings",
-            "storefront",
-            "system-settings",
-          ]
-  artifacts:
-    when: always
-    paths:
-      - coverage/php/$PRODUCT_AREA/cobertura.xml
-
-Jest Coverage per Area (Storefront):
-  extends: Jest (Storefront)
-  stage: unit
-  rules:
-    - !reference [.rules, skip]
-    - !reference [.rules, scheduled]
-  variables:
-    ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
-  script:
-    - !reference [.scripts, init, composer]
-    - composer dump-autoload -o
-    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
-    - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$STOREFRONT_PATH/src" -r -p 'src' -i "$STOREFRONT_PATH/src/main.js")
-    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=4 --collectCoverageFrom="${JS_FILES}" --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Storefront/$PRODUCT_AREA
-    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
-  coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
-  parallel:
-    matrix:
-      - PRODUCT_AREA:
-          [
-            "checkout",
-            "content",
-            "inventory",
-            "buyers-experience",
-            "storefront",
-            "unknown",
-          ]
-  artifacts:
-    when: always
-    paths:
-      - coverage
-
-Jest Coverage per Area (Administration):
-  extends: Jest (Administration)
-  stage: unit
-  rules:
-    - !reference [.rules, skip]
-    - !reference [.rules, scheduled]
-  script:
-    - composer dump-autoload -o
-    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
-    - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
-    - npm --prefix "$ADMIN_PATH" run unit-setup
-    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=1 --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
-    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
-  coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
-  parallel:
-    matrix:
-      - PRODUCT_AREA:
-          [
-            "admin",
-            "checkout",
-            "content",
-            "inventory",
-            "data-services",
-            "buyers-experience",
-            "services-settings",
-            "system-settings",
-            "unknown",
-          ]
-  artifacts:
-    when: always
-    paths:
-      - coverage
-
-Coverage per Area summary:
-  extends: .base-no-setup
-  stage: unit
-  rules:
-    - !reference [.rules, skip]
-    - !reference [.rules, scheduled]
-  dependencies:
-    [
-      "PHP unit per area",
-      "Jest Coverage per Area (Administration)",
-      "Jest Coverage per Area (Storefront)",
-    ]
-  needs:
-    [
-      "PHP unit per area",
-      "Jest Coverage per Area (Administration)",
-      "Jest Coverage per Area (Storefront)",
-    ]
-  before_script:
-    - !reference [.scripts, init, composer]
-  script:
-    - bin/console coverage:summarize-coverage-reports
-  artifacts:
-    when: always
-    paths:
-      - coverageSummary.html
-      - coverageSummary.json
-    expose_as: "Coverage Summary"
 
 Coverage check:
   extends: .base-no-setup

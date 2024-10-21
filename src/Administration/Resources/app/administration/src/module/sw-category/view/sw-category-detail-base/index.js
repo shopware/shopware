@@ -10,6 +10,8 @@ const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -28,7 +30,7 @@ export default {
 
     computed: {
         ...mapState('swCategoryDetail', {
-            customFieldSetsArray: state => {
+            customFieldSetsArray: (state) => {
                 if (!state.customFieldSets) {
                     return [];
                 }
@@ -75,7 +77,13 @@ export default {
         },
 
         categoryTypeHelpText() {
-            if (['page', 'folder', 'link'].includes(this.category.type)) {
+            if (
+                [
+                    'page',
+                    'folder',
+                    'link',
+                ].includes(this.category.type)
+            ) {
                 return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
             }
 
@@ -83,9 +91,11 @@ export default {
         },
 
         isSalesChannelEntryPoint() {
-            return this.category.navigationSalesChannels.length > 0
-                || this.category.serviceSalesChannels.length > 0
-                || this.category.footerSalesChannels.length > 0;
+            return (
+                this.category.navigationSalesChannels.length > 0 ||
+                this.category.serviceSalesChannels.length > 0 ||
+                this.category.footerSalesChannels.length > 0
+            );
         },
 
         category() {

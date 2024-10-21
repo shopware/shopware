@@ -4,7 +4,11 @@
 import template from './sw-import-export-edit-profile-modal-mapping.html.twig';
 import './sw-import-export-edit-profile-modal-mapping.scss';
 
-const { debounce, createId, object: { cloneDeep } } = Shopware.Utils;
+const {
+    debounce,
+    createId,
+    object: { cloneDeep },
+} = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
@@ -13,10 +17,14 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',
     ],
+
+    emits: ['update-mapping'],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -97,27 +105,33 @@ export default {
             ];
 
             if (this.profile.type !== 'export') {
-                columns = [...columns, {
-                    property: 'required',
-                    label: 'sw-import-export.profile.mapping.isRequired',
-                    allowResize: true,
-                    align: 'center',
-                },
-                {
-                    property: 'defaultValue',
-                    label: 'sw-import-export.profile.mapping.defaultValue',
-                    allowResize: true,
-                    width: '300px',
-                }];
+                columns = [
+                    ...columns,
+                    {
+                        property: 'required',
+                        label: 'sw-import-export.profile.mapping.isRequired',
+                        allowResize: true,
+                        align: 'center',
+                    },
+                    {
+                        property: 'defaultValue',
+                        label: 'sw-import-export.profile.mapping.defaultValue',
+                        allowResize: true,
+                        width: '300px',
+                    },
+                ];
             }
 
             if (!this.profile.systemDefault) {
-                columns = [...columns, {
-                    property: 'position',
-                    label: 'sw-import-export.profile.mapping.position',
-                    allowResize: false,
-                    align: 'center',
-                }];
+                columns = [
+                    ...columns,
+                    {
+                        property: 'position',
+                        label: 'sw-import-export.profile.mapping.position',
+                        allowResize: false,
+                        align: 'center',
+                    },
+                ];
             }
 
             return columns;
@@ -161,12 +175,12 @@ export default {
         createdComponent() {
             this.toggleAddMappingActionState(this.profile.sourceEntity);
 
-            this.languageRepository.search(this.languageCriteria).then(languages => {
+            this.languageRepository.search(this.languageCriteria).then((languages) => {
                 this.languages = languages;
                 this.languages.push({ locale: { code: 'DEFAULT' } });
             });
 
-            this.currencyRepository.search(this.currencyCriteria).then(currencies => {
+            this.currencyRepository.search(this.currencyCriteria).then((currencies) => {
                 this.currencies = currencies;
                 this.currencies.push({ isoCode: 'DEFAULT' });
             });
@@ -193,7 +207,7 @@ export default {
         loadMappings() {
             if (this.searchTerm) {
                 const searchTerm = this.searchTerm.toLowerCase();
-                this.mappings = this.profile.mapping.filter(mapping => {
+                this.mappings = this.profile.mapping.filter((mapping) => {
                     const key = mapping.key.toLowerCase();
                     const mappedKey = mapping.mappedKey.toLowerCase();
                     return !!(key.includes(searchTerm) || mappedKey.includes(searchTerm));
@@ -218,9 +232,16 @@ export default {
             }
 
             // update position of all mappings
-            this.profile.mapping.forEach(currentMapping => { currentMapping.position += 1; });
+            this.profile.mapping.forEach((currentMapping) => {
+                currentMapping.position += 1;
+            });
 
-            this.profile.mapping.unshift({ id: createId(), key: '', mappedKey: '', position: 0 });
+            this.profile.mapping.unshift({
+                id: createId(),
+                key: '',
+                mappedKey: '',
+                position: 0,
+            });
 
             this.loadMappings();
         },

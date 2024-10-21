@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 
@@ -16,7 +17,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private StorefrontPluginConfigurationFactory $configFactory;
+    private AbstractStorefrontPluginConfigurationFactory $configFactory;
 
     protected function setUp(): void
     {
@@ -31,35 +32,30 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $theme = $this->getBundle('TestTheme', $basePath, true);
         $config = $this->configFactory->createFromBundle($theme);
 
-        $basePath = $this->stripProjectDir($basePath);
-
         static::assertEquals('TestTheme', $config->getTechnicalName());
-        static::assertEquals($basePath . '/Resources', $config->getBasePath());
         static::assertTrue($config->getIsTheme());
         static::assertEquals(
-            $basePath . '/Resources/app/storefront/src/main.js',
+            'app/storefront/src/main.js',
             $config->getStorefrontEntryFilepath()
         );
         $this->assertFileCollection([
-            $basePath . '/Resources/app/storefront/src/scss/overrides.scss' => [],
+            'app/storefront/src/scss/overrides.scss' => [],
             '@Storefront' => [],
-            $basePath . '/Resources/app/storefront/src/scss/base.scss' => [
-                'vendor' => $basePath . '/Resources/app/storefront/vendor',
+            'app/storefront/src/scss/base.scss' => [
+                'vendor' => 'app/storefront/vendor',
             ],
         ], $config->getStyleFiles());
         $this->assertFileCollection([
             '@Storefront' => [],
-            $basePath . '/Resources/app/storefront/dist/js/main.js' => [],
+            'app/storefront/dist/js/main.js' => [],
         ], $config->getScriptFiles());
         static::assertEquals([
             '@Storefront',
             '@Plugins',
             '@SwagTheme',
         ], $config->getViewInheritance());
-        static::assertEquals([
-            $basePath . '/Resources/app/storefront/dist/assets',
-        ], $config->getAssetPaths());
-        static::assertEquals($basePath . '/Resources/app/storefront/dist/assets/preview.jpg', $config->getPreviewMedia());
+        static::assertEquals(['app/storefront/dist/assets'], $config->getAssetPaths());
+        static::assertEquals('app/storefront/dist/assets/preview.jpg', $config->getPreviewMedia());
         static::assertEquals([
             'fields' => [
                 'sw-image' => [
@@ -79,13 +75,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         static::assertIsString($basePath);
         $bundle = $this->getBundle('SimplePlugin', $basePath);
 
-        $basePath = $this->stripProjectDir($basePath);
-
         $config = $this->configFactory->createFromBundle($bundle);
 
-        $this->assertFileCollection([
-            $basePath . '/Resources/app/storefront/src/scss/base.scss' => [],
-        ], $config->getStyleFiles());
+        $this->assertFileCollection(['app/storefront/src/scss/base.scss' => []], $config->getStyleFiles());
     }
 
     public function testPluginHasNoScssEntryPoint(): void
@@ -138,7 +130,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, string>>$expected
+     * @param array<string, array<string, string>> $expected
      */
     private function assertFileCollection(array $expected, FileCollection $files): void
     {
@@ -148,16 +140,5 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         static::assertEquals($expected, $flatFiles);
-    }
-
-    private function stripProjectDir(string $path): string
-    {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-
-        if (str_starts_with($path, $projectDir)) {
-            return substr($path, \strlen($projectDir) + 1);
-        }
-
-        return $path;
     }
 }

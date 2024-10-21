@@ -5,6 +5,7 @@
     {% block sw_cms_block_layout_config_css_class %}
     <sw-text-field
         v-model:value="block.cssClass"
+        class="sw-cms-block-layout-config__css-class"
         :label="$tc('sw-cms.detail.label.cssClassField')"
         :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
     />
@@ -14,6 +15,7 @@
     {% block sw_cms_block_layout_config_top_margin_field %}
     <sw-text-field
         v-model:value="block.marginTop"
+        class="sw-cms-block-layout-config__margin-top"
         :label="$tc('sw-cms.detail.label.blockTopMarginField')"
     />
     {% endblock %}
@@ -22,6 +24,7 @@
     {% block sw_cms_block_layout_config_bottom_margin_field %}
     <sw-text-field
         v-model:value="block.marginBottom"
+        class="sw-cms-block-layout-config__margin-bottom"
         :label="$tc('sw-cms.detail.label.blockBottomMarginField')"
     />
     {% endblock %}
@@ -30,6 +33,7 @@
     {% block sw_cms_block_layout_config_left_margin_field %}
     <sw-text-field
         v-model:value="block.marginLeft"
+        class="sw-cms-block-layout-config__margin-left"
         :label="$tc('sw-cms.detail.label.blockLeftMarginField')"
     />
     {% endblock %}
@@ -38,6 +42,7 @@
     {% block sw_cms_block_layout_config_right_margin_field %}
     <sw-text-field
         v-model:value="block.marginRight"
+        class="sw-cms-block-layout-config__margin-right"
         :label="$tc('sw-cms.detail.label.blockRightMarginField')"
     />
     {% endblock %}

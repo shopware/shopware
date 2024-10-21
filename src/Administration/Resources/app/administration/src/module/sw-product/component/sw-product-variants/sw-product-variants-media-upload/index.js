@@ -12,7 +12,12 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'mediaDefaultFolderService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'mediaDefaultFolderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -72,7 +77,7 @@ export default {
                 return null;
             }
 
-            return this.product.media.find(media => media.id === this.product.coverId);
+            return this.product.media.find((media) => media.id === this.product.coverId);
         },
 
         coverImageSource() {
@@ -93,10 +98,12 @@ export default {
             this.getMediaDefaultFolderId()
                 .then((id) => {
                     this.mediaDefaultFolderId = id;
+                    this.defaultFolderId = id;
                     this.updateMediaItemPositions();
                 })
                 .catch(() => {
                     this.mediaDefaultFolderId = null;
+                    this.defaultFolderId = null;
                 });
         },
 

@@ -21,16 +21,18 @@ Component.register('sw-price-field', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
+    inject: ['feature'],
+
     emits: [
-        'update:value',
+        'change',
         'price-lock-change',
         'price-calculate',
         'price-gross-change',
         'price-net-change',
         'calculating',
     ],
-
-    inject: ['feature'],
 
     props: {
         value: {
@@ -158,6 +160,21 @@ Component.register('sw-price-field', {
         };
     },
 
+    setup() {
+        const onPriceGrossChangeDebounce = debounce(function onPriceGrossChangeDebounce() {
+            this.onPriceGrossChange(this.priceForCurrency.gross);
+        }, 300);
+
+        const onPriceNetChangeDebounce = debounce(function onPriceNetChangeDebounce() {
+            this.onPriceNetChange(this.priceForCurrency.net);
+        }, 300);
+
+        return {
+            onPriceGrossChangeDebounce,
+            onPriceNetChangeDebounce,
+        };
+    },
+
     computed: {
         calculatePriceApiService() {
             return Application.getContainer('factory').apiService.getByName('calculate-price');
@@ -196,6 +213,23 @@ Component.register('sw-price-field', {
                 this.priceForCurrency.linked = newValue.linked;
                 this.priceForCurrency.net = newValue.net;
             },
+        },
+
+        attributesWithoutListeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$attrs;
+            }
+
+            const attributes = {};
+
+            // Filter all listeners from the $attrs object
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!key.startsWith('on')) {
+                    attributes[key] = this.$attrs[key];
+                }
+            });
+
+            return attributes;
         },
 
         isInherited() {
@@ -263,38 +297,35 @@ Component.register('sw-price-field', {
             this.priceForCurrency.linked = !this.priceForCurrency.linked;
             this.$emit('price-lock-change', this.priceForCurrency.linked);
 
-            this.$emit('update:value', this.priceForCurrency);
+            this.$emit('change', this.priceForCurrency);
+        },
+
+        onEndsWithDecimalSeparator(value) {
+            if (value) {
+                this.onPriceGrossChangeDebounce.cancel();
+                this.onPriceNetChangeDebounce.cancel();
+            }
         },
 
         onPriceGrossInputChange(value) {
             if (this.priceForCurrency.linked) {
                 this.priceForCurrency.gross = value;
-
-                this.onPriceGrossChangeDebounce(value);
+                this.onPriceGrossChangeDebounce();
             }
         },
 
         onPriceNetInputChange(value) {
             if (this.priceForCurrency.linked) {
                 this.priceForCurrency.net = value;
-
-                this.onPriceNetChangeDebounce(value);
+                this.onPriceNetChangeDebounce();
             }
         },
-
-        onPriceGrossChangeDebounce: debounce(function onPriceGrossChangeDebounce() {
-            this.onPriceGrossChange(this.priceForCurrency.gross);
-        }, 300),
-
-        onPriceNetChangeDebounce: debounce(function onPriceNetChangeDebounce() {
-            this.onPriceNetChange(this.priceForCurrency.net);
-        }, 300),
 
         onPriceGrossChange(value) {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-gross-change', value);
-                this.$emit('update:value', this.priceForCurrency);
+                this.$emit('change', this.priceForCurrency);
                 this.convertGrossToNet(value);
             }
         },
@@ -303,7 +334,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-net-change', value);
-                this.$emit('update:value', this.priceForCurrency);
+                this.$emit('change', this.priceForCurrency);
                 this.convertNetToGross(value);
             }
         },
@@ -351,12 +382,7 @@ Component.register('sw-price-field', {
         requestTaxValue(value, outputType) {
             this.$emit('price-calculate', true);
             return new Promise((resolve) => {
-                if (
-                    !value ||
-                    typeof value !== 'number' ||
-                    !this.priceForCurrency[outputType] ||
-                    !outputType
-                ) {
+                if (!value || typeof value !== 'number' || !this.priceForCurrency[outputType] || !outputType) {
                     return;
                 }
 
@@ -366,21 +392,23 @@ Component.register('sw-price-field', {
                     return;
                 }
 
-                this.calculatePriceApiService.calculatePrice({
-                    taxId: this.taxRate.id,
-                    currencyId: this.currency.id,
-                    price: this.priceForCurrency[outputType],
-                    output: outputType,
-                }).then(({ data }) => {
-                    let tax = 0;
+                this.calculatePriceApiService
+                    .calculatePrice({
+                        taxId: this.taxRate.id,
+                        currencyId: this.currency.id,
+                        price: this.priceForCurrency[outputType],
+                        output: outputType,
+                    })
+                    .then(({ data }) => {
+                        let tax = 0;
 
-                    data.calculatedTaxes.forEach((item) => {
-                        tax += item.tax;
+                        data.calculatedTaxes.forEach((item) => {
+                            tax += item.tax;
+                        });
+
+                        resolve(tax);
+                        this.$emit('price-calculate', false);
                     });
-
-                    resolve(tax);
-                    this.$emit('price-calculate', false);
-                });
             });
         },
 

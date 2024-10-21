@@ -14,6 +14,11 @@ import './sw-password-field.scss';
 Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-deprecated', {
     template,
 
+    emits: [
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
+
     props: {
         passwordToggleAble: {
             type: Boolean,
@@ -47,10 +52,9 @@ Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-depreca
         },
 
         passwordPlaceholder() {
-            return this.showPassword ||
-                !this.placeholderIsPassword ?
-                this.placeholder :
-                '*'.repeat(this.placeholder.length ? this.placeholder.length : 6);
+            return this.showPassword || !this.placeholderIsPassword
+                ? this.placeholder
+                : '*'.repeat(this.placeholder.length ? this.placeholder.length : 6);
         },
     },
 

@@ -77,42 +77,15 @@ class CreateMigrationCommand extends Command
 
         $pluginName = $input->getOption('plugin');
         if ($pluginName) {
-            $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), (string) $pluginName) === 0);
+            $this->createPluginMigration($output, $pluginName, $timestamp, $name);
 
-            if (\count($pluginBundles) === 0) {
-                throw new \RuntimeException(sprintf('Plugin "%s" could not be found.', $pluginName));
-            }
-
-            if (\count($pluginBundles) > 1) {
-                $pluginBundles = array_filter($pluginBundles, static fn (Plugin $value) => $pluginName === $value->getName());
-
-                if (\count($pluginBundles) > 1) {
-                    throw new \RuntimeException(
-                        sprintf(
-                            'More than one plugin name starting with "%s" was found: %s',
-                            $pluginName,
-                            implode(';', array_keys($pluginBundles))
-                        )
-                    );
-                }
-            }
-
-            $pluginBundle = array_values($pluginBundles)[0];
-
-            $directory = $pluginBundle->getMigrationPath();
-            if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
-                throw new \RuntimeException(sprintf('Migration directory "%s" could not be created', $directory));
-            }
-
-            $namespace = $pluginBundle->getMigrationNamespace();
-            $output->writeln(sprintf('Creating plugin-migration with namespace %s in path %s...', $namespace, $directory));
-        } else {
-            [$_, $major] = explode('.', $this->shopwareVersion);
-            // We create a core-migration in case no plugin was given
-            $directory = $this->coreDir . '/Migration/V6_' . $major;
-            $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
+            return self::SUCCESS;
         }
 
+        // We create a core-migration in case no directory or plugin was given
+        [$_, $major] = explode('.', $this->shopwareVersion);
+        $directory = $this->coreDir . '/Migration/V6_' . $major;
+        $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
         $params = [
             '%%timestamp%%' => $timestamp,
             '%%name%%' => $name,
@@ -132,8 +105,53 @@ class CreateMigrationCommand extends Command
         return self::SUCCESS;
     }
 
+    private function createPluginMigration(OutputInterface $output, string $pluginName, int $timestamp, string $name): void
+    {
+        $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), (string) $pluginName) === 0);
+
+        if (\count($pluginBundles) === 0) {
+            throw new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
+        }
+
+        if (\count($pluginBundles) > 1) {
+            $pluginBundles = array_filter($pluginBundles, static fn (Plugin $value) => $pluginName === $value->getName());
+
+            if (\count($pluginBundles) > 1) {
+                throw new \RuntimeException(
+                    \sprintf(
+                        'More than one plugin name starting with "%s" was found: %s',
+                        $pluginName,
+                        implode(';', array_keys($pluginBundles))
+                    )
+                );
+            }
+        }
+
+        $pluginBundle = array_values($pluginBundles)[0];
+
+        $directory = $pluginBundle->getMigrationPath();
+        if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
+            throw new \RuntimeException(\sprintf('Migration directory "%s" could not be created', $directory));
+        }
+
+        $namespace = $pluginBundle->getMigrationNamespace();
+
+        $output->writeln(\sprintf('Creating plugin-migration with namespace %s in path %s...', $namespace, $directory));
+
+        $this->createMigrationFile(
+            $output,
+            $directory,
+            \dirname(__DIR__) . '/Template/MigrationTemplatePlugin.txt',
+            [
+                '%%timestamp%%' => $timestamp,
+                '%%name%%' => $name,
+                '%%namespace%%' => $namespace,
+            ]
+        );
+    }
+
     /**
-     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string, "%%package%%": string} $params
+     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string, "%%package%%"?: string} $params
      */
     private function createMigrationFile(OutputInterface $output, string $directory, string $templatePatch, array $params): void
     {

@@ -15,6 +15,13 @@ Component.register('sw-maintain-currencies-modal', {
     template,
     inject: ['repositoryFactory'],
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'update-prices',
+        'modal-close',
+    ],
+
     props: {
         currencies: {
             type: Array,
@@ -76,7 +83,8 @@ Component.register('sw-maintain-currencies-modal', {
                     primary: true,
                     rawData: false,
                     width: '150px',
-                }, {
+                },
+                {
                     property: 'price',
                     label: 'sw-maintain-currencies-modal.columnPrice',
                     visible: true,
@@ -110,15 +118,18 @@ Component.register('sw-maintain-currencies-modal', {
         },
 
         loadCurrencies() {
-            this.repositoryFactory.create('currency').search(new Criteria(1, 25)).then(response => {
-                this.currencyCollection = response;
-                this.sortCurrencies();
-            });
+            this.repositoryFactory
+                .create('currency')
+                .search(new Criteria(1, 25))
+                .then((response) => {
+                    this.currencyCollection = response;
+                    this.sortCurrencies();
+                });
         },
 
         updateCurrencyCollectionFromCurrencies() {
             if (this.currencyCollection.length > 0) {
-                const isSame = this.currencies.every(c => this.currencyCollection.some(_c => c.id === _c.id));
+                const isSame = this.currencies.every((c) => this.currencyCollection.some((_c) => c.id === _c.id));
 
                 if (!isSame) {
                     this.currencyCollection = this.currencies;
@@ -169,7 +180,7 @@ Component.register('sw-maintain-currencies-modal', {
                 return price.currencyId === currencyId;
             });
 
-            this.$delete(this.prices, indexOfPrice);
+            this.$emit('update-prices', indexOfPrice);
 
             this.createdComponent();
         },
@@ -192,8 +203,13 @@ Component.register('sw-maintain-currencies-modal', {
                 };
             }
 
-            // create new entry for currency in prices
-            this.$set(this.prices, this.prices.length, price);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                // create new entry for currency in prices
+                this.$set(this.prices, this.prices.length, price);
+            } else {
+                // eslint-disable-next-line vue/no-mutating-props
+                this.prices[this.prices.length] = price;
+            }
 
             this.createdComponent();
         },

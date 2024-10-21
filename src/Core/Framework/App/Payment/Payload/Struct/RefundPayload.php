@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('checkout')]
 class RefundPayload implements PaymentPayloadInterface
 {
     use CloneTrait;

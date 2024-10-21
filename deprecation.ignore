@@ -1,19 +1,11 @@
 # This file contains patterns to be ignored while testing for use deprecated code
 # https://symfony.com/doc/current/components/phpunit_bridge.html#ignoring-deprecations
 
-# Deprecation via Feature::triggerDeprecation or throw -> can be ignored as we use the feature flag to cover this cases
-%Since shopware\/core%
-# @deprecated annotations for internal code, can be ignored as it should be covered by Feature::triggerDeprecation already
-%The Shopware\\%
-# Some services are deprecated, as they will be private, but the AbstractController relies on them and uses ServiceSubscriberInterface so it will continue working
-%Accessing the \".*\" service directly from the container is deprecated, use dependency injection instead%
-# DomPDF throws deprecation notices for PHP 8.1, but we can't do anything about it, as we can't update the lib currently
-%Dompdf\\Frame%
-# Also triggered by DomPDF internally
-%mb_stripos\(\)\: Passing null to parameter #1 \(\$haystack\) of type string is deprecated%
-# Also triggered by DomPDF internally
-%mb_strtolower\(\)\: Passing null to parameter #1 \(\$string\) of type string is deprecated%
-# Triggered by MessengerEnqueueTransport, which we will remove in 6.5
-%Enqueue\\MessengerAdapter\\EnvelopeItem\\TransportConfiguration%
-# should be fixed with NEXT-23859
-%Returning a file to import for CSS or external references in custom importer callables is deprecated%
+# Phpunit triggers deprecations for every method that has @deprecated annotation and is mocked, which does not work with deprecation handling
+%The .* method is deprecated \(.*\)%
+
+# We rely on the deprecated functionality to resolve vendor files, we hope that we can get rid of the phpscss compiler, before the break happens
+%Returning a file to import for CSS or external references in custom importer callables is deprecated and will not be supported anymore in ScssPhp 2\.0\. This behavior is not compliant with the Sass specification\.%
+
+%Twig Filter "spaceless" is deprecated in%
+%The "tag" constructor argument of the ".*" class is deprecated and ignored \(check which TokenParser class set it to ".*"\), the tag is now automatically set by the Parser when needed.%

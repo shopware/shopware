@@ -11,71 +11,54 @@ import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
 describe('core/helper/sanitizer.helper.js', () => {
     // See for payload list: https://github.com/s0md3v/AwesomeXSS
     it('should sanitize the html', async () => {
-        expect(Sanitizer.sanitize('<A/hREf="j%0aavas%09cript%0a:%09con%0afirm%0d``">z'))
-            .toBe('<a href="j%0aavas%09cript%0a:%09con%0afirm%0d``">z</a>');
+        expect(Sanitizer.sanitize('<A/hREf="j%0aavas%09cript%0a:%09con%0afirm%0d``">z')).toBe(
+            '<a href="j%0aavas%09cript%0a:%09con%0afirm%0d``">z</a>',
+        );
 
-        expect(Sanitizer.sanitize('<d3"<"/onclick="1>[confirm``]"<">z'))
-            .toBe('z');
+        expect(Sanitizer.sanitize('<d3"<"/onclick="1>[confirm``]"<">z')).toBe('z');
 
-        expect(Sanitizer.sanitize('<d3/onmouseenter=[2].find(confirm)>z'))
-            .toBe('z');
+        expect(Sanitizer.sanitize('<d3/onmouseenter=[2].find(confirm)>z')).toBe('z');
 
-        expect(Sanitizer.sanitize('<d3/onmouseenter=[2].find(confirm)>z'))
-            .toBe('z');
+        expect(Sanitizer.sanitize('<d3/onmouseenter=[2].find(confirm)>z')).toBe('z');
 
-        expect(Sanitizer.sanitize('<details open ontoggle=confirm()>'))
-            .toBe('<details open=""></details>');
+        expect(Sanitizer.sanitize('<details open ontoggle=confirm()>')).toBe('<details open=""></details>');
 
         expect(Sanitizer.sanitize(`<script y="><">/*<script* */prompt()</script`)) // eslint-disable-line
             .toBe('');
 
-        expect(Sanitizer.sanitize('<w="/x="y>"/ondblclick=`<`[confir\u006d``]>z'))
-            .toBe('z');
+        expect(Sanitizer.sanitize('<w="/x="y>"/ondblclick=`<`[confir\u006d``]>z')).toBe('z');
 
-        expect(Sanitizer.sanitize('<a href=javas&#99;ript:alert(1)>click'))
-            .toBe('<a>click</a>');
+        expect(Sanitizer.sanitize('<a href=javas&#99;ript:alert(1)>click')).toBe('<a>click</a>');
 
-        expect(Sanitizer.sanitize('<script/"<a"/src=data:=".<a,[8].some(confirm)>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<script/"<a"/src=data:=".<a,[8].some(confirm)>')).toBe('');
 
-        expect(Sanitizer.sanitize('<svg/x=">"/onload=confirm()//'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<svg/x=">"/onload=confirm()//')).toBe('');
 
-        expect(Sanitizer.sanitize('<--`<img/src=` onerror=confirm``> --!>'))
-            .toBe('&lt;--`<img src="`"> --!&gt;');
+        expect(Sanitizer.sanitize('<--`<img/src=` onerror=confirm``> --!>')).toBe('&lt;--`<img src="`"> --!&gt;');
 
-        expect(Sanitizer.sanitize('<svg%0Aonload=%09((pro\u006dpt))()//'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<svg%0Aonload=%09((pro\u006dpt))()//')).toBe('');
 
-        expect(Sanitizer.sanitize('<sCript x>(((confirm)))``</scRipt x>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<sCript x>(((confirm)))``</scRipt x>')).toBe('');
 
-        expect(Sanitizer.sanitize('<svg </onload ="1> (_=prompt,_(1)) "">'))
-            .toBe('<svg></svg>');
+        expect(Sanitizer.sanitize('<svg </onload ="1> (_=prompt,_(1)) "">')).toBe('<svg></svg>');
 
-        expect(Sanitizer.sanitize('<sCript x>(((confirm)))``</scRipt x>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<sCript x>(((confirm)))``</scRipt x>')).toBe('');
 
-        expect(Sanitizer.sanitize('<!--><script src=//14.rs>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<!--><script src=//14.rs>')).toBe('');
 
-        expect(Sanitizer.sanitize('<!--><script src=//14.rs>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<!--><script src=//14.rs>')).toBe('');
 
-        expect(Sanitizer.sanitize('<embed src=//14.rs>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<embed src=//14.rs>')).toBe('');
 
-        expect(Sanitizer.sanitize('<script x=">" src=//15.rs></script>'))
-            .toBe('');
+        expect(Sanitizer.sanitize('<script x=">" src=//15.rs></script>')).toBe('');
 
-        expect(Sanitizer.sanitize('<!\'/*"/*/\'/*/"/*--></Script><Image SrcSet=K */; OnError=confirm`1` //>'))
-            .toBe('<img srcset="K">');
+        expect(Sanitizer.sanitize('<!\'/*"/*/\'/*/"/*--></Script><Image SrcSet=K */; OnError=confirm`1` //>')).toBe(
+            '<img srcset="K">',
+        );
 
-        expect(Sanitizer.sanitize('<x oncut=alert()>x'))
-            .toBe('x');
+        expect(Sanitizer.sanitize('<x oncut=alert()>x')).toBe('x');
 
-        expect(Sanitizer.sanitize('<svg onload=write()>'))
-            .toBe('<svg></svg>');
+        expect(Sanitizer.sanitize('<svg onload=write()>')).toBe('<svg></svg>');
     });
 
     it('should ensure a persistent configuration can be set and cleared', async () => {
@@ -120,10 +103,7 @@ describe('core/helper/sanitizer.helper.js', () => {
         expect(Sanitizer.removeMiddleware('foo')).toBe(false);
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
 
-        expect(warnSpy).toHaveBeenCalledWith(
-            '[Sanitizer]',
-            expect.stringContaining('No middleware found for name'),
-        );
+        expect(warnSpy).toHaveBeenCalledWith('[Sanitizer]', expect.stringContaining('No middleware found for name'));
     });
 
     it('should sanitize untrusted HTML in a component', async () => {

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -10,105 +10,114 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-users-permissions-additional-permissions', {
-            sync: true,
-        }), {
-            props: {
-                role: {
-                    privileges: [],
-                },
-            },
-            attachTo: document.body,
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-card': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', {
-                        sync: true,
-                    }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', {
-                        sync: true,
-                    }),
-                },
-                provide: {
-                    privileges: {
-                        getPrivilegesMappings: () => [
-                            {
-                                category: 'additional_permissions',
-                                key: 'system',
-                                parent: null,
-                                roles: {
-                                    clear_cache: {
-                                        dependencies: [],
-                                        privileges: ['system:clear:cache'],
-                                    },
-                                    core_update: {
-                                        dependencies: [],
-                                        privileges: ['system:core:update'],
-                                    },
-                                    plugin_maintain: {
-                                        dependencies: [],
-                                        privileges: ['system:plugin:maintain'],
-                                    },
-                                },
-                            },
-                            {
-                                category: 'additional_permissions',
-                                key: 'orders',
-                                parent: null,
-                                roles: {
-                                    create_discounts: {
-                                        dependencies: [],
-                                        privileges: ['order:create:discount'],
-                                    },
-                                },
-                            },
-                            {
-                                category: 'permissions',
-                                key: 'product',
-                                parent: null,
-                                roles: {
-                                    viewer: {
-                                        dependencies: [],
-                                        privileges: [],
-                                    },
-                                    editor: {
-                                        dependencies: [],
-                                        privileges: [],
-                                    },
-                                    creator: {
-                                        dependencies: [],
-                                        privileges: [],
-                                    },
-                                    deleter: {
-                                        dependencies: [],
-                                        privileges: [],
-                                    },
-                                },
-                            },
-                            {
-                                category: 'additional_permissions',
-                                key: 'app',
-                                parent: null,
-                                roles: {
-                                    all: {
-                                        dependencies: ['app.appExample'],
-                                        privileges: [],
-                                    },
-                                    appExample: {
-                                        dependencies: [],
-                                        privileges: [],
-                                    },
-                                },
-                            },
-                        ],
-                    },
-                    appAclService: {
-                        addAppPermissions: () => {},
+        wrapper = mount(
+            await wrapTestComponent('sw-users-permissions-additional-permissions', {
+                sync: true,
+            }),
+            {
+                props: {
+                    role: {
+                        privileges: [],
                     },
                 },
+                attachTo: document.body,
+                global: {
+                    renderStubDefaultSlot: true,
+                    stubs: {
+                        'sw-card': true,
+                        'sw-switch-field': await wrapTestComponent('sw-switch-field', {
+                            sync: true,
+                        }),
+                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', {
+                            sync: true,
+                        }),
+                        'sw-base-field': true,
+                        'sw-field-error': true,
+                    },
+                    provide: {
+                        privileges: {
+                            getPrivilegesMappings: () => [
+                                {
+                                    category: 'additional_permissions',
+                                    key: 'system',
+                                    parent: null,
+                                    roles: {
+                                        clear_cache: {
+                                            dependencies: [],
+                                            privileges: ['system:clear:cache'],
+                                        },
+                                        core_update: {
+                                            dependencies: [],
+                                            privileges: ['system:core:update'],
+                                        },
+                                        plugin_maintain: {
+                                            dependencies: [],
+                                            privileges: [
+                                                'system:plugin:maintain',
+                                            ],
+                                        },
+                                    },
+                                },
+                                {
+                                    category: 'additional_permissions',
+                                    key: 'orders',
+                                    parent: null,
+                                    roles: {
+                                        create_discounts: {
+                                            dependencies: [],
+                                            privileges: [
+                                                'order:create:discount',
+                                            ],
+                                        },
+                                    },
+                                },
+                                {
+                                    category: 'permissions',
+                                    key: 'product',
+                                    parent: null,
+                                    roles: {
+                                        viewer: {
+                                            dependencies: [],
+                                            privileges: [],
+                                        },
+                                        editor: {
+                                            dependencies: [],
+                                            privileges: [],
+                                        },
+                                        creator: {
+                                            dependencies: [],
+                                            privileges: [],
+                                        },
+                                        deleter: {
+                                            dependencies: [],
+                                            privileges: [],
+                                        },
+                                    },
+                                },
+                                {
+                                    category: 'additional_permissions',
+                                    key: 'app',
+                                    parent: null,
+                                    roles: {
+                                        all: {
+                                            dependencies: ['app.appExample'],
+                                            privileges: [],
+                                        },
+                                        appExample: {
+                                            dependencies: [],
+                                            privileges: [],
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                        appAclService: {
+                            addAppPermissions: () => {},
+                        },
+                    },
+                },
             },
-        });
+        );
 
         await flushPromises();
     });
@@ -137,7 +146,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const systemRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_system + .sw-users-permissions-additional-permissions__switches',
         );
-        const systemFields = systemRoles.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' });
+        const systemFields = systemRoles.findAllComponents({
+            name: 'sw-switch-field-deprecated__wrapped',
+        });
 
         expect(systemFields).toHaveLength(3);
 
@@ -148,7 +159,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const ordersRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_orders + .sw-users-permissions-additional-permissions__switches',
         );
-        const ordersFields = ordersRoles.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' });
+        const ordersFields = ordersRoles.findAllComponents({
+            name: 'sw-switch-field-deprecated__wrapped',
+        });
 
         expect(ordersFields).toHaveLength(1);
         expect(ordersFields[0].props().label).toBe('sw-privileges.additional_permissions.orders.create_discounts');
@@ -170,9 +183,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     });
 
     it('should contain the a false value in a field when the privilege is not in roles', async () => {
-        const clearCacheField = wrapper.findComponent(
-            '.sw_users_permissions_additional_permissions_system_clear_cache',
-        );
+        const clearCacheField = wrapper.findComponent('.sw_users_permissions_additional_permissions_system_clear_cache');
 
         expect(clearCacheField.props().value).toBeFalsy();
     });
@@ -205,7 +216,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         expect(clearCacheField.props().value).toBeTruthy();
 
         await clearCacheField.find('input').trigger('click');
-        await flushPromises(); await clearCacheField.trigger('click');
+        await flushPromises();
+        await clearCacheField.trigger('click');
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.role.privileges).not.toContain('system.clear_cache');
@@ -221,7 +233,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         });
         await flushPromises();
 
-        wrapper.findAll('.sw-field--switch').forEach(field => {
+        wrapper.findAll('.sw-field--switch').forEach((field) => {
             expect(field.classes()).toContain('is--disabled');
         });
     });

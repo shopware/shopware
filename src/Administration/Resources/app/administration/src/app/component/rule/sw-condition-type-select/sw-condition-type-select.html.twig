@@ -10,7 +10,7 @@
     :groups="availableGroups"
     :placeholder="$tc('global.sw-condition.condition.placeholder')"
     :value="currentValue"
-    :disabled="disabled"
+    :disabled="disabled || undefined"
     required
     show-clearable-button
     @update:value="changeType"
@@ -22,7 +22,7 @@
     >
         <sw-select-result
             v-tooltip="getTooltipConfig(item)"
-            :disabled="item.disabled || restrictedConditions[item.type] !== undefined"
+            :disabled="item.disabled || restrictedConditions[item.type] !== undefined || undefined"
             :class="'sw-select-option--' + item.value"
             :selected="isSelected(item)"
             v-bind="{ item, index }"

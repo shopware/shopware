@@ -17,6 +17,10 @@ async function createWrapper(additionalSlots = null) {
                     },
                 },
             },
+            stubs: {
+                'sw-loader': true,
+                'sw-icon': true,
+            },
         },
         slots: {
             default: `

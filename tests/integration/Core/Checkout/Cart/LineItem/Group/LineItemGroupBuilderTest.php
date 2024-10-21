@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
@@ -25,6 +26,8 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -34,8 +37,8 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionSetGroupTestFixtureBehaviour;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupSorter;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupTakeAllPackager;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeSequenceSupervisor;
@@ -58,6 +61,7 @@ class LineItemGroupBuilderTest extends TestCase
     use RulesTestFixtureBehaviour;
 
     private const KEY_PACKAGER_COUNT = 'COUNT';
+    private const KEY_PRICE_UNIT_GROSS = 'PRICE_UNIT_GROSS';
 
     private const KEY_SORTER_PRICE_ASC = 'PRICE_ASC';
     private const KEY_SORTER_PRICE_DESC = 'PRICE_DESC';
@@ -332,6 +336,81 @@ class LineItemGroupBuilderTest extends TestCase
         $groupCount = $result->getGroupResult($group);
 
         static::assertCount(4, $groupCount);
+    }
+
+    #[Group('lineitemgroup')]
+    public function testShouldGroupsCorrectly(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10, 20);
+        $item2 = $this->createProductItem(20, 10, 30);
+        $item3 = $this->createProductItem(40, 10, 100);
+
+        $item1->setReferencedId($item1->getId());
+        $item2->setReferencedId($item2->getId());
+        $item3->setReferencedId($item3->getId());
+
+        $item1->setQuantity(3);
+        $item2->setQuantity(7);
+        $item3->setQuantity(5);
+        $item1->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([]), 3));
+        $item2->setPriceDefinition(new QuantityPriceDefinition(20, new TaxRuleCollection([]), 7));
+        $item3->setPriceDefinition(new QuantityPriceDefinition(40, new TaxRuleCollection([]), 5));
+
+        $cart->addLineItems(new LineItemCollection([$item1, $item2, $item3]));
+
+        $rules = new AndRule();
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload($rules);
+
+        $group = $this->buildGroup(
+            self::KEY_PRICE_UNIT_GROSS,
+            70,
+            self::KEY_SORTER_PRICE_ASC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(4, $groupCount);
+
+        static::assertInstanceOf(LineItemGroup::class, $groupCount[0]);
+        $items = $groupCount[0]->getItems();
+        static::assertCount(2, $items);
+        static::assertInstanceOf(LineItemQuantity::class, $items[0]);
+        static::assertInstanceOf(LineItemQuantity::class, $items[1]);
+        static::assertEquals($item1->getId(), $items[0]->getLineItemId());
+        static::assertEquals($item2->getId(), $items[1]->getLineItemId());
+        static::assertEquals(3, $items[0]->getQuantity());
+        static::assertEquals(2, $items[1]->getQuantity());
+
+        static::assertInstanceOf(LineItemGroup::class, $groupCount[1]);
+        $items = $groupCount[1]->getItems();
+        static::assertCount(1, $items);
+        static::assertInstanceOf(LineItemQuantity::class, $items[0]);
+        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
+        static::assertEquals(4, $items[0]->getQuantity());
+
+        static::assertInstanceOf(LineItemGroup::class, $groupCount[2]);
+        $items = $groupCount[2]->getItems();
+        static::assertCount(2, $items);
+        static::assertInstanceOf(LineItemQuantity::class, $items[0]);
+        static::assertInstanceOf(LineItemQuantity::class, $items[1]);
+        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
+        static::assertEquals($item3->getId(), $items[1]->getLineItemId());
+        static::assertEquals(1, $items[0]->getQuantity());
+        static::assertEquals(2, $items[1]->getQuantity());
+
+        static::assertInstanceOf(LineItemGroup::class, $groupCount[3]);
+        $items = $groupCount[3]->getItems();
+        static::assertCount(1, $items);
+        static::assertInstanceOf(LineItemQuantity::class, $items[0]);
+        static::assertEquals($item3->getId(), $items[0]->getLineItemId());
+        static::assertEquals(2, $items[0]->getQuantity());
     }
 
     /**

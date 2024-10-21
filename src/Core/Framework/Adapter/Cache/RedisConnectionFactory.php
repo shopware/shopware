@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
@@ -10,6 +13,8 @@ use Symfony\Component\Cache\Adapter\RedisAdapter;
  * Existing connections are reused if there are any.
  *
  * @final
+ *
+ * @phpstan-type RedisTypeHint \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay
  */
 #[Package('core')]
 class RedisConnectionFactory
@@ -17,7 +22,7 @@ class RedisConnectionFactory
     /**
      * This static variable is not reset on purpose, as we may reuse existing redis connections over multiple requests
      *
-     * @var array<string, \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay>
+     * @var array<string, RedisTypeHint>
      */
     private static array $connections = [];
 
@@ -29,20 +34,21 @@ class RedisConnectionFactory
     }
 
     /**
-     * @param array<string, mixed> $options
      * Don't type hint the native return types, as symfony might change them in the future
      *
-     * @return \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay
+     * @param array<string, mixed> $options
+     *
+     * @return RedisTypeHint
      */
     public function create(string $dsn, array $options = [])
     {
-        $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
+        $configHash = Hasher::hash($options);
         $key = $dsn . $configHash . $this->prefix;
 
         if (!isset(self::$connections[$key]) || (
             \method_exists(self::$connections[$key], 'isConnected') && self::$connections[$key]->isConnected() === false
         )) {
-            /** @var \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis */
+            /** @var RedisTypeHint $redis */
             $redis = RedisAdapter::createConnection($dsn, $options);
 
             if ($this->prefix && \method_exists($redis, 'setOption')) {

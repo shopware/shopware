@@ -2,26 +2,25 @@ import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/En
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
-import type {
-    Cart,
-    LineItem,
-    SalesChannelContext,
-    ContextSwitchParameters,
-    CartDelivery,
-} from '../../order.types';
+import type { Cart, LineItem, SalesChannelContext, ContextSwitchParameters, CartDelivery } from '../../order.types';
 
 import { LineItemType } from '../../order.types';
 
 const { Component, State, Mixin, Service } = Shopware;
 
 interface PromotionCodeItem {
-    type: string,
-    referencedId: string,
+    type: string;
+    referencedId: string;
 }
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),
@@ -29,14 +28,14 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        isLoading: boolean,
-        isProductGridLoading: boolean,
-        disabledAutoPromotion: boolean,
-        promotionCodes: string[],
-        productItems: LineItem[],
-        context: ContextSwitchParameters,
-        shippingCosts: number|null,
-        } {
+        isLoading: boolean;
+        isProductGridLoading: boolean;
+        disabledAutoPromotion: boolean;
+        promotionCodes: string[];
+        productItems: LineItem[];
+        context: ContextSwitchParameters;
+        shippingCosts: number | null;
+    } {
         return {
             productItems: [],
             promotionCodes: [],
@@ -72,8 +71,7 @@ export default Component.wrapComponentConfig({
             return State.get('swOrder').cart;
         },
 
-
-        customer(): Entity<'customer'>|null {
+        customer(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
@@ -83,7 +81,7 @@ export default Component.wrapComponentConfig({
         },
 
         promotionCodeItems(): PromotionCodeItem[] {
-            return this.promotionCodes.map(code => {
+            return this.promotionCodes.map((code) => {
                 return {
                     type: LineItemType.PROMOTION,
                     referencedId: code,
@@ -143,8 +141,7 @@ export default Component.wrapComponentConfig({
                 promises.push(this.addPromotionCodes());
             }
 
-            if (this.shippingCosts !== null
-                && this.shippingCosts !== this.cartDelivery?.shippingCosts?.totalPrice) {
+            if (this.shippingCosts !== null && this.shippingCosts !== this.cartDelivery?.shippingCosts?.totalPrice) {
                 promises.push(this.modifyShippingCost(this.shippingCosts));
             }
 
@@ -219,7 +216,8 @@ export default Component.wrapComponentConfig({
         disableAutoAppliedPromotions(): Promise<void> {
             const additionalParams = { salesChannelId: this.salesChannelId };
 
-            return Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams)
+            return Service('cartStoreService')
+                .disableAutomaticPromotions(this.cart.token, additionalParams)
                 .then(() => {
                     State.commit('swOrder/setDisabledAutoPromotion', true);
                 });

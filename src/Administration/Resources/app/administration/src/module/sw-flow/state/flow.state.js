@@ -5,6 +5,7 @@ const { types } = Shopware.Utils;
 /**
  * @private
  * @package services-settings
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default {
     namespaced: true,
@@ -50,7 +51,7 @@ export default {
         setOriginFlow(state, flow) {
             state.originFlow = {
                 ...flow,
-                sequences: Array.from(flow.sequences).map(item => Object.assign(item, {})),
+                sequences: Array.from(flow.sequences).map((item) => Object.assign(item, {})),
             };
         },
 
@@ -84,14 +85,14 @@ export default {
         },
 
         removeSequences(state, sequenceIds) {
-            sequenceIds.forEach(sequenceId => {
+            sequenceIds.forEach((sequenceId) => {
                 state.flow.sequences.remove(sequenceId);
             });
         },
 
         updateSequence(state, params) {
             const sequences = state.flow.sequences;
-            const sequenceIndex = sequences.findIndex(el => el.id === params.id);
+            const sequenceIndex = sequences.findIndex((el) => el.id === params.id);
 
             let updatedSequence = {
                 ...sequences[sequenceIndex],
@@ -100,17 +101,11 @@ export default {
 
             updatedSequence = Object.assign(sequences[sequenceIndex], updatedSequence);
 
-            state.flow.sequences = new EntityCollection(
-                sequences.source,
-                sequences.entity,
-                Shopware.Context.api,
-                null,
-                [
-                    ...sequences.slice(0, sequenceIndex),
-                    updatedSequence,
-                    ...sequences.slice(sequenceIndex + 1),
-                ],
-            );
+            state.flow.sequences = new EntityCollection(sequences.source, sequences.entity, Shopware.Context.api, null, [
+                ...sequences.slice(0, sequenceIndex),
+                updatedSequence,
+                ...sequences.slice(sequenceIndex + 1),
+            ]);
         },
 
         setStateMachineState(state, stateMachineState) {
@@ -179,7 +174,7 @@ export default {
         hasFlowChanged(state) {
             const flow = {
                 ...state.flow,
-                sequences: Array.from(state.flow.sequences).filter(item => {
+                sequences: Array.from(state.flow.sequences).filter((item) => {
                     if (item.actionName || item.ruleId) {
                         return Object.assign(item, {});
                     }
@@ -219,7 +214,7 @@ export default {
                 }
 
                 // check if the current active action contains any required keys from an action option.
-                const isActive = action.requirements.some(item => state.triggerEvent?.aware?.includes(item));
+                const isActive = action.requirements.some((item) => state.triggerEvent?.aware?.includes(item));
 
                 if (!isActive) {
                     return;
@@ -232,8 +227,9 @@ export default {
                 const actionType = Service('flowBuilderService').mapActionType(action.name);
 
                 if (actionType) {
-                    const duplicateAction = availableAction
-                        .find(option => Service('flowBuilderService').mapActionType(option) === actionType);
+                    const duplicateAction = availableAction.find(
+                        (option) => Service('flowBuilderService').mapActionType(option) === actionType,
+                    );
 
                     if (duplicateAction !== undefined) {
                         return;
@@ -248,26 +244,32 @@ export default {
 
         mailTemplateIds(state) {
             return state.flow.sequences
-                .filter(item => item.actionName === Service('flowBuilderService').getActionName('MAIL_SEND'))
-                .map(item => item.config?.mailTemplateId);
+                .filter((item) => item.actionName === Service('flowBuilderService').getActionName('MAIL_SEND'))
+                .map((item) => item.config?.mailTemplateId);
         },
 
         customFieldSetIds(state) {
             const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
-                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
-                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
-                .map(item => item.config?.customFieldSetId);
+                .filter(
+                    (item) =>
+                        item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD') ||
+                        item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD') ||
+                        item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
+                )
+                .map((item) => item.config?.customFieldSetId);
         },
 
         customFieldIds(state) {
             const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
-                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
-                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
-                .map(item => item.config?.customFieldId);
+                .filter(
+                    (item) =>
+                        item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD') ||
+                        item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD') ||
+                        item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
+                )
+                .map((item) => item.config?.customFieldId);
         },
 
         actionGroups() {
@@ -279,7 +281,7 @@ export default {
         },
 
         hasAvailableAction: (state) => (actionName) => {
-            return state.originAvailableActions.some(name => name === actionName);
+            return state.originAvailableActions?.some((name) => name === actionName) ?? false;
         },
     },
 

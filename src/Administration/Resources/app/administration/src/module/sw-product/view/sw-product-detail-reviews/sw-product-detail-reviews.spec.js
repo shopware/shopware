@@ -1,11 +1,8 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import swProductDetailReviews from 'src/module/sw-product/view/sw-product-detail-reviews';
-
-Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews);
 
 const { State } = Shopware;
 
@@ -32,7 +29,6 @@ async function createWrapper(privileges = []) {
                         return privileges.includes(identifier);
                     },
                 },
-
             },
             stubs: {
                 'sw-card': {
@@ -66,6 +62,9 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-skeleton': true,
                 'sw-button': true,
+                'sw-rating-stars': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-pagination': true,
             },
         },
     });
@@ -179,7 +178,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
-        await Shopware.State.commit('swProductDetail/setProduct', { id: '101' });
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            id: '101',
+        });
         await flushPromises();
 
         expect(wrapper.vm.getReviews).toHaveBeenCalled();

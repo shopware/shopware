@@ -25,7 +25,11 @@ const utils = Shopware.Utils;
 Component.register('sw-radio-panel', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: ['update:modelValue'],
 
     props: {
         // eslint-disable-next-line vue/require-default-prop

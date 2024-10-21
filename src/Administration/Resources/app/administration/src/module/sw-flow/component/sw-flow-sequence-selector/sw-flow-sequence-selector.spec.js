@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const sequences = [
     {
         id: '1',
@@ -32,21 +36,26 @@ const sequences = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-sequence-selector', {
-        sync: true,
-    }), {
-        props: {
-            sequence: sequences[0],
-        },
+    return mount(
+        await wrapTestComponent('sw-flow-sequence-selector', {
+            sync: true,
+        }),
+        {
+            props: {
+                sequence: sequences[0],
+            },
 
-        global: {
-            stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-icon': true,
+            global: {
+                stubs: {
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-icon': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
@@ -141,7 +150,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         await wrapper.setProps({
             sequence: sequences[2],
         });
-
 
         expect(helpText.text()).toBe('sw-flow.detail.sequence.selectorHelpTextFalseCondition');
     });

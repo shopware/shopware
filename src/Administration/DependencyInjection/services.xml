@@ -112,7 +112,7 @@
 
         <service id="Shopware\Administration\Framework\Routing\NotFound\AdministrationNotFoundSubscriber">
             <argument>%shopware_administration.path_name%</argument>
-            <argument type="service" id="Symfony\Bundle\FrameworkBundle\Controller\TemplateController" />
+            <argument type="service" id="service_container" />
 
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -2,8 +2,19 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="shopware.messenger.enforce_message_size">true</parameter>
+    </parameters>
+
     <services>
         <service id="Shopware\Tests\Integration\Core\Framework\Api\EventListener\FixturesPhp\SalesChannelAuthenticationListenerTestRoute">
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Shopware\Tests\Integration\Core\Content\Seo\SalesChannel\FixturesPhp\StoreApiSeoResolverTestRoute">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+
             <tag name="controller.service_arguments"/>
         </service>
 
@@ -44,5 +55,18 @@
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg">
             <tag name="shopware.entity"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Test\Telemetry\Factory\TraceableTransportFactory">
+            <tag name="shopware.metric_transport_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection" lazy="true">
+            <factory class="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection" method="create"/>
+            <argument type="iterator">
+                <argument type="service" id="Shopware\Core\Framework\Test\Telemetry\Factory\TraceableTransportFactory"/>
+            </argument>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider"/>
+        </service>
+
     </services>
 </container>

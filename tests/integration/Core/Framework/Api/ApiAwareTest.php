@@ -9,9 +9,11 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
@@ -25,10 +27,7 @@ class ApiAwareTest extends TestCase
 
     public function testApiAware(): void
     {
-        $cacheId = hash_file('md5', __DIR__ . '/fixtures/api-aware-fields.json');
-        if (!\is_string($cacheId)) {
-            static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be hashed');
-        }
+        $cacheId = Hasher::hashFile(__DIR__ . '/fixtures/api-aware-fields.json');
 
         $kernel = KernelLifecycleManager::createKernel(
             null,
@@ -117,6 +116,16 @@ class ApiAwareTest extends TestCase
                     'app_administration_snippet.localeId',
                     'app_administration_snippet.createdAt',
                     'app_administration_snippet.updatedAt',
+                ]
+            );
+        }
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $expected = array_merge(
+                $expected,
+                [
+                    'customer.defaultPaymentMethodId',
+                    'customer.defaultPaymentMethod',
                 ]
             );
         }

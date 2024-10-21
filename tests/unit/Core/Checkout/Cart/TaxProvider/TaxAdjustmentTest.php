@@ -34,8 +34,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @package checkout
  */
 #[CoversClass(TaxAdjustment::class)]
 class TaxAdjustmentTest extends TestCase

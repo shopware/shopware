@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
@@ -43,68 +46,71 @@ responses.addResponse({
 async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
-    return mount(
-        await wrapTestComponent('sw-condition-generic', { sync: true }),
-        {
-            attachTo: document.body,
-            props: {
-                condition,
+    return mount(await wrapTestComponent('sw-condition-generic', { sync: true }), {
+        attachTo: document.body,
+        props: {
+            condition,
+        },
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
+                'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                'sw-entity-multi-id-select': await wrapTestComponent('sw-entity-multi-id-select'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
+                'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-field-error': true,
+                'sw-condition-type-select': true,
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-label': true,
+                'sw-highlight-text': true,
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
+                'sw-tagged-field': {
+                    template: '<div class="sw-tagged-field"></div>',
+                },
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-button': true,
+                'sw-field-copyable': true,
             },
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-multi-select': await wrapTestComponent('sw-multi-select'),
-                    'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
-                    'sw-entity-multi-id-select': await wrapTestComponent('sw-entity-multi-id-select'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
-                    'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-context-button': true,
-                    'sw-context-menu-item': true,
-                    'sw-field-error': true,
-                    'sw-condition-type-select': true,
-                    'sw-icon': true,
-                    'sw-loader': true,
-                    'sw-label': true,
-                    'sw-highlight-text': true,
-                    'sw-popover': await wrapTestComponent('sw-popover'),
-                    'sw-popover-deprecated': {
-                        template: '<div class="sw-popover"><slot></slot></div>',
-                    },
-                    'sw-tagged-field': {
-                        template: '<div class="sw-tagged-field"></div>',
-                    },
+            provide: {
+                conditionDataProviderService: new ConditionDataProviderService(),
+                ruleConditionsConfigApiService: {
+                    load: () => Promise.resolve(),
                 },
-                provide: {
-                    conditionDataProviderService: new ConditionDataProviderService(),
-                    ruleConditionsConfigApiService: {
-                        load: () => Promise.resolve(),
-                    },
-                    availableTypes: [],
-                    availableGroups: [],
-                    childAssociationField: {},
-                    validationService: {},
-                    insertNodeIntoTree: () => ({}),
-                    removeNodeFromTree: () => ({}),
-                    createCondition: () => ({}),
-                    conditionScopes: [],
-                    unwrapAllLineItemsCondition: () => ({}),
-                },
+                availableTypes: [],
+                availableGroups: [],
+                childAssociationField: {},
+                validationService: {},
+                insertNodeIntoTree: () => ({}),
+                removeNodeFromTree: () => ({}),
+                createCondition: () => ({}),
+                conditionScopes: [],
+                unwrapAllLineItemsCondition: () => ({}),
             },
         },
-    );
+    });
 }
 
 describe('components/rule/condition-type/sw-condition-generic', () => {
@@ -135,8 +141,18 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.get('.sw-select-option--0').trigger('click');
         await wrapper.get('.sw-select-option--1').trigger('click');
 
-        expect(wrapper.vm.condition.value.customerGroupIds).toEqual(expect.arrayContaining(['g.a', 'g.b']));
-        expect(wrapper.vm.values.customerGroupIds).toEqual(expect.arrayContaining(['g.a', 'g.b']));
+        expect(wrapper.vm.condition.value.customerGroupIds).toEqual(
+            expect.arrayContaining([
+                'g.a',
+                'g.b',
+            ]),
+        );
+        expect(wrapper.vm.values.customerGroupIds).toEqual(
+            expect.arrayContaining([
+                'g.a',
+                'g.b',
+            ]),
+        );
     });
 
     it('should render condition with null operator', async () => {
@@ -236,11 +252,9 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
     });
 
     it('should render unit menu when condition has unit', async () => {
-        const wrapper = await createWrapper(
-            {
-                type: 'cartLineItemDimensionWeight',
-            },
-        );
+        const wrapper = await createWrapper({
+            type: 'cartLineItemDimensionWeight',
+        });
 
         const menu = wrapper.getComponent('.sw-condition-generic__unit-menu');
 

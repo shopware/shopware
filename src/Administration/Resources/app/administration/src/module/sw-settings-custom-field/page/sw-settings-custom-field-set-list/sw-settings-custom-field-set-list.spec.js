@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -33,87 +33,95 @@ function mockCustomFieldSetData() {
 async function createWrapper(privileges = []) {
     const { Mixin } = Shopware;
 
-
-    return mount(await wrapTestComponent('sw-settings-custom-field-set-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    params: {
-                        id: '1234',
-                    },
-                    query: {
-                        limit: '25',
-                        naturalSorting: false,
-                        page: 1,
-                        sortBy: 'config.name',
-                        sortDirection: 'ASC',
-                    },
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve(mockCustomFieldSetData());
+    return mount(
+        await wrapTestComponent('sw-settings-custom-field-set-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        params: {
+                            id: '1234',
                         },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
+                        query: {
+                            limit: '25',
+                            naturalSorting: false,
+                            page: 1,
+                            sortBy: 'config.name',
+                            sortDirection: 'ASC',
+                        },
                     },
                 },
-                mixins: [
-                    Mixin.getByName('notification'),
-                    Mixin.getByName('sw-inline-snippet'),
-                    Mixin.getByName('discard-detail-page-changes')('set'),
-                ],
-                searchRankingService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve(mockCustomFieldSetData());
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    mixins: [
+                        Mixin.getByName('notification'),
+                        Mixin.getByName('sw-inline-snippet'),
+                        Mixin.getByName('discard-detail-page-changes')('set'),
+                    ],
+                    searchRankingService: {},
+                },
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
+                    },
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-search-bar': true,
+                    'sw-grid': await wrapTestComponent('sw-grid'),
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-context-menu-item': {
+                        template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                    },
+                    'sw-context-menu': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-grid-column': {
+                        template: '<div class="sw-grid-column"><slot></slot></div>',
+                    },
+                    'sw-grid-row': {
+                        template: '<div class="sw-grid-row"><slot></slot></div>',
+                    },
+                    'sw-pagination': true,
+                    'sw-empty-state': true,
+                    'router-link': true,
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-card-view': true,
+                    'sw-ignore-class': true,
+                    'sw-extension-component-section': true,
+                    'sw-help-text': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-loader': true,
+                    'sw-checkbox-field': true,
                 },
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-search-bar': true,
-                'sw-grid': await wrapTestComponent('sw-grid'),
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-context-menu-item': {
-                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
-                },
-                'sw-context-menu': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-grid-column': {
-                    template: '<div class="sw-grid-column"><slot></slot></div>',
-                },
-                'sw-grid-row': {
-                    template: '<div class="sw-grid-row"><slot></slot></div>',
-                },
-                'sw-pagination': true,
-                'sw-empty-state': true,
-                'router-link': true,
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-card-view': true,
-                'sw-ignore-class': true,
-                'sw-extension-component-section': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list', () => {

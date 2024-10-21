@@ -22,14 +22,14 @@
         <div class="product-wishlist">
             {% block component_product_wishlist_button %}
                 <button
-                    class="product-wishlist-{{ productId }} product-wishlist-action{% if appearance == 'circle' %}-circle{% endif %} product-wishlist-not-added product-wishlist-loading"
+                    class="product-wishlist-{{ productId }} product-wishlist-action{% if appearance == 'circle' %}-circle product-wishlist-btn btn btn-light{% endif %} product-wishlist-not-added product-wishlist-loading"
                     title="{{ 'listing.addToWishlist'|trans|sw_sanitize }}"
                     data-add-to-wishlist="true"
                     data-add-to-wishlist-options="{{ addToWishlistOptions|json_encode }}"
                 >
                     {% block component_product_wishlist_icon %}
                         {% sw_icon 'heart-fill' style { class: 'wishlist icon-wishlist-added', size: size } %}
-                        {% sw_icon 'heart' style {class: 'wishlist icon-wishlist-not-added', size: size } %}
+                        {% sw_icon 'heart' style { class: 'wishlist icon-wishlist-not-added', size: size } %}
 
                         {% if showText %}
                             <span class="product-wishlist-btn-content product-wishlist-btn-content-{{ size }}">

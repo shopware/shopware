@@ -5,6 +5,7 @@
     v-bind="$attrs"
     v-model="realValue"
     :placeholder="placeholder"
+    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -26,7 +27,7 @@
     v-model:value="realValue"
     :value="value"
     :placeholder="placeholder"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

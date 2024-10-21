@@ -6,6 +6,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -57,7 +58,8 @@ class SystemInstallCommand extends Command
 
         // set default
         $isBlueGreen = EnvironmentHelper::getVariable('BLUE_GREEN_DEPLOYMENT', '1');
-        $_ENV['BLUE_GREEN_DEPLOYMENT'] = $_SERVER['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
+        $_SERVER['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
+        $_ENV['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
         putenv('BLUE_GREEN_DEPLOYMENT=' . $isBlueGreen);
 
         if (!$input->getOption('force') && file_exists($this->projectDir . '/install.lock')) {
@@ -109,8 +111,7 @@ class SystemInstallCommand extends Command
             );
         }
 
-        /** @var Application $application */
-        $application = $this->getApplication();
+        $application = $this->getConsoleApplication();
         if ($application->has('theme:refresh')) {
             $commands[] = [
                 'command' => 'theme:refresh',
@@ -163,7 +164,7 @@ class SystemInstallCommand extends Command
             'command' => 'cache:clear',
         ];
 
-        $this->runCommands($commands, $output);
+        $result = $this->runCommands($commands, $output);
 
         if (!file_exists($this->projectDir . '/public/.htaccess')
             && file_exists($this->projectDir . '/public/.htaccess.dist')
@@ -173,25 +174,13 @@ class SystemInstallCommand extends Command
 
         touch($this->projectDir . '/install.lock');
 
-        return self::SUCCESS;
+        return $result;
     }
 
     /**
      * @param array<int, array<string, string|bool|null>> $commands
      */
     private function runCommands(array $commands, OutputInterface $output): int
-    {
-        $application = $this->getApplication();
-
-        \assert($application !== null);
-
-        return $this->runCommandByApplication($application, $commands, $output);
-    }
-
-    /**
-     * @param array<int, array<string, string|bool|null>> $commands
-     */
-    private function runCommandByApplication(Application $application, array $commands, OutputInterface $output): int
     {
         foreach ($commands as $parameters) {
             // remove params with null value
@@ -203,7 +192,7 @@ class SystemInstallCommand extends Command
             unset($parameters['allowedToFail']);
 
             try {
-                $returnCode = $application->doRun(new ArrayInput($parameters), $output);
+                $returnCode = $this->getConsoleApplication()->doRun(new ArrayInput($parameters), $output);
 
                 if ($returnCode !== 0 && !$allowedToFail) {
                     return $returnCode;
@@ -233,8 +222,7 @@ class SystemInstallCommand extends Command
             $output->writeln('Drop database `' . $databaseConnectionInformation->getDatabaseName() . '`');
         }
 
-        $createDatabase = $input->getOption('create-database') || $dropDatabase;
-        if ($createDatabase) {
+        if ($input->getOption('create-database') || $dropDatabase) {
             $this->setupDatabaseAdapter->createDatabase($connection, $databaseConnectionInformation->getDatabaseName());
             $output->writeln('Created database `' . $databaseConnectionInformation->getDatabaseName() . '`');
         }
@@ -246,5 +234,15 @@ class SystemInstallCommand extends Command
         }
 
         $output->writeln('');
+    }
+
+    private function getConsoleApplication(): Application
+    {
+        $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw MaintenanceException::consoleApplicationNotFound();
+        }
+
+        return $application;
     }
 }

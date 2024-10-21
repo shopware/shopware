@@ -38,6 +38,45 @@ class SyncServiceTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
+    public function testDeleteViaCriteria(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->category('c1')
+                ->build(),
+            (new ProductBuilder($ids, 'p2'))
+                ->price(100)
+                ->category('c2')
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation(
+                'delete-products',
+                'product',
+                SyncOperation::ACTION_DELETE,
+                [],
+                [['type' => 'equals', 'field' => 'categories.id', 'value' => $ids->get('c1')]]
+            ),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        $existing = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['p1', 'p2']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertCount(1, $existing);
+        static::assertContains($ids->get('p2'), $existing);
+    }
+
     public function testSendNoneExistingId(): void
     {
         $ids = new IdsCollection();

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
@@ -93,7 +94,7 @@ class AppPrinter
         }
 
         $io->caution(
-            sprintf(
+            \sprintf(
                 'App "%s" should be %s but requires the following permissions:',
                 $manifest->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'
@@ -119,7 +120,7 @@ class AppPrinter
             'Do you consent with data being shared or transferred to the domains listed above?',
             false
         )) {
-            throw new UserAbortedCommandException();
+            throw AppException::userAborted();
         }
     }
 
@@ -129,7 +130,7 @@ class AppPrinter
     private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
     {
         $io->caution(
-            sprintf(
+            \sprintf(
                 'App "%s" should be %s but requires communication with the following hosts:',
                 $app->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'

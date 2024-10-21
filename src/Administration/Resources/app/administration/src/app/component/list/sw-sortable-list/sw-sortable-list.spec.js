@@ -6,7 +6,11 @@ import { shallowMount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 import 'src/app/component/list/sw-sortable-list';
 
-const listItems = [{ id: 0 }, { id: 1 }, { id: 2 }];
+const listItems = [
+    { id: 0 },
+    { id: 1 },
+    { id: 2 },
+];
 
 async function createWrapper(userConfig = {}) {
     const defaultConfig = {
@@ -19,6 +23,9 @@ async function createWrapper(userConfig = {}) {
             },
         },
         global: {
+            stubs: {
+                'sw-empty-state': true,
+            },
             directives: {
                 draggable: {},
                 droppable: {},
@@ -30,13 +37,16 @@ async function createWrapper(userConfig = {}) {
                 },
             },
             mocks: {
-                $tc: v => v,
+                $tc: (v) => v,
             },
             sync: true,
         },
     };
 
-    const wrapper = shallowMount(await Shopware.Component.build('sw-sortable-list'), deepMergeObject(defaultConfig, userConfig));
+    const wrapper = shallowMount(
+        await Shopware.Component.build('sw-sortable-list'),
+        deepMergeObject(defaultConfig, userConfig),
+    );
 
     await flushPromises();
 
@@ -104,7 +114,6 @@ describe('src/component/list/sw-sortable-list', () => {
             },
         });
 
-
         wrapper.vm.onDragEnter(listItems[0], listItems[2]);
 
         await flushPromises();
@@ -152,7 +161,11 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not sort items with same id', async () => {
-        const brokenItems = [{ id: 1 }, { id: 1 }, { id: 1 }];
+        const brokenItems = [
+            { id: 1 },
+            { id: 1 },
+            { id: 1 },
+        ];
 
         wrapper = await createWrapper({
             items: brokenItems,
@@ -172,7 +185,11 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not sort items without id', async () => {
-        const brokenItems = [{ id: null }, { id: undefined }, { id: '' }];
+        const brokenItems = [
+            { id: null },
+            { id: undefined },
+            { id: '' },
+        ];
 
         wrapper = await createWrapper({
             items: brokenItems,

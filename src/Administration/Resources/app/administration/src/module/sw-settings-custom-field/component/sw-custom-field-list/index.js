@@ -12,6 +12,8 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -22,6 +24,8 @@ export default {
             SwCustomFieldListIsCustomFieldNameUnique: this.isCustomFieldNameUnique,
         };
     },
+
+    emits: ['loading-changed'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -52,10 +56,7 @@ export default {
 
     computed: {
         customFieldRepository() {
-            return this.repositoryFactory.create(
-                this.set.customFields.entity,
-                this.set.customFields.source,
-            );
+            return this.repositoryFactory.create(this.set.customFields.entity, this.set.customFields.source);
         },
 
         globalCustomFieldRepository() {
@@ -94,14 +95,17 @@ export default {
                 criteria.setTerm(this.term);
             }
 
-            return this.customFieldRepository.search(criteria).then((response) => {
-                this.customFields = response;
-                this.total = response.total;
+            return this.customFieldRepository
+                .search(criteria)
+                .then((response) => {
+                    this.customFields = response;
+                    this.total = response.total;
 
-                return response;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+                    return response;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         selectionChanged(selection) {
@@ -133,7 +137,8 @@ export default {
         onSaveCustomField(field = this.currentCustomField) {
             this.removeEmptyProperties(field.config);
 
-            return this.customFieldRepository.save(field)
+            return this.customFieldRepository
+                .save(field)
                 .catch((error) => {
                     const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
 
@@ -161,7 +166,12 @@ export default {
 
         removeEmptyProperties(config) {
             Object.keys(config).forEach((property) => {
-                if (['number', 'boolean'].includes(typeof config[property])) {
+                if (
+                    [
+                        'number',
+                        'boolean',
+                    ].includes(typeof config[property])
+                ) {
                     return;
                 }
 
@@ -170,7 +180,11 @@ export default {
                 }
 
                 if ((types.isEmpty(config[property]) || config[property] === undefined) && config[property !== null]) {
-                    this.$delete(config, property);
+                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                        this.$delete(config, property);
+                    } else {
+                        delete config[property];
+                    }
                 }
             });
         },
@@ -200,7 +214,7 @@ export default {
             const isArray = Array.isArray(this.deleteCustomField);
 
             if (isArray) {
-                this.deleteCustomField.forEach(customField => toBeDeletedCustomFields.push(customField.id));
+                this.deleteCustomField.forEach((customField) => toBeDeletedCustomFields.push(customField.id));
             } else {
                 toBeDeletedCustomFields.push(this.deleteCustomField.id);
             }

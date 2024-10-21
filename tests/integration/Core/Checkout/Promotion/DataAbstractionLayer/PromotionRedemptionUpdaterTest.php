@@ -27,9 +27,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 
 /**
  * @internal
@@ -295,7 +295,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                 ],
-                'stateId' => $this->fetchFirstIdFromTable('state_machine'),
+                'stateId' => $this->fetchFirstIdFromTable('state_machine_state'),
                 'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1.0,

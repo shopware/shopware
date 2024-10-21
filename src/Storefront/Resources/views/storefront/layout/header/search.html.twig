@@ -36,6 +36,16 @@
                                     </span>
                                 </button>
                             {% endblock %}
+
+                            {% block layout_header_close_button %}
+                                <button class="btn header-close-btn js-search-close-btn d-none"
+                                        type="button"
+                                        aria-label="{{ 'header.searchCloseButton'|trans|striptags }}">
+                                    <span class="header-close-icon">
+                                        {% sw_icon 'x' %}
+                                    </span>
+                                </button>
+                            {% endblock %}
                         </div>
                     {% endblock %}
                 </form>

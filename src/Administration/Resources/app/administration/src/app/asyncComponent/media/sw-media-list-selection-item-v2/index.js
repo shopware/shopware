@@ -10,6 +10,13 @@ import './sw-media-list-selection-item-v2.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'click',
+        'item-remove',
+    ],
+
     props: {
         // eslint-disable-next-line vue/require-prop-types
         item: {

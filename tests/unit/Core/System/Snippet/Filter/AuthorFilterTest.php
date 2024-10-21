@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Filter\AuthorFilter;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(AuthorFilter::class)]
 class AuthorFilterTest extends TestCase
 {

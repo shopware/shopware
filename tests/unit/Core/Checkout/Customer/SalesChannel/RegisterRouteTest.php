@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -35,12 +36,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -131,6 +134,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
@@ -202,6 +206,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
@@ -219,6 +224,7 @@ class RegisterRouteTest extends TestCase
 
                 $definition->add('company', new NotBlank());
                 $definition->set('zipcode', new CustomerZipCode(['countryId' => null]));
+                $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
                 static::assertSame($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
@@ -273,6 +279,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -290,6 +297,7 @@ class RegisterRouteTest extends TestCase
 
                 $definition->add('company', new NotBlank());
                 $definition->set('zipcode', new CustomerZipCode(['countryId' => '123']));
+                $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
                 static::assertSame($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
@@ -418,6 +426,7 @@ class RegisterRouteTest extends TestCase
         $result->method('first')->willReturn($customerEntity);
 
         $salutationId = Uuid::randomHex();
+        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
         $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
@@ -481,6 +490,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -554,6 +564,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -626,6 +637,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -663,6 +675,7 @@ class RegisterRouteTest extends TestCase
             ],
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'shippingAddress' => [
+                'countryId' => $countryId,
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             ],
@@ -739,6 +752,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -768,7 +782,6 @@ class RegisterRouteTest extends TestCase
         $data = [
             'email' => 'test@test.de',
             'billingAddress' => [
-                'countryId' => $countryId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $salutationId,

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Defaults;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -57,6 +59,8 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
     protected PreparedPaymentService $preparedPaymentService;
 
+    protected PaymentProcessor $paymentProcessor;
+
     protected PaymentRefundProcessor $paymentRefundProcessor;
 
     protected ShopIdProvider $shopIdProvider;
@@ -72,6 +76,11 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
      */
     protected EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
+    protected EntityRepository $orderTransactionRepository;
+
     private EntityRepository $customerRepository;
 
     private EntityRepository $paymentMethodRepository;
@@ -81,11 +90,6 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     private InitialStateIdLoader $initialStateIdLoader;
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    /**
-     * @var EntityRepository<OrderTransactionCollection>
-     */
-    private EntityRepository $orderTransactionRepository;
 
     private EntityRepository $orderTransactionCaptureRepository;
 
@@ -110,6 +114,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
+        $this->paymentProcessor = $this->getContainer()->get(PaymentProcessor::class);
         $this->preparedPaymentService = $this->getContainer()->get(PreparedPaymentService::class);
         $this->paymentRefundProcessor = $this->getContainer()->get(PaymentRefundProcessor::class);
         $this->context = Context::createDefaultContext();
@@ -144,7 +149,6 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
             ->add('email', Uuid::randomHex() . '@example.com')
             ->add('salesChannelId', TestDefaults::SALES_CHANNEL)
             ->add('password', 'shopware')
-            ->add('defaultPaymentMethodId', $this->getValidPaymentMethodId())
             ->defaultShippingAddress('address')
             ->defaultBillingAddress('address', [
                 'id' => $addressId,
@@ -157,10 +161,13 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
                 'zipcode' => '48624',
                 'city' => 'Schöppingen',
             ])
-            ->customerGroup(TestDefaults::FALLBACK_CUSTOMER_GROUP)
-            ->build();
+            ->customerGroup(TestDefaults::FALLBACK_CUSTOMER_GROUP);
 
-        $this->customerRepository->upsert([$customer], $this->context);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer->add('defaultPaymentMethodId', $this->getValidPaymentMethodId());
+        }
+
+        $this->customerRepository->upsert([$customer->build()], $this->context);
 
         return $customerId;
     }
@@ -259,7 +266,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     protected function getPaymentMethodId(string $name): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('handlerIdentifier', sprintf('app\\testPayments_%s', $name)));
+        $criteria->addFilter(new EqualsFilter('handlerIdentifier', \sprintf('app\\testPayments_%s', $name)));
         $id = $this->paymentMethodRepository->searchIds($criteria, $this->context)->firstId();
         static::assertNotNull($id);
 
@@ -284,7 +291,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     protected function signResponse(array $content): ResponseInterface
     {
         $json = \json_encode($content, \JSON_THROW_ON_ERROR);
-        static::assertNotFalse($json);
+        static::assertIsString($json);
 
         $secret = $this->app->getAppSecret();
         static::assertNotNull($secret);

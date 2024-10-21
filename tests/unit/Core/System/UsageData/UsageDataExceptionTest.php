@@ -36,7 +36,7 @@ class UsageDataExceptionTest extends TestCase
             $exception->getStatusCode()
         );
         static::assertSame(
-            sprintf('No user available in context source "%s"', SystemSource::class),
+            \sprintf('No user available in context source "%s"', SystemSource::class),
             $exception->getMessage(),
         );
     }
@@ -57,7 +57,7 @@ class UsageDataExceptionTest extends TestCase
             $exception->getStatusCode()
         );
         static::assertSame(
-            sprintf('Expected context source to be "%s" but got "%s".', AdminApiSource::class, SystemSource::class),
+            \sprintf('Expected context source to be "%s" but got "%s".', AdminApiSource::class, SystemSource::class),
             $exception->getMessage(),
         );
     }

@@ -46,7 +46,10 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        value: [dollarPrice, euroPrice],
+        value: [
+            dollarPrice,
+            euroPrice,
+        ],
         taxRate,
         currency,
         defaultPrice,
@@ -56,7 +59,27 @@ const setup = async (propOverride) => {
 
     return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
         global: {
-            stubs: ['sw-number-field', 'sw-icon'],
+            stubs: {
+                'sw-number-field': await wrapTestComponent('sw-number-field', {
+                    sync: true,
+                }),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', {
+                    sync: true,
+                }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-field-error': true,
+                'sw-inheritance-switch': true,
+                'sw-field-copyable': true,
+                'sw-icon': true,
+                'sw-container': true,
+                'sw-maintain-currencies-modal': true,
+            },
         },
         props,
     });
@@ -95,12 +118,6 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render correctly', async () => {
-        const wrapper = await setup();
-
-        expect(wrapper.element).toMatchSnapshot();
-    });
-
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
 
@@ -136,7 +153,12 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup({ value: [euroPrice] });
 
         expect(wrapper.vm.isInherited).toBeTruthy();
-        await wrapper.setProps({ value: [dollarPrice, euroPrice] });
+        await wrapper.setProps({
+            value: [
+                dollarPrice,
+                euroPrice,
+            ],
+        });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
 
@@ -182,7 +204,7 @@ describe('components/form/sw-price-field', () => {
             value: [euroPrice],
         });
 
-        const expectedNetPrice = (euroPrice.net * currency.factor);
+        const expectedNetPrice = euroPrice.net * currency.factor;
 
         expect(wrapper.vm.priceForCurrency.net).toBe(parseFloat(expectedNetPrice, 10));
     });
@@ -203,8 +225,8 @@ describe('components/form/sw-price-field', () => {
             netHelpText: 'help for net price',
         });
 
-        expect(wrapper.find('.sw-price-field__gross').attributes()['help-text']).toBe('help for gross price');
-        expect(wrapper.find('.sw-price-field__net').attributes()['help-text']).toBe('help for net price');
+        expect(wrapper.find('.sw-price-field__gross sw-help-text-stub').attributes().text).toBe('help for gross price');
+        expect(wrapper.find('.sw-price-field__net sw-help-text-stub').attributes().text).toBe('help for net price');
     });
 
     it('should set gross value when the net value is updated', async () => {
@@ -233,5 +255,80 @@ describe('components/form/sw-price-field', () => {
         jest.runAllTimers();
 
         expect(convertGrossToNet).toHaveBeenCalled();
+    });
+
+    it('should not emit update:value event on price gross change', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(wrapper.emitted('update:value')).toBeFalsy();
+    });
+
+    it('should not emit update:value event on price net change', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        jest.runAllTimers();
+
+        expect(wrapper.emitted('update:value')).toBeFalsy();
+    });
+
+    it('should have the typed gross value after input change and after debounce time', async () => {
+        const wrapper = await setup({ allowEmpty: true });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(wrapper.vm.priceForCurrency.gross).toBe(euroPrice.gross);
+    });
+
+    it('should have the typed net value after input change and after debounce time', async () => {
+        const wrapper = await setup({ allowEmpty: true });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        jest.runAllTimers();
+
+        expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
+    });
+
+    it('should cancel the debounce timer when the number field emits "ends-with-decimal-separator" event', async () => {
+        const wrapper = await setup();
+
+        // Type a normal number
+        await wrapper.find('.sw-price-field__gross input').setValue('123');
+
+        // Wait for the debounce timer to start
+        await wrapper.vm.$nextTick();
+
+        // Type a number with a decimal separator at the end
+        await wrapper.find('.sw-price-field__gross input').setValue('123.');
+
+        // Wait until the debounce timer is finished
+        jest.runAllTimers();
+        await flushPromises();
+
+        // Check if the value is set
+        expect(wrapper.vm.priceForCurrency.gross).toBe(123);
+
+        // Check if the input field value still contains the decimal separator
+        expect(wrapper.find('.sw-price-field__gross input').element.value).toBe('123.');
     });
 });

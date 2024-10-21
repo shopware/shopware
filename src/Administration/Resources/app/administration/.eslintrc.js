@@ -103,11 +103,13 @@ module.exports = {
             extends: [
                 'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
+                'prettier',
             ],
             files: ['**/*.js'],
             excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
             rules: {
                 ...baseRules,
+                'sw-core-rules/require-explicit-emits': 'error',
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': 'error',
@@ -122,6 +124,7 @@ module.exports = {
                         ['template', 'render'],
                         'inheritAttrs',
                         ['provide', 'inject'],
+                        'emits',
                         'extends',
                         'mixins',
                         'model',
@@ -137,12 +140,13 @@ module.exports = {
                         'renderError',
                     ],
                 }],
-                // eslint-disable-next-line no-warning-comments
-                // TODO: NEXT-35608 - Enable this rules again after VUE 3 migration
-                'vue/no-deprecated-destroyed-lifecycle': 'off',
-                'vue/no-deprecated-events-api': 'off',
-                'vue/require-slots-as-functions': 'off',
-                'vue/no-deprecated-props-default-this': 'off',
+                'vue/no-deprecated-destroyed-lifecycle': 'error',
+                'vue/no-deprecated-events-api': 'error',
+                'vue/require-slots-as-functions': 'error',
+                'vue/no-deprecated-props-default-this': 'error',
+                'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+                'sw-deprecation-rules/no-vue-options-api': 'off',
             },
         }, {
             extends: [
@@ -153,7 +157,10 @@ module.exports = {
                 'plugin:vuejs-accessibility/recommended',
             ],
             processor: 'twig-vue/twig-vue',
-            files: ['src/**/*.html.twig', 'test/eslint/**/*.html.twig'],
+            files: [
+                'src/**/*.html.twig',
+                'test/eslint/**/*.html.twig',
+            ],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
@@ -202,16 +209,15 @@ module.exports = {
                 'vue/valid-template-root': 'off',
                 'vue/no-v-model-argument': 'off',
                 'vue/no-v-for-template-key': 'off',
-                // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
-                'vue/html-closing-bracket-newline': 'off',
-                'vue/no-v-for-template-key-on-child': 'off',
+                'vue/html-closing-bracket-newline': 'error',
+                'vue/no-v-for-template-key-on-child': 'error',
                 'vue/no-deprecated-filter': 'error',
-                'vue/no-deprecated-dollar-listeners-api': 'off',
-                'vue/no-deprecated-dollar-scopedslots-api': 'off',
-                'vue/no-deprecated-v-on-native-modifier': 'off',
+                'vue/no-deprecated-dollar-listeners-api': 'error',
+                'vue/no-deprecated-dollar-scopedslots-api': 'error',
+                'vue/no-deprecated-v-on-native-modifier': 'error',
             },
         }, {
-            files: ['**/*.spec.js', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+            files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
                 'max-len': 0,
@@ -226,8 +232,17 @@ module.exports = {
                 'jest/prefer-to-contain': 'error',
                 'jest/prefer-to-have-length': 'error',
                 'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
+                'jest/valid-expect': [
+                    'error',
+                    {
+                        maxArgs: 2,
+                    },
+                ],
             },
-            extends: ['plugin:jest/recommended'],
+            extends: [
+                'plugin:jest/recommended',
+                'prettier',
+            ],
         }, {
             files: ['**/snippet/*.json'],
             rules: {
@@ -240,6 +255,7 @@ module.exports = {
                 'plugin:@typescript-eslint/eslint-recommended',
                 'plugin:@typescript-eslint/recommended',
                 'plugin:@typescript-eslint/recommended-requiring-type-checking',
+                'prettier',
             ],
             parser: '@typescript-eslint/parser',
             parserOptions: {
@@ -273,6 +289,9 @@ module.exports = {
                 // Disable the base rule as it can report incorrect errors
                 'no-unused-vars': 'off',
                 '@typescript-eslint/no-unused-vars': 'error',
+                'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+                'sw-deprecation-rules/no-vue-options-api': 'off',
             },
         },
     ],

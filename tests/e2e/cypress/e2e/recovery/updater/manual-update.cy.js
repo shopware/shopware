@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 
 describe('Manual update', () => {
-    it('@update: en-GB and EUR', { tags: ['pa-system-settings'] }, () => {
+    it('@update: en-GB and EUR', { tags: ['pa-services-settings'] }, () => {
         cy.clearCookies();
         cy.clearCookie('bearerAuth');
         cy.clearCookie('refreshBearerAuth');

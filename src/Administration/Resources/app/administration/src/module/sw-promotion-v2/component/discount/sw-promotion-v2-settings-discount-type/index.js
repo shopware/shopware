@@ -10,6 +10,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
@@ -25,7 +27,11 @@ export default {
             type: String,
             required: true,
             validator(value) {
-                return ['basic', 'buy-x-get-y', 'shipping-discount'].includes(value);
+                return [
+                    'basic',
+                    'buy-x-get-y',
+                    'shipping-discount',
+                ].includes(value);
             },
         },
 
@@ -33,7 +39,12 @@ export default {
             type: String,
             required: false,
             validator(value) {
-                return ['fixed', 'fixed_unit', 'percentage', 'free'].includes(value);
+                return [
+                    'fixed',
+                    'fixed_unit',
+                    'percentage',
+                    'free',
+                ].includes(value);
             },
             default() {
                 return 'fixed';
@@ -44,7 +55,10 @@ export default {
             type: String,
             required: false,
             validator(value) {
-                return ['ALL', 'SELECT'].includes(value);
+                return [
+                    'ALL',
+                    'SELECT',
+                ].includes(value);
             },
             default() {
                 return 'ALL';
@@ -63,29 +77,36 @@ export default {
 
     computed: {
         isPercentageType() {
-            return ['percentage', 'free'].includes(this.discount.type);
+            return [
+                'percentage',
+                'free',
+            ].includes(this.discount.type);
         },
 
         labelValue() {
-            return this.$tc(
-                'sw-promotion-v2.detail.discounts.settings.discountType.labelValue',
-                !this.isPercentageType,
-            );
+            return this.$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelValue', !this.isPercentageType);
         },
 
         showAdvancedPricesLink() {
-            return ['absolute', 'fixed', 'fixed_unit'].includes(this.discount.type);
+            return [
+                'absolute',
+                'fixed',
+                'fixed_unit',
+            ].includes(this.discount.type);
         },
 
         currencyPriceColumns() {
-            return [{
-                property: 'currency.translated.name',
-                label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelCurrency'),
-            }, {
-                property: 'price',
-                dataIndex: 'price',
-                label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelPrice'),
-            }];
+            return [
+                {
+                    property: 'currency.translated.name',
+                    label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelCurrency'),
+                },
+                {
+                    property: 'price',
+                    dataIndex: 'price',
+                    label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelPrice'),
+                },
+            ];
         },
 
         currencyRepository() {
@@ -97,8 +118,7 @@ export default {
         },
 
         currencyCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         showMaxValueAdvancedPrices() {
@@ -137,7 +157,7 @@ export default {
             this.currencyRepository.search(this.currencyCriteria).then((response) => {
                 this.currencies = response;
 
-                this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
+                this.defaultCurrency = this.currencies.find((currency) => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
             });
 
@@ -172,31 +192,39 @@ export default {
 
         getDiscountTypeSelection() {
             const prefix = 'sw-promotion-v2.detail.discounts.settings.discountType.discountTypeSelection';
-            return [{
-                value: 'percentage',
-                display: this.$tc(`${prefix}.displayPercentage`),
-            }, {
-                value: (this.discount.scope === 'delivery' ? 'absolute' : 'fixed'),
-                display: this.$tc(`${prefix}.displayFixedDiscount`),
-            }, {
-                value: 'fixed_unit',
-                display: this.$tc(`${prefix}.displayFixedPrice`),
-            }, {
-                value: 'free',
-                display: this.$tc(`${prefix}.displayFree`),
-            }];
+            return [
+                {
+                    value: 'percentage',
+                    display: this.$tc(`${prefix}.displayPercentage`),
+                },
+                {
+                    value: this.discount.scope === 'delivery' ? 'absolute' : 'fixed',
+                    display: this.$tc(`${prefix}.displayFixedDiscount`),
+                },
+                {
+                    value: 'fixed_unit',
+                    display: this.$tc(`${prefix}.displayFixedPrice`),
+                },
+                {
+                    value: 'free',
+                    display: this.$tc(`${prefix}.displayFree`),
+                },
+            ];
         },
 
         getApplyDiscountToSelection() {
             const prefix = 'sw-promotion-v2.detail.discounts.settings.discountType.applyDiscountTo';
 
-            return [{
-                value: 'ALL',
-                display: this.$tc(`${prefix}.displayTotalPrice`),
-            }, {
-                value: 'SELECT',
-                display: this.$tc(`${prefix}.displayProductPrice`),
-            }];
+            return [
+                {
+                    value: 'ALL',
+                    display: this.$tc(`${prefix}.displayTotalPrice`),
+                },
+                {
+                    value: 'SELECT',
+                    display: this.$tc(`${prefix}.displayProductPrice`),
+                },
+            ];
         },
 
         onClickAdvancedPrices() {
@@ -268,13 +296,12 @@ export default {
 
             this.discount.promotionDiscountPrices.forEach((advancedPrice) => {
                 if (this.discount.type === 'percentage') {
-                    advancedPrice.price = (advancedPrice.price > 100) ?
-                        this.getMaxValue(this.discount.type) :
-                        advancedPrice.price;
+                    advancedPrice.price =
+                        advancedPrice.price > 100 ? this.getMaxValue(this.discount.type) : advancedPrice.price;
                 }
 
-                if (advancedPrice.price <= 0.00) {
-                    advancedPrice.price = 0.00;
+                if (advancedPrice.price <= 0.0) {
+                    advancedPrice.price = 0.0;
                 }
 
                 advancedPrice.price = Math.max(advancedPrice.price, 0.0);

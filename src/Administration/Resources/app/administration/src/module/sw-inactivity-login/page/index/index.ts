@@ -5,11 +5,12 @@ const { Component } = Shopware;
 
 /**
  * @package admin
- *
  * @private
  */
 Component.register('sw-inactivity-login', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'loginService',
@@ -24,13 +25,13 @@ Component.register('sw-inactivity-login', {
     },
 
     data(): {
-        isLoading: boolean,
-        lastKnownUser: string,
-        password: string,
-        passwordError: null | { detail: string },
-        sessionChannel: null | BroadcastChannel,
-        rememberMe: boolean,
-        } {
+        isLoading: boolean;
+        lastKnownUser: string;
+        password: string;
+        passwordError: null | { detail: string };
+        sessionChannel: null | BroadcastChannel;
+        rememberMe: boolean;
+    } {
         return {
             isLoading: false,
             lastKnownUser: '',
@@ -70,7 +71,7 @@ Component.register('sw-inactivity-login', {
         this.sessionChannel = new BroadcastChannel('session_channel');
         this.sessionChannel.postMessage({ inactive: true });
         this.sessionChannel.onmessage = (event) => {
-            const data = event.data as {inactive?: boolean};
+            const data = event.data as { inactive?: boolean };
             if (!data || !Shopware.Utils.object.hasOwnProperty(data, 'inactive')) {
                 return;
             }
@@ -99,7 +100,7 @@ Component.register('sw-inactivity-login', {
         (document.querySelector('.sw-inactivity-login') as HTMLElement).style.backgroundImage = `url('${dataUrl}')`;
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.sessionChannel?.close();
 
         localStorage.removeItem(`inactivityBackground_${this.hash}`);
@@ -109,7 +110,10 @@ Component.register('sw-inactivity-login', {
         loginUserWithPassword() {
             this.isLoading = true;
 
-            return this.loginService.loginByUsername(this.lastKnownUser, this.password)
+            this.loginService.setRememberMe(this.rememberMe);
+
+            return this.loginService
+                .loginByUsername(this.lastKnownUser, this.password)
                 .then(() => {
                     this.handleLoginSuccess();
                     this.isLoading = false;
@@ -126,22 +130,9 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
-            this.handleRememberMe();
-
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
-        },
-
-        handleRememberMe() {
-            if (!this.rememberMe) {
-                return;
-            }
-
-            const duration = new Date();
-            duration.setDate(duration.getDate() + 14);
-
-            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {
@@ -149,8 +140,8 @@ Component.register('sw-inactivity-login', {
             sessionStorage.removeItem('lastKnownUser');
 
             const previousRoute = JSON.parse(sessionStorage.getItem(`sw-admin-previous-route_${this.hash}`) || '{}') as {
-                fullPath?: string,
-                name?: string,
+                fullPath?: string;
+                name?: string;
             };
             sessionStorage.removeItem(`sw-admin-previous-route_${this.hash}`);
 

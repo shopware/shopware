@@ -161,7 +161,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
+            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -177,11 +177,11 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getLanguage());
                 static::assertNotNull($locale = $order->getLanguage()->getLocale());
                 $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-                $formattedDate = $formatter->format(new \DateTime());
+                $formattedDate = $formatter->format($documentDate);
 
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Date %s', $formattedDate),
+                    \sprintf('Date %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -222,7 +222,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
+            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -239,11 +239,11 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getLanguage());
                 static::assertNotNull($locale = $order->getLanguage()->getLocale());
                 $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-                $formattedDate = $formatter->format(new \DateTime());
+                $formattedDate = $formatter->format($documentDate);
 
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Datum %s', $formattedDate),
+                    \sprintf('Datum %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -284,7 +284,7 @@ class InvoiceRendererTest extends TestCase
             function (RenderedDocument $rendered): void {
                 foreach ([7, 19, 22] as $possibleTax) {
                     static::assertStringContainsString(
-                        sprintf('plus %d%% VAT', $possibleTax),
+                        \sprintf('plus %d%% VAT', $possibleTax),
                         $rendered->getHtml()
                     );
                 }
@@ -589,7 +589,8 @@ class InvoiceRendererTest extends TestCase
         }
 
         if ($invoiceSettings) {
-            $this->updateInvoiceConfig($order, $invoiceSettings);
+            $this->updateInvoiceConfig($invoiceSettings);
+            $this->updateCountryMemberState($order, $invoiceSettings['setCustomerShippingCountryAsMemberCountry']);
         }
 
         if ($enableTaxFreeB2bOption) {
@@ -604,7 +605,6 @@ class InvoiceRendererTest extends TestCase
 
         $data = $rendered->getSuccess();
         static::assertNotEmpty($data);
-        static::assertInstanceOf(RenderedDocument::class, $data[$orderId]);
 
         if ($expectedOutput) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getHtml());
@@ -715,20 +715,21 @@ class InvoiceRendererTest extends TestCase
     /**
      * @param array{enableIntraCommunityDeliveryLabel: bool, setCustomerShippingCountryAsMemberCountry: bool} $config
      */
-    private function updateInvoiceConfig(OrderEntity $order, array $config): void
+    private function updateInvoiceConfig(array $config): void
     {
         $data = [
             'displayAdditionalNoteDelivery' => $config['enableIntraCommunityDeliveryLabel'],
         ];
 
-        if ($config['setCustomerShippingCountryAsMemberCountry']) {
-            $countyId = $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId();
-            if ($countyId !== null) {
-                $data['deliveryCountries'] = [$countyId];
-            }
-        }
-
         $this->upsertBaseConfig($data, InvoiceRenderer::TYPE);
+    }
+
+    private function updateCountryMemberState(OrderEntity $order, bool $isEu): void
+    {
+        $this->getContainer()->get('country.repository')->upsert([[
+            'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
+            'isEu' => $isEu,
+        ]], Context::createDefaultContext());
     }
 
     private function updateCountrySettings(OrderEntity $order): void

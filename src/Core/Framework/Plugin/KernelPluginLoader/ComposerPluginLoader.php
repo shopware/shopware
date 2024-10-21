@@ -7,18 +7,24 @@ use Composer\InstalledVersions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
+/**
+ * @phpstan-import-type PluginInfo from KernelPluginLoader
+ */
 #[Package('core')]
 class ComposerPluginLoader extends KernelPluginLoader
 {
+    /**
+     * @return array<PluginInfo>
+     */
+    public function fetchPluginInfos(): array
+    {
+        $this->loadPluginInfos();
+
+        return $this->pluginInfos;
+    }
+
     protected function loadPluginInfos(): void
     {
-        if (
-            !method_exists(InstalledVersions::class, 'getInstalledPackagesByType')
-            || !method_exists(InstalledVersions::class, 'getInstallPath')
-        ) {
-            throw new \RuntimeException('FallbackPluginLoader does only work with Composer 2.1 or higher');
-        }
-
         $composerPlugins = InstalledVersions::getInstalledPackagesByType(PluginFinder::COMPOSER_TYPE);
 
         $this->pluginInfos = [];
@@ -50,7 +56,7 @@ class ComposerPluginLoader extends KernelPluginLoader
                 'name' => \end($nameParts),
                 'baseClass' => $pluginClass,
                 'active' => true,
-                'path' => $path,
+                'path' => $path ?? '',
                 'version' => InstalledVersions::getPrettyVersion($composerName),
                 'autoload' => $composerJson['autoload'] ?? [],
                 'managedByComposer' => true,

@@ -8,6 +8,13 @@ import './sw-category-entry-point-overwrite-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'cancel',
+        'confirm',
+    ],
+
     props: {
         salesChannels: {
             type: Array,

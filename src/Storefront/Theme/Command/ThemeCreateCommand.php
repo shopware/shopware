@@ -30,13 +30,15 @@ class ThemeCreateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name');
+            ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
+            ->addOption('static', null, null, 'Theme will be created in the static-plugins folder');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $themeName = $input->getArgument('theme-name');
+        $staticPrefix = $input->getOption('static') ? 'static-' : '';
 
         if (!$themeName) {
             $question = new Question('Please enter a theme name: ');
@@ -60,10 +62,10 @@ class ThemeCreateCommand extends Command
 
         $pluginName = ucfirst((string) $themeName);
 
-        $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
+        $directory = \sprintf('%s/custom/%splugins/%s', $this->projectDir, $staticPrefix, $pluginName);
 
         if (file_exists($directory)) {
-            $io->error(sprintf('Plugin directory %s already exists', $directory));
+            $io->error(\sprintf('Plugin directory %s already exists', $directory));
 
             return self::FAILURE;
         }
@@ -128,7 +130,7 @@ class ThemeCreateCommand extends Command
     private function createDirectory(string $pathName): void
     {
         if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
-            throw new \RuntimeException(sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 
@@ -209,7 +211,7 @@ Override variable defaults
 This file is used to override default SCSS variables from the Shopware Storefront or Bootstrap.
 
 Because of the !default flags, theme variable overrides have to be declared beforehand.
-https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
+https://getbootstrap.com/docs/5.3/customize/sass/#variable-defaults
 */
 EOL;
     }

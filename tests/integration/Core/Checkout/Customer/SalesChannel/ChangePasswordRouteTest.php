@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**

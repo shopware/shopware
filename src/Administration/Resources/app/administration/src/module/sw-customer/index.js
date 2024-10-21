@@ -17,8 +17,15 @@ Shopware.Component.register('sw-customer-detail-order', () => import('./view/sw-
 Shopware.Component.register('sw-customer-base-form', () => import('./component/sw-customer-base-form'));
 Shopware.Component.register('sw-customer-base-info', () => import('./component/sw-customer-base-info'));
 Shopware.Component.register('sw-customer-address-form', () => import('./component/sw-customer-address-form'));
-Shopware.Component.register('sw-customer-address-form-options', () => import('./component/sw-customer-address-form-options'));
+Shopware.Component.register(
+    'sw-customer-address-form-options',
+    () => import('./component/sw-customer-address-form-options'),
+);
 Shopware.Component.register('sw-customer-default-addresses', () => import('./component/sw-customer-default-addresses'));
+Shopware.Component.register(
+    'sw-customer-imitate-customer-modal',
+    () => import('./component/sw-customer-imitate-customer-modal'),
+);
 Shopware.Component.register('sw-customer-card', () => import('./component/sw-customer-card'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
@@ -107,21 +114,24 @@ Module.register('sw-customer', {
         },
     },
 
-    navigation: [{
-        id: 'sw-customer',
-        label: 'sw-customer.general.mainMenuItemGeneral',
-        color: '#F88962',
-        icon: 'regular-users',
-        position: 40,
-        privilege: 'customer.viewer',
-    }, {
-        path: 'sw.customer.index',
-        label: 'sw-customer.general.mainMenuItemList',
-        color: '#F88962',
-        icon: 'regular-users',
-        parent: 'sw-customer',
-        privilege: 'customer.viewer',
-    }],
+    navigation: [
+        {
+            id: 'sw-customer',
+            label: 'sw-customer.general.mainMenuItemGeneral',
+            color: '#F88962',
+            icon: 'regular-users',
+            position: 40,
+            privilege: 'customer.viewer',
+        },
+        {
+            path: 'sw.customer.index',
+            label: 'sw-customer.general.mainMenuItemList',
+            color: '#F88962',
+            icon: 'regular-users',
+            parent: 'sw-customer',
+            privilege: 'customer.viewer',
+        },
+    ],
 
     defaultSearchConfiguration,
 });

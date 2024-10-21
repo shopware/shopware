@@ -4,7 +4,7 @@
     class="sw-field--datepicker"
     :class="{ 'has--focus': isDatepickerOpen }"
     v-bind="{
-        ...$attrs,
+        ...additionalAttrs,
         ...inheritanceAttrs
     }"
     :required="required"
@@ -25,7 +25,7 @@
             type="text"
             :name="identification"
             :disabled="disabled"
-            :placeholder="placeholder"
+            :placeholder="placeholderText"
         >
         <sw-icon
             v-if="!required && timezoneFormattedValue && !disabled"
@@ -43,7 +43,7 @@
             name="solid-clock"
             size="12px"
         />
-        {{ userTimeZone }}
+        {{ timeZoneHint }}
     </template>
 
     <template #sw-contextual-field-suffix>

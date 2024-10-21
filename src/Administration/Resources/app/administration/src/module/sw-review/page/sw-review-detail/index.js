@@ -10,7 +10,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         'placeholder',
@@ -100,6 +106,10 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
+        },
     },
 
     watch: {
@@ -150,17 +160,18 @@ export default {
 
         onSave() {
             this.isSaveSuccessful = false;
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-            );
+            const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
-            this.repository.save(this.review).then(() => {
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.createNotificationError({
-                    message: messageSaveError,
+            this.repository
+                .save(this.review)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: messageSaveError,
+                    });
                 });
-            });
         },
 
         onSaveFinish() {

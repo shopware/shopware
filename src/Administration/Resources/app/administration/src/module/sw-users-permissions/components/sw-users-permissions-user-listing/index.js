@@ -11,12 +11,16 @@ const { Criteria } = Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'userService',
         'loginService',
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['get-list'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -71,23 +75,29 @@ export default {
         },
 
         userColumns() {
-            return [{
-                property: 'username',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelUsername'),
-            }, {
-                property: 'firstName',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelFirstName'),
-            }, {
-                property: 'lastName',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelLastName'),
-            }, {
-                property: 'aclRoles',
-                sortable: false,
-                label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
-            }, {
-                property: 'email',
-                label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
-            }];
+            return [
+                {
+                    property: 'username',
+                    label: this.$tc('sw-users-permissions.users.user-grid.labelUsername'),
+                },
+                {
+                    property: 'firstName',
+                    label: this.$tc('sw-users-permissions.users.user-grid.labelFirstName'),
+                },
+                {
+                    property: 'lastName',
+                    label: this.$tc('sw-users-permissions.users.user-grid.labelLastName'),
+                },
+                {
+                    property: 'aclRoles',
+                    sortable: false,
+                    label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
+                },
+                {
+                    property: 'email',
+                    label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
+                },
+            ];
         },
     },
 
@@ -111,12 +121,15 @@ export default {
 
             this.$emit('get-list');
 
-            return this.userRepository.search(this.userCriteria).then((users) => {
-                this.total = users.total;
-                this.user = users;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.userRepository
+                .search(this.userCriteria)
+                .then((users) => {
+                    this.total = users.total;
+                    this.user = users;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onDelete(user) {
@@ -132,11 +145,9 @@ export default {
                 { name: username },
             );
             const titleDeleteError = this.$tc('global.default.error');
-            const messageDeleteError = this.$tc(
-                'sw-users-permissions.users.user-grid.notification.deleteError.message',
-                0,
-                { name: username },
-            );
+            const messageDeleteError = this.$tc('sw-users-permissions.users.user-grid.notification.deleteError.message', 0, {
+                name: username,
+            });
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
@@ -171,18 +182,21 @@ export default {
             const context = { ...Shopware.Context.api };
             context.authToken.access = verifiedToken;
 
-            this.userRepository.delete(user.id, context).then(() => {
-                this.createNotificationSuccess({
-                    title: titleDeleteSuccess,
-                    message: messageDeleteSuccess,
+            this.userRepository
+                .delete(user.id, context)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        title: titleDeleteSuccess,
+                        message: messageDeleteSuccess,
+                    });
+                    this.getList();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        title: titleDeleteError,
+                        message: messageDeleteError,
+                    });
                 });
-                this.getList();
-            }).catch(() => {
-                this.createNotificationError({
-                    title: titleDeleteError,
-                    message: messageDeleteError,
-                });
-            });
             this.onCloseDeleteModal();
         },
 

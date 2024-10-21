@@ -11,7 +11,12 @@ const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -26,7 +31,7 @@ export default {
 
     computed: {
         ...mapState('swCategoryDetail', {
-            customFieldSetsArray: state => {
+            customFieldSetsArray: (state) => {
                 if (!state.customFieldSets) {
                     return [];
                 }
@@ -46,7 +51,7 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPage').currentPage;
         },
 
         isLayoutSet() {

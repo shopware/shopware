@@ -12,7 +12,15 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'systemConfigApiService',
+    ],
+
+    emits: ['media-open'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -44,6 +52,7 @@ export default {
             isMediaLoading: false,
             columnCount: 5,
             columnWidth: 90,
+            globalIsArReady: false,
         };
     },
 
@@ -77,7 +86,7 @@ export default {
                 return null;
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find(media => media.id === coverId);
+            return this.product.media.find((media) => media.id === coverId);
         },
 
         ...mapGetters('swProductDetail', {
@@ -112,13 +121,28 @@ export default {
         },
 
         currentCoverID() {
-            const coverMediaItem = this.productMedia.find(coverMedium => coverMedium.media.id === this.product.coverId);
+            const coverMediaItem = this.productMedia.find((coverMedium) => coverMedium.media.id === this.product.coverId);
 
             return coverMediaItem.id;
         },
     },
 
+    created() {
+        this.onCreated();
+    },
+
     methods: {
+        onCreated() {
+            this.systemConfigApiService
+                .getValues('core.media')
+                .then((response) => {
+                    this.globalIsArReady = response['core.media.defaultEnableAugmentedReality'];
+                })
+                .catch((error) => {
+                    throw error;
+                });
+        },
+
         onOpenMedia() {
             this.$emit('media-open');
         },
@@ -129,7 +153,8 @@ export default {
                     return false;
                 }
 
-                const cssColumns = window.getComputedStyle(this.$refs.grid, null)
+                const cssColumns = window
+                    .getComputedStyle(this.$refs.grid, null)
                     .getPropertyValue('grid-template-columns')
                     .split(' ');
                 this.columnCount = cssColumns.length;
@@ -147,7 +172,7 @@ export default {
             let placeholderCount = columnCount;
 
             if (this.productMedia.length !== 0) {
-                placeholderCount = columnCount - ((this.productMedia.length) % columnCount);
+                placeholderCount = columnCount - (this.productMedia.length % columnCount);
                 if (placeholderCount === columnCount) {
                     return 0;
                 }
@@ -269,7 +294,7 @@ export default {
          * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
          */
         isArReady(productMedia) {
-            return !!productMedia.media?.config?.spatial?.arReady;
+            return productMedia.media?.config?.spatial?.arReady ?? this.globalIsArReady;
         },
 
         removeFile(productMedia) {
@@ -311,9 +336,11 @@ export default {
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true
-                || (dragData.id === this.product.coverId && dragData.position === 0)
-                || (dropData.id === this.product.coverId && dropData.position === 0)) {
+            if (
+                validDrop !== true ||
+                (dragData.id === this.product.coverId && dragData.position === 0) ||
+                (dropData.id === this.product.coverId && dropData.position === 0)
+            ) {
                 return;
             }
 

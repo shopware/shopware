@@ -44,7 +44,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.settings.number.range.detail', params: { id: this.numberRange.id } });
+            this.$router.push({
+                name: 'sw.settings.number.range.detail',
+                params: { id: this.numberRange.id },
+            });
         },
 
         onSave() {

@@ -1,93 +1,99 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-number-range-detail', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    params: {
-                        id: 'id',
+    return mount(
+        await wrapTestComponent('sw-settings-number-range-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        params: {
+                            id: 'id',
+                        },
                     },
                 },
-            },
-            provide: {
-                numberRangeService: {
-                    previewPattern: () => Promise.resolve({ number: 1337 }),
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {},
-                        get: () => Promise.resolve({
-                            description: null,
-                            global: true,
-                            id: 'id',
-                            name: 'Delivery notes',
-                            translated: {
-                                customFields: [],
-                                description: null,
-                                name: 'Delivery notes',
-                            },
-                            translations: [],
-                            type: {
-                                typeName: 'Delivery notes',
-                            },
-                            typeId: '72ea130130404f67a426332f7a8c7277',
+                provide: {
+                    numberRangeService: {
+                        previewPattern: () => Promise.resolve({ number: 1337 }),
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {},
+                            get: () =>
+                                Promise.resolve({
+                                    description: null,
+                                    global: true,
+                                    id: 'id',
+                                    name: 'Delivery notes',
+                                    translated: {
+                                        customFields: [],
+                                        description: null,
+                                        name: 'Delivery notes',
+                                    },
+                                    translations: [],
+                                    type: {
+                                        typeName: 'Delivery notes',
+                                    },
+                                    typeId: '72ea130130404f67a426332f7a8c7277',
+                                }),
+                            search: () => Promise.resolve([]),
                         }),
-                        search: () => Promise.resolve([]),
-                    }),
+                    },
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([]),
+                    },
                 },
-                customFieldDataProviderService: {
-                    getCustomFieldSets: () => Promise.resolve([]),
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions" />
                         <slot name="content" />
                         <slot />
                     </div>`,
+                    },
+                    'sw-button': {
+                        template: '<div class="sw-button"><slot /></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-button-process': {
+                        template: '<div class="sw-button-process"><slot /></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot /></div>',
+                    },
+                    'sw-switch-field': true,
+                    'sw-number-field': true,
+                    'sw-text-field': {
+                        template: '<div class="sw-field"></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-card-view': {
+                        template: '<div><slot /></div>',
+                    },
+                    'sw-container': true,
+                    'sw-language-info': true,
+                    'sw-help-text': true,
+                    'sw-multi-select': true,
+                    'sw-entity-single-select': {
+                        template: '<div class="sw-entity-single-select"></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-alert': true,
+                    'sw-skeleton': true,
+                    'sw-language-switch': true,
+                    'sw-custom-field-set-renderer': true,
                 },
-                'sw-button': {
-                    template: '<div class="sw-button"><slot /></div>',
-                    props: ['disabled'],
-                },
-                'sw-button-process': {
-                    template: '<div class="sw-button-process"><slot /></div>',
-                    props: ['disabled'],
-                },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /></div>',
-                },
-                'sw-switch-field': true,
-                'sw-number-field': true,
-                'sw-text-field': {
-                    template: '<div class="sw-field"></div>',
-                    props: ['disabled'],
-                },
-                'sw-card-view': {
-                    template: '<div><slot /></div>',
-                },
-                'sw-container': true,
-                'sw-language-info': true,
-                'sw-help-text': true,
-                'sw-multi-select': true,
-                'sw-entity-single-select': {
-                    template: '<div class="sw-entity-single-select"></div>',
-                    props: ['disabled'],
-                },
-                'sw-alert': true,
-                'sw-skeleton': true,
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-detail', () => {
@@ -100,7 +106,6 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
         wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
-
 
         await wrapper.setData({
             numberRange: {
@@ -131,7 +136,6 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
         wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
-
 
         await wrapper.setData({
             numberRange: {
@@ -207,7 +211,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const elements = wrapper.findAllComponents('.sw-field');
 
-        elements.forEach(el => {
+        elements.forEach((el) => {
             const isAlwaysDisabled = alwaysDisabledElements.includes(el.attributes('label'));
 
             expect(el.props('disabled')).toBe(isAlwaysDisabled);
@@ -224,7 +228,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         await flushPromises();
 
         const elements = wrapper.findAllComponents('.sw-field');
-        elements.forEach(el => expect(el.props('disabled')).toBe(true));
+        elements.forEach((el) => expect(el.props('disabled')).toBe(true));
 
         const numberRangeType = wrapper.findComponent('#numberRangeTypes');
         expect(numberRangeType.props('disabled')).toBe(true);

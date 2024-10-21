@@ -1,37 +1,41 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
-
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-label': true,
-                'sw-icon': true,
-                'sw-button': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve([]),
-                        };
-                    },
+    return mount(
+        await wrapTestComponent('sw-bulk-edit-save-modal-success', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-label': true,
+                    'sw-icon': true,
+                    'sw-button': true,
                 },
-                orderDocumentApiService: {
-                    create: () => {
-                        return Promise.resolve();
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve([]),
+                            };
+                        },
                     },
-                    download: () => {
-                        return Promise.resolve();
+                    orderDocumentApiService: {
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                        download: () => {
+                            return Promise.resolve();
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('sw-bulk-edit-save-modal-success', () => {
@@ -132,19 +136,23 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
         await wrapper.vm.getLatestDocuments();
 
-        expect(wrapper.vm.latestDocuments).toEqual(expect.objectContaining({
-            invoice: expect.arrayContaining(['1']),
-            credit_note: expect.arrayContaining(['3']),
-        }));
+        expect(wrapper.vm.latestDocuments).toEqual(
+            expect.objectContaining({
+                invoice: expect.arrayContaining(['1']),
+                credit_note: expect.arrayContaining(['3']),
+            }),
+        );
         wrapper.vm.documentRepository.search.mockRestore();
     });
 
     it('should be able to download documents', async () => {
         window.URL.createObjectURL = jest.fn();
 
-        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve({
-            data: null,
-        }));
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() =>
+            Promise.resolve({
+                data: null,
+            }),
+        );
 
         await wrapper.setData({
             latestDocuments: {
@@ -158,12 +166,14 @@ describe('sw-bulk-edit-save-modal-success', () => {
         expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
 
-        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve({
-            headers: {
-                'content-disposition': 'filename=example.pdf',
-            },
-            data: 'http://downloadlink',
-        }));
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() =>
+            Promise.resolve({
+                headers: {
+                    'content-disposition': 'filename=example.pdf',
+                },
+                data: 'http://downloadlink',
+            }),
+        );
 
         await wrapper.vm.downloadDocument('invoice');
 
@@ -187,7 +197,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
     it('should call download documents with error', async () => {
         wrapper.vm.createNotificationError = jest.fn();
-        wrapper.vm.orderDocumentApiService.download = jest.fn().mockImplementation(() => Promise.reject(new Error('error occured')));
+        wrapper.vm.orderDocumentApiService.download = jest
+            .fn()
+            .mockImplementation(() => Promise.reject(new Error('error occured')));
 
         await wrapper.setData({
             latestDocuments: {

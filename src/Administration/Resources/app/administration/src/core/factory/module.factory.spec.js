@@ -149,12 +149,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foo-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foo.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foo.index',
+                },
+            ],
         });
 
         expect(module.navigation).toBeInstanceOf(Array);
@@ -173,18 +175,22 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foo-bar-index',
                 },
             },
-            navigation: [{
-                id: 'sw.foo.index',
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-            }, {
-                link: 'http://de.shopware.com',
-                label: 'ExternalLink',
-                parent: 'sw.foo.index',
-            }, {
-                label: 'InvalidEntry',
-            }],
+            navigation: [
+                {
+                    id: 'sw.foo.index',
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                },
+                {
+                    link: 'http://de.shopware.com',
+                    label: 'ExternalLink',
+                    parent: 'sw.foo.index',
+                },
+                {
+                    label: 'InvalidEntry',
+                },
+            ],
         });
 
         expect(module.navigation).toBeInstanceOf(Array);
@@ -391,17 +397,16 @@ describe('core/factory/module.factory.js', () => {
         });
 
         const expectedSettingsItem = {
-            fooGroup:
-                [
-                    {
-                        group: 'fooGroup',
-                        icon: 'fooIcon',
-                        id: 'sw-foo',
-                        label: 'barFoo',
-                        name: 'fooBar',
-                        to: 'foo.bar',
-                    },
-                ],
+            fooGroup: [
+                {
+                    group: 'fooGroup',
+                    icon: 'fooIcon',
+                    id: 'sw-foo',
+                    label: 'barFoo',
+                    name: 'fooBar',
+                    to: 'foo.bar',
+                },
+            ],
         };
         expect(Shopware.State.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
     });
@@ -442,12 +447,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foo-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foo.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foo.index',
+                },
+            ],
         });
 
         // Register a module of type plugin without a "parent" in the navigation object
@@ -476,12 +483,14 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foobar-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foobar.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foobar.index',
+                },
+            ],
         });
 
         expect(typeof coreModule.type).toBe('string');
@@ -502,14 +511,64 @@ describe('core/factory/module.factory.js', () => {
                     component: 'sw-foobar-bar-index',
                 },
             },
-            navigation: [{
-                icon: 'box',
-                color: '#f00',
-                label: 'FooIndex',
-                path: 'sw.foobar.index',
-            }],
+            navigation: [
+                {
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foobar.index',
+                },
+            ],
         });
 
         expect(module).toBe(false);
+    });
+
+    it('should use the alia route', () => {
+        const module = register('sw-example-route', {
+            routes: {
+                index: {
+                    components: {
+                        default: 'sw-manufacturer-list',
+                    },
+                    path: 'index',
+                    alias: 'foo',
+                },
+            },
+        });
+
+        expect(module.routes.has('sw.example.route.index')).toBe(true);
+
+        const route = module.routes.get('sw.example.route.index');
+
+        expect(module.routes).toBeInstanceOf(Map);
+        expect(route.path).toBe('/sw/example/route/index');
+        expect(route.alias).toBe('/sw/example/route/foo');
+        expect(route.name).toBe('sw.example.route.index');
+    });
+
+    it('should use the routePrefixPath even for alias routes', () => {
+        const module = register('sw-example-route', {
+            routePrefixPath: 'good-route',
+            routes: {
+                index: {
+                    components: {
+                        default: 'sw-manufacturer-list',
+                    },
+                    path: 'index',
+                    alias: 'foo',
+                },
+            },
+        });
+
+        expect(module.routes.has('sw.example.route.index')).toBe(true);
+
+        const route = module.routes.get('sw.example.route.index');
+
+        expect(module.routes).toBeInstanceOf(Map);
+        expect(route.path).toBe('/good-route/index');
+        expect(route.alias).toBe('/good-route/foo');
+
+        expect(route.name).toBe('sw.example.route.index');
     });
 });

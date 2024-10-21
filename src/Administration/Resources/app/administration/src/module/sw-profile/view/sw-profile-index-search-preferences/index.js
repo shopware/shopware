@@ -10,6 +10,8 @@ const { Module, State, Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['searchPreferencesService'],
 
     mixins: [
@@ -48,15 +50,38 @@ export default {
                 return defaultSearchPreferences;
             }
 
-            return defaultSearchPreferences.reduce((accumulator, currentValue) => {
-                const value = this.userSearchPreferences.find((item) => {
-                    return Object.keys(item)[0] === Object.keys(currentValue)[0];
+            const mergedPreferences = [];
+
+            defaultSearchPreferences.forEach((defaultPref) => {
+                const prefKey = Object.keys(defaultPref)[0];
+                const userPref = this.userSearchPreferences.find((item) => Object.keys(item)[0] === prefKey);
+
+                if (!userPref) {
+                    mergedPreferences.push(defaultPref);
+                    return;
+                }
+
+                const userPrefValue = userPref[prefKey];
+                const defaultPrefValue = defaultPref[prefKey];
+
+                // Merge values from default into user preferences
+                Object.keys(defaultPrefValue).forEach((prop) => {
+                    if (!userPrefValue.hasOwnProperty(prop)) {
+                        userPrefValue[prop] = defaultPrefValue[prop];
+                    }
                 });
 
-                accumulator.push(value || currentValue);
+                // Remove values from user preferences that are not in default
+                Object.keys(userPrefValue).forEach((prop) => {
+                    if (!defaultPrefValue.hasOwnProperty(prop)) {
+                        delete userPrefValue[prop];
+                    }
+                });
 
-                return accumulator;
-            }, []);
+                mergedPreferences.push({ [prefKey]: userPrefValue });
+            });
+
+            return mergedPreferences;
         },
 
         adminEsEnable() {
@@ -68,7 +93,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -101,11 +126,19 @@ export default {
         },
 
         addEventListeners() {
-            this.$root.$on('sw-search-preferences-modal-close', this.getDataSource);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$on('sw-search-preferences-modal-close', this.getDataSource);
+            } else {
+                Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
+            }
         },
 
         removeEventListeners() {
-            this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
+            } else {
+                Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
+            }
         },
 
         updateDataSource() {

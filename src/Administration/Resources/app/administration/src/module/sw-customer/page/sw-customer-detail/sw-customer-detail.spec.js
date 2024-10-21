@@ -5,100 +5,107 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper(privileges = [], editMode = false) {
-    return mount(await wrapTestComponent('sw-customer-detail', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-page': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-customer-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
+                    },
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-language-switch': true,
+                    'sw-card-view': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-container': true,
+                    'sw-field': true,
+                    'sw-language-info': true,
+                    'sw-tabs': {
+                        template: '<div><slot name="content"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'router-view': true,
+                    'sw-alert': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-customer-card': {
+                        template: '<div></div>',
+                    },
+                    'sw-custom-field-set-renderer': await wrapTestComponent('sw-custom-field-set-renderer'),
+                    'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-skeleton': true,
+                    'sw-loader': true,
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-language-switch': true,
-                'sw-card-view': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-card': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-container': true,
-                'sw-field': true,
-                'sw-language-info': true,
-                'sw-tabs': {
-                    template: '<div><slot name="content"></slot></div>',
-                },
-                'sw-tabs-item': true,
-                'router-view': true,
-                'sw-alert': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-customer-card': {
-                    template: '<div></div>',
-                },
-                'sw-custom-field-set-renderer': await wrapTestComponent('sw-custom-field-set-renderer'),
-                'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                'sw-skeleton': true,
-                'sw-loader': true,
-            },
-            mocks: {
-                $route: {
-                    name: 'sw.cusomter.detail',
-                    query: {
-                        edit: editMode,
-                        page: 1,
-                        limit: 25,
+                mocks: {
+                    $route: {
+                        name: 'sw.cusomter.detail',
+                        query: {
+                            edit: editMode,
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve({
-                                id: 'test',
-                                accountType: 'private',
-                                company: 'Shopware AG',
-                                requestedGroup: {
-                                    translated: {
-                                        name: 'Test',
-                                    },
-                                },
-                            }),
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () =>
+                                    Promise.resolve({
+                                        id: 'test',
+                                        accountType: 'private',
+                                        company: 'Shopware AG',
+                                        requestedGroup: {
+                                            translated: {
+                                                name: 'Test',
+                                            },
+                                        },
+                                    }),
 
-                            searchIds: () => Promise.resolve({
-                                total: 1,
-                                data: ['1'],
-                            }),
-                        };
+                                searchIds: () =>
+                                    Promise.resolve({
+                                        total: 1,
+                                        data: ['1'],
+                                    }),
+                            };
+                        },
                     },
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
+                    customerGroupRegistrationService: {
+                        accept: jest.fn().mockResolvedValue(true),
+                        decline: jest.fn().mockResolvedValue(true),
+                    },
+                    customerValidationService: {},
                 },
-                customerGroupRegistrationService: {
-                    accept: jest.fn().mockResolvedValue(true),
-                    decline: jest.fn().mockResolvedValue(true),
-                },
-                customerValidationService: {},
+            },
+
+            props: {
+                customerId: 'cusotmerId',
             },
         },
-
-        props: {
-            customerId: 'cusotmerId',
-        },
-    });
+    );
 }
 
 describe('module/sw-customer/page/sw-customer-detail', () => {
@@ -116,7 +123,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should keep the customer\'s account type as private even when the company field is set', async () => {
+    it("should keep the customer's account type as private even when the company field is set", async () => {
         expect(wrapper.vm).toBeTruthy();
 
         expect(wrapper.vm.$data.customer.accountType).toBe('private');

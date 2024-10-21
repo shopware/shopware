@@ -1,6 +1,10 @@
 import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
 
+/**
+ * @package inventory
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -8,7 +12,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: [
+        'criteria-add',
+        'criteria-delete',
+        'inline-edit-save',
+        'inline-edit-cancel',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -52,24 +65,18 @@ export default {
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.not(
-                'and',
-                [
+            criteria.addFilter(
+                Criteria.not('and', [
                     Criteria.equalsAny('type', this.notSortableCustomFields),
-
-                ],
-            ));
+                ]),
+            );
 
             if (this.customFieldSetIDs) {
-                criteria.addFilter(
-                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs),
-                );
+                criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
             }
 
             if (this.getProductSortingFieldsByName().length) {
-                criteria.addFilter(
-                    Criteria.equalsAny('id', this.getProductSortingFieldsByName()),
-                );
+                criteria.addFilter(Criteria.equalsAny('id', this.getProductSortingFieldsByName()));
             }
 
             return criteria;
@@ -122,9 +129,7 @@ export default {
             const criteriaOptions = [
                 {
                     value: 'product.name',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name',
-                    ),
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name'),
                 },
                 {
                     value: 'product.ratingAverage',
@@ -146,15 +151,11 @@ export default {
                 },
                 {
                     value: 'product.stock',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock',
-                    ),
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock'),
                 },
                 {
                     value: 'product.sales',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales',
-                    ),
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales'),
                 },
                 {
                     value: 'customField',
@@ -202,7 +203,7 @@ export default {
                     return;
                 }
 
-                this.productSortingEntity.fields.forEach(field => {
+                this.productSortingEntity.fields.forEach((field) => {
                     if (field.field === null) {
                         field.field = 'customField';
                     }
@@ -224,15 +225,15 @@ export default {
         },
 
         fetchCustomFieldSetIds() {
-            return this.customFieldSetRelationsRepository.search(this.customFieldsRelationsCriteria).then(response => {
-                this.customFieldSetIDs = response.map(currentField => {
+            return this.customFieldSetRelationsRepository.search(this.customFieldsRelationsCriteria).then((response) => {
+                this.customFieldSetIDs = response.map((currentField) => {
                     return currentField.customFieldSetId;
                 });
             });
         },
 
         fetchCustomFields() {
-            this.customFieldRepository.search(this.customFieldCriteria).then(response => {
+            this.customFieldRepository.search(this.customFieldCriteria).then((response) => {
                 this.customFields = response;
             });
         },
@@ -245,13 +246,13 @@ export default {
         isItemACustomField(fieldName) {
             const strippedFieldName = this.stripCustomFieldPath(fieldName);
 
-            return this.customFields.some(currentCustomField => {
+            return this.customFields.some((currentCustomField) => {
                 return currentCustomField.name === strippedFieldName;
             });
         },
 
         getCustomFieldByName(technicalName) {
-            return this.customFields.find(currentCustomField => {
+            return this.customFields.find((currentCustomField) => {
                 return currentCustomField.name === technicalName;
             });
         },
@@ -265,7 +266,7 @@ export default {
             if (!this.criteriaIsAlreadyUsed(fieldName)) {
                 this.$emit('criteria-add', fieldName);
 
-                const record = this.productSortingEntity.fields.find(field => field.field === fieldName);
+                const record = this.productSortingEntity.fields.find((field) => field.field === fieldName);
                 this.$nextTick().then(() => {
                     if (record && this.$refs.dataGrid) {
                         this.$refs.dataGrid.onDbClickCell(record);
@@ -278,10 +279,9 @@ export default {
             const criteriaName = this.getCriteriaSnippetByFieldName(fieldName);
 
             this.createNotificationError({
-                message: this.$t(
-                    'sw-settings-listing.general.productSortingCriteriaGrid.options.criteriaAlreadyUsed',
-                    { criteriaName },
-                ),
+                message: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.criteriaAlreadyUsed', {
+                    criteriaName,
+                }),
             });
         },
 
@@ -298,7 +298,12 @@ export default {
         },
 
         getCriteriaTemplate(fieldName) {
-            return { field: fieldName, order: 'asc', priority: 1, naturalSorting: 0 };
+            return {
+                field: fieldName,
+                order: 'asc',
+                priority: 1,
+                naturalSorting: 0,
+            };
         },
 
         onSaveInlineEdit(item) {
@@ -339,7 +344,7 @@ export default {
         },
 
         filterEmptyCustomFields(item) {
-            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter((field) => {
                 return field.field !== item.field;
             });
         },
@@ -363,7 +368,7 @@ export default {
         },
 
         criteriaIsAlreadyUsed(criteriaName) {
-            return this.productSortingEntity.fields.some(currentCriteria => {
+            return this.productSortingEntity.fields.some((currentCriteria) => {
                 return currentCriteria.field === criteriaName;
             });
         },
@@ -388,27 +393,22 @@ export default {
         customFieldCriteriaSingleSelect(customField) {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.not(
-                'and',
-                [
+            criteria.addFilter(
+                Criteria.not('and', [
                     Criteria.equalsAny('type', this.notSortableCustomFields),
-
-                ],
-            ));
+                ]),
+            );
 
             if (this.customFieldSetIDs) {
-                criteria.addFilter(
-                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs),
-                );
+                criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
             }
 
             if (this.getProductSortingFieldsByName(customField).length) {
-                criteria.addFilter(Criteria.not(
-                    'AND',
-                    [
+                criteria.addFilter(
+                    Criteria.not('AND', [
                         Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField)),
-                    ],
-                ));
+                    ]),
+                );
             }
 
             return criteria;
@@ -427,13 +427,17 @@ export default {
         },
 
         getProductSortingFieldsByName(customField = null) {
-            return this.sortedProductSortingFields.filter((item) => {
-                if (customField) {
-                    return /^customFields\./.test(item.field) && item.field !== customField.field;
-                }
+            return (
+                this.sortedProductSortingFields
+                    .filter((item) => {
+                        if (customField) {
+                            return /^customFields\./.test(item.field) && item.field !== customField.field;
+                        }
 
-                return /^customFields\./.test(item.field);
-            }).map(item => item.name) || {};
+                        return /^customFields\./.test(item.field);
+                    })
+                    .map((item) => item.name) || {}
+            );
         },
     },
 };

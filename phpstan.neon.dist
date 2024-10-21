@@ -1,6 +1,5 @@
 includes:
     - phpstan-baseline.neon
-    - phpstan-v66-baseline.neon
     - phpstan-v67-baseline.neon
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon
@@ -18,10 +17,6 @@ parameters:
     paths:
         - src
         - tests
-    type_coverage:
-        return_type: 99
-        param_type: 98
-        property_type: 55
 
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
@@ -30,34 +25,23 @@ parameters:
         constantHassers: false
         containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
+    type_perfect:
+        no_mixed_property: true
+        no_mixed_caller: true
 
     excludePaths:
         - src/WebInstaller/Resources/
-        - src/WebInstaller/ecs.php
-        - src/WebInstaller/vendor
+        - src/WebInstaller/stub.php
+        - src/WebInstaller/vendor(?)
         - src/WebInstaller/Tests/_fixtures
         - tests/e2e/cypress
 
-        - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # vendor patches over autoload files
         - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
-
-        # Symfony interface typehints `Predis\ClientInterface` which is by default not available
-        - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
-        - src/Core/Framework/Adapter/Cache/ShopwareRedisTagAwareAdapter.php
 
         # node_modules
         - src/**/node_modules/*
         - tests/**/node_modules/*
-
-        # twig override
-        - src/Core/Framework/Adapter/Twig/functions.php
-
-        # class behind feature flags
-        - src/Core/Checkout/Cart/Exception/InvalidCartException.php
-
-        # extends final class, which is ok for mocks
-        - src/Core/Content/Test/ImportExport/MockRepository.php
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
@@ -70,30 +54,31 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
+        # @deprecated tag:v6.7.0 - Can be removed. PHPStan does not fully understand overwrite multiple definitions of DefaultPayment
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
         -
             message: '#Service ".*" is not registered in the container\.#'
             paths:
-                - src/**/*Test.php
                 - tests/unit
                 - tests/integration
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
             paths:
-                - src/**/*Test.php
                 - tests/performance/**/*Bench.php
                 - tests/unit/**/*Test.php
                 - tests/devops/**/*Test.php
+                - tests/migration/**/*Test.php
                 - tests/integration/**/*Test.php
                 - tests/integration/**/*TestCase.php
 
         - # ignore errors caused by static::markTestSkipped
             message: '#Unreachable statement - code above always terminates.#'
             paths:
-                - src/**/*Test.php
                 - tests/**/*Test.php
 
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
@@ -105,9 +90,19 @@ parameters:
                 - src/Core/Framework/Rule/RuleCollection.php
                 - src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
 
-        # @final annotation of internal classes
-        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
-        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
+        # allowed extension of internal classes with @final annotation only for specific classes
+        -
+            message: '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+            paths:
+                - src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
+                - src/Core/Content/Product/SalesChannel/Review/ProductReviewResult.php
+                - src/Storefront/Framework/Page/StorefrontSearchResult.php
+                - src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+        -
+            message: '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
+            paths:
+                - src/Core/Content/Test/ImportExport/MockRepository.php
+                - src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php
         - '#Class Shopware\\Tests\\Integration\\Elasticsearch\\Product\\EsAwareCriteria extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\Criteria\.#'
 
         # Route scopes for controllers
@@ -118,13 +113,6 @@ parameters:
             - src/WebInstaller
             - src/Core/Installer
             - src/Core/Checkout/Payment/Controller/PaymentController.php
-
-        # Namespace rules
-
-        -
-           message: '#Namespace must start with Shopware#'
-           paths:
-            - tests/
 
         -
            message: '#No global Command directories allowed, put your commands in the right domain directory#'
@@ -137,14 +125,6 @@ parameters:
         -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
-            path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-        - # Is in the new super class nullable as the extended class
-            message: "#^PHPDoc type string\\|null of property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\:\\:\\$storageName is not covariant with PHPDoc type string of overridden property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
 
         - # PhpStan cannot follow the referenced cursor
             message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
@@ -157,23 +137,8 @@ parameters:
                 - src/Core/Checkout/Cart/Error/Error.php
                 - src/Core/Content/ProductExport/Error/Error.php
 
-        - # MockRepo extends final EntityRepository class, with is ok for tests
-            message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
-            count: 1
-            path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-        - # @deprecated tag:v6.7.0 Using autoload === true on associations is deprecated and must be refactored. See NEXT-25334 and child tasks
-            message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
-            paths:
-                - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
-                - src/Core/Content/Product/ProductDefinition.php
-                - src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaDefinition.php
-                - src/Core/Checkout/Shipping/ShippingMethodDefinition.php
-                - src/Core/Checkout/Payment/PaymentMethodDefinition.php
-                - src/Core/System/NumberRange/NumberRangeDefinition.php
-
         # Internal deprecations of Shopware are handled in other places
-        - '#deprecated.*class Shopware\\#'
+        - '#deprecated.*(class|interface) Shopware\\#'
 
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'
@@ -183,7 +148,7 @@ parameters:
 
         - # It explicitly tests array access on object, so it works from twig scripts
             message: "#Use explicit methods over array access on object$#"
-            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+            path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
         - # Classes that are allowed to use dynamic property name access
             message: '#Use explicit names over dynamic ones#'
@@ -203,15 +168,6 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Entity.php
                 - src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
 
-        # Breaking changes which are not worth it
-        - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
-
-        - # Google Cloud Storage filesystem closes the stream even though it should not
-            message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
-            paths:
-                - src/Core/Content/Media/File/FileSaver.php
-                - src/Core/Content/ImportExport/ImportExport.php
-
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/Field.php
@@ -220,11 +176,11 @@ parameters:
         - # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
             message: '#.*#'
             paths:
-                - src/Core/Framework/Test/Store/_fixtures/AppStoreTestPlugin/*
                 - src/Core/Framework/Test/Plugin/_fixture/plugins/*
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
+                - tests/integration/Core/Framework/Plugin/_fixtures/*
 
         - # Hard to fix, as no proper var annotation could be used within the while loop
             message: "#^Parameter \\#1 \\$mediaIds of method Shopware\\\\Core\\\\Content\\\\Media\\\\UnusedMediaPurger\\:\\:filterOutNewMedia\\(\\) expects array\\<string\\>, array\\<int, array\\<string, string\\>\\|string\\> given\\.$#"
@@ -262,7 +218,7 @@ parameters:
 
         - # For testing purpose this error can be ignored
             message: '#Cannot assign new offset to Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade#'
-            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+            path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
         - # TestBuilders must not be internal
             message: '#must be flagged @internal to not be captured by the BC checker#'
@@ -278,44 +234,39 @@ parameters:
             count: 2
             path: src/Core/Framework/Validation/HappyPathValidator.php
 
+        - # It is checked before if the entity supports custom fields, but it is not possible for PHPStan to recognize this
+            message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
+            count: 4
+            path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
+
         # NEXT-33380 - Add support for dbal/doctrine 3.8.0, add profiling to get sql query parts from query builder without using deprecated methods getQueryPart or getQueryParts https://github.com/doctrine/dbal/pull/6179
         - """
             #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
             The query parts are implementation details and should not be relied upon\\.$#
         """
 
-        # NEXT-33380 - Add support for dbal/doctrine 3.8.0
-        - """
-            #^Call to deprecated method resetQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
-            Use the dedicated reset\\*\\(\\) methods instead\\.$#
-        """
+        - # This test should ensure, that the default values are never changed
+            message: '#Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with .* and .* will always evaluate to true.#'
+            identifier: staticMethod.alreadyNarrowedType
+            path: tests/devops/Core/DefaultsTest.php
 
-        - # Added optional parameter and added it as annotation that consumers get annoyed by the IDE to provide it
-            message: '#PHPDoc tag @param references unknown parameter\: \$recursive#'
-            paths:
-                - src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
-
-        - # Added optional request parameter @deprecated tag:v6.7.0 - remove this exclusion
-            message: '#Method .* invoked with 4 parameters, 3 required#'
-            paths:
-                - src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule
+        tags:
+            - phpat.test
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule
+        tags:
+            - phpat.test
 rules:
     # rules from https://github.com/symplify/phpstan-rules
     # domain
     - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
-    - Symplify\PHPStanRules\Rules\ForbiddenParamTypeRemovalRule
     - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
-
-    # paths
-    - Symplify\PHPStanRules\Rules\NoMissingDirPathRule
-    - Symplify\PHPStanRules\Rules\NoArrayAccessOnObjectRule
-
-    # dead-code
-    - Symplify\PHPStanRules\Rules\NoIssetOnObjectRule
 
     # explicit naming
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
@@ -323,13 +274,10 @@ rules:
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
 
     # complexity rules
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedPropertyFetcherRule
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedMethodCallerRule
     - Symplify\PHPStanRules\Rules\NoDynamicNameRule
 
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
-    - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule

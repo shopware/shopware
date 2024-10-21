@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const recipientEmailInputClass = '.sw-flow-mail-send-modal__recipient-email #sw-field--item-email';
 const recipientNameInputClass = '.sw-flow-mail-send-modal__recipient-name #sw-field--item-name';
 
@@ -76,6 +80,7 @@ async function createWrapper(sequence = {}) {
                 `,
                 },
                 'sw-button': {
+                    emits: ['click'],
                     template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                 },
                 'sw-alert': true,
@@ -86,7 +91,9 @@ async function createWrapper(sequence = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -98,7 +105,10 @@ async function createWrapper(sequence = {}) {
                 },
                 'sw-highlight-text': true,
                 'sw-select-result': {
-                    props: ['item', 'index'],
+                    props: [
+                        'item',
+                        'index',
+                    ],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -113,6 +123,7 @@ async function createWrapper(sequence = {}) {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
                 'sw-context-button': {
@@ -121,6 +132,15 @@ async function createWrapper(sequence = {}) {
                 'sw-loader': true,
                 'router-link': true,
                 'sw-flow-create-mail-template-modal': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-field-copyable': true,
             },
             provide: {
                 repositoryFactory: {
@@ -188,11 +208,6 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const recipientFieldsClasses = [
-            '.sw-flow-mail-send-modal__recipient-email',
-            '.sw-flow-mail-send-modal__recipient-name',
-        ];
-
         const btnEditInline = '.sw-data-grid__cell--actions .sw-data-grid__inline-edit-save';
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
@@ -205,10 +220,10 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const saveButton = wrapper.find(btnEditInline);
         await saveButton.trigger('click');
+        await flushPromises();
 
-        recipientFieldsClasses.forEach(elementClass => {
-            expect(wrapper.find(elementClass).classes()).toContain('has--error');
-        });
+        expect(wrapper.find('.sw-flow-mail-send-modal__recipient-email').classes()).toContain('has--error');
+        expect(wrapper.find('.sw-flow-mail-send-modal__recipient-name').classes()).toContain('has--error');
     });
 
     it('should show and remove email valid message on recipient email field', async () => {
@@ -311,7 +326,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
         await flushPromises();
 
-        recipientFieldsClasses.forEach(elementClass => {
+        recipientFieldsClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).classes()).toContain('has--error');
         });
     });
@@ -533,7 +548,10 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should validate reply to field', async () => {
-        const sequence = { ...sequenceFixture, ...{ config: { replyTo: 'test@example.com' } } };
+        const sequence = {
+            ...sequenceFixture,
+            ...{ config: { replyTo: 'test@example.com' } },
+        };
         const wrapper = await createWrapper(sequence);
         await flushPromises();
 
@@ -610,7 +628,9 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         };
         wrapper.vm.buildReplyToTooltip('foo');
 
-        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, { settingsLink: 'bar' });
+        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, {
+            settingsLink: 'bar',
+        });
     });
 
     it('should be able to close modal', async () => {

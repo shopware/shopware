@@ -92,6 +92,11 @@ export default class FormCmsHandler extends Plugin {
                 content += response[i].alert;
             }
 
+            // Reset form after successful submission to clear form contents.
+            if (changeContent) {
+                this.el.reset();
+            }
+
             this._createResponse(changeContent, content);
         } else {
             window.location.reload();

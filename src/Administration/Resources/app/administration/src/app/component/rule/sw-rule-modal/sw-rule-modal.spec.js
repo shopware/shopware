@@ -5,16 +5,22 @@ function createRuleMock(isNew) {
         id: '1',
         name: 'Test rule',
         isNew: () => isNew,
-        conditions: [{
-            entity: 'rule',
-            source: 'foo/rule',
-            children: [{
-                id: 'some-id',
-                children: [{
-                    id: 'some-id',
-                }],
-            }],
-        }],
+        conditions: [
+            {
+                entity: 'rule',
+                source: 'foo/rule',
+                children: [
+                    {
+                        id: 'some-id',
+                        children: [
+                            {
+                                id: 'some-id',
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
         someRuleRelation: [],
     };
 }
@@ -43,8 +49,7 @@ async function createWrapper() {
 
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
-                    addScriptConditions: () => {
-                    },
+                    addScriptConditions: () => {},
                     getRestrictedRuleTooltipConfig: () => ({
                         disabled: true,
                     }),

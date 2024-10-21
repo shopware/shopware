@@ -72,7 +72,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
         if (!$accessKey) {
             throw ApiException::unauthorized(
                 'header',
-                sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY)
+                \sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY)
             );
         }
 

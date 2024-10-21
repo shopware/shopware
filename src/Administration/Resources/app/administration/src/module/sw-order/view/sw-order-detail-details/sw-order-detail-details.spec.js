@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
@@ -101,7 +105,8 @@ async function createWrapper() {
                 'sw-order-address-selection': true,
                 'sw-entity-single-select': true,
                 'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
+                    template:
+                        '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
                     props: {
                         value: 0,
                     },
@@ -111,6 +116,8 @@ async function createWrapper() {
                 'sw-textarea-field': true,
                 'sw-order-promotion-field': true,
                 'sw-extension-component-section': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-order-state-history-modal': true,
             },
             provide: {
                 repositoryFactory: {
@@ -118,7 +125,6 @@ async function createWrapper() {
                         search: () => Promise.resolve([]),
                     }),
                 },
-
             },
         },
         props: {
@@ -151,7 +157,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     it('should have a disabled on transaction card', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineTransactionState"]');
+        const stateCard = wrapper.find(
+            '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineTransactionState"]',
+        );
         const addressSelection = wrapper.find('.sw-order-detail-details__billing-address');
 
         expect(stateCard.attributes().disabled).toBeTruthy();
@@ -161,7 +169,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     it('should not have an disabled on transaction card', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
-        const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineTransactionState"');
+        const stateCard = wrapper.find(
+            '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineTransactionState"',
+        );
         const addressSelection = wrapper.find('.sw-order-detail-details__billing-address');
 
         expect(stateCard.attributes().disabled).toBeUndefined();
@@ -171,7 +181,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     it('should have a disabled on delivery card', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"');
+        const stateCard = wrapper.find(
+            '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"',
+        );
         const addressSelection = wrapper.find('.sw-order-detail-details__shipping-address');
         const trackingCodeField = wrapper.find('.sw-order-user-card__tracking-code-select');
 
@@ -184,7 +196,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
 
-        const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"');
+        const stateCard = wrapper.find(
+            '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"',
+        );
         const addressSelection = wrapper.find('.sw-order-detail-details__shipping-address');
         const trackingCodeField = wrapper.find('.sw-order-user-card__tracking-code-select');
 

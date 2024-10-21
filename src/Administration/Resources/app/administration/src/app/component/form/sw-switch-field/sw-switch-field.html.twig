@@ -4,7 +4,7 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :checked="checkedValue"
-    v-on="$listeners"
+    v-on="listeners"
     @change="onChangeHandler"
 >
     <slot></slot>
@@ -15,9 +15,9 @@
 <sw-switch-field-deprecated
     v-else
     v-bind="$attrs"
-    :router-link="routerLink"
     :value="value"
-    v-on="$listeners"
+    v-on="listeners"
+    @update:value="onChangeHandler"
 >
     <slot></slot>
 </sw-switch-field-deprecated>

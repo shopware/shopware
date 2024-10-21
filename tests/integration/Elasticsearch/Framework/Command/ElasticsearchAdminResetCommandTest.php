@@ -14,8 +14,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 class ElasticsearchAdminResetCommandTest extends TestCase

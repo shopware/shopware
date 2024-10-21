@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+.sw-extension-teaser-popover {
+    &.mt-floating-ui {
+        display: block;
+    }
+
+    .mt-floating-ui__trigger {
+        width: 100%;
+    }
+
+    .mt-button.mt-button--secondary:disabled #meteor-icon-kit__solid-sparkles {
+        color: #76aaff;
+    }
+
+    .mt-field--switch__container .mt-field--switch {
+        margin: 0;
+
+        .mt-field--switch__input {
+            padding: 0;
+        }
+
+        .mt-field__label label {
+            padding: 0 0 0 4px;
+        }
+    }
+}
+
+.mt-popover.is--width-large .mt-popover__content {
+    padding: 0;
+}

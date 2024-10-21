@@ -105,7 +105,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         // show loading indicator in submit buttons
         this._submitButtons.forEach((submitButton) => {
             if (this.options.skipLoadingIndicator) {
-                submitButton.disabled = true
+                submitButton.disabled = true;
 
                 return;
             }

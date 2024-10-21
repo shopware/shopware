@@ -9,12 +9,12 @@
         ref="landingPageTree"
         class="sw-landing-page-tree__inner"
         :items="landingPages"
-        :sortable="false"
+        :sortable="false || undefined"
         :searchable="false"
         :translation-context="translationContext"
         :on-change-route="changeLandingPage"
         :disable-context-menu="disableContextMenu"
-        :allow-delete-categories="allowDelete"
+        :allow-delete-categories="allowDelete || undefined"
         :allow-create-categories="false"
         :active-tree-item-id="landingPageId"
         @batch-delete="deleteCheckedItems"
@@ -48,15 +48,15 @@
                 :item="item"
                 :should-show-active-state="true"
                 :allow-duplicate="true"
-                :allow-new-categories="false"
-                :allow-delete-categories="allowDelete"
+                :allow-new-categories="false || undefined"
+                :allow-delete-categories="allowDelete || undefined"
                 :active="item.active"
                 :translation-context="translationContext"
                 :on-change-route="onChangeRoute"
-                :sortable="sortable"
+                :sortable="sortable || undefined"
                 :dragged-item="draggedItem"
                 :disable-context-menu="disableContextMenu"
-                :display-checkbox="allowEdit"
+                :display-checkbox="allowEdit || undefined"
                 :context-menu-tooltip-text="contextMenuTooltipText"
                 :new-element-id="newElementId"
                 :get-item-url="getLandingPageUrl"
@@ -79,7 +79,7 @@
                     <sw-context-button
                         v-tooltip="toolTip"
                         class="sw-tree-item__context_button"
-                        :disabled="disableContextMenu"
+                        :disabled="disableContextMenu || undefined"
                     >
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -139,7 +139,7 @@
             :router-link="newLandingPageUrl()"
             size="small"
             variant="ghost"
-            :disabled="disableContextMenu || !acl.can('landing_page.creator')"
+            :disabled="disableContextMenu || !acl.can('landing_page.creator') || undefined"
         >
             {{ $tc('sw-landing-page.general.buttonCreate') }}
         </sw-button>

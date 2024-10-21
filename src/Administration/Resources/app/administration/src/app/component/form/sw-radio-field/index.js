@@ -24,11 +24,14 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-radio-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -69,10 +72,12 @@ Component.register('sw-radio-field', {
 
     computed: {
         classes() {
-            return [{
-                'sw-field--radio-bordered': this.bordered,
-                'sw-field--radio-block': this.block,
-            }];
+            return [
+                {
+                    'sw-field--radio-bordered': this.bordered,
+                    'sw-field--radio-block': this.block,
+                },
+            ];
         },
         currentIndex() {
             const foundIndex = this.options.findIndex((item) => item.value === this.value);

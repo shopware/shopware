@@ -22,7 +22,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string
     {
-        $filePath = sprintf(
+        $filePath = \sprintf(
             '%s/%s',
             $this->exportDirectory,
             $productExport->getFileName()

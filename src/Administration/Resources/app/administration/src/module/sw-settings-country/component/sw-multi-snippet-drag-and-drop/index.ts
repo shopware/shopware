@@ -1,4 +1,4 @@
-import type { PropType } from 'vue';
+import type { PropType, ComponentObjectPropsOptions } from 'vue';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-multi-snippet-drag-and-drop.html.twig';
 import './sw-multi-snippet-drag-and-drop.scss';
@@ -6,9 +6,9 @@ import './sw-multi-snippet-drag-and-drop.scss';
 const { Component } = Shopware;
 
 interface DragItem {
-    index: number,
-    linePosition?: number | null,
-    snippet: string[]
+    index: number;
+    linePosition?: number | null;
+    snippet: string[];
 }
 
 const DEFAULT_MIN_LINES = 1 as number;
@@ -21,6 +21,8 @@ const DEFAULT_MAX_LINES = 10 as number;
  */
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -61,20 +63,28 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         dragConfig: {
             type: Object,
             required: false,
-            default(): DragConfig<DragItem> {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultConfig;
+            default(props: ComponentObjectPropsOptions<{ disabled: boolean }>): DragConfig<DragItem> {
+                return {
+                    delay: 200,
+                    dragGroup: 'sw-multi-snippet',
+                    validDragCls: 'is--valid-drag',
+                    preventEvent: true,
+                    disabled: props.disabled,
+                } as unknown as DragConfig<DragItem>;
             },
         },
 
         dropConfig: {
             type: Object,
             required: false,
-            default(): DragConfig<DragItem> {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultConfig;
+            default(props: ComponentObjectPropsOptions<{ disabled: boolean }>): DragConfig<DragItem> {
+                return {
+                    delay: 200,
+                    dragGroup: 'sw-multi-snippet',
+                    validDragCls: 'is--valid-drag',
+                    preventEvent: true,
+                    disabled: props.disabled,
+                } as unknown as DragConfig<DragItem>;
             },
         },
 
@@ -86,8 +96,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
     },
 
     data(): {
-        defaultConfig: DragConfig<DragItem>,
-        } {
+        defaultConfig: DragConfig<DragItem>;
+    } {
         return {
             defaultConfig: {
                 delay: 200,
@@ -128,8 +138,21 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             return this.totalLines >= DEFAULT_MAX_LINES;
         },
 
-        isMinLines() :boolean {
+        isMinLines(): boolean {
             return this.totalLines <= DEFAULT_MIN_LINES;
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed.
+         */
+        listeners() {
+            let listeners = {};
+
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                listeners = this.$listeners;
+            }
+
+            return listeners;
         },
     },
 
@@ -152,14 +175,10 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             }
 
             if (dragData.linePosition === dropData.linePosition) {
-                const newValue = Object.assign(
-                    [],
-                    this.value,
-                    {
-                        [dragData.index]: this.value[dropData.index],
-                        [dropData.index]: this.value[dragData.index],
-                    },
-                );
+                const newValue = Object.assign([], this.value, {
+                    [dragData.index]: this.value[dropData.index],
+                    [dropData.index]: this.value[dragData.index],
+                });
 
                 this.$emit('update:value', this.linePosition, newValue);
 

@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-loader', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'mt-loader': true,
+                'sw-loader-deprecated': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

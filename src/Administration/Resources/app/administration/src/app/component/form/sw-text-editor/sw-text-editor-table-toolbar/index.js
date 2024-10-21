@@ -11,6 +11,13 @@ const { Component } = Shopware;
 Component.register('sw-text-editor-table-toolbar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'table-modify',
+        'table-delete',
+    ],
+
     props: {
         // eslint-disable-next-line vue/require-prop-types
         selection: {

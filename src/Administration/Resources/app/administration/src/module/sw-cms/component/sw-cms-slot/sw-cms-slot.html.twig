@@ -13,10 +13,10 @@
     {% block sw_cms_slot_content_component %}
     <component
         :is="elementConfig.component"
-        v-if="elementConfig && elementConfig.component"
+        v-if="elementConfig?.component"
         v-model:element="element"
         :element-data="elementConfig"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 

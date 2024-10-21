@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Column::class)]
@@ -27,8 +25,6 @@ class ColumnTest extends TestCase
         }
 
         $column = Column::fromXml($columnElement);
-
-        static::assertInstanceOf(Column::class, $column);
         static::assertEquals($result, $column->isHidden());
         static::assertEquals('column ref', $column->getRef());
     }

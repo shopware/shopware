@@ -10,7 +10,11 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['importExport'],
+
+    emits: ['result-close'],
 
     props: {
         logEntity: {
@@ -35,6 +39,7 @@ export default {
             return Object.keys(this.logEntity.result).reduce((items, entityName) => {
                 if (entityName !== this.mainEntity) {
                     items.push({
+                        id: entityName, // sw-grid items should always have a unique id
                         entityName,
                         ...this.logEntity.result[entityName],
                     });

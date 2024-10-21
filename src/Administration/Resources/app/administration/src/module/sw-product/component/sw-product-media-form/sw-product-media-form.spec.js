@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -55,6 +55,12 @@ async function createWrapper() {
                         },
                     }),
                 },
+                systemConfigApiService: {
+                    getValues: () =>
+                        Promise.resolve({
+                            'core.store.media.defaultEnableAugmentedReality': 'false',
+                        }),
+                },
             },
             stubs: {
                 'sw-upload-listener': true,
@@ -68,6 +74,8 @@ async function createWrapper() {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-loader': true,
+                'router-link': true,
             },
         },
     });
@@ -93,15 +101,7 @@ const media = [
 ];
 
 function getMediaCollection(collection = []) {
-    return new EntityCollection(
-        '/media',
-        'media',
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
+    return new EntityCollection('/media', 'media', null, { isShopwareContext: true }, collection, collection.length, null);
 }
 
 describe('module/sw-product/component/sw-product-media-form', () => {
@@ -158,7 +158,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         await flushPromises();
 
         let coverCount = 0;
-        wrapper.vm.mediaItems.forEach(mediaItem => {
+        wrapper.vm.mediaItems.forEach((mediaItem) => {
             if (wrapper.vm.isCover(mediaItem)) {
                 coverCount += 1;
             }
@@ -215,11 +215,9 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         let productMediaItems = wrapper.findAll('.sw-product-image');
 
         expect(productMediaItems[0].classes()).toContain('is--cover');
-        expect(productMediaItems[0].find('sw-media-preview-v2-stub')
-            .attributes('source')).toEqual(media[0].mediaId);
+        expect(productMediaItems[0].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
         expect(productMediaItems[1].classes()).not.toContain('is--cover');
-        expect(productMediaItems[1].find('sw-media-preview-v2-stub')
-            .attributes('source')).toEqual(media[1].mediaId);
+        expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[1].mediaId);
 
         const contextButton = productMediaItems[1].find('.sw-product-image__context-button');
         await contextButton.trigger('click');
@@ -233,12 +231,10 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
         productMediaItems = wrapper.findAll('.sw-product-image');
         expect(productMediaItems[0].classes()).toContain('is--cover');
-        expect(productMediaItems[0].find('sw-media-preview-v2-stub')
-            .attributes('source')).toEqual(media[1].mediaId);
+        expect(productMediaItems[0].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[1].mediaId);
 
         expect(productMediaItems[1].classes()).not.toContain('is--cover');
-        expect(productMediaItems[1].find('sw-media-preview-v2-stub')
-            .attributes('source')).toEqual(media[0].mediaId);
+        expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
     });
 
     it('should remove previous mediaItem if it already exists after upload', async () => {

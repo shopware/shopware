@@ -1,3 +1,7 @@
+/**
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
@@ -19,27 +23,42 @@ export default {
                 return;
             }
 
-            Object.entries(campaign.components).forEach(([componentName, config]) => {
-                const descriptionText = config?.content?.description?.text;
+            Object.entries(campaign.components).forEach(
+                ([
+                    componentName,
+                    config,
+                ]) => {
+                    const descriptionText = config?.content?.description?.text;
 
-                if (descriptionText) {
-                    Object.entries(descriptionText).forEach(([langIsoCode, snippet]) => {
-                        translations[langIsoCode] ??= {};
-                        translations[langIsoCode].marketing ??= {};
-                        translations[langIsoCode].marketing[componentName] ??= {};
-                        translations[langIsoCode].marketing[componentName].content ??= {};
-                        translations[langIsoCode].marketing[componentName].content.description ??= {};
-                        translations[langIsoCode].marketing[componentName].content.description.text = snippet;
-                    });
-                }
-            });
+                    if (descriptionText) {
+                        Object.entries(descriptionText).forEach(
+                            ([
+                                langIsoCode,
+                                snippet,
+                            ]) => {
+                                translations[langIsoCode] ??= {};
+                                translations[langIsoCode].marketing ??= {};
+                                translations[langIsoCode].marketing[componentName] ??= {};
+                                translations[langIsoCode].marketing[componentName].content ??= {};
+                                translations[langIsoCode].marketing[componentName].content.description ??= {};
+                                translations[langIsoCode].marketing[componentName].content.description.text = snippet;
+                            },
+                        );
+                    }
+                },
+            );
 
             // add translations to i18n messages
             const { i18n } = Shopware.Application.view;
 
-            Object.entries(translations).forEach(([langIsoCode, snippets]) => {
-                i18n.mergeLocaleMessage(langIsoCode, snippets);
-            });
+            Object.entries(translations).forEach(
+                ([
+                    langIsoCode,
+                    snippets,
+                ]) => {
+                    i18n.mergeLocaleMessage(langIsoCode, snippets);
+                },
+            );
         },
     },
 

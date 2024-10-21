@@ -7,10 +7,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
+use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
@@ -45,7 +48,8 @@ class SystemConfigServiceTest extends TestCase
             $this->configReader,
             $this->configLoader,
             $this->eventDispatcher,
-            true
+            new SymfonySystemConfigService([]),
+            true,
         );
     }
 
@@ -84,11 +88,14 @@ class SystemConfigServiceTest extends TestCase
     #[DataProvider('provideTracingExamples')]
     public function testTracing(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $config = new SystemConfigService(
             $this->connection,
             $this->configReader,
             $this->configLoader,
             $this->eventDispatcher,
+            new SymfonySystemConfigService([]),
             $enabled
         );
 
@@ -97,6 +104,25 @@ class SystemConfigServiceTest extends TestCase
         });
 
         static::assertSame($tags, $config->getTrace('test'));
+    }
+
+    public function testNotAllowedToSetKeysManagedBySystem(): void
+    {
+        $configService = new SystemConfigService(
+            $this->connection,
+            $this->configReader,
+            $this->configLoader,
+            $this->eventDispatcher,
+            new SymfonySystemConfigService(['default' => ['core.test' => true]]),
+            true,
+        );
+
+        // Setting the same value is okay
+        $configService->set('core.test', true);
+
+        static::expectExceptionObject(SystemConfigException::systemConfigKeyIsManagedBySystems('core.test'));
+
+        $configService->set('core.test', false);
     }
 
     public static function provideTracingExamples(): \Generator

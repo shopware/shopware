@@ -16,6 +16,8 @@ class MailException extends HttpException
 
     final public const MAIL_BODY_TOO_LONG = 'MAIL__MAIL_BODY_TOO_LONG';
 
+    final public const MAIL_TEMPLATE_NOT_FOUND = 'MAIL_TEMPLATE_NOT_FOUND';
+
     /**
      * @param string[] $validOptions
      */
@@ -46,6 +48,16 @@ class MailException extends HttpException
             self::MAIL_BODY_TOO_LONG,
             'Mail body is too long. Maximum allowed length is {{ maxContentLength }}',
             ['maxContentLength' => $maxContentLength]
+        );
+    }
+
+    public static function mailTemplateNotFound(string $mailTemplateId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MAIL_TEMPLATE_NOT_FOUND,
+            'Mail template with id {id} not found',
+            ['id' => $mailTemplateId]
         );
     }
 }

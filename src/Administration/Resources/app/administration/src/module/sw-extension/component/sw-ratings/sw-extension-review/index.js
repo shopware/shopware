@@ -10,6 +10,8 @@ const { date } = Shopware.Utils.format;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         review: {
             type: Object,
@@ -24,12 +26,14 @@ export default {
 
     computed: {
         lastChangeDate() {
-            return this.review.lastChangeDate !== null ? date(this.review.lastChangeDate, {
-                month: 'numeric',
-                year: 'numeric',
-                hour: undefined,
-                minute: undefined,
-            }) : null;
+            return this.review.lastChangeDate !== null
+                ? date(this.review.lastChangeDate, {
+                      month: 'numeric',
+                      year: 'numeric',
+                      hour: undefined,
+                      minute: undefined,
+                  })
+                : null;
         },
 
         reviewHasReplies() {

@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils';
-
 /**
- * @package customer-order
+ * @package checkout
  */
+
+import { mount } from '@vue/test-utils';
 
 const orderFixture = {
     id: 'order1',
@@ -70,7 +70,8 @@ const orderFixture = {
             label: 'Credit item',
             quantity: 1,
             payload: [],
-            price: { quantity: 1,
+            price: {
+                quantity: 1,
                 totalPrice: -100,
                 unitPrice: -100,
                 calculatedTaxes: [
@@ -85,8 +86,10 @@ const orderFixture = {
                         taxRate: 10,
                         percentage: 100,
                     },
-                ] },
-        }],
+                ],
+            },
+        },
+    ],
 };
 
 async function createWrapper() {
@@ -123,6 +126,12 @@ async function createWrapper() {
                 'sw-description-list': {
                     template: '<div class="sw-description-list"><slot></slot></div>',
                 },
+                'sw-media-upload-v2': true,
+                'sw-media-modal-v2': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 numberRangeService: {
@@ -178,13 +187,16 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             },
         });
 
-        expect(wrapper.vm.highlightedItems).toStrictEqual([{
-            type: 'credit',
-            id: 'CREDIT_1',
-        }, {
-            type: 'credit',
-            id: 'CREDIT_2',
-        }]);
+        expect(wrapper.vm.highlightedItems).toStrictEqual([
+            {
+                type: 'credit',
+                id: 'CREDIT_1',
+            },
+            {
+                type: 'credit',
+                id: 'CREDIT_2',
+            },
+        ]);
     });
 
     it('should compute documentPreconditionsFulfilled correctly', async () => {
@@ -285,7 +297,11 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.vm.createdComponent();
 
         // Filtered and sorted
-        expect(wrapper.vm.invoiceNumbers).toEqual(['INVOICE_001', 'INVOICE_002', 'INVOICE_003']);
+        expect(wrapper.vm.invoiceNumbers).toEqual([
+            'INVOICE_001',
+            'INVOICE_002',
+            'INVOICE_003',
+        ]);
     });
 
     it('should emit loading-document onCreateDocument', async () => {
@@ -307,9 +323,11 @@ describe('sw-order-document-settings-credit-note-modal', () => {
 
     it('should call numberRangeService.reserve if documentNumberPreview equal documentConfig.documentNumber', async () => {
         const number = 'RESERVE_NUMBER';
-        const spyReserve = jest.spyOn(wrapper.vm.numberRangeService, 'reserve').mockImplementation(() => Promise.resolve({
-            number,
-        }));
+        const spyReserve = jest.spyOn(wrapper.vm.numberRangeService, 'reserve').mockImplementation(() =>
+            Promise.resolve({
+                number,
+            }),
+        );
 
         await wrapper.setProps({
             order: {
@@ -367,7 +385,8 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select')
+        const invoiceOptions = wrapper
+            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
             .findAll('option');
 
         expect(invoiceOptions.at(1).text()).toBe('1000');
@@ -386,7 +405,8 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select')
+        const invoiceOptions = wrapper
+            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
             .findAll('option');
 
         await invoiceOptions.at(1).setSelected();

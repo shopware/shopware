@@ -11,6 +11,8 @@ import './sw-help-center.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         showHelpSidebar(): boolean {
             return Shopware.State.get('adminHelpCenter').showHelpSidebar;
@@ -23,7 +25,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     watch: {
         showShortcutModal(value) {
-            const shortcutModal = this.$refs.shortcutModal as { onOpenShortcutOverviewModal: () => void };
+            const shortcutModal = this.$refs.shortcutModal as {
+                onOpenShortcutOverviewModal: () => void;
+            };
 
             if (!shortcutModal) {
                 return;
@@ -53,7 +57,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         setFocusToSidebar(): void {
-            const helpSidebar = this.$refs.helpSidebar as { setFocusToSidebar: () => void };
+            const helpSidebar = this.$refs.helpSidebar as {
+                setFocusToSidebar: () => void;
+            };
 
             if (!helpSidebar) {
                 return;

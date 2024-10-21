@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-notifications', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {
@@ -24,7 +26,10 @@ Component.register('sw-notifications', {
                 if (!value.length) {
                     return true;
                 }
-                return ['topRight', 'bottomRight'].includes(value);
+                return [
+                    'topRight',
+                    'bottomRight',
+                ].includes(value);
             },
         },
         notificationsGap: {

@@ -42,7 +42,7 @@ class ChangelogCommandTest extends TestCase
             [
                 __DIR__ . '/_fixture/stage/command-invalid-issue-number',
                 [
-                    '* The Jira ticket has an invalid format',
+                    '* The issue has an invalid format',
                     '[ERROR] You have 1 syntax errors in changelog files.',
                 ],
             ],
@@ -230,7 +230,7 @@ class ChangelogCommandTest extends TestCase
 
             foreach ($expectedFileContent as $line) {
                 static::assertStringContainsString($line, $fileContents);
-                static::assertSame(1, substr_count($fileContents, $line), sprintf("Multiple occurrences of %s in \n %s", $line, $fileContents));
+                static::assertSame(1, substr_count($fileContents, $line), \sprintf("Multiple occurrences of %s in \n %s", $line, $fileContents));
             }
         }
     }

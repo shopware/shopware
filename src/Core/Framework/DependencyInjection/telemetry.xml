@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Meter" public="true" lazy="true">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider"/>
+
+            <argument type="service" id="logger"/>
+            <argument>%env(APP_ENV)%</argument>
+        </service>
+
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider">
+            <argument>%shopware.telemetry.metrics.definitions%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection" lazy="true">
+            <factory class="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.metric_transport_factory"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider"/>
+        </service>
+    </services>
+</container>

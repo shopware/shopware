@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -86,15 +88,11 @@ export default {
         },
 
         isNewCountry() {
-            return typeof this.country.isNew === 'function'
-                ? this.country.isNew()
-                : false;
+            return typeof this.country.isNew === 'function' ? this.country.isNew() : false;
         },
 
         allowSave() {
-            return this.isNewCountry
-                ? this.acl.can('country.creator')
-                : this.acl.can('country.editor');
+            return this.isNewCountry ? this.acl.can('country.creator') : this.acl.can('country.editor');
         },
 
         tooltipSave() {
@@ -115,13 +113,12 @@ export default {
         },
 
         userConfigCriteria() {
-            return new Criteria(1, 25).addFilter(Criteria.multi(
-                'AND',
-                [
+            return new Criteria(1, 25).addFilter(
+                Criteria.multi('AND', [
                     Criteria.equals('userId', this.currentUserId),
                     Criteria.equals('key', 'setting-country'),
-                ],
-            ));
+                ]),
+            );
         },
 
         ...mapPropertyErrors('country', ['name']),
@@ -137,7 +134,9 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!this.$route.params.id) { return; }
+            if (!this.$route.params.id) {
+                return;
+            }
 
             this.countryId = this.$route.params.id;
 
@@ -154,18 +153,21 @@ export default {
             }
 
             this.isLoading = true;
-            return this.countryRepository.get(this.countryId).then(country => {
-                this.country = country;
+            return this.countryRepository
+                .get(this.countryId)
+                .then((country) => {
+                    this.country = country;
 
-                this.isLoading = false;
+                    this.isLoading = false;
 
-                this.countryStateRepository = this.repositoryFactory.create(
-                    this.country.states.entity,
-                    this.country.states.source,
-                );
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    this.countryStateRepository = this.repositoryFactory.create(
+                        this.country.states.entity,
+                        this.country.states.source,
+                    );
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         loadCustomFieldSets() {
@@ -203,20 +205,21 @@ export default {
 
             const userConfigValue = this.userConfig.value[this.countryId];
 
-            return this.countryRepository.save(this.country, Shopware.Context.api).then(() => {
-                if (userConfigValue
-                    && Object.keys(userConfigValue).length > 0) {
-                    this.userConfigRepository.save(this.userConfig, Shopware.Context.api)
-                        .then(() => {
+            return this.countryRepository
+                .save(this.country, Shopware.Context.api)
+                .then(() => {
+                    if (userConfigValue && Object.keys(userConfigValue).length > 0) {
+                        this.userConfigRepository.save(this.userConfig, Shopware.Context.api).then(() => {
                             this.loadUserConfig();
                         });
-                }
-                this.loadEntityData();
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    }
+                    this.loadEntityData();
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onCancel() {
@@ -236,20 +239,31 @@ export default {
         },
 
         getStateColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'shortCode',
-                label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
-                inlineEdit: 'string',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'shortCode',
+                    label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
+                    inlineEdit: 'string',
+                },
+            ];
         },
 
         onSaveModal() {
             return this.onSave();
+        },
+
+        /**
+         * @param path - Lodash set path
+         * @param value
+         */
+        onUpdateCountry(path, value) {
+            Shopware.Utils.object.set(this.country, path, value);
         },
     },
 };

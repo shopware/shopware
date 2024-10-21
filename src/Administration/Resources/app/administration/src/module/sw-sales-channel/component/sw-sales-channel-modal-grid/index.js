@@ -12,7 +12,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: [
+        'grid-channel-add',
+        'grid-detail-open',
+    ],
 
     props: {
         productStreamsExist: {
@@ -55,7 +62,10 @@ export default {
     methods: {
         createdComponent() {
             this.isLoading = true;
-            const context = { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId };
+            const context = {
+                ...Shopware.Context.api,
+                languageId: Shopware.State.get('session').languageId,
+            };
             this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response;
@@ -68,7 +78,7 @@ export default {
         },
 
         onOpenDetail(id) {
-            const detailType = this.salesChannelTypes.find(salesChannelType => salesChannelType.id === id);
+            const detailType = this.salesChannelTypes.find((salesChannelType) => salesChannelType.id === id);
             this.$emit('grid-detail-open', detailType);
         },
 

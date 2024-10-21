@@ -12,6 +12,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * This command can be used to detect if the system is installed to script a Shopware installation or update.
+ *
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
  */
 #[Package('core')]
 #[AsCommand(

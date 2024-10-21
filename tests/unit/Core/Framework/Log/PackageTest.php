@@ -47,8 +47,6 @@ class PackageTest extends TestCase
 
 /**
  * @internal
- *
- * @package core
  */
 class NoPackage
 {
@@ -56,8 +54,6 @@ class NoPackage
 
 /**
  * @internal
- *
- * @package core
  */
 #[Package('core')]
 class WithPackage
@@ -66,8 +62,6 @@ class WithPackage
 
 /**
  * @internal
- *
- * @package core
  */
 class WithParentPackage extends WithPackage
 {

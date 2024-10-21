@@ -91,9 +91,13 @@
         {% endblock %}
     </template>
 </sw-grid>
-
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_modal_grid_loader %}
 <sw-loader v-else />
-    {% endblock %}
+{% endblock %}
+
+<sw-extension-teaser-sales-channel
+    v-if="!isLoading"
+/>
+
 {% endblock %}

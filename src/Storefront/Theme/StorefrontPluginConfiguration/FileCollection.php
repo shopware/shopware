@@ -43,7 +43,7 @@ class FileCollection extends Collection
             if ($element->assetName === null) {
                 return null;
             }
-
+            // removes file with old js structure (before async changes) from collection
             if (!str_ends_with($element->getFilepath(), $element->assetName . '/' . basename($element->getFilepath()))) {
                 return null;
             }

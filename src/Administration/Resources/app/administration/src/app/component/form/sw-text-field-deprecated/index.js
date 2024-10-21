@@ -14,11 +14,18 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-text-field-deprecated', {
     template,
+
     inheritAttrs: false,
 
-    emits: ['update:value'],
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
+
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -67,20 +74,56 @@ Component.register('sw-text-field-deprecated', {
 
     computed: {
         hasPrefix() {
-            return this.$scopedSlots.hasOwnProperty('prefix');
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.hasOwnProperty('prefix');
+            }
+
+            return this.$slots.hasOwnProperty('prefix');
         },
 
         hasSuffix() {
-            return this.$scopedSlots.hasOwnProperty('suffix');
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.hasOwnProperty('suffix');
+            }
+
+            return this.$slots.hasOwnProperty('suffix');
         },
 
         additionalListeners() {
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return {};
+            }
+
             const additionalListeners = { ...this.$listeners };
 
             delete additionalListeners.input;
             delete additionalListeners.change;
 
             return additionalListeners;
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+
+        filteredInputAttributes() {
+            // Filter attributes and remove "size" attribute
+            return Object.keys(this.$attrs).reduce((acc, key) => {
+                const filteredValues = [
+                    'size',
+                    'class',
+                ];
+
+                if (!filteredValues.includes(key)) {
+                    acc[key] = this.$attrs[key];
+                }
+
+                return acc;
+            }, {});
         },
     },
 

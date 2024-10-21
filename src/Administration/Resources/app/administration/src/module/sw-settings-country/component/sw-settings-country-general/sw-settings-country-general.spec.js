@@ -1,84 +1,92 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], customPropsData = {}) {
-    return mount(await wrapTestComponent('sw-settings-country-general', {
-        sync: true,
-    }), {
-        props: {
-            country: {
-                isNew: () => false,
-                customerTax: {
-                    enabled: customPropsData.enabled,
+    return mount(
+        await wrapTestComponent('sw-settings-country-general', {
+            sync: true,
+        }),
+        {
+            props: {
+                country: {
+                    isNew: () => false,
+                    customerTax: {
+                        enabled: customPropsData.enabled,
+                    },
+                    companyTax: {
+                        enabled: customPropsData.enabled,
+                    },
+                    ...customPropsData,
                 },
-                companyTax: {
-                    enabled: customPropsData.enabled,
-                },
-                ...customPropsData,
+                userConfig: {},
+                userConfigValues: {},
+                isLoading: false,
             },
-            userConfig: {},
-            userConfigValues: {},
-            isLoading: false,
-        },
 
-        global: {
-            mocks: {
-                $tc: key => key,
-                $route: {
-                    params: {
-                        id: 'id',
+            global: {
+                mocks: {
+                    $tc: (key) => key,
+                    $route: {
+                        params: {
+                            id: 'id',
+                        },
+                    },
+                    $device: {
+                        getSystemKey: () => {},
+                        onResize: () => {},
                     },
                 },
-                $device: {
-                    getSystemKey: () => {},
-                    onResize: () => {},
-                },
-            },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        get: () => {
-                            return Promise.resolve({});
-                        },
-                        search: () => {
-                            return Promise.resolve({
-                                userConfigs: {
-                                    first: () => ({}),
-                                },
-                            });
-                        },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                return Promise.resolve({});
+                            },
+                            search: () => {
+                                return Promise.resolve({
+                                    userConfigs: {
+                                        first: () => ({}),
+                                    },
+                                });
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    feature: {
+                        isActive: () => true,
                     },
                 },
-                feature: {
-                    isActive: () => true,
+
+                stubs: {
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-ignore-class': true,
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-text-field': true,
+                    'sw-switch-field': true,
+                    'sw-icon': true,
+                    'sw-number-field': true,
+                    'sw-settings-country-currency-dependent-modal': true,
+                    'sw-entity-single-select': true,
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-loader': true,
                 },
             },
-
-            stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-ignore-class': true,
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-text-field': true,
-                'sw-switch-field': true,
-                'sw-icon': true,
-                'sw-number-field': true,
-                'sw-settings-country-currency-dependent-modal': true,
-                'sw-entity-single-select': true,
-                'sw-extension-component-section': true,
-            },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-general', () => {
@@ -94,47 +102,38 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
     });
 
     it('should be able to show the tax free from', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ], {
-            enabled: true,
-        });
+        const wrapper = await createWrapper(
+            [
+                'country.editor',
+            ],
+            {
+                enabled: true,
+            },
+        );
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const countryNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelName"]',
-        );
-        const countryPositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]',
-        );
-        const countryIsoField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso"]',
-        );
-        const countryIso3Field = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]',
-        );
-        const countryActiveField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]',
-        );
+        const countryNameField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelName"]');
+        const countryPositionField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
+        const countryIsoField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso"]');
+        const countryIso3Field = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]');
+        const countryActiveField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]');
         const countryShippingAvailableField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]',
         );
-        const countryTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]',
-        );
+        const countryTaxFreeField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]');
         const countryCompaniesTaxFreeField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]',
         );
         const countryCheckVatIdFormatField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]',
         );
-        const countryTaxFreeFromField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]',
-        );
+        const countryTaxFreeFromField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]');
         const countryVatIdRequiredField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]',
         );
+
+        const countryIsEuField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelIsEu"]');
 
         expect(countryNameField.attributes().disabled).toBeUndefined();
         expect(countryPositionField.attributes().disabled).toBeUndefined();
@@ -147,48 +146,35 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         expect(countryCheckVatIdFormatField.attributes().disabled).toBeUndefined();
         expect(countryTaxFreeFromField.attributes()).toBeDefined();
         expect(countryVatIdRequiredField.attributes().disabled).toBeUndefined();
+        expect(countryIsEuField.attributes().disabled).toBeUndefined();
     });
 
     it('should not able to show the tax free from', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const countryNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelName"]',
-        );
-        const countryPositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]',
-        );
-        const countryIsoField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso"]',
-        );
-        const countryIso3Field = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]',
-        );
-        const countryActiveField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]',
-        );
+        const countryNameField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelName"]');
+        const countryPositionField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
+        const countryIsoField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso"]');
+        const countryIso3Field = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]');
+        const countryActiveField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]');
         const countryShippingAvailableField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]',
         );
-        const countryTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]',
-        );
+        const countryTaxFreeField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]');
         const countryCompaniesTaxFreeField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]',
         );
         const countryCheckVatIdFormatField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]',
         );
-        const countryTaxFreeFromField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]',
-        );
-        const currencyDropdownList = wrapper.find(
-            'sw-entity-single-select-stub',
-        );
+        const countryTaxFreeFromField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]');
+        const currencyDropdownList = wrapper.find('sw-entity-single-select-stub');
         const countryVatIdRequiredField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]',
         );
+
+        const countryIsEuField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelIsEu"]');
 
         expect(countryNameField.attributes().disabled).toBeTruthy();
         expect(countryPositionField.attributes().disabled).toBeTruthy();
@@ -202,5 +188,6 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         expect(countryTaxFreeFromField.exists()).toBe(false);
         expect(currencyDropdownList.exists()).toBe(false);
         expect(countryVatIdRequiredField.attributes().disabled).toBeTruthy();
+        expect(countryIsEuField.attributes().disabled).toBeTruthy();
     });
 });

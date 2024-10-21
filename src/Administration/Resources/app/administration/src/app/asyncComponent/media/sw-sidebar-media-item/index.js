@@ -23,6 +23,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -74,7 +76,11 @@ export default {
         },
 
         additionalEventListeners() {
-            return this.$listeners;
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 
@@ -183,9 +189,7 @@ export default {
                 criteria.term = this.term;
             }
 
-            criteria.addSorting(
-                Criteria.sort('uploadedAt', 'DESC'),
-            );
+            criteria.addSorting(Criteria.sort('uploadedAt', 'DESC'));
 
             return criteria;
         },

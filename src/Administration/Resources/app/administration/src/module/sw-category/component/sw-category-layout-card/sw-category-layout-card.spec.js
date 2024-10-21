@@ -10,10 +10,12 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-layout-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': {
-                    template: '<button @click="$emit(`click`)"></button>',
-                    props: ['disabled'],
-                },
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'router-link': true,
+                'sw-loader': true,
                 'sw-cms-list-item': {
                     template: '<div class="sw-cms-list-item"></div>',
                     props: ['disabled'],
@@ -22,6 +24,7 @@ async function createWrapper() {
                     template: '<div class="sw-card"><slot></slot></div>',
                 },
                 'sw-icon': true,
+                'sw-cms-layout-modal': true,
             },
             mocks: {
                 $route: {
@@ -75,7 +78,10 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const wrapper = await createWrapper();
 
-        const changeLayoutButton = wrapper.getComponent('.sw-category-detail-layout__change-layout-action');
+        const buttons = wrapper.findAllComponents({
+            name: 'sw-button-deprecated__wrapped',
+        });
+        const changeLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__change-layout-action'));
 
         expect(changeLayoutButton.props('disabled')).toBe(false);
     });
@@ -83,7 +89,10 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     it('should have an disabled button for changing the layout', async () => {
         const wrapper = await createWrapper();
 
-        const changeLayoutButton = wrapper.getComponent('.sw-category-detail-layout__change-layout-action');
+        const buttons = wrapper.findAllComponents({
+            name: 'sw-button-deprecated__wrapped',
+        });
+        const changeLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__change-layout-action'));
 
         expect(changeLayoutButton.props('disabled')).toBe(true);
     });
@@ -93,7 +102,10 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const wrapper = await createWrapper();
 
-        const pageBuilderButton = wrapper.getComponent('.sw-category-detail-layout__open-in-pagebuilder');
+        const buttons = wrapper.findAllComponents({
+            name: 'sw-button-deprecated__wrapped',
+        });
+        const pageBuilderButton = buttons.find((b) => b.classes('sw-category-detail-layout__open-in-pagebuilder'));
 
         expect(pageBuilderButton.props('disabled')).toBe(false);
     });
@@ -101,7 +113,10 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     it('should have an disabled button for open the page builder', async () => {
         const wrapper = await createWrapper();
 
-        const pageBuilderButton = wrapper.getComponent('.sw-category-detail-layout__open-in-pagebuilder');
+        const buttons = wrapper.findAllComponents({
+            name: 'sw-button-deprecated__wrapped',
+        });
+        const pageBuilderButton = buttons.find((b) => b.classes('sw-category-detail-layout__open-in-pagebuilder'));
 
         expect(pageBuilderButton.props('disabled')).toBe(true);
     });
@@ -116,9 +131,12 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
                 type: 'landingpage',
             },
         });
-
         await flushPromises();
-        const resetLayoutButton = wrapper.getComponent('.sw-category-detail-layout__layout-reset');
+
+        const buttons = wrapper.findAllComponents({
+            name: 'sw-button-deprecated__wrapped',
+        });
+        const resetLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__layout-reset'));
 
         expect(resetLayoutButton.props('disabled')).toBe(false);
     });
@@ -131,17 +149,21 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
                 type: 'landingpage',
             },
         });
-
         await flushPromises();
-        const resetLayoutButton = wrapper.getComponent('.sw-category-detail-layout__layout-reset');
+
+        const buttons = wrapper.findAllComponents({
+            name: 'sw-button-deprecated__wrapped',
+        });
+        const resetLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__layout-reset'));
 
         expect(resetLayoutButton.props('disabled')).toBe(true);
     });
 
     it('should pass the category id and type to the sw.cms.create route', async () => {
+        global.activeAclRoles = ['category.editor'];
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
+        await wrapper.find('button.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
 
         const routerPush = wrapper.vm.$router.push;
 
@@ -156,6 +178,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     });
 
     it('should pass the category id to the sw.cms.create route', async () => {
+        global.activeAclRoles = ['category.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -165,11 +188,14 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
             },
         });
 
-        await wrapper.find('.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
+        await wrapper.find('button.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
 
         const routerPush = wrapper.vm.$router.push;
 
         expect(routerPush).toHaveBeenCalledTimes(1);
-        expect(routerPush).toHaveBeenLastCalledWith({ name: 'sw.cms.detail', params: { id: cmsPageId } });
+        expect(routerPush).toHaveBeenLastCalledWith({
+            name: 'sw.cms.detail',
+            params: { id: cmsPageId },
+        });
     });
 });

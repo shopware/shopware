@@ -1,12 +1,13 @@
 /**
- * @package system-settings
+ * @package services-settings
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
 
     state() {
-        const today = (new Date()).toISOString();
+        const today = new Date().toISOString();
 
         return {
             isFlowTriggered: true,
@@ -67,18 +68,23 @@ export default {
         documentTypeConfigs(state) {
             const documentTypeConfigs = [];
 
-            Object.entries(state.orderDocuments).forEach(([key, value]) => {
-                if (key === 'download') {
-                    return;
-                }
-                if (value.isChanged === true) {
-                    documentTypeConfigs.push({
-                        fileType: 'pdf',
-                        type: key,
-                        config: value.value,
-                    });
-                }
-            });
+            Object.entries(state.orderDocuments).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    if (key === 'download') {
+                        return;
+                    }
+                    if (value.isChanged === true) {
+                        documentTypeConfigs.push({
+                            fileType: 'pdf',
+                            type: key,
+                            config: value.value,
+                        });
+                    }
+                },
+            );
 
             return documentTypeConfigs;
         },

@@ -1,33 +1,30 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package buyers-experience
+ * @package buyers-experience#
  */
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-visibility-config', {
-        sync: true,
-    }), {
-        propsData: {
-            visibility: {
-                mobile: true,
-                tablet: true,
-                desktop: true,
+    return mount(
+        await wrapTestComponent('sw-cms-visibility-config', {
+            sync: true,
+        }),
+        {
+            propsData: {
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-icon': await wrapTestComponent('sw-icon'),
+                    'sw-icon-deprecated': true,
+                },
             },
         },
-        provide: {
-            cmsService: {},
-        },
-        stubs: {
-            'sw-icon': await wrapTestComponent('sw-icon'),
-            'icons-regular-tablet': true,
-            'icons-regular-mobile': true,
-            'icons-regular-desktop': true,
-            'icons-regular-tablet-slash': true,
-            'icons-regular-mobile-slash': true,
-            'icons-regular-desktop-slash': true,
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-visibility-config', () => {
@@ -39,14 +36,15 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
 
     it('should be visible in all devices', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        const mobileIcon = wrapper.findAll('sw-icon')[0];
+        const mobileIcon = wrapper.findAll('sw-icon-deprecated-stub')[0];
         expect(mobileIcon.attributes('name')).toContain('regular-mobile');
 
-        const tabletIcon = wrapper.findAll('sw-icon')[1];
+        const tabletIcon = wrapper.findAll('sw-icon-deprecated-stub')[1];
         expect(tabletIcon.attributes('name')).toContain('regular-tablet');
 
-        const desktopIcon = wrapper.findAll('sw-icon')[2];
+        const desktopIcon = wrapper.findAll('sw-icon-deprecated-stub')[2];
         expect(desktopIcon.attributes('name')).toContain('regular-desktop');
     });
 
@@ -59,14 +57,15 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
                 desktop: false,
             },
         });
+        await flushPromises();
 
-        const mobileIcon = wrapper.findAll('sw-icon')[0];
+        const mobileIcon = wrapper.findAll('sw-icon-deprecated-stub')[0];
         expect(mobileIcon.attributes('name')).toContain('regular-mobile-slash');
 
-        const tabletIcon = wrapper.findAll('sw-icon')[1];
+        const tabletIcon = wrapper.findAll('sw-icon-deprecated-stub')[1];
         expect(tabletIcon.attributes('name')).toContain('regular-tablet-slash');
 
-        const desktopIcon = wrapper.findAll('sw-icon')[2];
+        const desktopIcon = wrapper.findAll('sw-icon-deprecated-stub')[2];
         expect(desktopIcon.attributes('name')).toContain('regular-desktop-slash');
     });
 
@@ -76,6 +75,19 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         await wrapper.get('#sw-cms-visibility-config-tablet').setChecked(true);
         await wrapper.get('#sw-cms-visibility-config-desktop').setChecked(true);
 
-        expect(wrapper.emitted()['visibility-change']).toStrictEqual([['mobile', false], ['tablet', false], ['desktop', false]]);
+        expect(wrapper.emitted()['visibility-change']).toStrictEqual([
+            [
+                'mobile',
+                false,
+            ],
+            [
+                'tablet',
+                false,
+            ],
+            [
+                'desktop',
+                false,
+            ],
+        ]);
     });
 });

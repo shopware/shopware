@@ -30,6 +30,8 @@
       }
     },
     "card": {
+      "buttonImitateCustomer": "Als Kunde anmelden",
+      "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
@@ -52,6 +54,7 @@
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
       "buttonAddCustomer": "Kunden anlegen",
+      "columnCompany": "Firma",
       "columnCustomerNumber": "Kundennummer",
       "columnName": "Name",
       "columnGroup": "Kundengruppe",
@@ -135,7 +138,9 @@
       "emptyTextBirthday": "keine Angabe",
       "labelBoundSalesChannel": "Verkaufskanal",
       "emptyBoundSalesChannel": "Alle",
-      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden"
+      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden",
+      "placeholderCustomerAffiliateCode": "Gib einen Affiliate-Code ein ...",
+      "placeholderCustomerCampaignCode": "Gib einen Kampagnen-Code ein ..."
     },
     "detailBase": {
       "labelAccountCard": "Konto",
@@ -190,6 +195,13 @@
       "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten",
       "buttonCreateOrder": "Bestellung anlegen"
     },
+    "imitateCustomerModal": {
+      "modalTitle": "Anmelden als {firstname} {lastname}",
+      "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
+      "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
+      "modalInfoLogout": "abzumelden",
+      "labelCancel": "Schließen"
+    },
     "addressForm": {
       "labelCompany": "Firma",
       "labelDepartment": "Abteilung",
@@ -232,9 +244,14 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
+      "notificationImitateCustomerErrorMessage": "Bei der Anmeldung als Kunde ist ein Fehler aufgetreten. Bitte stelle sicher, das Pop-Ups Fenster erlaubt sind.",
       "labelCreatedByAdmin": "Erstellt von Admin"
     },
     "filter": {
+      "customerNumber": {
+        "label": "Kundenummer",
+        "placeholder": "Kundenummer eingeben ..."
+      },
       "salutation": {
         "label": "Anrede",
         "placeholder": "Anrede auswählen ..."

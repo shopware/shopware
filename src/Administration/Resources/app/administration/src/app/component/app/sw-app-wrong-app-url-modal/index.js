@@ -16,6 +16,10 @@ const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown'
 Component.register('sw-app-wrong-app-url-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close'],
+
     mixins: [Shopware.Mixin.getByName('notification')],
 
     data() {
@@ -23,13 +27,14 @@ Component.register('sw-app-wrong-app-url-modal', {
             wasModalAlreadyShown: !!localStorage.getItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN),
             notification: {
                 title: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.title'),
-                message:
-                    `${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation')}<br>
+                message: `${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation')}<br>
                      ${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport')}`,
-                actions: [{
-                    label: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
-                    route: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle'),
-                }],
+                actions: [
+                    {
+                        label: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
+                        route: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle'),
+                    },
+                ],
                 uuid: STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN,
             },
         };
@@ -37,8 +42,8 @@ Component.register('sw-app-wrong-app-url-modal', {
 
     computed: {
         ...mapState('context', {
-            isAppUrlReachable: state => state.app.config.settings.appUrlReachable,
-            hasAppsThatRequireAppUrl: state => state.app.config.settings.appsRequireAppUrl,
+            isAppUrlReachable: (state) => state.app.config.settings.appUrlReachable,
+            hasAppsThatRequireAppUrl: (state) => state.app.config.settings.appsRequireAppUrl,
         }),
 
         display() {

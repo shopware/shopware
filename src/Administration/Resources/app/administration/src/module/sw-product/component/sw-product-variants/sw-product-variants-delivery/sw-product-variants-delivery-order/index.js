@@ -9,6 +9,8 @@ import './sw-product-variants-delivery-order.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         product: {
             type: Object,
@@ -43,11 +45,13 @@ export default {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.variantListingConfig.configuratorGroupConfig
-                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
+            if (
+                this.product.variantListingConfig.configuratorGroupConfig &&
+                this.product.variantListingConfig.configuratorGroupConfig.length > 0
+            ) {
                 // add server sorting to the sortedGroups
                 sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
-                    const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
+                    const relatedGroup = selectedGroupsCopy.find((group) => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
@@ -61,7 +65,10 @@ export default {
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
+            sortedGroups = [
+                ...sortedGroups,
+                ...selectedGroupsCopy,
+            ];
 
             // prepare groups
             const groups = sortedGroups.map((group, index) => {
@@ -82,32 +89,40 @@ export default {
                 const options = this.getOptionsForGroup(group.id);
 
                 // iterate for each group options
-                const optionsForGroup = options.sort((elementA, elementB) => {
-                    return elementA.position - elementB.position;
-                }).map((element, index) => {
-                    const option = element.option;
+                const optionsForGroup = options
+                    .sort((elementA, elementB) => {
+                        return elementA.position - elementB.position;
+                    })
+                    .map((element, index) => {
+                        const option = element.option;
 
-                    // get previous element
-                    let afterId = null;
-                    if (index > 0) {
-                        afterId = options[index - 1].option.id;
-                    }
+                        // get previous element
+                        let afterId = null;
+                        if (index > 0) {
+                            afterId = options[index - 1].option.id;
+                        }
 
-                    return {
-                        id: option.id,
-                        name: option.translated.name,
-                        childCount: 0,
-                        parentId: option.groupId,
-                        afterId,
-                        storeObject: element,
-                    };
-                });
+                        return {
+                            id: option.id,
+                            name: option.translated.name,
+                            childCount: 0,
+                            parentId: option.groupId,
+                            afterId,
+                            storeObject: element,
+                        };
+                    });
 
-                return [...result, ...optionsForGroup];
+                return [
+                    ...result,
+                    ...optionsForGroup,
+                ];
             }, []);
 
             // assign groups and children to order objects
-            this.orderObjects = [...groups, ...children];
+            this.orderObjects = [
+                ...groups,
+                ...children,
+            ];
         },
 
         getOptionsForGroup(groupId) {
@@ -126,11 +141,11 @@ export default {
 
             // get order from administration ui
             const orderedGroupIds = [];
-            let latestGroup = groups.find(group => group.afterId === null);
+            let latestGroup = groups.find((group) => group.afterId === null);
             groups.forEach(() => {
                 if (latestGroup !== undefined) {
                     orderedGroupIds.push(latestGroup.id);
-                    latestGroup = groups.find(thisGroup => thisGroup.afterId === latestGroup.id);
+                    latestGroup = groups.find((thisGroup) => thisGroup.afterId === latestGroup.id);
                 }
             });
 
@@ -172,12 +187,12 @@ export default {
 
             groups.forEach((group) => {
                 const optionsForGroup = options.filter((option) => option.parentId === group.id);
-                let latestOption = optionsForGroup.find(option => option.afterId === null);
+                let latestOption = optionsForGroup.find((option) => option.afterId === null);
 
                 optionsForGroup.forEach((option, index) => {
                     if (latestOption !== undefined) {
                         latestOption.storeObject.position = index + 1;
-                        latestOption = optionsForGroup.find(thisOption => thisOption.afterId === latestOption.id);
+                        latestOption = optionsForGroup.find((thisOption) => thisOption.afterId === latestOption.id);
                     }
                 });
             });

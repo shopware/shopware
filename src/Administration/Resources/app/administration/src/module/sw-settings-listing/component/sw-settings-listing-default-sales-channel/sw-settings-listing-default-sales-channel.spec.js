@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel', () => {
     let defaultSalesChannelData = {};
 
@@ -8,62 +11,76 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
     }
 
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-settings-listing-default-sales-channel', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                provide: {
-                    repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve(createEntityCollection([
-                                    {
-                                        name: 'Storefront',
-                                        translated: { name: 'Storefront' },
-                                        id: 'STORE-FRONT-MOCK-ID',
-                                    },
-                                    {
-                                        name: 'Headless',
-                                        translated: { name: 'Headless' },
-                                        id: 'HEADLESS-MOCK-ID',
-                                    },
-                                ]));
-                            },
-                        }),
+        return mount(
+            await wrapTestComponent('sw-settings-listing-default-sales-channel', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => {
+                                    return Promise.resolve(
+                                        createEntityCollection([
+                                            {
+                                                name: 'Storefront',
+                                                translated: {
+                                                    name: 'Storefront',
+                                                },
+                                                id: 'STORE-FRONT-MOCK-ID',
+                                            },
+                                            {
+                                                name: 'Headless',
+                                                translated: {
+                                                    name: 'Headless',
+                                                },
+                                                id: 'HEADLESS-MOCK-ID',
+                                            },
+                                        ]),
+                                    );
+                                },
+                            }),
+                        },
+                        systemConfigApiService: {
+                            getValues: () => Promise.resolve(defaultSalesChannelData),
+                        },
                     },
-                    systemConfigApiService: {
-                        getValues: () => Promise.resolve(defaultSalesChannelData),
-                    },
-                },
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-entity-multi-id-select': await wrapTestComponent('sw-entity-multi-id-select'),
-                    'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
-                    'sw-field-error': true,
-                    'sw-highlight-text': true,
-                    'sw-icon': true,
-                    'sw-label': true,
-                    'sw-loader': true,
-                    'sw-modal': true,
-                    'sw-popover': {
-                        props: ['popoverClass'],
-                        template: `
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-entity-multi-id-select': await wrapTestComponent('sw-entity-multi-id-select'),
+                        'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                        'sw-field-error': true,
+                        'sw-highlight-text': true,
+                        'sw-icon': true,
+                        'sw-label': true,
+                        'sw-loader': true,
+                        'sw-modal': true,
+                        'sw-popover': {
+                            props: ['popoverClass'],
+                            template: `
                     <div class="sw-popover" :class="popoverClass">
                         <slot></slot>
                     </div>`,
+                        },
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-select-result': await wrapTestComponent('sw-select-result'),
+                        'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                        'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                        'sw-settings-listing-visibility-detail': true,
+                        'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                        'sw-button': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                        'sw-product-variant-info': true,
+                        'sw-inheritance-switch': true,
                     },
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
-                    'sw-settings-listing-visibility-detail': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 },
             },
-        });
+        );
     }
 
     let wrapper;
@@ -96,11 +113,15 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
     it('should render data correctly at Default Sales Channel card when there is default sales channel data', async () => {
         defaultSalesChannelData = {
             'core.defaultSalesChannel.active': false,
-            'core.defaultSalesChannel.salesChannel': [{
-                id: '98432def39fc4624b33213a56b8c944d',
-                name: 'Headless',
-            }],
-            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 },
+            'core.defaultSalesChannel.salesChannel': [
+                {
+                    id: '98432def39fc4624b33213a56b8c944d',
+                    name: 'Headless',
+                },
+            ],
+            'core.defaultSalesChannel.visibility': {
+                '98432def39fc4624b33213a56b8c944d': 10,
+            },
         };
 
         wrapper = await createWrapper();

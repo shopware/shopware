@@ -9,6 +9,8 @@ const { mapState } = Shopware.Component.getComponentHelper();
 Shopware.Component.register('sw-license-violation', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cacheApiService',
         'extensionStoreActionService',
@@ -87,7 +89,8 @@ Shopware.Component.register('sw-license-violation', {
 
             this.addLoading('getPluginViolation');
 
-            return this.licenseViolationService.checkForLicenseViolations()
+            return this.licenseViolationService
+                .checkForLicenseViolations()
                 .then(({ violations, warnings, other }) => {
                     Shopware.State.commit('licenseViolation/setViolations', violations);
                     Shopware.State.commit('licenseViolation/setWarnings', warnings);
@@ -120,10 +123,12 @@ Shopware.Component.register('sw-license-violation', {
 
             this.addLoading('fetchPlugins');
 
-            this.extensionStoreActionService.getMyExtensions()
+            this.extensionStoreActionService
+                .getMyExtensions()
                 .then((response) => {
                     this.plugins = response;
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.finishLoading('fetchPlugins');
                 });
         },
@@ -146,7 +151,8 @@ Shopware.Component.register('sw-license-violation', {
 
             const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);
 
-            return this.licenseViolationService.forceDeletePlugin(matchingPlugin)
+            return this.licenseViolationService
+                .forceDeletePlugin(matchingPlugin)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-license-violation.successfullyDeleted'),

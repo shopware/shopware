@@ -7,9 +7,32 @@ describe('ListingPlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
+        document.body.innerHTML = `
+            <!-- Filter panel -->
+            <div class="cms-element-sidebar-filter">
+                <div class="filter-panel">
+                    <div class="filter-panel-items-container" role="list" aria-label="Filter">
+                    </div>
+                    <div class="filter-panel-active-container"></div>
+                    <div class="filter-panel-aria-live visually-hidden" aria-live="polite" aria-atomic="true"></div>
+                </div>
+            </div>
+
+            <!-- Product results -->
+            <div class="cms-element-product-listing-wrapper" data-listing="true">
+                <div class="cms-element-product-listing">
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 24 out of 1000 products.">
+                        <div class="card product-box box-standard"></div>
+                        <div class="card product-box box-standard"></div>
+                        <div class="card product-box box-standard"></div>
+                        <div class="card product-box box-standard"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
         // mock listing plugins
-        const mockElement = document.createElement('div');
-        listingPlugin = new ListingPlugin(mockElement);
+        listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
         listingPlugin._registry = [];
 
         // create spy elements
@@ -256,5 +279,76 @@ describe('ListingPlugin tests', () => {
         expect(mockOnWindowPopstateCallback).toHaveBeenCalled();
 
         ListingPlugin.prototype._onWindowPopstate.mockRestore();
+    });
+
+    test('updates the aria-live section after product results have changed', () => {
+        // Mock listing ajax call returning updated results
+        listingPlugin.httpClient = {
+            get: jest.fn((url, callback) => {
+                callback(`
+                <div class="cms-element-product-listing-wrapper" data-listing="true">
+                    <div class="cms-element-product-listing">
+                        <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
+                            <div class="card product-box box-standard"></div>
+                            <div class="card product-box box-standard"></div>
+                        </div>
+                    </div>
+                </div>
+                `);
+            })
+        }
+
+        listingPlugin.changeListing(true);
+
+        // Verify that the new product results contain the data attribute with the updated aria-live text
+        expect(document.querySelector('.js-listing-wrapper').dataset.ariaLiveText).toBe('Showing 2 products.');
+
+        // Verify that the aria-live text in the filter panel has been updated
+        expect(document.querySelector('.filter-panel-aria-live').textContent).toBe('Showing 2 products.');
+    });
+
+    test('builds the labels for the active filters and renders them inside the filter panel', () => {
+        listingPlugin.httpClient = {
+            get: jest.fn((url, callback) => {
+                callback(`
+                <div class="cms-element-product-listing-wrapper" data-listing="true">
+                    <div class="cms-element-product-listing">
+                        <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
+                            <div class="card product-box box-standard"></div>
+                            <div class="card product-box box-standard"></div>
+                        </div>
+                    </div>
+                </div>
+                `);
+            })
+        }
+
+        const MockBooleanFilter = {
+            getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
+            getValues: () => { return { 'shipping-free': '1' } }
+        };
+
+        const MockMultiSelectFilter = {
+            getLabels: () => [{ label: 'Balistreri-Johns', id: '0190da2684cb710aac3d3291a340b3e3' }, { label: 'Pommes Spezial', id: '0190da2684cb710aac3d32919db761bb' }],
+            getValues: () => { return { 'manufacturer': ['0190da2684cb710aac3d3291a340b3e3', '0190da2684cb710aac3d32919db761bb'] } }
+        };
+
+        // Register filters so that the labels can be built later
+        listingPlugin.registerFilter(MockBooleanFilter);
+        listingPlugin.registerFilter(MockMultiSelectFilter);
+
+        listingPlugin.changeListing(true);
+
+        const activeFilterElements = document.querySelectorAll('.filter-panel-active-container .filter-active');
+
+        // Verify active filters are generated inside the DOM with correct aria-labels
+        expect(activeFilterElements[0].querySelector('[aria-hidden="true"]').textContent).toBe('Free shipping');
+        expect(activeFilterElements[0].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Free shipping');
+
+        expect(activeFilterElements[1].querySelector('[aria-hidden="true"]').textContent).toBe('Balistreri-Johns');
+        expect(activeFilterElements[1].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Balistreri-Johns');
+
+        expect(activeFilterElements[2].querySelector('[aria-hidden="true"]').textContent).toBe('Pommes Spezial');
+        expect(activeFilterElements[2].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
     });
 });

@@ -30,9 +30,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SalesChannelListCommand extends Command
 {
-    public function __construct(
-        private readonly EntityRepository $salesChannelRepository
-    ) {
+    /**
+     * @var list<string>
+     */
+    private static array $headers = [
+        'id',
+        'Name',
+        'Active',
+        'Maintenance',
+        'Default Language',
+        'Languages',
+        'Default Currency',
+        'Currencies',
+        'Domains',
+    ];
+
+    /**
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     */
+    public function __construct(private readonly EntityRepository $salesChannelRepository)
+    {
         parent::__construct();
     }
 
@@ -42,71 +59,56 @@ class SalesChannelListCommand extends Command
             'output',
             '0',
             InputOption::VALUE_OPTIONAL,
-            'Output mode',
+            'Output mode. Available options: "table", "json"',
             'table'
         );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $headers = [
-            'id',
-            'Name',
-            'Active',
-            'Maintenance',
-            'Default Language',
-            'Languages',
-            'Default Currency',
-            'Currencies',
-            'Domains',
-        ];
-
         $criteria = new Criteria();
         $criteria->addAssociations(['language', 'languages', 'currency', 'currencies', 'domains']);
-        /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search($criteria, Context::createCLIContext())->getEntities();
 
         $data = [];
         foreach ($salesChannels as $salesChannel) {
-            /** @var LanguageEntity $language */
             $language = $salesChannel->getLanguage();
-            /** @var LanguageCollection $languages */
-            $languages = $salesChannel->getLanguages();
-            /** @var CurrencyEntity $currency */
+            $languages = $salesChannel->getLanguages() ?? new LanguageCollection();
             $currency = $salesChannel->getCurrency();
-            /** @var CurrencyCollection $currencies */
-            $currencies = $salesChannel->getCurrencies();
-            /** @var SalesChannelDomainCollection $domains */
-            $domains = $salesChannel->getDomains();
+            $currencies = $salesChannel->getCurrencies() ?? new CurrencyCollection();
+            $domains = $salesChannel->getDomains() ?? new SalesChannelDomainCollection();
 
             $data[] = [
                 $salesChannel->getId(),
-                $salesChannel->getName(),
+                $salesChannel->getName() ?? 'n/a',
                 $salesChannel->getActive() ? 'active' : 'inactive',
                 $salesChannel->isMaintenance() ? 'on' : 'off',
-                $language->getName(),
+                $language?->getName() ?? 'n/a',
                 $languages->map(fn (LanguageEntity $language) => $language->getName()),
-                $currency->getName(),
+                $currency?->getName() ?? 'n/a',
                 $currencies->map(fn (CurrencyEntity $currency) => $currency->getName()),
                 $domains->map(fn (SalesChannelDomainEntity $domain) => $domain->getUrl()),
             ];
         }
 
         if ($input->getOption('output') === 'json') {
-            return $this->renderJson($output, $headers, $data);
+            return $this->renderJson($output, $data);
         }
 
-        return $this->renderTable($output, $headers, $data);
+        return $this->renderTable($output, $data);
     }
 
-    private function renderJson(OutputInterface $output, array $headers, array $data): int
+    /**
+     * @param list<list<string|array<string, string>>> $data
+     */
+    private function renderJson(OutputInterface $output, array $data): int
     {
         $json = [];
 
         foreach ($data as $row) {
             $jsonItem = [];
             foreach ($row as $item => $value) {
-                $jsonItem[mb_strtolower((string) ($headers[$item] ?? $item))] = $value;
+                $jsonItem[mb_strtolower((string) (self::$headers[$item] ?? $item))] = $value;
             }
             $json[] = $jsonItem;
         }
@@ -118,10 +120,13 @@ class SalesChannelListCommand extends Command
         return self::SUCCESS;
     }
 
-    private function renderTable(OutputInterface $output, array $headers, array $data): int
+    /**
+     * @param list<list<string|array<string, string>>> $data
+     */
+    private function renderTable(OutputInterface $output, array $data): int
     {
         $table = new Table($output);
-        $table->setHeaders($headers);
+        $table->setHeaders(self::$headers);
 
         // Normalize data
         foreach ($data as $rowKey => $row) {

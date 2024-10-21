@@ -7,6 +7,8 @@ import template from '../sw-extension-permissions-details-modal/sw-extension-per
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: ['sw-extension-error'],
 
     props: {
@@ -25,8 +27,7 @@ export default {
         },
 
         permissions() {
-            return Object.keys(this.extension.permissions).length ?
-                this.extension.permissions : null;
+            return Object.keys(this.extension.permissions).length ? this.extension.permissions : null;
         },
 
         isInstalled() {
@@ -49,10 +50,7 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.shopwareExtensionService.installAndActivateExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.installAndActivateExtension(this.extension.name, this.extension.type);
 
                 await this.clearCacheAndReloadPage();
             } catch (e) {
@@ -66,10 +64,7 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.shopwareExtensionService.installExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.installExtension(this.extension.name, this.extension.type);
 
                 await this.clearCacheAndReloadPage();
             } catch (e) {
@@ -83,10 +78,7 @@ export default {
             try {
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.activateExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.activateExtension(this.extension.name, this.extension.type);
                 this.extension.active = true;
 
                 await this.clearCacheAndReloadPage();
@@ -102,10 +94,7 @@ export default {
             try {
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.deactivateExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.deactivateExtension(this.extension.name, this.extension.type);
                 this.extension.active = false;
 
                 await this.clearCacheAndReloadPage();
@@ -123,10 +112,7 @@ export default {
                 this.showRemovalModal = false;
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.removeExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
                 this.extension.active = false;
                 await this.clearCacheAndReloadPage();
             } catch (e) {

@@ -45,6 +45,8 @@ const { Component } = Shopware;
 Component.register('sw-icon-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
     ],
@@ -115,6 +117,15 @@ Component.register('sw-icon-deprecated', {
                 height: size,
             };
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     watch: {
@@ -124,7 +135,10 @@ Component.register('sw-icon-deprecated', {
                     return;
                 }
 
-                const [variant, ...iconName] = newName.split('-');
+                const [
+                    variant,
+                    ...iconName
+                ] = newName.split('-');
                 this.loadIconSvgData(variant, iconName.join('-'), newName);
             },
             immediate: true,
@@ -151,7 +165,9 @@ Component.register('sw-icon-deprecated', {
         loadIconSvgData(variant, iconName, iconFullName) {
             if (this.feature.isActive('ADMIN_VITE')) {
                 // eslint-disable-next-line max-len
-                return import(`./../../../../../node_modules/@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg?raw`).then((iconSvgData) => {
+                return import(
+                    `./../../../../../node_modules/@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg?raw`
+                ).then((iconSvgData) => {
                     if (iconSvgData.default) {
                         this.iconSvgData = iconSvgData.default;
                     } else {

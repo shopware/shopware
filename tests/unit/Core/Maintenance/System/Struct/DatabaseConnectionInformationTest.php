@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
@@ -43,7 +43,7 @@ class DatabaseConnectionInformationTest extends TestCase
         // is valid, should not throw exception
         $info->validate();
 
-        static::assertEquals([
+        static::assertSame([
             'url' => 'mysql://root:root@localhost:3306/shopware',
             'charset' => 'utf8mb4',
             'driverOptions' => [
@@ -51,7 +51,7 @@ class DatabaseConnectionInformationTest extends TestCase
             ],
         ], $info->toDBALParameters());
 
-        static::assertEquals([
+        static::assertSame([
             'url' => 'mysql://root:root@localhost:3306',
             'charset' => 'utf8mb4',
             'driverOptions' => [
@@ -90,7 +90,7 @@ class DatabaseConnectionInformationTest extends TestCase
         // is valid, should not throw exception
         $info->validate();
 
-        static::assertEquals([
+        static::assertSame([
             'url' => 'mysql://root:root@localhost:3306/shopware',
             'charset' => 'utf8mb4',
             'driverOptions' => [
@@ -130,7 +130,7 @@ class DatabaseConnectionInformationTest extends TestCase
         // is valid, should not throw exception
         $info->validate();
 
-        static::assertEquals([
+        static::assertSame([
             'url' => 'mysql://root:root@localhost:3307/shopware',
             'charset' => 'utf8mb4',
             'driverOptions' => [
@@ -139,7 +139,7 @@ class DatabaseConnectionInformationTest extends TestCase
             ],
         ], $info->toDBALParameters());
 
-        static::assertEquals([
+        static::assertSame([
             'url' => 'mysql://root:root@localhost:3307',
             'charset' => 'utf8mb4',
             'driverOptions' => [
@@ -166,7 +166,8 @@ class DatabaseConnectionInformationTest extends TestCase
         static::assertSame('root', $info->getPassword());
         static::assertSame('shopware', $info->getDatabaseName());
 
-        static::expectException(DatabaseSetupException::class);
+        $this->expectException(MaintenanceException::class);
+        $this->expectExceptionMessage('Provided database connection information is not valid. Missing parameter "hostname"');
         $info->validate();
     }
 
@@ -343,8 +344,8 @@ class DatabaseConnectionInformationTest extends TestCase
     {
         $this->setEnvVars($env);
 
-        static::expectException(DatabaseSetupException::class);
-        static::expectExceptionMessage($expectedException);
+        $this->expectException(MaintenanceException::class);
+        $this->expectExceptionMessage($expectedException);
         DatabaseConnectionInformation::fromEnv();
     }
 
@@ -354,21 +355,21 @@ class DatabaseConnectionInformationTest extends TestCase
             [
                 'DATABASE_URL' => '',
             ],
-            'Environment variable \'DATABASE_URL\' not defined.',
+            'Environment variable "DATABASE_URL" is not defined.',
         ];
 
         yield 'invalid database url' => [
             [
                 'DATABASE_URL' => 'invalid',
             ],
-            'Environment variable \'DATABASE_URL\' does not contain a valid dsn.',
+            'Environment variable "DATABASE_URL" with value "invalid" is not valid: Not a valid DSN.',
         ];
 
         yield 'Database name not set' => [
             [
                 'DATABASE_URL' => 'mysql://root:root@localhost:3306',
             ],
-            'Environment variable \'DATABASE_URL\' does not contain a valid dsn.',
+            'Environment variable "DATABASE_URL" with value "mysql://root:root@localhost:3306" is not valid: Not a valid DSN.',
         ];
     }
 }

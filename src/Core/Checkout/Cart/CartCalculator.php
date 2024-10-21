@@ -14,8 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class CartCalculator
 {
-    public function __construct(private readonly CartRuleLoader $cartRuleLoader)
-    {
+    public function __construct(
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartContextHasher $cartContextHasher
+    ) {
     }
 
     public function calculate(Cart $cart, SalesChannelContext $context): Cart
@@ -25,6 +27,8 @@ class CartCalculator
             $cart = $this->cartRuleLoader
                 ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))
                 ->getCart();
+
+            $cart->setHash($this->cartContextHasher->generate($cart, $context));
 
             $cart->markUnmodified();
             foreach ($cart->getLineItems()->getFlat() as $lineItem) {

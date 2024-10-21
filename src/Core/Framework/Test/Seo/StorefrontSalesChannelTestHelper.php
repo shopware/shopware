@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Seo;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
@@ -9,10 +10,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -31,13 +34,13 @@ trait StorefrontSalesChannelTestHelper
         /** @var Container $container */
         $container = $this->getContainer();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $container->get('sales_channel.repository');
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
+        TestCase::assertNotNull($salesChannel);
 
         $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $browser->setServerParameter($header, $salesChannel->getAccessKey());
@@ -133,37 +136,37 @@ trait StorefrontSalesChannelTestHelper
         $container = $this->getContainer();
 
         $defaultBillingAddress = Uuid::randomHex();
-        /** @var EntityRepository $customerRepository */
-        $customerRepository = $container->get('customer.repository');
-        $customerRepository->upsert(
-            [
-                [
-                    'id' => $customerId,
-                    'name' => 'test',
-                    'email' => $email,
-                    'password' => $password,
-                    'firstName' => 'foo',
-                    'lastName' => 'bar',
-                    'groupId' => $salesChannel->getCustomerGroupId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'defaultPaymentMethodId' => $salesChannel->getPaymentMethodId(),
-                    'salesChannelId' => $salesChannel->getId(),
-                    'defaultBillingAddress' => [
-                        'id' => $defaultBillingAddress,
-                        'countryId' => $salesChannel->getCountryId(),
-                        'salutationId' => $this->getValidSalutationId(),
-                        'firstName' => 'foo',
-                        'lastName' => 'bar',
-                        'zipcode' => '48599',
-                        'city' => 'gronau',
-                        'street' => 'Schillerstr.',
-                    ],
-                    'defaultShippingAddressId' => $defaultBillingAddress,
-                    'customerNumber' => 'asdf',
-                ],
+
+        $customer = [
+            'id' => $customerId,
+            'name' => 'test',
+            'email' => $email,
+            'password' => $password,
+            'firstName' => 'foo',
+            'lastName' => 'bar',
+            'groupId' => $salesChannel->getCustomerGroupId(),
+            'salutationId' => $this->getValidSalutationId(),
+            'salesChannelId' => $salesChannel->getId(),
+            'defaultBillingAddress' => [
+                'id' => $defaultBillingAddress,
+                'countryId' => $salesChannel->getCountryId(),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'foo',
+                'lastName' => 'bar',
+                'zipcode' => '48599',
+                'city' => 'gronau',
+                'street' => 'Schillerstr.',
             ],
-            Context::createDefaultContext()
-        );
+            'defaultShippingAddressId' => $defaultBillingAddress,
+            'customerNumber' => 'asdf',
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $salesChannel->getPaymentMethodId();
+        }
+
+        $customerRepository = $container->get('customer.repository');
+        $customerRepository->upsert([$customer], Context::createDefaultContext());
 
         $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
 

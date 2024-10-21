@@ -2,7 +2,7 @@ import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account - Register: Visual tests', () => {
 
-    it('@update: Check register workflow', { tags: ['pa-system-settings'] }, () => {
+    it('@update: Check register workflow', { tags: ['pa-services-settings'] }, () => {
         const page = new AccountPageObject();
 
         cy.visit('/account/login');

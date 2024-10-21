@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import api from './extension-api';
@@ -15,12 +18,14 @@ describe('src/core/extension-api.ts', () => {
         const destroyHandle = api.handle('jest', spy);
 
         // Send handled message with privileges
-        await expect(send('jest', {
-            message: 'foo',
-            privileges: [
-                'read:user',
-            ],
-        })).rejects.toThrow(new MissingPrivilegesError('jest', ['read:user']));
+        await expect(
+            send('jest', {
+                message: 'foo',
+                privileges: [
+                    'read:user',
+                ],
+            }),
+        ).rejects.toThrow(new MissingPrivilegesError('jest', ['read:user']));
         expect(spy).not.toHaveBeenCalled();
 
         destroyHandle();
@@ -38,12 +43,14 @@ describe('src/core/extension-api.ts', () => {
         const destroyHandle = api.handle('jest', spy);
 
         // Send handled message with privileges
-        await expect(send('jest', {
-            message: 'foo',
-            privileges: [
-                'read:user',
-            ],
-        })).resolves.toBe('UUID');
+        await expect(
+            send('jest', {
+                message: 'foo',
+                privileges: [
+                    'read:user',
+                ],
+            }),
+        ).resolves.toBe('UUID');
         expect(spy).toHaveBeenCalledTimes(1);
 
         destroyHandle();
@@ -90,9 +97,11 @@ describe('src/core/extension-api.ts', () => {
         const destroyHandle = api.handle('jest', spy);
 
         // Send handled message with privileges
-        await expect(send('jest', {
-            message: 'foo',
-        })).resolves.toBe('UUID');
+        await expect(
+            send('jest', {
+                message: 'foo',
+            }),
+        ).resolves.toBe('UUID');
         expect(spy).toHaveBeenCalledTimes(1);
         expect(canMock).toHaveBeenCalledTimes(0);
 

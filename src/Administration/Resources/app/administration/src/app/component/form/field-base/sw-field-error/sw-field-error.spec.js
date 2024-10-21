@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 
 const createWrapper = async (options) => {
@@ -59,6 +63,8 @@ describe('src/app/component/form/field-base/sw-field-error', () => {
         });
 
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
-        expect(wrapper.find('.sw-field__error').text()).toContain('global.error-codes.SOME_ERROR_CODE{\"parameter\":\"Test Parameter\"}');
+        expect(wrapper.find('.sw-field__error').text()).toContain(
+            'global.error-codes.SOME_ERROR_CODE{"parameter":"Test Parameter"}',
+        );
     });
 });

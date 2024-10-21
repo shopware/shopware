@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -47,10 +49,7 @@ export default {
             this.loadStates();
         },
         loadStates() {
-            if (!this.taxRule.data
-                || !this.taxRule.data.states
-                || !this.taxRule.data.states.length
-            ) {
+            if (!this.taxRule.data || !this.taxRule.data.states || !this.taxRule.data.states.length) {
                 this.individualStates = [];
                 return;
             }
@@ -58,8 +57,8 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.setIds(this.taxRule.data.states);
 
-            this.stateRepository.search(criteria, Context.api).then(states => {
-                this.individualStates = states.map(state => state.name);
+            this.stateRepository.search(criteria, Context.api).then((states) => {
+                this.individualStates = states.map((state) => state.name);
             });
         },
     },

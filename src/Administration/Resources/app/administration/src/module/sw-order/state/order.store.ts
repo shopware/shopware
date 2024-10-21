@@ -18,7 +18,7 @@ import type {
 const { Service } = Shopware;
 
 function filterEmptyLineItems(items: LineItem[]) {
-    return items.filter(item => item.label === '');
+    return items.filter((item) => item.label === '');
 }
 
 function reverseLineItems(items: LineItem[]) {
@@ -29,16 +29,19 @@ function mergeEmptyAndExistingLineItems(emptyLineItems: LineItem[], lineItems: L
     // Reverse the lineItems so the newly added are at the top for better UX
     reverseLineItems(lineItems);
 
-    return [...emptyLineItems, ...lineItems];
+    return [
+        ...emptyLineItems,
+        ...lineItems,
+    ];
 }
 
 interface SwOrderState {
     cart: Cart;
-    disabledAutoPromotion: boolean,
-    promotionCodes: PromotionCodeTag[],
-    defaultSalesChannel: Entity<'sales_channel'> | null,
-    context: SalesChannelContext,
-    customer: Entity<'customer'> | null,
+    disabledAutoPromotion: boolean;
+    promotionCodes: PromotionCodeTag[];
+    defaultSalesChannel: Entity<'sales_channel'> | null;
+    context: SalesChannelContext;
+    customer: Entity<'customer'> | null;
 }
 
 const SwOrderStore: Module<SwOrderState, VuexRootState> = {
@@ -124,11 +127,11 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
         },
 
         removeEmptyLineItem(state: SwOrderState, emptyLineItemKey: string) {
-            state.cart.lineItems = state.cart.lineItems.filter(item => item.id !== emptyLineItemKey);
+            state.cart.lineItems = state.cart.lineItems.filter((item) => item.id !== emptyLineItemKey);
         },
 
         removeInvalidPromotionCodes(state: SwOrderState) {
-            state.promotionCodes = state.promotionCodes.filter(item => !item.isInvalid);
+            state.promotionCodes = state.promotionCodes.filter((item) => !item.isInvalid);
         },
 
         setDisabledAutoPromotion(state: SwOrderState, disabledAutoPromotion: boolean) {
@@ -150,7 +153,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
         },
 
         invalidPromotionCodes(state: SwOrderState): PromotionCodeTag[] {
-            return state.promotionCodes.filter(item => item.isInvalid);
+            return state.promotionCodes.filter((item) => item.isInvalid);
         },
 
         cartErrors(state: SwOrderState): CartError[] {
@@ -161,28 +164,32 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
     actions: {
         selectExistingCustomer({ commit }, { customer }: { customer: Entity<'customer'> }) {
             commit('setCustomer', customer);
-            commit('setDefaultSalesChannel', { ...(customer?.salesChannel ?? null) });
+            commit('setDefaultSalesChannel', {
+                ...(customer?.salesChannel ?? null),
+            });
         },
 
         createCart({ commit }, { salesChannelId }: { salesChannelId: string }) {
-            return Service('cartStoreService')
-                .createCart(salesChannelId)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                .then((response: AxiosResponse): string => {
+            return (
+                Service('cartStoreService')
+                    .createCart(salesChannelId)
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    const token = response.data.token as string;
-                    commit('setCartToken', token);
-                    return token;
-                })
-                .then((contextToken) => {
-                    return Service('contextStoreService')
-                        .getSalesChannelContext(salesChannelId, contextToken)
-                        .then((response: AxiosResponse) => commit('setContext', response.data));
-                });
+                    .then((response: AxiosResponse): string => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                        const token = response.data.token as string;
+                        commit('setCartToken', token);
+                        return token;
+                    })
+                    .then((contextToken) => {
+                        return Service('contextStoreService')
+                            .getSalesChannelContext(salesChannelId, contextToken)
+                            .then((response: AxiosResponse) => commit('setContext', response.data));
+                    })
+            );
         },
 
-        getCart({ commit }, { salesChannelId, contextToken }: { salesChannelId: string, contextToken: string }) {
-            if ((`${contextToken}`).length !== 32) {
+        getCart({ commit }, { salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+            if (`${contextToken}`.length !== 32) {
                 throw new Error('Invalid context token');
             }
 
@@ -196,40 +203,63 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
             ]);
         },
 
-        cancelCart(_, { salesChannelId, contextToken }: { salesChannelId: string, contextToken: string }) {
-            if ((`${contextToken}`).length !== 32) {
+        cancelCart(_, { salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+            if (`${contextToken}`.length !== 32) {
                 throw new Error('Invalid context token');
             }
 
             return Service('cartStoreService').cancelCart(salesChannelId, contextToken);
         },
 
-        updateCustomerContext(_, { customerId, salesChannelId, contextToken }:
-            { customerId: string, salesChannelId: string, contextToken: string }) {
-            return Service('contextStoreService')
-                .updateCustomerContext(customerId, salesChannelId, contextToken);
+        updateCustomerContext(
+            _,
+            {
+                customerId,
+                salesChannelId,
+                contextToken,
+            }: {
+                customerId: string;
+                salesChannelId: string;
+                contextToken: string;
+            },
+        ) {
+            return Service('contextStoreService').updateCustomerContext(customerId, salesChannelId, contextToken);
         },
 
-        updateOrderContext(_, { context, salesChannelId, contextToken }:
-            { context: ContextSwitchParameters, salesChannelId: string, contextToken: string }) {
-            return Service('contextStoreService')
-                .updateContext(context, salesChannelId, contextToken);
+        updateOrderContext(
+            _,
+            {
+                context,
+                salesChannelId,
+                contextToken,
+            }: {
+                context: ContextSwitchParameters;
+                salesChannelId: string;
+                contextToken: string;
+            },
+        ) {
+            return Service('contextStoreService').updateContext(context, salesChannelId, contextToken);
         },
 
-        getContext(_, { salesChannelId, contextToken }: { salesChannelId: string, contextToken: string }) {
-            return Service('contextStoreService')
-                .getSalesChannelContext(salesChannelId, contextToken);
+        getContext(_, { salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+            return Service('contextStoreService').getSalesChannelContext(salesChannelId, contextToken);
         },
 
-        saveOrder(_, { salesChannelId, contextToken }: { salesChannelId: string, contextToken: string }) {
-            return Service('checkoutStoreService')
-                .checkout(salesChannelId, contextToken);
+        saveOrder(_, { salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+            return Service('checkoutStoreService').checkout(salesChannelId, contextToken);
         },
 
         removeLineItems(
             { commit },
-            { salesChannelId, contextToken, lineItemKeys }:
-                { salesChannelId: string, contextToken: string, lineItemKeys: string[] },
+            {
+                salesChannelId,
+                contextToken,
+                lineItemKeys,
+            }: {
+                salesChannelId: string;
+                contextToken: string;
+                lineItemKeys: string[];
+            },
         ) {
             return Service('cartStoreService')
                 .removeLineItems(salesChannelId, contextToken, lineItemKeys)
@@ -238,7 +268,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
 
         saveLineItem(
             { commit },
-            { salesChannelId, contextToken, item }: { salesChannelId: string, contextToken: string, item: LineItem },
+            { salesChannelId, contextToken, item }: { salesChannelId: string; contextToken: string; item: LineItem },
         ) {
             return Service('cartStoreService')
                 .saveLineItem(salesChannelId, contextToken, item)
@@ -247,7 +277,15 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
 
         saveMultipleLineItems(
             { commit },
-            { salesChannelId, contextToken, items }: { salesChannelId: string, contextToken: string, items: LineItem[] },
+            {
+                salesChannelId,
+                contextToken,
+                items,
+            }: {
+                salesChannelId: string;
+                contextToken: string;
+                items: LineItem[];
+            },
         ) {
             return Service('cartStoreService')
                 .addMultipleLineItems(salesChannelId, contextToken, items)
@@ -256,40 +294,46 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
 
         addPromotionCode(
             { commit },
-            { salesChannelId, contextToken, code }: { salesChannelId: string, contextToken: string, code: string },
+            { salesChannelId, contextToken, code }: { salesChannelId: string; contextToken: string; code: string },
         ): Promise<void> {
             return Service('cartStoreService')
                 .addPromotionCode(salesChannelId, contextToken, code)
-                .then(response => commit('setCart', response.data));
+                .then((response) => commit('setCart', response.data));
         },
 
         modifyShippingCosts(
             { commit },
-            { salesChannelId, contextToken, shippingCosts }:
-                { salesChannelId: string, contextToken: string, shippingCosts: CalculatedPrice },
+            {
+                salesChannelId,
+                contextToken,
+                shippingCosts,
+            }: {
+                salesChannelId: string;
+                contextToken: string;
+                shippingCosts: CalculatedPrice;
+            },
         ) {
-            return Service('cartStoreService')
-                .modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                .then((response: AxiosResponse) => commit('setCart', response.data.data));
+            return (
+                Service('cartStoreService')
+                    ?.modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    .then((response: AxiosResponse) => commit('setCart', response.data.data))
+            );
         },
 
         remindPayment(_, { orderTransactionId }: { orderTransactionId: string }) {
-            return Service('orderStateMachineService')
-                .transitionOrderTransactionState(orderTransactionId, 'remind');
+            return Service('orderStateMachineService').transitionOrderTransactionState(orderTransactionId, 'remind');
         },
     },
 };
 
 /**
  * @private
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default SwOrderStore;
 
 /**
  * @private
  */
-export type {
-    SwOrderState,
-};
-
+export type { SwOrderState };

@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -11,6 +14,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -158,15 +163,81 @@ class LineItemTransformer
         if ($entity->getDownloads() !== null) {
             $lineItem->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $entity->getDownloads());
         }
+
+        if ($entity->getProduct() !== null) {
+            self::setProductData($lineItem, $entity->getProduct());
+        }
     }
 
     private static function createLineItem(OrderLineItemEntity $entity): LineItem
     {
-        return new LineItem(
+        $item = new LineItem(
             $entity->getIdentifier(),
             $entity->getType() ?? '',
             $entity->getReferencedId(),
             $entity->getQuantity()
         );
+
+        $isNonProduct = \in_array($entity->getType(), [
+            LineItem::CREDIT_LINE_ITEM_TYPE,
+            LineItem::DISCOUNT_LINE_ITEM,
+        ], true);
+        $isProduct = \in_array($entity->getType(), [
+            LineItem::PRODUCT_LINE_ITEM_TYPE,
+            LineItem::CUSTOM_LINE_ITEM_TYPE,
+        ], true);
+        $isDownloadState = \in_array(State::IS_DOWNLOAD, $entity->getStates(), true);
+        if ($isNonProduct || ($isProduct && $isDownloadState)) {
+            $item->setShippingCostAware(false);
+
+            return $item;
+        }
+
+        return $item;
+    }
+
+    private static function setProductData(LineItem $lineItem, ProductEntity $product): void
+    {
+        if ($product->getCover()) {
+            $lineItem->setCover($product->getCover()->getMedia());
+        }
+
+        $quantityInformation = new QuantityInformation();
+
+        $quantityInformation->setMinPurchase(
+            $product->getMinPurchase() ?? 1
+        );
+
+        if ($product->getMaxPurchase() !== null) {
+            $quantityInformation->setMaxPurchase(
+                $product->getMaxPurchase()
+            );
+        }
+
+        $quantityInformation->setPurchaseSteps(
+            $product->getPurchaseSteps() ?? 1
+        );
+
+        $lineItem->setQuantityInformation($quantityInformation);
+
+        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+            $deliveryTime = null;
+            if ($product->getDeliveryTime() !== null) {
+                $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());
+            }
+
+            $lineItem->setDeliveryInformation(
+                new DeliveryInformation(
+                    $product->getStock(),
+                    $product->getWeight(),
+                    $product->getShippingFree() === true,
+                    $product->getRestockTime(),
+                    $deliveryTime,
+                    $product->getHeight(),
+                    $product->getWidth(),
+                    $product->getLength()
+                )
+            );
+        }
     }
 }

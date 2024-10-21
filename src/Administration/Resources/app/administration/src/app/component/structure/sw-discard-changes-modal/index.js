@@ -18,6 +18,13 @@ const { Component } = Shopware;
 Component.register('sw-discard-changes-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'keep-editing',
+        'discard-changes',
+    ],
+
     methods: {
         keepEditing() {
             this.$emit('keep-editing');

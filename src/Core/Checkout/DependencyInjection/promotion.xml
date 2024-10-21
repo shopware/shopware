@@ -71,6 +71,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Gateway\PromotionGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <!-- // inject after product collector(5000) -->
             <tag name="shopware.cart.collector" priority="4900"/>
         </service>

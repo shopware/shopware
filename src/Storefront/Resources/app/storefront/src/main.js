@@ -19,6 +19,7 @@ import Feature from 'src/helper/feature.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 /*
 import utils
@@ -32,6 +33,7 @@ import plugins
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
+window.focusHandler = new FocusHandler();
 window.bootstrap = bootstrap;
 
 /*
@@ -46,7 +48,7 @@ PluginManager.register('DateFormat', () => import('src/plugin/date-format/date-f
 PluginManager.register('ScrollUp', () => import('src/plugin/scroll-up/scroll-up.plugin'), '[data-scroll-up]');
 PluginManager.register('SearchWidget', () => import('src/plugin/header/search-widget.plugin'), '[data-search-widget]');
 PluginManager.register('CartWidget', () => import('src/plugin/header/cart-widget.plugin'), '[data-cart-widget]');
-PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/header/account-guest-abort-button.plugin'), '[data-account-guest-abort-button]')
+PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/header/account-guest-abort-button.plugin'), '[data-account-guest-abort-button]');
 PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/offcanvas-cart.plugin'), '[data-off-canvas-cart]');
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');
@@ -66,6 +68,9 @@ PluginManager.register('FormAutoSubmit', () => import('src/plugin/forms/form-aut
 PluginManager.register('FormAjaxSubmit', () => import('src/plugin/forms/form-ajax-submit.plugin'), '[data-form-ajax-submit]');
 PluginManager.register('FormAddHistory', () => import('src/plugin/forms/form-add-history.plugin'), '[data-form-add-history]');
 PluginManager.register('FormPreserver', () => import('src/plugin/forms/form-preserver.plugin'), '[data-form-preserver]');
+if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+    PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
+}
 PluginManager.register('AccountMenu', () => import('src/plugin/header/account-menu.plugin'), '[data-account-menu]');
 PluginManager.register('OffCanvasTabs', () => import('src/plugin/offcanvas-tabs/offcanvas-tabs.plugin'), '[data-off-canvas-tabs]');
 PluginManager.register('BaseSlider', () => import('src/plugin/slider/base-slider.plugin'), '[data-base-slider]');
@@ -101,19 +106,19 @@ PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-mod
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialGallerySliderViewerPlugin', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
+PluginManager.register('SpatialGallerySliderViewer', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialZoomGallerySliderViewerPlugin', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
+PluginManager.register('SpatialZoomGallerySliderViewer', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialArViewerPlugin', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
+PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('PageQrcodeGeneratorPlugin', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
+PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', () => import('src/plugin/cookie/cookie-permission.plugin'), '[data-cookie-permission]');

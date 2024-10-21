@@ -33,7 +33,9 @@ export default class ErrorResolver {
     handleDeleteError(errors) {
         errors.forEach(({ error, entityName, id }) => {
             const shopwareError = new this.ShopwareError(error);
-            Shopware.State.dispatch('error/addSystemError', { error: shopwareError });
+            Shopware.State.dispatch('error/addSystemError', {
+                error: shopwareError,
+            });
 
             Shopware.State.dispatch('error/addApiError', {
                 expression: `${entityName}.${id}`,
@@ -138,18 +140,12 @@ export default class ErrorResolver {
         }
 
         if (definition.isToOneAssociation(field)) {
-            this.resolveOneToOneFieldError(
-                `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-                error,
-            );
+            this.resolveOneToOneFieldError(`${entity.getEntityName()}.${entity.id}.${fieldName}`, error);
             return;
         }
 
         if (definition.isJsonField(field)) {
-            this.resolveJsonFieldError(
-                `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-                error,
-            );
+            this.resolveJsonFieldError(`${entity.getEntityName()}.${entity.id}.${fieldName}`, error);
             return;
         }
 

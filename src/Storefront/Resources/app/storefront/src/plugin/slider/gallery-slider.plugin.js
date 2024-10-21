@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge';
-import { tns } from 'tiny-slider/src/tiny-slider.module';
+import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 import Iterator from 'src/helper/iterator.helper';
@@ -7,17 +7,12 @@ import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 
 export default class GallerySliderPlugin extends BaseSliderPlugin {
-
-    /**
-     * default slider options
-     *
-     * @type {*}
-     */
     static options = deepmerge(BaseSliderPlugin.options, {
         containerSelector: '[data-gallery-slider-container=true]',
         thumbnailsSelector: '[data-gallery-slider-thumbnails=true]',
         controlsSelector: '[data-gallery-slider-controls=true]',
         thumbnailControlsSelector: '[data-thumbnail-slider-controls=true]',
+        baseSliderWrapperClass: 'base-slider',
         dotActiveClass: 'tns-nav-active',
         navDotDataAttr: 'data-nav-dot',
         loadingCls: 'is-loading',
@@ -41,6 +36,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             gutter: 10,
             startIndex: 1,
             preventScrollOnTouch: 'force',
+            ariaLive: false,
             responsive: {
                 xs: {},
                 sm: {},
@@ -68,23 +64,6 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         }
     }
 
-    /**
-     * since the tns slider indexes internally with 0
-     * but the setting starts at 1 we have to subtract 1
-     * to have the correct index
-     *
-     * @private
-     */
-    _correctIndexSettings() {
-        super._correctIndexSettings();
-
-        this.options.thumbnailSlider.startIndex -= 1;
-        this.options.thumbnailSlider.startIndex = (this.options.thumbnailSlider.startIndex < 0) ? 0 : this.options.thumbnailSlider.startIndex;
-    }
-
-    /**
-     * destroys the slider
-     */
     destroy() {
         if (this._slider && typeof this._slider.destroy === 'function') {
             try {
@@ -106,8 +85,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     /**
-     * reinitialise the slider
-     * with the options for our viewport
+     * Re-initialise the slider with options for the current viewport
      *
      * @param viewport
      */
@@ -132,7 +110,17 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     /**
-     * returns the slider settings for the current viewport
+     * @private
+     */
+    _correctIndexSettings() {
+        super._correctIndexSettings();
+
+        this.options.thumbnailSlider.startIndex -= 1;
+        this.options.thumbnailSlider.startIndex = (this.options.thumbnailSlider.startIndex < 0) ? 0 : this.options.thumbnailSlider.startIndex;
+    }
+
+    /**
+     * Returns the slider settings for the current viewport
      *
      * @param viewport
      * @private
@@ -144,7 +132,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     /**
-     * sets the active dot depending on the slider index
+     * Sets the active dot depending on the current slider index
      *
      * @private
      */
@@ -154,21 +142,21 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         Iterator.iterate(this._dots, dot => dot.classList.remove(this.options.dotActiveClass));
 
         const currentDot = this._dots[currentIndex];
-
-        if (!currentDot) return;
+        if (!currentDot) {
+            return;
+        }
 
         currentDot.classList.add(this.options.dotActiveClass);
     }
 
     /**
-     * initializes the dot navigation for the gallery slider
-     *
      * @private
      */
     _initDots() {
         this._dots = this.el.querySelectorAll('[' + this.options.navDotDataAttr + ']');
-
-        if (!this._dots) return;
+        if (!this._dots) {
+            return;
+        }
 
         Iterator.iterate(this._dots, dot => {
             dot.addEventListener('click', this._onDotClick.bind(this));
@@ -184,7 +172,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     /**
-     * navigates the gallery slider on dot click
+     * Navigfates to image on dot click
      *
      * @private
      */
@@ -195,8 +183,6 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     /**
-     * initialize the slider
-     *
      * @private
      */
     _initSlider() {
@@ -209,13 +195,17 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         const hasThumbnails = (!!navContainer);
 
         if (container) {
-            const onInit = () => {
+            const onInit = (sliderInfo) => {
                 window.PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
                 window.PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
 
                 if (!hasThumbnails) {
                     this.el.classList.remove(this.options.loadingCls);
                 }
+
+                const containerEl = this.el.getElementsByClassName(this.options.baseSliderWrapperClass).item(0);
+
+                this._initAccessibilityTweaks(sliderInfo, containerEl);
 
                 this.$emitter.publish('initGallerySlider');
             };
@@ -240,11 +230,14 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         if (navContainer) {
             const thumbnailControls = this.el.querySelector(this.options.thumbnailControlsSelector);
 
-            const onInitThumbnails = () => {
+            const onInitThumbnails = (sliderInfo) => {
                 if (hasThumbnails) {
                     this.el.classList.remove(this.options.loadingCls);
                 }
                 this.$emitter.publish('initThumbnailSlider');
+
+                // Remove controls div container from tab index for better accessibility.
+                sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
             };
 
             if (this._thumbnailSliderSettings.enabled) {
@@ -268,10 +261,10 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     /**
-     * navigate thumbnail slider automatically if the selected slider image is hidden
+     * Navigates through the thumbnail slider automatically, if the selected slider image is hidden
      *
      * @private
-     * */
+     */
     _navigateThumbnailSlider() {
         const thumbnailSlideInfo = this._thumbnailSlider && this._thumbnailSlider.getInfo();
 

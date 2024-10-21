@@ -1,7 +1,7 @@
 {# Provides customer type, salutation, title, firstname, lastname and birthday fields for address forms (e.g. registering a user, creating or updating an address) #}
 {% block component_address_personal_fields %}
     {% block component_address_personal_account_type %}
-        {% if onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect) %}
+        {% if (onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect)) and not hasSelectedBusiness %}
             <div class="row g-2">
                 <div class="form-group col-md-3 col-sm-6 contact-type">
                     {% block component_address_personal_account_type_label %}
@@ -41,6 +41,9 @@
                                 {% set isLoginPage = true %}
                             {% endif %}
 
+                            {% set privateType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %}
+                            {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+
                             {% if isLoginPage %}
                                 <option disabled="disabled"
                                         selected="selected"
@@ -50,14 +53,14 @@
                             {% endif %}
 
                             {% if not onlyCompanyRegistration %}
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
-                                    {% if isCompany == false and isLoginPage == false %} selected="selected"{% endif %}>
+                                <option value="{{ privateType }}"
+                                    {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
                                     {{ "account.personalTypePrivate"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
 
-                            <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
-                                {% if isCompany == true and isLoginPage == false %} selected="selected"{% endif %}>
+                            <option value="{{ businessType }}"
+                                {% if accountType === businessType || (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
                                 {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                             </option>
                         </select>
@@ -111,6 +114,13 @@
 
             {% block component_address_personal_fields_title %}
                 {% if config('core.loginRegistration.showTitleField') %}
+
+                    {% if formViolations.getViolations("/#{prefix}/title") is not empty %}
+                        {% set violationPath = "/#{prefix}/title" %}
+                    {% elseif formViolations.getViolations("/title") is not empty %}
+                        {% set violationPath = "/title" %}
+                    {% endif %}
+
                     <div class="form-group col-md-3 col-sm-6">
                         {% block component_address_personal_fields_title_label %}
                             <label class="form-label"
@@ -121,12 +131,18 @@
 
                         {% block component_address_personal_fields_title_input %}
                             <input type="text"
-                                   class="form-control"
+                                   class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
                                    autocomplete="section-personal title"
                                    id="{{ idPrefix ~ prefix }}personalTitle"
                                    placeholder="{{ "account.personalTitlePlaceholder"|trans|striptags }}"
                                    name="{% if prefix %}{{ prefix }}[title]{% else %}title{% endif %}"
                                    value="{{ data.get('title') }}">
+                        {% endblock %}
+
+                        {% block component_address_personal_fields_title_input_error %}
+                            {% if violationPath %}
+                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endif %}
@@ -138,11 +154,25 @@
         <div class="row g-2">
             {% block component_address_personal_fields_first_name %}
                 <div class="form-group col-sm-6">
-                    {% if formViolations.getViolations("/firstName") is not empty %}
-                        {% set violationPath = "/firstName" %}
+
+                    {# @deprecated tag:v6.7.0 - firstName will have additional validation #}
+                    {% if feature('v6.7.0.0') %}
+                        {# New implementation, setting of "violationPath" #}
+                        {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
+                            {% set violationPath = "/#{prefix}/firstName" %}
+                        {% elseif formViolations.getViolations("/firstName") is not empty and not prefix %}
+                            {% set violationPath = "/firstName" %}
+                        {% else %}
+                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                        {% endif %}
                     {% else %}
-                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                        {% if formViolations.getViolations("/firstName") is not empty %}
+                            {% set violationPath = "/firstName" %}
+                        {% else %}
+                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                        {% endif %}
                     {% endif %}
+
 
                     {% block component_address_personal_fields_first_name_label %}
                         <label class="form-label"
@@ -156,9 +186,16 @@
                                class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal given-name"
                                id="{{ idPrefix ~ prefix }}personalFirstName"
+                                {# @deprecated tag:v6.7.0 - firstName will have prefix #}
+                               {% if feature('v6.7.0.0') %}
+                                   {# New implementation, name and value with prefix #}
+                                   name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
+                                   value="{% if prefix and feature('v6.7.0.0') and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
+                               {% else %}
+                                    name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
+                                    value="{{ data.get('firstName') }}"
+                               {% endif %}
                                placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
-                               name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
-                               value="{{ data.get('firstName') }}"
                                data-form-validation-required
                                {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
@@ -174,10 +211,21 @@
 
             {% block component_address_personal_fields_last_name %}
                 <div class="form-group col-sm-6">
-                    {% if formViolations.getViolations("/lastName") is not empty %}
-                        {% set violationPath = "/lastName" %}
+                    {# @deprecated tag:v6.7.0 - lastName will have additional validation #}
+                    {% if feature('v6.7.0.0') %}
+                        {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
+                            {% set violationPath = "/#{prefix}/lastName" %}
+                        {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
+                            {% set violationPath = "/lastName" %}
+                        {% else %}
+                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
+                        {% endif %}
                     {% else %}
-                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
+                        {% if formViolations.getViolations("/lastName") is not empty %}
+                            {% set violationPath = "/lastName" %}
+                        {% else %}
+                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
+                        {% endif %}
                     {% endif %}
 
                     {% block component_address_personal_fields_last_name_label %}
@@ -193,8 +241,14 @@
                                autocomplete="section-personal family-name"
                                id="{{ idPrefix ~ prefix }}personalLastName"
                                placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
-                               name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
-                               value="{{ data.get('lastName') }}"
+                               {# New implementation, name and value with prefix #}
+                               {% if feature('v6.7.0.0') %}
+                                   name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
+                                   value="{% if prefix and data.has(prefix) %}{{ data.get(prefix).get('lastName') }}{% else %}{{ data.get('lastName')}}{% endif %}"
+                               {% else %}
+                                    name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
+                                    value="{{ data.get('lastName') }}"
+                               {% endif %}
                                data-form-validation-required
                                {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">

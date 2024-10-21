@@ -6,15 +6,18 @@ import template from './sw-flow-list-flow-templates.html.twig';
 import './sw-flow-list-flow-templates.scss';
 
 interface GridColumn {
-    property: string,
-    dataIndex?: string,
-    label: string,
-    allowResize?: boolean,
-    sortable?: boolean,
-    align: string,
+    property: string;
+    dataIndex?: string;
+    label: string;
+    allowResize?: boolean;
+    sortable?: boolean;
+    align: string;
 }
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 /**
  * @private
@@ -24,7 +27,12 @@ const { Mixin, Data: { Criteria } } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['acl', 'repositoryFactory'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'acl',
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -39,12 +47,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data(): {
-        sortBy: string,
-        sortDirection: string,
-        total: number,
-        isLoading: boolean,
-        flowTemplates: EntityCollection<'flow_template'>|[],
-        } {
+        sortBy: string;
+        sortDirection: string;
+        total: number;
+        isLoading: boolean;
+        flowTemplates: EntityCollection<'flow_template'> | [];
+    } {
         return {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
@@ -73,8 +81,9 @@ export default Shopware.Component.wrapComponentConfig({
                 criteria.setTerm(this.searchTerm);
             }
 
-            // @ts-expect-error - Mixin methods are not recognized
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection))
+            criteria
+                // @ts-expect-error - Mixin methods are not recognized
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
                 .addSorting(Criteria.sort('updatedAt', 'DESC'));
 
             return criteria;
@@ -135,7 +144,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            void this.flowTemplateRepository.search(this.flowTemplateCriteria)
+            void this.flowTemplateRepository
+                .search(this.flowTemplateCriteria)
                 .then((data: EntityCollection<'flow_template'>) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     this.total = data.total as number;

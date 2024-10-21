@@ -1,102 +1,111 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-search-search-index', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: (name) => {
-                        if (name === 'product') {
-                            return {
-                                search: () => Promise.resolve([]),
-                            };
-                        }
+    return mount(
+        await wrapTestComponent('sw-settings-search-search-index', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: (name) => {
+                            if (name === 'product') {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                };
+                            }
 
-                        if (name === 'product_search_keyword') {
-                            return {
-                                search: () => Promise.resolve([{
-                                    versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                                    languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                                    productId: 'ced577ea267e4eaab52da40b2cf8c570',
-                                    productVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                                    keyword: 'a0254ce850054780bfb4a5b26d6c99cf',
-                                    ranking: 1000,
-                                    createdAt: '2021-02-15T12:47:08.464+00:00',
-                                    updatedAt: null,
-                                    apiAlias: null,
-                                    id: 'ffce0992117444529bf702c30f14ae3b',
-                                }]),
-                            };
-                        }
+                            if (name === 'product_search_keyword') {
+                                return {
+                                    search: () =>
+                                        Promise.resolve([
+                                            {
+                                                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                                                productId: 'ced577ea267e4eaab52da40b2cf8c570',
+                                                productVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                                keyword: 'a0254ce850054780bfb4a5b26d6c99cf',
+                                                ranking: 1000,
+                                                createdAt: '2021-02-15T12:47:08.464+00:00',
+                                                updatedAt: null,
+                                                apiAlias: null,
+                                                id: 'ffce0992117444529bf702c30f14ae3b',
+                                            },
+                                        ]),
+                                };
+                            }
 
-                        return null;
+                            return null;
+                        },
+                    },
+                    productIndexService: {
+                        index: jest.fn((offset) => {
+                            if (offset === 0) {
+                                return Promise.resolve({
+                                    finish: false,
+                                    offset: {
+                                        offset: 51,
+                                    },
+                                });
+                            }
+
+                            if (offset === 51) {
+                                return Promise.resolve({
+                                    finish: false,
+                                    offset: {
+                                        offset: 60,
+                                    },
+                                });
+                            }
+
+                            if (offset === 60) {
+                                return Promise.resolve({
+                                    data: {
+                                        finish: true,
+                                    },
+                                });
+                            }
+
+                            return Promise.resolve({});
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
-                productIndexService: {
-                    index: jest.fn((offset) => {
-                        if (offset === 0) {
-                            return Promise.resolve({
-                                finish: false,
-                                offset: {
-                                    offset: 51,
-                                },
-                            });
-                        }
 
-                        if (offset === 51) {
-                            return Promise.resolve({
-                                finish: false,
-                                offset: {
-                                    offset: 60,
-                                },
-                            });
-                        }
-
-                        if (offset === 60) {
-                            return Promise.resolve({
-                                data: {
-                                    finish: true,
-                                },
-                            });
-                        }
-
-                        return Promise.resolve({});
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
+                stubs: {
+                    'sw-card': true,
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-progress-bar': {
+                        template: '<div class="sw-progress-bar"><slot></slot></div>',
+                    },
+                    'sw-alert': {
+                        template: '<div class="sw-alert"><slot></slot></div>',
+                    },
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'sw-time-ago': true,
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
                     },
                 },
-
-            },
-
-            stubs: {
-                'sw-card': true,
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-progress-bar': {
-                    template: '<div class="sw-progress-bar"><slot></slot></div>',
-                },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>',
-                },
-                'sw-icon': true,
-                'sw-loader': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-index', () => {
@@ -130,6 +139,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         await wrapper.setData({
             offset: 0,
         });
+
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
         await rebuildButton.trigger('click');
         await flushPromises();
@@ -142,7 +152,6 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         response = await wrapper.vm.productIndexService.index(wrapper.vm.offset);
         expect(response.offset.offset).toBe(51);
         expect(response.finish).toBeFalsy();
-
 
         // Second call with offset 51
         await wrapper.setData({

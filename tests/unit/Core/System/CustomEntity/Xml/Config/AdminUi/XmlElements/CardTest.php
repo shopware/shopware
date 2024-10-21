@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Card::class)]
@@ -30,8 +28,6 @@ class CardTest extends TestCase
         $card = Card::fromXml($cardElement);
 
         $cardFields = $card->getFields();
-        static::assertInstanceOf(Card::class, $card);
-        static::assertIsArray($cardFields);
         static::assertInstanceOf(CardField::class, \array_pop($cardFields));
     }
 }

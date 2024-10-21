@@ -7,7 +7,12 @@ import template from './sw-category-detail-menu.html.twig';
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'acl',
+        'repositoryFactory',
+    ],
 
     props: {
         category: {
@@ -77,5 +82,4 @@ export default {
             this.onSetMediaItem({ targetId: dropItem.id });
         },
     },
-
 };

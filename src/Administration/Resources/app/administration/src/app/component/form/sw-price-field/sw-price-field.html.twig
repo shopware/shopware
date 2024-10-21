@@ -28,10 +28,11 @@
             :error="grossError"
             :disabled="isDisabled"
             :name="grossFieldName"
-            v-bind="$attrs"
+            v-bind="attributesWithoutListeners"
             @update:value="onPriceGrossChange"
             @keyup="keymonitor"
             @input-change="onPriceGrossInputChange"
+            @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
                 v-if="!disableSuffix"
@@ -67,7 +68,6 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_price_field_net %}
-        {# TODO: check selectors #}
         <sw-number-field
             v-model:value="priceForCurrency.net"
             class="sw-price-field__net"
@@ -82,10 +82,11 @@
             :error="netError"
             :disabled="isInherited || disabled"
             :name="netFieldName"
-            v-bind="$attrs"
+            v-bind="attributesWithoutListeners"
             @update:value="onPriceNetChange"
             @keyup="keymonitor"
             @input-change="onPriceNetInputChange"
+            @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
                 v-if="!disableSuffix"

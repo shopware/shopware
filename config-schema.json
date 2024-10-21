@@ -4,7 +4,7 @@
     "definitions": {
         "root": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "parameters": {
                     "$ref": "#/definitions/parameters"
@@ -17,6 +17,9 @@
                 },
                 "elasticsearch": {
                     "$ref": "#/definitions/elasticsearch"
+                },
+                "framework": {
+                    "$ref": "#/definitions/framework"
                 }
             },
             "title": "Root"
@@ -99,11 +102,23 @@
                 "stock": {
                     "$ref": "#/definitions/stock"
                 },
+                "messenger": {
+                    "$ref": "#/definitions/messenger"
+                },
+                "redis": {
+                    "$ref": "#/definitions/redis"
+                },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
                 },
                 "staging": {
                     "$ref": "#/definitions/staging"
+                },
+                "system_config": {
+                    "type": "object"
+                },
+                "feature_toggle": {
+                    "$ref": "#/definitions/feature_toggle"
                 }
             },
             "title": "Shopware"
@@ -224,6 +239,16 @@
             },
             "title": "Staging"
         },
+        "feature_toggle": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Feature toggle"
+        },
         "twig": {
             "type": "object",
             "additionalProperties": false,
@@ -254,6 +279,35 @@
                 "enable_stock_management": {
                     "type": "boolean",
                     "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
+                }
+            }
+        },
+        "messenger": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "routing_overwrite": {
+                    "type": "array",
+                    "title": "Allows to overwrite the routing configuration of the messenger component",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enforce_message_size": {
+                    "type": "boolean",
+                    "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
+                    "default": false
+                }
+            }
+        },
+        "search": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "term_max_length": {
+                    "type": "integer",
+                    "title": "The maximum length of the search term"
                 }
             }
         },
@@ -392,6 +446,24 @@
             },
             "title": "Rate limiter config"
         },
+        "redis": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "connections": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "dsn": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "api_store": {
             "type": "object",
             "additionalProperties": false,
@@ -508,6 +580,9 @@
                         "dsn": {
                             "type": "string",
                             "default": "redis://localhost"
+                        },
+                        "connection": {
+                            "type": "string"
                         }
                     }
                 },
@@ -612,6 +687,10 @@
                             "additionalProperties": false,
                             "properties": {
                                 "dsn": {
+                                    "type": "string",
+                                    "deprecationMessage": "The `dsn` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                                },
+                                "connection": {
                                     "type": "string"
                                 }
                             }
@@ -643,6 +722,10 @@
                     "additionalProperties": false,
                     "properties": {
                         "dsn": {
+                            "type": "string",
+                            "deprecationMessage": "The `dsn` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                        },
+                        "connection": {
                             "type": "string"
                         }
                     }
@@ -1026,11 +1109,24 @@
                                 "additionalProperties": false,
                                 "properties": {
                                     "url": {
+                                        "type": "string",
+                                        "deprecationMessage": "The `url` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                                    },
+                                    "connection": {
                                         "type": "string"
                                     }
                                 },
-                                "required": [
-                                    "url"
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "url"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "connection"
+                                        ]
+                                    }
                                 ]
                             }
                         },
@@ -1083,6 +1179,18 @@
                 },
                 "url_upload_max_size": {
                     "type": "string"
+                },
+                "remote_thumbnails": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        },
+                        "pattern": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Media"
@@ -1274,6 +1382,87 @@
                 "dynamic_templates": {
                     "type": "array",
                     "title": "Dynamic Templates Config"
+                }
+            }
+        },
+        "framework": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "trusted_proxies": {
+                    "type": "string",
+                    "default": "",
+                    "description": "A list of IP ranges to be considered as proxies and trust the headers",
+                    "examples": [
+                        "REMOTE_ADDR",
+                        "private_ranges",
+                        "192.0.0.1,10.0.0.0/8"
+                    ]
+                },
+                "trusted_headers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "x-forwarded-for",
+                            "x-forwarded-host",
+                            "x-forwarded-proto",
+                            "x-forwarded-port",
+                            "x-forwarded-prefix"
+                        ]
+                    }
+                },
+                "lock": {
+                    "type": "string",
+                    "default": "flock"
+                },
+                "session": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "storage_factory_id": {
+                            "type": "string",
+                            "default": "session.storage.factory.native"
+                        },
+                        "handler_id": {
+                            "type": "string",
+                            "default": "",
+                            "examples": [
+                                "redis://localhost"
+                            ]
+                        },
+                        "name": {
+                            "type": "string",
+                            "default": "shop-",
+                            "description": "The cookie name of the session"
+                        },
+                        "cookie_lifetime": {
+                            "type": "integer",
+                            "default": 7200,
+                            "description": "The cookie lifetime of the session"
+                        }
+                    }
+                },
+                "cache": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "app": {
+                            "type": "string",
+                            "default": "cache.adapter.filesystem"
+                        },
+                        "system": {
+                            "type": "string",
+                            "default": "cache.adapter.filesystem"
+                        },
+                        "default_redis_provider": {
+                            "type": "string",
+                            "default": "redis://localhost",
+                            "examples": [
+                                "redis://%env(REDIS_URL)%"
+                            ]
+                        }
+                    }
                 }
             }
         }

@@ -19,4 +19,3 @@ Shopware.Filter.register('unicodeUri', (value: string) => {
 
 /* @private */
 export {};
-

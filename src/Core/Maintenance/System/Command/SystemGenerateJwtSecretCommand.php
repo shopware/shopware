@@ -111,14 +111,14 @@ class SystemGenerateJwtSecretCommand extends Command
             return self::FAILURE;
         }
 
-        if (file_exists($privateKeyPath) && !$force) {
-            $io->error(sprintf('Cannot create private key %s, it already exists.', $privateKeyPath));
+        if (!$force && file_exists($privateKeyPath)) {
+            $io->error(\sprintf('Cannot create private key %s, it already exists.', $privateKeyPath));
 
             return self::FAILURE;
         }
 
-        if (file_exists($publicKeyPath) && !$force) {
-            $io->error(sprintf('Cannot create public key %s, it already exists.', $publicKeyPath));
+        if (!$force && file_exists($publicKeyPath)) {
+            $io->error(\sprintf('Cannot create public key %s, it already exists.', $publicKeyPath));
 
             return self::FAILURE;
         }

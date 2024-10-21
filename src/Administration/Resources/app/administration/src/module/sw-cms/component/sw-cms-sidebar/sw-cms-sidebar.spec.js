@@ -11,9 +11,11 @@ function getBlockData(position, id = '1a2b') {
         id,
         position,
         sectionPosition: 0,
-        slots: [{
-            id: 'some-slot-id',
-        }],
+        slots: [
+            {
+                id: 'some-slot-id',
+            },
+        ],
     };
 }
 
@@ -21,16 +23,23 @@ function getBlockCollection(blocks) {
     return new EntityCollection(blocks, 'blocks', null, null, blocks);
 }
 
-async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) {
+async function createWrapper(
+    { cmsBlockRegistry } = { cmsBlockRegistry: null },
+    pageType = 'product_list',
+    privileges = [
+        'system_config:read',
+        'system_config:update',
+        'system_config:create',
+        'system_config:delete',
+    ],
+) {
     localStorage.clear();
 
-    if (Shopware.State.get('cmsPageState')) {
-        Shopware.State.unregisterModule('cmsPageState');
-    }
+    Shopware.Store.unregister('cmsPage');
 
-    Shopware.State.registerModule('cmsPageState', {
-        namespaced: true,
-        state: {
+    Shopware.Store.register({
+        id: 'cmsPage',
+        state: () => ({
             isSystemDefaultLanguage: true,
             currentPageType: 'product_list',
             selectedBlock: {
@@ -53,170 +62,219 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                     mobile: true,
                 },
             },
+        }),
+        actions: {
+            setSelectedSection(section) {
+                this.selectedSection = section;
+            },
+            removeSelectedBlock() {
+                this.selectedBlock = null;
+            },
+            setSection(section) {
+                this.removeSelectedBlock();
+                this.setSelectedSection(section);
+            },
         },
     });
 
-    return mount(await wrapTestComponent('sw-cms-sidebar', {
-        sync: true,
-    }), {
-        props: {
-            page: {
-                sections: [
-                    new Entity('1111', 'section', {
-                        type: 'sidebar',
-                        blocks: getBlockCollection([
-                            {
-                                id: '1a2b',
-                                sectionPosition: 'main',
-                                type: 'foo-bar',
-                                slots: [],
-                            },
-                            {
-                                id: '3cd4',
-                                sectionPosition: 'sidebar',
-                                type: 'foo-bar',
-                                slots: [],
-                            },
-                            {
-                                id: '5ef6',
-                                sectionPosition: 'sidebar',
-                                type: 'foo-bar-removed',
-                                slots: [],
-                            },
-                            {
-                                id: '7gh8',
-                                sectionPosition: 'main',
-                                type: 'foo-bar-removed',
-                                slots: [],
-                            },
-                        ]),
-                    }),
-                    new Entity('2222', 'section', {
-                        type: 'sidebar',
-                        blocks: getBlockCollection([{
-                            id: 'abcd',
-                            sectionPosition: 'main',
-                            type: 'some-type',
-                            slots: [],
-                        }]),
-                    }),
-                ],
-                type: 'product_list',
-            },
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            directives: {
-                tooltip: {
-                    beforeMount(el, binding) {
-                        el.setAttribute('tooltip-message', binding.value.message);
-                    },
-                    mounted(el, binding) {
-                        el.setAttribute('tooltip-message', binding.value.message);
-                    },
-                    updated(el, binding) {
-                        el.setAttribute('tooltip-message', binding.value.message);
-                    },
-                },
-            },
-            stubs: {
-                'sw-button': {
-                    template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-                },
-                'sw-sidebar': true,
-                'sw-sidebar-item': {
-                    template: '<div class="sw-sidebar-item"><slot #default /></div>',
-                    props: ['disabled'],
-                },
-                'sw-sidebar-collapse': {
-                    template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
-                },
-                'sw-text-field': true,
-                'sw-select-field': true,
-                'sw-cms-block-config': true,
-                'sw-cms-block-layout-config': true,
-                'sw-cms-section-config': true,
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-cms-sidebar-nav-element': true,
-                'sw-entity-single-select': true,
-                'sw-modal': true,
-                'sw-checkbox-field': true,
-                'sw-icon': true,
-                'sw-cms-visibility-config': {
-                    template: '<div class="sw-cms-visibility-config"></div>',
-                    props: ['visibility'],
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            const mockCollection = [];
-                            mockCollection.add = function add(e) { this.push(e); };
-                            return {
-                                id: null,
-                                slots: mockCollection,
-                            };
-                        },
-                        save: () => {},
-                    }),
-                },
-                cmsBlockFavorites: {
-                    isFavorite() {
-                        return false;
-                    },
-                },
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return cmsBlockRegistry ?? {
-                            image: {
-                                name: 'image',
-                                label: 'sw-cms.blocks.image.image.label',
-                                category: 'image',
-                                component: 'sw-cms-block-image',
-                                previewComponent: 'sw-cms-preview-image',
-                                defaultConfig: {
-                                    marginBottom: '20px',
-                                    marginTop: '20px',
-                                    marginLeft: '20px',
-                                    marginRight: '20px',
-                                    sizingMode: 'boxed',
+    return mount(
+        await wrapTestComponent('sw-cms-sidebar', {
+            sync: true,
+        }),
+        {
+            props: {
+                page: {
+                    sections: [
+                        new Entity('1111', 'section', {
+                            type: 'sidebar',
+                            blocks: getBlockCollection([
+                                {
+                                    id: '1a2b',
+                                    sectionPosition: 'main',
+                                    type: 'foo-bar',
+                                    slots: [],
                                 },
-                                slots: {
+                                {
+                                    id: '3cd4',
+                                    sectionPosition: 'sidebar',
+                                    type: 'foo-bar',
+                                    slots: [],
+                                },
+                                {
+                                    id: '5ef6',
+                                    sectionPosition: 'sidebar',
+                                    type: 'foo-bar-removed',
+                                    slots: [],
+                                },
+                                {
+                                    id: '7gh8',
+                                    sectionPosition: 'main',
+                                    type: 'foo-bar-removed',
+                                    slots: [],
+                                },
+                            ]),
+                        }),
+                        new Entity('2222', 'section', {
+                            type: 'sidebar',
+                            blocks: getBlockCollection([
+                                {
+                                    id: 'abcd',
+                                    sectionPosition: 'main',
+                                    type: 'some-type',
+                                    slots: [],
+                                },
+                            ]),
+                        }),
+                    ],
+                    type: pageType,
+                },
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                directives: {
+                    tooltip: {
+                        beforeMount(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
+                        },
+                        mounted(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
+                        },
+                        updated(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
+                        },
+                    },
+                },
+                stubs: {
+                    'sw-button': {
+                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+                    },
+                    'sw-sidebar': true,
+                    'sw-sidebar-item': {
+                        template: '<div class="sw-sidebar-item"><slot /></div>',
+                        props: ['disabled'],
+                        methods: {
+                            openContent() {
+                                this.isActive = true;
+                            },
+                        },
+                    },
+                    'sw-sidebar-collapse': {
+                        template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
+                    },
+                    'sw-text-field': true,
+                    'sw-select-field': true,
+                    'sw-cms-block-config': true,
+                    'sw-cms-block-layout-config': true,
+                    'sw-cms-section-config': true,
+                    'sw-context-button': true,
+                    'sw-context-menu-item': true,
+                    'sw-cms-sidebar-nav-element': true,
+                    'sw-entity-single-select': true,
+                    'sw-modal': true,
+                    'sw-checkbox-field': true,
+                    'sw-icon': true,
+                    'sw-cms-visibility-config': {
+                        template: '<div class="sw-cms-visibility-config"></div>',
+                        props: ['visibility'],
+                    },
+                    'sw-product-variant-info': true,
+                    'sw-select-result': true,
+                    'sw-empty-state': true,
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                const mockCollection = [];
+                                mockCollection.add = function add(e) {
+                                    this.push(e);
+                                };
+                                return {
+                                    id: null,
+                                    slots: mockCollection,
+                                };
+                            },
+                            save: () => {},
+                        }),
+                    },
+                    cmsBlockFavorites: {
+                        isFavorite() {
+                            return false;
+                        },
+                    },
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return (
+                                cmsBlockRegistry ?? {
                                     image: {
-                                        type: 'image',
-                                        default: {
-                                            config: {
-                                                displayMode: { source: 'static', value: 'standard' },
-                                            },
-                                            data: {
-                                                media: { value: 'preview_mountain_large.jpg', source: 'default' },
+                                        name: 'image',
+                                        label: 'sw-cms.blocks.image.image.label',
+                                        category: 'image',
+                                        component: 'sw-cms-block-image',
+                                        previewComponent: 'sw-cms-preview-image',
+                                        defaultConfig: {
+                                            marginBottom: '20px',
+                                            marginTop: '20px',
+                                            marginLeft: '20px',
+                                            marginRight: '20px',
+                                            sizingMode: 'boxed',
+                                        },
+                                        slots: {
+                                            image: {
+                                                type: 'image',
+                                                default: {
+                                                    config: {
+                                                        displayMode: {
+                                                            source: 'static',
+                                                            value: 'standard',
+                                                        },
+                                                    },
+                                                    data: {
+                                                        media: {
+                                                            value: 'preview_mountain_large.jpg',
+                                                            source: 'default',
+                                                        },
+                                                    },
+                                                },
                                             },
                                         },
                                     },
-                                },
-                            },
-                        };
+                                }
+                            );
+                        },
+                        isBlockAllowedInPageType: (name, currentPageType) => name.startsWith(currentPageType),
                     },
-                    isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType),
-                },
-                cmsPageTypeService: {
-                    getTypes: () => {
-                        return [{
-                            name: 'page',
-                        }, {
-                            name: 'landingpage',
-                        }, {
-                            name: 'product_list',
-                        }, {
-                            name: 'product_detail',
-                        }];
+                    cmsPageTypeService: {
+                        getTypes: () => {
+                            return [
+                                {
+                                    name: 'page',
+                                },
+                                {
+                                    name: 'landingpage',
+                                },
+                                {
+                                    name: 'product_list',
+                                },
+                                {
+                                    name: 'product_detail',
+                                },
+                            ];
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
@@ -230,6 +288,181 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
+    const showDefaultLayoutSelectionDataProvider = [
+        [
+            'show the default layout selection, when "product_list" page is no default layout',
+            {
+                pageType: 'product_list',
+                isDefaultLayout: false,
+                expectedSelectionCount: 1,
+            },
+        ],
+        [
+            'show the default layout selection, when "product_detail" page is no default layout',
+            {
+                pageType: 'product_detail',
+                isDefaultLayout: false,
+                expectedSelectionCount: 1,
+            },
+        ],
+        [
+            'not show the default layout selection, when "product_list" page is already a default layout',
+            {
+                pageType: 'product_list',
+                isDefaultLayout: true,
+                expectedSelectionCount: 0,
+            },
+        ],
+        [
+            'not show the default layout selection, when "product_detail" page is already a default layout',
+            {
+                pageType: 'product_detail',
+                isDefaultLayout: true,
+                expectedSelectionCount: 0,
+            },
+        ],
+        [
+            'not show the default layout selection, when page is "landingpage" (isDefaultLayout = false)',
+            {
+                pageType: 'landingpage',
+                isDefaultLayout: false,
+                expectedSelectionCount: 0,
+            },
+        ],
+        [
+            'not show the default layout selection, when page is "landingpage" (isDefaultLayout = true)',
+            {
+                pageType: 'landingpage',
+                isDefaultLayout: true,
+                expectedSelectionCount: 0,
+            },
+        ],
+    ];
+    it.each(showDefaultLayoutSelectionDataProvider)('should %s', async (caseName, testData) => {
+        const wrapper = await createWrapper({ cmsBlockRegistry: null }, testData.pageType);
+
+        await wrapper.setProps({
+            isDefaultLayout: testData.isDefaultLayout,
+        });
+        await flushPromises();
+
+        const defaultLayoutSelection = wrapper.findAll('.sw-cms-sidebar__layout-set-as-default-content');
+        expect(defaultLayoutSelection).toHaveLength(testData.expectedSelectionCount);
+    });
+
+    it('should show the default layout selection with sufficient privileges', async () => {
+        const wrapper = await createWrapper();
+
+        const defaultLayoutSelection = wrapper.find('.sw-cms-sidebar__layout-set-as-default-content');
+        expect(defaultLayoutSelection).toBeTruthy();
+    });
+
+    const defaultLayoutSelectionDataProvider = [
+        [
+            'no privileges',
+            [],
+        ],
+        [
+            'only read',
+            ['system_config:read'],
+        ],
+        [
+            'only update',
+            ['system_config:update'],
+        ],
+        [
+            'only create',
+            ['system_config:create'],
+        ],
+        [
+            'only delete',
+            ['system_config:delete'],
+        ],
+        [
+            'read + update',
+            [
+                'system_config:read',
+                'system_config:update',
+            ],
+        ],
+        [
+            'read + create',
+            [
+                'system_config:read',
+                'system_config:create',
+            ],
+        ],
+        [
+            'read + delete',
+            [
+                'system_config:read',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'update + create',
+            [
+                'system_config:update',
+                'system_config:create',
+            ],
+        ],
+        [
+            'update + delete',
+            [
+                'system_config:update',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'create + delete',
+            [
+                'system_config:create',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'read + update + create',
+            [
+                'system_config:read',
+                'system_config:update',
+                'system_config:create',
+            ],
+        ],
+        [
+            'read + update + delete',
+            [
+                'system_config:read',
+                'system_config:update',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'read + create + delete',
+            [
+                'system_config:read',
+                'system_config:create',
+                'system_config:delete',
+            ],
+        ],
+        [
+            'update + create + delete',
+            [
+                'system_config:update',
+                'system_config:create',
+                'system_config:delete',
+            ],
+        ],
+    ];
+    it.each(defaultLayoutSelectionDataProvider)(
+        'should not show the default layout selection with insufficient privileges. [Case: %s]',
+        async (caseName, testedPrivileges) => {
+            const wrapper = await createWrapper({ cmsBlockRegistry: null }, 'product_list', testedPrivileges);
+
+            const defaultLayoutSelection = wrapper.findAll('.sw-cms-sidebar__layout-set-as-default-content');
+            expect(defaultLayoutSelection).toHaveLength(0);
+        },
+    );
+
     it('disable all sidebar items', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
@@ -241,7 +474,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const sidebarItems = wrapper.findAllComponents('.sw-sidebar-item');
         expect(sidebarItems).toHaveLength(5);
 
-        sidebarItems.forEach(sidebarItem => {
+        sidebarItems.forEach((sidebarItem) => {
             expect(sidebarItem.props('disabled')).toBe(true);
         });
     });
@@ -252,7 +485,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const sidebarItems = wrapper.findAllComponents('.sw-sidebar-item');
         expect(sidebarItems).toHaveLength(5);
 
-        sidebarItems.forEach(sidebarItem => {
+        sidebarItems.forEach((sidebarItem) => {
             expect(sidebarItem.props('disabled')).toBe(false);
         });
     });
@@ -275,14 +508,18 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
 
         const sections = wrapper.vm.page.sections;
-        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8', '1a2b']);
+        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual([
+            '3cd4',
+            '5ef6',
+            '7gh8',
+            '1a2b',
+        ]);
         expect(Array.from(sections[1].blocks.getIds())).toStrictEqual(['abcd']);
 
         sections[0].blocks.forEach((block, index) => {
             expect(block.position).toBe(index);
         });
     });
-
 
     it('should correctly adjust the sectionId when drag sorting (cross section)', async () => {
         const wrapper = await createWrapper();
@@ -299,8 +536,15 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
 
         const sections = wrapper.vm.page.sections;
-        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
-        expect(Array.from(sections[1].blocks.getIds())).toStrictEqual(['abcd', '1a2b']);
+        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual([
+            '3cd4',
+            '5ef6',
+            '7gh8',
+        ]);
+        expect(Array.from(sections[1].blocks.getIds())).toStrictEqual([
+            'abcd',
+            '1a2b',
+        ]);
 
         sections[0].blocks.forEach((block, index) => {
             expect(block.position).toBe(index);
@@ -310,7 +554,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             expect(block.position).toBe(index);
         });
 
-        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
+        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual([
+            '3cd4',
+            '5ef6',
+            '7gh8',
+        ]);
 
         expect(blockDrag.block.sectionId).toBe('2222');
     });
@@ -375,9 +623,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should fire event to open layout assignment modal', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.findComponent('.sw-cms-sidebar__layout-assignment-open')
-            .vm
-            .$emit('click');
+        wrapper.findComponent('.sw-cms-sidebar__layout-assignment-open').vm.$emit('click');
 
         await wrapper.vm.$nextTick();
 
@@ -396,10 +642,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const layoutTypeSelect = wrapper.findComponent('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
+        const layoutTypeSelect = wrapper.findComponent(
+            'sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]',
+        );
 
-        expect(layoutTypeSelect.attributes()['tooltip-message'])
-            .toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
+        expect(layoutTypeSelect.attributes()['tooltip-message']).toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
 
         expect(layoutTypeSelect.attributes().disabled).toBeTruthy();
     });
@@ -424,15 +671,20 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should emit open-layout-set-as-default when clicking on set as default', async () => {
-        global.activeAclRoles = ['system_config.editor'];
+        global.activeAclRoles = [
+            'system_config:read',
+            'system_config:update',
+            'system_config:delete',
+            'system_config:create',
+        ];
 
         const wrapper = await createWrapper();
 
-        wrapper.findComponent('.sw-cms-sidebar__layout-set-as-default-open')
-            .vm
-            .$emit('click');
+        wrapper.findComponent('.sw-cms-sidebar__layout-set-as-default-open').vm.$emit('click');
 
-        expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([[]]);
+        expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([
+            [],
+        ]);
     });
 
     it('should filter blocks based on pageType, category and visibility', async () => {
@@ -463,7 +715,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map(block => block.name)).toStrictEqual(['product_list_block']);
+        expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map((block) => block.name)).toStrictEqual(['product_list_block']);
     });
 
     it('should render also new block types', async () => {
@@ -494,7 +746,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const newBlockCategory = wrapper.find('.sw-cms-sidebar__block-category option[value="completely_different_category"]');
+        const newBlockCategory = wrapper.find(
+            '.sw-cms-sidebar__block-category option[value="completely_different_category"]',
+        );
 
         expect(newBlockCategory.exists()).toBeTruthy();
         expect(newBlockCategory.text()).toBe('apps.sw-cms.detail.label.blockCategory.completely_different_category');
@@ -503,7 +757,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should allow editing of the visibility setting of blocks', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.findComponent('.sw-cms-sidebar__visibility-config-block').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        expect(wrapper.findComponent('.sw-cms-sidebar__visibility-config-block').props('visibility')).toStrictEqual({
+            desktop: true,
+            mobile: true,
+            tablet: true,
+        });
         wrapper.findComponent('.sw-cms-sidebar__visibility-config-block').vm.$emit('visibility-change', 'desktop', false);
         await wrapper.vm.$nextTick();
 
@@ -517,7 +775,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should allow editing of the visibility setting of sections', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.findComponent('.sw-cms-sidebar__visibility-config-section').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        expect(wrapper.findComponent('.sw-cms-sidebar__visibility-config-section').props('visibility')).toStrictEqual({
+            desktop: true,
+            mobile: true,
+            tablet: true,
+        });
         wrapper.findComponent('.sw-cms-sidebar__visibility-config-section').vm.$emit('visibility-change', 'desktop', false);
         await wrapper.vm.$nextTick();
 
@@ -574,7 +836,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         wrapper.vm.onBlockStageDrop(dragData, dropData);
 
-
         const expectedData = {
             id: null,
             slots: [
@@ -618,5 +879,17 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         };
 
         expect(JSON.parse(JSON.stringify(wrapper.vm.page.sections[0].blocks[0]))).toStrictEqual(expectedData);
+    });
+
+    it('should open section settings when clicking settings in section context menu', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeFalsy();
+        expect(wrapper.vm.selectedSection.id).toBe('1111');
+
+        wrapper.findComponent('#sw-cms-sidebar__section-2222 .sw-cms-sidebar__navigator-section-settings').vm.$emit('click');
+
+        expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeTruthy();
+        expect(wrapper.vm.selectedSection.id).toBe('2222');
     });
 });

@@ -16,10 +16,8 @@ async function createWrapper(customProps = {}) {
             },
             provide: {
                 conditionDataProviderService: {
-                    getPlaceholderData: () => {
-                    },
-                    getComponentByCondition: () => {
-                    },
+                    getPlaceholderData: () => {},
+                    getComponentByCondition: () => {},
                 },
                 availableTypes: {},
                 availableGroups: [],
@@ -70,7 +68,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
         const wrapper = await createWrapper();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-        contextMenuItems.forEach(contextMenuItem => {
+        contextMenuItems.forEach((contextMenuItem) => {
             expect(contextMenuItem.attributes().disabled).toBeUndefined();
         });
     });
@@ -81,7 +79,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
         });
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-        contextMenuItems.forEach(contextMenuItem => {
+        contextMenuItems.forEach((contextMenuItem) => {
             expect(contextMenuItem.attributes().disabled).toBe('true');
         });
     });

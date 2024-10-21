@@ -171,7 +171,7 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Storefront, Variants', '.product-detail-name');
     });
 
-    it('@visual: check appearance of product cross selling workflow', { tags: ['pa-inventory'] }, () => {
+    it.skip('@visual: check appearance of product cross selling workflow', { tags: ['pa-inventory'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later

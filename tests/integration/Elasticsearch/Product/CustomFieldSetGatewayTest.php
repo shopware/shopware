@@ -22,16 +22,6 @@ class CustomFieldSetGatewayTest extends TestCase
 
     private IdsCollection $ids;
 
-    protected function tearDown(): void
-    {
-        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
-
-        $customFieldRepository->delete([
-            ['id' => $this->ids->get('custom-field-set-1')],
-            ['id' => $this->ids->get('custom-field-set-2')],
-        ], Context::createDefaultContext());
-    }
-
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -85,6 +75,16 @@ class CustomFieldSetGatewayTest extends TestCase
                     ],
                 ],
             ],
+        ], Context::createDefaultContext());
+    }
+
+    protected function tearDown(): void
+    {
+        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+
+        $customFieldRepository->delete([
+            ['id' => $this->ids->get('custom-field-set-1')],
+            ['id' => $this->ids->get('custom-field-set-2')],
         ], Context::createDefaultContext());
     }
 

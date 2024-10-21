@@ -12,12 +12,17 @@
  * </sw-error-boundary>
  */
 Shopware.Component.register('sw-error-boundary', {
-
     render() {
+        if (typeof this.$slots.default === 'function') {
+            return this.$slots.default();
+        }
+
         return this.$slots.default;
     },
 
     inject: ['repositoryFactory'],
+
+    compatConfig: Shopware.compatConfig,
 
     computed: {
         logEntryRepository() {
@@ -58,7 +63,7 @@ Shopware.Component.register('sw-error-boundary', {
                 url: window.location.href,
             };
 
-            this.logEntryRepository.save(newLogEntry).catch(e => Shopware.Utils.debug.error(e));
+            this.logEntryRepository.save(newLogEntry).catch((e) => Shopware.Utils.debug.error(e));
         },
     },
 });

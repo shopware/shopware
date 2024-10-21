@@ -132,7 +132,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $expectedUrl1 = $host . '/awesome-product';
         $expectedUrl2 = $host . '/cars-default';
-        $expected = sprintf($template, $expectedUrl1, $expectedUrl2);
+        $expected = \sprintf($template, $expectedUrl1, $expectedUrl2);
         static::assertSame($expected, $actual);
     }
 }

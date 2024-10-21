@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class CaptchaService {
     constructor(httpClient, loginService) {
@@ -9,9 +12,7 @@ export default class CaptchaService {
     list(cb) {
         const headers = this.getAuthHeaders();
 
-        this.httpClient
-            .get('/_action/captcha_list', { headers })
-            .then(response => cb(response.data));
+        this.httpClient.get('/_action/captcha_list', { headers }).then((response) => cb(response.data));
     }
 
     getAuthHeaders() {

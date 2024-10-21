@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import PromotionSyncApiService from 'src/core/service/api/promotion-sync.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
@@ -21,9 +24,11 @@ describe('core/service/api/promotion-sync.api.service', () => {
 
     it('should fire the necessary requests for loadPackagers & loadSorters', async () => {
         const client = createHTTPClient();
-        const getMethod = jest.spyOn(client, 'get').mockImplementation(() => Promise.resolve({
-            data: null,
-        }));
+        const getMethod = jest.spyOn(client, 'get').mockImplementation(() =>
+            Promise.resolve({
+                data: null,
+            }),
+        );
 
         const promotionSyncApiService = getPromotionSyncApiService(client, null);
 

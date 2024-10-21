@@ -8,6 +8,8 @@ import './sw-category-view.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     mixins: [
@@ -37,7 +39,7 @@ export default {
                 return false;
             }
 
-            return Shopware.State.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPage').currentPage;
         },
 
         isPage() {

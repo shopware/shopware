@@ -16,12 +16,12 @@ export default {
 /**
  * Registry which holds all registered directives.
  */
-const directiveRegistry = new Map<string, FunctionDirective|ObjectDirective>();
+const directiveRegistry = new Map<string, FunctionDirective | ObjectDirective>();
 
 /**
  * Registers a new directive.
  */
-function registerDirective(name: string, directive: FunctionDirective|ObjectDirective = {}): boolean {
+function registerDirective(name: string, directive: FunctionDirective | ObjectDirective = {}): boolean {
     if (!name || !name.length) {
         warn('DirectiveFactory', 'A directive always needs a name.', directive);
         return false;

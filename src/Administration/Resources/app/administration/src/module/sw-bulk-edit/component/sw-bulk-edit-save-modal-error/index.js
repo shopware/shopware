@@ -1,11 +1,18 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-save-modal-error.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'title-set',
+        'buttons-update',
+    ],
 
     created() {
         this.createdComponent();

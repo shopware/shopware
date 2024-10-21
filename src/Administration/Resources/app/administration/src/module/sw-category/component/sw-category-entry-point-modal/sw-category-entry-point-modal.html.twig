@@ -27,7 +27,7 @@
             v-model:value="selectedSalesChannel.homeEnabled"
             class="sw-category-entry-point-modal__show-in-main-navigation"
             :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
-            :disabled="!acl.can('category.editor')"
+            :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
 
@@ -66,7 +66,7 @@
                 <sw-cms-list-item
                     class="sw-category-entry-point-modal__layout-item"
                     :page="selectedSalesChannel.homeCmsPage"
-                    :disabled="!acl.can('category.editor')"
+                    :disabled="!acl.can('category.editor') || undefined"
                     active
                 />
             </div>
@@ -182,7 +182,7 @@
             class="sw-category-entry-point-modal__meta-title"
             :label="$tc('sw-category.base.entry-point-modal.metaTitleLabel')"
             :placeholder="selectedSalesChannel.translated.homeMetaTitle || $tc('sw-category.base.entry-point-modal.metaTitlePlaceholder')"
-            :disabled="!acl.can('category.editor')"
+            :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
 
@@ -193,7 +193,7 @@
             class="sw-category-entry-point-modal__meta-description"
             :label="$tc('sw-category.base.entry-point-modal.metaDescriptionLabel')"
             :placeholder="selectedSalesChannel.translated.homeMetaDescription || $tc('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"
-            :disabled="!acl.can('category.editor')"
+            :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
 
@@ -204,7 +204,7 @@
             class="sw-category-entry-point-modal__seo-keywords"
             :label="$tc('sw-category.base.entry-point-modal.seoKeywordsLabel')"
             :placeholder="selectedSalesChannel.translated.homeKeywords || $tc('sw-category.base.entry-point-modal.seoKeywordsPlaceholder')"
-            :disabled="!acl.can('category.editor')"
+            :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
 

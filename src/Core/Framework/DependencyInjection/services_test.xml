@@ -19,6 +19,11 @@
     <services>
         <defaults public="true"/>
 
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <tag name="shopware.payment.method"/>
+        </service>
+
         <service id="Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>
@@ -188,11 +193,13 @@
 
         <service id="Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController" public="true"/>
 
-        <service id="test_payment_decoration" class="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler" decorates="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+        <service id="test_payment_decoration" class="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler" decorates="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\TestSessionStorageFactory" decorates="session.storage.factory.mock_file"/>

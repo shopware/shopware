@@ -1,16 +1,20 @@
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# v-on="listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-tabs component #}
 <template v-if="useMeteorComponent">
     <mt-tabs
         v-bind="$attrs"
         ref="tabComponent"
         :items="itemsBackwardCompatible"
-        v-on="$listeners"
+        v-on="listeners"
         @new-item-active="onNewItemActive"
     />
 
     {# Render content slot as fallback #}
-    <slot name="content" v-bind="{ active: activeItem }"></slot>
+    <slot
+        name="content"
+        v-bind="{ active: activeItem }"
+    >
+    </slot>
 </template>
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
@@ -19,7 +23,7 @@
     v-else
     v-bind="$attrs"
     ref="tabComponent"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

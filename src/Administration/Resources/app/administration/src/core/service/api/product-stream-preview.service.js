@@ -1,3 +1,4 @@
+import { deepMergeObject } from 'src/core/service/utils/object.utils';
 import ApiService from '../api.service';
 
 /**
@@ -19,12 +20,14 @@ export default class ProductStreamPreviewService extends ApiService {
      * @returns Object
      */
     preview(salesChannelId, criteria, filter, additionalHeaders = {}) {
-        return this.httpClient.post(
-            `_admin/product-stream-preview/${salesChannelId}`,
-            { ...criteria, ...{ filter } },
-            {
+        const body = deepMergeObject(criteria.parse(), {
+            filter,
+        });
+
+        return this.httpClient
+            .post(`_admin/product-stream-preview/${salesChannelId}`, body, {
                 headers: this.getBasicHeaders(additionalHeaders),
-            },
-        ).then(response => ApiService.handleResponse(response));
+            })
+            .then((response) => ApiService.handleResponse(response));
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 class CacheApiService {
     constructor(httpClient, loginService) {
@@ -23,11 +23,18 @@ class CacheApiService {
         return this.httpClient.post('/_action/index-products', { skip, ids: ids }, { headers });
     }
 
+    delayed() {
+        const headers = this.getHeaders();
+        return this.httpClient.delete('/_action/cache-delayed', { headers });
+    }
+
     clear() {
         const headers = this.getHeaders();
         return this.httpClient.delete('/_action/cache', { headers }).then((response) => {
             if (response.status === 204) {
-                return this.httpClient.delete('/_action/container_cache', { headers });
+                return this.httpClient.delete('/_action/container_cache', {
+                    headers,
+                });
             }
             return Promise.reject();
         });

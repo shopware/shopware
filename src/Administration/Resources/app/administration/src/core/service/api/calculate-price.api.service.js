@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 import ApiService from '../api.service';
 
 /**

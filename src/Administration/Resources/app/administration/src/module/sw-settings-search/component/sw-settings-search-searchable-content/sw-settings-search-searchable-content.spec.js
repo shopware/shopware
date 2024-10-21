@@ -1,56 +1,60 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-search-searchable-content', {
-        sync: true,
-    }), {
-        props: {
-            searchConfigId: '',
-        },
-
-        global: {
-            provide: {
-                repositoryFactory: {
-                    create() {
-                        return Promise.resolve();
-                    },
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
-                    },
-                },
-
+    return mount(
+        await wrapTestComponent('sw-settings-search-searchable-content', {
+            sync: true,
+        }),
+        {
+            props: {
+                searchConfigId: '',
             },
 
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create() {
+                            return Promise.resolve();
+                        },
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
                 },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
+
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-icon': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot></div>',
+                    },
+                    'router-link': true,
+                    'sw-settings-search-searchable-content-general': true,
+                    'sw-settings-search-searchable-content-customfields': true,
                 },
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-icon': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
-                'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot></div>',
-                },
-                'router-link': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {

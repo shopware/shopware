@@ -6,6 +6,11 @@ use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\SystemCheck\Check\Result;
+use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -18,7 +23,8 @@ class HealthCheckController
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemChecker $systemChecker
     ) {
     }
 
@@ -47,5 +53,24 @@ class HealthCheckController
         $response->setPrivate();
 
         return $response;
+    }
+
+    #[Route(path: '/api/_info/system-health-check', name: 'api.info.system-health.check', defaults: ['auth_required' => true], methods: ['GET'])]
+    public function health(Request $request): Response
+    {
+        $verbose = filter_var($request->get('verbose', false), \FILTER_VALIDATE_BOOL);
+
+        $result = $this->systemChecker->check(SystemCheckExecutionContext::WEB);
+
+        return new JsonResponse(['checks' => array_map(
+            fn (Result $result) => [
+                'name' => $result->name,
+                'healthy' => $result->healthy,
+                'status' => $result->status->name,
+                'message' => $result->message,
+                'extra' => $verbose ? $result->extra : [],
+            ],
+            $result
+        )]);
     }
 }

@@ -6,7 +6,9 @@ import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 
 const itemMock = (options = {}) => {
     const itemOptions = {
-        getEntityName: () => { return 'media'; },
+        getEntityName: () => {
+            return 'media';
+        },
         id: '4a12jd3kki9yyy765gkn5hdb',
         fileName: 'demo.jpg',
         avatarUsers: [],
@@ -46,6 +48,13 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.store.media.defaultEnableAugmentedReality': 'false',
+                        });
+                    },
+                },
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     ...mediaServiceFunctions,
@@ -80,7 +89,19 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                'sw-confirm-field': true,
+                'sw-media-modal-replace': true,
+                'sw-help-text': true,
+                'sw-media-modal-delete': true,
+                'sw-external-link': true,
+                'sw-media-quickinfo-usage': true,
+                'sw-media-modal-move': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
         },
 
@@ -191,9 +212,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         const wrapper = await createWrapper(
             {},
             {
-                // eslint-disable-next-line prefer-promise-reject-errors
-                renameMedia: () => Promise.reject(
-                    {
+                renameMedia: () =>
+                    // eslint-disable-next-line prefer-promise-reject-errors
+                    Promise.reject({
                         response: {
                             data: {
                                 errors: [
@@ -201,8 +222,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                                 ],
                             },
                         },
-                    },
-                ),
+                    }),
             },
         );
         await wrapper.vm.$nextTick();
@@ -212,7 +232,10 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(wrapper.vm.fileNameError).toStrictEqual(error);
     });
 
-    it.each([...provide2DMockOptions(), ...provide3DMockOptions()])('should display ar-ready toggle if item is a 3D file', async (mockOptions, isSpatial) => {
+    it.each([
+        ...provide2DMockOptions(),
+        ...provide3DMockOptions(),
+    ])('should display ar-ready toggle if item is a 3D file', async (mockOptions, isSpatial) => {
         global.activeAclRoles = ['media.editor'];
 
         const wrapper = await createWrapper(mockOptions);
@@ -221,62 +244,75 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
     });
 
-    it.each(provide3DMockOptions())('should trigger update:item event when toggle is changed', async (mockOptions, isSpatial) => {
-        global.activeAclRoles = ['media.editor'];
-        const mediaSaveMock = jest.fn();
-        const mediaRepositoryFunctions = {
-            save: mediaSaveMock,
-        };
+    it.each(provide3DMockOptions())(
+        'should trigger update:item event when toggle is changed',
+        async (mockOptions, isSpatial) => {
+            global.activeAclRoles = ['media.editor'];
+            const mediaSaveMock = jest.fn();
+            const mediaRepositoryFunctions = {
+                save: mediaSaveMock,
+            };
 
-        const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-        await wrapper.vm.$nextTick();
+            const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
+            await wrapper.vm.$nextTick();
 
-        const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
-        expect(arToggle.exists()).toBe(isSpatial);
+            const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
+            expect(arToggle.exists()).toBe(isSpatial);
 
-        const arToggleInput = wrapper.find('.sw-field--switch__input input');
-        expect(arToggleInput.exists()).toBe(isSpatial);
+            const arToggleInput = wrapper.find('.sw-field--switch__input input');
+            expect(arToggleInput.exists()).toBe(isSpatial);
 
-        await arToggleInput.setChecked();
-        expect(arToggleInput.element.checked).toBe(true);
+            await arToggleInput.setChecked();
+            expect(arToggleInput.element.checked).toBe(true);
 
-        await arToggle.trigger('update');
-        expect(wrapper.emitted('update:item')).toBeTruthy();
-        expect(wrapper.emitted('update:item')[0][0]).toEqual(
-            expect.objectContaining({
+            await arToggle.trigger('update');
+            expect(wrapper.emitted('update:item')).toBeTruthy();
+            expect(wrapper.emitted('update:item')[0][0]).toEqual(
+                expect.objectContaining({
+                    config: {
+                        spatial: {
+                            arReady: true,
+                            updatedAt: expect.any(Number),
+                        },
+                    },
+                }),
+            );
+        },
+    );
+
+    it.each(provide3DMockOptions())(
+        'should check if object is AR ready when created and update ar toggle accordingly',
+        async (mockOptions, isSpatial, isArReady) => {
+            global.activeAclRoles = ['media.editor'];
+            const mediaRepositoryGetMock = jest.fn().mockResolvedValue({
                 config: {
                     spatial: {
-                        arReady: true,
-                        updatedAt: expect.any(Number),
+                        arReady: isArReady,
                     },
                 },
-            }),
-        );
-    });
+            });
+            const mediaRepositoryFunctions = {
+                get: mediaRepositoryGetMock,
+            };
 
-    it.each(provide3DMockOptions())('should check if object is AR ready when created and update ar toggle accordingly', async (mockOptions, isSpatial, isArReady) => {
-        global.activeAclRoles = ['media.editor'];
-        const mediaRepositoryGetMock = jest.fn().mockResolvedValue({
-            config: {
-                spatial: {
-                    arReady: isArReady,
-                },
-            },
-        });
-        const mediaRepositoryFunctions = {
-            get: mediaRepositoryGetMock,
-        };
+            const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
+            await wrapper.vm.$nextTick();
 
-        const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
+            const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
+            expect(arToggle.exists()).toBe(true);
+
+            const arToggleInput = wrapper.find('.sw-field--switch__input input');
+            expect(arToggleInput.exists()).toBe(true);
+
+            expect(arToggleInput.element.checked).toBe(isArReady);
+        },
+    );
+
+    it('should build augmented reality tooltip', async () => {
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
-        expect(arToggle.exists()).toBe(true);
-
-        const arToggleInput = wrapper.find('.sw-field--switch__input input');
-        expect(arToggleInput.exists()).toBe(true);
-
-        expect(arToggleInput.element.checked).toBe(isArReady);
+        const tooltip = wrapper.vm.buildAugmentedRealityTooltip('global.sw-media-media-item.tooltip.ar');
+        expect(tooltip).toBe('global.sw-media-media-item.tooltip.ar');
     });
 });
-

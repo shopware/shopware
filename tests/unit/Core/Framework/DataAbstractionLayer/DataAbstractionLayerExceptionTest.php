@@ -150,7 +150,7 @@ class DataAbstractionLayerExceptionTest extends TestCase
         $e = DataAbstractionLayerException::decodeHandledByHydrator($field);
 
         static::assertEquals(
-            sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class),
+            \sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class),
             $e->getMessage()
         );
         static::assertEquals(ManyToManyAssociationField::class, $e->getParameters()['fieldClass']);
@@ -235,5 +235,35 @@ class DataAbstractionLayerExceptionTest extends TestCase
         );
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertEquals(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
+    }
+
+    public function testExpectedArrayWithType(): void
+    {
+        $path = 'includes';
+        $type = 'string';
+
+        $exception = DataAbstractionLayerException::expectedArrayWithType($path, $type);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::EXPECTED_ARRAY_WITH_TYPE, $exception->getErrorCode());
+        static::assertSame(
+            \sprintf('Expected data at %s to be of the type array, %s given', $path, $type),
+            $exception->getMessage()
+        );
+        static::assertSame($path, $exception->getParameters()['path']);
+        static::assertSame($type, $exception->getParameters()['type']);
+    }
+
+    public function testMissingFieldValue(): void
+    {
+        $field = new IdField('test_field', 'test_field');
+        $exception = DataAbstractionLayerException::missingFieldValue($field);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::MISSING_FIELD_VALUE, $exception->getErrorCode());
+        static::assertSame(
+            'A value for the field "test_field" is required, but it is missing or `null`.',
+            $exception->getMessage()
+        );
     }
 }

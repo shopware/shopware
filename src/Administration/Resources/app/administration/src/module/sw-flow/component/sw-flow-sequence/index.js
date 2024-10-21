@@ -8,6 +8,8 @@ import './sw-flow-sequence.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         sequence: {
             type: Object,
@@ -66,10 +68,11 @@ export default {
 
             // Check if both true block and false block are selector components
             return {
-                'has--selector': falseBlock[0].actionName === null
-                    && falseBlock[0].ruleId === null
-                    && trueBlock[0].actionName === null
-                    && trueBlock[0].ruleId === null,
+                'has--selector':
+                    falseBlock[0].actionName === null &&
+                    falseBlock[0].ruleId === null &&
+                    trueBlock[0].actionName === null &&
+                    trueBlock[0].ruleId === null,
             };
         },
     },

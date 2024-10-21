@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 
@@ -22,9 +23,7 @@ class TechnicalNameExceptionHandler implements ExceptionHandlerInterface
             $e->getMessage(),
             $matches
         )) {
-            if (\array_key_exists('technicalName', $matches) && \is_string($matches['technicalName'])) {
-                return PaymentException::duplicateTechnicalName($matches['technicalName']);
-            }
+            return PaymentException::duplicateTechnicalName($matches['technicalName']);
         }
 
         if (\preg_match(
@@ -32,9 +31,15 @@ class TechnicalNameExceptionHandler implements ExceptionHandlerInterface
             $e->getMessage(),
             $matches
         )) {
-            if (\array_key_exists('technicalName', $matches) && \is_string($matches['technicalName'])) {
-                return ShippingException::duplicateTechnicalName($matches['technicalName']);
-            }
+            return ShippingException::duplicateTechnicalName($matches['technicalName']);
+        }
+
+        if (\preg_match(
+            '/SQLSTATE\[23000]: Integrity constraint violation: 1062 Duplicate entry \'(?<technicalName>.*)\' for key \'import_export_profile\.uniq\.import_export_profile\.technical_name\'/',
+            $e->getMessage(),
+            $matches
+        )) {
+            return ImportExportException::duplicateTechnicalName($matches['technicalName']);
         }
 
         return null;

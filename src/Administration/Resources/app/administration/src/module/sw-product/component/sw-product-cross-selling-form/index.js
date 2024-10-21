@@ -9,7 +9,12 @@ const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper
 export default {
     template,
 
-    inject: ['repositoryFactory', 'productStreamConditionService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'productStreamConditionService',
+    ],
 
     provide() {
         return {
@@ -86,9 +91,7 @@ export default {
         productStreamFilterCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.equals('productStreamId', this.crossSelling.productStreamId),
-            );
+            criteria.addFilter(Criteria.equals('productStreamId', this.crossSelling.productStreamId));
 
             return criteria;
         },
@@ -98,32 +101,41 @@ export default {
         },
 
         sortingTypes() {
-            return [{
-                label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
-                value: 'cheapestPrice:DESC',
-            }, {
-                label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
-                value: 'cheapestPrice:ASC',
-            }, {
-                label: this.$tc('sw-product.crossselling.nameSortingType'),
-                value: 'name:ASC',
-            }, {
-                label: this.$tc('sw-product.crossselling.releaseDateDescendingSortingType'),
-                value: 'releaseDate:DESC',
-            }, {
-                label: this.$tc('sw-product.crossselling.releaseDateAscendingSortingType'),
-                value: 'releaseDate:ASC',
-            }];
+            return [
+                {
+                    label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
+                    value: 'cheapestPrice:DESC',
+                },
+                {
+                    label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
+                    value: 'cheapestPrice:ASC',
+                },
+                {
+                    label: this.$tc('sw-product.crossselling.nameSortingType'),
+                    value: 'name:ASC',
+                },
+                {
+                    label: this.$tc('sw-product.crossselling.releaseDateDescendingSortingType'),
+                    value: 'releaseDate:DESC',
+                },
+                {
+                    label: this.$tc('sw-product.crossselling.releaseDateAscendingSortingType'),
+                    value: 'releaseDate:ASC',
+                },
+            ];
         },
 
         crossSellingTypes() {
-            return [{
-                label: this.$tc('sw-product.crossselling.productStreamType'),
-                value: 'productStream',
-            }, {
-                label: this.$tc('sw-product.crossselling.productListType'),
-                value: 'productList',
-            }];
+            return [
+                {
+                    label: this.$tc('sw-product.crossselling.productStreamType'),
+                    value: 'productStream',
+                },
+                {
+                    label: this.$tc('sw-product.crossselling.productListType'),
+                    value: 'productList',
+                },
+            ];
         },
 
         previewDisabled() {
@@ -135,7 +147,7 @@ export default {
         },
 
         disablePositioning() {
-            return (!!this.term) || (this.sortBy !== 'position');
+            return !!this.term || this.sortBy !== 'position';
         },
 
         associationValue() {
@@ -191,18 +203,18 @@ export default {
         },
 
         loadStreamPreview() {
-            this.productStreamRepository.get(this.crossSelling.productStreamId)
-                .then((productStream) => {
-                    this.productStream = productStream;
-                    this.getProductStreamFilter();
-                });
+            this.productStreamRepository.get(this.crossSelling.productStreamId).then((productStream) => {
+                this.productStream = productStream;
+                this.getProductStreamFilter();
+            });
         },
 
         getProductStreamFilter() {
             if (this.productStreamFilterRepository === null) {
                 return [];
             }
-            return this.productStreamFilterRepository.search(this.productStreamFilterCriteria)
+            return this.productStreamFilterRepository
+                .search(this.productStreamFilterCriteria)
                 .then((productStreamFilter) => {
                     this.productStreamFilter = productStreamFilter;
                 });
@@ -213,7 +225,10 @@ export default {
         },
 
         onSortingChanged(value) {
-            [this.crossSelling.sortBy, this.crossSelling.sortDirection] = value.split(':');
+            [
+                this.crossSelling.sortBy,
+                this.crossSelling.sortDirection,
+            ] = value.split(':');
         },
 
         onTypeChanged(value) {

@@ -220,7 +220,7 @@ class EntityWriter implements EntityWriterInterface
     {
         $errors = $operation->validate();
         if (\count($errors)) {
-            throw new InvalidSyncOperationException(sprintf('Invalid sync operation. %s', implode(' ', $errors)));
+            throw new InvalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
         }
     }
 

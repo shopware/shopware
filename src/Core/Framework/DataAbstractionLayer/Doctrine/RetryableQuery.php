@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
 #[Package('core')]
 class RetryableQuery
@@ -55,6 +57,7 @@ class RetryableQuery
         try {
             return $closure();
         } catch (RetryableException $e) {
+            MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
             if ($connection && $connection->getTransactionNestingLevel() > 0) {
                 // If this closure was executed inside a transaction, do not retry. Remember that the whole (outermost)
                 // transaction was already rolled back by the database when any RetryableException is thrown. Rethrow

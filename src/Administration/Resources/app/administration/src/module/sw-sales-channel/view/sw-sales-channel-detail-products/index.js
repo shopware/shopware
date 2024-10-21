@@ -12,7 +12,13 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -56,9 +62,7 @@ export default {
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addAssociation('options.group');
-            criteria.addFilter(
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-            );
+            criteria.addFilter(Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id));
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
@@ -118,13 +122,14 @@ export default {
             context.inheritance = true;
 
             this.isLoading = true;
-            return this.productRepository.search(this.productCriteria, context)
+            return this.productRepository
+                .search(this.productCriteria, context)
                 .then((products) => {
                     this.products = products;
                     this.total = products.total;
 
                     if (this.total > 0 && this.products.length <= 0) {
-                        this.page = (this.page === 1) ? 1 : this.page - 1;
+                        this.page = this.page === 1 ? 1 : this.page - 1;
                         this.getProducts();
                     }
                 })
@@ -139,7 +144,8 @@ export default {
         onDeleteProduct(product) {
             const deleteId = this.getDeleteId(product);
 
-            return this.productVisibilityRepository.delete(deleteId, Context.api)
+            return this.productVisibilityRepository
+                .delete(deleteId, Context.api)
                 .then(() => {
                     this.getProducts();
 
@@ -164,7 +170,8 @@ export default {
             });
 
             this.isLoading = true;
-            return this.productVisibilityRepository.syncDeleted(deleteIds, Context.api)
+            return this.productVisibilityRepository
+                .syncDeleted(deleteIds, Context.api)
                 .then(() => {
                     this.isLoading = false;
                     this.getProducts();
@@ -208,9 +215,7 @@ export default {
             this.page = data.page;
             this.limit = data.limit;
             this.products.criteria.sortings.forEach(({ field, naturalSorting, order }) => {
-                this.productCriteria.addSorting(
-                    Criteria.sort(field, order, naturalSorting),
-                );
+                this.productCriteria.addSorting(Criteria.sort(field, order, naturalSorting));
             });
 
             this.getProducts();
@@ -242,7 +247,7 @@ export default {
                 Context.api,
             );
 
-            products.forEach(el => {
+            products.forEach((el) => {
                 if (this.products?.has(el.id)) {
                     return;
                 }
@@ -285,7 +290,7 @@ export default {
 
         isProductRemovable(product) {
             const relevantVisibility = product.visibilities.find(
-                visibility => visibility.salesChannelId === this.salesChannel.id,
+                (visibility) => visibility.salesChannelId === this.salesChannel.id,
             );
 
             return product.parentId !== relevantVisibility?.productId;

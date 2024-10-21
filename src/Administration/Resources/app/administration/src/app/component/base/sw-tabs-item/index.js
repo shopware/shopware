@@ -1,7 +1,6 @@
 /**
  * @package admin
  */
-
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
@@ -29,13 +28,41 @@ const types = Shopware.Utils.types;
 Component.register('sw-tabs-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
-    inject: ['feature'],
+    inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
+        onNewItemActive: {
+            from: 'onNewItemActive',
+            default: null,
+        },
+        registerNewTabItem: {
+            from: 'registerNewTabItem',
+            default: null,
+        },
+        unregisterNewTabItem: {
+            from: 'unregisterNewTabItem',
+            default: null,
+        },
+        swTabsSetActiveItem: {
+            from: 'swTabsSetActiveItem',
+            default: null,
+        },
+    },
+
+    emits: ['click'],
 
     props: {
         route: {
-            type: [String, Object],
+            type: [
+                String,
+                Object,
+            ],
             required: false,
             default: '',
         },
@@ -107,7 +134,7 @@ Component.register('sw-tabs-item', {
     },
 
     watch: {
-        '$route'() {
+        $route() {
             this.checkIfRouteMatchesLink();
         },
     },
@@ -124,9 +151,23 @@ Component.register('sw-tabs-item', {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+            this.$parent.$off('new-item-active', this.checkIfActive);
+        } else {
+            this.unregisterNewTabItem?.(this);
+        }
+    },
+
     methods: {
         createdComponent() {
-            this.$parent.$on('new-item-active', this.checkIfActive);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$on('new-item-active', this.checkIfActive);
+            } else {
+                this.onNewItemActive?.(this.checkIfActive);
+                this.registerNewTabItem?.(this);
+            }
+
             if (this.active) {
                 this.isActive = true;
             }
@@ -151,11 +192,15 @@ Component.register('sw-tabs-item', {
                 return;
             }
 
-            this.$parent.setActiveItem(this);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.setActiveItem(this);
+            } else {
+                this.swTabsSetActiveItem(this);
+            }
             this.$emit('click');
         },
         checkIfActive(item) {
-            this.isActive = (item.$vnode === this.$vnode);
+            this.isActive = item.$vnode === this.$vnode;
         },
         checkIfRouteMatchesLink() {
             this.$nextTick().then(() => {
@@ -184,7 +229,11 @@ Component.register('sw-tabs-item', {
 
                 const routeIsActive = this.$el.classList.contains('router-link-active');
                 if (routeIsActive) {
-                    this.$parent.setActiveItem(this);
+                    if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                        this.$parent.setActiveItem(this);
+                    } else {
+                        this.swTabsSetActiveItem(this);
+                    }
                 }
             });
         },

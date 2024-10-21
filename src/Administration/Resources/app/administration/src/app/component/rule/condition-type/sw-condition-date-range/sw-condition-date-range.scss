@@ -1,7 +1,14 @@
+@import "~scss/variables";
+
 .sw-condition .sw-condition-date-range.sw-condition__condition-value {
     grid-template-columns: auto 1fr 1fr;
 
-    .sw-field--datepicker .sw-field__addition {
-        display: none;
+    .sw-field--datepicker .sw-field__hint {
+        color: $color-darkgray-200;
+        background-color: $color-gray-50;
+
+        .sw-icon {
+            display: none;
+        }
     }
 }

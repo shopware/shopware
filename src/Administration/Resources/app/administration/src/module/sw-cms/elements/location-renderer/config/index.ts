@@ -11,6 +11,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-config-location-renderer', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -71,13 +73,13 @@ Component.register('sw-cms-el-config-location-renderer', {
         },
 
         emitChanges(content: unknown) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (content !== this.element.config.content.value) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                this.element.config.content.value = content;
-
-                this.$emit('element-update', this.element);
+            if (content === this.element.config.content.value) {
+                return;
             }
+
+            this.element.config.content.value = content as string;
+
+            this.$emit('element-update', this.element);
         },
     },
 });

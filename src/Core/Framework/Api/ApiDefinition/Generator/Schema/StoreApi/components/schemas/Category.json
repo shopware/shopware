@@ -19,10 +19,8 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Category"
-                        },
-                        "nullable": true
+                        }
                     },
-
                     "childCount": {
                         "type": "number"
                     },
@@ -42,10 +40,11 @@
                                     "type": "string"
                                 }
                             }
-                        }
+                        },
+                        "required": ["breadcrumb"]
                     }
                 },
-                "required": ["breadcrumb", "children", "childCount", "translated"]
+                "required": ["apiAlias", "breadcrumb", "children", "childCount", "translated"]
             }
         }
     }

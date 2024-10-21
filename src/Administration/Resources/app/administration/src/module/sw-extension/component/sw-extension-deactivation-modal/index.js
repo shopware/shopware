@@ -8,6 +8,13 @@ import './sw-extension-deactivation-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'modal-close',
+        'extension-deactivate',
+    ],
+
     props: {
         extensionName: {
             type: String,
@@ -25,15 +32,11 @@ export default {
 
     computed: {
         removeHint() {
-            return this.$tc(
-                'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
-                0,
-                {
-                    removeLabel: this.isLicensed ?
-                        this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') :
-                        this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
-                },
-            );
+            return this.$tc('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel', 0, {
+                removeLabel: this.isLicensed
+                    ? this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
+                    : this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
+            });
         },
     },
 

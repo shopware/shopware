@@ -43,6 +43,10 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
         $lineItems = [];
 
         foreach ($ids as $id) {
+            if (!\is_string($id)) {
+                throw CartException::lineItemNotFound((string) $id);
+            }
+
             $lineItem = $cart->get($id);
 
             if (!$lineItem) {
@@ -61,7 +65,6 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
         $this->cartPersister->save($cart, $context);
 
         $this->eventDispatcher->dispatch(new AfterLineItemRemovedEvent($lineItems, $cart, $context));
-
         $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return new CartResponse($cart);

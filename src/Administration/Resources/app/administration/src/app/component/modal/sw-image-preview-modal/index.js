@@ -19,6 +19,10 @@ const { Component } = Shopware;
 Component.register('sw-image-preview-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close'],
+
     props: {
         mediaItems: {
             type: Array,
@@ -58,7 +62,7 @@ Component.register('sw-image-preview-modal', {
 
     computed: {
         images() {
-            return this.mediaItems.map(item => {
+            return this.mediaItems.map((item) => {
                 if (item?.media?.url) {
                     return {
                         ...item.media,
@@ -96,7 +100,7 @@ Component.register('sw-image-preview-modal', {
     methods: {
         createdComponent() {
             if (this.activeItemId) {
-                this.activeItemIndex = this.mediaItems.findIndex(item => item.id === this.activeItemId);
+                this.activeItemIndex = this.mediaItems.findIndex((item) => item.id === this.activeItemId);
             }
         },
 
@@ -164,8 +168,7 @@ Component.register('sw-image-preview-modal', {
         onClickZoomIn() {
             const zoomAmount = this.maxZoomValue / this.zoomSteps;
 
-            this.scale = (this.scale + zoomAmount > this.maxZoomValue)
-                ? this.maxZoomValue : this.scale + zoomAmount;
+            this.scale = this.scale + zoomAmount > this.maxZoomValue ? this.maxZoomValue : this.scale + zoomAmount;
             this.setTransition();
             this.updateTransform();
         },
@@ -173,7 +176,7 @@ Component.register('sw-image-preview-modal', {
         onClickZoomOut() {
             const zoomAmount = this.maxZoomValue / this.zoomSteps;
 
-            this.scale = (this.scale - zoomAmount < 1) ? 1 : this.scale - zoomAmount;
+            this.scale = this.scale - zoomAmount < 1 ? 1 : this.scale - zoomAmount;
             this.setTransition();
             this.updateTransform();
         },

@@ -33,7 +33,7 @@ let TwigTemplates = null;
 /**
  * Extends the Twig core for compatibility.
  */
-Twig.extend(TwigCore => {
+Twig.extend((TwigCore) => {
     /**
      * Remove tokens output_whitespace_pre, output_whitespace_post, output_whitespace_both and output.
      * These tokens are used for functions and data output.
@@ -42,11 +42,13 @@ Twig.extend(TwigCore => {
      *
      * @type {Array<any>}
      */
-    TwigCore.token.definitions = TwigCore.token.definitions.filter(token => {
-        return token.type !== TwigCore.token.type.output_whitespace_pre &&
+    TwigCore.token.definitions = TwigCore.token.definitions.filter((token) => {
+        return (
+            token.type !== TwigCore.token.type.output_whitespace_pre &&
             token.type !== TwigCore.token.type.output_whitespace_post &&
             token.type !== TwigCore.token.type.output_whitespace_both &&
-            token.type !== TwigCore.token.type.output;
+            token.type !== TwigCore.token.type.output
+        );
     });
 
     /**
@@ -128,7 +130,7 @@ const normalizedTemplateRegistry = new Map();
  */
 function registerComponentTemplate(componentName, componentTemplate = null) {
     const template = templateRegistry.get(componentName) || {};
-    const overrides = (template.overrides ? template.overrides : []);
+    const overrides = template.overrides ? template.overrides : [];
 
     templateRegistry.set(componentName, {
         name: componentName,
@@ -150,13 +152,9 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
  * @param {String} extendComponentName
  * @param {String|null} [templateExtension=null]
  */
-function extendComponentTemplate(
-    componentName,
-    extendComponentName,
-    templateExtension = null,
-) {
+function extendComponentTemplate(componentName, extendComponentName, templateExtension = null) {
     const template = templateRegistry.get(componentName) || {};
-    const overrides = (template.overrides ? template.overrides : []);
+    const overrides = template.overrides ? template.overrides : [];
 
     // If a component doesn't override the template, provide an empty string
     if (!templateExtension) {
@@ -182,11 +180,7 @@ function extendComponentTemplate(
  * @param {String|null} [templateOverride=null]
  * @param {Number|null} [overrideIndex=0]
  */
-function registerTemplateOverride(
-    componentName,
-    templateOverride = null,
-    overrideIndex = 0,
-) {
+function registerTemplateOverride(componentName, templateOverride = null, overrideIndex = 0) {
     const component = templateRegistry.get(componentName) || {
         name: componentName,
         raw: null,
@@ -197,6 +191,7 @@ function registerTemplateOverride(
         index: overrideIndex,
         raw: templateOverride,
     });
+    component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);
     return true;
 }
@@ -279,10 +274,7 @@ function applyTemplateOverrides(name) {
 
     // iterate the overrides per component
     item.overrides.forEach((override, index) => {
-        const overrideTemplate = buildTwigTemplateInstance(
-            `${baseTemplate.name}-${index}`,
-            override.raw,
-        );
+        const overrideTemplate = buildTwigTemplateInstance(`${baseTemplate.name}-${index}`, override.raw);
 
         overrideTemplate.tokens.forEach((overrideTokens) => {
             // resolve the template tokens
@@ -323,7 +315,10 @@ function resolveTokens(tokens, overrideTokens) {
 
     return tokens.reduce((acc, token) => {
         if (token.type !== 'logic' || !token.token || !token.token.blockName) {
-            return [...acc, token];
+            return [
+                ...acc,
+                token,
+            ];
         }
 
         const blockName = token.token.blockName;
@@ -334,29 +329,40 @@ function resolveTokens(tokens, overrideTokens) {
                 isInOverrides.token.output = mergeTokens(token, isInOverrides.token.output);
             }
 
-            return [...acc, isInOverrides];
+            return [
+                ...acc,
+                isInOverrides,
+            ];
         }
 
         const resolvedTokens = resolveTokens(token.token.output, overrideTokens);
 
         token.token.output = resolvedTokens;
 
-        return [...acc, token];
+        return [
+            ...acc,
+            token,
+        ];
     }, []);
 }
-
 
 function mergeTokens(token, tokens) {
     return tokens.reduce((acc, t) => {
         if (t.type === 'logic' && t.token.type === 'parent') {
-            return [...acc, ...token.token.output];
+            return [
+                ...acc,
+                ...token.token.output,
+            ];
         }
 
         if (t.token?.output) {
             t.token.output = resolveSubTokens(t.token.output, token.token.output);
         }
 
-        return [...acc, t];
+        return [
+            ...acc,
+            t,
+        ];
     }, []);
 }
 
@@ -369,10 +375,16 @@ function mergeTokens(token, tokens) {
 function resolveSubTokens(subToken, replacement) {
     return subToken.reduce((xs, s) => {
         if (s.type === 'logic' && s.token.type === 'parent') {
-            return [...xs, ...replacement];
+            return [
+                ...xs,
+                ...replacement,
+            ];
         }
 
-        return [...xs, s];
+        return [
+            ...xs,
+            s,
+        ];
     }, []);
 }
 
@@ -416,10 +428,16 @@ function resolveExtendTokens(tokens, item) {
 function normalizeTokens(tokens, extensionTokens) {
     const result = tokens.reduce((acc, token) => {
         if (token.token && !findNestedBlock(token.token.blockName, extensionTokens)) {
-            return [...acc, ...token.token.output];
+            return [
+                ...acc,
+                ...token.token.output,
+            ];
         }
 
-        return [...acc, token];
+        return [
+            ...acc,
+            token,
+        ];
     }, []);
 
     return result;
@@ -462,7 +480,11 @@ function resolveToken(token, itemTokens, name) {
     }
 
     // Vue 3 - if/else token support
-    const ifElseTokenTypes = ['Twig.logic.type.if', 'Twig.logic.type.else', 'Twig.logic.type.endif'];
+    const ifElseTokenTypes = [
+        'Twig.logic.type.if',
+        'Twig.logic.type.else',
+        'Twig.logic.type.endif',
+    ];
     if (token.type === 'logic' && ifElseTokenTypes.includes(token.token.type)) {
         return token;
     }
@@ -511,7 +533,10 @@ function resolveExtendsComponent(item) {
         };
     }
 
-    return { ...item, template: buildTwigTemplateInstance(item.name, item.raw) };
+    return {
+        ...item,
+        template: buildTwigTemplateInstance(item.name, item.raw),
+    };
 }
 
 /**

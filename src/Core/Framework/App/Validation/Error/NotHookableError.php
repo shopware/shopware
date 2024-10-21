@@ -17,7 +17,7 @@ class NotHookableError extends Error
      */
     public function __construct(array $violations)
     {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             "The following webhooks are not hookable:\n- %s",
             implode("\n- ", $violations)
         );

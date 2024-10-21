@@ -10,9 +10,14 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     let importExportProfileMappingService;
 
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
-            Shopware.EntityDefinition.add(entityName, entityDefinition);
-        });
+        Object.entries(entitySchemaMock).forEach(
+            ([
+                entityName,
+                entityDefinition,
+            ]) => {
+                Shopware.EntityDefinition.add(entityName, entityDefinition);
+            },
+        );
 
         importExportProfileMappingService = new ImportExportProfileMappingService(Shopware.EntityDefinition);
     });
@@ -35,9 +40,9 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         'productManufacturerVersionId',
         'taxId',
         'productNumber',
-    ].forEach(fieldName => {
+    ].forEach((fieldName) => {
         it(`product: should find missing required field ${fieldName}`, async () => {
-            const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== fieldName);
+            const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== fieldName);
             const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
             expect(invalidFields.missingRequiredFields).toHaveLength(1);
@@ -46,7 +51,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('product: should find missing required field name', async () => {
-        const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'translations.DEFAULT.name');
+        const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== 'translations.DEFAULT.name');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
         expect(invalidFields.missingRequiredFields).toHaveLength(1);
@@ -54,7 +59,9 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('product: should find missing required field createdAt', async () => {
-        const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'translations.DEFAULT.createdAt');
+        const mapping = mappings.productProfileOnlyRequired.filter(
+            (field) => field.key !== 'translations.DEFAULT.createdAt',
+        );
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
         expect(invalidFields.missingRequiredFields).toHaveLength(1);
@@ -64,31 +71,36 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it('product: should return all missing required fields', async () => {
         const invalidFields = importExportProfileMappingService.validate('product', []);
 
-        expect(invalidFields.missingRequiredFields.sort()).toEqual([
-            'id',
-            'versionId',
-            'parentVersionId',
-            'productManufacturerVersionId',
-            'productMediaVersionId',
-            'taxId',
-            'productNumber',
-            'stock',
-            'name',
-            'canonicalProductVersionId',
-            'cmsPageVersionId',
-            'createdAt',
-        ].sort());
+        expect(invalidFields.missingRequiredFields.sort()).toEqual(
+            [
+                'id',
+                'versionId',
+                'parentVersionId',
+                'productManufacturerVersionId',
+                'productMediaVersionId',
+                'taxId',
+                'productNumber',
+                'stock',
+                'name',
+                'canonicalProductVersionId',
+                'cmsPageVersionId',
+                'createdAt',
+            ].sort(),
+        );
     });
 
     it('product: should find missing required when parentProduct is existing', async () => {
-        const mapping = mappings.productDuplicateProfileOnlyRequired.filter(field => field.key === 'productNumber');
+        const mapping = mappings.productDuplicateProfileOnlyRequired.filter((field) => field.key === 'productNumber');
         const invalidFields = importExportProfileMappingService.validate(
             'product',
             mapping,
             mappings.productDuplicateProfileOnlyRequired,
         );
 
-        expect(invalidFields.missingRequiredFields).toEqual(['id', 'taxId']);
+        expect(invalidFields.missingRequiredFields).toEqual([
+            'id',
+            'taxId',
+        ]);
     });
 
     it('product: should not find any missing required when parentProduct is existing', async () => {
@@ -114,7 +126,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             mappings.productDuplicateProfileOnlyRequired,
         );
 
-        expect(invalidFields.missingRequiredFields).toEqual(['id', 'productNumber']);
+        expect(invalidFields.missingRequiredFields).toEqual([
+            'id',
+            'productNumber',
+        ]);
     });
 
     it('media: should not find any missing required fields', async () => {
@@ -123,14 +138,16 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('media: should find missing required field id', async () => {
-        const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'id');
+        const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== 'id');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
         expect(invalidFields.missingRequiredFields).toHaveLength(1);
         expect(invalidFields.missingRequiredFields).toContain('id');
     });
 
     it('media: should find missing required field createdAt', async () => {
-        const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'translations.DEFAULT.createdAt');
+        const mapping = mappings.productProfileOnlyRequired.filter(
+            (field) => field.key !== 'translations.DEFAULT.createdAt',
+        );
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
         expect(invalidFields.missingRequiredFields).toHaveLength(1);
@@ -260,6 +277,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.shippingMethod.deliveryTime.id',
             'salesChannel.shippingMethod.translations.DEFAULT.name',
             'salesChannel.country.id',
+            'salesChannel.country.isEu',
             'salesChannel.country.translations.DEFAULT.name',
             'salesChannel.country.translations.DEFAULT.addressFormat',
             'salesChannel.navigationCategory.id',
@@ -325,7 +343,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('product_configurator_setting: should list all required fields with depth 1', async () => {
-        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_configurator_setting', 1);
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields(
+            'product_configurator_setting',
+            1,
+        );
 
         expect(Object.keys(systemRequiredFields)).toEqual([
             'id',
@@ -335,7 +356,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('product_configurator_setting: should list all required fields with depth 3', async () => {
-        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_configurator_setting', 3);
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields(
+            'product_configurator_setting',
+            3,
+        );
 
         expect(Object.keys(systemRequiredFields)).toEqual([
             'id',

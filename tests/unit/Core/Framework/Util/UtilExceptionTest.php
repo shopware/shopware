@@ -31,4 +31,13 @@ class UtilExceptionTest extends TestCase
         static::assertEquals('UTIL_INVALID_JSON_NOT_LIST', $e->getErrorCode());
         static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
     }
+
+    public function testCannotFindFileInFilesystem(): void
+    {
+        $e = UtilException::cannotFindFileInFilesystem('some/file', 'some/folder');
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertEquals('UTIL__FILESYSTEM_FILE_NOT_FOUND', $e->getErrorCode());
+        static::assertEquals('The file "some/file" does not exist in the given filesystem "some/folder"', $e->getMessage());
+    }
 }

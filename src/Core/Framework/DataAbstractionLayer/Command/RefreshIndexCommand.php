@@ -43,6 +43,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     protected function configure(): void
     {
         $this->addOption('use-queue', null, InputOption::VALUE_NONE, 'Ignore cache and force generation')
+            ->addOption('no-progress', null, null, 'Do not output progress bar')
             ->addOption('skip', null, InputArgument::OPTIONAL, 'Comma separated list of indexer names to be skipped')
             ->addOption('only', null, InputArgument::OPTIONAL, 'Comma separated list of indexer names to be generated')
         ;
@@ -50,7 +51,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = $input->getOption('no-progress') ? null : new ShopwareStyle($input, $output);
 
         $skip = \is_string($input->getOption('skip')) ? explode(',', (string) $input->getOption('skip')) : [];
         $only = \is_string($input->getOption('only')) ? explode(',', (string) $input->getOption('only')) : [];

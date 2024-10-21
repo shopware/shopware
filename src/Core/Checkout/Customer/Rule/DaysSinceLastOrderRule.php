@@ -16,11 +16,7 @@ class DaysSinceLastOrderRule extends DaysSinceRule
 
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return null;
-        }
-
-        return $customer->getLastOrderDate();
+        return $scope->getSalesChannelContext()->getCustomer()?->getLastOrderDate();
     }
 
     protected function supportsScope(RuleScope $scope): bool

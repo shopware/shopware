@@ -9,11 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -142,7 +144,8 @@ class InfoControllerTest extends TestCase
             $this->createMock(AppUrlVerifier::class),
             $this->routerMock,
             $this->createMock(FlowActionCollector::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            $this->createMock(ApiRouteInfoResolver::class)
         );
     }
 }
@@ -154,8 +157,6 @@ class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
 {
     public function getPath(): string
     {
-        $reflected = new \ReflectionObject($this);
-
-        return \dirname($reflected->getFileName() ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
+        return \dirname(ReflectionHelper::getFileName(static::class) ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
     }
 }

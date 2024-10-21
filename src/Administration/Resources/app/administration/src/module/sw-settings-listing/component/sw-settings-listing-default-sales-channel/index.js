@@ -1,6 +1,10 @@
 import template from './sw-settings-listing-default-sales-channel.html.twig';
 import './sw-settings-listing-default-sales-channel.scss';
 
+/**
+ * @package inventory
+ */
+
 const { EntityCollection } = Shopware.Data;
 const { isEmpty } = Shopware.Utils.types;
 const { cloneDeep } = Shopware.Utils.object;
@@ -9,7 +13,12 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+    ],
 
     props: {
         isLoading: {
@@ -60,11 +69,11 @@ export default {
                     return;
                 }
 
-                const salesChannelIds = this.salesChannel.map(salesChannel => salesChannel.id);
-                this.visibilityConfig = this.visibilityConfig.filter(entry => salesChannelIds.includes(entry.id));
+                const salesChannelIds = this.salesChannel.map((salesChannel) => salesChannel.id);
+                this.visibilityConfig = this.visibilityConfig.filter((entry) => salesChannelIds.includes(entry.id));
 
                 const configData = new Map();
-                this.visibilityConfig.forEach(entry => configData.set(entry.id, { ...entry }));
+                this.visibilityConfig.forEach((entry) => configData.set(entry.id, { ...entry }));
 
                 this.salesChannel.forEach((salesChannel) => {
                     configData.set(salesChannel, {
@@ -102,7 +111,7 @@ export default {
 
                 if (!isEmpty(configData)) {
                     this.configData.null = configData;
-                    this.salesChannel.forEach(salesChannel => salesChannelEntity.add(salesChannel));
+                    this.salesChannel.forEach((salesChannel) => salesChannelEntity.add(salesChannel));
                     this.salesChannel = salesChannelEntity;
 
                     return;

@@ -23,7 +23,7 @@ class CalculatedTaxCollection extends Collection
     }
 
     /**
-     * @param string|int    $key
+     * @param string|int $key
      * @param CalculatedTax $calculatedTax
      */
     public function set($key, $calculatedTax): void

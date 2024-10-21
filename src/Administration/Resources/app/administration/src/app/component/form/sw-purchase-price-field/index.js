@@ -11,6 +11,11 @@ const { Component } = Shopware;
  */
 Component.register('sw-purchase-price-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update:value'],
+
     props: {
         price: {
             type: Array,
@@ -60,12 +65,14 @@ Component.register('sw-purchase-price-field', {
                     return [priceForCurrency];
                 }
 
-                return [{
-                    gross: null,
-                    currencyId: this.currency.id,
-                    linked: true,
-                    net: null,
-                }];
+                return [
+                    {
+                        gross: null,
+                        currencyId: this.currency.id,
+                        linked: true,
+                        net: null,
+                    },
+                ];
             },
 
             set(newPurchasePrice) {

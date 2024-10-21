@@ -1,43 +1,40 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 // eslint-disable-next-line
 import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
-import Vue from 'vue';
+import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 
-async function createWrapper(
-    {
-        privilegesMappings = [],
-        rolePrivileges = [],
-        detailedPrivileges = [],
-    } = {},
-) {
+async function createWrapper({ privilegesMappings = [], rolePrivileges = [], detailedPrivileges = [] } = {}) {
     const privilegesService = new PrivilegesService();
-    privilegesMappings.forEach(mapping => {
+    privilegesMappings.forEach((mapping) => {
         privilegesService.addPrivilegeMappingEntry(mapping);
     });
 
-    return mount(await wrapTestComponent('sw-users-permissions-detailed-permissions-grid', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-card': true,
-            },
-            provide: {
-                privileges: privilegesService,
-            },
-        },
-        props: Vue.observable({
-            role: { privileges: rolePrivileges },
-            detailedPrivileges: detailedPrivileges,
+    return mount(
+        await wrapTestComponent('sw-users-permissions-detailed-permissions-grid', {
+            sync: true,
         }),
-    });
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-card': true,
+                },
+                provide: {
+                    privileges: privilegesService,
+                },
+            },
+            props: reactive({
+                role: { privileges: rolePrivileges },
+                detailedPrivileges: detailedPrivileges,
+            }),
+        },
+    );
 }
 
 let entitySchema;
@@ -47,13 +44,16 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const entityDefinitionFactory = Shopware.Application.getContainer('factory').entityDefinition;
         const entitySchemaMockPath = path.join(__dirname, './_mock/entity-schema.json');
 
-        entitySchema = JSON.parse(
-            fs.readFileSync(entitySchemaMockPath, 'utf8'),
-        );
+        entitySchema = JSON.parse(fs.readFileSync(entitySchemaMockPath, 'utf8'));
 
-        Object.entries(entitySchema).forEach(([name, value]) => {
-            entityDefinitionFactory.add(name, value);
-        });
+        Object.entries(entitySchema).forEach(
+            ([
+                name,
+                value,
+            ]) => {
+                entityDefinitionFactory.add(name, value);
+            },
+        );
     });
 
     it('should be a Vue.js component', async () => {
@@ -65,7 +65,9 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const wrapper = await createWrapper();
 
         // eslint-disable-next-line max-len
-        const headerEntries = wrapper.findAll('.sw-users-permissions-detailed-permissions-grid__entry-header .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper');
+        const headerEntries = wrapper.findAll(
+            '.sw-users-permissions-detailed-permissions-grid__entry-header .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper',
+        );
 
         expect(headerEntries.at(0).text()).toBe('sw-privileges.permissionType.read');
         expect(headerEntries.at(1).text()).toBe('sw-privileges.permissionType.update');
@@ -76,14 +78,22 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     it('should render a row for each entity with all checkboxes enabled', async () => {
         const wrapper = await createWrapper();
 
-        Object.keys(entitySchema).forEach(entityName => {
+        Object.keys(entitySchema).forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityTitle = entityRow.find('.sw-users-permissions-detailed-permissions-grid__title');
             expect(entityTitle.text()).toBe(entityName);
 
             // skip default values
-            if (['language', 'locale', 'message_queue_stats'].includes(entityName)) { return; }
+            if (
+                [
+                    'language',
+                    'locale',
+                    'message_queue_stats',
+                ].includes(entityName)
+            ) {
+                return;
+            }
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
             const entityUpdateInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_update input');
@@ -116,7 +126,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             disabled: true,
         });
 
-        Object.keys(entitySchema).forEach(entityName => {
+        Object.keys(entitySchema).forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -160,7 +170,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             ],
         });
 
-        ['product', 'document'].forEach(entityName => {
+        [
+            'product',
+            'document',
+        ].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -187,7 +200,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             expect(entityCreateInput.element.checked).toBeFalsy();
         });
 
-        ['order'].forEach(entityName => {
+        ['order'].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -217,7 +230,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
 
     it('should render a row for each entity with all checkboxes enabled and product and category read and update checked', async () => {
         const wrapper = await createWrapper({
-            rolePrivileges: ['product.viewer', 'product.editor'],
+            rolePrivileges: [
+                'product.viewer',
+                'product.editor',
+            ],
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -243,7 +259,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             ],
         });
 
-        ['product', 'document'].forEach(entityName => {
+        [
+            'product',
+            'document',
+        ].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -270,7 +289,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             expect(entityCreateInput.element.checked).toBeFalsy();
         });
 
-        ['order'].forEach(entityName => {
+        ['order'].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -300,7 +319,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
 
     it('should be able to check the checkboxes', async () => {
         const wrapper = await createWrapper({
-            rolePrivileges: ['product.viewer', 'product.editor'],
+            rolePrivileges: [
+                'product.viewer',
+                'product.editor',
+            ],
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -329,7 +351,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const privileges = wrapper.props().role.privileges;
         const detailedPrivileges = wrapper.props().detailedPrivileges;
 
-        expect(privileges).toEqual(['product.viewer', 'product.editor']);
+        expect(privileges).toEqual([
+            'product.viewer',
+            'product.editor',
+        ]);
         expect(detailedPrivileges).toEqual([]);
 
         const orderRow = wrapper.find('.sw-users-permissions-detailed-permissions-grid__entry_order');
@@ -339,14 +364,26 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         await orderUpdateInput.setChecked();
         await orderCreateInput.setChecked();
 
-        expect(privileges).toEqual(['product.viewer', 'product.editor']);
-        expect(detailedPrivileges).toEqual(['order:update', 'order:create']);
+        expect(privileges).toEqual([
+            'product.viewer',
+            'product.editor',
+        ]);
+        expect(detailedPrivileges).toEqual([
+            'order:update',
+            'order:create',
+        ]);
     });
 
     it('should be able to uncheck the checkboxes', async () => {
         const wrapper = await createWrapper({
-            rolePrivileges: ['product.viewer', 'product.editor'],
-            detailedPrivileges: ['order:update', 'order:create'],
+            rolePrivileges: [
+                'product.viewer',
+                'product.editor',
+            ],
+            detailedPrivileges: [
+                'order:update',
+                'order:create',
+            ],
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -375,15 +412,24 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const privileges = wrapper.props().role.privileges;
         const detailedPrivileges = wrapper.props().detailedPrivileges;
 
-        expect(privileges).toEqual(['product.viewer', 'product.editor']);
-        expect(detailedPrivileges).toEqual(['order:update', 'order:create']);
+        expect(privileges).toEqual([
+            'product.viewer',
+            'product.editor',
+        ]);
+        expect(detailedPrivileges).toEqual([
+            'order:update',
+            'order:create',
+        ]);
 
         const orderRow = wrapper.find('.sw-users-permissions-detailed-permissions-grid__entry_order');
         const orderUpdateInput = orderRow.find('.sw-users-permissions-detailed-permissions-grid__role_update input');
 
         await orderUpdateInput.setChecked(false);
 
-        expect(privileges).toEqual(['product.viewer', 'product.editor']);
+        expect(privileges).toEqual([
+            'product.viewer',
+            'product.editor',
+        ]);
         expect(detailedPrivileges).toEqual(['order:create']);
     });
 });

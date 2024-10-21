@@ -1,3 +1,403 @@
+# 6.6.7.0
+## Shortened filenames with hashes for async JS built files
+When building the Storefront JS-files for production using `composer run build:storefront`, the async bundle filenames no longer contain the filepath.
+Instead, only the filename is used with a chunkhash / dynamic version number. This also helps to identify which files have changed after build. Similar to the main entry file like e.g. `cms-extensions.js?1720776107`.
+
+**JS Filename before change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── custom_plugins_CmsExtensions_src_Resources_app_storefront_src_cms-extensions-quickview.js  <-- Complete path in filename
+```
+
+**JS Filename after change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── cms-extensions-quickview.plugin.423fc1.js <-- Filename and chunkhash
+```
+## Persistent mode for `focusHandler`
+The `window.focusHandler` now supports a persistent mode that can be used in case the current focus is lost after a page reload.
+When using methods `saveFocusStatePersistent` and `resumeFocusStatePersistent` the focus element will be saved inside the `sessionStorage` instead of the window object / memory.
+
+The persistent mode requires a key name for the `sessionStorage` as well as a unique selector as string. It is not possible to save element references into the `sessionStorage`.
+The unique selector will be used to find the DOM element during `resumeFocusStatePersistent` and re-focus it.
+```js
+// Save the current focus state
+window.focusHandler.saveFocusStatePersistent('special-form', '#unique-id-on-this-page');
+
+// Something happens and the page reloads
+window.location.reload();
+
+// Resume the focus state for the key `special-form`. The unique selector will be retrieved from the `sessionStorage` 
+window.focusHandler.resumeFocusStatePersistent('special-form');
+```
+
+By default, the storage keys are prefixed with `sw-last-focus`. The above example will save the following to the `sessionStorage`:
+
+| key                          | value                     |
+|------------------------------|---------------------------|
+| `sw-last-focus-special-form` | `#unique-id-on-this-page` |
+
+## Automatic focus for `FormAutoSubmitPlugin`
+The `FormAutoSubmitPlugin` can now try to re-focus elements after AJAX submits or full page reloads using the `window.focusHandler`.
+This works automatically for all form input elements inside an auto submit form that have a `[data-focus-id]` attribute that is unique.
+
+The automatic focus is activated by default and be modified by the new JS-plugin options:
+
+```js
+export default class FormAutoSubmitPlugin extends Plugin {
+    static options = {
+        autoFocus: true,
+        focusHandlerKey: 'form-auto-submit'
+    }
+}
+```
+
+```diff
+<form action="/example/action" data-form-auto-submit="true">
+    <!-- FormAutoSubmitPlugin will try to restore previous focus on all elements with da focus-id -->
+    <input 
+        class="form-control"
++        data-focus-id="unique-id"
+    >
+</form>
+```
+## Improved formating behaviour of the text editor
+The text editor in the administration was changed to produce paragraph `<p>` elements for new lines instead of `<div>` elements. This leads to a more consistent text formatting. You can still create `<div>` elements on purpose via using the code editor.
+
+In addition, loose text nodes will be wrapped in a paragraph `<p>` element on initializing a new line via the enter key. In the past it could happen that when starting to write in an empty text editor, that text is not wrapped in a proper section element. Now this is automatically fixed when you add a first new line to your text. From then on everything is wrapped in paragraph elements and every new line will also create a new paragraph instead of `<div>` elements.
+## Change Storefront language and currency dropdown items to buttons
+The "top-bar" dropdown items inside `views/storefront/layout/header/top-bar.html.twig` will use `<button>` elements instead of hidden `<input type="radio">` when the `ACCESSIBILITY_TWEAKS` flag is `1`.
+This will improve the keyboard navigation because the user can navigate through all options first before submitting the form.
+
+Currently, every radio input change results in a form submit and thus in a page reload. Using button elements is also more aligned with Bootstraps dropdown HTML structure: [Bootstrap dropdown documentation](https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items)
+## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+* We want to change several list views that are currently using generic `<div>` elements to proper `<ul>` and `<li>`. This will not only improve the semantics but also the screen reader accessibility. 
+* To avoid breaking changes in the HTML and the styling, the change to `<ul>` and `<li>` is done behind the `ACCESSIBILITY_TWEAKS` feature flag.
+* With the next major version the `<ul>` and `<li>` will become the default. In the meantime, the `<div>` elements get `role="list"` and `role="listitem"`.
+* All `<ul>` will get a Bootstrap `list-unstyled` class to avoid the list bullet points and have the same appearance as `<div>`.
+* The general HTML structure and Twig blocks remain the same.
+
+### Affected templates:
+* Account order overview
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document.html.twig`
+* Cart table header (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/checkout/cart-header.html.twig`
+* Line-items wrapper (List wrapper element changed to `<ul>`)
+    * `src/Storefront/Resources/views/storefront/page/checkout/cart/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/finish/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/address/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+* Line-items (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/product.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
+## Correct order of app-cms blocks via xml files
+The order of app CMS blocks is now correctly applied when using XML files to define the blocks. This is achieved by using a position attribute in the JSON generated from the XML file, which reflects the order of the CMS slots within the file. Since it's not possible to determine the correct order of CMS blocks that have already been loaded into the database, this change will only affect newly loaded blocks.
+
+To ensure the correct order is applied, you should consider to reinstall apps that provide app CMS blocks.
+
+# 6.6.6.0
+## Rework Storefront pagination to use anchor links and improve accessibility
+We want to change the Storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) to use anchor links `<a href="#"></a>` instead of radio inputs with styled labels.
+This will improve the accessibility and keyboard operation, as well as the HTML semantics. The pagination with anchor links will also be more aligned with the Bootstrap pagination semantics.
+
+To avoid breaking changes, the updated pagination can only be activated by setting the `ACCESSIBILITY_TWEAKS` feature flag to `1`. With the next major version `v6.7.0` the updated pagination will become the default.
+The pagination will also be more simple because the hidden radio input and the label are no longer there. We only use a single anchor link element instead.
+
+### Pagination item markup before:
+```html
+<li class="page-item">
+  <input type="radio" name="p" id="p2" value="2" class="d-none" title="pagination">
+  <label class="page-link" for="p2">2</label>
+</li>
+```
+
+### Pagination item markup after:
+```html
+<li class="page-item">
+    <a href="?p=2" class="page-link" data-page="2" data-focus-id="2">2</a>
+</li>
+```
+
+## New `ariaHidden` option for `sw_icon`
+When rendering an icon using the `{% sw_icon %}` function, it is now possible to pass an `ariaHidden` option to hide the icon from the screen reader.
+This can be helpful if the icon is only decorative or the purpose is already explained in a parent elements aria-label or title.
+
+```diff
+{# Twig implementation #}
+<a href="#" aria-label="Go to first page">
+-    {% sw_icon 'arrow-medium-double-left' style { pack: 'solid' } %}
++    {% sw_icon 'arrow-medium-double-left' style { pack: 'solid', ariaHidden: true } %}
+</a>
+
+<!-- HTML result -->
+<a href="#" aria-label="Go to first page">
+-    <span class="icon icon-arrow-medium-double-left icon-fluid"><svg></svg></span>
++    <span aria-hidden="true" class="icon icon-arrow-medium-double-left icon-fluid"><svg></svg></span>
+</a>
+```
+## Accessibility improvements for listing filters
+### Additional aria-label and alt texts for screen readers to explain listing filter components
+The listing filter components (dropdown buttons, e.g. "Manufacturer") now support additional `ariaLabel` parameters.
+Those will render an `aria-label` attribute for screen readers that explain the filter buttons purpose without altering the appearance of the filter toggle button.
+
+For example: The `filter-multi-select.html.twig` template now supports an additional `ariaLabel` parameter.
+```diff
+{% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' with {
+    elements: manufacturersSorted,
+    sidebar: sidebar,
+    name: 'manufacturer',
+    displayName: 'Manufacturer',
++    ariaLabel: 'Filter by manufacturer'
+} %}
+```
+
+This will render the `aria-label` on the filter toggle button. When focusing the button, the screen reader will read "Filter by manufacturer" instead of just "Manufacturer".
+```diff
+<button 
+    class="filter-panel-item-toggle btn"
++    aria-label="Filter by manufacturer"
+    aria-expanded="false"
+    data-bs-toggle="dropdown"
+    data-boundary="viewport"
+    aria-haspopup="true">
+    Manufacturer
+</button>    
+```
+
+### Aria-live updates for listing filters
+When a listing filter is applied and the products results are updated, the screen reader should announce that the product results have been changed.
+To achieve this, the filter panel template `Resources/views/storefront/component/listing/filter-panel.html.twig` now has an `aria-live` region. 
+The live region will be updated when a listing filter is applied or removed. Whenever a live region is updated, it will be announced by the screen reader.
+
+The live region is not visible for the user and can be switched on or off via the include parameter `ariaLiveUpdates` of `Resources/views/storefront/component/listing/filter-panel.html.twig`.
+
+```diff
+{% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+    listing: listing,
+    sidebar: sidebar,
++    ariaLiveUpdates: true
+} %}
+```
+
+```diff
+<div class="filter-panel">
+    <div class="filter-panel-items-container" role="list" aria-label="Filter">
+        <!-- Available filters are shown here. -->
+    </div>
+
+    <div class="filter-panel-active-container">
+        <!-- Active filters are shown here. -->
+    </div>
+
++    <!-- Aria live region to tell the screen reader how many product results are shown after a filter was selected or deselected. -->
++    <div class="filter-panel-aria-live visually-hidden" aria-live="polite" aria-atomic="true">
++        <!-- The live region content is generated by the `ListingPlugin` -->
++        <!-- For example: "Showing 6 products" -->
++    </div>
+</div>
+```
+## Storefront focus handler helper
+To improve accessibility while navigating via keyboard you can use the `window.focusHandler` to save and resume focus states. This is helpful if an element opens new content in a modal or offcanvas menu. While the modal is open the users should navigate through the content of the modal. If the modal closes the focus state should resume to the element which opened the modal, so users can continue at the position where they left. The default Shopware plugins `ajax-modal`, `offcanvas` and `address-editor` will use this behaviour by default. If you want to implement this behaviour in your own plugin, you can use the `saveFocusState` and `resumeFocusState` methods. Have a look at the class `Resources/app/storefront/src/helper/focus-handler.helper.js` to see additional options.
+## New `DomAccessHelper` methods to find focusable elements
+
+The `DomAccessHelper` now supports new methods to find DOM elements that can have keyboard focus.
+Optionally, an element can be provided as a parameter to only search within this given element. By default, the document body will be used.
+
+```js
+import DomAccess from 'src/helper/dom-access.helper';
+
+// Find all focusable elements
+DomAccess.getFocusableElements();
+
+// Return the first focusable element
+DomAccess.getFirstFocusableElement();
+
+// Return the last focusable element
+DomAccess.getLastFocusableElement();
+
+// Only search for focus-able elements inside the given DOM node
+const element = document.querySelector('.special-modal-container');
+DomAccess.getFirstFocusableElement(element);
+```
+## Native typehints of properties
+The properties of the following classes will be typed natively in v6.7.0.0.
+If you have extended from those classes and overwritten the properties, you can already set the correct type.
+* `\Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Field\FkField`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField`
+## Deprecated exceptions
+The following exceptions were deprecated and will be removed in v6.7.0.0.
+You can already catch the replacement exceptions additionally to the deprecated ones.
+* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`. Also catch `\Shopware\Core\Framework\Api\ApiException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException`.
+## Deprecated methods
+The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class were deprecated and will throw different exceptions in v6.7.0.0.
+You can already catch the replacement exceptions additionally to the deprecated ones.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` in addition to `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` in addition to `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` in addition to `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get`. Also catch `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` in addition to `\InvalidArgumentException`.
+
+# 6.6.5.0
+## Elasticsearch with special chars
+* To apply searching by Elasticsearch with special chars, you would need to update your ES index mapping by running: `es:index`
+
+## New parameter `shopware.search.preserved_chars` when tokenizing
+* By default, the parameter `shopware.search.preserved_chars` is set to `['-', '_', '+', '.', '@']`. You can add or remove special characters to this parameter by override it in `shopware.yaml` to allow them when tokenizing string.
+## Add skip to content link to improve a11y
+The `base.html.twig` template now has a new block `base_body_skip_to_content` directly after the opening `<body>` tag.
+The new block holds a link that allows to skip the focus directly to the `<main>` content element.
+This improves a11y because a keyboard or screen-reader user does not have to "skip" through all elements of the page (header, top-bar) and can jump straight to the main content if wanted.
+The "skip to main content" link will not be visible, unless it has focus.
+
+```html
+<body>
+    <div class="skip-to-content bg-primary-subtle text-primary-emphasis visually-hidden-focusable overflow-hidden">
+        <div class="container d-flex justify-content-center">
+            <a href="#content-main" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2">
+                Skip to main content
+            </a>
+        </div>
+    </div>
+
+    <main id="content-main">
+        <!-- Main content... -->
+    </main>
+```
+
+# 6.6.4.0
+Thumbnail handling performance can now be improved by using remote thumbnails.
+
+## Remote Thumbnail Configuration
+
+To use remote thumbnails, you need to adjust the following parameters in your `shopware.yaml`:
+
+1. `shopware.media.remote_thumbnails.enable`: Set this parameter to `true` to enable the use of remote thumbnails.
+
+2. `shopware.media.remote_thumbnails.pattern`: This parameter defines the URL pattern for your remote thumbnails. Replace it with your actual URL pattern.
+   
+This pattern supports the following variables:
+   *  `mediaUrl`: The base URL of the media file.
+   *  `mediaPath`: The path of the media file relative to the mediaUrl.
+   *  `width`: The width of the thumbnail.
+   *  `height`: The height of the thumbnail.
+
+For example, consider a scenario where you want to generate a thumbnail with a width of 80px.
+With the pattern set as `{mediaUrl}/{mediaPath}?width={width}`, the resulting URL would be `https://yourshop.example/abc/123/456.jpg?width=80`.
+## Added new `ariaLive` option to Storefront sliders
+By default, all Storefront sliders/carousels (`GallerySliderPlugin`, `BaseSliderPlugin`, `ProductSliderPlugin`) are adding an `aria-live` region to announce slider updates to a screen reader.
+
+In some cases this can worsen the accessibility, for example when a slider uses "auto slide" functionality. With automatic slide the slider updates can disturb the reading of other contents on the page.
+
+You can now deactivate the `aria-live` region on the slider plugins with the new option `ariaLive` (default: `true`).
+
+Example for `GallerySliderPlugin` (Also works for `BaseSliderPlugin` and `ProductSliderPlugin`)
+```diff
+{% set gallerySliderOptions = {
+    slider: {
++        ariaLive: false,
+        autoHeight: false,
+    },
+    thumbnailSlider: {
++        ariaLive: false,
+        controls: true,
+        responsive: {}
+    }
+} %}
+
+<div data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'>
+```
+
+When `ariaLive` is `false` it will omit the `aria-live` region in the generated `tiny-slider` HTML code:
+```diff
+<div class="tns-outer" id="tns3-ow">
+-    <div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">
+-        slide <span class="current">2</span> of 6
+-    </div>
+    <div id="tns3-mw" class="tns-ovh">
+        <!-- Slider contents -->
+    </div>
+</div>
+```
+## Rating widget alternative text for improved accessibility
+The twig template that renders the rating stars (`Resources/views/storefront/component/review/rating.html.twig`) now supports an alternative text for screen readers:
+```diff
+{% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+    points: points,
++    altText: 'translation.key.example'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize,
+} %}
+```
+
+Instead of reading the rating star icons as "graphic", the screen reader will read the alternative text, e.g. `Average rating of 3 out of 5 stars`.
+By default, the `rating.html.twig` template will always use the alternative text with translation `detail.reviewAvgRatingAltText`, unless it is overwritten by the `altText` include parameter.
+
+The `rating.html.twig` template will now render the alternative text as shown below:
+```diff
+<div class="product-review-rating">               
+    <!-- Review star SVGs are now hidden for the screen reader, alt text is read instead. -->
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
++    <p class="product-review-rating-alt-text visually-hidden">
++        Average rating of 4 out of 5 stars
++    </p>
+</div>
+```
+## Messenger routing overwrite
+
+The overwriting logic for the messenger routing has been moved from `framework.messenger.routing` to `shopware.messenger.routing_overwrite`. The old config key is still supported but deprecated and will be removed in the next major release.
+The new config key considers also the `instanceof` logic of the default symfony behavior.
+
+We have made these changes for various reasons:
+1) In the old logic, the `instanceof` logic of Symfony was not taken into account. This means that only exact matches of the class were overwritten.
+2) It is not possible to simply backport this in the same config, as not only the project overwrites are in the old config, but also the standard Shopware routing configs.
+
+```yaml
+
+#before
+framework:
+    messenger:
+        routing:
+            Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage: entity_indexing
+
+#after
+shopware:
+    messenger:
+        routing_overwrite:
+            Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage: entity_indexing
+
+```
+## Separate plugin generation scaffolding commands
+
+Instead of always generating a complete plugin scaffold with `bin/console plugin:create`, you can now generate specific parts of the plugin scaffold e.g. `bin/console make:plugin:config` to generate only the symfony config part of the plugin scaffold.
+## Transition Vuex states into Pinia Stores
+1. In Pinia, there are no `mutations`. Place every mutation under `actions`.
+2. `state` needs to be an arrow function returning an object: `state: () => ({})`.
+3. `actions` and `getters` no longer need to use the `state` as an argument. They can access everything with correct type support via `this`.
+4. Use `Shopware.Store.register` instead of `Shopware.State.registerModule`.
+5. Use `Shopware.Store.unregister` instead of `Shopware.State.unregisterModule`.
+6. Use `Shopware.Store.list` instead of `Shopware.State.list`.
+7. Use `Shopware.Store.get` instead of `Shopware.State.get`.
+
 # 6.6.3.0
 ## Configure Redis for cart storage
 When you are using Redis for cart storage, you should add the following config inside `shopware.yaml`:
@@ -704,7 +1104,7 @@ Also use the `Resources/flow.xml` file path instead of `Resources/flow-action.xm
 
 ## Old Elasticsearch data mapping structure is deprecated, introduce new data mapping structure:
 
-* For the full reference, please read the [adr](../../adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md)
+* For the full reference, please read the [adr](/adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md)
 * If you've defined your own Elasticsearch definitions, please prepare for the new structure by update your definition's `getMapping` and `fetch` methods:
 
 ```php
@@ -1629,7 +2029,7 @@ The selector to initialize the `AjaxModal` plugin will be changed to not interfe
 
 The `generateNewPath()` and `saveSeed()` methods  in `\Shopware\Storefront\Theme\AbstractThemePathBuilder` are now abstract, this means you should implement those methods to allow atomic theme compilations.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](/adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Removal of `blacklistIds` and `whitelistIds` in  `\Shopware\Core\Content\Product\ProductEntity`
 Two properties `blacklistIds` and `whitelistIds` were removed without replacement

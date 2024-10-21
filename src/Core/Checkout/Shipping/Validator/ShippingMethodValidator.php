@@ -9,8 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -23,7 +25,12 @@ class ShippingMethodValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';
 
-    final public const VIOLATION_TAX_ID_REQUIRED = 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
+    final public const VIOLATION_TAX_ID_REQUIRED = NotBlank::IS_BLANK_ERROR;
+    private const ALLOWED_TAX_TYPES = [
+        ShippingMethodEntity::TAX_TYPE_FIXED,
+        ShippingMethodEntity::TAX_TYPE_AUTO,
+        ShippingMethodEntity::TAX_TYPE_HIGHEST,
+    ];
 
     /**
      * @internal
@@ -32,9 +39,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
     {
     }
 
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -44,17 +48,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $allowTypes = [
-            ShippingMethodEntity::TAX_TYPE_FIXED,
-            ShippingMethodEntity::TAX_TYPE_AUTO,
-            ShippingMethodEntity::TAX_TYPE_HIGHEST,
-        ];
-
-        $writeCommands = $event->getCommands();
-
-        foreach ($writeCommands as $command) {
-            $violations = new ConstraintViolationList();
-
+        foreach ($event->getCommands() as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }
@@ -64,16 +58,16 @@ class ShippingMethodValidator implements EventSubscriberInterface
             }
 
             $shippingMethod = $this->findShippingMethod($command->getPrimaryKey()['id']);
-
             $payload = $command->getPayload();
 
-            /** @var string|null $taxType */
-            $taxType = $this->getValue($payload, 'tax_type', $shippingMethod);
+            $taxType = $payload['tax_type'] ?? $shippingMethod['tax_type'] ?? null;
+            \assert($taxType === null || \is_string($taxType));
 
-            /** @var string|null $taxId */
-            $taxId = $this->getValue($payload, 'tax_id', $shippingMethod);
+            $taxId = $payload['tax_id'] ?? $shippingMethod['tax_id'] ?? null;
+            \assert($taxId === null || \is_string($taxId));
 
-            if ($taxType && !\in_array($taxType, $allowTypes, true)) {
+            $violations = new ConstraintViolationList();
+            if ($taxType && !\in_array($taxType, self::ALLOWED_TAX_TYPES, true)) {
                 $violations->add(
                     $this->buildViolation(
                         'The selected tax type {{ type }} is invalid.',
@@ -85,7 +79,8 @@ class ShippingMethodValidator implements EventSubscriberInterface
                 );
             }
 
-            if ($taxType === ShippingMethodEntity::TAX_TYPE_FIXED && !$taxId) {
+            // Use `Uuid::fromBytesToHex` to validate the binary encoded `taxId`
+            if ($taxType === ShippingMethodEntity::TAX_TYPE_FIXED && ($taxId === null || !Uuid::fromBytesToHex($taxId))) {
                 $violations->add(
                     $this->buildViolation(
                         'The defined tax rate is required when fixed tax present',
@@ -108,12 +103,10 @@ class ShippingMethodValidator implements EventSubscriberInterface
      */
     private function findShippingMethod(string $shippingMethodId): array
     {
-        $shippingMethod = $this->connection->executeQuery(
+        return $this->connection->executeQuery(
             'SELECT `tax_type`, `tax_id` FROM `shipping_method` WHERE `id` = :id',
             ['id' => $shippingMethodId]
-        );
-
-        return $shippingMethod->fetchAssociative() ?: [];
+        )->fetchAssociative() ?: [];
     }
 
     /**
@@ -136,31 +129,5 @@ class ShippingMethodValidator implements EventSubscriberInterface
             null,
             $code
         );
-    }
-
-    /**
-     * Gets a value from an array. It also does clean checks if
-     * the key is set, and also provides the option for default values.
-     *
-     * @param array<string, mixed> $data  the data array
-     * @param string               $key   the requested key in the array
-     * @param array<string, mixed> $dbRow the db row of from the database
-     *
-     * @return mixed the object found in the key, or the default value
-     */
-    private function getValue(array $data, string $key, array $dbRow)
-    {
-        // try in our actual data set
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        // try in our db row fallback
-        if (isset($dbRow[$key])) {
-            return $dbRow[$key];
-        }
-
-        // use default
-        return null;
     }
 }

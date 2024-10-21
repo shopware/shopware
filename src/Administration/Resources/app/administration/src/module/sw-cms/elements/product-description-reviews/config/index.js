@@ -11,7 +11,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['element-update'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -60,18 +64,28 @@ export default {
         onProductChange(productId) {
             if (!productId) {
                 this.element.config.product.value = null;
-                this.$set(this.element.data, 'productId', null);
-                this.$set(this.element.data, 'product', null);
+
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.element.data, 'productId', null);
+                    this.$set(this.element.data, 'product', null);
+                } else {
+                    this.element.data.productId = null;
+                    this.element.data.product = null;
+                }
             } else {
-                this.productRepository.get(
-                    productId,
-                    this.productSelectContext,
-                    this.selectedProductCriteria,
-                ).then((product) => {
-                    this.element.config.product.value = productId;
-                    this.$set(this.element.data, 'productId', productId);
-                    this.$set(this.element.data, 'product', product);
-                });
+                this.productRepository
+                    .get(productId, this.productSelectContext, this.selectedProductCriteria)
+                    .then((product) => {
+                        this.element.config.product.value = productId;
+
+                        if (this.isCompatEnabled('INSTANCE_SET')) {
+                            this.$set(this.element.data, 'productId', productId);
+                            this.$set(this.element.data, 'product', product);
+                        } else {
+                            this.element.data.productId = productId;
+                            this.element.data.product = product;
+                        }
+                    });
             }
 
             this.$emit('element-update', this.element);

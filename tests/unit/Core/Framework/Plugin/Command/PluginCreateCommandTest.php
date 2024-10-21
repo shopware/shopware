@@ -79,6 +79,7 @@ class PluginCreateCommandTest extends TestCase
                 'plugin-name' => 'TestPlugin',
                 'plugin-namespace' => 'Test',
                 '--test-option' => true,
+                '--static' => true,
             ],
             'inputs' => [],
             'generators' => [
@@ -105,7 +106,7 @@ class PluginCreateCommandTest extends TestCase
     }
 
     /**
-     * @param array<int, string>  $inputs
+     * @param array<int, string> $inputs
      */
     #[DataProvider('invalidInputsProvider')]
     public function testInvalidInputs(array $inputs, string $expectedErrorMessage): void

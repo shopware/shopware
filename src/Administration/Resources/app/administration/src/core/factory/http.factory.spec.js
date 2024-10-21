@@ -40,11 +40,16 @@ describe('core/factory/http.factory.js', () => {
         ['FRAMEWORK__STORE_SESSION_EXPIRED'],
         ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
     ])('should intercept and retry if error code matches', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth').replyOnce(403, {
-            errors: [{
-                code: errorCode,
-            }],
-        }).onGet('/store-route-requiring-auth').replyOnce(200, {});
+        mock.onGet('/store-route-requiring-auth')
+            .replyOnce(403, {
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            })
+            .onGet('/store-route-requiring-auth')
+            .replyOnce(200, {});
 
         expect(mock.history.get).toHaveLength(0);
 
@@ -58,9 +63,11 @@ describe('core/factory/http.factory.js', () => {
         ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
     ])('should reject the request and reset the counter once the retry limit is hit', async (errorCode) => {
         mock.onGet('/store-route-requiring-auth').reply(403, {
-            errors: [{
-                code: errorCode,
-            }],
+            errors: [
+                {
+                    code: errorCode,
+                },
+            ],
         });
 
         const getError = async () => {
@@ -76,9 +83,11 @@ describe('core/factory/http.factory.js', () => {
         const error = await getError();
         expect(error.response.status).toBe(403);
         expect(error.response.data).toEqual({
-            errors: [{
-                code: errorCode,
-            }],
+            errors: [
+                {
+                    code: errorCode,
+                },
+            ],
         });
 
         expect(mock.history.get).toHaveLength(2);
@@ -89,9 +98,11 @@ describe('core/factory/http.factory.js', () => {
         ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
     ])('should treat each request separately', async (errorCode) => {
         mock.onGet('/store-route-requiring-auth').reply(403, {
-            errors: [{
-                code: errorCode,
-            }],
+            errors: [
+                {
+                    code: errorCode,
+                },
+            ],
         });
 
         const getError = async () => {
@@ -110,11 +121,12 @@ describe('core/factory/http.factory.js', () => {
         const error = await getError();
         expect(error.response.status).toBe(403);
         expect(error.response.data).toEqual({
-            errors: [{
-                code: errorCode,
-            }],
+            errors: [
+                {
+                    code: errorCode,
+                },
+            ],
         });
-
 
         expect(mock.history.get).toHaveLength(4);
     });
@@ -130,13 +142,14 @@ describe('core/factory/http.factory.js', () => {
             },
         };
 
-        mock
-            .onGet('/test')
-            .reply((request) => {
-                expect(request.headers['shopware-admin-active-route']).toBe('sw-dashboard-index');
+        mock.onGet('/test').reply((request) => {
+            expect(request.headers['shopware-admin-active-route']).toBe('sw-dashboard-index');
 
-                return [200, {}];
-            });
+            return [
+                200,
+                {},
+            ];
+        });
 
         await httpClient.get('/test');
     });

@@ -25,7 +25,7 @@
       "gridHeaderName": "Name",
       "gridHeaderType": "Typ",
       "gridHeaderAssignment": "Zugewiesene Kategorien",
-      "gridHeaderAssignments": "Zuordnungen",
+      "gridHeaderAssignments": "Zugeordnet",
       "gridHeaderAssignedPages": "Zugewiesene Seiten",
       "gridHeaderCreated": "Erstellt",
       "gridHeaderUpdated": "Bearbeitungsdatum"
@@ -205,10 +205,10 @@
             "verticalAlignCenter": "Mitte",
             "verticalAlignBottom": "Unten",
             "displayMode": "Anzeigemodus",
-            "displayModeStandard": "Standard",
-            "displayModeCover": "Füllen",
-            "displayModeStretch": "Strecken",
-            "displayModeContain": "Beinhalten",
+            "displayModeStandard": "Original",
+            "displayModeCover": "Zugeschnitten",
+            "displayModeStretch": "Skaliert",
+            "displayModeContain": "Feste Höhe",
             "autoSlide": "Automatischer Wechsel",
             "autoplayTimeout": "Verzögerung",
             "speed": "Animationsverzögerung",
@@ -220,7 +220,8 @@
           "helpText": {
             "autoSlide": "Der Bilderwechsel erfolgt automatisch nach den hier gemachten Vorgaben.",
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
-            "speed": "Die Dauer der Wechselanimation in  Millisekunden."
+            "speed": "Die Dauer der Wechselanimation in Millisekunden.",
+            "displayMode": "<strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.<br><br><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.<br><br><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten."
           },
           "caption": {
             "mediaUpload": "Lade ein Bild hoch"
@@ -268,6 +269,9 @@
             "keepAspectRatioOnZoom": "Seitenverhältnis beim Zoomen beibehalten",
             "magnifierOverGallery": "Lupe über Galerie anzeigen",
             "magnifierOverGalleryHelpText": "Zeige die Lupe über der Galerie, anstatt daneben an."
+          },
+          "helpText": {
+            "displayMode": "<strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
           }
         }
       },
@@ -280,6 +284,9 @@
             "navigationPositionInside": "Innen",
             "navigationPositionOutside": "Außen",
             "navigationDots": "Punkte-Navigation"
+          },
+          "helpText": {
+            "displayMode": "<strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.<br><br><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
           }
         }
       },
@@ -722,7 +729,7 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Standardlayout zuweisen",
-        "infoText": "Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
+        "infoText": "Bitte beachte, dass alle Produkte, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Produkte diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden? | Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Abbrechen",

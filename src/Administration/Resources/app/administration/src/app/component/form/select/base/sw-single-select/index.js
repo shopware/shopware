@@ -14,15 +14,18 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-single-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'item-selected',
         'on-open-change',
         'before-selection-clear',
         'search',
+        'paginate',
     ],
-
-    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -78,7 +81,7 @@ Component.register('sw-single-select', {
             type: Function,
             required: false,
             default({ options, labelProperty, searchTerm }) {
-                return options.filter(option => {
+                return options.filter((option) => {
                     const label = this.getKey(option, labelProperty);
                     if (!label) {
                         return false;
@@ -129,7 +132,7 @@ Component.register('sw-single-select', {
 
         singleSelection: {
             get() {
-                return this.options.find(option => {
+                return this.options.find((option) => {
                     return this.getKey(option, this.valueProperty) === this.currentValue;
                 });
             },
@@ -143,7 +146,16 @@ Component.register('sw-single-select', {
          * @returns {Array}
          */
         visibleResults() {
-            return this.results.filter(result => !result.hidden);
+            return this.results.filter((result) => !result.hidden);
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 
@@ -224,14 +236,12 @@ Component.register('sw-single-select', {
                 return;
             }
 
-            this.results = this.searchFunction(
-                {
-                    options: this.options,
-                    labelProperty: this.labelProperty,
-                    valueProperty: this.valueProperty,
-                    searchTerm: this.searchTerm,
-                },
-            );
+            this.results = this.searchFunction({
+                options: this.options,
+                labelProperty: this.labelProperty,
+                valueProperty: this.valueProperty,
+                searchTerm: this.searchTerm,
+            });
 
             this.$nextTick(() => {
                 this.resetActiveItem();

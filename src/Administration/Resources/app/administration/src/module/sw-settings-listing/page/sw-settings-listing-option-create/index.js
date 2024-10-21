@@ -9,11 +9,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         smartBarHeading() {
-            return this.productSortingEntity && this.productSortingEntity.label ?
-                this.productSortingEntity.label :
-                this.$tc('sw-settings-listing.create.smartBarTitle');
+            return this.productSortingEntity && this.productSortingEntity.label
+                ? this.productSortingEntity.label
+                : this.$tc('sw-settings-listing.create.smartBarTitle');
         },
 
         isNewProductSorting() {
@@ -54,15 +56,18 @@ export default {
 
             this.transformCustomFieldCriterias();
 
-            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter((field) => {
                 return field.field !== 'customField';
             });
 
             return this.saveProductSorting()
-                .then(response => {
+                .then((response) => {
                     const encodedResponse = JSON.parse(response.config.data);
 
-                    this.$router.push({ name: 'sw.settings.listing.edit', params: { id: encodedResponse.id } });
+                    this.$router.push({
+                        name: 'sw.settings.listing.edit',
+                        params: { id: encodedResponse.id },
+                    });
 
                     const sortingOptionName = this.productSortingEntity.label;
 
@@ -95,7 +100,7 @@ export default {
 
         onConfirmDeleteCriteria() {
             // filter out criteria
-            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(currentCriteria => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter((currentCriteria) => {
                 return currentCriteria.field !== this.toBeDeletedCriteria.field;
             });
 

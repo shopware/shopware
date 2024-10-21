@@ -33,7 +33,7 @@
             class="sw-settings-country-detail__save-action"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="!country || !allowSave"
+            :disabled="!country || !allowSave || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -126,6 +126,7 @@
                         :user-config="userConfig"
                         :user-config-values="userConfigValues"
                         @modal-save="onSaveModal"
+                        @update:country="onUpdateCountry"
                     />
                 </router-view>
                 {% endblock %}

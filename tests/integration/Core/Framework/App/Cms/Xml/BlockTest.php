@@ -123,6 +123,7 @@ class BlockTest extends TestCase
                                         ],
                                     ],
                                 ],
+                                'position' => 0,
                             ],
                             'middle' => [
                                 'type' => 'product-slider',
@@ -138,6 +139,7 @@ class BlockTest extends TestCase
                                         ],
                                     ],
                                 ],
+                                'position' => 1,
                             ],
                             'right' => [
                                 'type' => 'buy-box',
@@ -149,6 +151,7 @@ class BlockTest extends TestCase
                                         ],
                                     ],
                                 ],
+                                'position' => 2,
                             ],
                         ],
                         'defaultConfig' => [
@@ -189,6 +192,7 @@ class BlockTest extends TestCase
                                         ],
                                     ],
                                 ],
+                                'position' => 0,
                             ],
                             'right' => [
                                 'type' => 'image',
@@ -204,6 +208,7 @@ class BlockTest extends TestCase
                                         ],
                                     ],
                                 ],
+                                'position' => 1,
                             ],
                         ],
                         'defaultConfig' => [

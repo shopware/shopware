@@ -8,7 +8,16 @@ import './sw-first-run-wizard-store.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['extensionHelperService'],
+
+    emits: [
+        'frw-set-title',
+        'frw-redirect',
+        'extension-activated',
+        'buttons-update',
+    ],
 
     data() {
         return {
@@ -128,7 +137,8 @@ export default {
                 .catch((error) => {
                     this.activationError = true;
 
-                    if (error?.response?.data &&
+                    if (
+                        error?.response?.data &&
                         Array.isArray(error.response.data.errors) &&
                         error.response.data.errors[0]
                     ) {

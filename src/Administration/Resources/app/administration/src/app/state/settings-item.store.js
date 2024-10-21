@@ -2,8 +2,8 @@ const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
  * @package admin
- *
  * @private
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default {
     namespaced: true,

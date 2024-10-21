@@ -11,7 +11,13 @@ const { Component } = Shopware;
 Component.register('sw-admin', {
     template,
 
-    inject: ['userActivityService', 'loginService', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'userActivityService',
+        'loginService',
+        'feature',
+    ],
 
     metaInfo() {
         return {
@@ -20,9 +26,9 @@ Component.register('sw-admin', {
     },
 
     data(): {
-        channel: BroadcastChannel | null,
-        toasts: Toast[],
-        } {
+        channel: BroadcastChannel | null;
+        toasts: Toast[];
+    } {
         return {
             channel: null,
             toasts: [],
@@ -32,6 +38,13 @@ Component.register('sw-admin', {
     computed: {
         isLoggedIn() {
             return this.loginService.isLoggedIn();
+        },
+
+        /**
+         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         */
+        overrideComponents() {
+            return Component.getOverrideComponents();
         },
     },
 
@@ -55,8 +68,11 @@ Component.register('sw-admin', {
             }
 
             // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
-            const currentRouteName = (this.$router.currentRoute.value.name) as string;
-            const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
+            const currentRouteName = this.$router.currentRoute.value.name as string;
+            const routeBlocklist = [
+                'sw.inactivity.login.index',
+                'sw.login.index.login',
+            ];
             if (!data.inactive || routeBlocklist.includes(currentRouteName || '')) {
                 return;
             }
@@ -65,7 +81,7 @@ Component.register('sw-admin', {
         };
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.channel?.close();
     },
 

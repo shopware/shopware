@@ -15,4 +15,9 @@ const { Component } = Shopware;
  */
 Component.extend('sw-email-field-deprecated', 'sw-text-field-deprecated', {
     template,
+
+    emits: [
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 });

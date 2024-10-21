@@ -13,6 +13,13 @@ const { format } = Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'close',
+        'save',
+    ],
+
     props: {
         currency: {
             type: Object,
@@ -60,10 +67,12 @@ export default {
             this.isLoading = true;
             const additionalParams = { salesChannelId: this.salesChannelId };
 
-            Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
-                this.isLoading = false;
-                this.$emit('save');
-            });
+            Service('cartStoreService')
+                .disableAutomaticPromotions(this.cart.token, additionalParams)
+                .then(() => {
+                    this.isLoading = false;
+                    this.$emit('save');
+                });
         },
 
         getDescription(item) {
@@ -71,20 +80,24 @@ export default {
             const { value, discountScope, discountType, groupId } = item.payload;
             const snippet = `sw-order.createBase.textPromotionDescription.${discountScope}`;
 
-            if (discountScope === DiscountScopes.CART &&
+            if (
+                discountScope === DiscountScopes.CART &&
                 discountType === DiscountTypes.ABSOLUTE &&
-                Math.abs(totalPrice) < value) {
+                Math.abs(totalPrice) < value
+            ) {
                 return this.$tc(`${snippet}.absoluteUpto`, 0, {
                     value: format.currency(Number(value), this.currency.isoCode),
                     totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
                 });
             }
 
-            const discountValue = discountType === DiscountTypes.PERCENTAGE
-                ? value
-                : format.currency(Number(value), this.currency.isoCode);
+            const discountValue =
+                discountType === DiscountTypes.PERCENTAGE ? value : format.currency(Number(value), this.currency.isoCode);
 
-            return this.$tc(`${snippet}.${discountType}`, 0, { value: discountValue, groupId });
+            return this.$tc(`${snippet}.${discountType}`, 0, {
+                value: discountValue,
+                groupId,
+            });
         },
     },
 };

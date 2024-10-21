@@ -16,7 +16,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
+
+    emits: ['update:value'],
 
     props: {
         // need to be "value" instead of "modelValue" because of the compat build
@@ -90,27 +97,23 @@ export default {
         },
 
         toggleButtonLabel() {
-            return this.showUploadField ?
-                this.$tc('global.sw-media-field.labelToggleSearchExisting') :
-                this.$tc('global.sw-media-field.labelToggleUploadNew');
+            return this.showUploadField
+                ? this.$tc('global.sw-media-field.labelToggleSearchExisting')
+                : this.$tc('global.sw-media-field.labelToggleUploadNew');
         },
 
         suggestionCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addFilter(Criteria.not(
-                'AND',
-                [Criteria.equals('uploadedAt', null)],
-            ));
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('uploadedAt', null)]));
 
             if (this.searchTerm) {
-                criteria.addFilter(Criteria.multi(
-                    'OR',
-                    [
+                criteria.addFilter(
+                    Criteria.multi('OR', [
                         Criteria.contains('fileName', this.searchTerm),
                         Criteria.contains('fileExtension', this.searchTerm),
-                    ],
-                ));
+                    ]),
+                );
             }
 
             if (this.defaultFolder) {

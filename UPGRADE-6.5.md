@@ -798,7 +798,7 @@ class MyService
     }
 ```
 ## Clean duplicated theme images
-With [NEXT-25804](https://issues.shopware.com/issues/NEXT-25804) we fixed an issue with duplicated theme images on `system:update` and `theme:refresh`.
+With [4457](https://github.com/shopware/shopware/issues/4457) we fixed an issue with duplicated theme images on `system:update` and `theme:refresh`.
 This fix will only prevent future duplicates. In order to remove already existing duplicates from your setup, follow these steps:
 
 1. Open the administration media section

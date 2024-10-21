@@ -5,51 +5,56 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-payment-sorting-modal', {
-        sync: true,
-    }), {
-        props: {
-            paymentMethods: [
-                {
-                    id: '1a',
-                    position: 1,
-                },
-                {
-                    id: '2b',
-                    position: 2,
-                },
-            ],
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+    return mount(
+        await wrapTestComponent('sw-settings-payment-sorting-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                paymentMethods: [
+                    {
+                        id: '1a',
+                        position: 1,
+                    },
+                    {
+                        id: '2b',
+                        position: 2,
+                    },
+                ],
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                saveAll: () => {
+                                    return Promise.resolve();
+                                },
+                            };
+                        },
                     },
                 },
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            saveAll: () => {
-                                return Promise.resolve();
-                            },
-                        };
-                    },
+                stubs: {
+                    'sw-modal': true,
+                    'sw-sortable-list': true,
+                    'sw-button': true,
+                    'sw-button-process': true,
+                    'sw-icon': true,
+                    'sw-media-preview-v2': true,
                 },
-            },
-            stubs: {
-                'sw-modal': true,
-                'sw-sortable-list': true,
-                'sw-button': true,
-                'sw-button-process': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal', () => {
@@ -73,18 +78,20 @@ describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal
 
         await wrapper.vm.applyChanges();
 
-        expect(wrapper.vm.paymentMethodRepository.saveAll).toHaveBeenCalledWith([
-            {
-                id: '2b',
-                position: 1,
-            },
-            {
-                id: '1a',
-                position: 2,
-            },
-        ], Shopware.Context.api);
+        expect(wrapper.vm.paymentMethodRepository.saveAll).toHaveBeenCalledWith(
+            [
+                {
+                    id: '2b',
+                    position: 1,
+                },
+                {
+                    id: '1a',
+                    position: 2,
+                },
+            ],
+            Shopware.Context.api,
+        );
 
         wrapper.vm.paymentMethodRepository.saveAll.mockRestore();
     });
 });
-

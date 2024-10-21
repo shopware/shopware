@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 describe('src/app/filter/date.filter.ts', () => {
     const dateFilter = Shopware.Filter.getByName('date');
 
@@ -20,11 +23,8 @@ describe('src/app/filter/date.filter.ts', () => {
             myDateOptions: 'foo',
         });
 
-        expect(Shopware.Utils.format.date).toHaveBeenCalledWith(
-            '01.01.1997',
-            {
-                myDateOptions: 'foo',
-            },
-        );
+        expect(Shopware.Utils.format.date).toHaveBeenCalledWith('01.01.1997', {
+            myDateOptions: 'foo',
+        });
     });
 });

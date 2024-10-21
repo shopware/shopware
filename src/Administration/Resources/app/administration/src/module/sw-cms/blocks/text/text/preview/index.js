@@ -7,4 +7,6 @@ import './sw-cms-preview-text.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import TagApiService from 'src/core/service/api/tag.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
@@ -22,12 +25,14 @@ describe('tagApiService', () => {
         const { tagApiService, clientMock } = getTagApiService();
         let didRequest = false;
 
-        clientMock.onPost('/_admin/tag-filter-ids')
-            .reply(() => {
-                didRequest = true;
+        clientMock.onPost('/_admin/tag-filter-ids').reply(() => {
+            didRequest = true;
 
-                return [200, {}];
-            });
+            return [
+                200,
+                {},
+            ];
+        });
 
         tagApiService.filterIds({});
 
@@ -58,20 +63,44 @@ describe('tagApiService', () => {
 
                 if (bulkMergeProgress.currentAssignment === 'products' && bulkMergeProgress.progress === 0) {
                     // eslint-disable-next-line jest/no-conditional-expect
-                    expect(tag.products).toEqual(firstProductIdsBatch.map((id) => { return { id }; }));
+                    expect(tag.products).toEqual(
+                        firstProductIdsBatch.map((id) => {
+                            return { id };
+                        }),
+                    );
                     return;
                 }
 
                 if (bulkMergeProgress.currentAssignment === 'products') {
                     // eslint-disable-next-line jest/no-conditional-expect
-                    expect(tag.products).toEqual([200, 201, 202].map((id) => { return { id }; }));
+                    expect(tag.products).toEqual(
+                        [
+                            200,
+                            201,
+                            202,
+                        ].map((id) => {
+                            return { id };
+                        }),
+                    );
                     return;
                 }
 
-                expect(tag[bulkMergeProgress.currentAssignment]).toEqual([0, 1, 2].map((id) => { return { id }; }));
+                expect(tag[bulkMergeProgress.currentAssignment]).toEqual(
+                    [
+                        0,
+                        1,
+                        2,
+                    ].map((id) => {
+                        return { id };
+                    }),
+                );
             }),
             syncDeleted: jest.fn((ids) => {
-                expect(ids).toEqual(['t1', 't2', 't3']);
+                expect(ids).toEqual([
+                    't1',
+                    't2',
+                    't3',
+                ]);
             }),
         };
         const generalRepositoryMock = {
@@ -94,12 +123,26 @@ describe('tagApiService', () => {
                     // eslint-disable-next-line jest/no-conditional-expect
                     expect(bulkMergeProgress.total).toBe(203);
 
-                    return { data: [200, 201, 202], total: 203 };
+                    return {
+                        data: [
+                            200,
+                            201,
+                            202,
+                        ],
+                        total: 203,
+                    };
                 }
 
                 expect(criteria.page).toBe(1);
 
-                return { data: [0, 1, 2], total: 3 };
+                return {
+                    data: [
+                        0,
+                        1,
+                        2,
+                    ],
+                    total: 3,
+                };
             }),
         };
 
@@ -112,7 +155,11 @@ describe('tagApiService', () => {
         };
 
         await tagApiService.merge(
-            ['t1', 't2', 't3'],
+            [
+                't1',
+                't2',
+                't3',
+            ],
             'foo',
             {
                 name: {},

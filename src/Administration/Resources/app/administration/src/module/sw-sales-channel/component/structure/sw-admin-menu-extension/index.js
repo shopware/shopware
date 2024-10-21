@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.override('sw-admin-menu', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     computed: {

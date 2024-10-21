@@ -13,37 +13,24 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
     --#{$prefix}btn-border-color: transparent;
     --#{$prefix}btn-padding-x: 0;
     --#{$prefix}btn-padding-y: 0;
-
-    &:hover {
-        &,
-        .icon {
-            color: $primary;
-        }
-    }
+    --#{$prefix}btn-hover-color: #{$primary};
 }
 
-.dropdown.show {
-    .top-bar-nav-btn {
-        &,
-        .icon {
-            color: $primary;
-        }
-    }
+.top-bar-list {
+    --#{$prefix}dropdown-link-hover-bg: transparent;
+    --#{$prefix}dropdown-link-hover-color: #{$primary};
+    --#{$prefix}dropdown-link-active-color: #{$primary};
+    --#{$prefix}dropdown-link-active-bg: transparent;
 }
 
-.top-bar-list-item {
-    color: $body-color;
+.top-bar-list-item-currency-symbol {
+    min-width: 1.7rem;
+}
 
-    &.is-checked {
-        color: $primary;
-    }
-
-    &:hover {
-        color: $primary;
-        background: transparent;
-        text-decoration: none;
-
-        .top-bar-list-label {
+// @deprecated tag:v6.7.0 - Special label styling will be removed. Buttons will be used as documented by Bootstrap: https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .top-bar-list-item {
+        &:hover .top-bar-list-label {
             cursor: pointer;
         }
     }

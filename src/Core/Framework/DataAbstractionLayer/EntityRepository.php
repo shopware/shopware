@@ -44,7 +44,7 @@ class EntityRepository
         private readonly EntitySearcherInterface $searcher,
         private readonly EntityAggregatorInterface $aggregator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly EntityLoadedEventFactory $eventFactory
+        private readonly EntityLoadedEventFactory $eventFactory,
     ) {
     }
 
@@ -153,7 +153,7 @@ class EntityRepository
         ReplicaConnection::ensurePrimary();
 
         if (!$this->definition->isVersionAware()) {
-            throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
+            throw new \RuntimeException(\sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
         }
 
         return $this->versionManager->createVersion($this->definition, $id, WriteContext::createFromContext($context), $name, $versionId);
@@ -164,7 +164,7 @@ class EntityRepository
         ReplicaConnection::ensurePrimary();
 
         if (!$this->definition->isVersionAware()) {
-            throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
+            throw new \RuntimeException(\sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
         }
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }

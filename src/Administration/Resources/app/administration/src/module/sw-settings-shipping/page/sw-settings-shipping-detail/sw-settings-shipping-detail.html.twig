@@ -17,7 +17,7 @@
         {% block sw_settings_shipping_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
-            :disabled="isLoading"
+            :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('sw-settings-shipping.detail.buttonCancel') }}
@@ -31,7 +31,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-shipping-method-detail__save-action"
             :is-loading="isProcessLoading"
-            :disabled="isProcessLoading || !acl.can('shipping.editor')"
+            :disabled="isProcessLoading || !acl.can('shipping.editor') || undefined"
             variant="primary"
             @click.prevent="onSave"
         >
@@ -45,7 +45,7 @@
     {% block sw_settings_shipping_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
-            :disabled="isNewShippingMethod"
+            :disabled="isNewShippingMethod || undefined"
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
             @on-change="onChangeLanguage"
@@ -88,7 +88,7 @@
                             v-model:value="shippingMethod.name"
                             name="sw-field--shippingMethod-name"
                             required
-                            :disabled="!acl.can('shipping.editor')"
+                            :disabled="!acl.can('shipping.editor') || undefined"
                             :error="shippingMethodNameError"
                             :label="$tc('sw-settings-shipping.detail.labelName')"
                             :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
@@ -102,7 +102,7 @@
                             name="sw-field--shippingMethod-technicalName"
                             class="sw-settings-shipping-detail__field-technical-name"
                             :required="feature.isActive('v6.7.0.0')"
-                            :disabled="!acl.can('shipping.editor')"
+                            :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelTechnicalName')"
                             :placeholder="placeholder(shippingMethod, 'technicalName', $tc('sw-settings-shipping.detail.placeholderTechnicalName'))"
                             :error="shippingMethodTechnicalNameError"
@@ -122,7 +122,7 @@
                             v-model:value="shippingMethod.position"
                             name="sw-field--shippingMethod-position"
                             class="sw-settings-shipping-detail__field-position"
-                            :disabled="!acl.can('shipping.editor')"
+                            :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelPosition')"
                             :placeholder="$tc('sw-settings-shipping.detail.placeholderPosition')"
                         />
@@ -133,7 +133,7 @@
                             v-model:value="shippingMethod.active"
                             name="sw-field--shippingMethod-active"
                             bordered
-                            :disabled="!acl.can('shipping.editor')"
+                            :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelActive')"
                         />
                         {% endblock %}
@@ -149,7 +149,7 @@
                             name="sw-field--shippingMethod-description"
                             :value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
-                            :disabled="!acl.can('shipping.editor')"
+                            :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelDescription')"
                             :placeholder="placeholder(shippingMethod, 'description', $tc('sw-settings-shipping.detail.placeholderDescription'))"
                         />
@@ -169,7 +169,7 @@
                             class="sw-settings-shipping-detail__logo-image-upload"
                             :allow-multi-select="false"
                             variant="regular"
-                            :disabled="!acl.can('shipping.editor')"
+                            :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
                             :default-folder="shippingMethod.getEntityName()"
                             @media-drop="onDropMedia"
@@ -186,7 +186,7 @@
                         name="sw-field--shippingMethod-deliveryTimeId"
                         class="sw-settings-shipping-detail__delivery-time"
                         entity="delivery_time"
-                        :disabled="!acl.can('shipping.editor')"
+                        :disabled="!acl.can('shipping.editor') || undefined"
                         :criteria="deliveryTimeCriteria"
                         :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
                         :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
@@ -201,7 +201,7 @@
                     <sw-text-field
                         v-model:value="shippingMethod.trackingUrl"
                         name="sw-field--shippingMethod-trackingUrl"
-                        :disabled="!acl.can('shipping.editor')"
+                        :disabled="!acl.can('shipping.editor') || undefined"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                         :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
                         :help-text="$tc('sw-settings-shipping.detail.helpTextTrackingUrl')"
@@ -213,7 +213,7 @@
                     <sw-entity-tag-select
                         v-if="!isLoading"
                         v-model:entityCollection="shippingMethod.tags"
-                        :disabled="!acl.can('shipping.editor')"
+                        :disabled="!acl.can('shipping.editor') || undefined"
                         :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
                     />
                     {% endblock %}
@@ -232,7 +232,7 @@
                     <sw-select-rule-create
                         :rule-id="shippingMethod.availabilityRuleId"
                         :rule-filter="ruleFilter"
-                        :disabled="!acl.can('shipping.editor')"
+                        :disabled="!acl.can('shipping.editor') || undefined"
                         :error="shippingMethodAvailabilityRuleIdError"
                         :label="$tc('sw-settings-shipping.detail.topRule')"
                         class="sw-settings-shipping-detail__top-rule"
@@ -247,7 +247,7 @@
                 {% block sw_settings_shipping_detail_tax_cost %}
                 <sw-settings-shipping-tax-cost
                     v-if="!isLoading"
-                    :disabled="!acl.can('shipping.editor')"
+                    :disabled="!acl.can('shipping.editor') || undefined"
                 />
                 {% endblock %}
                 <sw-skeleton v-else />
@@ -257,7 +257,7 @@
                 <sw-settings-shipping-price-matrices
                     v-if="!isLoading"
                     ref="priceMatrices"
-                    :disabled="!acl.can('shipping.editor')"
+                    :disabled="!acl.can('shipping.editor') || undefined"
                 />
                 {% endblock %}
                 <sw-skeleton v-else />
@@ -272,7 +272,7 @@
                 >
                     <sw-custom-field-set-renderer
                         :entity="shippingMethod"
-                        :disabled="!acl.can('shipping.editor')"
+                        :disabled="!acl.can('shipping.editor') || undefined"
                         :sets="customFieldSets"
                     />
                 </sw-card>

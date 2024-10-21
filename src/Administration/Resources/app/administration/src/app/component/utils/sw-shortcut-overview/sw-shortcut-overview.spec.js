@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package admin
+ */
+
 describe('app/component/utils/sw-shortcut-overview', () => {
     let wrapper;
 

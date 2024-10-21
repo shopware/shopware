@@ -8,6 +8,8 @@ import template from './sw-customer-address-form-options.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['default-address-change'],
 
     props: {
@@ -46,12 +48,19 @@ export default {
         },
 
         onChangeDefaultShippingAddress(active) {
-            this.$emit('default-address-change', { name: 'shipping-address', id: this.address.id, value: active });
+            this.$emit('default-address-change', {
+                name: 'shipping-address',
+                id: this.address.id,
+                value: active,
+            });
         },
 
         onChangeDefaultBillingAddress(active) {
-            this.$emit('default-address-change', { name: 'billing-address', id: this.address.id, value: active });
+            this.$emit('default-address-change', {
+                name: 'billing-address',
+                id: this.address.id,
+                value: active,
+            });
         },
     },
-
 };

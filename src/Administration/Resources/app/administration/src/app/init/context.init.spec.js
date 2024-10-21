@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initContext from 'src/app/init/context.init';
 import {
     getCurrency,
@@ -30,10 +33,12 @@ describe('src/app/init/context.init.ts', () => {
 
     it('should handle currency', async () => {
         await getCurrency().then((currency) => {
-            expect(currency).toEqual(expect.objectContaining({
-                systemCurrencyId: expect.any(String),
-                systemCurrencyISOCode: expect.any(String),
-            }));
+            expect(currency).toEqual(
+                expect.objectContaining({
+                    systemCurrencyId: expect.any(String),
+                    systemCurrencyISOCode: expect.any(String),
+                }),
+            );
         });
     });
 
@@ -45,10 +50,12 @@ describe('src/app/init/context.init.ts', () => {
 
     it('should handle locale', async () => {
         await getLocale().then((locale) => {
-            expect(locale).toEqual(expect.objectContaining({
-                fallbackLocale: expect.any(String),
-                locale: expect.any(String),
-            }));
+            expect(locale).toEqual(
+                expect.objectContaining({
+                    fallbackLocale: expect.any(String),
+                    locale: expect.any(String),
+                }),
+            );
         });
     });
 
@@ -60,19 +67,23 @@ describe('src/app/init/context.init.ts', () => {
 
     it('should handle module information', async () => {
         await getModuleInformation().then((moduleInformation) => {
-            expect(moduleInformation).toEqual(expect.objectContaining({
-                modules: expect.any(Array),
-            }));
+            expect(moduleInformation).toEqual(
+                expect.objectContaining({
+                    modules: expect.any(Array),
+                }),
+            );
         });
     });
 
     it('should return placeholder app information', async () => {
         await getAppInformation().then((appInformation) => {
-            expect(appInformation).toEqual(expect.objectContaining({
-                name: 'unknown',
-                version: '0.0.0',
-                type: 'app',
-            }));
+            expect(appInformation).toEqual(
+                expect.objectContaining({
+                    name: 'unknown',
+                    version: '0.0.0',
+                    type: 'app',
+                }),
+            );
         });
     });
 
@@ -104,11 +115,13 @@ describe('src/app/init/context.init.ts', () => {
         });
 
         await getAppInformation().then((appInformation) => {
-            expect(appInformation).toEqual(expect.objectContaining({
-                name: 'jestapp',
-                version: '1.0.0',
-                type: 'app',
-            }));
+            expect(appInformation).toEqual(
+                expect.objectContaining({
+                    name: 'jestapp',
+                    version: '1.0.0',
+                    type: 'app',
+                }),
+            );
         });
     });
 
@@ -142,19 +155,21 @@ describe('src/app/init/context.init.ts', () => {
         });
 
         await getUserInformation().then((userInformation) => {
-            expect(userInformation).toEqual(expect.objectContaining({
-                aclRoles: expect.any(Array),
-                active: true,
-                admin: true,
-                email: 'john.doe@test.com',
-                firstName: 'John',
-                id: '123',
-                lastName: 'Doe',
-                localeId: 'lOcAlEiD',
-                title: 'Dr.',
-                type: 'user',
-                username: 'john.doe',
-            }));
+            expect(userInformation).toEqual(
+                expect.objectContaining({
+                    aclRoles: expect.any(Array),
+                    active: true,
+                    admin: true,
+                    email: 'john.doe@test.com',
+                    firstName: 'John',
+                    id: '123',
+                    lastName: 'Doe',
+                    localeId: 'lOcAlEiD',
+                    title: 'Dr.',
+                    type: 'user',
+                    username: 'john.doe',
+                }),
+            );
         });
     });
 

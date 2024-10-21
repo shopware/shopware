@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -21,85 +24,98 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-advanced-selection-rule', {
-        sync: true,
-    }), {
-        props: {
-            ruleAwareGroupKey: 'item',
-            restrictedRuleIds: ['1'],
-            restrictedRuleIdsTooltipLabel: 'restricted',
-        },
-        global: {
-            stubs: {
-                'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
-                'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-context-button': {
-                    template: '<div></div>',
+    return mount(
+        await wrapTestComponent('sw-advanced-selection-rule', {
+            sync: true,
+        }),
+        {
+            props: {
+                ruleAwareGroupKey: 'item',
+                restrictedRuleIds: ['1'],
+                restrictedRuleIdsTooltipLabel: 'restricted',
+            },
+            global: {
+                stubs: {
+                    'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-context-button': {
+                        template: '<div></div>',
+                    },
+                    'sw-icon': {
+                        template: '<div></div>',
+                    },
+                    'router-link': true,
+                    'sw-button': {
+                        template: '<div></div>',
+                    },
+                    'sw-checkbox-field': {
+                        template: '<div></div>',
+                    },
+                    'sw-ignore-class': {
+                        template: '<div></div>',
+                    },
+                    'sw-loader': true,
+                    'sw-label': true,
+                    'sw-filter-panel': true,
+                    'sw-context-menu': true,
+                    'sw-card-filter': true,
+                    'sw-entity-advanced-selection-modal-grid': true,
+                    'sw-empty-state': true,
+                    'mt-card': true,
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
                 },
-                'sw-icon': {
-                    template: '<div></div>',
-                },
-                'router-link': true,
-                'sw-button': {
-                    template: '<div></div>',
-                },
-                'sw-checkbox-field': {
-                    template: '<div></div>',
-                },
-                'sw-ignore-class': {
-                    template: '<div></div>',
+                provide: {
+                    ruleConditionDataProviderService: {
+                        getGroups: () => {
+                            return [];
+                        },
+                        getConditions: () => {
+                            return [];
+                        },
+                        getRestrictedRuleTooltipConfig: () => {
+                            return {
+                                disabled: false,
+                                message: 'ruleAwarenessRestrictionLabelText',
+                            };
+                        },
+                        isRuleRestricted: (conditions) => {
+                            return conditions[0];
+                        },
+                    },
+                    filterFactory: {
+                        create: () => [],
+                    },
+                    filterService: {
+                        getStoredCriteria: () => {
+                            return Promise.resolve([]);
+                        },
+                        mergeWithStoredFilters: (storeKey, criteria) => criteria,
+                    },
+                    shortcutService: {
+                        startEventListener() {},
+                        stopEventListener() {},
+                    },
+                    searchRankingService: {
+                        getSearchFieldsByEntity: () => {
+                            return Promise.resolve({
+                                name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                            });
+                        },
+                        buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                            return criteria;
+                        },
+                    },
                 },
             },
-            provide: {
-                ruleConditionDataProviderService: {
-                    getGroups: () => {
-                        return [];
-                    },
-                    getConditions: () => {
-                        return [];
-                    },
-                    getRestrictedRuleTooltipConfig: () => {
-                        return { disabled: false, message: 'ruleAwarenessRestrictionLabelText' };
-                    },
-                    isRuleRestricted: (conditions) => {
-                        return conditions[0];
-                    },
-                },
-                filterFactory: {
-                    create: () => [],
-                },
-                filterService: {
-                    getStoredCriteria: () => {
-                        return Promise.resolve([]);
-                    },
-                    mergeWithStoredFilters: (storeKey, criteria) => criteria,
-                },
-                shortcutService: {
-                    startEventListener() {
-                    },
-                    stopEventListener() {
-                    },
-                },
-                searchRankingService: {
-                    getSearchFieldsByEntity: () => {
-                        return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                        });
-                    },
-                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                        return criteria;
-                    },
-                },
-            },
         },
-
-    });
+    );
 }
 
-describe('components/sw-advanced-selection-product', () => {
+describe('components/sw-advanced-selection-rule', () => {
     it('should be a Vue.JS component that wraps the selection modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -136,7 +152,10 @@ describe('components/sw-advanced-selection-product', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const obj = wrapper.vm.isRecordSelectable({ id: '1', conditions: [true] });
+        const obj = wrapper.vm.isRecordSelectable({
+            id: '1',
+            conditions: [true],
+        });
 
         expect(obj.isSelectable).toBeFalsy();
         expect(obj.tooltip.message).toBe('restricted');
@@ -148,12 +167,14 @@ describe('components/sw-advanced-selection-product', () => {
 
         const aggregations = {
             productPrices: {
-                buckets: [{
-                    key: '1',
-                    productPrices: {
-                        count: 100,
+                buckets: [
+                    {
+                        key: '1',
+                        productPrices: {
+                            count: 100,
+                        },
                     },
-                }],
+                ],
             },
         };
 

@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\Fixture\TestElement;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(ConfigXmlElement::class)]

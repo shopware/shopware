@@ -44,7 +44,12 @@ Component.register('sw-context-menu-item', {
                 if (!value.length) {
                     return true;
                 }
-                return ['success', 'danger', 'warning', 'headline'].includes(value);
+                return [
+                    'success',
+                    'danger',
+                    'warning',
+                    'headline',
+                ].includes(value);
             },
         },
     },
@@ -59,7 +64,11 @@ Component.register('sw-context-menu-item', {
         },
 
         contextListeners() {
-            return (this.disabled || this.variant === 'headline') ? {} : this.$listeners;
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.disabled || this.variant === 'headline' ? {} : this.$listeners;
+            }
+
+            return {};
         },
     },
 });

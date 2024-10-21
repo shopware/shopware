@@ -128,89 +128,107 @@ const mockMultipleTaxesItem = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-line-items-grid-sales-channel', { sync: true }), {
-        props: {
-            cart: {
-                token: '6d3960ff30c9413f8dde62ccda81eefd',
-                lineItems: [],
-                price: {
-                    taxStatus: 'net',
+    return mount(
+        await wrapTestComponent('sw-order-line-items-grid-sales-channel', {
+            sync: true,
+        }),
+        {
+            props: {
+                cart: {
+                    token: '6d3960ff30c9413f8dde62ccda81eefd',
+                    lineItems: [],
+                    price: {
+                        taxStatus: 'net',
+                    },
                 },
+                currency: {
+                    isoCode: 'EUR',
+                    symbol: '€',
+                },
+                salesChannelId: '',
             },
-            currency: {
-                isoCode: 'EUR',
-                symbol: '€',
-            },
-            salesChannelId: '',
-        },
-        global: {
-            directives: {
-                tooltip: {
-                    bind(el, binding) {
-                        el.setAttribute('tooltip-message', binding.value.message);
-                    },
-                    inserted(el, binding) {
-                        el.setAttribute('tooltip-message', binding.value.message);
-                    },
-                    update(el, binding) {
-                        el.setAttribute('tooltip-message', binding.value.message);
-                    },
-                },
-            },
-            stubs: {
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-button-group': {
-                    template: '<div class="sw-button-group"><slot></slot></div>',
-                },
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-context-menu-item': {
-                    template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
-                },
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-number-field': {
-                    // eslint-disable-next-line max-len
-                    template: '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
-                    props: {
-                        value: 0,
-                    },
-                },
-                'sw-card-filter': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
-                'sw-order-product-select': {
-                    template: '<input class="sw-order-product-select" :value="item.label" @input="updateLabel" />',
-                    props: {
-                        item: {},
-                    },
-                    methods: {
-                        updateLabel(event) {
-                            this.item.label = event.target.value;
+            global: {
+                directives: {
+                    tooltip: {
+                        beforeMount(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
+                        },
+                        mounted(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
+                        },
+                        updated(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
                         },
                     },
                 },
-                'router-link': {
-                    template: '<a class="router-link" href="#"><slot></slot></a>',
-                    props: ['to'],
+                stubs: {
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-button-group': {
+                        template: '<div class="sw-button-group"><slot></slot></div>',
+                    },
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-context-menu-item': {
+                        emits: ['click'],
+                        template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
+                    },
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-number-field': {
+                        // eslint-disable-next-line max-len
+                        template:
+                            '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
+                        props: {
+                            value: 0,
+                            size: 'default',
+                        },
+                    },
+                    'sw-card-filter': true,
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                        sync: true,
+                    }),
+                    'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
+                    'sw-order-product-select': {
+                        template: '<input class="sw-order-product-select" :value="item.label" @input="updateLabel" />',
+                        props: {
+                            item: {},
+                        },
+                        methods: {
+                            updateLabel(event) {
+                                this.item.label = event.target.value;
+                            },
+                        },
+                    },
+                    'router-link': {
+                        template: '<a class="router-link" href="#"><slot></slot></a>',
+                        props: ['to'],
+                    },
+                    'sw-empty-state': true,
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-field-error': true,
+                    'sw-base-field': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-highlight-text': true,
                 },
-                'sw-empty-state': true,
-                'sw-icon': true,
-            },
-            mocks: {
-                $tc: (t, count, value) => {
-                    if (t === 'sw-order.createBase.taxDetail') {
-                        return `${value.taxRate}%: ${value.tax}`;
-                    }
+                mocks: {
+                    $tc: (t, count, value) => {
+                        if (t === 'sw-order.createBase.taxDetail') {
+                            return `${value.taxRate}%: ${value.tax}`;
+                        }
 
-                    return t;
+                        return t;
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel', () => {
@@ -298,8 +316,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid-sales-channel__item-tax-tooltip');
 
-        expect(taxDetailTooltip.attributes()['tooltip-message'])
-            .toBe('sw-order.createBase.tax<br>10%: -€3.33<br>20%: -€13.33');
+        expect(taxDetailTooltip.attributes()['tooltip-message']).toBe(
+            'sw-order.createBase.tax<br>10%: -€3.33<br>20%: -€13.33',
+        );
     });
 
     it('should show items correctly when search by search term', async () => {

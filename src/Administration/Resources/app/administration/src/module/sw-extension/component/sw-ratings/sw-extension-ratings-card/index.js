@@ -8,6 +8,10 @@ import './sw-extension-ratings-card.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update-extension'],
+
     mixins: ['sw-extension-error'],
 
     props: {
@@ -103,11 +107,7 @@ export default {
         },
 
         async getReviews() {
-            return this.extensionStoreDataService.getReviews(
-                this.criteriaPage,
-                this.criteriaLimit,
-                this.extension.id,
-            );
+            return this.extensionStoreDataService.getReviews(this.criteriaPage, this.criteriaLimit, this.extension.id);
         },
     },
 };

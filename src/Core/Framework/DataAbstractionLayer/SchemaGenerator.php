@@ -206,7 +206,7 @@ EOL;
                 break;
 
             default:
-                throw new \RuntimeException(sprintf('Unknown field %s', $field::class));
+                throw new \RuntimeException(\sprintf('Unknown field %s', $field::class));
         }
 
         $template = str_replace(
@@ -226,11 +226,11 @@ EOL;
             if (!$primaryKey instanceof StorageAware) {
                 continue;
             }
-            $keys[] = sprintf('`%s`', $primaryKey->getStorageName());
+            $keys[] = \sprintf('`%s`', $primaryKey->getStorageName());
         }
 
         if (empty($keys)) {
-            throw new \RuntimeException(sprintf('No primary key detected for entity: %s', $definition->getEntityName()));
+            throw new \RuntimeException(\sprintf('No primary key detected for entity: %s', $definition->getEntityName()));
         }
 
         return 'PRIMARY KEY (' . implode(',', $keys) . ')';

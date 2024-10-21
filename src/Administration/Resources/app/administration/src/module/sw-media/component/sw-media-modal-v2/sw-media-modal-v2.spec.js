@@ -23,6 +23,11 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-media-grid': true,
+                    'sw-tabs-item': true,
+                    'sw-media-breadcrumbs': true,
+                    'sw-simple-search-field': true,
+                    'sw-media-library': true,
+                    'sw-media-media-item': true,
                 },
                 provide: {
                     repositoryFactory: {},
@@ -35,7 +40,6 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
-
 
     it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('sw-media-upload-v2-stub');

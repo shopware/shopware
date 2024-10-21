@@ -35,9 +35,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -49,6 +49,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -72,11 +73,14 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     private MockObject&SystemConfigService $systemConfig;
 
+    private MockObject&SalesChannelRepository $productRepository;
+
     protected function setUp(): void
     {
         $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->productRepository = $this->createMock(SalesChannelRepository::class);
 
-        $this->sliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig);
+        $this->sliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig, $this->productRepository);
 
         $this->productStreamId = Uuid::randomHex();
     }
@@ -168,8 +172,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $slot->setType('product-slider');
         $slot->setFieldConfig($fieldConfig);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Property foo do not exist in class ' . CategoryEntity::class);
+        $this->expectException(PropertyNotFoundException::class);
+        $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s"', CategoryEntity::class));
 
         $this->sliderResolver->collect($slot, $resolverContext);
     }
@@ -226,10 +230,9 @@ class ProductSliderCmsElementResolverTest extends TestCase
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         static::assertCount(1, $collection->all());
-        static::assertEquals(ProductDefinition::class, key($collection->all()));
+        static::assertSame(ProductDefinition::class, key($collection->all()));
 
-        /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
-        static::assertEquals('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
+        static::assertSame('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
 
         $expectedCriteria = new Criteria();
         $expectedCriteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
@@ -245,22 +248,20 @@ class ProductSliderCmsElementResolverTest extends TestCase
         ));
         $expectedCriteria->setLimit(50);
 
-        /** @var Criteria $criteria */
-        /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
         foreach ($collection->getIterator()->current() as $criteria) {
             static::assertEquals($expectedCriteria->getSorting(), $criteria->getSorting());
-            static::assertEquals($expectedCriteria->getLimit(), $criteria->getLimit());
-            /** @var MultiFilter $expectedMultiFilter */
+            static::assertSame($expectedCriteria->getLimit(), $criteria->getLimit());
             $expectedMultiFilter = $expectedCriteria->getFilters()[0];
-            /** @var MultiFilter $multiFilter */
+            static::assertInstanceOf(MultiFilter::class, $expectedMultiFilter);
             $multiFilter = $expectedCriteria->getFilters()[0];
-            static::assertEquals($expectedMultiFilter->getQueries()[0], $multiFilter->getQueries()[0]);
-            /** @var RangeFilter $expectedRangeFilter */
+            static::assertInstanceOf(MultiFilter::class, $multiFilter);
+            static::assertSame($expectedMultiFilter->getQueries()[0], $multiFilter->getQueries()[0]);
             $expectedRangeFilter = $expectedMultiFilter->getQueries()[1];
-            /** @var RangeFilter $rangeFilter */
+            static::assertInstanceOf(RangeFilter::class, $expectedRangeFilter);
             $rangeFilter = $expectedMultiFilter->getQueries()[1];
-            static::assertEquals($rangeFilter->getField(), $rangeFilter->getField());
-            static::assertEquals($expectedRangeFilter->getParameters(), $rangeFilter->getParameters());
+            static::assertInstanceOf(RangeFilter::class, $rangeFilter);
+            static::assertSame($rangeFilter->getField(), $rangeFilter->getField());
+            static::assertSame($expectedRangeFilter->getParameters(), $rangeFilter->getParameters());
         }
     }
 
@@ -367,6 +368,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
         $product->setAvailableStock($availableStock);
+        $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
 
         $salesChannel = new SalesChannelEntity();
@@ -376,7 +378,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $productSliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig);
+        $productSliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig, $this->productRepository);
         $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
         $result->add('product-slider_product_id', new EntitySearchResult(
@@ -398,7 +400,6 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $productSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ProductSliderStruct|null $productSliderStruct */
         $productSliderStruct = $slot->getData();
 
         static::assertInstanceOf(ProductSliderStruct::class, $productSliderStruct);
@@ -422,17 +423,16 @@ class ProductSliderCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<array<bool|int>> closeout, hidden, availableStock
-     *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
+     * @return list<array{closeout: bool, hidden: bool, availableStock: int}>
      */
     public static function enrichDataProvider(): array
     {
         return [
-            [false, false, 1],
-            [false, true, 1],
-            [true, false, 1],
-            [true, true, 1],
-            [true, true, 0],
+            ['closeout' => false, 'hidden' => false, 'availableStock' => 1],
+            ['closeout' => false, 'hidden' => true, 'availableStock' => 1],
+            ['closeout' => true, 'hidden' => false, 'availableStock' => 1],
+            ['closeout' => true, 'hidden' => true, 'availableStock' => 1],
+            ['closeout' => true, 'hidden' => true, 'availableStock' => 0],
         ];
     }
 
@@ -443,8 +443,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
     #[DataProvider('streamProductDataProvider')]
     public function testEnrichVariants(array $expectedProductIds, array $streamProducts): void
     {
-        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
-        $resolver = new ProductSliderCmsElementResolver($productStreamBuilder, $this->systemConfig);
+        $this->configureProductRepositoryMock($streamProducts);
 
         $salesChannelContext = Generator::createSalesChannelContext();
         $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), new ProductDefinition(), new SalesChannelProductEntity());
@@ -465,19 +464,22 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $elementDataCollection = new ElementDataCollection();
         $elementDataCollection->add('product-slider-entity-fallback_' . $slot->getUniqueIdentifier(), $entitySearchResult);
 
-        $resolver->enrich($slot, $resolverContext, $elementDataCollection);
+        $this->sliderResolver->enrich($slot, $resolverContext, $elementDataCollection);
 
-        /** @var ProductSliderStruct|null $productSlider */
         $productSlider = $slot->getData();
-        $products = $productSlider?->getProducts();
+        if ($productSlider === null) {
+            static::fail('ProductSlider is null.');
+        }
 
-        if ($products) {
-            static::assertCount(\count($expectedProductIds), $products);
-            foreach ($expectedProductIds as $expectedProductId) {
-                static::assertTrue($products->has($expectedProductId), "Expected product ID $expectedProductId to be included in the slider.");
-            }
-        } else {
-            static::fail('ProductSlider or its products are null.');
+        static::assertInstanceOf(ProductSliderStruct::class, $productSlider);
+        $products = $productSlider->getProducts();
+        if ($products === null) {
+            static::fail('Products of productSlider are null.');
+        }
+
+        static::assertCount(\count($expectedProductIds), $products);
+        foreach ($expectedProductIds as $expectedProductId) {
+            static::assertTrue($products->has($expectedProductId), "Expected product ID $expectedProductId to be included in the slider.");
         }
     }
 
@@ -506,10 +508,9 @@ class ProductSliderCmsElementResolverTest extends TestCase
             ],
         ];
 
-        yield 'Null idToFetch' => [
+        yield 'no products in the stream' => [
             'expectedProductIds' => [],
             'streamProducts' => [
-                self::createProduct($parentId, null, new VariantListingConfig(false, null, [])),
             ],
         ];
 
@@ -517,6 +518,13 @@ class ProductSliderCmsElementResolverTest extends TestCase
             'expectedProductIds' => [],
             'streamProducts' => [
                 self::createProduct($parentId, null, new VariantListingConfig(false, $nonExistentId, [])),
+            ],
+        ];
+
+        yield 'empty variantListingConfig' => [
+            'expectedProductIds' => [$parentId],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(null, null, [])),
             ],
         ];
     }
@@ -530,5 +538,29 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $product->setVariantListingConfig($config);
 
         return $product;
+    }
+
+    /**
+     * @param SalesChannelProductEntity[] $products
+     */
+    private function configureProductRepositoryMock(array $products): void
+    {
+        $productCollection = new ProductCollection($products);
+
+        $this->productRepository->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use ($productCollection) {
+                $filteredProducts = array_filter($productCollection->getElements(), function ($product) use ($criteria) {
+                    return \in_array($product->getId(), $criteria->getIds(), true);
+                });
+
+                return new EntitySearchResult(
+                    ProductDefinition::class,
+                    \count($filteredProducts),
+                    new ProductCollection($filteredProducts),
+                    null,
+                    $criteria,
+                    Generator::createSalesChannelContext()->getContext()
+                );
+            });
     }
 }

@@ -1,4 +1,463 @@
 # 6.7.0.0
+## Introduced in 6.6.7.0
+## ThemeFileImporterInterface & ThemeFileImporter Removal
+Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
+
+`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object. 
+This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
+
+```php
+$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
+foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
+    $absolutePath = $fs->path('Resources', $relativePath);
+}
+```
+
+`\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException` is removed, if it was previously caught you should change your catch to `\Shopware\Core\System\SystemConfig\SystemConfigException` instead and inspect the code for `\Shopware\Core\System\SystemConfig\SystemConfigException::CONFIG_NOT_FOUND`.
+## SitemapHandleFactoryInterface::create
+
+We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
+If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
+## Accessibility - Storefront base font-size  
+In regard to better readability the base font-size of the storefront is updated to the browser standard of `1rem` (16px). Other text formatting is adjusted accordingly. The following variables and properties are changed:
+
+* `$font-size-base` changed from `0.875rem` to `1rem`.
+* `$font-size-lg` changed from `1rem` to `1.125rem`.
+* `$font-size-sm` changed from `0.75rem` to `0.875rem`.
+* `$paragraph-margin-bottom` changed from `1rem` to `2rem`.
+* `line-height` of `.quantity-selector-group-input` changed to `1rem`.
+* `font-size` of `.form-text` changed from `0.875rem` to `$font-size-base`.
+* `font-size` of `.account-profile-change` changed from `$font-size-sm` to `$font-size-base`.
+* `font-size` of `.product-description` changed from `0.875rem` to `$font-size-base`.
+* `line-height` of `.product-description` changed from `1.125rem` to `$line-height-base`.
+* `height` of `.product-description` changed from `3.375rem` to `4.5rem`.
+* `line-height` of `.quantity-selector-group-input` changed to `1rem`.
+* `font-size` of `.main-navigation-menu` changed from `$font-size-lg` to `$font-size-base`.
+* `font-size` of `.navigation-flyout-category-link`changed from `$font-size-lg` to `$font-size-base`.
+## Change Storefront language and currency dropdown items to buttons
+The `.top-bar-list-item` elements inside the "top-bar" dropdown menus will contain `<button>` elements instead of a hidden `<input type="radio">` elements.
+
+**Affected templates:**
+* `Resources/views/storefront/layout/header/actions/language-widget.html.twig`
+* `Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
+
+### Before:
+```html
+<ul class="top-bar-list dropdown-menu dropdown-menu-end">
+    <li class="top-bar-list-item">
+        <label class="top-bar-list-label" for="top-bar-01918f15b7e2711083e85ec52ac29411">
+            <input class="top-bar-list-radio" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411" name="currencyId" type="radio">
+            £ GBP
+        </label>
+    </li>
+    <li class="top-bar-list-item">
+        <label class="top-bar-list-label" for="top-bar-01918f15b7e2711083e85ec52ac29411">
+            <input class="top-bar-list-radio" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411" name="currencyId" type="radio">
+            $ USD
+        </label>
+    </li>
+</ul>
+```
+
+### After:
+```html
+<ul class="top-bar-list dropdown-menu dropdown-menu-end">
+    <li class="top-bar-list-item">
+        <button class="dropdown-item" type="submit" name="currencyId" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411">
+            <span aria-hidden="true" class="top-bar-list-item-currency-symbol">£</span>
+            Pound
+        </button>
+    </li>
+    <li class="top-bar-list-item">
+        <button class="dropdown-item" type="submit" name="currencyId" id="top-bar-01918f15b7e2711083e85ec52ac29411" value="01918f15b7e2711083e85ec52ac29411">
+            <span aria-hidden="true" class="top-bar-list-item-currency-symbol">$</span>
+            US-Dollar
+        </button>
+    </li>
+</ul>
+```
+
+If you are modifying the dropdown item, please adjust to the new HTML structure and consider the deprecation comments in the code. 
+The example below shows `currency-widget.html.twig`. Inside `language-widget.html.twig` a similar structure can be found.
+
+### Before:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
+
+{% block layout_header_actions_currency_widget_form_items_element_input %}
+    <input type="radio">
+    Special list-item override
+{% endblock %}
+```
+
+### After:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
+
+{# The block `layout_header_actions_currency_widget_form_items_element_input` does no longer exist, use upper block `layout_header_actions_currency_widget_form_items_element_label` insted. #}
+{% block layout_header_actions_currency_widget_form_items_element_label %}
+    <button class="dropdown-item">
+        Special list-item override
+    </button>
+{% endblock %}
+```
+## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+To improve the accessibility and semantics, several generic `<div>` elements that are representing lists are changed to actual `<ul>` and `<li>` elements.
+This effects the account order overview area as well as the cart line-item templates.
+
+If you are adding custom line-item templates, please change the root element to an `<li>` element:
+
+change
+```twig
+<div class="{{ lineItemClasses }}">
+    <div class="row line-item-row">
+        {# Line item content #}
+    </div>
+<div>
+```
+to
+```twig
+<li class="{{ lineItemClasses }}">
+    <div class="row line-item-row">
+        {# Line item content #}
+    </div>
+<li>
+```
+
+If you are looping over line-items manually in your template, please change the nearest parent element to an `<ul>`:
+
+change
+```twig
+<div class="line-item-container-custom">
+    {% for lineItem in lineItems %}
+        {# Now renders `<li>` #}
+        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+    {% endfor %}
+</div>
+```
+to
+```twig
+<ul class="line-item-container-custom list-unstyled">
+    {% for lineItem in lineItems %}
+        {# Now renders `<li>` #}
+        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+    {% endfor %}
+</ul>
+```
+
+### List of affected templates:
+Please consider the documented deprecations inside the templates and adjust modified HTML accordingly.
+The overall HTML tree structure and the Twig blocks are not affected by this change.
+
+* Account order overview
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document.html.twig`
+* Cart table header (Root element changed to `<li>`)
+  * `src/Storefront/Resources/views/storefront/component/checkout/cart-header.html.twig`
+* Line-items wrapper (List wrapper element changed to `<ul>`)
+  * `src/Storefront/Resources/views/storefront/page/checkout/cart/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/checkout/finish/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/checkout/address/index.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+* Line-items (Root element changed to `<li>`)
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/product.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
+## ImportExportFactory::create
+
+We added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`.
+If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
+## Changed thrown exceptions in `TranslationsSerializer`
+* Changed the `InvalidArgumentException`, which was thrown in `TranslationsSerializer::serialize` and `TranslationsSerializer::deserialize` when the given association field wasn't a `TranslationsAssociationField`, to the new `ImportExportException::invalidInstanceType` exception.
+
+## Deprecated ImportExport domain exception
+* Deprecated method `\Shopware\Core\Content\ImportExport\ImportExportException::invalidInstanceType`. Thrown exception will change from `InvalidArgumentException` to `ImportExportException`.
+## Custom field names and field set names
+Custom field names and field set names will be validated to not contain hyphens or dots, they must be valid Twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46).
+
+## Introduced in 6.6.6.0
+## Storefront pagination is using anchor links instead of radio inputs
+The storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) is no longer using radio inputs with styled labels. Anchor links are used instead.
+If you are modifying the `<label>` inside the pagination template, you need to change the markup to `<a>` instead. Please use one of the documented twig block alternatives inside `pagination.html.twig`.
+The hidden radio input will no longer be in the HTML. The current page value will be retrieved by the `data-page` attribute instead of the radio inputs value.
+
+### Before:
+```twig
+{% sw_extends '@Storefront/storefront/component/pagination.html.twig '%}
+
+{% block component_pagination_first_input %}
+    <input type="radio"
+           {% if currentPage == 1 %}disabled="disabled"{% endif %}
+           name="p"
+           id="p-first{{ paginationSuffix }}"
+           value="1"
+           class="d-none some-special-class"
+           title="pagination">
+{% endblock %}
+
+{% block component_pagination_first_label %}
+    <label class="page-link some-special-class" for="p-first{{ paginationSuffix }}">
+        {# Using text instead of icon and add some special CSS class #}
+        First
+    </label>
+{% endblock %}
+```
+
+### After:
+```twig
+{% sw_extends '@Storefront/storefront/component/pagination.html.twig '%}
+
+{# All information that was previously on the radio input, is now also on the anchor link. The id attribute is longer needed. The "disabled" state is now controlled via the parent `<li>` and tabindex. #}
+{% block component_pagination_first_link_element %}
+    <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}" 
+       class="page-link some-special-class"
+       data-page="1"
+       aria-label="{{ 'general.first'|trans|striptags }}" 
+       data-focus-id="first"
+       {% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+        {# Using text instead of icon and add some special CSS class #}
+        First
+    </a>
+{% endblock %}
+```
+## Removal of deprecated properties of `CustomerDeletedEvent`
+* The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
+## Message queue size limit
+
+Any message queue message bigger than 256KB will be now rejected by default.
+To reduce the size of your messages you should only store the ID of an entity in the message and fetch it later in the message handler.
+This can be disabled again with:
+
+```yaml
+shopware:
+    messenger:
+        enforce_message_size: false
+
+```
+## Removal of deprecated exceptions
+The following exceptions were removed:
+* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`
+## Entity class throws different exceptions
+The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class are now throwing different exceptions:
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
+
+## Introduced in 6.6.5.0
+## Payment: Reworked payment handlers
+* The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
+* The new `AbstractPaymentHandler` class should be used to implement payment handlers.
+* The following interfaces have been deprecated:
+  * `AsyncPaymentHandlerInterface`
+  * `PreparedPaymentHandlerInterface`
+  * `SyncPaymentHandlerInterface`
+  * `RefundPaymentHandlerInterface`
+  * `RecurringPaymentHandlerInterface`
+* Synchronous and asynchronous payments have been merged to return an optional redirect response.
+
+
+## Payment: Capture step of prepared payments removed
+* The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
+* Use the `pay` method instead for capturing previously validated payments.
+
+## App System: Payment: payment states
+* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+
+## App system: Payment:  finalize step
+* The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
+## Customer: Default payment method removed
+* Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
+* Logic is now more consistent to always be the last used payment method
+
+## Rule builder: Condition `customerDefaultPaymentMethod` removed
+* Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
+* Existing rules with this condition will be automatically migrated to the new condition `paymentMethod`, so the currently selected payment method
+
+## Flow builder: Trigger `checkout.customer.changed-payment-method` removed
+* Removed trigger `checkout.customer.changed-payment-method` from flow builder, since customers do not have default payment methods anymore
+* Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
+## Removal of sw-dashboard-statistics and associated component sections and data sets
+The component `sw-dashboard-statistics` (`src/module/sw-dashboard/component/sw-dashboard-statistics`) has been removed without replacement.
+
+The associated component sections `sw-chart-card__before` and `sw-chart-card__after` were removed, too.
+Use `sw-dashboard__before-content` and `sw-dashboard__after-content` instead.
+
+Before:
+```js
+import { ui } from '@shopware-ag/meteor-admin-sdk';
+
+ui.componentSection.add({
+    positionId: 'sw-chart-card__before',
+    ...
+})
+```
+
+After:
+```js
+import { ui } from '@shopware-ag/meteor-admin-sdk';
+
+ui.componentSection.add({
+    positionId: 'sw-dashboard__before-content',
+    ...
+})
+```
+
+Additionally, the associated data sets `sw-dashboard-detail__todayOrderData` and `sw-dashboard-detail__statisticDateRanges` were removed.
+In both cases, use the Admin API instead.
+## Direct debit default payment: State change removed
+* The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
+
+## Introduced in 6.6.4.0
+## Removal of Storefront `sw-skin-alert` SCSS mixin
+The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,
+we modify the appearance inside the `alert-*` modifier classes directly with the Bootstrap CSS variables like it is documented: https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
+
+Before:
+```scss
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    @include sw-skin-alert($value, $white);
+  }
+}
+```
+
+After:
+```scss
+@each $state, $value in $theme-colors {
+  .alert-#{$state} {
+    --#{$prefix}alert-border-color: #{$value};
+    --#{$prefix}alert-bg: #{$white};
+    --#{$prefix}alert-color: #{$body-color};
+  }
+}
+```
+
+## Removal of Storefront alert class `alert-has-icon` styling
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the class `alert-has-icon` will be removed. Helper classes `d-flex align-items-center` will be used instead.
+
+```diff
+- <div class="alert alert-info alert-has-icon">
++ <div class="alert alert-info d-flex align-items-center">
+    {% sw_icon 'info' %}
+    <div class="alert-content-container">
+        An important info
+    </div>
+</div>
+```
+
+## Removal of Storefront alert inner container `alert-content`
+As of v6.7.0, the superfluous inner container `alert-content` will be removed to have lesser elements and be more aligned with Bootstraps alert structure.
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the inner container `alert-content` will no longer be present in the HTML output.
+
+The general usage of `Resources/views/storefront/utilities/alert.html.twig` and all include parameters remain the same.
+
+Before:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        <div class="alert-content">                                                    
+            Your shopping cart is empty.
+        </div>                
+    </div>
+</div>
+```
+
+After:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        Your shopping cart is empty.
+    </div>
+</div>
+```
+## Removal of "sw-popover":
+The old "sw-popover" component will be removed in the next major version. Please use the new "mt-floating-ui" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-floating-ui" component. This component is much different from the old "sw-popover" component, so the codemod will not be able to convert all occurrences. You will have to manually adjust some parts of your codebase. For this you can look at the Storybook documentation for the Meteor Component Library.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-popover" with "mt-floating-ui".
+
+Following changes are necessary:
+
+### "sw-popover" is removed
+Replace all component names from "sw-popover" with "mt-floating-ui"
+
+Before:
+```html
+<sw-popover />
+```
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" has no property "zIndex" anymore
+The property "zIndex" is removed without a replacement.
+
+Before:
+```html
+<sw-popover :zIndex="myZIndex" />
+```
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" has no property "resizeWidth" anymore
+The property "resizeWidth" is removed without a replacement.
+
+Before:
+```html
+<sw-popover :resizeWidth="myWidth" />
+```
+
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" has no property "popoverClass" anymore
+The property "popoverClass" is removed without a replacement.
+
+Before:
+```html
+<sw-popover popoverClass="my-class" />
+```
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" is not open by default anymore
+The "open" property is removed. You have to control the visibility of the popover by yourself with the property "isOpened".
+
+Before:
+```html
+<sw-popover />
+```
+After:
+```html
+<mt-floating-ui :isOpened="myVisibility" />
+```
+## Removal of deprecations
+* Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
+* Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
+* Removed `name` field from `ImportExportProfileEntity`.
+## All Vuex stores will be transitioned to Pinia
+* All Shopware states will become Pinia Stores and will be available via `Shopware.Store`
+
 ## Introduced in 6.6.3.0
 ## onlyAvailable flag removed
 * The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request will be removed in the next major version. The route will always filter the payment and shipping methods before calling the checkout gateway based on availability.

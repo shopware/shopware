@@ -3,18 +3,18 @@ import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
 type AppModuleDefinition = {
-    name: string,
-    label: { [key: string]: string },
+    name: string;
+    label: { [key: string]: string };
     mainModule?: {
-        source: string,
-    },
+        source: string;
+    };
     modules: Array<{
-        name: string,
-        label: { [key: string]: string },
-        position: number,
-        source?: string,
-        parent?: string,
-    }>
+        name: string;
+        label: { [key: string]: string };
+        position: number;
+        source?: string;
+        parent?: string;
+    }>;
 };
 
 /**
@@ -27,12 +27,11 @@ export default class AppModulesService extends ApiService {
     }
 
     public async fetchAppModules(): Promise<AppModuleDefinition[]> {
-        const { data } = await this.httpClient.get<{ modules: AppModuleDefinition[] }>(
-            'app-system/modules',
-            {
-                headers: this.getBasicHeaders(),
-            },
-        );
+        const { data } = await this.httpClient.get<{
+            modules: AppModuleDefinition[];
+        }>('app-system/modules', {
+            headers: this.getBasicHeaders(),
+        });
 
         return data.modules;
     }

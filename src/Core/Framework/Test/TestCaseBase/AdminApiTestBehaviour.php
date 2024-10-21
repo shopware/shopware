@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -146,7 +147,7 @@ trait AdminApiTestBehaviour
         if ($aclPermissions !== null) {
             $aclRoleId = Uuid::randomBytes();
             $user['admin'] = 0;
-            $user['email'] = md5(json_encode($aclPermissions, \JSON_THROW_ON_ERROR)) . '@example.com';
+            $user['email'] = Hasher::hash($aclPermissions) . '@example.com';
             $aclRole = [
                 'id' => $aclRoleId,
                 'name' => 'testPermissions',
@@ -200,7 +201,7 @@ trait AdminApiTestBehaviour
 
         $accessToken = $data['access_token'];
         \assert(\is_string($accessToken));
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($userId)));
     }
 
@@ -260,7 +261,7 @@ trait AdminApiTestBehaviour
 
         $accessToken = $data['access_token'];
         \assert(\is_string($accessToken));
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter('_integration_id', $id);
     }
 

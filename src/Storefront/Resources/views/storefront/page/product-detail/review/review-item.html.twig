@@ -15,6 +15,10 @@
 
         {% block page_product_detail_review_item_meta_title %}
             <meta itemprop="name" content="{{ review.title }}">
+
+            {% if review.language %}
+                <meta itemprop="language" content="{{ review.language.translationCode.code }}">
+            {% endif %}
         {% endblock %}
 
         {% block page_product_detail_review_item_meta_author %}
@@ -45,14 +49,15 @@
                 {% block page_product_detail_review_item_info_points %}
                     <div class="col-md-auto product-detail-review-item-points">
                         {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
-                            points: review.points
+                            points: review.points,
+                            altText: 'detail.reviewRatingAltText'|trans({ '%points%': review.points, '%maxPoints%': 5 })
                         } %}
                     </div>
                 {% endblock %}
 
                 {% block page_product_detail_review_item_title %}
                     <div class="col-md-auto product-detail-review-item-title">
-                        <p class="h5">
+                        <p class="h5"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
                             {{ review.title|striptags|sw_sanitize }}
                         </p>
                     </div>
@@ -76,7 +81,7 @@
         {% endblock %}
 
         {% block page_product_detail_review_item_content %}
-            <p class="product-detail-review-item-content" itemprop="description">
+            <p class="product-detail-review-item-content" itemprop="description"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
                 {{ review.content|sw_sanitize }}
             </p>
         {% endblock %}

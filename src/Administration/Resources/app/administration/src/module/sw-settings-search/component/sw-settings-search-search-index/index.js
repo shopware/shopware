@@ -15,11 +15,15 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'productIndexService',
         'repositoryFactory',
         'acl',
     ],
+
+    emits: ['edit-change'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -63,7 +67,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -80,7 +84,8 @@ export default {
 
         getLatestProductKeywordIndexed() {
             this.isLoading = true;
-            this.productSearchKeywordRepository.search(this.productSearchKeywordsCriteria, Context.api)
+            this.productSearchKeywordRepository
+                .search(this.productSearchKeywordsCriteria, Context.api)
                 .then((result) => {
                     this.latestIndex = {
                         firstDate: result.aggregations.firstDate.min,
@@ -99,7 +104,8 @@ export default {
 
         getTotalProduct() {
             this.isLoading = true;
-            this.productRepository.search(this.productCriteria, Context.api)
+            this.productRepository
+                .search(this.productCriteria, Context.api)
                 .then((result) => {
                     this.totalProduct = result?.total;
                 })
@@ -114,7 +120,8 @@ export default {
         },
 
         updateProgress() {
-            this.productIndexService.index(this.offset)
+            this.productIndexService
+                .index(this.offset)
                 .then((response) => {
                     const data = response.data;
                     this.isRebuildSuccess = data.finish;
@@ -142,10 +149,7 @@ export default {
 
         pollData() {
             if (this.syncPolling === null) {
-                this.syncPolling = setTimeout(
-                    this.updateProgress,
-                    PRODUCT_INDEXER_INTERVAL,
-                );
+                this.syncPolling = setTimeout(this.updateProgress, PRODUCT_INDEXER_INTERVAL);
             }
         },
 

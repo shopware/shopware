@@ -1,14 +1,24 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-extension-my-extensions-listing-controls', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+    return mount(
+        await wrapTestComponent('sw-extension-my-extensions-listing-controls', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-select-field': {
+                        template: '<div><slot /></div>',
+                    },
+                    'sw-base-field': true,
+                    'sw-field-error': true,
+                },
             },
         },
-    });
+    );
 }
 
 /**

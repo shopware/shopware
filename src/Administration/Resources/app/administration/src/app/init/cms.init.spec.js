@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import initCms from 'src/app/init/cms.init';
 import 'src/module/sw-cms/service/cms.service';
 import * as cms from '@shopware-ag/meteor-admin-sdk/es/ui/cms';
@@ -39,17 +42,19 @@ describe('src/app/init/cms.init.ts', () => {
             label: 'Test Element',
         });
 
-        expect(mock).toHaveBeenCalledWith(expect.objectContaining({
-            defaultConfig: expect.objectContaining({}),
-            label: 'Test Element',
-            name: 'test-element',
-            component: 'sw-cms-el-location-renderer',
-            previewComponent: 'sw-cms-el-preview-location-renderer',
-            configComponent: 'sw-cms-el-config-location-renderer',
-            appData: {
-                baseUrl: '',
-            },
-        }));
+        expect(mock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                defaultConfig: expect.objectContaining({}),
+                label: 'Test Element',
+                name: 'test-element',
+                component: 'sw-cms-el-location-renderer',
+                previewComponent: 'sw-cms-el-preview-location-renderer',
+                configComponent: 'sw-cms-el-config-location-renderer',
+                appData: {
+                    baseUrl: '',
+                },
+            }),
+        );
     });
 
     it('should not handle cmsRegisterElement if extension is not found', async () => {
@@ -116,7 +121,6 @@ describe('src/app/init/cms.init.ts', () => {
                     },
                 },
             },
-            // defaultConfig: [Object],
         });
     });
 

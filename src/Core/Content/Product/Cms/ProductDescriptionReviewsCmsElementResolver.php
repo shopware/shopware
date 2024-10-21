@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     final public const TYPE = 'product-description-reviews';
@@ -118,6 +118,8 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getContext()->getLanguageId())
             );
+        } else {
+            $criteria->addAssociation('language.translationCode.code');
         }
 
         $this->handlePointsAggregation($request, $criteria);

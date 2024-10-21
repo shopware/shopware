@@ -17,91 +17,102 @@ const orderFixture = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-document-settings-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-                },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
-                },
-                'sw-text-field': true,
-                'sw-datepicker': true,
-                'sw-checkbox-field': true,
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-file-input': await wrapTestComponent('sw-file-input', { sync: true }),
-                'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
-                'sw-context-menu-item': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-order-document-settings-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-text-field': true,
+                    'sw-datepicker': true,
+                    'sw-checkbox-field': true,
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', {
+                        sync: true,
+                    }),
+                    'sw-file-input': await wrapTestComponent('sw-file-input', {
+                        sync: true,
+                    }),
+                    'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
+                    'sw-context-menu-item': {
+                        template: `
                         <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                             <slot></slot>
                         </div>`,
+                    },
+                    'sw-upload-listener': true,
+                    'sw-textarea-field': true,
+                    'sw-field-error': true,
+                    'sw-icon': true,
+                    'sw-media-modal-v2': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-media-url-form': true,
+                    'sw-media-preview-v2': true,
                 },
-                'sw-upload-listener': true,
-                'sw-textarea-field': true,
-                'sw-field-error': true,
-                'sw-icon': true,
-            },
-            provide: {
-                fileValidationService: new FileValidationService(),
-                numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1000 }),
-                },
-                mediaService: {
-                    addListener: () => {},
-                    removeByTag: () => {},
-                    removeListener: () => {},
-                    getDefaultFolderId: () => {},
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        get: (id) => {
-                            return Promise.resolve(
-                                {
+                provide: {
+                    fileValidationService: new FileValidationService(),
+                    numberRangeService: {
+                        reserve: () => Promise.resolve({ number: 1000 }),
+                    },
+                    mediaService: {
+                        addListener: () => {},
+                        removeByTag: () => {},
+                        removeListener: () => {},
+                        getDefaultFolderId: () => {},
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            get: (id) => {
+                                return Promise.resolve({
                                     id,
                                     fileSize: 10000,
                                     type: 'application/pdf',
+                                });
+                            },
+                            search: () => {
+                                return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [{}], 1));
+                            },
+                        }),
+                    },
+                    configService: {
+                        getConfig: () =>
+                            Promise.resolve({
+                                settings: {
+                                    enableUrlFeature: false,
                                 },
-                            );
-                        },
-                        search: () => {
-                            return Promise.resolve(new EntityCollection(
-                                '',
-                                '',
-                                Shopware.Context.api,
-                                null,
-                                [{}],
-                                1,
-                            ));
-                        },
-                    }),
-                },
-                configService: {
-                    getConfig: () => Promise.resolve({
-                        settings: {
-                            enableUrlFeature: false,
-                        },
-                    }),
+                            }),
+                    },
                 },
             },
+            props: {
+                order: orderFixture,
+                isLoading: false,
+                currentDocumentType: {},
+                isLoadingDocument: false,
+                isLoadingPreview: false,
+            },
         },
-        props: {
-            order: orderFixture,
-            isLoading: false,
-            currentDocumentType: {},
-            isLoadingDocument: false,
-            isLoadingPreview: false,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-modal', () => {
@@ -181,11 +192,9 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         const customDocumentToggle = wrapper.find('input[name="sw-field--uploadDocument"]');
         await customDocumentToggle.setChecked(true);
 
-        await wrapper.vm.successfulUploadFromUrl(
-            {
-                targetId: 'media1',
-            },
-        );
+        await wrapper.vm.successfulUploadFromUrl({
+            targetId: 'media1',
+        });
 
         expect(wrapper.vm.documentConfig.documentMediaFileId).toBe('media1');
     });

@@ -51,7 +51,7 @@
             }"
             class="sw-customer-list__button-create"
             variant="primary"
-            :disabled="!acl.can('customer.creator')"
+            :disabled="!acl.can('customer.creator') || undefined"
             :router-link="{ name: 'sw.customer.create' }"
         >
             {{ $tc('sw-customer.list.buttonAddCustomer') }}
@@ -82,7 +82,7 @@
                 :sort-direction="sortDirection"
                 detail-route="sw.customer.detail"
                 :show-selection="acl.can('customer.deleter')"
-                :allow-inline-edit="acl.can('customer.editor')"
+                :allow-inline-edit="acl.can('customer.editor') || undefined"
                 :allow-bulk-edit="acl.can('customer.editor')"
                 :is-loading="isLoading"
                 :disable-data-fetching="true"
@@ -192,10 +192,16 @@
                 </template>
                 {% endblock %}
 
+                {% block sw_product_list_grid_columns_email_preview %}
+                <template #column-email="{ item }">
+                    {{ emailIdnFilter(item.email) }}
+                </template>
+                {% endblock %}
+
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_list_grid_columns_boundSalesChannel %}
                 <template #column-boundSalesChannelId="{ item }">
-                    {{ item.boundSalesChannelId ? item.salesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
+                    {{ item.boundSalesChannelId ? item.boundSalesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
                 </template>
                 {% endblock %}
 
@@ -249,7 +255,7 @@
                     {% block sw_customer_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         class="sw-customer-list__edit-action"
-                        :disabled="!acl.can('customer.editor')"
+                        :disabled="!acl.can('customer.editor') || undefined"
                         :router-link="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true } }"
                     >
                         {{ $tc('sw-customer.list.contextMenuEdit') }}
@@ -261,7 +267,7 @@
                     <sw-context-menu-item
                         class="sw-customer-list__delete-action"
                         variant="danger"
-                        :disabled="!acl.can('customer.deleter')"
+                        :disabled="!acl.can('customer.deleter') || undefined"
                         @click="onDelete(item.id)"
                     >
                         {{ $tc('sw-customer.list.contextMenuDelete') }}

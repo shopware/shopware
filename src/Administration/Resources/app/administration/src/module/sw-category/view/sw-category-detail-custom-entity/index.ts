@@ -15,6 +15,8 @@ const EXTENSION_POSTFIX = 'SwCategories';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -36,12 +38,16 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customEntityAssignments(): EntityCollection<'custom_entity'> | undefined {
-            return this.category?.extensions?.
-                [`${this.categoryCustomEntityProperty}${EXTENSION_POSTFIX}`] as
-                    EntityCollection<'custom_entity'> | undefined;
+            return this.category?.extensions?.[`${this.categoryCustomEntityProperty}${EXTENSION_POSTFIX}`] as
+                | EntityCollection<'custom_entity'>
+                | undefined;
         },
 
-        customEntityColumns(): { dataIndex: string; property: string, label: string }[] {
+        customEntityColumns(): {
+            dataIndex: string;
+            property: string;
+            label: string;
+        }[] {
             return [
                 {
                     dataIndex: 'cmsAwareTitle',
@@ -57,13 +63,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         customEntityCriteria(): Criteria {
-            return new Criteria(1, 10)
-                .addFilter(Criteria.contains('flags', 'cms-aware'));
+            return new Criteria(1, 10).addFilter(Criteria.contains('flags', 'cms-aware'));
         },
 
         sortingCriteria(): Criteria {
-            return new Criteria(1, 10)
-                .addSorting(Criteria.sort('cmsAwareTitle', 'ASC'));
+            return new Criteria(1, 10).addSorting(Criteria.sort('cmsAwareTitle', 'ASC'));
         },
 
         assetFilter() {

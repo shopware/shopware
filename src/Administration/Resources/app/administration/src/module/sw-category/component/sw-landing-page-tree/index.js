@@ -11,7 +11,19 @@ const { mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'syncService', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'syncService',
+        'acl',
+    ],
+
+    emits: [
+        'landing-page-checked-elements-count',
+        'unsaved-changes',
+    ],
+
     mixins: [
         'notification',
     ],
@@ -143,7 +155,6 @@ export default {
         },
     },
 
-
     created() {
         this.createdComponent();
     },
@@ -174,13 +185,17 @@ export default {
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
             this.landingPageRepository.syncDeleted(ids).then(() => {
-                ids.forEach(id => this.removeFromStore(id));
+                ids.forEach((id) => this.removeFromStore(id));
             });
         },
 
         onDeleteLandingPage({ data: landingPage }) {
             if (landingPage.isNew()) {
-                this.$delete(this.loadedLandingPages, landingPage.id);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.loadedLandingPages, landingPage.id);
+                } else {
+                    delete this.loadedLandingPages[landingPage.id];
+                }
                 return Promise.resolve();
             }
 
@@ -194,7 +209,10 @@ export default {
         },
 
         changeLandingPage(landingPage) {
-            const route = { name: 'sw.category.landingPageDetail', params: { id: landingPage.id } };
+            const route = {
+                name: 'sw.category.landingPageDetail',
+                params: { id: landingPage.id },
+            };
 
             if (this.landingPage && this.landingPageRepository.hasChanges(this.landingPage)) {
                 this.$emit('unsaved-changes', route);
@@ -213,22 +231,25 @@ export default {
                 },
             };
 
-            this.landingPageRepository.clone(contextItem.id, behavior, Shopware.Context.api).then((clone) => {
-                const criteria = new Criteria(1, 25);
-                criteria.setIds([clone.id]);
-                this.landingPageRepository.search(criteria).then((landingPages) => {
-                    landingPages.forEach(element => {
-                        element.childCount = 0;
-                        element.parentId = null;
-                    });
+            this.landingPageRepository
+                .clone(contextItem.id, behavior, Shopware.Context.api)
+                .then((clone) => {
+                    const criteria = new Criteria(1, 25);
+                    criteria.setIds([clone.id]);
+                    this.landingPageRepository.search(criteria).then((landingPages) => {
+                        landingPages.forEach((element) => {
+                            element.childCount = 0;
+                            element.parentId = null;
+                        });
 
-                    this.addLandingPages(landingPages);
+                        this.addLandingPages(landingPages);
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    });
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
-                });
-            });
         },
 
         createNewElement(contextItem, parentId, name = '') {
@@ -278,16 +299,24 @@ export default {
 
             const existingLandingPageEntries = Object.entries(this.loadedLandingPages || {});
             const newLandingPageEntries = landingPages.map((landingPage) => {
-                return [landingPage.id, landingPage];
+                return [
+                    landingPage.id,
+                    landingPage,
+                ];
             });
 
-            this.loadedLandingPages = Object.fromEntries([...existingLandingPageEntries, ...newLandingPageEntries]);
+            this.loadedLandingPages = Object.fromEntries([
+                ...existingLandingPageEntries,
+                ...newLandingPageEntries,
+            ]);
         },
 
         removeFromStore(id) {
-            this.loadedLandingPages = Object.fromEntries(Object.entries(this.loadedLandingPages || {}).filter(([key]) => {
-                return key !== id;
-            }));
+            this.loadedLandingPages = Object.fromEntries(
+                Object.entries(this.loadedLandingPages || {}).filter(([key]) => {
+                    return key !== id;
+                }),
+            );
         },
 
         getLandingPageUrl(landingPage) {

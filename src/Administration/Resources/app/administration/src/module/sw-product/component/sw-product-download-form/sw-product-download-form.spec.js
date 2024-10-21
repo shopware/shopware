@@ -2,6 +2,9 @@ import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package inventory
+ */
 async function createWrapper(hasError = false) {
     return mount(await wrapTestComponent('sw-product-download-form', { sync: true }), {
         global: {
@@ -58,6 +61,7 @@ async function createWrapper(hasError = false) {
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-field-error': true,
+                'sw-loader': true,
             },
             directives: {
                 draggable: {},
@@ -85,15 +89,7 @@ const files = [
 ];
 
 function getFileCollection(collection = []) {
-    return new EntityCollection(
-        '/media',
-        'media',
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
+    return new EntityCollection('/media', 'media', null, { isShopwareContext: true }, collection, collection.length, null);
 }
 
 describe('module/sw-product/component/sw-product-download-form', () => {

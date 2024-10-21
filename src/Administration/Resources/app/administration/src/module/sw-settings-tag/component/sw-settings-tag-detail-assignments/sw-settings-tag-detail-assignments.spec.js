@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
+
+let parentComponent;
 async function createWrapper() {
     const responseMockAll = [
         {
@@ -68,82 +73,104 @@ async function createWrapper() {
         },
     };
 
-    const parentComponent = mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return {
-                                isNew: () => true,
-                            };
+    parentComponent = mount(
+        await wrapTestComponent('sw-settings-tag-detail-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return {
+                                    isNew: () => true,
+                                };
+                            },
+                        }),
+                    },
+                    syncService: {},
+                    acl: {
+                        can: () => {
+                            return true;
                         },
-                    }),
-                },
-                syncService: {},
-                acl: {
-                    can: () => {
-                        return true;
                     },
                 },
-            },
-            stubs: {
-                'sw-modal': true,
-                'sw-tabs': await wrapTestComponent('sw-tabs', {
-                    sync: true,
-                }),
-                'sw-tabs-item': true,
-            },
-        },
-    }).vm;
-
-    const wrapper = mount(await wrapTestComponent('sw-settings-tag-detail-assignments', {
-        sync: true,
-    }), {
-        props: {
-            tag: {
-                id: '123',
-                isNew() {
-                    return false;
-                },
-            },
-            toBeAdded: parentComponent.assignmentsToBeAdded,
-            toBeDeleted: parentComponent.assignmentsToBeDeleted,
-            initialCounts: {
-                products: 2,
-            },
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: (criteria, context) => {
-                            const response = context && context.inheritance ? responseMockAll : responseMockSelected;
-                            response.aggregations = context && context.inheritance ? aggregationsInherited : aggregations;
-                            response.total = response.length;
-
-                            return Promise.resolve(response);
-                        },
-                        searchIds: jest.fn(() => Promise.resolve()),
+                stubs: {
+                    'sw-modal': true,
+                    'sw-tabs': await wrapTestComponent('sw-tabs', {
+                        sync: true,
                     }),
+                    'sw-tabs-item': true,
+                    'sw-text-field': true,
+                    'sw-settings-tag-detail-assignments': true,
+                    'sw-button': true,
+                    'sw-tabs-deprecated': true,
+                    'sw-card-filter': true,
                 },
-                searchRankingService: {},
-            },
-            stubs: {
-                'sw-card': true,
-                'sw-card-section': true,
-                'sw-switch-field': true,
-                'sw-container': true,
             },
         },
-    });
+    );
 
-    wrapper.vm.$on('add-assignment', parentComponent.addAssignment);
-    wrapper.vm.$on('remove-assignment', parentComponent.removeAssignment);
+    const wrapper = mount(
+        await wrapTestComponent('sw-settings-tag-detail-assignments', {
+            sync: true,
+        }),
+        {
+            props: {
+                tag: {
+                    id: '123',
+                    isNew() {
+                        return false;
+                    },
+                },
+                toBeAdded: parentComponent.vm.assignmentsToBeAdded,
+                toBeDeleted: parentComponent.vm.assignmentsToBeDeleted,
+                initialCounts: {
+                    products: 2,
+                },
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: (criteria, context) => {
+                                const response = context && context.inheritance ? responseMockAll : responseMockSelected;
+                                response.aggregations =
+                                    context && context.inheritance ? aggregationsInherited : aggregations;
+                                response.total = response.length;
+
+                                return Promise.resolve(response);
+                            },
+                            searchIds: jest.fn(() => Promise.resolve()),
+                        }),
+                    },
+                    searchRankingService: {},
+                },
+                stubs: {
+                    'sw-card': true,
+                    'sw-card-section': true,
+                    'sw-switch-field': true,
+                    'sw-container': true,
+                    'sw-text-field': true,
+                    'sw-settings-tag-detail-assignments': true,
+                    'sw-button': true,
+                    'sw-tabs-deprecated': true,
+                    'sw-card-filter': true,
+                    'sw-icon': true,
+                    'sw-data-grid': true,
+                    'sw-checkbox-field': true,
+                    'sw-inheritance-switch': true,
+                    'sw-highlight-text': true,
+                    'sw-product-variant-info': true,
+                    'sw-media-preview-v2': true,
+                    'sw-entity-listing': true,
+                },
+            },
+        },
+    );
 
     return wrapper;
 }
@@ -165,7 +192,10 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.entities).not.toBeNull();
-        expect(Object.keys(wrapper.vm.preSelected)).toEqual(['0', '2']);
+        expect(Object.keys(wrapper.vm.preSelected)).toEqual([
+            '0',
+            '2',
+        ]);
 
         await wrapper.setProps({
             toBeAdded: { orders: [] },
@@ -183,7 +213,10 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         });
 
         expect(wrapper.vm.entities).not.toBeNull();
-        expect(Object.keys(wrapper.vm.preSelected)).toEqual(['0', '2']);
+        expect(Object.keys(wrapper.vm.preSelected)).toEqual([
+            '0',
+            '2',
+        ]);
     });
 
     it('should handle adding and removing of assignments including inheritance', async () => {
@@ -230,6 +263,16 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         wrapper.vm.onSelectionChange([], { id: '0' }, false);
         expect(wrapper.vm.getCount('products')).toBe(1);
 
+        expect(wrapper.emitted('remove-assignment')).toHaveLength(1);
+        expect(wrapper.emitted('remove-assignment')[0]).toEqual([
+            'products',
+            '0',
+            { id: '0' },
+        ]);
+
+        await parentComponent.vm.removeAssignment('products', '0', { id: '0' });
+        await flushPromises();
+
         [
             { id: '1', parentId: '0', expected: false },
             { id: '2', parentId: '0', expected: false },
@@ -242,6 +285,26 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         expect(wrapper.vm.getCount('products')).toBe(2);
         // remove direct assignment of variant 2, should become inherited
         wrapper.vm.onSelectionChange([], { id: '2' }, false);
+
+        expect(wrapper.emitted('remove-assignment')).toHaveLength(2);
+        expect(wrapper.emitted('remove-assignment')[1]).toEqual([
+            'products',
+            '2',
+            { id: '2' },
+        ]);
+
+        await parentComponent.vm.removeAssignment('products', '2', { id: '2' });
+        await flushPromises();
+
+        expect(wrapper.emitted('add-assignment')).toHaveLength(1);
+        expect(wrapper.emitted('add-assignment')[0]).toEqual([
+            'products',
+            '0',
+            { id: '0' },
+        ]);
+
+        await parentComponent.vm.addAssignment('products', '0', { id: '0' });
+        await flushPromises();
 
         [
             { id: '1', parentId: '0', expected: true },
@@ -261,6 +324,9 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         wrapper.vm.onSelectionChange([], { id: '0' }, false);
         wrapper.vm.onSelectionChange([], { id: '3' }, true);
+
+        await parentComponent.vm.removeAssignment('products', '0', { id: '0' });
+        await parentComponent.vm.addAssignment('products', '3', { id: '3' });
 
         await wrapper.setData({
             showSelected: true,
@@ -287,13 +353,18 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
             landingPages: 'landing_page',
             rules: 'rule',
         };
-        const expected = Object.entries(properties).map(([assignment, entity]) => {
-            return {
-                name: `sw-settings-tag.detail.assignments.${assignment}`,
-                entity,
+        const expected = Object.entries(properties).map(
+            ([
                 assignment,
-            };
-        });
+                entity,
+            ]) => {
+                return {
+                    name: `sw-settings-tag.detail.assignments.${assignment}`,
+                    entity,
+                    assignment,
+                };
+            },
+        );
 
         expect(associations).toEqual(expected);
     });

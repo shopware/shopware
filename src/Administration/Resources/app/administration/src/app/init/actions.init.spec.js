@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initActions from 'src/app/init/actions.init';
 import { actionExecute } from '@shopware-ag/meteor-admin-sdk/es/app/action';
 import ExtensionSdkService from '../../core/service/api/extension-sdk.service';
@@ -45,12 +48,15 @@ describe('src/app/init/actions.init.ts', () => {
             entityIds: ['123'],
         });
 
-        expect(mock).toHaveBeenCalledWith(expect.objectContaining({
-            url: 'https://example.com',
-            entity: 'customer',
-            action: expect.any(String),
-            appName: appName,
-        }), ['123']);
+        expect(mock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                url: 'https://example.com',
+                entity: 'customer',
+                action: expect.any(String),
+                appName: appName,
+            }),
+            ['123'],
+        );
     });
 
     it('should not handle actionExecute if extension is not found', async () => {

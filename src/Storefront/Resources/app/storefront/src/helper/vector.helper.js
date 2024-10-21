@@ -111,7 +111,7 @@ class Vector {
         if (quotient instanceof Vector) {
             return new this.constructor(this.entries.map((e, index) => {
                 return e / quotient.entries[index];
-            }))
+            }));
         }
 
         if (quotient === 0) {
@@ -147,8 +147,8 @@ class Vector {
                 }
 
                 return acc;
-            }, true)
-        } catch(e) {
+            }, true);
+        } catch (e) {
             return false;
         }
     }
@@ -164,7 +164,7 @@ class Vector {
         return this.entries.reduce((acc, e, index) => {
             acc += e * vector.entries[index];
             return acc;
-        }, 0)
+        }, 0);
     }
 
     /**
@@ -248,7 +248,7 @@ class Vector3 extends Vector {
             (this.y * vector.z - this.z * vector.y),
             (this.z * vector.x - this.x * vector.z),
             (this.x * vector.y - this.y * vector.x)
-        )
+        );
     }
 }
 

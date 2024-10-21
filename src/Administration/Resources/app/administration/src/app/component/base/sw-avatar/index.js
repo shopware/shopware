@@ -46,6 +46,8 @@ const colors = [
 Component.register('sw-avatar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         color: {
             type: String,
@@ -87,7 +89,10 @@ Component.register('sw-avatar', {
             required: false,
             default: 'circle',
             validator: (value) => {
-                return ['circle', 'square'].includes(value);
+                return [
+                    'circle',
+                    'square',
+                ].includes(value);
             },
         },
     },

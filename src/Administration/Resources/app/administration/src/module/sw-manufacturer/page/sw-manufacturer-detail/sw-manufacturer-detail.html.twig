@@ -18,7 +18,7 @@
         {% block sw_manufacturer_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
-            :disabled="manufacturerIsLoading"
+            :disabled="manufacturerIsLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('sw-manufacturer.detail.buttonCancel') }}
@@ -32,7 +32,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-manufacturer-detail__save-action"
             :is-loading="isLoading"
-            :disabled="isLoading || !acl.can('product_manufacturer.editor')"
+            :disabled="isLoading || !acl.can('product_manufacturer.editor') || undefined"
             variant="primary"
             @click.prevent="onSave"
         >
@@ -47,7 +47,7 @@
     {% block sw_manufacturer_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
-            :disabled="manufacturerId == null"
+            :disabled="manufacturerId == null || undefined"
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
             @on-change="onChangeLanguage"
@@ -96,7 +96,7 @@
                                 validation="required"
                                 required
                                 :error="manufacturerNameError"
-                                :disabled="!acl.can('product_manufacturer.editor')"
+                                :disabled="!acl.can('product_manufacturer.editor') || undefined"
                             />
                             {% endblock %}
 
@@ -107,7 +107,7 @@
                                 :label="$tc('sw-manufacturer.detail.labelLink')"
                                 :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
                                 name="link"
-                                :disabled="!acl.can('product_manufacturer.editor')"
+                                :disabled="!acl.can('product_manufacturer.editor') || undefined"
                             />
                             {% endblock %}
                         </div>
@@ -127,7 +127,7 @@
                             :upload-tag="mediaUploadTag"
                             :label="$tc('sw-manufacturer.detail.labelLogo')"
                             :default-folder="manufacturerRepository.entityName"
-                            :disabled="!acl.can('product_manufacturer.editor')"
+                            :disabled="!acl.can('product_manufacturer.editor') || undefined"
                             @sw-media-upload-v2-media-upload-success="setMediaItem"
                             @media-drop="onDropMedia"
                             @media-upload-sidebar-open="openMediaSidebar"
@@ -145,7 +145,7 @@
                         name="description"
                         sanitize-input
                         sanitize-field-name="product_manufacturer_translation.description"
-                        :disabled="!acl.can('product_manufacturer.editor')"
+                        :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
                     {% endblock %}
                 </sw-card>
@@ -163,7 +163,7 @@
                         v-if="manufacturer"
                         :entity="manufacturer"
                         :sets="customFieldSets"
-                        :disabled="!acl.can('product_manufacturer.editor')"
+                        :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
                 </sw-card>
                 {% endblock %}
@@ -178,7 +178,7 @@
         <sw-sidebar :propagate-width="true">
             <sw-sidebar-media-item
                 ref="mediaSidebarItem"
-                :disabled="!acl.can('product_manufacturer.editor')"
+                :disabled="!acl.can('product_manufacturer.editor') || undefined"
             >
                 <template
                     #context-menu-items="media"

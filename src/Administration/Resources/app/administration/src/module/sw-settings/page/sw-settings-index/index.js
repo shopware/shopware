@@ -10,6 +10,8 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     metaInfo() {
@@ -21,34 +23,43 @@ export default {
     computed: {
         settingsGroups() {
             const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
-            return settingsGroups.reduce((acc, [groupName, groupSettings]) => {
-                const group = groupSettings
-                    .filter((setting) => {
-                        if (!setting.privilege) {
-                            return true;
-                        }
+            return settingsGroups.reduce(
+                (
+                    acc,
+                    [
+                        groupName,
+                        groupSettings,
+                    ],
+                ) => {
+                    const group = groupSettings
+                        .filter((setting) => {
+                            if (!setting.privilege) {
+                                return true;
+                            }
 
-                        return this.acl.can(setting.privilege);
-                    })
-                    .sort((a, b) => {
-                        const labelA = typeof a.label === 'string' ? a.label : a.label?.label;
-                        const labelB = typeof b.label === 'string' ? b.label : b.label?.label;
+                            return this.acl.can(setting.privilege);
+                        })
+                        .sort((a, b) => {
+                            const labelA = typeof a.label === 'string' ? a.label : a.label?.label;
+                            const labelB = typeof b.label === 'string' ? b.label : b.label?.label;
 
-                        return this.$tc(labelA).localeCompare(this.$tc(labelB));
-                    });
+                            return this.$tc(labelA).localeCompare(this.$tc(labelB));
+                        });
 
-                if (group.length > 0) {
-                    acc[groupName] = group;
-                }
+                    if (group.length > 0) {
+                        acc[groupName] = group;
+                    }
 
-                return acc;
-            }, {});
+                    return acc;
+                },
+                {},
+            );
         },
     },
 
     methods: {
         hasPluginConfig() {
-            return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0);
+            return hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0;
         },
 
         getRouteConfig(settingsItem) {

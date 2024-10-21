@@ -9,6 +9,8 @@ import './sw-import-export-edit-profile-field-indicators.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         profile: {
             type: Object,
@@ -17,13 +19,10 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors(
-            'profile',
-            [
-                'delimiter',
-                'enclosure',
-            ],
-        ),
+        ...mapPropertyErrors('profile', [
+            'delimiter',
+            'enclosure',
+        ]),
 
         supportedDelimiter() {
             return [

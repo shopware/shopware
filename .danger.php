@@ -16,8 +16,13 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
     ],
     'strict' => [
-        '^phpstan\/phpstan.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
-        '^symplify\/phpstan-rules$'  => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpstan\/phpdoc-parser.*$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of no lock on their side',
+        '^friendsofphp\/php-cs-fixer$' => 'Even patch updates for PHP-CS-Fixer may lead to a red CI pipeline, because of new style issues',
+        '^symplify\/phpstan-rules$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
+        '^rector\/type-perfect$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
+        '^tomasvotruba\/type-coverage$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpat\/phpat$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
         '^scssphp\/scssphp$' => 'Patch updates of scssphp might lead to UI breaks, therefore it is pinned.',
         '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
@@ -119,7 +124,7 @@ return (new Config())
 
                 if ($filesWithIgnoredErrors) {
                     $context->failure(
-                        'Some files you touched in your MR contain ignored phpstan errors. Please be nice and fix all ignored errors for the following files:<br>'
+                        'Some files you touched in your MR contain ignored PHPStan errors. Please be nice and fix all ignored errors for the following files:<br>'
                         . implode('<br>', $filesWithIgnoredErrors)
                     );
                 }
@@ -396,6 +401,32 @@ return (new Config())
         $missingUnitTests = [];
         $unitTestsName = [];
 
+        // prepare phpunit code coverage exclude lists
+        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+        $excludedDirs = [];
+        $excludedFiles = [];
+        $dom = new \DOMDocument();
+        $loaded = $dom->load($phpUnitConfig);
+        if ($loaded) {
+            $xpath = new \DOMXPath($dom);
+            $dirsDomElements = $xpath->query('//source/exclude/directory');
+
+            foreach ($dirsDomElements as $dirDomElement) {
+                $excludedDirs[] = [
+                    'path'=> rtrim($dirDomElement->nodeValue, '/') . '/',
+                    'suffix' => $dirDomElement->getAttribute('suffix') ?: '',
+                ];
+            }
+
+            $filesDomElements = $xpath->query('//source/exclude/file');
+
+            foreach ($filesDomElements as $fileDomElements) {
+                $excludedFiles[] = $fileDomElements->nodeValue;
+            }
+        } else {
+            $context->warning(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
+        }
+
         foreach ($addedUnitTests as $file) {
             $content = $file->getContent();
 
@@ -435,6 +466,20 @@ return (new Config())
 
             if (\str_starts_with($class, 'Migration1')) {
                 continue;
+            }
+
+            // process phpunit code coverage exclude lists
+            if (in_array($file->name, $excludedFiles, true)) {
+                continue;
+            }
+
+            $dir = dirname($file->name);
+            $fileName = basename($file->name);
+
+            foreach ($excludedDirs as $excludedDir) {
+                if (str_starts_with($dir, $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
+                    continue 2;
+                }
             }
 
             $ignoreSuffixes = [
@@ -479,7 +524,7 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
-            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string)$composerFile->name, 'src/WebInstaller')) {
+            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string)$composerFile->name, 'src/WebInstaller') || str_contains((string)$composerFile->name, 'src/Core/DevOps/StaticAnalyze/PHPStan')) {
                 continue;
             }
 

@@ -1,9 +1,15 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper({ template = '' } = { template: '' }) {
     return mount(
         {
-            template: template.length > 0 ? template : `
+            template:
+                template.length > 0
+                    ? template
+                    : `
             <div>
                 <div class="test-one">
                     <input class="test-one"/>

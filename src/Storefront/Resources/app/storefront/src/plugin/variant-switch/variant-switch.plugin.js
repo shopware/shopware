@@ -21,6 +21,7 @@ export default class VariantSwitchPlugin extends Plugin {
         pageType: '',
         radioFieldSelector: '.product-detail-configurator-option-input',
         selectFieldSelector: '.product-detail-configurator-select-input',
+        focusHandlerKey: 'variant-switch',
     };
 
     init() {
@@ -33,6 +34,7 @@ export default class VariantSwitchPlugin extends Plugin {
         this._ensureFormElement();
         this._preserveCurrentValues();
         this._registerEvents();
+        this._resumeFocusState();
     }
 
     /**
@@ -53,7 +55,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _preserveCurrentValues() {
-        if(this._radioFields) {
+        if (this._radioFields) {
             Iterator.iterate(this._radioFields, field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     if (field.dataset) {
@@ -98,6 +100,7 @@ export default class VariantSwitchPlugin extends Plugin {
             return;
         }
 
+        this._saveFocusState(event.target);
         this._redirectToVariant(query);
     }
 
@@ -124,7 +127,7 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _getFormValue() {
         const serialized = {};
-        if(this._radioFields) {
+        if (this._radioFields) {
             Iterator.iterate(this._radioFields, field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     if (field.checked) {
@@ -134,7 +137,7 @@ export default class VariantSwitchPlugin extends Plugin {
             });
         }
 
-        if(this._selectFields) {
+        if (this._selectFields) {
             Iterator.iterate(this._selectFields, field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     const selectedOption = [...field.options].find(option => option.selected);
@@ -188,5 +191,20 @@ export default class VariantSwitchPlugin extends Plugin {
             const data = JSON.parse(response);
             window.location.replace(data.url);
         });
+    }
+
+    /**
+     * @param {HTMLInputElement} inputElement
+     * @private
+     */
+    _saveFocusState(inputElement) {
+        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[data-variant-switch-value="${inputElement.dataset.variantSwitchValue}"]`);
+    }
+
+    /**
+     * @private
+     */
+    _resumeFocusState() {
+        window.focusHandler.resumeFocusStatePersistent(this.options.focusHandlerKey);
     }
 }

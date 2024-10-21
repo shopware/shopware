@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Update\Services;
 
 use GuzzleHttp\Exception\ClientException;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
+use Shopware\Core\Framework\Update\Event\ExtensionCompatibilitiesResolvedEvent;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @phpstan-type Compatibility array{name: string, managedByComposer: bool, installedVersion: ?string, statusVariant: ?string, statusColor: ?string, statusMessage: string, statusName: string}
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ExtensionCompatibility
 {
     final public const PLUGIN_COMPATIBILITY_COMPATIBLE = 'compatible';
@@ -38,7 +40,8 @@ class ExtensionCompatibility
      */
     public function __construct(
         private StoreClient $storeClient,
-        private AbstractExtensionDataProvider $extensionDataProvider
+        private AbstractExtensionDataProvider $extensionDataProvider,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -63,7 +66,7 @@ class ExtensionCompatibility
 
         $storeInfoValues = array_column($storeInfo, 'name');
 
-        return array_map(static function (ExtensionStruct $entity) use ($storeInfoValues, $storeInfo) {
+        $compatibilities = array_map(static function (ExtensionStruct $entity) use ($storeInfoValues, $storeInfo) {
             $index = array_search($entity->getName(), $storeInfoValues, true);
 
             if ($index === false) {
@@ -87,6 +90,10 @@ class ExtensionCompatibility
                 'statusName' => $storeInfo[$index]['status']['name'],
             ], self::mapColorToStatusVariant($storeInfo[$index]['status']['type']));
         }, array_values($extensions->getElements()));
+
+        $this->eventDispatcher->dispatch($event = new ExtensionCompatibilitiesResolvedEvent($update, $extensions, $compatibilities, $context));
+
+        return $event->compatibilities;
     }
 
     /**

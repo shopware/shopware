@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -6,49 +6,50 @@ import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
-
 const { Utils } = Shopware;
 
 const parentProductData = {
     id: 'productId',
-    purchasePrices: [{
-        currencyId: '1',
-        linked: true,
-        gross: 0,
-        net: 0,
-    }],
-    price: [{
-        currencyId: '1',
-        linked: true,
-        gross: 100,
-        net: 84.034,
-        listPrice: {
+    purchasePrices: [
+        {
             currencyId: '1',
             linked: true,
-            gross: 200,
-            net: 168.07,
+            gross: 0,
+            net: 0,
         },
-        regulationPrice: {
+    ],
+    price: [
+        {
             currencyId: '1',
             linked: true,
             gross: 100,
-            net: 93.45,
+            net: 84.034,
+            listPrice: {
+                currencyId: '1',
+                linked: true,
+                gross: 200,
+                net: 168.07,
+            },
+            regulationPrice: {
+                currencyId: '1',
+                linked: true,
+                gross: 100,
+                net: 93.45,
+            },
         },
-    }],
+    ],
 };
-
 
 describe('module/sw-product/component/sw-product-price-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity =
-            {
-                metaTitle: 'Product1',
-                id: 'productId1',
-                taxId: 'taxId',
-                purchasePrices: null,
-                price: null,
-                ...productEntityOverride,
-            };
+        const productEntity = {
+            metaTitle: 'Product1',
+            id: 'productId1',
+            taxId: 'taxId',
+            purchasePrices: null,
+            price: null,
+            ...productEntityOverride,
+        };
 
         const parentProduct = {
             ...parentProductData,
@@ -100,8 +101,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                                             isoCode: 'EUR',
                                         };
                                     },
-                                    productTaxRate: () => {
-                                    },
+                                    productTaxRate: () => {},
                                 },
                             },
                         },
@@ -115,7 +115,10 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-list-price-field': await wrapTestComponent('sw-list-price-field'),
                     'sw-inheritance-switch': {
-                        props: ['isInherited', 'disabled'],
+                        props: [
+                            'isInherited',
+                            'disabled',
+                        ],
                         template: `
                           <div class="sw-inheritance-switch">
                           <div v-if="isInherited"
@@ -163,7 +166,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-inherited').exists()).toBeTruthy();
 
-        priceFields.forEach(priceField => {
+        priceFields.forEach((priceField) => {
             expect(priceField.attributes().disabled).toBeTruthy();
         });
 
@@ -172,12 +175,14 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     it('should enable all price fields and toggle inheritance switch off if product variant price exists', async () => {
         wrapper = await createWrapper({
-            price: [{
-                currencyId: '1',
-                linked: true,
-                gross: 80,
-                net: 67.27,
-            }],
+            price: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 80,
+                    net: 67.27,
+                },
+            ],
         });
         await flushPromises();
 
@@ -187,17 +192,19 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.forEach(priceField => {
+        priceFields.forEach((priceField) => {
             expect(priceField.attributes().disabled).toBeFalsy();
         });
 
         expect(wrapper.vm.prices).toEqual({
-            price: [{
-                currencyId: '1',
-                linked: true,
-                gross: 80,
-                net: 67.27,
-            }],
+            price: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 80,
+                    net: 67.27,
+                },
+            ],
             purchasePrices: [],
         });
     });
@@ -216,7 +223,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.forEach(priceField => {
+        priceFields.forEach((priceField) => {
             expect(priceField.attributes().disabled).toBeFalsy();
         });
 
@@ -246,7 +253,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.forEach(priceField => {
+        priceFields.forEach((priceField) => {
             expect(priceField.attributes().disabled).toBeFalsy();
         });
 
@@ -259,12 +266,14 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on when user clicks on restore inheritance button', async () => {
         wrapper = await createWrapper({
-            price: [{
-                currencyId: '1',
-                linked: true,
-                gross: 80,
-                net: 67.27,
-            }],
+            price: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 80,
+                    net: 67.27,
+                },
+            ],
         });
         await flushPromises();
 
@@ -277,7 +286,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.forEach(priceField => {
+        priceFields.forEach((priceField) => {
             expect(priceField.attributes().disabled).toBeTruthy();
         });
 
@@ -293,7 +302,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
             '.sw-list-price-field__list-price sw-price-field-stub',
         ];
 
-        priceFieldsClassName.forEach(item => {
+        priceFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeTruthy();
         });
     });
@@ -319,7 +328,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
             '.sw-list-price-field__list-price sw-price-field-stub',
         ];
 
-        priceFieldsClassName.forEach(item => {
+        priceFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();
         });
     });

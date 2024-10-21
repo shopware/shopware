@@ -1,11 +1,8 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import swProductDetailLayout from 'src/module/sw-product/view/sw-product-detail-layout';
-
-Shopware.Component.register('sw-product-detail-layout', swProductDetailLayout);
 
 const { State } = Shopware;
 
@@ -21,19 +18,25 @@ async function createWrapper(privileges = []) {
                             }
                             return Promise.resolve({
                                 id,
-                                sections: [{
-                                    blocks: [{
-                                        slots: [{
-                                            id: 'slot1',
-                                            config: {
-                                                content: {
-                                                    value: 'product.name',
-                                                    source: 'mapped',
-                                                },
+                                sections: [
+                                    {
+                                        blocks: [
+                                            {
+                                                slots: [
+                                                    {
+                                                        id: 'slot1',
+                                                        config: {
+                                                            content: {
+                                                                value: 'product.name',
+                                                                source: 'mapped',
+                                                            },
+                                                        },
+                                                    },
+                                                ],
                                             },
-                                        }],
-                                    }],
-                                }],
+                                        ],
+                                    },
+                                ],
                             });
                         },
                     }),
@@ -43,7 +46,9 @@ async function createWrapper(privileges = []) {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -62,7 +67,6 @@ async function createWrapper(privileges = []) {
     });
 }
 
-
 describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     beforeAll(() => {
         State.registerModule('swProductDetail', {
@@ -79,55 +83,57 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                 isLoading: () => false,
             },
         });
-        State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'cmsPage',
+            state: () => ({
                 currentPage: null,
-            },
-            mutations: {
-                setCurrentPage(state, currentPage) {
-                    state.currentPage = currentPage;
-                },
-
-                removeCurrentPage(state) {
-                    state.currentPage = null;
-                },
-
-                setCurrentMappingEntity(state, entity) {
-                    state.currentMappingEntity = entity;
-                },
-
-                removeCurrentMappingEntity(state) {
-                    state.currentMappingEntity = null;
-                },
-
-                setCurrentMappingTypes(state, types) {
-                    state.currentMappingTypes = types;
-                },
-
-                removeCurrentMappingTypes(state) {
-                    state.currentMappingTypes = {};
-                },
-
-                setCurrentDemoEntity(state, entity) {
-                    state.currentDemoEntity = entity;
-                },
-
-                removeCurrentDemoEntity(state) {
-                    state.currentDemoEntity = null;
-                },
-            },
-
+            }),
             actions: {
-                resetCmsPageState({ commit }) {
-                    commit('removeCurrentPage');
-                    commit('removeCurrentMappingEntity');
-                    commit('removeCurrentMappingTypes');
-                    commit('removeCurrentDemoEntity');
+                setCurrentPage(currentPage) {
+                    this.currentPage = currentPage;
+                },
+
+                removeCurrentPage() {
+                    this.currentPage = null;
+                },
+
+                setCurrentMappingEntity(entity) {
+                    this.currentMappingEntity = entity;
+                },
+
+                removeCurrentMappingEntity() {
+                    this.currentMappingEntity = null;
+                },
+
+                setCurrentMappingTypes(types) {
+                    this.currentMappingTypes = types;
+                },
+
+                removeCurrentMappingTypes() {
+                    this.currentMappingTypes = {};
+                },
+
+                setCurrentDemoEntity(entity) {
+                    this.currentDemoEntity = entity;
+                },
+
+                removeCurrentDemoEntity() {
+                    this.currentDemoEntity = null;
+                },
+
+                resetCmsPageState() {
+                    this.removeCurrentPage();
+                    this.removeCurrentMappingEntity();
+                    this.removeCurrentMappingTypes();
+                    this.removeCurrentDemoEntity();
                 },
             },
         });
         State.commit('context/setApiLanguageId', '123456789');
+    });
+
+    afterAll(() => {
+        Shopware.Store.unregister('cmsPage');
     });
 
     it('should turn on layout modal', async () => {
@@ -158,7 +164,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
-        wrapper.vm.$store.commit('cmsPageState/setCurrentPage', null);
+        Shopware.Store.get('cmsPage').setCurrentPage(null);
 
         await wrapper.vm.onOpenInPageBuilder();
 
@@ -170,7 +176,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
-        wrapper.vm.$store.commit('cmsPageState/setCurrentPage', { id: 'id' });
+        Shopware.Store.get('cmsPage').setCurrentPage({ id: 'id' });
 
         await wrapper.vm.onOpenInPageBuilder();
 
@@ -256,7 +262,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should not be able to view layout config if cms page is locked', async () => {
         const wrapper = await createWrapper(['product.editor']);
         await wrapper.vm.onResetLayout();
-        Shopware.State.commit('cmsPageState/setCurrentPage', { id: 'id', locked: true });
+        Shopware.Store.get('cmsPage').setCurrentPage({ id: 'id', locked: true });
         await flushPromises();
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');

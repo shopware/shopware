@@ -11,7 +11,15 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'configService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'configService',
+    ],
+
+    emits: ['media-open'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -144,10 +152,9 @@ export default {
 
             this.product.downloads.add(productDownload);
             if (this.error) {
-                Shopware.State.dispatch(
-                    'error/removeApiError',
-                    { expression: this.error.selfLink },
-                );
+                Shopware.State.dispatch('error/removeApiError', {
+                    expression: this.error.selfLink,
+                });
             }
         },
 

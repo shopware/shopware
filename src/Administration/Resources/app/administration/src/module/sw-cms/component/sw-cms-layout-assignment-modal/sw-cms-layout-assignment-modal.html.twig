@@ -134,7 +134,10 @@
                     :categories-collection="page.categories"
                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
+                    :page-id="page.id"
+                    :is-categories-loading="isCategoriesLoading"
                     class="sw-cms-layout-assignment-modal__category-select"
+                    @categories-load-more="onExtraCategories"
                 />
                 {% endblock %}
             </template>
@@ -196,7 +199,6 @@
                     :select-label="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
                 >
-
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
                     <template #column-name="{ item, column }">
@@ -205,7 +207,7 @@
                         >
                             <sw-product-variant-info
                                 :variations="item.options"
-                                @click.native="onAbort"
+                                @click="onAbort"
                             >
                                 {{ item.translated.name }}
                             </sw-product-variant-info>
@@ -238,6 +240,7 @@
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
                     <template #empty-state>
                         <img
+                            class="sw-cms-product-assignment__empty-state"
                             :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             alt=""
                         >

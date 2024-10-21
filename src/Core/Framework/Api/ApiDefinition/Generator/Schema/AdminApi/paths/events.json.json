@@ -5,7 +5,7 @@
         "\/_info\/events.json": {
             "get": {
                 "tags": [
-                    "System Info & Healthcheck"
+                    "System Info & Health Check"
                 ],
                 "summary": "Get Business events",
                 "description": "Get a list of about the business events.",

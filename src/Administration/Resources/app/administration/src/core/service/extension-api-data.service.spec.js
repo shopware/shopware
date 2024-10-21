@@ -10,7 +10,7 @@ import { getPublishedDataSets, publishData, deepCloneWithEntity } from 'src/core
 import EntityCollection from 'src/core/data/entity-collection.data';
 import lodash from 'lodash';
 
-lodash.debounce = jest.fn(fn => fn);
+lodash.debounce = jest.fn((fn) => fn);
 
 const serializeEntity = SerializerFactory({
     handleFactory: handleFactory,
@@ -19,13 +19,9 @@ const serializeEntity = SerializerFactory({
 
 describe('core/service/extension-api-data.service.ts', () => {
     it('should keep functions on entity', async () => {
-        const entity = new Entity(
-            Shopware.Utils.createId(),
-            'jest',
-            {
-                name: 'jest',
-            },
-        );
+        const entity = new Entity(Shopware.Utils.createId(), 'jest', {
+            name: 'jest',
+        });
 
         const wrapper = mount({
             template: '<h1>jest</h1>',
@@ -52,13 +48,9 @@ describe('core/service/extension-api-data.service.ts', () => {
     });
 
     it('should update entity', async () => {
-        const entity = new Entity(
-            Shopware.Utils.createId(),
-            'jestupdate',
-            {
-                name: 'beforeupdate',
-            },
-        );
+        const entity = new Entity(Shopware.Utils.createId(), 'jestupdate', {
+            name: 'beforeupdate',
+        });
 
         const wrapper = mount({
             template: '<h1>jest</h1>',
@@ -72,13 +64,9 @@ describe('core/service/extension-api-data.service.ts', () => {
         expect(entity.name).toBe('beforeupdate');
 
         jest.spyOn(window, 'addEventListener').mockImplementationOnce((event, handler) => {
-            const e = new Entity(
-                Shopware.Utils.createId(),
-                'jestupdate',
-                {
-                    name: 'beforeupdate',
-                },
-            );
+            const e = new Entity(Shopware.Utils.createId(), 'jestupdate', {
+                name: 'beforeupdate',
+            });
 
             e.name = 'updated';
 
@@ -107,11 +95,7 @@ describe('core/service/extension-api-data.service.ts', () => {
     });
 
     it('should keep functions on collection', async () => {
-        const collection = new EntityCollection(
-            'jest',
-            'jest',
-            {},
-        );
+        const collection = new EntityCollection('jest', 'jest', {});
 
         const wrapper = mount({
             template: '<h1>jest</h1>',
@@ -138,29 +122,21 @@ describe('core/service/extension-api-data.service.ts', () => {
     });
 
     it('should update collection', async () => {
-        const collection = new EntityCollection(
-            'jest',
-            'jest',
-            {},
-        );
+        const collection = new EntityCollection('jest', 'jest', {});
 
-        collection.add(new Entity(
-            Shopware.Utils.createId(),
-            'jest',
-            {
+        collection.add(
+            new Entity(Shopware.Utils.createId(), 'jest', {
                 id: 1,
                 name: 'jest1',
-            },
-        ));
+            }),
+        );
 
-        collection.add(new Entity(
-            Shopware.Utils.createId(),
-            'jest',
-            {
+        collection.add(
+            new Entity(Shopware.Utils.createId(), 'jest', {
                 id: 2,
                 name: 'jest2',
-            },
-        ));
+            }),
+        );
 
         const wrapper = mount({
             template: '<h1>jest</h1>',
@@ -406,29 +382,21 @@ describe('core/service/extension-api-data.service.ts', () => {
     });
 
     it('should add to collection', async () => {
-        const collection = new EntityCollection(
-            'jest',
-            'jest',
-            {},
-        );
+        const collection = new EntityCollection('jest', 'jest', {});
 
-        collection.add(new Entity(
-            Shopware.Utils.createId(),
-            'jest',
-            {
+        collection.add(
+            new Entity(Shopware.Utils.createId(), 'jest', {
                 id: 1,
                 name: 'jest1',
-            },
-        ));
+            }),
+        );
 
-        collection.add(new Entity(
-            Shopware.Utils.createId(),
-            'jest',
-            {
+        collection.add(
+            new Entity(Shopware.Utils.createId(), 'jest', {
                 id: 2,
                 name: 'jest2',
-            },
-        ));
+            }),
+        );
 
         const wrapper = mount({
             template: '<h1>jest</h1>',
@@ -616,5 +584,58 @@ describe('core/service/extension-api-data.service.ts', () => {
         // Assert in publishedDataSets that it was removed
         publishedDataSets = getPublishedDataSets();
         expect(publishedDataSets).toHaveLength(0);
+    });
+
+    it.each([
+        'dev',
+        'prod',
+    ])('should show deprecation warning in "%s" env', async (env) => {
+        // Setup
+        const wrapper = mount({
+            template: '<h1>jest</h1>',
+            data() {
+                return {
+                    count: 42,
+                };
+            },
+        });
+
+        const mock = jest.fn();
+        let envBefore;
+        if (env === 'prod') {
+            envBefore = process.env;
+            process.env = 'prod';
+            Shopware.Utils.debug.warn = mock;
+        } else {
+            Shopware.Utils.debug.error = mock;
+        }
+
+        Shopware.State.commit('extensions/addExtension', {
+            name: 'JestApp',
+            baseUrl: '', // This only works because it's a startsWith check
+        });
+        // Setup end
+
+        publishData({
+            id: 'jest',
+            path: 'count',
+            scope: wrapper.vm,
+            deprecated: true,
+            deprecationMessage: 'No replacement available, use API instead.',
+        });
+        await flushPromises();
+
+        // Get dataset to trigger deprecation error
+        await send('datasetGet', { id: 'jest' });
+
+        expect(mock).toHaveBeenCalledWith(
+            'CORE',
+            'The extension "JestApp" uses a deprecated data set "jest". No replacement available, use API instead.',
+        );
+
+        // Restore env
+        if (envBefore) {
+            process.env = envBefore;
+        }
     });
 });

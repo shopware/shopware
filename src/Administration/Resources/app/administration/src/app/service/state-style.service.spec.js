@@ -50,20 +50,13 @@ describe('src/app/service/state-style.service.ts', () => {
         const stateStyleService = new StateStyleService();
         const stateMachineForTesting = 'test-state-machine';
 
-        stateStyleService.addStyle(
-            stateMachineForTesting,
-            'foo',
-            {
-                icon: 'danger',
-                color: 'danger',
-                variant: 'danger',
-            },
-        );
+        stateStyleService.addStyle(stateMachineForTesting, 'foo', {
+            icon: 'danger',
+            color: 'danger',
+            variant: 'danger',
+        });
 
-        const style = stateStyleService.getStyle(
-            stateMachineForTesting,
-            'bar',
-        );
+        const style = stateStyleService.getStyle(stateMachineForTesting, 'bar');
 
         expect(typeof style).toBe('object');
         expect(style.hasOwnProperty('variant')).toBe(true);
@@ -72,10 +65,7 @@ describe('src/app/service/state-style.service.ts', () => {
 
     it('should return placeholder for non existing statemachine', async () => {
         const stateStyleService = new StateStyleService();
-        const style = stateStyleService.getStyle(
-            'none-existing-statemachine',
-            'bar',
-        );
+        const style = stateStyleService.getStyle('none-existing-statemachine', 'bar');
 
         expect(typeof style).toBe('object');
         expect(style.hasOwnProperty('variant')).toBe(true);
@@ -118,15 +108,11 @@ describe('src/app/service/state-style.service.ts', () => {
         };
 
         Object.keys(variantMapping).forEach((key) => {
-            stateStyleService.addStyle(
-                stateMachineForTesting,
-                key,
-                {
-                    icon: key,
-                    color: key,
-                    variant: key,
-                },
-            );
+            stateStyleService.addStyle(stateMachineForTesting, key, {
+                icon: key,
+                color: key,
+                variant: key,
+            });
 
             const style = stateStyleService.getStyle(stateMachineForTesting, key);
 

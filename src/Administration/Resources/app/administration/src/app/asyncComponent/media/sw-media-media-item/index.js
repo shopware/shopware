@@ -28,9 +28,20 @@ const { dom } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['mediaService'],
+
+    emits: [
+        'media-item-rename-success',
+        'media-item-play',
+        'media-item-delete',
+        'media-folder-move',
+        'media-item-replaced',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -65,6 +76,15 @@ export default {
 
         fileSizeFilter() {
             return Shopware.Filter.getByName('fileSize');
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

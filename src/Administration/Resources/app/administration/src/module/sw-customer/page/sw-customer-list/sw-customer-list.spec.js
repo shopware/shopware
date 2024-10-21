@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -17,24 +21,36 @@ async function createWrapper(privileges = []) {
                 repositoryFactory: {
                     create: (entity) => ({
                         create: () => {
-                            return Promise.resolve(entity === 'customer' ? [{
-                                id: '1a2b3c',
-                                entity: 'customer',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                            }] : []);
+                            return Promise.resolve(
+                                entity === 'customer'
+                                    ? [
+                                          {
+                                              id: '1a2b3c',
+                                              entity: 'customer',
+                                              customerId: 'd4c3b2a1',
+                                              productId: 'd4c3b2a1',
+                                              salesChannelId: 'd4c3b2a1',
+                                          },
+                                      ]
+                                    : [],
+                            );
                         },
                         search: () => {
-                            return Promise.resolve(entity === 'customer' ? [{
-                                id: '1a2b3c',
-                                entity: 'customer',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                                sourceEntitiy: 'customer',
-                                createdById: '123213132',
-                            }] : []);
+                            return Promise.resolve(
+                                entity === 'customer'
+                                    ? [
+                                          {
+                                              id: '1a2b3c',
+                                              entity: 'customer',
+                                              customerId: 'd4c3b2a1',
+                                              productId: 'd4c3b2a1',
+                                              salesChannelId: 'd4c3b2a1',
+                                              sourceEntitiy: 'customer',
+                                              createdById: '123213132',
+                                          },
+                                      ]
+                                    : [],
+                            );
                         },
                     }),
                 },
@@ -84,6 +100,15 @@ async function createWrapper(privileges = []) {
                 'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
+                'sw-avatar': true,
+                'sw-text-field': true,
+                'sw-label': true,
+                'sw-checkbox-field': true,
+                'sw-pagination': true,
+                'sw-bulk-edit-modal': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-sidebar': true,
             },
         },
     });

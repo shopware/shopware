@@ -15,7 +15,7 @@ import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import ModuleFactory from 'src/core/factory/module.factory';
 import initializeRouter from 'src/app/init/router.init';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
-import Vue from 'vue';
+import { h, defineComponent } from 'vue';
 
 // Mock performance api for vue devtools
 window.performance.mark = () => {};
@@ -67,10 +67,16 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.State.get('system').locales = ['en-GB', 'de-DE'];
+        Shopware.State.get('system').locales = [
+            'en-GB',
+            'de-DE',
+        ];
 
         Shopware.State.commit('setAdminLocale', {
-            locales: ['en-GB', 'de-DE'],
+            locales: [
+                'en-GB',
+                'de-DE',
+            ],
             locale: 'en-GB',
             languageId: '12345678',
         });
@@ -80,14 +86,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         // reset node env
         process.env.NODE_ENV = 'test';
-
-        // reset vue spies
-        if (Vue.set.mock) {
-            Vue.set.mockReset();
-        }
-        if (Vue.delete.mock) {
-            Vue.delete.mockReset();
-        }
     });
 
     afterEach(() => {
@@ -105,10 +103,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should call setLocaleFromuser', async () => {
-        application = createApplication()
-            .addFactory('locale', () => {
-                return LocaleFactory;
-            });
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
 
         // create vueAdapter with custom application
         vueAdapter = new VueAdapter(application);
@@ -152,10 +149,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should watch for user changes and recall the "setLocaleWithId"', async () => {
-        application = createApplication()
-            .addFactory('locale', () => {
-                return LocaleFactory;
-            });
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
 
         // Mock current user in state
         Shopware.State.get('session').currentUser = {
@@ -476,13 +472,17 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 lifecycleSpy();
             },
             methods: {
-                foo() { return 'foo'; },
+                foo() {
+                    return 'foo';
+                },
             },
         });
 
         Shopware.Mixin.register('second-mixin', {
             methods: {
-                bar() { return 'bar'; },
+                bar() {
+                    return 'bar';
+                },
             },
         });
 
@@ -495,7 +495,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['second-mixin', 'first-mixin'],
+            mixins: [
+                'second-mixin',
+                'first-mixin',
+            ],
         });
 
         Shopware.Component.markComponentAsSync('base-component');
@@ -514,12 +517,16 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         const componentDefinition = {
             name: 'sw-foo',
 
-            render(h) {
-                return h('div', {
-                    class: {
-                        'sw-foo': true,
+            render() {
+                return h(
+                    'div',
+                    {
+                        class: {
+                            'sw-foo': true,
+                        },
                     },
-                }, ['Some text']);
+                    ['Some text'],
+                );
             },
         };
 
@@ -530,6 +537,19 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     describe('should initialize everything correctly', () => {
         let rootComponent;
+
+        beforeAll(() => {
+            global.allowedErrors.push({
+                method: 'warn',
+                msgCheck: (_, msg) => {
+                    if (typeof msg !== 'string') {
+                        return false;
+                    }
+
+                    return msg.includes('plugin is already installed');
+                },
+            });
+        });
 
         beforeEach(async () => {
             process.env.NODE_ENV = 'development';
@@ -593,7 +613,14 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             // create router
             const router = VueRouter.createRouter({
                 history: VueRouter.createWebHashHistory(),
-                routes: [],
+                routes: [
+                    {
+                        path: '/',
+                        component: defineComponent({
+                            template: '<sw-admin></sw-admin>',
+                        }),
+                    },
+                ],
             });
 
             // add main component
@@ -611,11 +638,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             // create div with id app
             document.body.innerHTML = '<div id="app"></div>';
 
-            rootComponent = vueAdapter.init(
-                '#app',
-                router,
-                {},
-            );
+            rootComponent = vueAdapter.init('#app', router, {});
+        });
+
+        afterEach(() => {
+            rootComponent.unmount();
+            rootComponent = undefined;
         });
 
         it('should initialize the plugins correctly', async () => {
@@ -634,18 +662,21 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should have correct working createTitle method', () => {
-            const result = rootComponent.config.globalProperties.$createTitle.call({
-                $root: {
-                    $tc: (v) => rootComponent.$tc(v),
-                },
-                $route: {
-                    meta: {
-                        $module: {
-                            title: 'global.my.mock.title',
+            const result = rootComponent.config.globalProperties.$createTitle.call(
+                {
+                    $root: {
+                        $tc: (v) => rootComponent.$tc(v),
+                    },
+                    $route: {
+                        meta: {
+                            $module: {
+                                title: 'global.my.mock.title',
+                            },
                         },
                     },
                 },
-            }, 'Test');
+                'Test',
+            );
 
             expect(result).toBe('Test | Mock title | Text Shopware Admin');
         });
@@ -709,17 +740,13 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should update the i18n global locale to update the locale in UI when the locale in the session store changes', async () => {
-            // Init Vue so that i18n is available
-            vueAdapter.initVue(
-                '#app',
-                {},
-                {},
-            );
-
             const expectedLocale = 'de-DE';
 
             Shopware.State.commit('setAdminLocale', {
-                locales: ['en-GB', 'de-DE'],
+                locales: [
+                    'en-GB',
+                    'de-DE',
+                ],
                 locale: expectedLocale,
                 languageId: '12345678',
             });

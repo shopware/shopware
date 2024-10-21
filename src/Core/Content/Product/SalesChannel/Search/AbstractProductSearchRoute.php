@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route is used for the product search in the search pages
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractProductSearchRoute
 {
     abstract public function getDecorated(): AbstractProductSearchRoute;

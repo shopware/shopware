@@ -16,7 +16,7 @@ const { types } = Shopware.Utils;
  *   ],
  *
  */
-export default Mixin.register('discard-detail-page-changes', (...entityNames: Array<string|Array<string>>) => {
+export default Mixin.register('discard-detail-page-changes', (...entityNames: Array<string | Array<string>>) => {
     const entities: string[] = [];
 
     function tryAddEntity(name: string) {

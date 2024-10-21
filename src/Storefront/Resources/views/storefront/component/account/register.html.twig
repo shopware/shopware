@@ -3,9 +3,9 @@
         <div class="card-body">
             {% block component_account_register_header %}
                 {% if cardTitle %}
-                    <h2 class="card-title">
+                    <h1 class="card-title">
                         {{ cardTitle }}
-                    </h2>
+                    </h1>
                 {% endif %}
             {% endblock %}
 
@@ -42,10 +42,21 @@
                     {% endblock %}
 
                     {% block component_account_register_personal %}
-                        <div class="register-personal mb-3">
+                        <fieldset class="register-personal mb-3">
+                            {% block component_account_register_personal_legend %}
+                                <legend class="register-personal-title visually-hidden">
+                                    {{ 'account.registerPersonalLegend'|trans|sw_sanitize }}
+                                </legend>
+                            {% endblock %}
+
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
+                                    {% if feature('v6.7.0.0') %}
+                                        {% set prefix = 'billingAddress' %}
+                                    {% endif %}
+
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                                        prefix: prefix,
                                         showBirthdayField: config('core.loginRegistration.showBirthdayField'),
                                         accountType: data.get('accountType')
                                     } %}
@@ -246,18 +257,18 @@
                                     </div>
                                 {% endblock %}
                             {% endblock %}
-                        </div>
+                        </fieldset>
                     {% endblock %}
 
                     {% block component_account_register_address %}
                         <div class="register-address mb-5">
                             {% block component_account_register_address_fields %}
                                 {% block component_account_register_address_billing %}
-                                    <div class="register-billing">
+                                    <fieldset class="register-billing">
                                         {% block component_account_register_address_billing_header %}
-                                            <div class="card-title">
+                                            <legend class="card-title">
                                                 {{ 'account.registerAddressBillingHeader'|trans|sw_sanitize }}
-                                            </div>
+                                            </legend>
                                         {% endblock %}
 
                                         {% block component_account_register_address_billing_fields %}
@@ -265,9 +276,10 @@
                                                 prefix: 'billingAddress',
                                                 data: data.get('billingAddress'),
                                                 showNoShippingPostfix: true,
+                                                scopeElementSelector: '.register-billing',
                                             } %}
                                         {% endblock %}
-                                    </div>
+                                    </fieldset>
                                 {% endblock %}
 
                                 {% block component_account_register_address_different_shipping %}
@@ -297,11 +309,11 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_shipping %}
-                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none mb-4">
+                                            <fieldset class="register-shipping js-form-field-toggle-shipping-address d-none mb-4">
                                                 {% block component_account_register_address_shipping_header %}
-                                                    <div class="card-title">
+                                                    <legend class="card-title">
                                                         {{ 'account.registerAddressShippingHeader'|trans|sw_sanitize }}
-                                                    </div>
+                                                    </legend>
                                                 {% endblock %}
 
                                                 {% block component_account_register_address_shipping_fields %}
@@ -329,10 +341,11 @@
                                                             data: data.get('shippingAddress'),
                                                             showNoShippingPostfix: true,
                                                             disableNonShippableCountries: true,
+                                                            scopeElementSelector: '.register-shipping',
                                                         } %}
                                                     {% endblock %}
                                                 {% endblock %}
-                                            </div>
+                                            </fieldset>
                                         {% endblock %}
                                     </div>
                                 {% endblock %}

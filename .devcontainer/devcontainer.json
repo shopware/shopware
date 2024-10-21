@@ -1,0 +1,26 @@
+{
+  "dockerComposeFile": "compose.yml",
+  "service": "editor",
+  "overrideCommand": false,
+  "forwardPorts": [8000, 8080, 8025],
+  "containerEnv": {
+    "COMPOSER_ROOT_VERSION": "6.6.9999999-dev"
+  },
+  "customizations": {
+    "jetbrains": {
+      "plugins" : [
+        "de.espend.idea.php.annotation",
+        "fr.adrienbrault.idea.symfony2plugin",
+        "de.shyim.shopware6"
+      ],
+    },
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "DEVSENSE.phptools-vscode"
+      ]
+    }
+  }
+}

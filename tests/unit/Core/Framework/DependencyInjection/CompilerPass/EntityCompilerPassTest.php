@@ -42,8 +42,8 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass = new EntityCompilerPass();
         $entityCompilerPass->process($container);
 
-        static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerRepository'));
-        static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerAddressRepository'));
+        static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerRepository'));
+        static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerAddressRepository'));
     }
 
     public function testEntityRepositoryAutowiringForAlreadyDefinedRepositories(): void

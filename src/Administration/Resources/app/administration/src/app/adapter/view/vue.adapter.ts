@@ -2,13 +2,10 @@
  * @package admin
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
-
-// Vue3 imports
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
 import type { Router } from 'vue-router';
-import type { Store } from 'vuex';
-
+import type { Store as VuexStore } from 'vuex';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -16,6 +13,8 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
+// @ts-expect-error - compatUtils is not typed
+import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
 
@@ -25,11 +24,11 @@ const { Component, State, Mixin } = Shopware;
  * @private
  */
 export default class VueAdapter extends ViewAdapter {
-    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig|boolean>>;
+    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig | boolean>>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [componentName: string]: VueComponent<any, any, any, any>
+        [componentName: string]: VueComponent<any, any, any, any>;
     };
 
     private i18n?: I18n;
@@ -42,7 +41,10 @@ export default class VueAdapter extends ViewAdapter {
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
         this.vueComponents = {};
-        this.app = createApp({ name: 'ShopwareAdministration', template: '<sw-admin />' });
+        this.app = createApp({
+            name: 'ShopwareAdministration',
+            template: '<sw-admin />',
+        });
     }
 
     /**
@@ -57,9 +59,9 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
 
-        const store = State._store;
+        const vuexRoot = State._store;
         // eslint-disable-next-line @typescript-eslint/ban-types
-        const i18n = this.initLocales(store) as I18n<{}, {}, {}, string, true>;
+        const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
 
         // add router to View
         this.router = router;
@@ -74,17 +76,23 @@ export default class VueAdapter extends ViewAdapter {
         this.app.config.performance = process.env.NODE_ENV !== 'production';
         this.app.config.globalProperties.$t = i18n.global.t;
         this.app.config.globalProperties.$tc = i18n.global.tc;
-        this.app.config.warnHandler = (
-            msg: string,
-            instance: unknown,
-            trace: string,
-        ) => {
-            const warnArgs = [`[Vue warn]: ${msg}`, trace, instance];
+        this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
+            const warnArgs = [
+                `[Vue warn]: ${msg}`,
+                trace,
+                instance,
+            ];
 
             console.warn(...warnArgs);
 
             if (msg.includes('Template compilation error')) {
-                console.error(...[`[Vue error]: ${msg}`, trace, instance]);
+                console.error(
+                    ...[
+                        `[Vue error]: ${msg}`,
+                        trace,
+                        instance,
+                    ],
+                );
                 throw new Error(msg);
             }
         };
@@ -110,8 +118,20 @@ export default class VueAdapter extends ViewAdapter {
         this.root = this.app;
 
         this.app.use(router);
-        this.app.use(store);
+        this.app.use(vuexRoot);
         this.app.use(i18n);
+
+        // Custom compatUtils check on component basis
+        this.app.use({
+            install: (app) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                app.config.globalProperties.isCompatEnabled = function (key: string) {
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+                    return this.$options.compatConfig?.[key] ?? compatUtils.isCompatEnabled(key);
+                };
+            },
+        });
 
         // Add global properties to root view instance
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
@@ -187,7 +207,7 @@ export default class VueAdapter extends ViewAdapter {
             'sw-settings-product-feature-sets-detail',
             'sw-system-config',
             'sw-settings-search-searchable-content',
-        ].forEach(componentName => {
+        ].forEach((componentName) => {
             Component.markComponentAsSync(componentName);
         });
 
@@ -207,7 +227,6 @@ export default class VueAdapter extends ViewAdapter {
         initContainer.router.createRouterInstance();
     }
 
-
     /**
      * Initializes all core components as Vue components.
      */
@@ -224,7 +243,7 @@ export default class VueAdapter extends ViewAdapter {
         /**
          * Initialize all meteor components
          */
-        const meteorComponents: (keyof (typeof MeteorImport))[] = [
+        const meteorComponents: (keyof typeof MeteorImport)[] = [
             'MtBanner',
             'MtLoader',
             'MtProgressBar',
@@ -237,6 +256,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',
+            'MtSlider',
             'MtSwitch',
             'MtTextField',
             'MtTextarea',
@@ -247,12 +267,18 @@ export default class VueAdapter extends ViewAdapter {
             'MtSkeletonBar',
             'MtToast',
             'MtFloatingUi',
+            'MtPopover',
         ];
 
         // Disable compat for meteor components
         meteorComponents.forEach((componentName) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, max-len
-            MeteorImport[componentName].compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
+            MeteorImport[componentName].compatConfig = Object.fromEntries(
+                Object.keys(Shopware.compatConfig).map((key) => [
+                    key,
+                    false,
+                ]),
+            );
         });
 
         meteorComponents.forEach((componentName) => {
@@ -271,9 +297,14 @@ export default class VueAdapter extends ViewAdapter {
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 
-        Object.entries(moduleSnippets).forEach(([key, moduleSnippet]) => {
-            this.applicationFactory.locale.extend(key, moduleSnippet);
-        });
+        Object.entries(moduleSnippets).forEach(
+            ([
+                key,
+                moduleSnippet,
+            ]) => {
+                this.applicationFactory.locale.extend(key, moduleSnippet);
+            },
+        );
 
         return this.applicationFactory.locale;
     }
@@ -311,22 +342,25 @@ export default class VueAdapter extends ViewAdapter {
 
             // load async components
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app?.component(componentName, defineAsyncComponent({
-                // the loader function
-                // @ts-expect-error - resolved config does not match completely a standard vue component
-                loader: () => this.componentResolver(componentName),
-                // Delay before showing the loading component. Default: 200ms.
-                delay: 0,
-                loadingComponent: {
-                    name: 'async-loading-component',
-                    inheritAttrs: false,
-                    render() {
-                        return h('div', {
-                            style: { display: 'none' },
-                        });
+            this.app?.component(
+                componentName,
+                defineAsyncComponent({
+                    // the loader function
+                    // @ts-expect-error - resolved config does not match completely a standard vue component
+                    loader: () => this.componentResolver(componentName),
+                    // Delay before showing the loading component. Default: 200ms.
+                    delay: 0,
+                    loadingComponent: {
+                        name: 'async-loading-component',
+                        inheritAttrs: false,
+                        render() {
+                            return h('div', {
+                                style: { display: 'none' },
+                            });
+                        },
                     },
-                },
-            }));
+                }),
+            );
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
             const vueComponent = this.app?.component(componentName);
@@ -340,17 +374,20 @@ export default class VueAdapter extends ViewAdapter {
 
     componentResolver(componentName: string) {
         if (!this.resolvedComponentConfigs.has(componentName)) {
-            this.resolvedComponentConfigs.set(componentName, new Promise((resolve) => {
-                void Component.build(componentName).then((componentConfig) => {
-                    if (typeof componentConfig === 'boolean') {
-                        resolve(false);
-                    } else {
-                        this.resolveMixins(componentConfig);
-                    }
+            this.resolvedComponentConfigs.set(
+                componentName,
+                new Promise((resolve) => {
+                    void Component.build(componentName).then((componentConfig) => {
+                        if (typeof componentConfig === 'boolean') {
+                            resolve(false);
+                        } else {
+                            this.resolveMixins(componentConfig);
+                        }
 
-                    resolve(componentConfig);
-                });
-            }));
+                        resolve(componentConfig);
+                    });
+                }),
+            );
         }
 
         return this.resolvedComponentConfigs.get(componentName);
@@ -480,7 +517,7 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Initialises the standard locales.
      */
-    initLocales(store: Store<VuexRootState>) {
+    initLocales(store: VuexStore<VuexRootState>) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
@@ -515,20 +552,24 @@ export default class VueAdapter extends ViewAdapter {
         this.setLocaleFromUser(store);
 
         // watch for changes of the user to update the locale
-        Shopware.State.watch(state => state.session.currentUser, (newValue, oldValue) => {
-            const currentUserLocaleId = newValue?.localeId;
-            const oldUserLocaleId = oldValue?.localeId;
+        Shopware.State.watch(
+            (state) => state.session.currentUser,
+            (newValue, oldValue) => {
+                const currentUserLocaleId = newValue?.localeId;
+                const oldUserLocaleId = oldValue?.localeId;
 
-            if (currentUserLocaleId && currentUserLocaleId !== oldUserLocaleId) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                Shopware.Service('localeHelper').setLocaleWithId(currentUserLocaleId);
-            }
-        }, { deep: true });
+                if (currentUserLocaleId && currentUserLocaleId !== oldUserLocaleId) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                    Shopware.Service('localeHelper').setLocaleWithId(currentUserLocaleId);
+                }
+            },
+            { deep: true },
+        );
 
         return i18n;
     }
 
-    setLocaleFromUser(store: Store<VuexRootState>) {
+    setLocaleFromUser(store: VuexStore<VuexRootState>) {
         const currentUser = store.state.session.currentUser;
 
         if (currentUser) {
@@ -546,7 +587,7 @@ export default class VueAdapter extends ViewAdapter {
     initTitle(app: App<Element>) {
         app.config.globalProperties.$createTitle = function createTitle(
             this: ComponentPublicInstance,
-            identifier: string|null = null,
+            identifier: string | null = null,
             ...additionalParams
         ): string {
             if (!this.$root) {
@@ -564,7 +605,12 @@ export default class VueAdapter extends ViewAdapter {
             const pageTitle = this.$root.$tc(moduleTitle);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
+            const params = [
+                baseTitle,
+                pageTitle,
+                identifier,
+                ...additionalParams,
+            ].filter((item) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 return item !== null && item.trim() !== '';
             });

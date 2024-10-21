@@ -1,107 +1,111 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AppAclService from 'src/app/service/app-acl.service';
 
 let privilegesService = new PrivilegesService();
-const appAclService = new AppAclService(
-    {
-        privileges: privilegesService,
-        appRepository: {
-            search: () => {
-                return Promise.resolve([
-                    {
-                        name: 'JestAppName',
-                    },
-                ]);
-            },
+const appAclService = new AppAclService({
+    privileges: privilegesService,
+    appRepository: {
+        search: () => {
+            return Promise.resolve([
+                {
+                    name: 'JestAppName',
+                },
+            ]);
         },
     },
-);
+});
 
 function isNew() {
     return false;
 }
 
 async function createWrapper(
-    {
-        privileges = [],
-        privilegeMappingEntries = [],
-        aclPrivileges = [],
-    } = {},
+    { privileges = [], privilegeMappingEntries = [], aclPrivileges = [] } = {},
     options = {
         isNew: false,
     },
 ) {
-    privilegeMappingEntries.forEach(mappingEntry => privilegesService.addPrivilegeMappingEntry(mappingEntry));
+    privilegeMappingEntries.forEach((mappingEntry) => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
     const $route = options.isNew ? { params: {} } : { params: { id: '12345789' } };
 
-    return mount(await wrapTestComponent('sw-users-permissions-role-detail', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-page': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-users-permissions-role-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-page': {
+                        template: `
 <div>
     <slot name="smart-bar-header"></slot>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>
     `,
-                },
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-icon': true,
-                'sw-card-view': true,
-                'sw-card': true,
-                'sw-field': true,
-                'sw-users-permissions-permissions-grid': true,
-                'sw-users-permissions-additional-permissions': true,
-                'sw-verify-user-modal': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
-                'router-view': true,
-                'sw-skeleton': true,
-                'sw-loader': true,
-            },
-            mocks: {
-                $route: $route,
-            },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return aclPrivileges.includes(identifier);
+                    },
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-icon': true,
+                    'sw-card-view': {
+                        template: '<div class="sw-card-view"><slot></slot></div>',
+                    },
+                    'sw-card': true,
+                    'sw-field': true,
+                    'sw-users-permissions-permissions-grid': true,
+                    'sw-users-permissions-additional-permissions': true,
+                    'sw-verify-user-modal': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'router-view': true,
+                    'sw-skeleton': true,
+                    'sw-loader': true,
+                    'sw-button': {
+                        emits: ['click'],
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
                 },
-                loginService: {},
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => ({
-                            isNew: () => true,
-                            name: '',
-                        }),
-                        get: () => Promise.resolve({
-                            isNew: isNew,
-                            name: 'demoRole',
-                            privileges: privileges,
-                        }),
-                        save: jest.fn(() => Promise.resolve()),
-                    }),
+                mocks: {
+                    $route: $route,
                 },
-                userService: {},
-                privileges: privilegesService,
-                appAclService: appAclService,
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return aclPrivileges.includes(identifier);
+                        },
+                    },
+                    loginService: {},
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => ({
+                                isNew: () => true,
+                                name: '',
+                            }),
+                            get: () =>
+                                Promise.resolve({
+                                    isNew: isNew,
+                                    name: 'demoRole',
+                                    privileges: privileges,
+                                }),
+                            save: jest.fn(() => Promise.resolve()),
+                        }),
+                    },
+                    userService: {},
+                    privileges: privilegesService,
+                    appAclService: appAclService,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', () => {
@@ -118,7 +122,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should not contain any privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system:clear:cache', 'system.clear_cache'],
+            privileges: [
+                'system:clear:cache',
+                'system.clear_cache',
+            ],
         });
 
         await flushPromises();
@@ -128,7 +135,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should contain only role privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system:clear:cache', 'system.clear_cache'],
+            privileges: [
+                'system:clear:cache',
+                'system.clear_cache',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -152,7 +162,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should contain only roles privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['orders.create_discounts', 'system.clear_cache'],
+            privileges: [
+                'orders.create_discounts',
+                'system.clear_cache',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -189,7 +202,12 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should filter custom privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['orders.create_discounts', 'system.clear_cache', 'product:update', 'order:read'],
+            privileges: [
+                'orders.create_discounts',
+                'system.clear_cache',
+                'product:update',
+                'order:read',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -272,7 +290,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges and admin privilege key combinations', async () => {
         wrapper = await createWrapper({
-            privileges: ['system.clear_cache', 'orders.create_discounts'],
+            privileges: [
+                'system.clear_cache',
+                'orders.create_discounts',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -324,7 +345,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privileges: [
+                'system.clear_cache',
+                'orders.create_discounts',
+                'product:read',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -377,7 +402,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should merge privileges and detailed privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privileges: [
+                'system.clear_cache',
+                'orders.create_discounts',
+                'product:read',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -433,7 +462,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges from getPrivileges() method', async () => {
         wrapper = await createWrapper({
-            privileges: ['promotion.viewer', 'promotion.editor', 'promotion.creator'],
+            privileges: [
+                'promotion.viewer',
+                'promotion.editor',
+                'promotion.creator',
+            ],
             privilegeMappingEntries: [
                 {
                     category: 'permissions',
@@ -532,6 +565,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         await saveButton.trigger('click.prevent');
+        await flushPromises();
 
         verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
         expect(verifyUserModal.exists()).toBeTruthy();
@@ -559,9 +593,12 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should show the create new role snippet as the title', async () => {
-        wrapper = await createWrapper({}, {
-            isNew: true,
-        });
+        wrapper = await createWrapper(
+            {},
+            {
+                isNew: true,
+            },
+        );
         await wrapper.setData({
             isLoading: false,
         });
@@ -571,9 +608,12 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should replace the create new role snippet as the title when user types name', async () => {
-        wrapper = await createWrapper({}, {
-            isNew: true,
-        });
+        wrapper = await createWrapper(
+            {},
+            {
+                isNew: true,
+            },
+        );
         await wrapper.setData({
             isLoading: false,
         });

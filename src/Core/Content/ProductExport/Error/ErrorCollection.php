@@ -21,7 +21,7 @@ class ErrorCollection extends Collection
 
     /**
      * @param string $key
-     * @param Error  $error
+     * @param Error $error
      */
     public function set($key, $error): void
     {

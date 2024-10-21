@@ -11,6 +11,20 @@
         }
     }
 
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
+        .sw-data-grid__cell-content {
+            .is--inactive {
+                color: $color-crimson-500;
+                margin: auto;
+            }
+
+            .is--active {
+                color: $color-emerald-500;
+                margin: auto;
+            }
+        }
+    }
+
     .sw-cms-list__sidebar {
         width: 180px;
         padding-top: 64px;

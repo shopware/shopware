@@ -36,14 +36,14 @@ export default {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return new Promise((resolve, reject) => {
                 // We know data.privileges is defined at this point
-                const missingPrivileges = data.privileges!.filter(p => !Shopware.Service('acl').can(p));
+                const missingPrivileges = data.privileges!.filter((p) => !Shopware.Service('acl').can(p));
                 if (missingPrivileges.length > 0) {
                     reject(new MissingPrivilegesError(type, missingPrivileges));
                 } else {
                     const result = method(data, additionalInformation);
 
                     if (isPromise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>(result)) {
-                        void result.then(rsp => resolve(rsp)).catch(reject);
+                        void result.then((rsp) => resolve(rsp)).catch(reject);
                     } else {
                         resolve(result);
                     }

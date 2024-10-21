@@ -51,16 +51,15 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
 #[Package('core')]
-class PluginLifecycleService implements EventSubscriberInterface
+class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
@@ -68,6 +67,8 @@ class PluginLifecycleService implements EventSubscriberInterface
      * @var array{plugin: PluginEntity, context: Context}|null
      */
     private static ?array $pluginToBeDeleted = null;
+
+    private static bool $registeredListener = false;
 
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
@@ -90,13 +91,6 @@ class PluginLifecycleService implements EventSubscriberInterface
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
     ) {
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::RESPONSE => ['onResponse', \PHP_INT_MIN],
-        ];
     }
 
     /**
@@ -163,7 +157,7 @@ class PluginLifecycleService implements EventSubscriberInterface
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName()) {
+            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
                 $this->executor->remove($plugin->getComposerName(), $plugin->getName());
             }
 
@@ -243,6 +237,11 @@ class PluginLifecycleService implements EventSubscriberInterface
                     'context' => $shopwareContext,
                 ];
                 // @codeCoverageIgnoreEnd
+
+                if (!self::$registeredListener) {
+                    $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
+                    self::$registeredListener = true;
+                }
             }
         }
 
@@ -509,6 +508,10 @@ class PluginLifecycleService implements EventSubscriberInterface
 
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
     {
+        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+            return;
+        }
+
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
             throw new PluginComposerJsonInvalidException(
@@ -670,6 +673,10 @@ class PluginLifecycleService implements EventSubscriberInterface
 
     private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): bool
     {
+        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+            return false;
+        }
+
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
             throw new PluginComposerJsonInvalidException(

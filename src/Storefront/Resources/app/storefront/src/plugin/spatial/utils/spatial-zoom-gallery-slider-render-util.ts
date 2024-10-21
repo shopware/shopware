@@ -41,7 +41,7 @@ export default class SpatialZoomGallerySliderRenderUtil {
             return;
         }
         const zoomModalElement = gallerySlider.querySelector(SpatialZoomGallerySliderRenderUtil.options.zoomModalSelector);
-        if(!zoomModalElement) {
+        if (!zoomModalElement) {
             return;
         }
         this.zoomModalElement = zoomModalElement;

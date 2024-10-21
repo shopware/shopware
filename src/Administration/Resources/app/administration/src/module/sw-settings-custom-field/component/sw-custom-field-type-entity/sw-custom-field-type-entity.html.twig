@@ -16,7 +16,7 @@
 {% block sw_custom_field_type_entity_type %}
 <sw-single-select
     v-model:value="currentCustomField.config.entity"
-    :disabled="!currentCustomField._isNew"
+    :disabled="!currentCustomField._isNew || undefined"
     :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
     :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
     :options="sortedEntityTypes"
@@ -26,15 +26,6 @@
 {% endblock %}
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_custom_field_type_entity_multi %}
-<sw-switch-field
-    v-model:value="multiSelectSwitch"
-    class="sw-custom-field-detail__switch"
-    :disabled="!currentCustomField._isNew"
-    :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextMultiSelect')"
-    :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-    @update:value="onChangeMultiSelectSwitch"
-/>
-    {% endblock %}
+{% block sw_custom_field_type_entity_multi %}{% endblock %}
 
 {% endblock %}

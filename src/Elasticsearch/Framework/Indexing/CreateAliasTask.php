@@ -16,7 +16,7 @@ class CreateAliasTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 300; // 5 minutes
+        return self::MINUTELY * 5;
     }
 
     public static function shouldRun(ParameterBagInterface $bag): bool

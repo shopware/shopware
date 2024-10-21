@@ -12,28 +12,31 @@ html {
     }
 
     // used by viewport detection helper to determine the current viewport
-    &::before {
-        position: absolute;
-        top: -100%;
-        font-size: 0;
+    // @deprecated tag:v6.7.0 - ViewportDetectionHelper will use CSS variable `--sw-current-breakpoint` instead of content from <html> :before element.
+    @if not feature('ACCESSIBILITY_TWEAKS') {
+        &::before {
+            position: absolute;
+            top: -100%;
+            font-size: 0;
 
-        @include media-breakpoint-only(xs) {
-            content: 'xs';
-        }
-        @include media-breakpoint-only(sm) {
-            content: 'sm';
-        }
-        @include media-breakpoint-only(md) {
-            content: 'md';
-        }
-        @include media-breakpoint-only(lg) {
-            content: 'lg';
-        }
-        @include media-breakpoint-only(xl) {
-            content: 'xl';
-        }
-        @include media-breakpoint-only(xxl) {
-            content: 'xxl';
+            @include media-breakpoint-only(xs) {
+                content: 'xs';
+            }
+            @include media-breakpoint-only(sm) {
+                content: 'sm';
+            }
+            @include media-breakpoint-only(md) {
+                content: 'md';
+            }
+            @include media-breakpoint-only(lg) {
+                content: 'lg';
+            }
+            @include media-breakpoint-only(xl) {
+                content: 'xl';
+            }
+            @include media-breakpoint-only(xxl) {
+                content: 'xxl';
+            }
         }
     }
 
@@ -60,4 +63,26 @@ html {
         }
     }
     /* stylelint-enable selector-class-pattern */
+}
+
+// used by viewport detection helper to determine the current viewport
+:root {
+    @include media-breakpoint-only(xs) {
+        --sw-current-breakpoint: 'xs';
+    }
+    @include media-breakpoint-only(sm) {
+        --sw-current-breakpoint: 'sm';
+    }
+    @include media-breakpoint-only(md) {
+        --sw-current-breakpoint: 'md';
+    }
+    @include media-breakpoint-only(lg) {
+        --sw-current-breakpoint: 'lg';
+    }
+    @include media-breakpoint-only(xl) {
+        --sw-current-breakpoint: 'xl';
+    }
+    @include media-breakpoint-only(xxl) {
+        --sw-current-breakpoint: 'xxl';
+    }
 }

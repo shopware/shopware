@@ -8,14 +8,13 @@ export default class NotificationsService extends ApiService {
     }
 
     fetchNotifications(limit, latestTimestamp = null) {
-        return this.httpClient.get(
-            'notification/message',
-            {
+        return this.httpClient
+            .get('notification/message', {
                 params: { limit, latestTimestamp },
                 headers: this.getBasicHeaders(),
-            },
-        ).then(({ data }) => {
-            return data;
-        });
+            })
+            .then(({ data }) => {
+                return data;
+            });
     }
 }

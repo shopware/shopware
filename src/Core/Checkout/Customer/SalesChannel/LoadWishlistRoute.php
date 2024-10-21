@@ -33,7 +33,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      * @internal
      *
      * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
-     * @param SalesChannelRepository<ProductCollection>    $productRepository
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,
@@ -52,6 +52,10 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
     #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
+        if ($criteria->getTitle() === null) {
+            $criteria->setTitle('wishlist::load-products');
+        }
+
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
             throw CustomerException::customerWishlistNotActivated();
         }

@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -74,32 +76,39 @@ export default {
             criteria.addAssociation('numberRangeSalesChannels');
             criteria.addAssociation('numberRangeSalesChannels.salesChannel');
 
-            this.numberRangeRepository.search(criteria).then((items) => {
-                this.total = items.total;
-                this.numberRange = items;
-                this.isLoading = false;
+            this.numberRangeRepository
+                .search(criteria)
+                .then((items) => {
+                    this.total = items.total;
+                    this.numberRange = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         getNumberRangeColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                label: 'sw-settings-number-range.list.columnName',
-                routerLink: 'sw.settings.number.range.detail',
-                primary: true,
-                inlineEdit: 'string',
-            }, {
-                property: 'type.typeName',
-                label: 'sw-settings-number-range.list.columnUsedIn',
-            }, {
-                property: 'global',
-                label: 'sw-settings-number-range.list.columnAssignment',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    label: 'sw-settings-number-range.list.columnName',
+                    routerLink: 'sw.settings.number.range.detail',
+                    primary: true,
+                    inlineEdit: 'string',
+                },
+                {
+                    property: 'type.typeName',
+                    label: 'sw-settings-number-range.list.columnUsedIn',
+                },
+                {
+                    property: 'global',
+                    label: 'sw-settings-number-range.list.columnAssignment',
+                },
+            ];
         },
 
         onDelete(id) {
@@ -123,16 +132,20 @@ export default {
         },
 
         onInlineEditSave(promise, numberRange) {
-            promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, { name: numberRange.name }),
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, {
+                            name: numberRange.name,
+                        }),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-number-range.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-number-range.detail.messageSaveError'),
-                });
-            });
         },
     },
 };

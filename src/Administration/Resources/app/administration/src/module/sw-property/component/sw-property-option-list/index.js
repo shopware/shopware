@@ -11,6 +11,8 @@ const { State, Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -175,20 +177,24 @@ export default {
         },
 
         getGroupColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-property.detail.labelOptionName'),
-                routerLink: 'sw.property.detail',
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'colorHexCode',
-                label: this.$tc('sw-property.detail.labelOptionColor'),
-            }, {
-                property: 'position',
-                label: this.$tc('sw-property.detail.labelOptionPosition'),
-                inlineEdit: 'number',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-property.detail.labelOptionName'),
+                    routerLink: 'sw.property.detail',
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'colorHexCode',
+                    label: this.$tc('sw-property.detail.labelOptionColor'),
+                },
+                {
+                    property: 'position',
+                    label: this.$tc('sw-property.detail.labelOptionPosition'),
+                    inlineEdit: 'number',
+                },
+            ];
         },
     },
 };

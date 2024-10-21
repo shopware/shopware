@@ -127,22 +127,20 @@ jobs:
     env:
       SBP_API_URL: ${{ secrets[format('sbp_api_url_{0}', matrix.sbp-environment)] }}
       SBP_TOKEN: ${{ secrets[format('sbp_api_token_{0}', matrix.sbp-environment)] }}
+      # set dry run if it's not a tag
+      DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Publish sbp release (Dry run)
-        env:
-          DRY_RUN: 1
-        run: |
-          bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
       - name: Publish sbp release
-        if: github.ref_type == 'tag' && github.ref_protected
         run: |
+          echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
 
   post-slack-release-message:
-    if: github.ref_type == 'tag' && github.ref_protected && github.repository == 'shopware/shopware' && github.event.action == 'published'
+    if: github.ref_type == 'tag' && github.repository == 'shopware/shopware' && github.event.action == 'published'
     needs: publish-sbp-release
     runs-on: ubuntu-latest
     steps:

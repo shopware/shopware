@@ -18,12 +18,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class OrderSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -82,21 +82,11 @@ class OrderSerializerTest extends TestCase
 
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
-        $shippingAddress = $delivery->getShippingOrderAddress();
-
-        static::assertNotNull($shippingAddress);
 
         static::assertNotEmpty($serialized['deliveries']);
-        static::assertNotEmpty($serialized['deliveries']['shippingOrderAddress']);
         static::assertSame($serialized['deliveries']['trackingCodes'], implode('|', $delivery->getTrackingCodes()));
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['street'], $shippingAddress->getStreet());
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['zipcode'], $shippingAddress->getZipcode());
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['city'], $shippingAddress->getCity());
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['company'], $shippingAddress->getCompany());
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['department'], $shippingAddress->getDepartment());
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['countryId'], $shippingAddress->getCountryId());
-        static::assertSame($serialized['deliveries']['shippingOrderAddress']['countryStateId'], $shippingAddress->getCountryStateId());
-        static::assertSame($serialized['deliveries']['stateMachineState'], $delivery->getStateMachineState()?->jsonSerialize());
+        static::assertSame($serialized['deliveries']['shippingOrderAddress'], $delivery->getShippingOrderAddress());
+        static::assertSame($serialized['deliveries']['stateMachineState'], $delivery->getStateMachineState());
 
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
@@ -133,7 +123,6 @@ class OrderSerializerTest extends TestCase
         $productId = Uuid::randomHex();
         $product = $this->getProductData($productId);
 
-        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create([$product], $this->context);
 
@@ -160,10 +149,9 @@ class OrderSerializerTest extends TestCase
             'transactions.shippingMethod',
         ]);
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $this->context)->first();
 
-        static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         return $order;
     }

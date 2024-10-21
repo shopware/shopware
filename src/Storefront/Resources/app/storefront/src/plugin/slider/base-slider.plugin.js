@@ -4,11 +4,6 @@ import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 
 export default class BaseSliderPlugin extends Plugin {
-    /**
-     * default slider options
-     *
-     * @type {*}
-     */
     static options = {
         initializedCls: 'js-slider-initialized',
         containerSelector: '[data-base-slider-container=true]',
@@ -40,21 +35,6 @@ export default class BaseSliderPlugin extends Plugin {
         }
     }
 
-    /**
-     * since the tns slider indexes internally with 0
-     * but the setting starts at 1 we have to subtract 1
-     * to have the correct index
-     *
-     * @private
-     */
-    _correctIndexSettings() {
-        this.options.slider.startIndex -= 1;
-        this.options.slider.startIndex = (this.options.slider.startIndex < 0) ? 0 : this.options.slider.startIndex;
-    }
-
-    /**
-     * destroys the slider
-     */
     destroy() {
         if (this._slider && typeof this._slider.destroy === 'function') {
             try {
@@ -68,19 +48,7 @@ export default class BaseSliderPlugin extends Plugin {
     }
 
     /**
-     * register all needed events
-     *
-     * @private
-     */
-    _registerEvents() {
-        if (this._slider) {
-            document.addEventListener('Viewport/hasChanged', () => this.rebuild(ViewportDetection.getCurrentViewport()));
-        }
-    }
-
-    /**
-     * reinitialise the slider
-     * with the options for our viewport
+     * Re-initialise the slider with options for the current viewport
      *
      * @param viewport
      * @param resetIndex
@@ -105,20 +73,32 @@ export default class BaseSliderPlugin extends Plugin {
     }
 
     /**
-     * returns the slider settings for the current viewport
+     * @private
+     */
+    _registerEvents() {
+        if (this._slider) {
+            document.addEventListener('Viewport/hasChanged', () => this.rebuild(ViewportDetection.getCurrentViewport()));
+        }
+    }
+
+    /**
+     * @private
+     */
+    _correctIndexSettings() {
+        this.options.slider.startIndex -= 1;
+        this.options.slider.startIndex = (this.options.slider.startIndex < 0) ? 0 : this.options.slider.startIndex;
+    }
+
+    /**
+     * Returns the slider settings for the current viewport
      *
-     * @param viewport
+     * @param {String} viewport
      * @private
      */
     _getSettings(viewport) {
         this._sliderSettings = SliderSettingsHelper.getViewportSettings(this.options.slider, viewport);
     }
 
-    /**
-     * returns the current slider index
-     *
-     * @return {*}
-     */
     getCurrentSliderIndex() {
         if (!this._slider) {
             return;
@@ -132,11 +112,6 @@ export default class BaseSliderPlugin extends Plugin {
         return currentIndex - 1;
     }
 
-    /**
-     * returns the active slider item
-     *
-     * @return {*}
-     */
     getActiveSlideElement() {
         const info = this._slider.getInfo();
 
@@ -144,8 +119,6 @@ export default class BaseSliderPlugin extends Plugin {
     }
 
     /**
-     * initialize the slider
-     *
      * @private
      */
     _initSlider() {
@@ -153,10 +126,14 @@ export default class BaseSliderPlugin extends Plugin {
 
         const container = this.el.querySelector(this.options.containerSelector);
         const controlsContainer = this.el.querySelector(this.options.controlsSelector);
-        const onInit = () => {
+        const onInit = (sliderInfo) => {
             window.PluginManager.initializePlugins();
 
             this.$emitter.publish('initSlider');
+
+            if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+                this._initAccessibilityTweaks(sliderInfo, this.el);
+            }
         };
 
         if (container) {
@@ -177,8 +154,69 @@ export default class BaseSliderPlugin extends Plugin {
     }
 
     /**
-     * returns the current index of the main slider
+     * Initializes some accessibility improvements for the tiny-slider package.
      *
+     * @param {Object} sliderInfo
+     * @param {HTMLElement} wrapperEl
+     * @private
+     */
+    _initAccessibilityTweaks(sliderInfo, wrapperEl) {
+        const sliderItems = sliderInfo.slideItems;
+
+        if (sliderInfo.controlsContainer) {
+            // Remove controls div container from tab index for better accessibility.
+            sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
+        }
+
+        const wrapper = wrapperEl || this.el;
+        wrapper.scrollLeft = 0;
+
+        // Prevent native browser function to scroll items into view.
+        wrapper.addEventListener('scroll', (event) => {
+            wrapper.scrollLeft = 0;
+            event.preventDefault();
+        });
+
+        for (let index = 0; index < sliderItems.length; index++) {
+            const item = sliderItems.item(index);
+
+            if (item.classList.contains('tns-slide-cloned')) {
+                const selectableElements = item.querySelectorAll('a, button, img');
+
+                // Hide selectable elements within cloned elements from screen readers.
+                for (const selectableEl of selectableElements) {
+                    selectableEl.setAttribute('tabindex', '-1');
+                }
+
+            } else {
+                // Tracking the focus within slider elements to keep them in view when navigating via keyboard.
+                item.addEventListener('keyup', (event) => {
+                    if (event.key !== 'Tab') {
+                        return;
+                    }
+
+                    const currentSliderInfo = this._slider.getInfo();
+
+                    // Prevent native browser function to scroll items into view.
+                    wrapper.scrollLeft = 0;
+
+                    // Stop autoplay if an element gets focus via keyboard navigation.
+                    if (this._sliderSettings.autoplay) {
+                        this._slider.pause();
+                    }
+
+                    // Keep the element which has focus on first slide position.
+                    if (index !== currentSliderInfo.index) {
+                        const newSlide = index - currentSliderInfo.cloneCount;
+
+                        this._slider.goTo(newSlide);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
      * @return {number}
      * @private
      */

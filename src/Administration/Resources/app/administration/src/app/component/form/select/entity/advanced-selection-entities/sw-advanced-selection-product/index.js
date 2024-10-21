@@ -13,8 +13,15 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-advanced-selection-product', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
+    ],
+
+    emits: [
+        'selection-submit',
+        'modal-close',
     ],
 
     data() {
@@ -33,21 +40,23 @@ Component.register('sw-advanced-selection-product', {
         },
 
         currenciesColumns() {
-            return [...this.currencies].sort((a, b) => {
-                return b.isSystemDefault ? 1 : -1;
-            }).map(item => {
-                return {
-                    property: `price-${item.isoCode}`,
-                    dataIndex: `price.${item.id}`,
-                    label: `${item.name}`,
-                    routerLink: 'sw.product.detail',
-                    allowResize: true,
-                    currencyId: item.id,
-                    visible: item.isSystemDefault,
-                    align: 'right',
-                    useCustomSort: true,
-                };
-            });
+            return [...this.currencies]
+                .sort((a, b) => {
+                    return b.isSystemDefault ? 1 : -1;
+                })
+                .map((item) => {
+                    return {
+                        property: `price-${item.isoCode}`,
+                        dataIndex: `price.${item.id}`,
+                        label: `${item.name}`,
+                        routerLink: 'sw.product.detail',
+                        allowResize: true,
+                        currencyId: item.id,
+                        visible: item.isSystemDefault,
+                        align: 'right',
+                        useCustomSort: true,
+                    };
+                });
         },
 
         productColumns() {
@@ -237,7 +246,7 @@ Component.register('sw-advanced-selection-product', {
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {
-            const priceForProduct = prices.find(price => price.currencyId === currencyId);
+            const priceForProduct = prices.find((price) => price.currencyId === currencyId);
 
             if (priceForProduct) {
                 return priceForProduct;

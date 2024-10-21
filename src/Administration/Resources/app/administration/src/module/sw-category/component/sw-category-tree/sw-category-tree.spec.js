@@ -3,16 +3,15 @@
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import swCategoryTree from 'src/module/sw-category/component/sw-category-tree';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
-Shopware.Component.register('sw-category-tree', swCategoryTree);
-
 async function createWrapper() {
-    const routes = [{
-        name: 'sw.category.detail',
-        path: '/category/detail/:id',
-    }];
+    const routes = [
+        {
+            name: 'sw.category.detail',
+            path: '/category/detail/:id',
+        },
+    ];
 
     const router = createRouter({
         routes,
@@ -41,11 +40,12 @@ async function createWrapper() {
                 syncService: {},
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve([
-                            {
-                                id: '1a',
-                            },
-                        ]),
+                        search: () =>
+                            Promise.resolve([
+                                {
+                                    id: '1a',
+                                },
+                            ]),
                         delete: () => Promise.resolve(),
                         get: () => Promise.resolve(),
                         saveAll: () => Promise.resolve(),
@@ -194,7 +194,6 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             allowEdit: false,
         });
 
-
         const treeItem = wrapper.find('sw-tree-item-stub');
         expect(treeItem.attributes()['display-checkbox']).toBeUndefined();
     });
@@ -249,9 +248,13 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
     [
         { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] },
-        { navigationSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7b' }] },
+        {
+            navigationSalesChannels: [
+                { id: '4d9ef75adbb149aa99785a0a969b3b7b' },
+            ],
+        },
         { footerSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7c' }] },
-    ].forEach(entryPoint => {
+    ].forEach((entryPoint) => {
         it(`should not be able to delete a category having ${Object.keys(entryPoint)[0]} as initial entry point`, async () => {
             const wrapper = await createWrapper();
             wrapper.vm.createNotificationError = jest.fn();
@@ -288,7 +291,9 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             isLoadingInitialData: false,
         });
 
-        const entryPoint = { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] };
+        const entryPoint = {
+            serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }],
+        };
         const category = {
             id: '1a',
             isNew: () => false,
@@ -344,7 +349,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             isNew: () => false,
         };
 
-        await wrapper.vm.onDeleteCategory({ data: category, children: [], checked: true });
+        await wrapper.vm.onDeleteCategory({
+            data: category,
+            children: [],
+            checked: true,
+        });
 
         const emitted = wrapper.emitted()['category-checked-elements-count'];
 
@@ -390,12 +399,42 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         await wrapper.setData({
             loadedCategories: {
-                1: { id: '1', parentId: '1', navigationSalesChannels: null, afterCategoryId: null },
-                2: { id: '2', parentId: '1', navigationSalesChannels: null, afterCategoryId: '1' },
-                3: { id: '3', parentId: '1', navigationSalesChannels: null, afterCategoryId: '2' },
-                4: { id: '4', parentId: '1', navigationSalesChannels: null, afterCategoryId: '3' },
-                5: { id: '5', parentId: '1', navigationSalesChannels: null, afterCategoryId: '4' },
-                6: { id: '6', parentId: '1', navigationSalesChannels: null, afterCategoryId: '5' },
+                1: {
+                    id: '1',
+                    parentId: '1',
+                    navigationSalesChannels: null,
+                    afterCategoryId: null,
+                },
+                2: {
+                    id: '2',
+                    parentId: '1',
+                    navigationSalesChannels: null,
+                    afterCategoryId: '1',
+                },
+                3: {
+                    id: '3',
+                    parentId: '1',
+                    navigationSalesChannels: null,
+                    afterCategoryId: '2',
+                },
+                4: {
+                    id: '4',
+                    parentId: '1',
+                    navigationSalesChannels: null,
+                    afterCategoryId: '3',
+                },
+                5: {
+                    id: '5',
+                    parentId: '1',
+                    navigationSalesChannels: null,
+                    afterCategoryId: '4',
+                },
+                6: {
+                    id: '6',
+                    parentId: '1',
+                    navigationSalesChannels: null,
+                    afterCategoryId: '5',
+                },
             },
         });
 

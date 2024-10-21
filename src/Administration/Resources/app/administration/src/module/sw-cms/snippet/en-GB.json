@@ -25,7 +25,7 @@
       "gridHeaderName": "Name",
       "gridHeaderType": "Type",
       "gridHeaderAssignment": "Assigned categories",
-      "gridHeaderAssignments": "Assignments",
+      "gridHeaderAssignments": "Assigned",
       "gridHeaderAssignedPages": "Assigned pages",
       "gridHeaderCreated": "Created",
       "gridHeaderUpdated": "Updated date"
@@ -208,10 +208,10 @@
             "verticalAlignCenter": "Center",
             "verticalAlignBottom": "Bottom",
             "displayMode": "Display mode",
-            "displayModeStandard": "Standard",
-            "displayModeCover": "Cover",
-            "displayModeStretch": "Stretch",
-            "displayModeContain": "Contain",
+            "displayModeStandard": "Original",
+            "displayModeCover": "Cropped",
+            "displayModeStretch": "Scaled",
+            "displayModeContain": "Fixed height",
             "autoSlide": "Auto slide",
             "autoplayTimeout": "Delay",
             "speed": "Animation delay",
@@ -223,7 +223,8 @@
           "helpText": {
             "autoSlide": "The slide will be slided automatically.",
             "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
-            "speed": "The millisecond duration of the sliding animation."
+            "speed": "The millisecond duration of the sliding animation.",
+            "displayMode": "<strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.<br><br><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.<br><br><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height."
           },
           "tab": {
             "content": "Content",
@@ -268,6 +269,9 @@
             "keepAspectRatioOnZoom": "Keep aspect ratio on zoom",
             "magnifierOverGallery": "Show magnifier over Gallery",
             "magnifierOverGalleryHelpText": "Show the magnifier box on top of the gallery instead of showing it next to the gallery"
+          },
+          "helpText": {
+            "displayMode": "<strong>Original:</strong> The images are displayed in their original resolution or shrunk down to the slider's height.<br><br><strong>Fixed height:</strong> The images are displayed in their original resolution or shrunk down to the configured height.<br><br><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height."
           }
         }
       },
@@ -280,6 +284,9 @@
             "navigationPositionInside": "Inside",
             "navigationPositionOutside": "Outside",
             "navigationDots": "Dots navigation"
+          },
+          "helpText": {
+            "displayMode": "<strong>Original:</strong> The images are scaled to the CMS page's width without any height restrictions. The slider's height is dynamically adjusted.<br><br><strong>Fixed height:</strong> The image is scaled to the CMS page's width without any height restrictions. The slider keeps the height of the tallest image.<br><br><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height."
           }
         }
       },
@@ -722,7 +729,7 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Assign default layout",
-        "infoText": "Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created category will automatically be assigned to it as well. Do you really want to use this layout as default?"
+        "infoText": "Please note that all products that are currently assigned to a default layout will be reassigned to this layout and newly created products will automatically be assigned to it as well. Do you really want to use this layout as default? | Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created categories will automatically be assigned to it as well. Do you really want to use this layout as default?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Cancel",

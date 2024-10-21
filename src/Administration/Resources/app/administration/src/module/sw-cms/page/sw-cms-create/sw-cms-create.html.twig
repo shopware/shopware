@@ -28,7 +28,7 @@
 {% block sw_cms_detail_stage_container %}
 <sw-cms-create-wizard
     :page="page"
-    @on-section-select="addFirstSection($event, 0)"
+    @on-section-select="onAddSection($event, 0)"
     @wizard-complete="onWizardComplete"
 />
 {% endblock %}

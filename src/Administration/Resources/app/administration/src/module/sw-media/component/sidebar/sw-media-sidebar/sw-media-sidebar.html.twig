@@ -21,7 +21,8 @@
             v-if="isSingleFile && firstEntity.getEntityName() === 'media'"
             :item="firstEntity"
             :editable="editable"
-            v-on="$listeners"
+            v-bind="filteredAttributes"
+            v-on="listeners"
             @update:item="onFirstItemUpdated"
         />
 
@@ -29,22 +30,25 @@
             v-else-if="isSingleFile && firstEntity.getEntityName() === 'media_folder'"
             :media-folder="firstEntity"
             :editable="editable"
-            v-on="$listeners"
+            v-bind="filteredAttributes"
+            v-on="listeners"
         />
 
         <sw-media-quickinfo-multiple
             v-else-if="isMultipleFile"
             :editable="editable"
             :items="items"
-            v-on="$listeners"
+            v-bind="filteredAttributes"
+            v-on="listeners"
         />
 
         <sw-media-folder-info
             v-else-if="currentFolder"
             :media-folder="currentFolder"
             :editable="editable"
+            v-bind="filteredAttributes"
             @media-folder-renamed="onMediaFolderRenamed"
-            v-on="$listeners"
+            v-on="listeners"
         />
 
         <sw-empty-state

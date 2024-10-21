@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeExtensionDataLoader from 'src/app/init/extension-data-handling.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import Criteria from 'src/core/data/criteria.data';
@@ -108,9 +111,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         });
 
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
-        expect(searchMockMethod).toHaveBeenCalledWith(searchCriteria, expect.objectContaining({
-            languageId: 'my-awesome-language-id',
-        }));
+        expect(searchMockMethod).toHaveBeenCalledWith(
+            searchCriteria,
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
+        );
         expect(result).toEqual({
             ...searchResult,
             context: {
@@ -133,9 +139,13 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         });
 
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
-        expect(getMockMethod).toHaveBeenCalledWith('my-awesome-id', expect.objectContaining({
-            languageId: 'my-awesome-language-id',
-        }), getCriteria);
+        expect(getMockMethod).toHaveBeenCalledWith(
+            'my-awesome-id',
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
+            getCriteria,
+        );
         expect(result).toEqual({
             ...getResult,
             context: {
@@ -156,11 +166,14 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         });
 
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
-        expect(saveMockMethod).toHaveBeenCalledWith({
-            name: 'my-awesome-product',
-        }, expect.objectContaining({
-            languageId: 'my-awesome-language-id',
-        }));
+        expect(saveMockMethod).toHaveBeenCalledWith(
+            {
+                name: 'my-awesome-product',
+            },
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
+        );
         expect(result).toEqual(saveResult);
     });
 
@@ -208,20 +221,27 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
     it('should handle repositorySaveAll', async () => {
         const result = await send('repositorySaveAll', {
             entityName: 'product',
-            entities: [{
-                my: 'entity',
-            }],
+            entities: [
+                {
+                    my: 'entity',
+                },
+            ],
             context: {
                 languageId: 'my-awesome-language-id',
             },
         });
 
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
-        expect(saveAllMockMethod).toHaveBeenCalledWith([{
-            my: 'entity',
-        }], expect.objectContaining({
-            languageId: 'my-awesome-language-id',
-        }));
+        expect(saveAllMockMethod).toHaveBeenCalledWith(
+            [
+                {
+                    my: 'entity',
+                },
+            ],
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
+        );
         expect(result).toEqual(saveAllResult);
     });
 
@@ -235,9 +255,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         });
 
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
-        expect(deleteMockMethod).toHaveBeenCalledWith('my-awesome-id', expect.objectContaining({
-            languageId: 'my-awesome-language-id',
-        }));
+        expect(deleteMockMethod).toHaveBeenCalledWith(
+            'my-awesome-id',
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
+        );
         expect(result).toEqual(deleteResult);
     });
 
@@ -252,11 +275,9 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
 
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
         expect(createMockMethod).toHaveBeenCalledWith(
-            expect.objectContaining(
-                {
-                    languageId: 'my-awesome-language-id',
-                },
-            ),
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
             'my-awesome-id',
         );
 
@@ -278,16 +299,13 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
 
         let result;
         try {
-            result = await send(
-                'repositorySearch',
-                {
-                    entityName: 'product',
-                    criteria: searchCriteria,
-                    context: {
-                        languageId: 'my-awesome-language-id',
-                    },
+            result = await send('repositorySearch', {
+                entityName: 'product',
+                criteria: searchCriteria,
+                context: {
+                    languageId: 'my-awesome-language-id',
                 },
-            );
+            });
         } catch (e) {
             result = e;
         }
@@ -324,16 +342,15 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
             },
         });
 
-        expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith(
-            'product',
-            '',
-            {
-                'sw-app-integration-id': 'my-awesome-integration-id',
-            },
+        expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product', '', {
+            'sw-app-integration-id': 'my-awesome-integration-id',
+        });
+        expect(searchMockMethod).toHaveBeenCalledWith(
+            searchCriteria,
+            expect.objectContaining({
+                languageId: 'my-awesome-language-id',
+            }),
         );
-        expect(searchMockMethod).toHaveBeenCalledWith(searchCriteria, expect.objectContaining({
-            languageId: 'my-awesome-language-id',
-        }));
         expect(result).toEqual({
             ...searchResult,
             context: {
@@ -359,16 +376,13 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
 
             let result;
             try {
-                result = await send(
-                    method,
-                    {
-                        entityName: 'not-existing-entity',
-                        criteria: searchCriteria,
-                        context: {
-                            languageId: 'my-awesome-language-id',
-                        },
+                result = await send(method, {
+                    entityName: 'not-existing-entity',
+                    criteria: searchCriteria,
+                    context: {
+                        languageId: 'my-awesome-language-id',
                     },
-                );
+                });
             } catch (e) {
                 result = e;
             }
@@ -385,17 +399,14 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
 
         let result;
         try {
-            result = await send(
-                'repositorySearch',
-                {
-                    entityName: 'product',
-                    criteria: searchCriteria,
-                    context: {
-                        languageId: 'my-awesome-language-id',
-                        shouldFail: true,
-                    },
+            result = await send('repositorySearch', {
+                entityName: 'product',
+                criteria: searchCriteria,
+                context: {
+                    languageId: 'my-awesome-language-id',
+                    shouldFail: true,
                 },
-            );
+            });
         } catch (e) {
             result = e;
         }

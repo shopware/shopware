@@ -8,8 +8,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -28,7 +30,7 @@ class PaymentTransactionStructFactoryTest extends TestCase
 
     public function testDecoration(): void
     {
-        $factory = new class() extends PaymentTransactionStructFactory {
+        $factory = new class extends PaymentTransactionStructFactory {
             public function getDecorated(): AbstractPaymentTransactionStructFactory
             {
                 return new static();
@@ -37,15 +39,16 @@ class PaymentTransactionStructFactoryTest extends TestCase
 
         static::assertInstanceOf(PaymentTransactionStructFactory::class, $factory->getDecorated());
 
-        $transaction = new OrderTransactionEntity();
-        $order = new OrderEntity();
+        $struct = $factory->build('transaction-id', Context::createDefaultContext(), 'https://return.url');
 
-        $struct = $factory->sync($transaction, $order);
-
-        static::assertSame($transaction, $struct->getOrderTransaction());
-        static::assertSame($order, $struct->getOrder());
+        static::assertSame('transaction-id', $struct->getOrderTransactionId());
+        static::assertSame('https://return.url', $struct->getReturnUrl());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testSync(): void
     {
         $factory = new PaymentTransactionStructFactory();
@@ -59,6 +62,10 @@ class PaymentTransactionStructFactoryTest extends TestCase
         static::assertSame($order, $struct->getOrder());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testAsync(): void
     {
         $factory = new PaymentTransactionStructFactory();
@@ -74,6 +81,10 @@ class PaymentTransactionStructFactoryTest extends TestCase
         static::assertSame($returnUrl, $struct->getReturnUrl());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testPrepared(): void
     {
         $factory = new PaymentTransactionStructFactory();
@@ -87,6 +98,10 @@ class PaymentTransactionStructFactoryTest extends TestCase
         static::assertSame($order, $struct->getOrder());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testRecurring(): void
     {
         $factory = new PaymentTransactionStructFactory();
@@ -98,5 +113,23 @@ class PaymentTransactionStructFactoryTest extends TestCase
 
         static::assertSame($transaction, $struct->getOrderTransaction());
         static::assertSame($order, $struct->getOrder());
+    }
+
+    public function testBuild(): void
+    {
+        $factory = new PaymentTransactionStructFactory();
+        $struct = $factory->build('transaction-id', Context::createDefaultContext(), 'https://return.url');
+
+        static::assertSame('transaction-id', $struct->getOrderTransactionId());
+        static::assertSame('https://return.url', $struct->getReturnUrl());
+    }
+
+    public function testRefund(): void
+    {
+        $factory = new PaymentTransactionStructFactory();
+        $struct = $factory->refund('refund-id', 'transaction-id');
+
+        static::assertSame('refund-id', $struct->getRefundId());
+        static::assertSame('transaction-id', $struct->getOrderTransactionId());
     }
 }

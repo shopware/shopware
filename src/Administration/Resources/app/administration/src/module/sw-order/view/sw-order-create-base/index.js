@@ -13,7 +13,11 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: ['error'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -69,7 +73,6 @@ export default {
                 .addAssociation('group')
                 .addAssociation('salutation')
                 .addAssociation('salesChannel')
-                .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
                 .addAssociation('defaultBillingAddress.countryState')
@@ -78,6 +81,10 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('defaultPaymentMethod');
+            }
 
             return criteria;
         },
@@ -108,7 +115,7 @@ export default {
         },
 
         cartAutomaticPromotionItems() {
-            return this.cartLineItems.filter(item => item.type === 'promotion' && item.payload.code === '');
+            return this.cartLineItems.filter((item) => item.type === 'promotion' && item.payload.code === '');
         },
 
         cartPrice() {
@@ -142,15 +149,15 @@ export default {
                 return [];
             }
 
-            return this.sortByTaxRate(this.cartPrice.calculatedTaxes).filter(price => price.tax !== 0);
+            return this.sortByTaxRate(this.cartPrice.calculatedTaxes).filter((price) => price.tax !== 0);
         },
 
         promotionCodeLineItems() {
-            return this.cartLineItems.filter(item => item.type === 'promotion' && get(item, 'payload.code'));
+            return this.cartLineItems.filter((item) => item.type === 'promotion' && get(item, 'payload.code'));
         },
 
         hasLineItem() {
-            return this.cartLineItems.filter(item => item.hasOwnProperty('id')).length > 0;
+            return this.cartLineItems.filter((item) => item.hasOwnProperty('id')).length > 0;
         },
 
         shippingCostsDetail() {
@@ -325,13 +332,16 @@ export default {
             const contextId = 'billingAddressId';
             const contextDataKey = 'billingAddress';
             const contextDataDefaultId = 'defaultBillingAddressId';
-            const data = this.customer[contextDataKey]
-                ? this.customer[contextDataKey]
-                : this.customer.defaultBillingAddress;
+            const data = this.customer[contextDataKey] ? this.customer[contextDataKey] : this.customer.defaultBillingAddress;
 
             this.addAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleAddBillingAddress');
             this.editAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleEditBillingAddress');
-            this.address = { contextId, contextDataKey, contextDataDefaultId, data };
+            this.address = {
+                contextId,
+                contextDataKey,
+                contextDataDefaultId,
+                data,
+            };
             this.showAddressModal = true;
         },
 
@@ -345,7 +355,12 @@ export default {
 
             this.addAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleAddShippingAddress');
             this.editAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleEditShippingAddress');
-            this.address = { contextId, contextDataKey, contextDataDefaultId, data };
+            this.address = {
+                contextId,
+                contextDataKey,
+                contextDataDefaultId,
+                data,
+            };
             this.showAddressModal = true;
         },
 
@@ -373,7 +388,7 @@ export default {
             this.customerAddressRepository
                 .get(data.id, Shopware.Context.api, this.customerAddressCriteria)
                 .then((updatedAddress) => {
-                    availableCustomerAddresses.forEach(customerAddress => {
+                    availableCustomerAddresses.forEach((customerAddress) => {
                         if (customerAddress.id === data.id) {
                             this.customer[customerAddress.dataKey] = updatedAddress;
                         }
@@ -399,8 +414,7 @@ export default {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
                 item,
-            })
-                .finally(() => this.updateLoading(false));
+            }).finally(() => this.updateLoading(false));
         },
 
         onRemoveItems(lineItemKeys) {
@@ -413,10 +427,10 @@ export default {
             })
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
-                    lineItemKeys.forEach(key => {
-                        const removedTag = this.promotionCodeTags.find(tag => tag.discountId === key);
+                    lineItemKeys.forEach((key) => {
+                        const removedTag = this.promotionCodeTags.find((tag) => tag.discountId === key);
                         if (removedTag) {
-                            this.promotionCodeTags = this.promotionCodeTags.filter(item => {
+                            this.promotionCodeTags = this.promotionCodeTags.filter((item) => {
                                 return item.discountId !== removedTag.discountId;
                             });
                         }
@@ -442,13 +456,12 @@ export default {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
                 code,
-            })
-                .finally(() => this.updateLoading(false));
+            }).finally(() => this.updateLoading(false));
         },
 
         onRemoveExistingCode(item) {
             if (item.isInvalid) {
-                this.promotionCodeTags = this.promotionCodeTags.filter(tag => tag.code !== item.code);
+                this.promotionCodeTags = this.promotionCodeTags.filter((tag) => tag.code !== item.code);
             } else {
                 this.onRemoveItems([item.discountId]);
             }
@@ -456,8 +469,8 @@ export default {
 
         updatePromotionList() {
             // Update data and isInvalid flag for each item in promotionCodeTags
-            this.promotionCodeTags = this.promotionCodeTags.map(tag => {
-                const matchedItem = this.promotionCodeLineItems.find(lineItem => lineItem.payload.code === tag.code);
+            this.promotionCodeTags = this.promotionCodeTags.map((tag) => {
+                const matchedItem = this.promotionCodeLineItems.find((lineItem) => lineItem.payload.code === tag.code);
 
                 if (matchedItem) {
                     return { ...matchedItem.payload, isInvalid: false };
@@ -467,11 +480,14 @@ export default {
             });
 
             // Add new items from promotionCodeLineItems which promotionCodeTags doesn't contain
-            this.promotionCodeLineItems.forEach(lineItem => {
-                const matchedItem = this.promotionCodeTags.find(tag => tag.code === lineItem.payload.code);
+            this.promotionCodeLineItems.forEach((lineItem) => {
+                const matchedItem = this.promotionCodeTags.find((tag) => tag.code === lineItem.payload.code);
 
                 if (!matchedItem) {
-                    this.promotionCodeTags = [...this.promotionCodeTags, { ...lineItem.payload, isInvalid: false }];
+                    this.promotionCodeTags = [
+                        ...this.promotionCodeTags,
+                        { ...lineItem.payload, isInvalid: false },
+                    ];
                 }
             });
         },
@@ -491,25 +507,26 @@ export default {
             }
 
             if (promotionCodeLength > 0 && latestTag.isInvalid) {
-                this.promotionError = { detail: this.$tc('sw-order.createBase.textInvalidPromotionCode') };
+                this.promotionError = {
+                    detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                };
             }
         },
 
-        onShippingChargeEdited(amount) {
-            const positiveAmount = Math.abs(amount);
-            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
-            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
+        onShippingChargeEdited() {
             this.updateLoading(true);
 
             State.dispatch('swOrder/modifyShippingCosts', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
                 shippingCosts: this.cartDelivery.shippingCosts,
-            }).catch((error) => {
-                this.$emit('error', error);
-            }).finally(() => {
-                this.updateLoading(false);
-            });
+            })
+                .catch((error) => {
+                    this.$emit('error', error);
+                })
+                .finally(() => {
+                    this.updateLoading(false);
+                });
         },
 
         switchAutomaticPromotions(visibility) {
@@ -522,10 +539,14 @@ export default {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            const additionalParams = { salesChannelId: this.customer.salesChannelId };
-            Service('cartStoreService').enableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
-                this.loadCart();
-            });
+            const additionalParams = {
+                salesChannelId: this.customer.salesChannelId,
+            };
+            Service('cartStoreService')
+                .enableAutomaticPromotions(this.cart.token, additionalParams)
+                .then(() => {
+                    this.loadCart();
+                });
         },
 
         onClosePromotionModal() {
@@ -538,6 +559,12 @@ export default {
             this.disabledAutoPromotionChecked = true;
 
             this.loadCart();
+        },
+
+        onShippingChargeUpdated(amount) {
+            const positiveAmount = Math.abs(amount);
+            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
+            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
         },
     },
 };

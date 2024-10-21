@@ -1,8 +1,9 @@
+import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
+
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
-
-import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const { Application, State } = Shopware;
 const { debug } = Shopware.Utils;
@@ -22,7 +23,6 @@ function _getOriginalNotification(notificationId, state) {
     let originalNotification = state.notifications[notificationId];
     if (originalNotification === undefined) {
         originalNotification = {
-
             ...state.notificationDefaults,
             uuid: notificationId,
             timestamp: new Date(),
@@ -33,11 +33,10 @@ function _getOriginalNotification(notificationId, state) {
 
 function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
     return {
-
         ...originalNotification,
-        visited: notificationUpdate.metadata ?
-            (JSON.stringify(originalNotification.metadata) === JSON.stringify(notificationUpdate.metadata)) :
-            originalNotification.visited,
+        visited: notificationUpdate.metadata
+            ? JSON.stringify(originalNotification.metadata) === JSON.stringify(notificationUpdate.metadata)
+            : originalNotification.visited,
         ...notificationUpdate,
     };
 }
@@ -145,10 +144,7 @@ export default {
             state.threshold = threshold;
 
             if (state.growlNotifications.length > state.threshold) {
-                state.growlNotifications.splice(
-                    threshold,
-                    state.growlNotifications.length - state.threshold,
-                );
+                state.growlNotifications.splice(threshold, state.growlNotifications.length - state.threshold);
             }
         },
 
@@ -212,16 +208,16 @@ export default {
                 return;
             }
 
-            Application.view.setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
+            state.growlNotifications[notificationUpdate.uuid] = notificationUpdate;
 
             const growlKeys = Object.keys(state.growlNotifications);
             if (growlKeys.length > state.threshold) {
-                Application.view.deleteReactive(state.growlNotifications, growlKeys[0]);
+                delete state.growlNotifications[growlKeys[0]];
             }
         },
 
         removeGrowlNotification(state, notification) {
-            Application.view.deleteReactive(state.growlNotifications, notification.uuid);
+            delete state.growlNotifications[notification.uuid];
         },
     },
 
@@ -238,7 +234,6 @@ export default {
 
             delete notification.growl;
             const mergedNotification = {
-
                 ...state.notificationDefaults,
                 uuid: utils.createId(),
                 timestamp: new Date(),
@@ -255,7 +250,6 @@ export default {
 
         createGrowlNotification({ state, commit }, notification) {
             const mergedNotification = {
-
                 ...state.growlNotificationDefaults,
                 ...notification,
                 uuid: utils.createId(),
@@ -282,8 +276,7 @@ export default {
 
             commit('upsertNotification', mergedUpdate);
 
-            if (notificationUpdate.growl !== undefined &&
-                notificationUpdate.growl === true) {
+            if (notificationUpdate.growl !== undefined && notificationUpdate.growl === true) {
                 dispatch('createGrowlNotification', mergedUpdate);
             }
 

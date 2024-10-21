@@ -1,0 +1,353 @@
+name: Integration tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - name: Platform
+          - name: Install
+    env:
+      SHOPWARE_HTTP_CACHE_ENABLED: 0
+      SHOPWARE_DISABLE_UPDATE_CHECK: "true"
+      BLUE_GREEN_DEPLOYMENT: 1
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install: ${{ matrix.project.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
+          installAdmin: true
+          installStorefront: true
+          env: prod
+
+      - name: Build js
+        run: |
+          mkdir -p config/jwt
+          composer run build:js:admin
+          composer npm:storefront run production # we cannot use build:js because it requires a db
+          (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+      - name: Start web server
+        run: symfony server:start -d
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: tests/acceptance
+        run: npm ci
+      - name: Install Playwright Browsers
+        working-directory: tests/acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Run your tests with reporting
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        working-directory: tests/acceptance
+        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project ${{ matrix.project.name }} --trace=on
+      - name: Run your tests
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        working-directory: tests/acceptance
+        run: npx playwright test --project=${{ matrix.project.name }} ${{ matrix.project.name == 'Install' && '--trace=on' || '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.project.name }}
+          path: tests/acceptance/test-results/
+          retention-days: 3
+
+  phpunit:
+    name: "${{ matrix.suite.name }} ${{matrix.suite.path }}"
+    continue-on-error: ${{ !matrix.stable }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - name: integration
+            path: tests/integration/Administration
+          - name: integration
+            path: tests/integration/Core/Checkout
+          - name: integration
+            path: tests/integration/Core/Content
+          - name: integration
+            path: tests/integration/Core/Framework
+          - name: integration
+            path: tests/integration/Core/Installer
+          - name: integration
+            path: tests/integration/Core/Maintenance
+          - name: integration
+            path: tests/integration/Core/System
+          - name: integration
+            path: tests/integration/Elasticsearch
+          - name: integration
+            path: tests/integration/Storefront
+          - name: migration,devops
+    env:
+      APP_ENV: test
+      DATABASE_URL: mysql://root@127.0.0.1:3306/root
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: 127.0.0.1:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+
+    services:
+      elasticsearch:
+        image: ${{ matrix.suite.name == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        env:
+          discovery.type: single-node
+          plugins.security.disabled: 'true'
+        ports:
+          - "9200:9200"
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Start Webserver
+        run: symfony server:start -d
+
+      - name: Install Shopware
+        run: php src/Core/TestBootstrap.php
+
+      - name: Run PHPUnit
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite.name }}" -- ${{ matrix.suite.path || '' }}
+
+  win-checkout:
+    runs-on: windows-latest
+    name: "Windows check"
+
+    steps:
+      - name: Support longpaths
+        run: git config --system core.longpaths true
+
+      - name: Clone platform
+        uses: actions/checkout@v4
+  php-security:
+    runs-on: ubuntu-latest
+    name: "Composer dependencies"
+    env:
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+    steps:
+      - name: Clone platform
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer
+        run: |
+          composer install --no-interaction --no-scripts
+          curl --location --output local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64
+          echo 'e5b12488ca78bc07c149e9352278bf10667b88a8461caac10154f9a6f5476369  local-php-security-checker' > local-php-security-checker.sha256
+          sha256sum --check local-php-security-checker.sha256
+          chmod +x local-php-security-checker
+
+      - name: Run on platform
+        run: ./local-php-security-checker
+  code-ql:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  docker:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
+    permissions:
+      packages: write
+    env:
+      SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install: true
+          installAdmin: true
+          installStorefront: true
+          env: prod
+
+      - name: Build
+        run: |
+          composer run build:js
+      -
+        name: Ignore node_modules folders
+        run: |
+          echo '**/node_modules' >> .dockerignore
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Login into Github Docker Registery
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      -
+        name: Build and push
+        uses: docker/build-push-action@v5
+        if: ${{ !github.ref_protected }}
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }}
+          file: .gitlab/docker/dev/Dockerfile
+      - name: Build and push trunk
+        uses: docker/build-push-action@v5
+        if: ${{ github.ref_protected }}
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }},ghcr.io/${{ github.repository }}/ci-e2e:${{ github.ref_name }}
+          file: .gitlab/docker/dev/Dockerfile
+
+  tested-update-versions:
+    name: tested-versions
+    runs-on: ubuntu-latest
+    outputs:
+      first-version: ${{ steps.versions.outputs.first-version }}
+      latest-version: ${{ steps.versions.outputs.latest-version }}
+      lts-first-version: ${{ steps.versions.outputs.lts-first-version }}
+      lts-latest-version: ${{ steps.versions.outputs.lts-latest-version }}
+    steps:
+      - name: Generate versions
+        id: versions
+        uses: shopware/github-actions/versions@main
+
+  acceptance-update:
+    needs: tested-update-versions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        update:
+          - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
+          - version: ${{ needs.tested-update-versions.outputs.first-version }}
+          - version: ${{ needs.tested-update-versions.outputs.latest-version }}
+    env:
+      SHOPWARE_HTTP_CACHE_ENABLED: 0
+      BLUE_GREEN_DEPLOYMENT: 1
+      SHOPWARE_DISABLE_UPDATE_CHECK: "0"
+      SHOPWARE_UPDATE_FROM: ${{ matrix.update.version }}
+      SW_RECOVERY_NEXT_VERSION: "6.6.9999999.9999999"
+      SW_RECOVERY_NEXT_BRANCH: "6.6.9999999.9999999"
+      SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
+    steps:
+      - name: Create shopware dirs
+        run: mkdir -p old-shopware new-shopware 
+      - name: Setup new Shopware
+        uses: shopware/setup-shopware@main
+        env:
+          COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          installAdmin: true
+          installStorefront: true
+          env: dev
+          path: new-shopware
+
+      - name: Build new shopware
+        working-directory: new-shopware
+        run: |
+          composer run build:js:admin
+          composer run npm:storefront run production
+          (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+          
+          composer -d src/Core config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Administration config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
+
+      - name: Build updater
+        working-directory: new-shopware/src/WebInstaller
+        run: |
+          composer config platform.php 8.2
+          composer install
+          composer build-phar
+
+      - name: Checkout template
+        uses: actions/checkout@v4
+        with:
+          repository: shopware/production
+          path: old-shopware
+
+      - name: Configure project root
+        run: |
+          echo "PROJECT_ROOT=${{ github.workspace }}/old-shopware" >> "$GITHUB_ENV"
+
+      - name: Require shopware
+        working-directory: old-shopware
+        run: composer require shopware/core:${{ matrix.update.version }}
+
+      - name: Install
+        working-directory: old-shopware
+        run: |
+          sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
+          bin/console system:install --basic-setup --drop-database --create-database
+
+      - name: Copy WebInstaller
+        run: cp new-shopware/src/WebInstaller/shopware-installer.phar.php old-shopware/public/shopware-installer.phar.php
+
+      - name: Start web server
+        working-directory: old-shopware
+        run: symfony server:start -d
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: new-shopware/tests/acceptance
+        run: npm ci
+      - name: Install Playwright Browsers
+        working-directory: new-shopware/tests/acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Run update tests with reporting
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        working-directory: new-shopware/tests/acceptance
+        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+      - name: Run update tests
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        working-directory: new-shopware/tests/acceptance
+        run: npx playwright test --project=Update --trace=on
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-update-${{ matrix.update.version }}
+          path: new-shopware/tests/acceptance/test-results/
+          retention-days: 3

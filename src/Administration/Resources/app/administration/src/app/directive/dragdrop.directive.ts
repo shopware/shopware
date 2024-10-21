@@ -5,40 +5,41 @@
 const { types } = Shopware.Utils;
 
 interface DropConfig<DATA = unknown> {
-    dragGroup: number|string,
-    droppableCls: string,
-    validDropCls: string,
-    invalidDropCls: string,
+    dragGroup: number | string;
+    droppableCls: string;
+    validDropCls: string;
+    invalidDropCls: string;
     // eslint-disable-next-line no-use-before-define
-    validateDrop: null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean),
+    validateDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean);
     // eslint-disable-next-line no-use-before-define
-    onDrop: null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void),
-    data: null|DATA,
+    onDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void);
+    data: null | DATA;
 }
 
 interface DragConfig<DATA = unknown> {
-    delay: number,
-    dragGroup: number|string,
-    draggableCls: string,
-    draggingStateCls: string,
-    dragElementCls: string,
-    validDragCls: string,
-    invalidDragCls: string,
-    preventEvent: boolean,
-    validateDrop: null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean),
-    validateDrag: null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean),
-    onDragStart: null|((dragConfig: DragConfig<DATA>, el: HTMLElement, dragElement: HTMLElement) => void),
+    delay: number;
+    dragGroup: number | string;
+    draggableCls: string;
+    draggingStateCls: string;
+    dragElementCls: string;
+    validDragCls: string;
+    invalidDragCls: string;
+    preventEvent: boolean;
+    validateDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean);
+    validateDrag: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean);
+    onDragStart: null | ((dragConfig: DragConfig<DATA>, el: HTMLElement, dragElement: HTMLElement) => void);
     onDragEnter:
-        null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data'], valid?: boolean) => void),
-    onDragLeave: null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void),
-    onDrop: null|((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void),
-    data: null|DATA,
-    disabled: boolean,
+        | null
+        | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data'], valid?: boolean) => void);
+    onDragLeave: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void);
+    onDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void);
+    data: null | DATA;
+    disabled: boolean;
 }
 
 interface DropZone {
-    el: HTMLElement,
-    dropConfig: DropConfig,
+    el: HTMLElement;
+    dropConfig: DropConfig;
 }
 
 interface DragHTMLElement extends HTMLElement {
@@ -49,17 +50,17 @@ interface DragHTMLElement extends HTMLElement {
 /**
  * @description An object representing the current drag element and config.
  */
-let currentDrag: { el: HTMLElement, dragConfig: DragConfig }|null = null;
+let currentDrag: { el: HTMLElement; dragConfig: DragConfig } | null = null;
 
 /**
  * @description An object representing the current drop zone element and config.
  */
-let currentDrop: { el: HTMLElement, dropConfig: DropConfig }|null = null;
+let currentDrop: { el: HTMLElement; dropConfig: DropConfig } | null = null;
 
 /**
  * @description The proxy element which is used to display the moved element.
  */
-let dragElement: HTMLElement|null = null;
+let dragElement: HTMLElement | null = null;
 
 /**
  * @description The x offset of the mouse position inside the dragged element.
@@ -74,7 +75,7 @@ let dragMouseOffsetY = 0;
 /**
  * @description The timeout managing the delayed drag start.
  */
-let delayTimeout: number|null = null;
+let delayTimeout: number | null = null;
 
 /**
  * @description A registry of all drop zones.
@@ -129,7 +130,7 @@ function getCurrentDragElement() {
 /**
  * Fired by event callback when the user starts dragging an element.
  */
-function onDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent|TouchEvent): boolean {
+function onDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | TouchEvent): boolean {
     if (event instanceof MouseEvent && event.buttons !== 1) {
         return false;
     }
@@ -154,7 +155,7 @@ function onDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent|Touch
 /**
  * Initializes the drag state for the current drag action.
  */
-function startDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent|TouchEvent) {
+function startDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | TouchEvent) {
     delayTimeout = null;
 
     if (currentDrag !== null) {
@@ -165,15 +166,11 @@ function startDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent|To
 
     const elBoundingBox = el.getBoundingClientRect();
 
-    const pageX = (
-        (event instanceof MouseEvent && event.pageX) ||
-        (event instanceof TouchEvent && event.touches[0].pageX)
-    ) as number;
+    const pageX = ((event instanceof MouseEvent && event.pageX) ||
+        (event instanceof TouchEvent && event.touches[0].pageX)) as number;
 
-    const pageY = (
-        (event instanceof MouseEvent && event.pageY) ||
-        (event instanceof TouchEvent && event.touches[0].pageY)
-    ) as number;
+    const pageY = ((event instanceof MouseEvent && event.pageY) ||
+        (event instanceof TouchEvent && event.touches[0].pageY)) as number;
 
     dragMouseOffsetX = pageX - elBoundingBox.left;
     dragMouseOffsetY = pageY - elBoundingBox.top;
@@ -198,21 +195,17 @@ function startDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent|To
 /**
  * Fired by event callback when the user moves the dragged element.
  */
-function moveDrag(event: MouseEvent|TouchEvent) {
+function moveDrag(event: MouseEvent | TouchEvent) {
     if (currentDrag === null) {
         stopDrag();
         return;
     }
 
-    const pageX = (
-        (event instanceof MouseEvent && event.pageX) ||
-        (event instanceof TouchEvent && event.touches[0].pageX)
-    ) as number;
+    const pageX = ((event instanceof MouseEvent && event.pageX) ||
+        (event instanceof TouchEvent && event.touches[0].pageX)) as number;
 
-    const pageY = (
-        (event instanceof MouseEvent && event.pageY) ||
-        (event instanceof TouchEvent && event.touches[0].pageY)
-    ) as number;
+    const pageY = ((event instanceof MouseEvent && event.pageY) ||
+        (event instanceof TouchEvent && event.touches[0].pageY)) as number;
 
     if (!pageX || !pageY) {
         return;
@@ -240,21 +233,16 @@ function moveDrag(event: MouseEvent|TouchEvent) {
  * Helper method for detecting if the current event position
  * is in the boundaries of an existing drop zone element.
  */
-function isEventOverElement(event: MouseEvent|TouchEvent, el: HTMLElement): boolean {
-    const pageX = (
-        (event instanceof MouseEvent && event.pageX) ||
-        (event instanceof TouchEvent && event.touches[0].pageX)
-    ) as number;
+function isEventOverElement(event: MouseEvent | TouchEvent, el: HTMLElement): boolean {
+    const pageX = ((event instanceof MouseEvent && event.pageX) ||
+        (event instanceof TouchEvent && event.touches[0].pageX)) as number;
 
-    const pageY = (
-        (event instanceof MouseEvent && event.pageY) ||
-        (event instanceof TouchEvent && event.touches[0].pageY)
-    ) as number;
+    const pageY = ((event instanceof MouseEvent && event.pageY) ||
+        (event instanceof TouchEvent && event.touches[0].pageY)) as number;
 
     const box = el.getBoundingClientRect();
 
-    return pageX >= box.x && pageX <= (box.x + box.width) &&
-        pageY >= box.y && pageY <= (box.y + box.height);
+    return pageX >= box.x && pageX <= box.x + box.width && pageY >= box.y && pageY <= box.y + box.height;
 }
 
 /**
@@ -380,9 +368,11 @@ function validateDrop(): boolean {
     let customDropValidation = true;
 
     // Validate if the drag and drop are using the same drag group.
-    if (currentDrag === null ||
+    if (
+        currentDrag === null ||
         currentDrop === null ||
-        currentDrop.dropConfig.dragGroup !== currentDrag.dragConfig.dragGroup) {
+        currentDrop.dropConfig.dragGroup !== currentDrag.dragConfig.dragGroup
+    ) {
         valid = false;
     }
 
@@ -429,7 +419,7 @@ function validateDrag(): boolean {
     return valid && customDragValidation;
 }
 
-function mergeConfigs(defaultConfig: DragConfig|DropConfig, binding: { value: unknown }) {
+function mergeConfigs(defaultConfig: DragConfig | DropConfig, binding: { value: unknown }) {
     const mergedConfig = { ...defaultConfig };
 
     if (types.isObject(binding.value)) {
@@ -523,7 +513,10 @@ Shopware.Directive.register('droppable', {
     unmounted(el: HTMLElement, binding: { value: unknown }) {
         const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
-        dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
+        dropZones.splice(
+            dropZones.findIndex((zone) => zone.el === el),
+            1,
+        );
 
         el.classList.remove(dropConfig.droppableCls);
         el.removeEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
@@ -531,7 +524,7 @@ Shopware.Directive.register('droppable', {
     },
 
     updated: (el: HTMLElement, binding: { value: unknown }) => {
-        const dropZone = dropZones.find(zone => zone.el === el);
+        const dropZone = dropZones.find((zone) => zone.el === el);
         if (!dropZone) {
             return;
         }

@@ -8,7 +8,8 @@
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
       "notificationTestMailSuccessMessage": "The test email has been sent.",
       "notificationSyntaxValidationErrorMessage": "Invalid template, check syntax: {errorMsg}",
-      "notificationGeneralSyntaxValidationErrorMessage": "Invalid template, check syntax."
+      "notificationGeneralSyntaxValidationErrorMessage": "Invalid template, check syntax.",
+      "missingMailTemplateTypeErrorMessage": "A required mail template type is not available."
     },
     "list": {
       "textMailTemplateOverview": "Email templates",

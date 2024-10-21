@@ -11,6 +11,8 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -42,19 +44,26 @@ export default {
             'newPriceMatrixExists',
         ]),
 
-        ...mapPropertyErrors('shippingMethod', ['taxType', 'taxId']),
+        ...mapPropertyErrors('shippingMethod', [
+            'taxType',
+            'taxId',
+        ]),
 
         shippingCostTaxOptions() {
-            return [{
-                label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
-                value: 'auto',
-            }, {
-                label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
-                value: 'highest',
-            }, {
-                label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
-                value: 'fixed',
-            }];
+            return [
+                {
+                    label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
+                    value: 'auto',
+                },
+                {
+                    label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
+                    value: 'highest',
+                },
+                {
+                    label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
+                    value: 'fixed',
+                },
+            ];
         },
 
         taxCriteria() {

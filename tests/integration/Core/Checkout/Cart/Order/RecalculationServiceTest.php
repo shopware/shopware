@@ -8,6 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -22,6 +26,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -33,11 +38,13 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -46,6 +53,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -243,7 +251,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -267,7 +275,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -294,7 +302,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -332,7 +340,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -356,7 +364,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -437,7 +445,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/product/%s',
                 $orderId,
                 $productId
@@ -454,7 +462,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -584,6 +592,37 @@ class RecalculationServiceTest extends TestCase
         $this->toggleAutomaticPromotions($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
     }
 
+    public function testToggleAutomaticPromotionsForDelivery(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+
+        $shippingMethod = $this->getContainer()->get('shipping_method.repository')
+            ->search(new Criteria(), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+
+        $cart->setDeliveries(new DeliveryCollection([
+            new Delivery(
+                new DeliveryPositionCollection(),
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                $shippingMethod,
+                new ShippingLocation(new CountryEntity(), null, $this->getCustomerAddress(Uuid::randomHex())),
+                new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            ),
+        ]));
+
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $promotionId = $this->createShippingDiscount(100);
+
+        $this->toggleAutomaticPromotionsForDelivery($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
+    }
+
     public function testCreatedVersionedOrderAndMerge(): void
     {
         // create order
@@ -608,7 +647,7 @@ class RecalculationServiceTest extends TestCase
         // merge versioned order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/version/merge/%s/%s',
                 $this->getContainer()->get(OrderDefinition::class)->getEntityName(),
                 $versionId
@@ -708,6 +747,65 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(19.0, $firstTax->getTaxRate());
         static::assertNotNull($lastTax);
         static::assertSame(5.0, $lastTax->getTaxRate());
+    }
+
+    public function testDeleteLineItemsAfterRecalculateOrderWitchInactiveProducts(): void
+    {
+        // Arrange
+        $inactiveProductId = Uuid::randomHex();
+
+        $cart = $this->generateDemoCart($inactiveProductId);
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.positions.orderLineItem')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $lineItemWithInactiveProduct = $order->getLineItems()?->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
+        )->first();
+
+        static::assertNotNull($lineItemWithInactiveProduct);
+
+        $this->getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
+
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+                ProductCartProcessor::KEEP_INACTIVE_PRODUCT => false,
+            ],
+        ];
+
+        // Act
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, $options);
+
+        // Assert
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $versionContext)
+            ->get($orderId);
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $lineItemWithInactiveProduct = $order->getLineItems()?->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
+        )->first();
+
+        static::assertNull($lineItemWithInactiveProduct);
     }
 
     public function testRecalculateOrderWithInactiveProduct(): void
@@ -966,7 +1064,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order-address/%s/customer-address/%s',
                 $orderAddressId,
                 $customerAddressId
@@ -1176,6 +1274,40 @@ class RecalculationServiceTest extends TestCase
         return $promotionId;
     }
 
+    private function createShippingDiscount(float $discountValue, ?string $code = null): string
+    {
+        $promotionId = Uuid::randomHex();
+
+        $data = [
+            'id' => $promotionId,
+            'name' => 'delivery promotion',
+            'active' => true,
+            'useCodes' => false,
+            'useSetGroups' => false,
+            'salesChannels' => [
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
+            ],
+            'discounts' => [
+                [
+                    'scope' => PromotionDiscountEntity::SCOPE_DELIVERY,
+                    'type' => PromotionDiscountEntity::TYPE_PERCENTAGE,
+                    'value' => $discountValue,
+                    'considerAdvancedRules' => false,
+                ],
+            ],
+        ];
+
+        if ($code) {
+            $data['name'] = $code;
+            $data['useCodes'] = true;
+            $data['code'] = $code;
+        }
+
+        $this->getContainer()->get('promotion.repository')->create([$data], $this->context);
+
+        return $promotionId;
+    }
+
     private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();
@@ -1190,7 +1322,6 @@ class RecalculationServiceTest extends TestCase
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -1210,9 +1341,27 @@ class RecalculationServiceTest extends TestCase
             ],
         ];
 
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
         return $customerId;
+    }
+
+    private function getCustomerAddress(string $id): CustomerAddressEntity
+    {
+        $address = new CustomerAddressEntity();
+        $address->setId($id);
+        $address->setCountryId($this->getValidCountryId());
+        $address->setFirstName('Max');
+        $address->setLastName('Mustermann');
+        $address->setStreet('Musterstraße 1');
+        $address->setZipcode('12345');
+        $address->setCity('Musterstadt');
+
+        return $address;
     }
 
     private function generateDemoCart(?string $productId1 = null, ?string $productId2 = null): Cart
@@ -1294,7 +1443,7 @@ class RecalculationServiceTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/version/order/%s',
                 $orderId
             )
@@ -1324,7 +1473,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/product/%s',
                 $orderId,
                 $productId
@@ -1341,7 +1490,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/recalculate',
                 $orderId
             ),
@@ -1409,7 +1558,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/lineItem',
                 $orderId
             ),
@@ -1482,7 +1631,7 @@ class RecalculationServiceTest extends TestCase
         // add credit item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/creditItem',
                 $orderId
             ),
@@ -1539,7 +1688,7 @@ class RecalculationServiceTest extends TestCase
         // add promotion item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/promotion-item',
                 $orderId
             ),
@@ -1587,7 +1736,7 @@ class RecalculationServiceTest extends TestCase
         // add promotion item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/toggleAutomaticPromotions',
                 $orderId
             ),
@@ -1625,6 +1774,52 @@ class RecalculationServiceTest extends TestCase
         $errors = array_values($content['errors']);
         static::assertEquals($errors[0]['message'], 'Discount auto promotion has been added');
         static::assertSame($stateId, $order->getStateId());
+    }
+
+    private function toggleAutomaticPromotionsForDelivery(string $orderId, string $versionId, string $promotionId, \DateTimeInterface $orderDateTime, string $stateId): void
+    {
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $data = [
+            'skipAutomaticPromotions' => false,
+        ];
+
+        // add promotion item to order
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/toggleAutomaticPromotions',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ],
+            (string) json_encode($data)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        // read versioned order
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('deliveries');
+        /** @var OrderEntity $order */
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertNotNull($order->getDeliveries());
+        static::assertCount(2, $order->getDeliveries());
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
+
+        $firstDelivery = $order->getDeliveries()->first();
+        $secondDelivery = $order->getDeliveries()->last();
+
+        static::assertInstanceOf(OrderDeliveryEntity::class, $firstDelivery);
+        static::assertInstanceOf(OrderDeliveryEntity::class, $secondDelivery);
+
+        static::assertEquals($firstDelivery->getShippingCosts()->getTotalPrice(), 5);
+        static::assertEquals($secondDelivery->getShippingCosts()->getTotalPrice(), -5);
     }
 
     /**

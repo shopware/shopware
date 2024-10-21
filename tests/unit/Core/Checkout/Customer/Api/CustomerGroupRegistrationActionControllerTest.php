@@ -25,8 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(CustomerGroupRegistrationActionController::class)]
@@ -116,10 +114,10 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerWithoutRequest = self::createCustomer(false);
 
         return [
-            'without user' => [null, null, self::createRequest([$invalidCustomer]), sprintf('These customers "%s" are not found', $invalidCustomer)],
-            'without customer' => [null, null, self::createRequest([$customer->getId()]),  sprintf('These customers "%s" are not found', $customer->getId())],
+            'without user' => [null, null, self::createRequest([$invalidCustomer]), \sprintf('These customers "%s" are not found', $invalidCustomer)],
+            'without customer' => [null, null, self::createRequest([$customer->getId()]),  \sprintf('These customers "%s" are not found', $customer->getId())],
             'without customerId' => [null, null, self::createRequest([]), 'Parameter "customerIds" is missing.'],
-            'without request group' => [null,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()]), sprintf('Group request for customer "%s" is not found', $customerWithoutRequest->getId())],
+            'without request group' => [null,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()]), \sprintf('Group request for customer "%s" is not found', $customerWithoutRequest->getId())],
             'accept/decline' => [204, [$customer], self::createRequest([$customer->getId()]),  null],
             'accept/decline silent' => [204,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()], true), null],
             'in batch' => [204, [$customer, $customerB], self::createRequest([$customer->getId(), $customerB->getId()]), null],

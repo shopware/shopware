@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
 const { Application } = Shopware;
@@ -49,16 +50,19 @@ class VuexErrorStore {
             },
 
             getApiErrorFromPath: (state, getters) => (entityName, id, path) => {
-                return path.reduce((store, next) => {
-                    if (store === null) {
-                        return null;
-                    }
+                return path.reduce(
+                    (store, next) => {
+                        if (store === null) {
+                            return null;
+                        }
 
-                    if (store.hasOwnProperty(next)) {
-                        return store[next];
-                    }
-                    return null;
-                }, getters.getErrorsForEntity(entityName, id));
+                        if (store.hasOwnProperty(next)) {
+                            return store[next];
+                        }
+                        return null;
+                    },
+                    getters.getErrorsForEntity(entityName, id),
+                );
             },
 
             getApiError: (state, getters) => (entity, field) => {

@@ -12,7 +12,21 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: ['numberRangeService', 'feature', 'repositoryFactory'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'numberRangeService',
+        'feature',
+        'repositoryFactory',
+    ],
+
+    emits: [
+        'loading-document',
+        'document-create',
+        'preview-show',
+        'page-leave-confirm',
+        'page-leave',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -85,7 +99,7 @@ export default {
         async createdComponent() {
             this.documentConfig.documentNumber = await this.reserveDocumentNumber(true);
             this.documentNumberPreview = this.documentConfig.documentNumber;
-            this.documentConfig.documentDate = (new Date()).toISOString();
+            this.documentConfig.documentDate = new Date().toISOString();
         },
 
         async onCreateDocument(additionalAction = false) {
@@ -113,7 +127,7 @@ export default {
                 this.documentConfig,
                 additionalAction,
                 referencedDocumentId,
-                (this.uploadDocument ? this.selectedDocumentFile : null),
+                this.uploadDocument ? this.selectedDocumentFile : null,
             );
         },
 
@@ -160,7 +174,7 @@ export default {
         },
 
         successfulUploadFromUrl(res) {
-            this.mediaRepository.get(res.targetId).then(response => {
+            this.mediaRepository.get(res.targetId).then((response) => {
                 this.validateFile(response);
             });
         },

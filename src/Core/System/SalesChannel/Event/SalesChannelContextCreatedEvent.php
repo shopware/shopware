@@ -11,9 +11,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('core')]
 class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param array<string, mixed> $session
+     */
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
-        private readonly string $usedToken
+        private readonly string $usedToken,
+        private readonly array $session = []
     ) {
     }
 
@@ -30,5 +34,13 @@ class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChan
     public function getUsedToken(): string
     {
         return $this->usedToken;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getSession(): array
+    {
+        return $this->session;
     }
 }

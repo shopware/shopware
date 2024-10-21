@@ -2,13 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
-use Shopware\Core\Framework\App\Payment\Response\AsyncPayResponse;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,13 +29,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $transactionId = $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => StateMachineTransitionActions::ACTION_PAID_PARTIALLY,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_PARTIALLY_PAID, $transactionId);
     }
 
@@ -43,15 +46,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => StateMachineTransitionActions::ACTION_FAIL,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Error during payment initialization:');
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . 'Payment was reported as failed.');
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
     public function testPayFailedStateWithMessage(): void
@@ -61,16 +64,16 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => StateMachineTransitionActions::ACTION_FAIL,
             'message' => self::ERROR_MESSAGE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Error during payment initialization: ' . self::ERROR_MESSAGE);
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
     public function testPayNoStateButMessage(): void
@@ -80,15 +83,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'message' => self::ERROR_MESSAGE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Error during payment initialization: ' . self::ERROR_MESSAGE);
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
     public function testPayNoState(): void
@@ -98,14 +101,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $transactionId = $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => '',
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
+        $this->assertOrderTransactionState(Feature::isActive('v6.7.0.0') ? OrderTransactionStates::STATE_OPEN : OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
     }
 
     public function testPayWithUnsignedResponse(): void
@@ -115,7 +118,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -123,9 +126,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Invalid app response');
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->expectException(ServerException::class);
+        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
     public function testPayWithWronglySignedResponse(): void
@@ -135,7 +138,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -143,12 +146,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Invalid app response');
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->expectException(ServerException::class);
+        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
-    public function testPayWithInvalidResponse(): void
+    public function testPayWithoutRedirectResponse(): void
     {
         $paymentMethodId = $this->getPaymentMethodId('async');
         $orderId = $this->createOrder($paymentMethodId);
@@ -157,9 +160,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse($this->signResponse(['in' => 'valid']));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'No redirect URL provided by App');
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        static::assertNull($this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext));
     }
 
     public function testPayWithErrorResponse(): void
@@ -171,16 +172,16 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Invalid app response');
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->expectException(ServerException::class);
+        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
     public function testPayFinalizeWithUnsignedResponse(): void
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -188,12 +189,10 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
-        static::assertInstanceOf(PaymentException::class, $return->getException());
-
-        $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertInstanceOf(ServerException::class, $return->getException());
+        static::assertSame('Could not verify the authenticity of the response', $return->getException()->getMessage());
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
@@ -202,7 +201,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -210,11 +209,10 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
-        static::assertInstanceOf(PaymentException::class, $return->getException());
-        $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertInstanceOf(ServerException::class, $return->getException());
+        static::assertSame('Could not verify the authenticity of the response', $return->getException()->getMessage());
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
@@ -225,11 +223,10 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
-        static::assertInstanceOf(PaymentException::class, $return->getException());
-        $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertInstanceOf(ServerException::class, $return->getException());
+        static::assertSame('Could not verify the authenticity of the response', $return->getException()->getMessage());
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
@@ -238,12 +235,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'status' => StateMachineTransitionActions::ACTION_AUTHORIZE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -270,9 +267,17 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
         static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
-        static::assertArrayHasKey('queryParameters', $content);
-        static::assertIsArray($content['queryParameters']);
-        static::assertCount(4, $content);
+        static::assertArrayHasKey('requestData', $content);
+        static::assertIsArray($content['requestData']);
+        if (!Feature::isActive('v6.7.0.0')) {
+            static::assertArrayHasKey('queryParameters', $content);
+            static::assertIsArray($content['queryParameters']);
+        }
+        static::assertArrayHasKey('recurring', $content);
+        static::assertNull($content['recurring']);
+        static::assertArrayHasKey('validateStruct', $content);
+        static::assertNull($content['validateStruct']);
+        static::assertCount(Feature::isActive('v6.7.0.0') ? 7 : 8, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $data['transactionId']);
     }
 
@@ -280,16 +285,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'status' => StateMachineTransitionActions::ACTION_CANCEL,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertInstanceOf(PaymentException::class, $return->getException());
-        $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL, $exception->getErrorCode());
+        static::assertSame(PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL, $return->getException()->getErrorCode());
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $data['transactionId']);
     }
@@ -298,16 +302,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
-        static::assertInstanceOf(PaymentException::class, $return->getException());
-        $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertInstanceOf(AppException::class, $return->getException());
+        static::assertSame('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE, $return->getException()->getMessage());
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
@@ -316,19 +319,19 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'status' => '',
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertNull($return->getException());
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $data['transactionId']);
+        $this->assertOrderTransactionState(Feature::isActive('v6.7.0.0') ? OrderTransactionStates::STATE_OPEN : OrderTransactionStates::STATE_UNCONFIRMED, $data['transactionId']);
     }
 
     /**
-     * @return array{token: string, transactionId: string, paymentMethodId: string}
+     * @return array{token: TokenStruct, transactionId: string, paymentMethodId: string}
      */
     private function prepareTransaction(): array
     {
@@ -337,12 +340,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $transactionId = $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $response = $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
         static::assertNotNull($response);
 
         static::assertSame(self::REDIRECT_URL, $response->getTargetUrl());
@@ -378,17 +381,25 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertIsArray($content['order']['orderCustomer']);
         static::assertArrayHasKey('customer', $content['order']['orderCustomer']);
         static::assertIsArray($content['order']['orderCustomer']['customer']);
-        static::assertArrayHasKey('requestData', $content);
-        static::assertIsArray($content['requestData']);
+        static::assertCount(1, $content['order']['transactions']);
         // sensitive data is removed
         static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
+        static::assertArrayHasKey('requestData', $content);
+        static::assertIsArray($content['requestData']);
+        if (!Feature::isActive('v6.7.0.0')) {
+            static::assertArrayHasKey('queryParameters', $content);
+            static::assertIsArray($content['queryParameters']);
+        }
         static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
         static::assertArrayHasKey('recurring', $content);
         static::assertNull($content['recurring']);
-        static::assertCount(6, $content);
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
+        static::assertArrayHasKey('validateStruct', $content);
+        static::assertIsArray($content['validateStruct']);
+        static::assertCount(Feature::isActive('v6.7.0.0') ? 7 : 8, $content);
+
+        $this->assertOrderTransactionState(Feature::isActive('v6.7.0.0') ? OrderTransactionStates::STATE_OPEN : OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
 
         return [
             'token' => $token,
@@ -397,7 +408,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ];
     }
 
-    private function getToken(string $returnUrl): string
+    private function getToken(string $returnUrl): TokenStruct
     {
         $query = \parse_url($returnUrl, \PHP_URL_QUERY);
         static::assertIsString($query);
@@ -405,9 +416,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         \parse_str($query, $params);
 
         $token = $params['_sw_payment_token'];
-
+        static::assertNotEmpty($token);
         static::assertIsString($token);
 
-        return $token;
+        return $this->getContainer()->get(JWTFactoryV2::class)->parseToken($token);
     }
 }

@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
@@ -70,21 +74,11 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
             stubs: {
-                'sw-container': {
-                    template: `
-                        <div class="sw-container"><slot></slot></div>
-                    `,
-                },
-                'sw-card-section': {
-                    template: `
-                        <div class="sw-card-section"><slot></slot></div>
-                    `,
-                },
-                'sw-description-list': {
-                    template: `
-                        <div class="sw-description-list"><slot></slot></div>
-                    `,
-                },
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
+                'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
+                'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-card': {
                     template: `
                         <div class="sw-card">
@@ -95,11 +89,23 @@ async function createWrapper() {
                 },
                 'sw-order-general-info': true,
                 'sw-order-line-items-grid': true,
-                'sw-order-saveable-field': {
-                    props: ['value'],
-                    template: '<input class="sw-order-saveable-field" :value="value" @input="$emit(\'value-change\', $event.target.value)" />',
-                },
+                'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
+                'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
                 'sw-extension-component-section': true,
+                'sw-icon': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'router-link': true,
+                'sw-loader': true,
             },
             mocks: {
                 $tc: (key, number, value) => {
@@ -111,13 +117,13 @@ async function createWrapper() {
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
                 },
@@ -153,9 +159,11 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        const shippingCostField = wrapper.find('.sw-order-saveable-field');
-        expect(shippingCostField.attributes()['tooltip-message'])
-            .toBe('sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}');
+
+        const shippingCostField = wrapper.find('.sw-order-detail__summary div[role="button"]');
+        expect(shippingCostField.attributes()['tooltip-message']).toBe(
+            'sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}',
+        );
     });
 
     it('should tax description correctly if taxStatus is not tax-free', async () => {
@@ -174,12 +182,20 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     it('should able to edit shipping cost', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
-        const shippingCostField = wrapper.find('.sw-order-saveable-field');
-        await shippingCostField.setValue(20);
-        await shippingCostField.trigger('input');
 
-        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe('20');
-        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe('20');
+        let button = wrapper.find('.sw-order-detail__summary div[role="button"]');
+        await button.trigger('click');
+        await flushPromises();
+
+        const saveableField = wrapper.find('.sw-order-saveable-field input');
+        await saveableField.setValue(20);
+        await saveableField.trigger('input');
+
+        button = wrapper.find('.sw-order-saveable-field .sw-button--primary');
+        await button.trigger('click');
+
+        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
+        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 

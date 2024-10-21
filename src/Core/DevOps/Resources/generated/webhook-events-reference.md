@@ -108,9 +108,10 @@
 |`document.deleted` | Triggers when a document is deleted | `document:read` | {"entity":"document","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`media.written` | Triggers when a media is written | `media:read` | {"entity":"media","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`media.deleted` | Triggers when a media is deleted | `media:read` | {"entity":"media","operation":"deleted","primaryKey":"array string","payload":"array"}
-|`app.activated` |  | - | 
-|`app.deactivated` |  | - | 
-|`app.deleted` |  | - | 
-|`app.installed` |  | - | 
-|`app.updated` |  | - | 
-|`shopware.updated` |  | - | 
+|`app.activated` | Fires when an app is activated | - | 
+|`app.deactivated` | Fires when an app is deactivated | - | 
+|`app.deleted` | Fires when an app is deleted | - | 
+|`app.installed` | Fires when an app is installed | - | 
+|`app.updated` | Fires when an app is updated | - | 
+|`shopware.updated` | Fires after an shopware update has been finished | - | 
+|`app.config.changed` | Fires when a system config value is changed | - | 

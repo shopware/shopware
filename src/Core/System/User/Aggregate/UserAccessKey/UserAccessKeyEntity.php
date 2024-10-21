@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserAccessKeyEntity extends Entity
 {
     use EntityCustomFieldsTrait;

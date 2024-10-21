@@ -14,7 +14,14 @@ const { cloneDeep, merge, get } = Utils.object;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'cmsService', 'feature', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'cmsService',
+        'feature',
+        'acl',
+    ],
 
     data() {
         return {
@@ -44,10 +51,6 @@ export default {
             'isLoading',
         ]),
 
-        ...mapState('cmsPageState', [
-            'currentPage',
-        ]),
-
         cmsPageCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('previewMedia');
@@ -55,9 +58,7 @@ export default {
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
             criteria.addAssociation('sections.blocks');
-            criteria.getAssociation('sections.blocks')
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('slots');
+            criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
 
             return criteria;
         },
@@ -65,11 +66,19 @@ export default {
         languageId() {
             return Shopware.Context.api.languageId;
         },
+
+        currentPage() {
+            return Shopware.Store.get('cmsPage').currentPage;
+        },
+
+        cmsPageState() {
+            return Shopware.Store.get('cmsPage');
+        },
     },
 
     watch: {
         cmsPageId() {
-            State.dispatch('cmsPageState/resetCmsPageState');
+            this.cmsPageState.resetCmsPageState();
             this.handleGetCmsPage();
         },
 
@@ -85,7 +94,7 @@ export default {
         },
 
         languageId() {
-            State.dispatch('cmsPageState/resetCmsPageState');
+            this.cmsPageState.resetCmsPageState();
             this.handleGetCmsPage();
         },
     },
@@ -122,7 +131,10 @@ export default {
             if (!this.currentPage) {
                 this.$router.push({ name: 'sw.cms.create' });
             } else {
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.currentPage.id } });
+                this.$router.push({
+                    name: 'sw.cms.detail',
+                    params: { id: this.currentPage.id },
+                });
             }
         },
 
@@ -159,19 +171,16 @@ export default {
                     });
                 }
 
-                State.commit('cmsPageState/setCurrentPage', cmsPage);
+                this.cmsPageState.setCurrentPage(cmsPage);
                 this.updateCmsPageDataMapping();
                 this.isConfigLoading = false;
             });
         },
 
         updateCmsPageDataMapping() {
-            Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'product');
-            Shopware.State.commit(
-                'cmsPageState/setCurrentMappingTypes',
-                this.cmsService.getEntityMappingTypes('product'),
-            );
-            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.product);
+            this.cmsPageState.setCurrentMappingEntity('product');
+            this.cmsPageState.setCurrentMappingTypes(this.cmsService.getEntityMappingTypes('product'));
+            this.cmsPageState.setCurrentDemoEntity(this.product);
         },
 
         onResetLayout() {

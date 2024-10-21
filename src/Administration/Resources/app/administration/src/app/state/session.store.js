@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
 const { Application } = Shopware;
@@ -36,7 +37,10 @@ export default {
             }
 
             return state.currentUser.aclRoles.reduce((acc, role) => {
-                acc = [...acc, ...role.privileges];
+                acc = [
+                    ...acc,
+                    ...role.privileges,
+                ];
 
                 return acc;
             }, []);

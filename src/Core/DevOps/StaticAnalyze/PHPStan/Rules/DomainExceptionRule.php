@@ -39,6 +39,10 @@ class DomainExceptionRule implements Rule
         'Order',
     ];
 
+    private const EXCLUDED_NAMESPACES = [
+        'Shopware\Core\DevOps\StaticAnalyze\\',
+    ];
+
     /**
      * @var array<string, string>
      */
@@ -48,6 +52,10 @@ class DomainExceptionRule implements Rule
         VarnishReverseProxyGateway::class => ReverseProxyException::class,
         FastlyReverseProxyGateway::class => ReverseProxyException::class,
         RedisReverseProxyGateway::class => ReverseProxyException::class,
+    ];
+
+    private const GLOBAL_EXCEPTIONS = [
+        'Shopware\Core\Framework\FrameworkException::extensionResultNotSet',
     ];
 
     /**
@@ -84,6 +92,15 @@ class DomainExceptionRule implements Rule
 
         if (!$node->expr instanceof New_) {
             return [];
+        }
+
+        $namespace = $scope->getNamespace();
+        if (\is_string($namespace)) {
+            foreach (self::EXCLUDED_NAMESPACES as $excludedNamespace) {
+                if (\str_starts_with($namespace, $excludedNamespace)) {
+                    return [];
+                }
+            }
         }
 
         \assert($node->expr->class instanceof Name);
@@ -151,6 +168,13 @@ class DomainExceptionRule implements Rule
         if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
             $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
             if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
+                return [];
+            }
+        }
+
+        if (method_exists($node->name, 'toString')) {
+            $full = $exceptionClass . '::' . $node->name->toString();
+            if (\in_array($full, self::GLOBAL_EXCEPTIONS, true)) {
                 return [];
             }
         }

@@ -12,7 +12,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'domainLinkService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -37,32 +43,37 @@ export default {
 
     computed: {
         salesChannelColumns() {
-            const columns = [{
-                property: 'name',
-                dataIndex: 'name',
-                allowResize: true,
-                routerLink: 'sw.sales.channel.detail',
-                label: 'sw-sales-channel.list.columnName',
-                primary: true,
-            }, {
-                property: 'status',
-                dataIndex: 'status',
-                allowResize: true,
-                sortable: false,
-                label: 'sw-sales-channel.list.columnStatus',
-            }, {
-                property: 'id',
-                dataIndex: 'id',
-                allowResize: true,
-                sortable: false,
-                label: 'sw-sales-channel.list.columnFavourite',
-                align: 'center',
-            }, {
-                property: 'createdAt',
-                dataIndex: 'createdAt',
-                allowResize: true,
-                label: 'sw-sales-channel.list.columnCreatedAt',
-            }];
+            const columns = [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    allowResize: true,
+                    routerLink: 'sw.sales.channel.detail',
+                    label: 'sw-sales-channel.list.columnName',
+                    primary: true,
+                },
+                {
+                    property: 'status',
+                    dataIndex: 'status',
+                    allowResize: true,
+                    sortable: false,
+                    label: 'sw-sales-channel.list.columnStatus',
+                },
+                {
+                    property: 'id',
+                    dataIndex: 'id',
+                    allowResize: true,
+                    sortable: false,
+                    label: 'sw-sales-channel.list.columnFavourite',
+                    align: 'center',
+                },
+                {
+                    property: 'createdAt',
+                    dataIndex: 'createdAt',
+                    allowResize: true,
+                    label: 'sw-sales-channel.list.columnCreatedAt',
+                },
+            ];
 
             columns.splice(1, 0, {
                 property: 'type.name',
@@ -118,20 +129,22 @@ export default {
                 criteria.resetSorting();
             }
 
-            return this.salesChannelRepository.search(criteria)
-                .then(searchResult => {
-                    this.salesChannels = searchResult;
-                    this.total = searchResult.total;
-                    this.isLoading = false;
-                });
+            return this.salesChannelRepository.search(criteria).then((searchResult) => {
+                this.salesChannels = searchResult;
+                this.total = searchResult.total;
+                this.isLoading = false;
+            });
         },
 
         /** @deprecated tag:v6.7.0 - Will be removed. */
         setProductAggregations(buckets) {
-            this.productsForSalesChannel = buckets.reduce((productsForSalesChannel, bucket) => ({
-                ...productsForSalesChannel,
-                [bucket.key]: bucket.visible_products?.count,
-            }), {});
+            this.productsForSalesChannel = buckets.reduce(
+                (productsForSalesChannel, bucket) => ({
+                    ...productsForSalesChannel,
+                    [bucket.key]: bucket.visible_products?.count,
+                }),
+                {},
+            );
         },
 
         /** @deprecated tag:v6.7.0 - Will be removed. */

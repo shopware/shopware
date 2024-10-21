@@ -23,10 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
-    /**
-     * @var bool
-     */
-    protected $setMaintenanceMode = true;
+    protected bool $setMaintenanceMode = true;
 
     public function __construct(
         private readonly EntityRepository $salesChannelRepository
@@ -81,7 +78,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
 
         $this->salesChannelRepository->update($update, $context);
 
-        $output->write(sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannelIds)));
+        $output->write(\sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannelIds)));
 
         return self::SUCCESS;
     }

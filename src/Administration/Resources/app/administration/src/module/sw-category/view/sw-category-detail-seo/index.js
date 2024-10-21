@@ -8,6 +8,8 @@ import './sw-category-detail-seo.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     props: {

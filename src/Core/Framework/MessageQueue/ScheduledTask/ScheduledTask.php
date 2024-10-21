@@ -9,6 +9,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 #[Package('core')]
 abstract class ScheduledTask implements AsyncMessageInterface
 {
+    protected const MINUTELY = 60;
+    protected const HOURLY = 3600;
+    protected const DAILY = 86400;
+    protected const WEEKLY = 604800;
+
     protected ?string $taskId = null;
 
     /**

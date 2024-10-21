@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],
@@ -48,7 +50,6 @@ export default {
     },
 
     computed: {
-
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -104,7 +105,7 @@ export default {
             });
 
             this.mailTemplates.forEach(({ mailTemplate }) => {
-                if (!usages.some(usage => usage.link.id === mailTemplate.id)) {
+                if (!usages.some((usage) => usage.link.id === mailTemplate.id)) {
                     usages.push(this.getMailTemplateUsage(mailTemplate));
                 }
             });
@@ -170,7 +171,12 @@ export default {
         async loadSlotConfigAssociations() {
             this.isLoading = true;
 
-            const [foundInProducts, foundInLandingPages, foundInCategories, foundInCmsPages] = await Promise.all([
+            const [
+                foundInProducts,
+                foundInLandingPages,
+                foundInCategories,
+                foundInCmsPages,
+            ] = await Promise.all([
                 this.productRepository.search(this.slotConfigCriteria),
                 this.landingPageRepository.search(this.slotConfigCriteria),
                 this.categoryRepository.search(this.slotConfigCriteria),
@@ -263,7 +269,7 @@ export default {
         },
 
         isExistedCmsMedia(id) {
-            return this.layouts.some(layout => {
+            return this.layouts.some((layout) => {
                 return layout.id === id;
             });
         },

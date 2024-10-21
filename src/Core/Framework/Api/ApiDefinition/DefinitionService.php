@@ -41,8 +41,8 @@ class DefinitionService
     }
 
     /**
-     * @phpstan-param Api $type
-     * @phpstan-param ApiType $apiType
+     * @param Api $type
+     * @param ApiType $apiType
      *
      * @return OpenApiSpec
      */
@@ -52,7 +52,7 @@ class DefinitionService
     }
 
     /**
-     * @phpstan-param Api $type
+     * @param Api $type
      *
      * @return ApiSchema
      */

@@ -13,8 +13,35 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'acl',
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveEdits: {
+            from: 'swOrderDetailOnSaveEdits',
+            default: null,
+        },
+        swOrderDetailOnRecalculateAndReload: {
+            from: 'swOrderDetailOnRecalculateAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
+        acl: {
+            from: 'acl',
+            default: null,
+        },
+    },
+
+    emits: [
+        'save-and-recalculate',
+        'save-edits',
+        'recalculate-and-reload',
     ],
 
     mixins: [
@@ -31,6 +58,12 @@ export default {
             type: Boolean,
             required: true,
         },
+    },
+
+    data() {
+        return {
+            shippingCosts: null,
+        };
     },
 
     computed: {
@@ -53,19 +86,21 @@ export default {
 
         shippingCostsDetail() {
             const calcTaxes = this.sortByTaxRate(cloneDeep(this.order.shippingCosts.calculatedTaxes));
-            const formattedTaxes = `${calcTaxes.map(
-                calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
-                    taxRate: calcTax.taxRate,
-                    tax: format.currency(calcTax.tax, this.order.currency.isoCode),
-                })}`,
-            ).join('<br>')}`;
+            const formattedTaxes = `${calcTaxes
+                .map(
+                    (calcTax) =>
+                        `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
+                            taxRate: calcTax.taxRate,
+                            tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                        })}`,
+                )
+                .join('<br>')}`;
 
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
 
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(cloneDeep(this.order.price.calculatedTaxes))
-                .filter(price => price.tax !== 0);
+            return this.sortByTaxRate(cloneDeep(this.order.price.calculatedTaxes)).filter((price) => price.tax !== 0);
         },
 
         taxStatus() {
@@ -73,8 +108,10 @@ export default {
         },
 
         displayRounded() {
-            return this.order.totalRounding.interval !== 0.01
-                || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
+            return (
+                this.order.totalRounding.interval !== 0.01 ||
+                this.order.totalRounding.decimals !== this.order.itemRounding.decimals
+            );
         },
 
         orderTotal() {
@@ -101,22 +138,39 @@ export default {
             });
         },
 
-        onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+        onShippingChargeEdited() {
+            this.delivery.shippingCosts.unitPrice = this.shippingCosts;
+            this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+
             this.saveAndRecalculate();
+        },
+
+        onShippingChargeUpdated(amount) {
+            this.shippingCosts = amount;
         },
 
         saveAndRecalculate() {
             this.$emit('save-and-recalculate');
+
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                this.swOrderDetailOnSaveAndRecalculate();
+            }
         },
 
         onSaveEdits() {
             this.$emit('save-edits');
+
+            if (this.swOrderDetailOnSaveEdits) {
+                this.swOrderDetailOnSaveEdits();
+            }
         },
 
         recalculateAndReload() {
             this.$emit('recalculate-and-reload');
+
+            if (this.swOrderDetailOnRecalculateAndReload) {
+                this.swOrderDetailOnRecalculateAndReload();
+            }
         },
     },
 };

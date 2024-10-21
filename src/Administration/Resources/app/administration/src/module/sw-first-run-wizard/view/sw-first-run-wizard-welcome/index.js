@@ -10,11 +10,19 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'languagePluginService',
         'userService',
         'loginService',
         'repositoryFactory',
+    ],
+
+    emits: [
+        'extension-activated',
+        'frw-set-title',
+        'buttons-update',
     ],
 
     mixins: [
@@ -159,26 +167,35 @@ export default {
         },
 
         onConfirmLanguageSwitch() {
-            this.loginService.verifyUserToken(this.user.pw).then((verifiedToken) => {
-                const context = { ...Shopware.Context.api };
-                context.authToken.access = verifiedToken;
+            this.loginService
+                .verifyUserToken(this.user.pw)
+                .then((verifiedToken) => {
+                    const context = { ...Shopware.Context.api };
+                    context.authToken.access = verifiedToken;
 
-                this.userRepository.save(this.user, context)
-                    .then(async () => {
-                        await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-                    })
-                    .finally(() => {
-                        this.showConfirmLanguageSwitchModal = false;
+                    this.userRepository
+                        .save(this.user, context)
+                        .then(async () => {
+                            await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                        })
+                        .finally(() => {
+                            this.showConfirmLanguageSwitchModal = false;
+                        });
+                })
+                .catch(() => {
+                    /* eslint-disable max-len */
+                    this.createNotificationError({
+                        title: this.$tc(
+                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
+                        ),
+                        message: this.$tc(
+                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+                        ),
                     });
-            }).catch(() => {
-                /* eslint-disable max-len */
-                this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'),
+                })
+                .finally(() => {
+                    this.confirmPassword = '';
                 });
-            }).finally(() => {
-                this.confirmPassword = '';
-            });
         },
 
         onCancelSwitch() {
@@ -190,8 +207,7 @@ export default {
                 return null;
             }
 
-            return this.languagePlugins
-                .find((p) => p.name === name);
+            return this.languagePlugins.find((p) => p.name === name);
         },
 
         getLanguageCriteria() {

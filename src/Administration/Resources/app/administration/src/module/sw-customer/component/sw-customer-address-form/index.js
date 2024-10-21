@@ -14,6 +14,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -46,10 +48,7 @@ export default {
 
     computed: {
         addressRepository() {
-            return this.repositoryFactory.create(
-                this.customer.addresses.entity,
-                this.customer.addresses.source,
-            );
+            return this.repositoryFactory.create(this.customer.addresses.entity, this.customer.addresses.source);
         },
 
         countryRepository() {
@@ -96,8 +95,7 @@ export default {
 
         countryCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('position', 'ASC', true))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('position', 'ASC', true)).addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -107,7 +105,8 @@ export default {
             }
 
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('countryId', this.countryId))
+            criteria
+                .addFilter(Criteria.equals('countryId', this.countryId))
                 .addSorting(Criteria.sort('position', 'ASC', true))
                 .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
@@ -116,9 +115,11 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.not('or', [
-                Criteria.equals('id', Defaults.defaultSalutationId),
-            ]));
+            criteria.addFilter(
+                Criteria.not('or', [
+                    Criteria.equals('id', Defaults.defaultSalutationId),
+                ]),
+            );
 
             return criteria;
         },
@@ -147,6 +148,8 @@ export default {
 
                 return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
+
+                    this.address.country = this.country;
                     this.getCountryStates();
                 });
             },
@@ -162,12 +165,9 @@ export default {
 
         'country.forceStateInRegistration'(newVal) {
             if (!newVal) {
-                Shopware.State.dispatch(
-                    'error/removeApiError',
-                    {
-                        expression: `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
-                    },
-                );
+                Shopware.State.dispatch('error/removeApiError', {
+                    expression: `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
+                });
             }
 
             const definition = EntityDefinition.get(this.address.getEntityName());
@@ -177,12 +177,9 @@ export default {
 
         'country.postalCodeRequired'(newVal) {
             if (!newVal) {
-                Shopware.State.dispatch(
-                    'error/removeApiError',
-                    {
-                        expression: `${this.address.getEntityName()}.${this.address.id}.zipcode`,
-                    },
-                );
+                Shopware.State.dispatch('error/removeApiError', {
+                    expression: `${this.address.getEntityName()}.${this.address.id}.zipcode`,
+                });
             }
 
             const definition = EntityDefinition.get(this.address.getEntityName());

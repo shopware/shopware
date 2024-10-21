@@ -76,6 +76,23 @@ class ThemeLifecycleHandler
         }
     }
 
+    public function deactivateTheme(StorefrontPluginConfiguration $config, Context $context): ?string
+    {
+        $themeId = null;
+        if ($config->getIsTheme()) {
+            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
+            $themeId = $themeData->getId();
+
+            // throw an exception if theme is still assigned to a sales channel
+            $this->validateThemeAssignment($themeId);
+
+            // set active = false in the database to theme and all children
+            $this->changeThemeActive($themeData, false, $context);
+        }
+
+        return $themeId;
+    }
+
     /**
      * @throws ThemeAssignmentException
      * @throws InconsistentCriteriaIdsException
@@ -210,22 +227,5 @@ class ThemeLifecycleHandler
             $childThemeSalesChannel,
             $salesChannels
         );
-    }
-
-    public function deactivateTheme(StorefrontPluginConfiguration $config, Context $context): ?string
-    {
-        $themeId = null;
-        if ($config->getIsTheme()) {
-            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
-            $themeId = $themeData->getId();
-
-            // throw an exception if theme is still assigned to a sales channel
-            $this->validateThemeAssignment($themeId);
-
-            // set active = false in the database to theme and all children
-            $this->changeThemeActive($themeData, false, $context);
-        }
-
-        return $themeId;
     }
 }

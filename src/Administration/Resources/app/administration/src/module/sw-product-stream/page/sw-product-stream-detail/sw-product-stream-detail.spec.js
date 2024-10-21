@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -25,11 +25,15 @@ responses.addResponse({
                 },
                 relationships: {
                     customFields: {
-                        data: [{
-                            type: 'custom_field',
-                            id: 'custom_field_id1',
-                        }],
-                        links: { related: 'http://host/api/custom-field-set/custom_field_set_id1/custom-fields' },
+                        data: [
+                            {
+                                type: 'custom_field',
+                                id: 'custom_field_id1',
+                            },
+                        ],
+                        links: {
+                            related: 'http://host/api/custom-field-set/custom_field_set_id1/custom-fields',
+                        },
                     },
                 },
             },
@@ -54,10 +58,10 @@ responses.addResponse({
                     customFieldSetId: 'custom_field_set_id1',
                 },
                 relationships: {
-                    customFieldSet: {
-                    },
+                    customFieldSet: {},
                 },
-            }, {
+            },
+            {
                 id: 'custom_field_set_relation_id1',
                 type: 'custom_field_set_relation',
                 attributes: {
@@ -67,7 +71,8 @@ responses.addResponse({
                 relationships: {
                     customFieldSet: {},
                 },
-            }],
+            },
+        ],
     },
 });
 
@@ -98,6 +103,9 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-textarea-field': true,
                 'sw-condition-tree': true,
+                'sw-language-switch': true,
+                'sw-product-stream-modal-preview': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 customFieldDataProviderService: {

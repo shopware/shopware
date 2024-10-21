@@ -1,10 +1,12 @@
 {% block component_line_item_download_item_detail %}
     <div class="row order-detail-content-row order-download-row">
+        {% set downloadLabel = 'account.downloadFileButton'|trans|sw_sanitize %}
         {% set downloadLink = path('frontend.account.order.single.download', {orderId: order.id, downloadId: download.id}) %}
 
         {% block component_line_item_download_item_detail_file_name %}
             <div class="col-8 download-item download-item-file-name">
                 <a href="{{ downloadLink }}"
+                   aria-label="{{ downloadLabel }}"
                    target="_blank">
                     {% block page_account_order_download_item_detail_file_name_icon %}
                         <span class="icon icon-xs">{% sw_icon 'file' %}</span>
@@ -23,13 +25,14 @@
                     <a href="{{ downloadLink }}"
                        target="_blank"
                        class="btn btn-light btn-sm download-item-view-file-text-btn">
-                        {{ 'account.downloadFileButton'|trans|sw_sanitize }}
+                        {{ downloadLabel }}
                     </a>
                 {% endblock %}
 
                 {% block component_line_item_download_item_detail_download_file_btn_icon %}
                     <a href="{{ downloadLink }}"
                        target="_blank"
+                       aria-label="{{ downloadLabel }}"
                        class="btn btn-light btn-sm download-item-view-file-icon-btn">
                         <span class="icon icon-xs">{% sw_icon 'external' %}</span>
                     </a>

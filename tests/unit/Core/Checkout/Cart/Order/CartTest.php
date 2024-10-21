@@ -88,4 +88,17 @@ class CartTest extends TestCase
 
         static::assertCount(1, $cart->getLineItems());
     }
+
+    public function testHashing(): void
+    {
+        $cart = new Cart('test');
+
+        static::assertSame('', $cart->getErrorHash());
+
+        $cart->setErrorHash('test');
+
+        static::assertSame('test', $cart->getErrorHash());
+
+        static::assertArrayHasKey('errorHash', $cart->jsonSerialize());
+    }
 }

@@ -16,6 +16,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('buyers-experience')]
 class ElasticsearchIndexingUtils
 {
+    public const TEXT_MAX_LENGTH = 32766;
+
     /**
      * @var array<string, array<string, string>>
      */
@@ -42,7 +44,7 @@ class ElasticsearchIndexingUtils
             return $this->customFieldsTypes[$entity];
         }
 
-        $mappingKey = sprintf('elasticsearch.%s.custom_fields_mapping', $entity);
+        $mappingKey = \sprintf('elasticsearch.%s.custom_fields_mapping', $entity);
         $customFieldsMapping = $this->parameterBag->has($mappingKey) ? $this->parameterBag->get($mappingKey) : [];
 
         /** @var array<string, string> $mappings */
@@ -72,8 +74,8 @@ WHERE custom_field_set_relation.entity_name = :entity
         // Remove all html elements to save up space
         $text = strip_tags($text);
 
-        if (mb_strlen($text) >= 32766) {
-            return mb_substr($text, 0, 32766);
+        if (mb_strlen($text) >= self::TEXT_MAX_LENGTH) {
+            return mb_substr($text, 0, self::TEXT_MAX_LENGTH);
         }
 
         return $text;

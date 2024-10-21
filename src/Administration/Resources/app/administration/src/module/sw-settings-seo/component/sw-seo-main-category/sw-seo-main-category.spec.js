@@ -1,23 +1,26 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-seo-main-category', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-single-select': true,
+    return mount(
+        await wrapTestComponent('sw-seo-main-category', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-single-select': true,
+                },
+            },
+            propsData: {
+                mainCategories: [],
+                categories: [],
             },
         },
-        propsData: {
-            mainCategories: [],
-            categories: [],
-        },
-    });
+    );
 }
 
 describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {

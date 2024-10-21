@@ -10,7 +10,6 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -21,9 +20,6 @@ class MailTest extends TestCase
     public function testMailInstance(): void
     {
         $mail = new Mail();
-
-        static::assertInstanceOf(Email::class, $mail);
-
         $mail->addAttachmentUrl('foobar');
 
         static::assertEquals(['foobar'], $mail->getAttachmentUrls());

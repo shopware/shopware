@@ -36,7 +36,7 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $context = Context::createCLIContext();
-        $timeExpired = (new \DateTimeImmutable())->modify(sprintf('-%d day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $timeExpired = (new \DateTimeImmutable())->modify(\sprintf('-%d day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $criteria = new Criteria();
         $criteria->addFilter(new RangeFilter('deletedAt', [

@@ -13,7 +13,13 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -112,14 +118,11 @@ export default {
             };
         },
 
-        ...mapPropertyErrors(
-            'salutation',
-            [
-                'displayName',
-                'letterName',
-                'salutationKey',
-            ],
-        ),
+        ...mapPropertyErrors('salutation', [
+            'displayName',
+            'letterName',
+            'salutationKey',
+        ]),
 
         showCustomFields() {
             return this.salutation && this.customFieldSets && this.customFieldSets.length > 0;
@@ -173,24 +176,30 @@ export default {
             this.isLoading = true;
             this.isSaveSuccessful = false;
 
-            return this.salutationRepository.save(this.salutation).then(() => {
-                this.isSaveSuccessful = true;
-                if (!this.salutationId) {
-                    this.$router.push({ name: 'sw.settings.salutation.detail', params: { id: this.salutation.id } });
-                }
+            return this.salutationRepository
+                .save(this.salutation)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    if (!this.salutationId) {
+                        this.$router.push({
+                            name: 'sw.settings.salutation.detail',
+                            params: { id: this.salutation.id },
+                        });
+                    }
 
-                this.salutationRepository.get(this.salutation.id).then((updatedSalutation) => {
-                    this.salutation = updatedSalutation;
+                    this.salutationRepository.get(this.salutation.id).then((updatedSalutation) => {
+                        this.salutation = updatedSalutation;
+                        this.isLoading = false;
+                    });
+                })
+                .catch(() => {
                     this.isLoading = false;
-                });
-            }).catch(() => {
-                this.isLoading = false;
 
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage'),
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage'),
+                    });
                 });
-            });
         },
 
         onCancel() {
@@ -207,9 +216,7 @@ export default {
                 return;
             }
 
-            if (typeof this.salutation.salutationKey !== 'string' ||
-                this.salutation.salutationKey.trim() === ''
-            ) {
+            if (typeof this.salutation.salutationKey !== 'string' || this.salutation.salutationKey.trim() === '') {
                 this.invalidKey = false;
                 this.isKeyChecking = false;
                 return;
@@ -217,22 +224,24 @@ export default {
 
             const criteria = new Criteria(1, 1);
             criteria.addFilter(
-                Criteria.multi(
-                    'AND',
-                    [
-                        Criteria.equals('salutationKey', this.salutation.salutationKey),
-                        Criteria.not('AND', [Criteria.equals('id', this.salutation.id)]),
-                    ],
-                ),
+                Criteria.multi('AND', [
+                    Criteria.equals('salutationKey', this.salutation.salutationKey),
+                    Criteria.not('AND', [
+                        Criteria.equals('id', this.salutation.id),
+                    ]),
+                ]),
             );
 
-            this.salutationRepository.search(criteria).then(({ total }) => {
-                this.invalidKey = total > 0;
-                this.isKeyChecking = false;
-            }).catch(() => {
-                this.invalidKey = true;
-                this.isKeyChecking = false;
-            });
+            this.salutationRepository
+                .search(criteria)
+                .then(({ total }) => {
+                    this.invalidKey = total > 0;
+                    this.isKeyChecking = false;
+                })
+                .catch(() => {
+                    this.invalidKey = true;
+                    this.isKeyChecking = false;
+                });
         }, 500),
     },
 };

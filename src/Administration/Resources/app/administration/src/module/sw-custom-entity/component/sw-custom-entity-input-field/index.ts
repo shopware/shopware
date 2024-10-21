@@ -8,11 +8,18 @@ import template from './sw-custom-entity-input-field.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {
         value: {
-            type: [Object, String, Number, Boolean] as PropType<unknown>,
+            type: [
+                Object,
+                String,
+                Number,
+                Boolean,
+            ] as PropType<unknown>,
             required: false,
             default: null,
         },

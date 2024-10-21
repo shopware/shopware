@@ -71,6 +71,9 @@ class InternalClassRule implements Rule
 
         $class = $node->getClassReflection()->getName();
 
+        if ($this->isExample($node)) {
+            return [];
+        }
         if ($this->isTestClass($node)) {
             return [\sprintf('Test classes (%s) must be flagged @internal to not be captured by the BC checker', $node->getClassReflection()->getName())];
         }
@@ -242,5 +245,12 @@ class InternalClassRule implements Rule
         $doc = $native->getDocComment() ?: '';
 
         return $this->isInternal($doc);
+    }
+
+    private function isExample(InClassNode $node): bool
+    {
+        $namespace = $node->getClassReflection()->getName();
+
+        return \str_contains($namespace, 'Shopware\\Tests\\Examples\\');
     }
 }

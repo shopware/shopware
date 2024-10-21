@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-save-modal.html.twig';
 import './sw-bulk-edit-save-modal.scss';
@@ -7,6 +7,13 @@ import './sw-bulk-edit-save-modal.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'modal-close',
+        'bulk-save',
+    ],
 
     props: {
         itemTotal: {
@@ -22,26 +29,26 @@ export default {
             type: String,
         },
         /**
-        * {
-        *     ...
-        *     orderDeliveries: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     },
-        *     orderTransactions: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     },
-        *     orders: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     }
-        *     ...
-        * }
-        */
+         * {
+         *     ...
+         *     orderDeliveries: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     },
+         *     orderTransactions: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     },
+         *     orders: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     }
+         *     ...
+         * }
+         */
         bulkEditData: {
             type: Object,
             required: false,
@@ -99,7 +106,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

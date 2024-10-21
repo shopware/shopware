@@ -20,6 +20,9 @@ async function createWrapper() {
             title: '',
         },
         global: {
+            provide: {
+                contextStoreService: {},
+            },
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
                 'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
@@ -39,6 +42,13 @@ async function createWrapper() {
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-single-select': true,
+                'sw-customer-imitate-customer-modal': true,
+                'sw-icon': true,
+                'sw-label': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
             },
         },
     });
@@ -48,7 +58,17 @@ describe('module/sw-customer/page/sw-customer-card', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
-        const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
+        const expectedCriteria = {
+            type: 'not',
+            operator: 'or',
+            queries: [
+                {
+                    field: 'id',
+                    type: 'equals',
+                    value: 'ed643807c9f84cc8b50132ea3ccb1c3b',
+                },
+            ],
+        };
 
         expect(criteria.filters).toContainEqual(expectedCriteria);
     });

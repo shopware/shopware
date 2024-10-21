@@ -49,6 +49,11 @@ async function createWrapper(propsData = {}) {
                 'sw-checkbox-field': true,
                 'sw-context-menu-item': true,
                 'sw-data-grid-skeleton': true,
+                'sw-bulk-edit-modal': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-button-group': true,
             },
         },
     });
@@ -124,7 +129,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        elements.forEach(el => expect(el.text()).toBe('global.default.edit'));
+        elements.forEach((el) => expect(el.text()).toBe('global.default.edit'));
         expect(elements).toHaveLength(3);
     });
 
@@ -141,7 +146,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        elements.forEach(el => expect(el.text()).toBe('global.default.view'));
+        elements.forEach((el) => expect(el.text()).toBe('global.default.view'));
         expect(elements).toHaveLength(3);
     });
 
@@ -160,8 +165,8 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements).toHaveLength(3);
-        elements.forEach(el => expect(el.text()).toBe('global.default.edit'));
-        elements.forEach(el => expect(el.attributes().disabled).toBe('true'));
+        elements.forEach((el) => expect(el.text()).toBe('global.default.edit'));
+        elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
     });
 
     it('should show delete id', async () => {

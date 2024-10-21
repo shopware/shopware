@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 const createMultiDataIpSelect = async () => {
@@ -13,6 +16,12 @@ const createMultiDataIpSelect = async () => {
                 'sw-icon': {
                     template: '<div></div>',
                 },
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-label': true,
+                'sw-button': true,
             },
         },
         props: {
@@ -28,30 +37,50 @@ describe('components/sw-multi-tag-ip-select', () => {
     });
 
     [
-        ['a676344c-c0dd-49e5-8fbb-5f570c27762c', false],
-        ['::', true],
-        ['10.0.0.1', true],
-        ['aabb::', true],
-        ['127.0.0.1abcd', false],
-    ].forEach(([value, shouldBeValid]) => {
-        it(`should validate IPs correctly: ${value} should be ${shouldBeValid}`, async () => {
-            const multiDataIpSelect = await createMultiDataIpSelect();
-            await flushPromises();
+        [
+            'a676344c-c0dd-49e5-8fbb-5f570c27762c',
+            false,
+        ],
+        [
+            '::',
+            true,
+        ],
+        [
+            '10.0.0.1',
+            true,
+        ],
+        [
+            'aabb::',
+            true,
+        ],
+        [
+            '127.0.0.1abcd',
+            false,
+        ],
+    ].forEach(
+        ([
+            value,
+            shouldBeValid,
+        ]) => {
+            it(`should validate IPs correctly: ${value} should be ${shouldBeValid}`, async () => {
+                const multiDataIpSelect = await createMultiDataIpSelect();
+                await flushPromises();
 
-            const input = multiDataIpSelect.find('.sw-select-selection-list__input');
+                const input = multiDataIpSelect.find('.sw-select-selection-list__input');
 
-            expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
-            expect(multiDataIpSelect.vm.errorObject).toBeNull();
+                expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
+                expect(multiDataIpSelect.vm.errorObject).toBeNull();
 
-            await input.setValue(value);
+                await input.setValue(value);
 
-            expect(multiDataIpSelect.vm.searchTerm).toBe(value.toString());
-            expect(multiDataIpSelect.vm.inputIsValid).toBe(shouldBeValid);
+                expect(multiDataIpSelect.vm.searchTerm).toBe(value.toString());
+                expect(multiDataIpSelect.vm.inputIsValid).toBe(shouldBeValid);
 
-            await input.setValue('');
+                await input.setValue('');
 
-            expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
-            expect(multiDataIpSelect.vm.errorObject).toBeNull();
-        });
-    });
+                expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
+                expect(multiDataIpSelect.vm.errorObject).toBeNull();
+            });
+        },
+    );
 });

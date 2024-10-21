@@ -8,7 +8,15 @@ import './sw-first-run-wizard-defaults.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: [
+        'frw-set-title',
+        'frw-redirect',
+        'buttons-update',
+    ],
 
     data() {
         return {

@@ -18,7 +18,7 @@ export default {
 
 /* @private */
 export interface CurrencyOptions extends Intl.NumberFormatOptions {
-    language?: string
+    language?: string;
 }
 
 /**
@@ -32,23 +32,21 @@ export interface CurrencyOptions extends Intl.NumberFormatOptions {
  * @returns {string} Formatted string
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function currency(
-    val: number,
-    sign: string,
-    decimalPlaces: number,
-    additionalOptions: CurrencyOptions = {},
-): string {
-    const decimalOpts = decimalPlaces !== undefined ? {
-        minimumFractionDigits: decimalPlaces,
-        maximumFractionDigits: decimalPlaces,
-    } : {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 20,
-    };
+export function currency(val: number, sign: string, decimalPlaces: number, additionalOptions: CurrencyOptions = {}): string {
+    const decimalOpts =
+        decimalPlaces !== undefined
+            ? {
+                  minimumFractionDigits: decimalPlaces,
+                  maximumFractionDigits: decimalPlaces,
+              }
+            : {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 20,
+              };
 
     const opts = {
         style: 'currency',
-        currency: sign || Shopware.Context.app.systemCurrencyISOCode as string,
+        currency: sign || (Shopware.Context.app.systemCurrencyISOCode as string),
         ...decimalOpts,
         ...additionalOptions,
     };
@@ -56,8 +54,11 @@ export function currency(
     let result = '';
 
     try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument,max-len
-        result = val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
+        result = val.toLocaleString(
+            additionalOptions.language ?? Shopware.State.get('session').currentLocale ?? 'en-US',
+            // @ts-expect-error - style "currency" is allowed in the options
+            opts,
+        );
     } catch (e) {
         // Throw the error to the console because this is still a technical error
         console.error(e);
@@ -72,8 +73,12 @@ export function currency(
             opts.style = 'decimal';
             // @ts-expect-error - we need to delete the currency property
             delete opts.currency;
-            // eslint-disable-next-line max-len
-            result = val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
+
+            result = val.toLocaleString(
+                additionalOptions.language ?? Shopware.State.get('session').currentLocale ?? 'en-US',
+                // @ts-expect-error - style "decimal" is allowed in the options
+                opts,
+            );
         }
     }
 
@@ -81,7 +86,7 @@ export function currency(
 }
 
 interface DateFilterOptions extends Intl.DateTimeFormatOptions {
-    skipTimezoneConversion?: boolean
+    skipTimezoneConversion?: boolean;
 }
 
 /**
@@ -110,7 +115,7 @@ export function date(val: string, options: DateFilterOptions = {}): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone) ?? 'UTC';
+    const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
 
     const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
         timeZone: options.skipTimezoneConversion ? undefined : userTimeZone,
@@ -134,7 +139,7 @@ export function date(val: string, options: DateFilterOptions = {}): string {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
+    const userTimeZone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
 
     // Language and options are set in order to re-create the date object
     const localizedDate = dateObj.toLocaleDateString('en-GB', {
@@ -168,7 +173,12 @@ export function md5(value: string): string {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function fileSize(bytes: number, locale = 'de-DE'): string {
     const denominator = 1024;
-    const units = ['B', 'KB', 'MB', 'GB'];
+    const units = [
+        'B',
+        'KB',
+        'MB',
+        'GB',
+    ];
 
     let result = Number.parseInt(String(bytes), 10);
     let i = 0;
@@ -193,4 +203,3 @@ export function toISODate(dateObj: Date, useTime = true): string {
 
     return useTime ? isoDate : isoDate.split('T')[0];
 }
-

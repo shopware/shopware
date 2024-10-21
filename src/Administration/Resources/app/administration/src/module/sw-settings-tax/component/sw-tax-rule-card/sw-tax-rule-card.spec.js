@@ -4,51 +4,53 @@ import { mount } from '@vue/test-utils';
  * @package customer-order
  */
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-tax-rule-card', {
-        sync: true,
-    }), {
-        props: {
-            tax: {
-                id: 'id',
-                taxId: 'taxId',
-                taxRate: 'taxRate',
-            },
-            isLoading: false,
-            disabled: false,
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: 'id',
-                                    taxId: 'taxId',
-                                    taxRate: 'taxRate',
-                                },
-                            ]);
-                        },
-
-                        delete: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+    return mount(
+        await wrapTestComponent('sw-tax-rule-card', {
+            sync: true,
+        }),
+        {
+            props: {
+                tax: {
+                    id: 'id',
+                    taxId: 'taxId',
+                    taxRate: 'taxRate',
                 },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+                isLoading: false,
+                disabled: false,
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([
+                                    {
+                                        id: 'id',
+                                        taxId: 'taxId',
+                                        taxRate: 'taxRate',
+                                    },
+                                ]);
+                            },
 
-                        return privileges.includes(identifier);
+                            delete: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-card': {
-                    template: `
+                stubs: {
+                    'sw-card': {
+                        template: `
                     <div class="sw-card">
                         <slot name="title"></slot>
                         <slot name="tabs"></slot>
@@ -59,25 +61,25 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card-section': {
-                    template: `
+                    },
+                    'sw-card-section': {
+                        template: `
                     <div class="sw-card-section">
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card-filter': {
-                    template: `
+                    },
+                    'sw-card-filter': {
+                        template: `
                     <div class="sw-card-filter">
                         <slot name="filter"></slot>
                     </div>
                 `,
-                },
-                'sw-number-field': true,
-                'sw-data-grid': {
-                    props: ['dataSource'],
-                    template: `
+                    },
+                    'sw-number-field': true,
+                    'sw-data-grid': {
+                        props: ['dataSource'],
+                        template: `
                     <div class="sw-data-grid">
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
@@ -85,12 +87,15 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-button': true,
+                    'sw-pagination': true,
+                    'sw-settings-tax-rule-modal': true,
                 },
-                'sw-context-menu-item': true,
-                'sw-button': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {

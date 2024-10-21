@@ -65,6 +65,10 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
             return $value;
         }
 
+        if (\is_array($value)) {
+            throw DataAbstractionLayerException::invalidArraySerialization($field, $value);
+        }
+
         return (string) $value;
     }
 

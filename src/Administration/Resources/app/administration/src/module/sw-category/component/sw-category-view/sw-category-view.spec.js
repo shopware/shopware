@@ -1,3 +1,7 @@
+/**
+ * @package inventory
+ */
+
 import { mount } from '@vue/test-utils';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
@@ -17,15 +21,12 @@ async function createWrapper(categoryType) {
         },
     });
 
-    if (Shopware.State.get('cmsPageState')) {
-        Shopware.State.unregisterModule('cmsPageState');
-    }
-
-    Shopware.State.registerModule('cmsPageState', {
-        namespaced: true,
-        state: {
+    Shopware.Store.unregister('cmsPage');
+    Shopware.Store.register({
+        id: 'cmsPage',
+        state: () => ({
             currentPage: undefined,
-        },
+        }),
     });
 
     return mount(await wrapTestComponent('sw-category-view', { sync: true }), {
@@ -47,7 +48,10 @@ async function createWrapper(categoryType) {
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: ['route', 'title'],
+                    props: [
+                        'route',
+                        'title',
+                    ],
                 },
                 'router-view': {
                     template: '<div class="router-view"></div>',
@@ -57,7 +61,9 @@ async function createWrapper(categoryType) {
             mocks: {
                 placeholder: (entity, field, fallbackSnippet) => {
                     return {
-                        entity, field, fallbackSnippet,
+                        entity,
+                        field,
+                        fallbackSnippet,
                     };
                 },
             },

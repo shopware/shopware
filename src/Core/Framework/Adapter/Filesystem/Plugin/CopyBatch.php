@@ -7,8 +7,6 @@ use AsyncAws\S3\S3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\PathPrefixer;
-use League\MimeTypeDetection\MimeTypeDetector;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -26,12 +24,11 @@ class CopyBatch
 
         foreach ($files as $batchInput) {
             $handle = $batchInput->getSourceFile();
+            if (\is_string($handle)) {
+                $handle = fopen($handle, 'r');
+            }
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
-                if (!\is_resource($batchInput->getSourceFile())) {
-                    $handle = fopen($batchInput->getSourceFile(), 'r');
-                }
-
                 $filesystem->writeStream($targetFile, $handle);
             }
 
@@ -72,13 +69,10 @@ class CopyBatch
     private static function copyS3(AsyncAwsS3Adapter $adapter, S3Client $s3Client, CopyBatchInput ...$files): void
     {
         // Extract the bucket name, mime type detector and path prefixer from the adapter.
-        /** @var string $bucketName */
         $bucketName = \Closure::bind(fn () => $adapter->bucket, $adapter, $adapter::class)();
 
-        /** @var MimeTypeDetector $mimeTypeDetector */
         $mimeTypeDetector = \Closure::bind(fn () => $adapter->mimeTypeDetector, $adapter, $adapter::class)();
 
-        /** @var PathPrefixer $prefixer */
         $prefixer = \Closure::bind(fn () => $adapter->prefixer, $adapter, $adapter::class)();
 
         // Copy the files in batches of 250 files. This is necessary to have open sockets and not run into the "Too many open files" error.
@@ -88,7 +82,7 @@ class CopyBatch
             foreach ($filesBatch as $file) {
                 $sourceFile = $file->getSourceFile();
 
-                if (!\is_resource($sourceFile)) {
+                if (\is_string($sourceFile)) {
                     $sourceFile = @fopen($sourceFile, 'rb');
 
                     if ($sourceFile === false) {

@@ -12,7 +12,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -26,6 +32,7 @@ export default {
             languages: [],
             salesChannels: [],
             isLoading: false,
+            customFieldSets: null,
         };
     },
 
@@ -67,17 +74,23 @@ export default {
                     this.isLoading = false;
                 });
             });
+
+            this.loadCustomFieldSets();
         },
 
         onClickSave() {
             this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc(
-                        'sw-newsletter-recipient.detail.messageSaveSuccess',
-                        0,
-                        { key: this.newsletterRecipient.email },
-                    ),
+                    message: this.$tc('sw-newsletter-recipient.detail.messageSaveSuccess', 0, {
+                        key: this.newsletterRecipient.email,
+                    }),
                 });
+            });
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('newsletter_recipient').then((sets) => {
+                this.customFieldSets = sets;
             });
         },
     },

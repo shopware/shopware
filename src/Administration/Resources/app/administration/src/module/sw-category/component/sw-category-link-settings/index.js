@@ -10,7 +10,12 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'acl',
+        'repositoryFactory',
+    ],
 
     props: {
         category: {
@@ -142,11 +147,9 @@ export default {
         },
 
         createCategoryCollection() {
-            this.categoryRepository
-                .search(this.internalLinkCriteria, Shopware.Context.api)
-                .then(result => {
-                    this.categoriesCollection = result;
-                });
+            this.categoryRepository.search(this.internalLinkCriteria, Shopware.Context.api).then((result) => {
+                this.categoriesCollection = result;
+            });
         },
 
         onSelectionAdd(item) {

@@ -1,10 +1,14 @@
+/**
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
+ */
+
 import type { Module } from 'vuex';
 import type { UsageDataContext } from '../../core/service/api/usage-data.api.service';
 
 type UsageDataModuleState = {
-    isConsentGiven: boolean,
-    isBannerHidden: boolean,
-}
+    isConsentGiven: boolean;
+    isBannerHidden: boolean;
+};
 
 const usageDataModule: Module<UsageDataModuleState, VuexRootState> = {
     namespaced: true,

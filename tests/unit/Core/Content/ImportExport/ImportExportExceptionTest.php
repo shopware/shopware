@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -30,7 +31,7 @@ class ImportExportExceptionTest extends TestCase
             static::markTestSkipped();
         }
 
-        \assert($exception instanceof ImportExportException);
+        static::assertInstanceOf(ShopwareHttpException::class, $exception);
         static::assertSame($statusCode, $exception->getStatusCode());
         static::assertSame($errorCode, $exception->getErrorCode());
         static::assertSame($message, $exception->getMessage());
@@ -207,6 +208,70 @@ class ImportExportExceptionTest extends TestCase
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__UNKNOWN_ACTIVITY',
             'message' => 'The activity "foo" could not be processed.',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::invalidRequestParameter('foo'),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__INVALID_REQUEST_PARAMETER',
+            'message' => 'The parameter "foo" is invalid.',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::missingPrivilege(['foo', 'bar']),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_FORBIDDEN,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE',
+            'message' => 'Missing privilege: ["foo","bar"]',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::profileSearchEmpty(),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_NOT_FOUND,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__PROFILE_SEARCH_EMPTY',
+            'message' => 'The search for profiles returned no results.',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::importCommandFailed('Some message that explains the error.'),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__COMMAND_FAILED',
+            'message' => 'Some message that explains the error.',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::duplicateTechnicalName('foo'),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME',
+            'message' => 'The technical name "foo" is not unique.',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::deserializationFailed('id', 'foo', 'bar'),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED',
+            'message' => 'Deserialization failed for field "id" with value "foo" to type "bar"',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::deserializationFailed('id', null, 'bar'),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED',
+            'message' => 'Deserialization failed for field "id" with value "" to type "bar"',
+        ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::invalidInstanceType('foo', 'bar'),
+            'deprecated' => true,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE',
+            'message' => 'Expected "foo" to be an instance of "bar".',
         ];
     }
 }

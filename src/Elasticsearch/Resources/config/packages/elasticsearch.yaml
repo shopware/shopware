@@ -45,7 +45,9 @@ elasticsearch:
     ssl:
         verify_server_cert: true
     index_settings:
+        # @deprecated tag:v6.7.0 - change default value to null, so the search services define the default value for better scalability
         number_of_shards: 3
+        # @deprecated tag:v6.7.0 - change default value to null, so the search services define the default value for better scalability
         number_of_replicas: 3
         'mapping.total_fields.limit': 50000
         'mapping.nested_fields.limit': 500
@@ -57,17 +59,21 @@ elasticsearch:
                 type: custom
                 filter: ['lowercase']
         analyzer:
+            sw_whitespace_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['lowercase']
             sw_ngram_analyzer:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_ngram_filter']
             sw_english_analyzer:
                 type: custom
-                tokenizer: standard
+                tokenizer: whitespace
                 filter: ['lowercase', 'sw_english_stop_filter']
             sw_german_analyzer:
                 type: custom
-                tokenizer: standard
+                tokenizer: whitespace
                 filter: ['lowercase', 'sw_german_stop_filter']
         filter:
             sw_ngram_filter:

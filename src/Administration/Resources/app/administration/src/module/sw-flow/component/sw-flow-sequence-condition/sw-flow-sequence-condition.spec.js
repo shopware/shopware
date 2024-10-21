@@ -3,6 +3,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const sequenceFixture = {
     id: '1',
     actionName: null,
@@ -53,7 +57,7 @@ async function createWrapper(propsData = {}) {
         global: {
             stubs: {
                 'sw-icon': {
-                    template: '<div class="sw-icon" v-on="$listeners"></div>',
+                    template: '<div class="sw-icon"></div>',
                 },
                 'sw-context-button': {
                     template: `
@@ -63,8 +67,9 @@ async function createWrapper(propsData = {}) {
                     `,
                 },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: `
-                        <div class="sw-context-menu-item" v-on="$listeners">
+                        <div class="sw-context-menu-item" @click="$emit('click')">
                           <slot></slot>
                         </div>
                     `,
@@ -82,6 +87,11 @@ async function createWrapper(propsData = {}) {
                 'sw-field-error': true,
                 'sw-label': true,
                 'sw-flow-rule-modal': true,
+                'sw-product-variant-info': true,
+                'sw-highlight-text': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 flowBuilderService: {
@@ -102,11 +112,14 @@ async function createWrapper(propsData = {}) {
                                     },
                                 ]);
                             }),
-                            get: (id) => Promise.resolve({
-                                id,
-                                name: 'Rule name',
-                            }),
-                            create: () => { return {}; },
+                            get: (id) =>
+                                Promise.resolve({
+                                    id,
+                                    name: 'Rule name',
+                                }),
+                            create: () => {
+                                return {};
+                            },
                         };
                     },
                 },
@@ -234,14 +247,16 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
     it('should able to add new trueBlock or falseBlock', async () => {
         Shopware.State.commit(
             'swFlowState/setSequences',
-            getSequencesCollection([{
-                ...sequenceFixture,
-                ruleId: '1111',
-                rule: {
-                    name: 'Rule name',
-                    id: '1111',
+            getSequencesCollection([
+                {
+                    ...sequenceFixture,
+                    ruleId: '1111',
+                    rule: {
+                        name: 'Rule name',
+                        id: '1111',
+                    },
                 },
-            }]),
+            ]),
         );
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
@@ -260,15 +275,13 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         });
 
         // Show context button
-        const conditionTrueBlock =
-            wrapper.findAll('.sw-flow-sequence-condition__true-action .sw-context-menu-item');
+        const conditionTrueBlock = wrapper.findAll('.sw-flow-sequence-condition__true-action .sw-context-menu-item');
         await conditionTrueBlock.at(0).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(2);
 
-        const actionFalseBlock =
-            wrapper.findAll('.sw-flow-sequence-condition__false-action .sw-context-menu-item');
+        const actionFalseBlock = wrapper.findAll('.sw-flow-sequence-condition__false-action .sw-context-menu-item');
         await actionFalseBlock.at(1).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
@@ -290,10 +303,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
     });
 
     it('should remove error for after select an action name', async () => {
-        Shopware.State.commit(
-            'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }]),
-        );
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection([{ ...sequenceFixture }]));
         Shopware.State.commit('swFlowState/setInvalidSequences', ['1']);
 
         let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
@@ -351,9 +361,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(3);
 
-
-        const deleteRule =
-            wrapper.findAll('.sw-flow-sequence-condition__delete-condition').at(0);
+        const deleteRule = wrapper.findAll('.sw-flow-sequence-condition__delete-condition').at(0);
         await deleteRule.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
@@ -370,10 +378,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             },
         };
 
-        Shopware.State.commit(
-            'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequence }]),
-        );
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection([{ ...sequence }]));
 
         const wrapper = await createWrapper({
             sequence,
@@ -412,10 +417,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             },
         };
 
-        Shopware.State.commit(
-            'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequence }]),
-        );
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection([{ ...sequence }]));
 
         const wrapper = await createWrapper({
             sequence,
@@ -453,15 +455,18 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             '.sw-flow-sequence-condition__add-true-condition',
         ];
 
-        components.forEach(component => {
-            expect(wrapper.find(component).attributes().disabled).toBeFalsy();
-        });
+        expect(wrapper.find('.sw-flow-sequence-condition__context-button').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__rule-context-button').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-false-action').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-false-condition').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-true-action').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-condition__add-true-condition').attributes().disabled).toBeFalsy();
 
         await wrapper.setProps({
             disabled: true,
         });
 
-        components.forEach(component => {
+        components.forEach((component) => {
             expect(wrapper.find(component).attributes().disabled).toBeTruthy();
         });
     });
@@ -472,10 +477,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             ruleId: '',
         };
 
-        Shopware.State.commit(
-            'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequence }]),
-        );
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection([{ ...sequence }]));
         const wrapper = await createWrapper({
             sequence,
         });
@@ -506,10 +508,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             },
         };
 
-        Shopware.State.commit(
-            'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequence }]),
-        );
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection([{ ...sequence }]));
 
         const wrapper = await createWrapper({
             sequence,

@@ -42,48 +42,42 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
 
     const aclService = new AclService(Shopware.State);
 
-    return mount(
-        await wrapTestComponent('sw-admin-menu-item', { sync: true }),
-        {
-            props,
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                    'sw-admin-menu-item': await Shopware.Component.build(
-                        'sw-admin-menu-item',
-                    ),
-                    'router-link': {
-                        template: '<a class="router-link"></a>',
-                        props: ['to'],
-                    },
+    return mount(await wrapTestComponent('sw-admin-menu-item', { sync: true }), {
+        props,
+        global: {
+            stubs: {
+                'sw-icon': true,
+                'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
+                'router-link': {
+                    template: '<a class="router-link"></a>',
+                    props: ['to'],
                 },
-                mocks: {
-                    $route: {
-                        meta: { $module: { name: '' } },
-                    },
-                    $router,
+            },
+            mocks: {
+                $route: {
+                    meta: { $module: { name: '' } },
                 },
-                provide: {
-                    acl: {
-                        can,
-                        hasAccessToRoute: (path) => {
-                            const route = path.replace(/\./g, '/');
-                            const match = $router.resolve(route);
+                $router,
+            },
+            provide: {
+                acl: {
+                    can,
+                    hasAccessToRoute: (path) => {
+                        const route = path.replace(/\./g, '/');
+                        const match = $router.resolve(route);
 
-                            if (!match.meta) {
-                                return true;
-                            }
+                        if (!match.meta) {
+                            return true;
+                        }
 
-                            return can(match.meta.privilege);
-                        },
-                        hasActiveSettingModules:
-                            aclService.hasActiveSettingModules,
-                        state: aclService.state,
+                        return can(match.meta.privilege);
                     },
+                    hasActiveSettingModules: aclService.hasActiveSettingModules,
+                    state: aclService.state,
                 },
             },
         },
-    );
+    });
 }
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
@@ -126,32 +120,16 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        const children = wrapper.findAll(
-            '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
-        );
+        const children = wrapper.findAll('.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item');
         expect(children).toHaveLength(8);
 
-        expect(wrapper.classes()).toContain(
-            'navigation-list-item__sw-catalogue',
-        );
-        expect(children.at(0).classes()).toContain(
-            'navigation-list-item__sw-product',
-        );
-        expect(children.at(1).classes()).toContain(
-            'navigation-list-item__sw-review',
-        );
-        expect(children.at(2).classes()).toContain(
-            'navigation-list-item__sw-category',
-        );
-        expect(children.at(3).classes()).toContain(
-            'navigation-list-item__sw-product-stream',
-        );
-        expect(children.at(4).classes()).toContain(
-            'navigation-list-item__sw-property',
-        );
-        expect(children.at(5).classes()).toContain(
-            'navigation-list-item__sw-manufacturer',
-        );
+        expect(wrapper.classes()).toContain('navigation-list-item__sw-catalogue');
+        expect(children.at(0).classes()).toContain('navigation-list-item__sw-product');
+        expect(children.at(1).classes()).toContain('navigation-list-item__sw-review');
+        expect(children.at(2).classes()).toContain('navigation-list-item__sw-category');
+        expect(children.at(3).classes()).toContain('navigation-list-item__sw-product-stream');
+        expect(children.at(4).classes()).toContain('navigation-list-item__sw-property');
+        expect(children.at(5).classes()).toContain('navigation-list-item__sw-manufacturer');
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -196,9 +174,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        const routerLink = wrapper.findComponent(
-            '.navigation-list-item__sw-product .router-link',
-        );
+        const routerLink = wrapper.findComponent('.navigation-list-item__sw-product .router-link');
 
         expect(routerLink.props().to).toMatchObject({
             name: 'sw.product.index',
@@ -548,7 +524,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         ];
 
         const wrapper = await createWrapper({
-            privileges: ['priv-1', 'priv2'],
+            privileges: [
+                'priv-1',
+                'priv2',
+            ],
             props: {
                 entry: {
                     id: 'sw-settings.index',
@@ -610,12 +589,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(
-            wrapper.vm.isFirstPluginInMenuEntries(
-                wrapper.vm.entry,
-                catalogues.children,
-            ),
-        ).toBeTruthy();
+        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
 
         await wrapper.setProps({
             entry: {
@@ -630,12 +604,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(
-            wrapper.vm.isFirstPluginInMenuEntries(
-                wrapper.vm.entry,
-                catalogues.children,
-            ),
-        ).toBeFalsy();
+        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
     });
 
     it('should match route', async () => {
@@ -671,5 +640,57 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         await flushPromises();
 
         expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
+    });
+
+    it('should not show the icon on sub menu items', async () => {
+        const wrapper = await createWrapper({
+            privileges: [],
+            props: {
+                entry: {
+                    id: 'sw-product',
+                    label: 'sw-product.general.mainMenuItemGeneral',
+                    color: '#57D9A3',
+                    path: 'sw.product.index',
+                    icon: 'default-symbol-products',
+                    parent: 'sw-catalogue',
+                    position: 10,
+                    level: 1,
+                    moduleType: 'core',
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const childMenuItem = wrapper.findComponent(
+            '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
+        );
+        expect(childMenuItem.props().displayIcon).toBe(false);
     });
 });

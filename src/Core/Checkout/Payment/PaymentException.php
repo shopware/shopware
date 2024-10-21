@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +29,8 @@ class PaymentException extends HttpException
     final public const PAYMENT_SYNC_PROCESS_INTERRUPTED = 'CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED';
     final public const PAYMENT_TOKEN_EXPIRED = 'CHECKOUT__PAYMENT_TOKEN_EXPIRED';
     final public const PAYMENT_TOKEN_INVALIDATED = 'CHECKOUT__PAYMENT_TOKEN_INVALIDATED';
+    final public const PAYMENT_TYPE_UNSUPPORTED = 'CHECKOUT__PAYMENT_TYPE_UNSUPPORTED';
+    final public const PAYMENT_HANDLER_TYPE_UNSUPPORTED = 'CHECKOUT__PAYMENT_HANDLER_TYPE_UNSUPPORTED';
     final public const PAYMENT_UNKNOWN_PAYMENT_METHOD = 'CHECKOUT__UNKNOWN_PAYMENT_METHOD';
     final public const PAYMENT_REFUND_UNKNOWN_ERROR = 'CHECKOUT__REFUND_UNKNOWN_ERROR';
     final public const PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR = 'CHECKOUT__REFUND_UNKNOWN_HANDLER_ERROR';
@@ -211,6 +216,32 @@ class PaymentException extends HttpException
         );
     }
 
+    public static function paymentTypeUnsupported(string $paymentMethodId, PaymentHandlerType $paymentHandlerType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_TYPE_UNSUPPORTED,
+            'The payment method with id {{ paymentMethodId }} does not support the payment handler type {{ paymentHandlerType }}.',
+            [
+                'paymentMethodId' => $paymentMethodId,
+                'paymentHandlerType' => $paymentHandlerType->name,
+            ],
+        );
+    }
+
+    public static function paymentHandlerTypeUnsupported(AbstractPaymentHandler $handler, PaymentHandlerType $paymentHandlerType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_HANDLER_TYPE_UNSUPPORTED,
+            'The payment handler {{ handlerClass }} does not support the payment handler type {{ paymentHandlerType }}.',
+            [
+                'handlerClass' => $handler::class,
+                'paymentHandlerType' => $paymentHandlerType->name,
+            ],
+        );
+    }
+
     public static function unknownPaymentMethodById(string $paymentMethodId, ?\Throwable $e = null): self
     {
         return new self(
@@ -276,18 +307,33 @@ class PaymentException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getRefundId(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
+
         return $this->getParameter('refundId') ?? '';
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getOrderTransactionId(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
+
         return $this->getParameter('orderTransactionId');
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getOrderId(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
+
         return $this->getParameter('orderId');
     }
 }

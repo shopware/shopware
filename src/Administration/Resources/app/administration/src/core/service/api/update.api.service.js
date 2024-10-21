@@ -9,7 +9,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "update"
  * @class
  * @extends ApiService
- * @package system-settings
+ * @package services-settings
  */
 class UpdateService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'update') {
@@ -20,18 +20,18 @@ class UpdateService extends ApiService {
     checkForUpdates() {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/check`, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return this.httpClient.get(`/_action/${this.getApiBasePath()}/check`, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
     }
 
     checkRequirements() {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/check-requirements`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/check-requirements`, {
+                headers,
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -42,7 +42,10 @@ class UpdateService extends ApiService {
         const params = this.getBasicParams();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/extension-compatibility`, { params, headers })
+            .get(`/_action/${this.getApiBasePath()}/extension-compatibility`, {
+                params,
+                headers,
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -52,7 +55,9 @@ class UpdateService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/download-recovery`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/download-recovery`, {
+                headers,
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -64,7 +69,9 @@ class UpdateService extends ApiService {
         const offsetParam = `offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`;
 
         return this.httpClient
-            .get(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, { headers })
+            .get(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, {
+                headers,
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

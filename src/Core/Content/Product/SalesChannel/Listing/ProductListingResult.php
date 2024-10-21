@@ -25,7 +25,7 @@ class ProductListingResult extends EntitySearchResult
     protected ?string $streamId = null;
 
     /**
-     * @param int|float|string|bool|array<mixed>|null       $value
+     * @param int|float|string|bool|array<mixed>|null $value
      */
     public function addCurrentFilter(string $key, $value): void
     {

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -42,6 +42,10 @@ async function createWrapper() {
                     },
                 },
                 'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
+                'sw-loader': true,
+                'sw-switch-field': true,
+                'sw-alert': true,
+                'router-link': true,
             },
             mocks: {
                 $route: { name: 'sw.bulk.edit.product.save.confirm' },
@@ -305,12 +309,18 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     it('should be able to listen to beforeunload event', async () => {
         await wrapper.setProps({ isLoading: false });
         expect(
-            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' }),
+            wrapper.vm.beforeUnloadListener({
+                preventDefault: () => {},
+                returnValue: '',
+            }),
         ).toBe('');
 
         await wrapper.setProps({ isLoading: true });
         expect(
-            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' }),
+            wrapper.vm.beforeUnloadListener({
+                preventDefault: () => {},
+                returnValue: '',
+            }),
         ).toBe('sw-bulk-edit.modal.messageBeforeTabLeave');
     });
 });

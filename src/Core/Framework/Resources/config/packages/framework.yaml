@@ -4,6 +4,7 @@ parameters:
     env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
     env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
     env(MAILER_DSN): 'null://null'
+    env(LOCK_DSN): 'flock'
     '.container.dumper.inline_class_loader': false
     '.container.dumper.inline_factories': true
 
@@ -30,6 +31,7 @@ framework:
     mailer:
         message_bus: false
         dsn: '%env(MAILER_DSN)%'
+    lock: '%env(LOCK_DSN)%'
     php_errors:
         log: true
     cache:
@@ -90,8 +92,6 @@ framework:
             log_level: notice
         Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException:
             log_level: notice
-        Symfony\Component\HttpKernel\Exception\BadRequestHttpException:
-            log_level: notice
         Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException:
             log_level: notice
         Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException:
@@ -133,8 +133,6 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
             log_level: notice
-        Shopware\Core\Checkout\Cart\Exception\InvalidCartException:
-            log_level: notice
         Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException:
             log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
@@ -157,17 +155,11 @@ framework:
             log_level: notice
         Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException:
             log_level: notice
-        Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:
-            log_level: notice
-        Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException:
-            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException:
-            log_level: notice
-        Shopware\Core\System\StateMachine\Exception\IllegalTransitionException:
             log_level: notice
         Shopware\Core\Framework\Api\Exception\MissingPrivilegeException:
             log_level: notice
@@ -176,8 +168,6 @@ framework:
         Shopware\Core\Framework\Validation\WriteConstraintViolationException:
             log_level: notice
         Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
-            log_level: notice
-        Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException:
             log_level: notice
@@ -208,8 +198,6 @@ framework:
         Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
             log_level: notice
         Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
-            log_level: notice
-        Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
             log_level: notice

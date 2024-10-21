@@ -13,7 +13,20 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-login-login', {
     template,
 
-    inject: ['loginService', 'userService', 'licenseViolationService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'loginService',
+        'userService',
+        'licenseViolationService',
+    ],
+
+    emits: [
+        'is-loading',
+        'is-not-loading',
+        'login-success',
+        'login-error',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -44,7 +57,10 @@ Component.register('sw-login-login', {
         loginUserWithPassword() {
             this.$emit('is-loading');
 
-            return this.loginService.loginByUsername(this.username, this.password)
+            this.loginService.setRememberMe(this.rememberMe);
+
+            return this.loginService
+                .loginByUsername(this.username, this.password)
                 .then(() => {
                     this.handleLoginSuccess();
                     this.$emit('is-not-loading');
@@ -58,8 +74,6 @@ Component.register('sw-login-login', {
         },
 
         handleLoginSuccess() {
-            this.handleRememberMe();
-
             this.password = '';
 
             this.$emit('login-success');
@@ -84,17 +98,6 @@ Component.register('sw-login-login', {
                     window.location.reload(true);
                 }
             });
-        },
-
-        handleRememberMe() {
-            if (!this.rememberMe) {
-                return;
-            }
-
-            const duration = new Date();
-            duration.setDate(duration.getDate() + 14);
-
-            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

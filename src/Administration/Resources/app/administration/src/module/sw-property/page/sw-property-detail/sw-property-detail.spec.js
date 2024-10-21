@@ -1,7 +1,6 @@
-/*
+/**
  * @package inventory
  */
-
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -17,14 +16,15 @@ async function createWrapper() {
                                 entity: 'property',
                             };
                         },
-                        get: () => Promise.resolve({
-                            id: '1a2b3c',
-                            name: 'Test property',
-                            entity: 'property',
-                            options: {
-                                entity: 'property_options_group',
-                            },
-                        }),
+                        get: () =>
+                            Promise.resolve({
+                                id: '1a2b3c',
+                                name: 'Test property',
+                                entity: 'property',
+                                options: {
+                                    entity: 'property_options_group',
+                                },
+                            }),
                         search: () => Promise.resolve({}),
                     }),
                 },
@@ -48,6 +48,9 @@ async function createWrapper() {
                 'sw-field': true,
                 'sw-language-info': true,
                 'sw-skeleton': true,
+                'sw-property-detail-base': true,
+                'sw-property-option-list': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

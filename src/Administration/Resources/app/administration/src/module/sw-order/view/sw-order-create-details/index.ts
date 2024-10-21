@@ -6,7 +6,8 @@ import type {
     LineItem,
     SalesChannelContext,
     PromotionCodeTag,
-    ContextSwitchParameters, CartDelivery,
+    ContextSwitchParameters,
+    CartDelivery,
 } from '../../order.types';
 import type CriteriaType from '../../../../core/data/criteria.data';
 import { LineItemType } from '../../order.types';
@@ -24,6 +25,8 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'cartStoreService',
@@ -35,11 +38,11 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        isLoading: boolean,
-        showPromotionModal: boolean,
-        promotionError: ShopwareHttpError|null,
-        context: ContextSwitchParameters,
-        } {
+        isLoading: boolean;
+        showPromotionModal: boolean;
+        promotionError: ShopwareHttpError | null;
+        context: ContextSwitchParameters;
+    } {
         return {
             showPromotionModal: false,
             promotionError: null,
@@ -189,6 +192,14 @@ export default Component.wrapComponentConfig({
         promotionCodeTags: {
             handler: 'handlePromotionCodeTags',
         },
+
+        'context.languageId'(languageId: string) {
+            if (!languageId) {
+                return;
+            }
+
+            State.commit('context/setLanguageId', languageId);
+        },
     },
 
     created() {
@@ -256,7 +267,7 @@ export default Component.wrapComponentConfig({
             })
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
-                    lineItemKeys.forEach(key => {
+                    lineItemKeys.forEach((key) => {
                         const removedTag = this.promotionCodeTags.find((tag: PromotionCodeTag) => tag.discountId === key);
 
                         if (removedTag) {
@@ -265,7 +276,8 @@ export default Component.wrapComponentConfig({
                             });
                         }
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -273,11 +285,15 @@ export default Component.wrapComponentConfig({
         updatePromotionList() {
             // Update data and isInvalid flag for each item in promotionCodeTags
             this.promotionCodeTags = this.promotionCodeTags.map((tag: PromotionCodeTag): PromotionCodeTag => {
-                const matchedItem = this.promotionCodeLineItems
-                    .find((lineItem: LineItem): boolean => lineItem.payload?.code === tag.code);
+                const matchedItem = this.promotionCodeLineItems.find(
+                    (lineItem: LineItem): boolean => lineItem.payload?.code === tag.code,
+                );
 
                 if (matchedItem) {
-                    return { ...matchedItem.payload, isInvalid: false } as PromotionCodeTag;
+                    return {
+                        ...matchedItem.payload,
+                        isInvalid: false,
+                    } as PromotionCodeTag;
                 }
 
                 return { ...tag, isInvalid: true } as PromotionCodeTag;
@@ -285,13 +301,17 @@ export default Component.wrapComponentConfig({
 
             // Add new items from promotionCodeLineItems which promotionCodeTags doesn't contain
             this.promotionCodeLineItems.forEach((lineItem: LineItem): void => {
-                const matchedItem = this.promotionCodeTags
-                    .find((tag: PromotionCodeTag): boolean => tag.code === lineItem.payload?.code);
+                const matchedItem = this.promotionCodeTags.find(
+                    (tag: PromotionCodeTag): boolean => tag.code === lineItem.payload?.code,
+                );
 
                 if (!matchedItem) {
                     this.promotionCodeTags = [
                         ...this.promotionCodeTags,
-                        { ...lineItem.payload, isInvalid: false } as PromotionCodeTag,
+                        {
+                            ...lineItem.payload,
+                            isInvalid: false,
+                        } as PromotionCodeTag,
                     ];
                 }
             });
@@ -305,16 +325,18 @@ export default Component.wrapComponentConfig({
             }
 
             this.isLoading = true;
-            void this.cartStoreService.enableAutomaticPromotions(
-                this.cart.token,
-                { salesChannelId: this.salesChannelId },
-            ).then(() => {
-                State.commit('swOrder/setDisabledAutoPromotion', false);
+            void this.cartStoreService
+                .enableAutomaticPromotions(this.cart.token, {
+                    salesChannelId: this.salesChannelId,
+                })
+                .then(() => {
+                    State.commit('swOrder/setDisabledAutoPromotion', false);
 
-                return this.loadCart();
-            }).finally(() => {
-                this.isLoading = false;
-            });
+                    return this.loadCart();
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onClosePromotionModal() {
@@ -344,11 +366,13 @@ export default Component.wrapComponentConfig({
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
                 shippingCosts: this.cartDelivery.shippingCosts,
-            }).catch((error) => {
-                this.$emit('error', error);
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            })
+                .catch((error) => {
+                    this.$emit('error', error);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         handlePromotionCodeTags(newValue: PromotionCodeTag[], oldValue: PromotionCodeTag[]) {

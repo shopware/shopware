@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         filter: {
             type: Object,
@@ -22,9 +24,15 @@ export default Shopware.Component.wrapComponentConfig({
             type: String as PropType<'contains' | 'equals'>,
             required: false,
             default: 'contains',
-            validValues: ['contains', 'equals'],
+            validValues: [
+                'contains',
+                'equals',
+            ],
             validator(value: string): boolean {
-                return ['contains', 'equals'].includes(value);
+                return [
+                    'contains',
+                    'equals',
+                ].includes(value);
             },
         },
     },
@@ -37,7 +45,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const filterCriteria = [Criteria[this.criteriaFilterType](this.filter.property, newValue)];
+            const filterCriteria = [
+                Criteria[this.criteriaFilterType](this.filter.property, newValue),
+            ];
 
             this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },

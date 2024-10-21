@@ -14,9 +14,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
 #[AsCommand(
@@ -24,9 +21,6 @@ use Twig\Loader\ArrayLoader;
     description: 'Dump the app events',
 )]
 #[Package('core')]
-/**
- * @package core
- */
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';
@@ -66,8 +60,6 @@ class DocsAppEventCommand extends Command
                 'hookable-events-list.md.twig',
                 ['eventDocs' => $eventsDoc]
             );
-        } catch (LoaderError|RuntimeError|SyntaxError $e) {
-            throw new \RuntimeException('Can not render Webhook Events', $e->getCode(), $e);
         } finally {
             $this->twig->setLoader($originalLoader);
         }
@@ -138,10 +130,10 @@ class DocsAppEventCommand extends Command
      */
     private function collectHookables(array &$eventsDoc): void
     {
-        foreach (Hookable::HOOKABLE_EVENTS as $_ => $eventName) {
+        foreach (Hookable::HOOKABLE_EVENTS as $class => $eventName) {
             $eventsDoc[] = new HookableEventDoc(
                 $eventName,
-                null,
+                Hookable::HOOKABLE_EVENTS_DESCRIPTION[$class],
                 '-',
                 null,
             );

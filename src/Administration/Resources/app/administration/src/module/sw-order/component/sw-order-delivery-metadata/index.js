@@ -9,6 +9,8 @@ import './sw-order-delivery-metadata.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['customSnippetApiService'],
 
     props: {
@@ -61,10 +63,8 @@ export default {
 
         renderFormattingAddress() {
             this.customSnippetApiService
-                .render(
-                    this.delivery.shippingOrderAddress,
-                    this.delivery.shippingOrderAddress.country.addressFormat,
-                ).then((res) => {
+                .render(this.delivery.shippingOrderAddress, this.delivery.shippingOrderAddress.country.addressFormat)
+                .then((res) => {
                     this.formattingAddress = res.rendered;
                 });
         },

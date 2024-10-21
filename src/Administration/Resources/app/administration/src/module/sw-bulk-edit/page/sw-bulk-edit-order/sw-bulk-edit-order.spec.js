@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
@@ -8,9 +11,6 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-/**
- * @package system-settings
- */
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
     let routes;
@@ -40,7 +40,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
-                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent('sw-bulk-edit-change-type-field-renderer', { sync: true }),
+                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent(
+                        'sw-bulk-edit-change-type-field-renderer',
+                        { sync: true },
+                    ),
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
@@ -93,6 +96,22 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-entity-tag-select': true,
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
+                    'sw-app-topbar-button': true,
+                    'sw-help-center-v2': true,
+                    'mt-button': true,
+                    'mt-checkbox': true,
+                    'sw-context-button': true,
+                    'sw-inheritance-switch': true,
+                    'mt-card': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-highlight-text': true,
+                    'mt-tabs': true,
+                    'mt-switch': true,
+                    'mt-text-field': true,
+                    'sw-field-copyable': true,
+                    'sw-media-collapse': true,
                 },
                 provide: {
                     validationService: {},
@@ -100,17 +119,24 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         create: (entity) => {
                             if (entity === 'custom_field_set') {
                                 return {
-                                    search: () => Promise.resolve(createEntityCollection([{
-                                        id: 'field-set-id-1',
-                                        name: 'example',
-                                        customFields: [{
-                                            name: 'customFieldName',
-                                            type: 'text',
-                                            config: {
-                                                label: 'configFieldLabel',
-                                            },
-                                        }],
-                                    }])),
+                                    search: () =>
+                                        Promise.resolve(
+                                            createEntityCollection([
+                                                {
+                                                    id: 'field-set-id-1',
+                                                    name: 'example',
+                                                    customFields: [
+                                                        {
+                                                            name: 'customFieldName',
+                                                            type: 'text',
+                                                            config: {
+                                                                label: 'configFieldLabel',
+                                                            },
+                                                        },
+                                                    ],
+                                                },
+                                            ]),
+                                        ),
                                     get: () => Promise.resolve({ id: '' }),
                                 };
                             }
@@ -125,7 +151,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                 create: () => {
                                     if (entity === 'custom_field_set') {
                                         return {
-                                            search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                                            search: () =>
+                                                Promise.resolve([
+                                                    {
+                                                        id: 'field-set-id-1',
+                                                    },
+                                                ]),
                                             get: () => Promise.resolve({ id: '' }),
                                         };
                                     }
@@ -135,26 +166,29 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                         name: 'Test order',
                                     };
                                 },
-                                search: () => Promise.resolve([
-                                    {
+                                search: () =>
+                                    Promise.resolve([
+                                        {
+                                            id: 1,
+                                            name: 'Invoice',
+                                        },
+                                        {
+                                            id: 2,
+                                            name: 'Credit note',
+                                        },
+                                    ]),
+                                get: () =>
+                                    Promise.resolve({
                                         id: 1,
-                                        name: 'Invoice',
-                                    },
-                                    {
-                                        id: 2,
-                                        name: 'Credit note',
-                                    },
-                                ]),
-                                get: () => Promise.resolve({
-                                    id: 1,
-                                    name: 'Order',
-                                }),
-                                searchIds: () => Promise.resolve([
-                                    {
-                                        data: [1],
-                                        total: 1,
-                                    },
-                                ]),
+                                        name: 'Order',
+                                    }),
+                                searchIds: () =>
+                                    Promise.resolve([
+                                        {
+                                            data: [1],
+                                            total: 1,
+                                        },
+                                    ]),
                             };
                         },
                     },
@@ -203,10 +237,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         },
                     },
                     shortcutService: {
-                        startEventListener: () => {
-                        },
-                        stopEventListener: () => {
-                        },
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
                     },
                 },
             },
@@ -220,15 +252,22 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         routes = [
             {
                 name: 'sw.bulk.edit.order',
-                path: '/index/:excludeDelivery?',
+                path: '/index/:parentId?/:excludeDelivery?',
+                component: {
+                    template: '<div>sw-bulk-edit-order</div>',
+                },
             },
             {
                 name: 'sw.bulk.edit.order.save',
                 path: '',
-                component: await wrapTestComponent('sw-bulk-edit-save-modal'),
-                meta: { $module: {
-                    title: 'sw-bulk-edit-order.general.mainMenuTitle',
-                } },
+                component: await wrapTestComponent('sw-bulk-edit-save-modal', {
+                    sync: true,
+                }),
+                meta: {
+                    $module: {
+                        title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                    },
+                },
                 redirect: {
                     name: 'sw.bulk.edit.order.save.confirm',
                 },
@@ -236,34 +275,42 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         name: 'sw.bulk.edit.order.save.confirm',
                         path: '/confirm',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
-                        } },
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
+                        meta: {
+                            $module: {
+                                title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                            },
+                        },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.process',
                         path: '/process',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
-                        } },
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process', { sync: true }),
+                        meta: {
+                            $module: {
+                                title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                            },
+                        },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.success',
                         path: '/success',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
-                        } },
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
+                        meta: {
+                            $module: {
+                                title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                            },
+                        },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.error',
                         path: 'error',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
-                        } },
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }),
+                        meta: {
+                            $module: {
+                                title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                            },
+                        },
                     },
                 ],
             },
@@ -312,8 +359,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeDefined();
-        expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeDefined();
+        expect(
+            wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled,
+        ).toBeDefined();
+        expect(
+            wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled,
+        ).toBeDefined();
     });
 
     it('should enable status mails when one of the status fields has changed', async () => {
@@ -333,7 +384,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeUndefined();
+        expect(
+            wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled,
+        ).toBeUndefined();
     });
 
     it('should enable documents when status mails is enabled', async () => {
@@ -357,7 +410,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeUndefined();
+        expect(
+            wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled,
+        ).toBeUndefined();
     });
 
     it('should call onCustomFieldsChange when a customField is changed', async () => {
@@ -369,7 +424,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').setValue('checked');
+        await wrapper
+            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input')
+            .setValue('checked');
 
         await wrapper.vm.$nextTick();
 
@@ -385,7 +442,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        await wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').setValue('checked');
+        await wrapper
+            .find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input')
+            .setValue('checked');
 
         await flushPromises();
 
@@ -614,24 +673,34 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(6);
 
-        orderStateCriteria.addFilter(Criteria.multi('AND', [
-            Criteria.equalsAny('orders.id', [selectedOrderId]),
-            Criteria.equals('orders.versionId', liveVersionId),
-        ]));
+        orderStateCriteria.addFilter(
+            Criteria.multi('AND', [
+                Criteria.equalsAny('orders.id', [selectedOrderId]),
+                Criteria.equals('orders.versionId', liveVersionId),
+            ]),
+        );
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(1, orderStateCriteria);
 
         const orderTransactionStateCriteria = new Criteria(1, null);
-        orderTransactionStateCriteria.addFilter(Criteria.multi('AND', [
-            Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]),
-            Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
-        ]));
+        orderTransactionStateCriteria.addFilter(
+            Criteria.multi('AND', [
+                Criteria.equalsAny('orderTransactions.orderId', [
+                    selectedOrderId,
+                ]),
+                Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
+            ]),
+        );
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(2, orderTransactionStateCriteria);
 
         const orderDeliveryStateCriteria = new Criteria(1, null);
-        orderDeliveryStateCriteria.addFilter(Criteria.multi('AND', [
-            Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]),
-            Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
-        ]));
+        orderDeliveryStateCriteria.addFilter(
+            Criteria.multi('AND', [
+                Criteria.equalsAny('orderDeliveries.orderId', [
+                    selectedOrderId,
+                ]),
+                Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
+            ]),
+        );
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(3, orderDeliveryStateCriteria);
 
         wrapper.vm.fetchStatusOptions.mockClear();
@@ -718,7 +787,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.statusFormFields).toHaveLength(5);
         expect(wrapper.vm.statusFormFields[1].name).toBe('orderDeliveries');
 
-        await wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: '1' } });
+        await wrapper.vm.$router.push({
+            name: 'sw.bulk.edit.order',
+            params: { parentId: 'null', excludeDelivery: '1' },
+        });
 
         await flushPromises();
 

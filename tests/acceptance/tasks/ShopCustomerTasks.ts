@@ -15,8 +15,15 @@ import { AddPromotionCodeToCart } from './ShopCustomer/Cart/AddPromotionCodeToCa
  */
 import { ConfirmImmediateAccessToDigitalProduct } from './ShopCustomer/Checkout/ConfirmImmediateAccessToDigitalProduct';
 
+/**
+ * PageSpeed & Accessibility
+ */
+import { ValidateLighthouseScore } from './ShopCustomer/Pagespeed/ValidateLighthouseScore';
+
 export const test = mergeTests(
     DownloadDigitalProductFromOrderAndExpectContentToBe,
     AddPromotionCodeToCart,
     ConfirmImmediateAccessToDigitalProduct,
+    ValidateLighthouseScore,
 );
+

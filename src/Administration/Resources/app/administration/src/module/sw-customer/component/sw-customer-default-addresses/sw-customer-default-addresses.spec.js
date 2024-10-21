@@ -12,30 +12,39 @@ const testAddress = {
 };
 
 async function createWrapper(defaultShippingAddress = testAddress, defaultBillingAddress = testAddress) {
-    return mount(await wrapTestComponent('sw-customer-default-addresses', { sync: true }), {
-        props: {
-            customer: {
-                defaultShippingAddress,
-                defaultBillingAddress,
+    return mount(
+        await wrapTestComponent('sw-customer-default-addresses', {
+            sync: true,
+        }),
+        {
+            props: {
+                customer: {
+                    defaultShippingAddress,
+                    defaultBillingAddress,
+                },
             },
-        },
-        global: {
-            stubs: {
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-card-section': await wrapTestComponent('sw-card-section'),
-                'sw-address': await wrapTestComponent('sw-address', { sync: true }),
-            },
-            provide: {
-                customSnippetApiService: {
-                    render() {
-                        return Promise.resolve({
-                            rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
-                        });
+            global: {
+                stubs: {
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-card-section': await wrapTestComponent('sw-card-section'),
+                    'sw-address': await wrapTestComponent('sw-address', {
+                        sync: true,
+                    }),
+                    'router-link': true,
+                },
+                provide: {
+                    customSnippetApiService: {
+                        render() {
+                            return Promise.resolve({
+                                rendered:
+                                    'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+                            });
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-customer-default-addresses', () => {
@@ -56,8 +65,12 @@ describe('module/sw-customer-default-addresses', () => {
         const shippingSwAddress = swAddress.at(0).find('.sw-address__formatting');
         const billingSwAddress = swAddress.at(1).find('.sw-address__formatting');
 
-        expect(shippingSwAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
-        expect(billingSwAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
+        expect(shippingSwAddress.text()).toBe(
+            'Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)',
+        );
+        expect(billingSwAddress.text()).toBe(
+            'Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)',
+        );
     });
 
     it('should reload addresses on customer change', async () => {
@@ -67,7 +80,10 @@ describe('module/sw-customer-default-addresses', () => {
         await flushPromises();
 
         await wrapper.setProps({
-            customer: { defaultShippingAddress: testAddress, defaultBillingAddress: testAddress },
+            customer: {
+                defaultShippingAddress: testAddress,
+                defaultBillingAddress: testAddress,
+            },
         });
 
         await flushPromises();

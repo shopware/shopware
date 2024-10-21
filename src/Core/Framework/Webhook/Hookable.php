@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 #[Package('core')]
 interface Hookable
@@ -21,6 +22,17 @@ interface Hookable
         AppInstalledEvent::class => AppInstalledEvent::NAME,
         AppUpdatedEvent::class => AppUpdatedEvent::NAME,
         UpdatePostFinishEvent::class => UpdatePostFinishEvent::EVENT_NAME,
+        SystemConfigChangedHook::class => SystemConfigChangedHook::EVENT_NAME,
+    ];
+
+    public const HOOKABLE_EVENTS_DESCRIPTION = [
+        AppActivatedEvent::class => 'Fires when an app is activated',
+        AppDeactivatedEvent::class => 'Fires when an app is deactivated',
+        AppDeletedEvent::class => 'Fires when an app is deleted',
+        AppInstalledEvent::class => 'Fires when an app is installed',
+        AppUpdatedEvent::class => 'Fires when an app is updated',
+        UpdatePostFinishEvent::class => 'Fires after an shopware update has been finished',
+        SystemConfigChangedHook::class => 'Fires when a system config value is changed',
     ];
 
     public function getName(): string;

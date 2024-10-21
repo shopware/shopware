@@ -19,6 +19,8 @@ const { Component, Application } = Shopware;
 Component.register('sw-search-more-results', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'searchTypeService',
     ],
@@ -45,11 +47,7 @@ Component.register('sw-search-more-results', {
          * @return {string}
          */
         searchTypeRoute() {
-            if (
-                !this.entity ||
-                !this.searchTypes[this.entity] ||
-                !this.searchTypes[this.entity].listingRoute
-            ) {
+            if (!this.entity || !this.searchTypes[this.entity] || !this.searchTypes[this.entity].listingRoute) {
                 const module = this.moduleFactory.getModuleByEntityName(this.entity);
 
                 if (module?.manifest?.routes?.index) {
@@ -73,14 +71,10 @@ Component.register('sw-search-more-results', {
         searchContent() {
             const entityName = this.$tc(`global.entities.${this.entity}`, 0);
 
-            return this.$tc(
-                'global.sw-search-more-results.labelShowResultsInModuleV2',
-                0,
-                {
-                    entityName: entityName,
-                    entityNameLower: entityName.toLowerCase(),
-                },
-            );
+            return this.$tc('global.sw-search-more-results.labelShowResultsInModuleV2', 0, {
+                entityName: entityName,
+                entityNameLower: entityName.toLowerCase(),
+            });
         },
     },
 });

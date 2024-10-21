@@ -39,6 +39,17 @@ async function createWrapper(loginSuccessfull) {
                             reject(response);
                         });
                     },
+                    setRememberMe: (active = true) => {
+                        if (!active) {
+                            localStorage.removeItem('rememberMe');
+                            return;
+                        }
+
+                        const duration = new Date();
+                        duration.setDate(duration.getDate() + 14);
+
+                        localStorage.setItem('rememberMe', `${+duration}`);
+                    },
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -55,13 +66,19 @@ async function createWrapper(loginSuccessfull) {
                 'router-link': true,
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-alert': await wrapTestComponent('sw-alert', { sync: true }),
+                'sw-alert': await wrapTestComponent('sw-alert', {
+                    sync: true,
+                }),
                 'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-icon': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });

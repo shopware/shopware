@@ -102,6 +102,11 @@
     {% endblock %}
 
     {% block component_address_form_address_fields %}
+        {% set options = {
+            scopeElementSelector,
+            prefix,
+        } %}
+
         <div class="row g-2">
             {% block component_address_form_street %}
                 <div class="form-group col-md-6">
@@ -296,7 +301,7 @@
             {% endblock %}
         </div>
 
-        <div class="row g-2 country-and-state-form-elements" data-country-state-select="true">
+        <div class="row g-2 country-and-state-form-elements" data-country-state-select="true" data-country-state-select-options="{{ options|json_encode }}">
             {% block component_address_form_country %}
                 <div class="form-group col-md-6">
                     {% set initialCountryId = null %}
@@ -417,7 +422,7 @@
 
                         {% block component_address_form_phone_number_input %}
                             <input type="tel"
-                                   class="form-control"
+                                   class="form-control {% if violationPath %}is-invalid{% endif %}"
                                    autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}tel"
                                    id="{{ idPrefix ~ prefix }}AddressPhoneNumber"
                                    placeholder="{{ 'address.phoneNumberPlaceholder'|trans|striptags }}"

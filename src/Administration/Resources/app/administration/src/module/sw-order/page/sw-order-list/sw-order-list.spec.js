@@ -64,7 +64,9 @@ async function createWrapper() {
                 },
                 'sw-button': true,
                 'sw-label': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-pagination': true,
@@ -78,6 +80,14 @@ async function createWrapper() {
                 'sw-data-grid-skeleton': true,
                 'sw-time-ago': true,
                 'sw-color-badge': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-bulk-edit-modal': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-sidebar': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
             },
             provide: {
                 stateStyleDataProviderService: {
@@ -106,7 +116,6 @@ async function createWrapper() {
                 $route: { query: '' },
             },
         },
-
     });
 }
 
@@ -330,7 +339,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         });
 
         const firstRow = wrapper.findAll('.sw-data-grid__cell .sw-data-grid__cell-content');
-        expect(firstRow.at(21).text()).toBe('Paid');
+        expect(firstRow.at(22).text()).toBe('Paid');
     });
 
     it('should push to a new route when editing items', async () => {
@@ -340,13 +349,14 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper.vm.$refs.orderGrid.selection = { foo: { deliveries: [] } };
         await wrapper.vm.onBulkEditItems();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
-            name: 'sw.bulk.edit.order',
-            params: expect.objectContaining({
-                excludeDelivery: '1',
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'sw.bulk.edit.order',
+                params: expect.objectContaining({
+                    excludeDelivery: '1',
+                }),
             }),
-        }));
-
+        );
 
         wrapper.vm.$router.push.mockRestore();
     });
@@ -366,7 +376,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             'documents',
             'deliveries',
             'transactions',
-        ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
+        ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {
@@ -382,69 +392,73 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     it('should contain a computed property, called: listFilterOptions', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        expect(wrapper.vm.listFilterOptions).toEqual(expect.objectContaining({
-            'affiliate-code-filter': expect.objectContaining({
-                property: 'affiliateCode',
-                type: 'string-filter',
-                label: 'sw-order.filters.affiliateCodeFilter.label',
-                placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
-                valueProperty: 'key',
-                labelProperty: 'key',
-                options: expect.any(Array),
+        expect(wrapper.vm.listFilterOptions).toEqual(
+            expect.objectContaining({
+                'affiliate-code-filter': expect.objectContaining({
+                    property: 'affiliateCode',
+                    type: 'string-filter',
+                    label: 'sw-order.filters.affiliateCodeFilter.label',
+                    placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: expect.any(Array),
+                }),
+                'campaign-code-filter': expect.objectContaining({
+                    property: 'campaignCode',
+                    type: 'string-filter',
+                    label: 'sw-order.filters.campaignCodeFilter.label',
+                    placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: expect.any(Array),
+                }),
+                'promotion-code-filter': expect.objectContaining({
+                    property: 'lineItems.payload.code',
+                    type: 'string-filter',
+                    label: 'sw-order.filters.promotionCodeFilter.label',
+                    placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: expect.any(Array),
+                }),
             }),
-            'campaign-code-filter': expect.objectContaining({
-                property: 'campaignCode',
-                type: 'string-filter',
-                label: 'sw-order.filters.campaignCodeFilter.label',
-                placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
-                valueProperty: 'key',
-                labelProperty: 'key',
-                options: expect.any(Array),
-            }),
-            'promotion-code-filter': expect.objectContaining({
-                property: 'lineItems.payload.code',
-                type: 'string-filter',
-                label: 'sw-order.filters.promotionCodeFilter.label',
-                placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
-                valueProperty: 'key',
-                labelProperty: 'key',
-                options: expect.any(Array),
-            }),
-        }));
+        );
     });
 
     it('should contain a computed property, called: filterSelectCriteria', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        expect(wrapper.vm.filterSelectCriteria).toEqual(expect.objectContaining({
-            aggregations: expect.arrayContaining([
-                expect.objectContaining({
-                    type: 'terms',
-                    name: 'affiliateCodes',
-                    field: 'affiliateCode',
-                    aggregation: null,
-                    limit: null,
-                    sort: null,
-                }),
-                expect.objectContaining({
-                    type: 'terms',
-                    name: 'campaignCodes',
-                    field: 'campaignCode',
-                    aggregation: null,
-                    limit: null,
-                    sort: null,
-                }),
-                expect.objectContaining({
-                    type: 'terms',
-                    name: 'promotionCodes',
-                    field: 'lineItems.payload.code',
-                    aggregation: null,
-                    limit: null,
-                    sort: null,
-                }),
-            ]),
-            page: 1,
-            limit: 1,
-        }));
+        expect(wrapper.vm.filterSelectCriteria).toEqual(
+            expect.objectContaining({
+                aggregations: expect.arrayContaining([
+                    expect.objectContaining({
+                        type: 'terms',
+                        name: 'affiliateCodes',
+                        field: 'affiliateCode',
+                        aggregation: null,
+                        limit: null,
+                        sort: null,
+                    }),
+                    expect.objectContaining({
+                        type: 'terms',
+                        name: 'campaignCodes',
+                        field: 'campaignCode',
+                        aggregation: null,
+                        limit: null,
+                        sort: null,
+                    }),
+                    expect.objectContaining({
+                        type: 'terms',
+                        name: 'promotionCodes',
+                        field: 'lineItems.payload.code',
+                        aggregation: null,
+                        limit: null,
+                        sort: null,
+                    }),
+                ]),
+                page: 1,
+                limit: 1,
+            }),
+        );
     });
 });

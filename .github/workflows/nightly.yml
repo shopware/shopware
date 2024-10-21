@@ -1,0 +1,68 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 1 * * *' # every day at 01:00
+  workflow_dispatch:
+
+jobs:
+  clean-ghcr:
+    name: Delete old unused container images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old images
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: ${{ github.event.repository.name }}/ci-e2e
+          skip-tags: latest, trunk, 6.5.x, v*
+          cut-off: two days ago UTC
+          keep-at-least: 1
+          account-type: personal
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token
+  redis:
+    name:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        redis:
+          - redis:alpine
+          - eqalpha/keydb:latest
+          - valkey/valkey:8.0
+    services:
+      redis:
+        image: ${{ matrix.redis }}
+        ports:
+          - "6379:6379"
+    env:
+      REDIS_URL: redis://localhost:6379
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+      - name: Run PHPUnit
+        run: |
+          ./vendor/bin/phpunit --group=redis
+                
+  admin:
+    uses: ./.github/workflows/admin.yml
+    secrets: inherit
+  integration:
+    uses: ./.github/workflows/integration.yml
+    secrets: inherit
+  php:
+    uses: ./.github/workflows/php.yml
+    secrets: inherit
+  storefront:
+    uses: ./.github/workflows/storefront.yml
+    secrets: inherit
+  downstream:
+    uses: ./.github/workflows/downstream.yml
+    secrets: inherit
+    with:
+      nightly: true

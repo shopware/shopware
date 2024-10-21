@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaUrlLoader;
+use Shopware\Core\Content\Media\Core\Application\RemoteThumbnailLoader;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -27,17 +28,24 @@ class MediaUrlLoaderTest extends TestCase
     {
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
-        $subscriber = new MediaUrlLoader(new MediaUrlGenerator($filesystem));
+        $subscriber = new MediaUrlLoader(
+            new MediaUrlGenerator($filesystem),
+            $this->createMock(RemoteThumbnailLoader::class)
+        );
 
         $subscriber->loaded([$entity]);
 
         $actual = [$entity->get('id') => $entity->get('url')];
 
         if ($entity->has('thumbnails')) {
-            static::assertIsIterable($entity->get('thumbnails'));
-            foreach ($entity->get('thumbnails') as $thumbnail) {
-                static::assertInstanceOf(Entity::class, $thumbnail);
-                $actual[$thumbnail->get('id')] = $thumbnail->get('url');
+            if ($entity->get('thumbnails') !== null) {
+                static::assertIsIterable($entity->get('thumbnails'));
+                foreach ($entity->get('thumbnails') as $thumbnail) {
+                    static::assertInstanceOf(Entity::class, $thumbnail);
+                    $actual[$thumbnail->get('id')] = $thumbnail->get('url');
+                }
+            } else {
+                $actual[$ids->get('thumbnail')] = null;
             }
         }
 
@@ -84,7 +92,21 @@ class MediaUrlLoaderTest extends TestCase
                 'updatedAt' => new \DateTimeImmutable('2000-01-01'),
                 'private' => false,
             ]),
-            [$ids->get('media') => 'http://localhost:8000/foo/bar.png?946684800'],
+            [$ids->get('media') => 'http://localhost:8000/foo/bar.png?ts=946684800'],
+        ];
+
+        yield 'Test with unset thumbnails' => [
+            $ids,
+            (new PartialEntity())->assign([
+                'id' => $ids->get('media'),
+                'path' => '/foo/bar.png',
+                'private' => false,
+                'thumbnails' => null,
+            ]),
+            [
+                $ids->get('media') => 'http://localhost:8000/foo/bar.png',
+                $ids->get('thumbnail') => null,
+            ],
         ];
 
         yield 'Test with thumbnails' => [
@@ -140,9 +162,32 @@ class MediaUrlLoaderTest extends TestCase
                 ],
             ]),
             [
-                $ids->get('media') => 'http://localhost:8000/foo/bar.png?946684800',
-                $ids->get('thumbnail') => 'http://localhost:8000/thumb/bar.png?946684800',
+                $ids->get('media') => 'http://localhost:8000/foo/bar.png?ts=946684800',
+                $ids->get('thumbnail') => 'http://localhost:8000/thumb/bar.png?ts=946684800',
             ],
         ];
+    }
+
+    public function testCallRemoteThumbnailLoader(): void
+    {
+        $ids = new IdsCollection();
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+        $remoteThumbnailLoader = $this->createMock(RemoteThumbnailLoader::class);
+
+        $subscriber = new MediaUrlLoader(
+            new MediaUrlGenerator($filesystem),
+            $remoteThumbnailLoader,
+            true
+        );
+
+        $entity = (new PartialEntity())->assign([
+            'id' => $ids->get('media'),
+            'path' => 'foo/bar.png',
+            'private' => false,
+        ]);
+
+        $remoteThumbnailLoader->expects(static::once())->method('load')->with([$entity]);
+
+        $subscriber->loaded([$entity]);
     }
 }

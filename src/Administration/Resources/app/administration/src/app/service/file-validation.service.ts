@@ -1,28 +1,25 @@
 type MimeTypes = {
-    [key: string]: string[],
+    [key: string]: string[];
 };
 
 type FileValidationService = {
-    extensionByType: MimeTypes,
-    checkByExtension: (
-        file: File,
-        extensionAccept: string,
-        mimeOverride: MimeTypes
-    ) => boolean,
-    checkByType: (
-        file: File,
-        mimeAccept: string,
-    ) => boolean,
+    extensionByType: MimeTypes;
+    checkByExtension: (file: File, extensionAccept: string, mimeOverride: MimeTypes) => boolean;
+    checkByType: (file: File, mimeAccept: string) => boolean;
 };
 
 /**
+ * @package services-settings
  * @private
  * @method fileHelperService
  * @returns FileHelperServiceType
  */
 export default function fileValidationService(): FileValidationService {
     const extensionByType: MimeTypes = {
-        'image/jpeg': ['jpg', 'jpeg'],
+        'image/jpeg': [
+            'jpg',
+            'jpeg',
+        ],
         'image/png': ['png'],
         'image/webp': ['webp'],
         'image/avif': ['avif'],
@@ -30,13 +27,20 @@ export default function fileValidationService(): FileValidationService {
         'image/svg+xml': ['svg'],
         'image/bmp': ['bmp'],
         'image/x-ms-bmp': ['bmp'],
-        'image/tiff': ['tif', 'tiff'],
+        'image/tiff': [
+            'tif',
+            'tiff',
+        ],
         'application/postscript': ['eps'],
         'video/webm': ['webm'],
         'video/x-matroska': ['mkv'],
         'video/x-flv': ['flv'],
         'video/ogg': ['ogv'],
-        'audio/ogg': ['ogg', 'ogv', 'oga'],
+        'audio/ogg': [
+            'ogg',
+            'ogv',
+            'oga',
+        ],
         'video/quicktime': ['mov'],
         'video/mp4': ['mp4'],
         'audio/mp4': ['mp4'],
@@ -78,7 +82,9 @@ export default function fileValidationService(): FileValidationService {
         'application/vnd.apple.pages': ['pages'],
         'application/vnd.apple.numbers': ['numbers'],
         'application/vnd.ms-excel': ['xls'],
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['xlsx'],
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
+            'xlsx',
+        ],
         'application/vnd.ms-powerpoint': ['ppt'],
         'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['pptx'],
         'application/vnd.oasis.opendocument.text': ['odt'],
@@ -90,18 +96,12 @@ export default function fileValidationService(): FileValidationService {
      * @example
      * checkByExtension(file, 'png, pdf, svg', {...});
      */
-    function checkByExtension(
-        file: File,
-        extensionAccept: string,
-        mimeOverride: MimeTypes,
-    ): boolean {
+    function checkByExtension(file: File, extensionAccept: string, mimeOverride: MimeTypes): boolean {
         if (extensionAccept === '*') {
             return true;
         }
 
-        const fileExtensions: string[] = extensionAccept
-            .replace(/\s/g, '')
-            .split(',');
+        const fileExtensions: string[] = extensionAccept.replace(/\s/g, '').split(',');
 
         const types = Object.assign(extensionByType, mimeOverride);
 
@@ -139,18 +139,11 @@ export default function fileValidationService(): FileValidationService {
         return fileTypes.some((fileType) => {
             const fileAcceptType = fileType.split('/');
 
-            if (
-                mimeAccept === 'model/gltf-binary' &&
-                file.name.split('.').at(-1) === 'glb' &&
-                file.type === ''
-            ) {
+            if (mimeAccept === 'model/gltf-binary' && file.name.split('.').at(-1) === 'glb' && file.type === '') {
                 return true;
             }
 
-            if (
-                fileAcceptType[0] !== currentFileType[0] &&
-                fileAcceptType[0] !== '*'
-            ) {
+            if (fileAcceptType[0] !== currentFileType[0] && fileAcceptType[0] !== '*') {
                 return false;
             }
 

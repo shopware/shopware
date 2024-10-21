@@ -1,62 +1,64 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-language-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    params: {
-                        sortBy: 'sortBy',
-                    },
-                    query: {
-                        page: 1,
-                        limit: 25,
-                    },
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([
-                                {
-                                    name: 'English',
-                                },
-                                {
-                                    name: 'German',
-                                },
-                                {
-                                    name: 'Vietnamese',
-                                },
-                            ]);
+    return mount(
+        await wrapTestComponent('sw-settings-language-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        params: {
+                            sortBy: 'sortBy',
                         },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
+                        query: {
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([
+                                    {
+                                        name: 'English',
+                                    },
+                                    {
+                                        name: 'German',
+                                    },
+                                    {
+                                        name: 'Vietnamese',
+                                    },
+                                ]);
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                detailPageLinkText(allowEdit) {
-                    return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+                            return privileges.includes(identifier);
+                        },
+                    },
+
+                    detailPageLinkText(allowEdit) {
+                        return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+                    },
+
+                    searchRankingService: {},
                 },
-
-                searchRankingService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -69,26 +71,31 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-switch-field': true,
-                'sw-search-bar': true,
-                'sw-language-switch': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-sidebar': true,
-                'sw-sidebar-item': true,
-                'sw-collapse': true,
-                'sw-context-menu-item': true,
-                'sw-entity-listing': {
-                    inject: ['detailPageLinkText'],
-                    props: ['items', 'allowEdit', 'allowView', 'detailRoute'],
-                    template: `
+                    },
+                    'sw-switch-field': true,
+                    'sw-search-bar': true,
+                    'sw-language-switch': true,
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-sidebar': true,
+                    'sw-sidebar-item': true,
+                    'sw-collapse': true,
+                    'sw-context-menu-item': true,
+                    'sw-entity-listing': {
+                        inject: ['detailPageLinkText'],
+                        props: [
+                            'items',
+                            'allowEdit',
+                            'allowView',
+                            'detailRoute',
+                        ],
+                        template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="detail-action" v-bind="{ item }">
                                 <sw-context-menu-item
                                     v-if="detailRoute"
-                                    :disabled="!allowEdit && !allowView"
+                                    :disabled="!allowEdit && !allowView || undefined"
                                     class="sw-entity-listing__context-menu-edit-action">
                                     {{ detailPageLinkText(allowEdit) }}
                                 </sw-context-menu-item>
@@ -97,10 +104,13 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `,
+                    },
+                    'sw-text-field': true,
+                    'router-link': true,
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
@@ -210,12 +220,14 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     it('should contain a listing criteria with correct properties', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.listingCriteria).toEqual(expect.objectContaining({
-            associations: expect.arrayContaining([
-                expect.objectContaining({
-                    association: 'translationCode',
-                }),
-            ]),
-        }));
+        expect(wrapper.vm.listingCriteria).toEqual(
+            expect.objectContaining({
+                associations: expect.arrayContaining([
+                    expect.objectContaining({
+                        association: 'translationCode',
+                    }),
+                ]),
+            }),
+        );
     });
 });

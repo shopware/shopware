@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
 import BulkEditBaseHandler from 'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler';
@@ -21,6 +21,8 @@ describe('module/sw-bulk-edit/service/bulk-edit.api.factory', () => {
     it('should throw error when no handler found', async () => {
         const factory = new BulkEditApiFactory();
 
-        expect(() => factory.getHandler('custom-module')).toThrow(Error('Bulk Edit Handler not found for custom-module module'));
+        expect(() => factory.getHandler('custom-module')).toThrow(
+            Error('Bulk Edit Handler not found for custom-module module'),
+        );
     });
 });

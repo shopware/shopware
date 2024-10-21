@@ -56,7 +56,7 @@ class ThemeAssignmentException extends ShopwareHttpException
     }
 
     /**
-     * @param  array<string, array<int, string>> $assignmentMapping
+     * @param array<string, array<int, string>> $assignmentMapping
      */
     private function formatAssignments(array $assignmentMapping): string
     {
@@ -75,7 +75,7 @@ class ThemeAssignmentException extends ShopwareHttpException
                 $salesChannelNames[] = $salesChannel;
             }
 
-            $output[] = sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelNames));
+            $output[] = \sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelNames));
         }
 
         return implode(', ', $output);

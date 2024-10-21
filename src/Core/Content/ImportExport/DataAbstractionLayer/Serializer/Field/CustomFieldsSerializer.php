@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -28,7 +29,7 @@ class CustomFieldsSerializer extends FieldSerializer
     public function serialize(Config $config, Field $field, $value): iterable
     {
         if (!$field instanceof CustomFields) {
-            throw new \InvalidArgumentException('Expected field to be an instance of ' . CustomFields::class);
+            throw ImportExportException::invalidInstanceType('field', CustomFields::class);
         }
 
         if (!\is_array($value)) {
@@ -54,7 +55,7 @@ class CustomFieldsSerializer extends FieldSerializer
     public function deserialize(Config $config, Field $field, $value): mixed
     {
         if (!$field instanceof CustomFields) {
-            throw new \InvalidArgumentException('Expected CustomFields');
+            throw ImportExportException::invalidInstanceType('field', CustomFields::class);
         }
 
         if (!\is_array($value)) {
@@ -106,7 +107,7 @@ class CustomFieldsSerializer extends FieldSerializer
 
         $customFields = $this->customFieldsSerializer->decode($field, $customFields);
 
-        if (!\is_array($customFields)) {
+        if (!\is_array($customFields) || empty($customFields)) {
             return null;
         }
 

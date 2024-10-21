@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -33,7 +33,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
-                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent('sw-bulk-edit-change-type-field-renderer'),
+                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent(
+                        'sw-bulk-edit-change-type-field-renderer',
+                    ),
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
@@ -79,11 +81,37 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-ignore-class': true,
                     'sw-entity-tag-select': true,
                     'sw-error-summary': true,
-                    'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }),
-                    'sw-bulk-edit-save-modal-process': await wrapTestComponent('sw-bulk-edit-save-modal-process', { sync: true }),
-                    'sw-bulk-edit-save-modal-success': await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
-                    'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
+                    'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error', {
+                        sync: true,
+                    }),
+                    'sw-bulk-edit-save-modal-process': await wrapTestComponent('sw-bulk-edit-save-modal-process', {
+                        sync: true,
+                    }),
+                    'sw-bulk-edit-save-modal-success': await wrapTestComponent('sw-bulk-edit-save-modal-success', {
+                        sync: true,
+                    }),
+                    'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm', {
+                        sync: true,
+                    }),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
+                    'sw-app-topbar-button': true,
+                    'sw-help-center-v2': true,
+                    'mt-button': true,
+                    'mt-loader': true,
+                    'sw-loader-deprecated': true,
+                    'mt-card': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-inheritance-switch': true,
+                    'sw-inherit-wrapper': true,
+                    'sw-media-collapse': true,
+                    'mt-tabs': true,
+                    'mt-checkbox': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-product-variant-info': true,
+                    'mt-switch': true,
                 },
                 provide: {
                     validationService: {},
@@ -94,7 +122,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                                 create: (entity) => {
                                     if (entity === 'custom_field_set') {
                                         return {
-                                            search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                                            search: () =>
+                                                Promise.resolve([
+                                                    {
+                                                        id: 'field-set-id-1',
+                                                    },
+                                                ]),
                                             get: () => Promise.resolve({ id: '' }),
                                         };
                                     }
@@ -104,26 +137,29 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                                         name: 'Test Customer',
                                     };
                                 },
-                                search: () => Promise.resolve([
-                                    {
-                                        id: '1',
-                                        name: 'customer 1',
-                                    },
-                                    {
-                                        id: '2',
-                                        name: 'customer 2',
-                                    },
-                                ]),
-                                get: () => Promise.resolve({
-                                    id: 1,
-                                    name: 'Customer',
-                                }),
-                                searchIds: () => Promise.resolve([
-                                    {
-                                        data: [1],
-                                        total: 1,
-                                    },
-                                ]),
+                                search: () =>
+                                    Promise.resolve([
+                                        {
+                                            id: '1',
+                                            name: 'customer 1',
+                                        },
+                                        {
+                                            id: '2',
+                                            name: 'customer 2',
+                                        },
+                                    ]),
+                                get: () =>
+                                    Promise.resolve({
+                                        id: 1,
+                                        name: 'Customer',
+                                    }),
+                                searchIds: () =>
+                                    Promise.resolve([
+                                        {
+                                            data: [1],
+                                            total: 1,
+                                        },
+                                    ]),
                             };
                         },
                     },
@@ -174,11 +210,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             {
                 name: 'sw.bulk.edit.customer',
                 path: '/index',
+                component: {
+                    template: '<div></div>',
+                },
             },
             {
                 name: 'sw.bulk.edit.customer.save',
                 path: '',
-                component: await wrapTestComponent('sw-bulk-edit-save-modal'),
+                component: await wrapTestComponent('sw-bulk-edit-save-modal', {
+                    sync: true,
+                }),
                 meta: {
                     $module: {
                         title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -191,7 +232,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.confirm',
                         path: '/confirm',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -201,7 +242,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.process',
                         path: '/process',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -211,7 +252,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.success',
                         path: '/success',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -221,7 +262,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.error',
                         path: '/error',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -251,7 +292,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
     });
 
     it('should show all form fields', async () => {
@@ -283,6 +326,41 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
         expect(wrapper.vm.$route.path).toBe('/confirm');
+    });
+
+    it('should create new instance for bulk handler', async () => {
+        wrapper = await createWrapper();
+        const bulkEditMock = jest.fn();
+        wrapper.vm.bulkEditApiFactory.getHandler = jest.fn(() => ({
+            bulkEdit: bulkEditMock,
+        }));
+
+        await flushPromises();
+
+        const tagsCard = wrapper.find('.sw-bulk-edit-customer-base__tags');
+        expect(tagsCard.exists()).toBeTruthy();
+
+        await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await flushPromises();
+
+        Shopware.State.commit('shopwareApps/setSelectedIds', new Array(100).fill(1));
+
+        await wrapper.find('.sw-bulk-edit-customer__save-action').trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        await footerRight.find('button').trigger('click');
+
+        await flushPromises();
+
+        // Check if getHandler was called with 'customer'
+        expect(wrapper.vm.bulkEditApiFactory.getHandler).toHaveBeenCalledWith('customer');
+
+        // Check if bulkEdit was called twice (once for each payload chunk)
+        expect(bulkEditMock).toHaveBeenCalledTimes(2);
     });
 
     it('should close confirm modal', async () => {
@@ -349,9 +427,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await flushPromises();
 
         expect(wrapper.vm.$route.path).toBe('/error');
-        expect(spy).toHaveBeenCalledWith(
-            new Error('error occurred'),
-        );
+        expect(spy).toHaveBeenCalledWith(new Error('error occurred'));
     });
 
     it('should show tags and custom fields card', async () => {

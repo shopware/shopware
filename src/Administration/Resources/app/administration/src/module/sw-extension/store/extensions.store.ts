@@ -4,26 +4,26 @@ import type { Extension } from '../service/extension-store-action.service';
 
 interface ShopwareExtensionsState {
     search: {
-        page: number,
-        limit: number,
-        rating: $TSFixMe,
-        sorting: $TSFixMe,
-        term: null|string,
-        filter: $TSFixMe,
-    }
-    extensionListing: Extension[],
-    categoriesLanguageId: string|null,
+        page: number;
+        limit: number;
+        rating: $TSFixMe;
+        sorting: $TSFixMe;
+        term: null | string;
+        filter: $TSFixMe;
+    };
+    extensionListing: Extension[];
+    categoriesLanguageId: string | null;
     myExtensions: {
-        loading: boolean,
-        data: Extension[]
-    }
-    userInfo: UserInfo|null,
+        loading: boolean;
+        data: Extension[];
+    };
+    userInfo: UserInfo | null;
 }
 
 type SearchValue<T, K extends keyof T> = {
-    key: K,
-    value: T[K]
-}
+    key: K;
+    value: T[K];
+};
 
 const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = {
     namespaced: true,
@@ -87,17 +87,20 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
             state.categoriesLanguageId = languageId;
         },
 
-        setUserInfo(state, userInfo: UserInfo|null) {
+        setUserInfo(state, userInfo: UserInfo | null) {
             state.userInfo = userInfo;
         },
 
-        pluginErrorsMapped() { /* nth */ },
+        pluginErrorsMapped() {
+            /* nth */
+        },
     },
 };
 
 /**
  * @package checkout
  * @private
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default shopwareExtensionsStore;
 

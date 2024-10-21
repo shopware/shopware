@@ -17,7 +17,13 @@ const { Component } = Shopware;
  */
 Component.register('sw-card-deprecated', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: {
+        ...Shopware.compatConfig,
+        INSTANCE_ATTRS_CLASS_STYLE: false,
+    },
 
     inject: ['feature'],
 
@@ -66,18 +72,28 @@ Component.register('sw-card-deprecated', {
 
     computed: {
         showHeader() {
-            return !!this.title
-                || !!this.$slots.title
-                || !!this.$scopedSlots.title
-                || !!this.subtitle
-                || !!this.$slots.subtitle
-                || !!this.$scopedSlots.subtitle
-                || !!this.$slots.avatar
-                || !!this.$scopedSlots.avatar;
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return (
+                    !!this.title ||
+                    !!this.$slots.title ||
+                    !!this.$scopedSlots.title ||
+                    !!this.subtitle ||
+                    !!this.$slots.subtitle ||
+                    !!this.$scopedSlots.subtitle ||
+                    !!this.$slots.avatar ||
+                    !!this.$scopedSlots.avatar
+                );
+            }
+
+            return !!this.title || !!this.$slots.title || !!this.subtitle || !!this.$slots.subtitle || !!this.$slots.avatar;
         },
 
         hasAvatar() {
-            return !!this.$slots.avatar || !!this.$scopedSlots.avatar;
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return !!this.$slots.avatar || !!this.$scopedSlots.avatar;
+            }
+
+            return !!this.$slots.avatar;
         },
 
         cardContentClasses() {
@@ -85,24 +101,42 @@ Component.register('sw-card-deprecated', {
                 'no--padding': !this.contentPadding,
             };
         },
-    },
 
-    compatConfig: {
-        INSTANCE_ATTRS_CLASS_STYLE: false,
+        contextSlot() {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return !!this.$slots['context-actions'] || !!this.$scopedSlots['context-actions'];
+            }
+
+            return !!this.$slots['context-actions'];
+        },
     },
 
     methods: {
         cardClasses() {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    'sw-card--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
+                    'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
+                    'sw-card--hero': !!this.hero,
+                    'sw-card--large': this.large,
+                    'has--header': !!this.showHeader,
+                    'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
+                    'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
+                    'has--toolbar': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
+                    'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
+                };
+            }
+
             return {
-                'sw-card--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
-                'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
+                'sw-card--tabs': !!this.$slots.tabs,
+                'sw-card--grid': !!this.$slots.grid,
                 'sw-card--hero': !!this.hero,
                 'sw-card--large': this.large,
                 'has--header': !!this.showHeader,
-                'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
-                'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
-                'has--toolbar': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
-                'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
+                'has--title': !!this.title || !!this.$slots.title,
+                'has--subtitle': !!this.subtitle || !!this.$slots.subtitle,
+                'has--toolbar': !!this.$slots.toolbar,
+                'has--tabs': !!this.$slots.tabs,
             };
         },
     },

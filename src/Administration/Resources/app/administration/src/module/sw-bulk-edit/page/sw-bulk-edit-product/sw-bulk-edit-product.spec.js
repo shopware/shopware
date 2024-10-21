@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -14,31 +14,42 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     let routes;
     let router;
 
-    async function createWrapper(productEntityOverride, initialRoute = { name: 'sw.bulk.edit.product.save', params: { parentId: 'null', includesDigital: '0' } }) {
-        const productEntity = productEntityOverride ||
+    async function createWrapper(
+        productEntityOverride,
+        initialRoute = {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'null', includesDigital: '0' },
+        },
+    ) {
+        const productEntity = productEntityOverride || {
+            metaTitle: 'test',
+        };
+
+        const taxes = [
             {
-                metaTitle: 'test',
-            };
+                id: 'rate1',
+                name: 'Rate 1',
+                position: 1,
+                taxRate: 19,
+            },
+            {
+                id: 'rate2',
+                name: 'Rate 2',
+                position: 2,
+                taxRate: 27,
+            },
+        ];
 
-        const taxes = [{
-            id: 'rate1',
-            name: 'Rate 1',
-            position: 1,
-            taxRate: 19,
-        }, {
-            id: 'rate2',
-            name: 'Rate 2',
-            position: 2,
-            taxRate: 27,
-        }];
-
-        const rules = [{
-            id: '1',
-            name: 'Cart >= 0',
-        }, {
-            id: '2',
-            name: 'Customer from USA',
-        }];
+        const rules = [
+            {
+                id: '1',
+                name: 'Cart >= 0',
+            },
+            {
+                id: '2',
+                name: 'Customer from USA',
+            },
+        ];
 
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;
@@ -62,7 +73,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
-                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent('sw-bulk-edit-change-type-field-renderer'),
+                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent(
+                        'sw-bulk-edit-change-type-field-renderer',
+                    ),
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
@@ -125,6 +138,28 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
                     'sw-bulk-edit-product-description': true,
+                    'mt-button': true,
+                    'mt-loader': true,
+                    'sw-loader-deprecated': true,
+                    'sw-app-topbar-button': true,
+                    'sw-error-summary': true,
+                    'mt-card': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-help-center-v2': true,
+                    'sw-help-text': true,
+                    'sw-field-copyable': true,
+                    'mt-number-field': true,
+                    'sw-maintain-currencies-modal': true,
+                    'sw-product-variant-info': true,
+                    'mt-checkbox': true,
+                    'mt-switch': true,
+                    'mt-textarea': true,
+                    'sw-textarea-field-deprecated': true,
+                    'mt-text-field': true,
+                    'mt-tabs': true,
+                    'sw-media-collapse': true,
+                    'mt-floating-ui': true,
                 },
                 mocks: {
                     $store: createStore({
@@ -164,14 +199,23 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                         create: (entity) => {
                             if (entity === 'currency') {
                                 return {
-                                    search: () => Promise.resolve([{ id: 'currencyId1', isSystemDefault: true }]),
+                                    search: () =>
+                                        Promise.resolve([
+                                            {
+                                                id: 'currencyId1',
+                                                isSystemDefault: true,
+                                            },
+                                        ]),
                                     get: () => Promise.resolve({ id: '' }),
                                 };
                             }
 
                             if (entity === 'custom_field_set') {
                                 return {
-                                    search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                                    search: () =>
+                                        Promise.resolve([
+                                            { id: 'field-set-id-1' },
+                                        ]),
                                     get: () => Promise.resolve({ id: '' }),
                                 };
                             }
@@ -185,9 +229,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
                             if (entity === 'product') {
                                 return {
-                                    create: () => Promise.resolve({
-                                        isNew: () => true,
-                                    }),
+                                    create: () =>
+                                        Promise.resolve({
+                                            isNew: () => true,
+                                        }),
                                     get: (productId) => {
                                         if (productId === 'failingProduct') {
                                             return Promise.reject();
@@ -236,57 +281,71 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         routes = [
             {
                 name: 'sw.product.detail.variants',
-                path: '/variants',
+                path: '/:id?/variants',
             },
             {
                 name: 'sw.bulk.edit.product',
                 path: '/index/:parentId?/:includesDigital?',
-                meta: { $module: {
-                    title: 'sw-bulk-edit-product.general.mainMenuTitle',
-                } },
-            },
-            {
-                name: 'sw.bulk.edit.product.save',
-                path: '',
-                component: await wrapTestComponent('sw-bulk-edit-save-modal'),
-                meta: { $module: {
-                    title: 'sw-bulk-edit-product.general.mainMenuTitle',
-                } },
-                redirect: {
-                    name: 'sw.bulk.edit.product.save.confirm',
+                meta: {
+                    $module: {
+                        title: 'sw-bulk-edit-product.general.mainMenuTitle',
+                    },
                 },
                 children: [
                     {
-                        name: 'sw.bulk.edit.product.save.confirm',
-                        path: '/confirm',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-product.general.mainMenuTitle',
-                        } },
-                    },
-                    {
-                        name: 'sw.bulk.edit.product.save.process',
-                        path: '/process',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-product.general.mainMenuTitle',
-                        } },
-                    },
-                    {
-                        name: 'sw.bulk.edit.product.save.success',
-                        path: '/success',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-product.general.mainMenuTitle',
-                        } },
-                    },
-                    {
-                        name: 'sw.bulk.edit.product.save.error',
-                        path: '/error',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error'),
-                        meta: { $module: {
-                            title: 'sw-bulk-edit-product.general.mainMenuTitle',
-                        } },
+                        name: 'sw.bulk.edit.product.save',
+                        path: 'save',
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
+                        meta: {
+                            $module: {
+                                title: 'sw-bulk-edit-product.general.mainMenuTitle',
+                            },
+                        },
+                        redirect: {
+                            name: 'sw.bulk.edit.product.save.confirm',
+                        },
+                        children: [
+                            {
+                                name: 'sw.bulk.edit.product.save.confirm',
+                                path: 'confirm',
+                                component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
+                                meta: {
+                                    $module: {
+                                        title: 'sw-bulk-edit-product.general.mainMenuTitle',
+                                    },
+                                },
+                            },
+                            {
+                                name: 'sw.bulk.edit.product.save.process',
+                                path: 'process',
+                                component: await wrapTestComponent('sw-bulk-edit-save-modal-process', { sync: true }),
+                                meta: {
+                                    $module: {
+                                        title: 'sw-bulk-edit-product.general.mainMenuTitle',
+                                    },
+                                },
+                            },
+                            {
+                                name: 'sw.bulk.edit.product.save.success',
+                                path: 'success',
+                                component: await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
+                                meta: {
+                                    $module: {
+                                        title: 'sw-bulk-edit-product.general.mainMenuTitle',
+                                    },
+                                },
+                            },
+                            {
+                                name: 'sw.bulk.edit.product.save.error',
+                                path: 'error',
+                                component: await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }),
+                                meta: {
+                                    $module: {
+                                        title: 'sw-bulk-edit-product.general.mainMenuTitle',
+                                    },
+                                },
+                            },
+                        ],
                     },
                 ],
             },
@@ -322,7 +381,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ],
             },
         });
-        Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
     });
 
     it('should be a Vue.js component', async () => {
@@ -358,7 +419,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        expect(wrapper.vm.$route.path).toBe('/confirm');
+        expect(wrapper.vm.$route.path).toBe('/index/null/save/confirm');
     });
 
     it('should close confirm modal', async () => {
@@ -394,8 +455,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.$router.options.history.state.back).toBe('/process');
-        expect(wrapper.vm.$route.path).toBe('/success');
+        expect(wrapper.vm.$router.options.history.state.back).toBe('/index/null/0/save/process');
+        expect(wrapper.vm.$route.path).toBe('/index/null/0/save/success');
     });
 
     it('should open fail modal', async () => {
@@ -416,7 +477,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.$route.path).toBe('/error');
+        expect(wrapper.vm.$route.path).toBe('/index/null/0/save/error');
     });
 
     it('should be show empty state', async () => {
@@ -433,7 +494,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             taxId: null,
         };
 
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -458,7 +522,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const productEntity = {
             minPurchase: 2,
         };
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -478,7 +545,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const productEntity = {
             minPurchase: 2,
         };
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -494,8 +564,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await clearOption.trigger('click');
         await flushPromises();
-        expect(minPurchaseField.find('.sw-single-select__selection-text').text())
-            .toBe('sw-bulk-edit.changeTypes.clear');
+        expect(minPurchaseField.find('.sw-single-select__selection-text').text()).toBe('sw-bulk-edit.changeTypes.clear');
 
         wrapper.vm.onProcessData();
 
@@ -597,13 +666,19 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should be correct data when select categories', async () => {
         const productEntity = {
-            categories: [{
-                id: 'category1',
-            }, {
-                id: 'category2',
-            }],
+            categories: [
+                {
+                    id: 'category1',
+                },
+                {
+                    id: 'category2',
+                },
+            ],
         };
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -622,13 +697,18 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should be correct data when select visibilities', async () => {
         const productEntity = {
-            visibilities: [{
-                productId: 'productId123',
-                salesChannelId: 'salesChannelId345',
-                visibility: 30,
-            }],
+            visibilities: [
+                {
+                    productId: 'productId123',
+                    salesChannelId: 'salesChannelId345',
+                    visibility: 30,
+                },
+            ],
         };
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -648,12 +728,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should be correct selections data', async () => {
         const productEntity = {
-            media: [{
-                id: 'a435755c6c4f4fb4b81ec32b4c07e06e',
-                mediaId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-            }],
+            media: [
+                {
+                    id: 'a435755c6c4f4fb4b81ec32b4c07e06e',
+                    mediaId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                },
+            ],
         };
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -696,7 +781,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             ],
         };
 
-        wrapper = await createWrapper(productEntity, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+        wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
 
         await flushPromises();
 
@@ -720,7 +808,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.vm.deliverabilityFormFields.length).toBeGreaterThan(1);
 
-        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null', includesDigital: '1' } });
+        wrapper.vm.$router.push({
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null', includesDigital: '1' },
+        });
 
         await flushPromises();
 
@@ -783,7 +874,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should get parent product when component created', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: {},
+        });
         wrapper.vm.getParentProduct = jest.fn();
 
         wrapper.vm.createdComponent();
@@ -824,7 +918,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     ];
 
     it.each(dataProvider)('should have set price to product when value is not boolean', async (isChanged, item, value) => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: {
+                parentId: 'pArEnT_ID',
+                // includesDigital: '0'
+            },
+        });
+
         await wrapper.setData({
             isLoading: false,
             bulkEditProduct: {
@@ -875,19 +976,30 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             return Promise.reject();
         });
 
-        await wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'productId' } });
+        await wrapper.vm.$router.push({
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'productId' },
+        });
         await wrapper.vm.getParentProduct();
 
-        expect(wrapper.vm.parentProductFrozen).toEqual(JSON.stringify({
-            id: 'productId',
-            name: 'productName',
-            stock: null,
-        }));
+        expect(wrapper.vm.parentProductFrozen).toEqual(
+            JSON.stringify({
+                id: 'productId',
+                name: 'productName',
+                stock: null,
+            }),
+        );
         wrapper.vm.productRepository.get.mockRestore();
     });
 
     it('should get parent product failed', async () => {
-        wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'failingProduct' } });
+        wrapper = await createWrapper(
+            {},
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'failingProduct' },
+            },
+        );
 
         await wrapper.vm.getParentProduct();
 

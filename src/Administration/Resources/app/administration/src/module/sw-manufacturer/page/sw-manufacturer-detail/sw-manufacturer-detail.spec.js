@@ -1,11 +1,8 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import swManufacturerDetail from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
-
-Shopware.Component.register('sw-manufacturer-detail', swManufacturerDetail);
 
 const mockProductId = 'MOCK_PRODUCT_ID';
 let productGetShouldFail = false;
@@ -80,10 +77,14 @@ async function createWrapper(privileges = []) {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
+                'sw-context-menu-item': true,
+                'sw-sidebar-media-item': true,
+                'sw-sidebar': true,
             },
             provide: {
                 acl: {
-                    can: key => (key ? privileges.includes(key) : true),
+                    can: (key) => (key ? privileges.includes(key) : true),
                 },
                 stateStyleDataProviderService: {},
                 repositoryFactory: {
@@ -140,7 +141,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(addButton.attributes().disabled).toBeTruthy();
     });
 
-
     it('should be able to edit the manufacturer', async () => {
         const wrapper = await createWrapper([
             'product_manufacturer.editor',
@@ -153,8 +153,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         const elements = wrapper.findAll('.sw-field');
         expect(elements).toHaveLength(2);
-        elements.forEach(el => expect(el.attributes().disabled).toBeUndefined());
-
+        elements.forEach((el) => expect(el.attributes().disabled).toBeUndefined());
 
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
@@ -171,7 +170,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         const elements = wrapper.findAll('.sw-field');
         expect(elements).toHaveLength(2);
-        elements.forEach(el => expect(el.attributes().disabled).toBe('true'));
+        elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
 
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
@@ -197,7 +196,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
             message: 'global.notification.notificationLoadingDataErrorMessage',
         });
 
-        expect(wrapper.vm.customFieldSets).toEqual([{ id: 'MOCK_CUSTOM_FIELD_SET_ID' }]);
+        expect(wrapper.vm.customFieldSets).toEqual([
+            { id: 'MOCK_CUSTOM_FIELD_SET_ID' },
+        ]);
     });
 
     it('should set loading to false if only the custom field set request fails', async () => {

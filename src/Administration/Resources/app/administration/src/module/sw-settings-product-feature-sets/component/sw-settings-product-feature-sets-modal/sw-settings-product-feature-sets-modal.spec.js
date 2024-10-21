@@ -1,9 +1,16 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
+
 // Turn off known errors
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
-global.allowedErrors = [unknownOptionError];
+global.allowedErrors = [
+    ...global.allowedErrors,
+    unknownOptionError,
+];
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     const classes = {
@@ -42,72 +49,85 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     }
 
     async function createWrapper(additionalOptions = {}) {
-        return mount(await wrapTestComponent('sw-settings-product-feature-sets-modal', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-modal': {
-                        template: `
+        return mount(
+            await wrapTestComponent('sw-settings-product-feature-sets-modal', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    stubs: {
+                        'sw-modal': {
+                            template: `
                             <div class="sw-modal">
                                 <slot name="modal-header"></slot>
                                 <slot />
                                 <slot name="modal-footer"></slot>
                             </div>
                         `,
-                    },
-                    'sw-radio-field': await wrapTestComponent('sw-radio-field', {
-                        sync: true,
-                    }),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-button': true,
-                    'sw-icon': true,
-                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-data-grid-skeleton': true,
-                    i18n: true,
-                },
-                data() {
-                    return {
-                        showPageOne: true,
-                        showCustomField: false,
-                        showPropertyGroups: false,
-                        showProductInfo: false,
-                    };
-                },
-                provide: {
-                    shortcutService: {
-                        startEventListener: () => {
                         },
-                        stopEventListener: () => {
-                        },
-                    },
-                    repositoryFactory: {
-                        create: () => ({
-                            search: () => Promise.reject(),
+                        'sw-radio-field': await wrapTestComponent('sw-radio-field', {
+                            sync: true,
                         }),
-                        search: () => {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-button': true,
+                        'sw-icon': true,
+                        'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-data-grid-skeleton': true,
+                        i18n: true,
+                        'sw-pagination': true,
+                        'sw-help-text': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-field-error': true,
+                        'sw-checkbox-field': true,
+                        'sw-context-menu-item': true,
+                        'sw-context-button': true,
+                        'sw-data-grid-settings': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'router-link': true,
+                        'sw-field-copyable': true,
+                        'sw-contextual-field': true,
+                    },
+                    data() {
+                        return {
+                            showPageOne: true,
+                            showCustomField: false,
+                            showPropertyGroups: false,
+                            showProductInfo: false,
+                        };
+                    },
+                    provide: {
+                        shortcutService: {
+                            startEventListener: () => {},
+                            stopEventListener: () => {},
+                        },
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.reject(),
+                            }),
+                            search: () => {},
                         },
                     },
+                    ...additionalOptions,
                 },
-                ...additionalOptions,
-            },
-            props: {
-                productFeatureSet: {
-                    id: null,
-                    name: null,
-                    description: null,
-                    features: [
-                        {},
-                    ],
+                props: {
+                    productFeatureSet: {
+                        id: null,
+                        name: null,
+                        description: null,
+                        features: [
+                            {},
+                        ],
+                    },
                 },
             },
-        });
+        );
     }
-
 
     it('should be able to instantiate', async () => {
         const wrapper = await createWrapper();
@@ -131,10 +151,13 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(optionsContainer.props().options).toHaveLength(4);
 
         // Check wether all possible feature types are shown
-        ['property', 'customField', 'product', 'referencePrice'].forEach((type) => {
-            expect(optionsContainer.props().options
-                .filter(option => option.value === type))
-                .toHaveLength(1);
+        [
+            'property',
+            'customField',
+            'product',
+            'referencePrice',
+        ].forEach((type) => {
+            expect(optionsContainer.props().options.filter((option) => option.value === type)).toHaveLength(1);
         });
     });
 

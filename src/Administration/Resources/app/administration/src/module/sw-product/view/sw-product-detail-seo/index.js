@@ -11,7 +11,12 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['feature', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'feature',
+        'acl',
+    ],
 
     data() {
         return {
@@ -55,7 +60,7 @@ export default {
             },
             set(newMainCategory) {
                 if (this.product.mainCategories && !newMainCategory) {
-                    this.product.mainCategories = this.product.mainCategories.filter(category => {
+                    this.product.mainCategories = this.product.mainCategories.filter((category) => {
                         return category.salesChannelId !== this.currentSalesChannelId;
                     });
 

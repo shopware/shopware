@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -7,50 +7,57 @@ import { createStore } from 'vuex';
 
 const product = {};
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-product-detail-cross-selling', { sync: true }), {
-        props: {
-            crossSelling: null,
-        },
-        global: {
-            stubs: {
-                'sw-card': true,
-                'sw-button': true,
-                'sw-product-cross-selling-form': true,
-                'sw-empty-state': true,
-                'sw-skeleton': true,
+    return mount(
+        await wrapTestComponent('sw-product-detail-cross-selling', {
+            sync: true,
+        }),
+        {
+            props: {
+                crossSelling: null,
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({ search: () => Promise.resolve('bar') }),
+            global: {
+                stubs: {
+                    'sw-card': true,
+                    'sw-button': true,
+                    'sw-product-cross-selling-form': true,
+                    'sw-empty-state': true,
+                    'sw-skeleton': true,
                 },
-                acl: { can: () => true },
-            },
-            mocks: {
-                $store: createStore({
-                    modules: {
-                        swProductDetail: {
-                            namespaced: true,
-                            getters: {
-                                isLoading: () => false,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve('bar'),
+                        }),
+                    },
+                    acl: { can: () => true },
+                },
+                mocks: {
+                    $store: createStore({
+                        modules: {
+                            swProductDetail: {
+                                namespaced: true,
+                                getters: {
+                                    isLoading: () => false,
+                                },
+                                state: {
+                                    product: product,
+                                },
                             },
-                            state: {
-                                product: product,
-                            },
-                        },
-                        context: {
-                            namespaced: true,
+                            context: {
+                                namespaced: true,
 
-                            getters: {
-                                isSystemDefaultLanguage() {
-                                    return true;
+                                getters: {
+                                    isSystemDefaultLanguage() {
+                                        return true;
+                                    },
                                 },
                             },
                         },
-                    },
-                }),
+                    }),
+                },
             },
         },
-    });
+    );
 }
 
 function buildProduct() {
@@ -82,6 +89,8 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         await wrapper.setData({ product: customProduct });
         await flushPromises();
 
-        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual(['bar']);
+        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual([
+            'bar',
+        ]);
     });
 });

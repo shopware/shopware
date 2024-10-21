@@ -10,14 +10,15 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -137,8 +138,8 @@ EOF;
         static::assertNotEmpty($stateCollection);
         static::assertNotEmpty($stateCollection->get('fromPlace'));
         static::assertNotEmpty($stateCollection->get('toPlace'));
-        static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
-        static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
+        $fromPlace = $stateCollection->get('fromPlace');
+        $toPlace = $stateCollection->get('toPlace');
         static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
         static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
     }
@@ -152,8 +153,8 @@ EOF;
         static::assertNotEmpty($stateCollection);
         static::assertNotEmpty($stateCollection->get('fromPlace'));
         static::assertNotEmpty($stateCollection->get('toPlace'));
-        static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
-        static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
+        $fromPlace = $stateCollection->get('fromPlace');
+        $toPlace = $stateCollection->get('toPlace');
         static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
         static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
     }
@@ -166,9 +167,12 @@ EOF;
 
         $connection = $this->getContainer()->get(Connection::class);
 
-        $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        $orderStateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order.state']);
+        $orderOpen = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderStates::STATE_OPEN, 'id' => $orderStateMachineId]);
+
+        $deliveryStateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
         /** @var string $returnedPartially */
-        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
+        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $deliveryStateMachineId]);
         $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
 
         $orderDeliveryId = Uuid::randomHex();
@@ -195,7 +199,7 @@ EOF;
                 'lastName' => 'Mustermann',
             ],
             'orderNumber' => Uuid::randomHex(),
-            'stateId' => Uuid::fromBytesToHex($stateMachineId),
+            'stateId' => Uuid::fromBytesToHex($orderOpen),
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
@@ -310,7 +314,6 @@ EOF;
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -329,6 +332,10 @@ EOF;
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $this->getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
 

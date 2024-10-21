@@ -50,4 +50,34 @@ class AwsS3v3FactoryTest extends TestCase
             (new AwsS3v3Factory())->create($config)
         );
     }
+
+    public function testCreateEmptyEndpointIsNotConsidered(): void
+    {
+        $config = [
+            'bucket' => 'private',
+            'endpoint' => '',
+            'use_path_style_endpoint' => true,
+            'region' => 'local',
+            'root' => 'foobar',
+            'credentials' => [
+                'key' => 'foo',
+                'secret' => 'bar',
+            ],
+            'options' => [
+                'visibility' => 'private',
+            ],
+        ];
+
+        $client = new S3Client([
+            'region' => 'local',
+            'pathStyleEndpoint' => '1',
+            'accessKeyId' => 'foo',
+            'accessKeySecret' => 'bar',
+        ]);
+
+        static::assertEquals(
+            new AsyncAwsS3Adapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
+            (new AwsS3v3Factory())->create($config)
+        );
+    }
 }

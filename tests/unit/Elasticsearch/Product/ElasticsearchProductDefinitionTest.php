@@ -17,13 +17,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\TestDefaults;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
+use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticSalesChannelLanguageLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -38,6 +42,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         'properties' => [
             'lang_en' => [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -52,6 +57,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             'lang_de' => [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -69,10 +75,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     private const SEARCHABLE_MAPPING = [
         'type' => 'keyword',
+        'ignore_above' => 10000,
         'normalizer' => 'sw_lowercase_normalizer',
         'fields' => [
             'search' => [
                 'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
             ],
             'ngram' => [
                 'type' => 'text',
@@ -103,6 +111,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            'lang_en' => [TestDefaults::SALES_CHANNEL],
+            'lang_de' => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $parameterBag = new ParameterBag([
             'elasticsearch.product.custom_fields_mapping' => [
                 'bool' => CustomFieldTypes::BOOL,
@@ -122,43 +135,23 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
+            $salesChannelLanguageLoader,
             false,
             'dev'
         );
 
         $expectedMapping = [
             'properties' => [
-                'id' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'parentId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'categoryTree' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'categoryIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'propertyIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'optionIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'tagIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'categoryTree' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'categoryIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'propertyIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'optionIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'tagIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'active' => [
                     'type' => 'boolean',
                 ],
@@ -171,10 +164,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'categoriesRo' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         '_count' => [
                             'type' => 'long',
                         ],
@@ -183,10 +173,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'categories' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                         '_count' => [
                             'type' => 'long',
@@ -203,10 +190,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'description' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                 'metaTitle' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                 'metaDescription' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                'displayGroup' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'displayGroup' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'ean' => self::SEARCHABLE_MAPPING,
                 'height' => [
                     'type' => 'double',
@@ -217,10 +201,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'manufacturer' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                         '_count' => [
                             'type' => 'long',
@@ -234,15 +215,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'options' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                        'groupId' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'groupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         '_count' => [
                             'type' => 'long',
                         ],
@@ -252,22 +227,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'properties' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                        'groupId' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'groupId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'group' => [
                             'type' => 'nested',
                             'properties' => [
-                                'id' => [
-                                    'type' => 'keyword',
-                                    'normalizer' => 'sw_lowercase_normalizer',
-                                ],
+                                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                                 '_count' => [
                                     'type' => 'long',
                                 ],
@@ -303,17 +269,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'shippingFree' => [
                     'type' => 'boolean',
                 ],
-                'taxId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'taxId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'tags' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'name' => self::SEARCHABLE_MAPPING,
                         '_count' => [
                             'type' => 'long',
@@ -323,10 +283,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'visibilities' => [
                     'type' => 'nested',
                     'properties' => [
-                        'salesChannelId' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'sw_lowercase_normalizer',
-                        ],
+                        'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                         'visibility' => [
                             'type' => 'long',
                         ],
@@ -335,10 +292,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'coverId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'coverId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'weight' => [
                     'type' => 'double',
                 ],
@@ -360,14 +314,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 'customSearchKeywords' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                'states' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'manufacturerId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ],
             'dynamic_templates' => [
                 ['cheapest_price' => [
@@ -415,6 +363,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
+        $salesChannelLoader = new StaticSalesChannelLanguageLoader([
+            'lang_en' => [TestDefaults::SALES_CHANNEL],
+            'lang_de' => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $parameterBag = new ParameterBag([
             'elasticsearch.product.custom_fields_mapping' => [
                 'bool' => CustomFieldTypes::BOOL,
@@ -433,9 +386,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $instanceRegistry->get(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
+            $salesChannelLoader,
             false,
             'dev'
         );
@@ -453,9 +407,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -464,9 +422,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -478,9 +440,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -489,9 +455,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],
@@ -510,9 +480,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $esDefinition = new ElasticsearchProductDefinition(
             $definition,
             $this->createMock(Connection::class),
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
             $this->createMock(ElasticsearchFieldMapper::class),
+            $this->createMock(SalesChannelLanguageLoader::class),
             false,
             'dev'
         );
@@ -522,7 +493,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
     {
-        $searchQueryBuilder = $this->createMock(AbstractProductSearchQueryBuilder::class);
+        $searchQueryBuilder = $this->createMock(ProductSearchQueryBuilder::class);
         $boolQuery = new BoolQuery();
         $boolQuery->add(new MatchQuery('name', 'test'));
         $searchQueryBuilder
@@ -543,6 +514,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $searchQueryBuilder,
             $fieldBuilder,
             $fieldMapper,
+            $this->createMock(SalesChannelLanguageLoader::class),
             false,
             'dev'
         );
@@ -568,13 +540,18 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $definition);
 
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $connection = $this->getConnection();
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
             $this->createMock(ElasticsearchFieldMapper::class),
+            $salesChannelLanguageLoader,
             false,
             'dev'
         );
@@ -693,6 +670,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
         $parameterBag = new ParameterBag([
             'elasticsearch.product.custom_fields_mapping' => ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
         ]);
@@ -706,9 +687,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $instanceRegistry->get(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
+            $salesChannelLanguageLoader,
             false,
             'dev'
         );
@@ -746,11 +728,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'shippingFree' => true,
                         'markAsTopseller' => true,
                         'availableStock' => 5,
-                        'translation' => '[{"languageId": null, "name": null}, {"languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Test", "customFields": {"bool": "1", "int": 2, "unknown": "foo"}}]',
-                        'translation_parent' => '{}',
-                        'manufacturer_translation' => '{}',
                         'tags' => '{}',
-                        'categories' => '[{"id": null, "languageId": null, "name": null}, {"id": 1, "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Cat Test"}]',
                         'ratingAverage' => 4,
                         'sales' => 4,
                         'stock' => 4,
@@ -768,6 +746,15 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
                         'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                         'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
+                    ],
+                ],
+                [
+                    $this->ids->get('product-1') => [
+                        'id' => $this->ids->get('product-1'),
+                        'name' => 'Test',
+                        'customFields' => '{"bool": "1", "int": 2, "unknown": "foo"}',
+                        'manufacturerName' => 'Shopware AG',
+                        'categories' => '[{"id": null, "languageId": null, "name": null}, {"id": 1, "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Cat Test"}]',
                     ],
                 ],
                 [

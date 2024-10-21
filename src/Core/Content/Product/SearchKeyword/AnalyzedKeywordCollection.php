@@ -23,7 +23,7 @@ class AnalyzedKeywordCollection extends Collection
     }
 
     /**
-     * @param string|int      $key
+     * @param string|int $key
      * @param AnalyzedKeyword $element
      */
     public function set($key, $element): void

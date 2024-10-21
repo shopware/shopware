@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -30,7 +31,7 @@ class DiscountFixedUnitPriceCalculator
         $priceDefinition = $discount->getPriceDefinition();
 
         if (!$priceDefinition instanceof AbsolutePriceDefinition) {
-            throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
+            throw PromotionException::invalidPriceDefinition($discount->getLabel(), $discount->getCode());
         }
 
         $fixedUnitPrice = abs($priceDefinition->getPrice());

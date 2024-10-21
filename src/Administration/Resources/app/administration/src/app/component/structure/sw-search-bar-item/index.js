@@ -18,11 +18,33 @@ const { Component, Application } = Shopware;
 Component.register('sw-search-bar-item', {
     template,
 
-    inject: [
-        'searchTypeService',
-        'feature',
-        'recentlySearchService',
-    ],
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        searchTypeService: 'searchTypeService',
+        feature: 'feature',
+        recentlySearchService: 'recentlySearchService',
+        searchBarOnMouseOver: {
+            from: 'searchBarOnMouseOver',
+            default: null,
+        },
+        searchBarRegisterActiveItemIndexSelectHandler: {
+            from: 'searchBarRegisterActiveItemIndexSelectHandler',
+            default: null,
+        },
+        searchBarUnregisterActiveItemIndexSelectHandler: {
+            from: 'searchBarUnregisterActiveItemIndexSelectHandler',
+            default: null,
+        },
+        searchBarRegisterKeyupEnterHandler: {
+            from: 'searchBarRegisterKeyupEnterHandler',
+            default: null,
+        },
+        searchBarUnregisterKeyupEnterHandler: {
+            from: 'searchBarUnregisterKeyupEnterHandler',
+            default: null,
+        },
+    },
 
     props: {
         item: {
@@ -107,11 +129,11 @@ Component.register('sw-search-bar-item', {
                 return this.$tc(`${title}`, 2);
             }
 
-            return action ? this.$tc(
-                'global.sw-search-bar-item.addNewEntity',
-                0,
-                { entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase() },
-            ) : label;
+            return action
+                ? this.$tc('global.sw-search-bar-item.addNewEntity', 0, {
+                      entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
+                  })
+                : label;
         },
 
         routeName() {
@@ -119,13 +141,19 @@ Component.register('sw-search-bar-item', {
         },
 
         iconName() {
-            return ['module', 'frequently_used'].includes(this.type) && this.item?.icon
+            return [
+                'module',
+                'frequently_used',
+            ].includes(this.type) && this.item?.icon
                 ? this.item.icon
                 : this.entityIconName;
         },
 
         iconColor() {
-            return ['module', 'frequently_used'].includes(this.type) && this.item?.color
+            return [
+                'module',
+                'frequently_used',
+            ].includes(this.type) && this.item?.color
                 ? this.item.color
                 : this.entityIconColor;
         },
@@ -137,10 +165,7 @@ Component.register('sw-search-bar-item', {
                 return false;
             }
 
-            return this.$tc(
-                `global.sw-search-bar-item.shortcuts.${name}`,
-                action ? 2 : 1,
-            );
+            return this.$tc(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
         },
 
         productDisplayName() {
@@ -189,21 +214,31 @@ Component.register('sw-search-bar-item', {
         },
 
         registerEvents() {
-            let parent = this.$parent;
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                let parent = this.$parent;
 
-            parent = this.$parent.$parent;
+                parent = this.$parent.$parent;
 
-            parent.$on('active-item-index-select', this.checkActiveState);
-            parent.$on('keyup-enter', this.onEnter);
+                parent.$on('active-item-index-select', this.checkActiveState);
+                parent.$on('keyup-enter', this.onEnter);
+            } else {
+                this.searchBarRegisterActiveItemIndexSelectHandler(this.checkActiveState);
+                this.searchBarRegisterKeyupEnterHandler(this.onEnter);
+            }
         },
 
         removeEvents() {
-            let parent = this.$parent;
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                let parent = this.$parent;
 
-            parent = this.$parent.$parent;
+                parent = this.$parent.$parent;
 
-            parent.$off('active-item-index-select', this.checkActiveState);
-            parent.$off('keyup-enter', this.onEnter);
+                parent.$off('active-item-index-select', this.checkActiveState);
+                parent.$off('keyup-enter', this.onEnter);
+            } else {
+                this.searchBarUnregisterActiveItemIndexSelectHandler(this.checkActiveState);
+                this.searchBarUnregisterKeyupEnterHandler(this.onEnter);
+            }
         },
 
         checkActiveState({ index, column }) {
@@ -227,15 +262,23 @@ Component.register('sw-search-bar-item', {
         },
 
         onMouseEnter(originalDomEvent) {
-            let parent = this.$parent;
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                let parent = this.$parent;
 
-            parent = this.$parent.$parent;
+                parent = this.$parent.$parent;
 
-            parent.$emit('mouse-over', {
-                originalDomEvent,
-                index: this.index,
-                column: this.column,
-            });
+                parent.$emit('mouse-over', {
+                    originalDomEvent,
+                    index: this.index,
+                    column: this.column,
+                });
+            } else {
+                this.searchBarOnMouseOver({
+                    originalDomEvent,
+                    index: this.index,
+                    column: this.column,
+                });
+            }
 
             this.isActive = true;
         },

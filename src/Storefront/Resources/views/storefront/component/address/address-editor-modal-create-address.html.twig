@@ -64,7 +64,8 @@
                                     'parentSelector': 'form',
                                     'showFormCompany': true,
                                     'showNoShippingPostfix': true,
-                                    'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false
+                                    'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false,
+                                    scopeElementSelector: '.address-editor-create-address-wrapper',
                                 } %}
                             {% endblock %}
 

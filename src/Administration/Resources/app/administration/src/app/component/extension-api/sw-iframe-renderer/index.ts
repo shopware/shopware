@@ -15,6 +15,8 @@ import './sw-iframe-renderer.scss';
 Shopware.Component.register('sw-iframe-renderer', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['extensionSdkService'],
 
     props: {
@@ -34,11 +36,11 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     data(): {
-        heightHandler: null | (() => void),
-        urlHandler: null | (() => void),
-        locationHeight: null | number,
-        signedIframeSrc: null | string,
-        } {
+        heightHandler: null | (() => void);
+        urlHandler: null | (() => void);
+        locationHeight: null | number;
+        signedIframeSrc: null | string;
+    } {
         return {
             heightHandler: null,
             urlHandler: null,
@@ -54,41 +56,41 @@ Shopware.Component.register('sw-iframe-renderer', {
             }
         });
 
-        this.urlHandler = Shopware.ExtensionAPI.handle('locationUpdateUrl', async ({
-            hash,
-            pathname,
-            searchParams,
-            locationId,
-        }) => {
-            if (locationId !== this.locationId) {
-                return;
-            }
+        this.urlHandler = Shopware.ExtensionAPI.handle(
+            'locationUpdateUrl',
+            async ({ hash, pathname, searchParams, locationId }) => {
+                if (locationId !== this.locationId) {
+                    return;
+                }
 
-            const filteredSearchParams = JSON.stringify(searchParams.filter(([key]) => {
-                return ![
-                    'location-id',
-                    'privileges',
-                    'shop-id',
-                    'shop-url',
-                    'timestamp',
-                    'sw-version',
-                    'sw-context-language',
-                    'sw-user-language',
-                    'shopware-shop-signature',
-                ].includes(key);
-            }));
+                const filteredSearchParams = JSON.stringify(
+                    searchParams.filter(([key]) => {
+                        return ![
+                            'location-id',
+                            'privileges',
+                            'shop-id',
+                            'shop-url',
+                            'timestamp',
+                            'sw-version',
+                            'sw-context-language',
+                            'sw-user-language',
+                            'shopware-shop-signature',
+                        ].includes(key);
+                    }),
+                );
 
-            await this.$router.replace({
-                query: {
-                    [this.locationIdHashQueryKey]: hash,
-                    [this.locationIdPathnameQueryKey]: pathname,
-                    [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
-                },
-            });
-        });
+                await this.$router.replace({
+                    query: {
+                        [this.locationIdHashQueryKey]: hash,
+                        [this.locationIdPathnameQueryKey]: pathname,
+                        [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
+                    },
+                });
+            },
+        );
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.heightHandler) {
             this.heightHandler();
         }
@@ -111,7 +113,7 @@ Shopware.Component.register('sw-iframe-renderer', {
             return `locationId_${this.locationId}_searchParams`;
         },
 
-        componentName(): string|undefined {
+        componentName(): string | undefined {
             return Shopware.State.get('sdkLocation').locations[this.locationId];
         },
 
@@ -171,38 +173,46 @@ Shopware.Component.register('sw-iframe-renderer', {
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-            this.extensionSdkService.signIframeSrc(this.extension.name, this.iFrameSrc).then((response) => {
-                const uri = (response as { uri?: string})?.uri;
+            this.extensionSdkService
+                .signIframeSrc(this.extension.name, this.iFrameSrc)
+                .then((response) => {
+                    const uri = (response as { uri?: string })?.uri;
 
-                if (!uri) {
-                    return;
-                }
+                    if (!uri) {
+                        return;
+                    }
 
-                // add information from query with hash, pathname and queries
-                const urlObject = new URL(uri);
-                const hash = this.$route.query[this.locationIdHashQueryKey];
-                const pathname = this.$route.query[this.locationIdPathnameQueryKey];
-                const searchParams = this.$route.query[this.locationIdSearchParamsQueryKey];
+                    // add information from query with hash, pathname and queries
+                    const urlObject = new URL(uri);
+                    const hash = this.$route.query[this.locationIdHashQueryKey];
+                    const pathname = this.$route.query[this.locationIdPathnameQueryKey];
+                    const searchParams = this.$route.query[this.locationIdSearchParamsQueryKey];
 
-                if (hash) {
-                    urlObject.hash = hash as string;
-                }
+                    if (hash) {
+                        urlObject.hash = hash as string;
+                    }
 
-                if (pathname) {
-                    urlObject.pathname = pathname as string;
-                }
+                    if (pathname) {
+                        urlObject.pathname = pathname as string;
+                    }
 
-                if (searchParams) {
-                    const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
+                    if (searchParams) {
+                        const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
 
-                    parsedSearchParams.forEach(([key, value]) => {
-                        urlObject.searchParams.append(key, value);
-                    });
-                }
+                        parsedSearchParams.forEach(
+                            ([
+                                key,
+                                value,
+                            ]) => {
+                                urlObject.searchParams.append(key, value);
+                            },
+                        );
+                    }
 
-                this.signedIframeSrc = urlObject.toString();
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-            }).catch(() => {});
+                    this.signedIframeSrc = urlObject.toString();
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                })
+                .catch(() => {});
         },
     },
 });

@@ -54,7 +54,7 @@ class ChangelogCheckCommand extends Command
                 $IOHelper->writeln(array_map(static fn ($message) => '* ' . $message, $violations));
                 $IOHelper->newLine();
             }
-            $IOHelper->error(sprintf('You have %d syntax errors in changelog files.', $errorCount));
+            $IOHelper->error(\sprintf('You have %d syntax errors in changelog files.', $errorCount));
 
             return self::FAILURE;
         }

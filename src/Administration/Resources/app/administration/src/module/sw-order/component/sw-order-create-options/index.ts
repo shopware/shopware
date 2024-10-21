@@ -5,11 +5,7 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-create-options.html.twig';
 import './sw-order-create-options.scss';
 
-import type {
-    ContextSwitchParameters,
-    Cart,
-    CartDelivery,
-} from '../../order.types';
+import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
 
 /**
  * @package checkout
@@ -21,6 +17,8 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         promotionCodes: {
@@ -40,10 +38,10 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        shippingCost: number,
-        promotionCodeTags: string[],
-        isSameAsBillingAddress: boolean,
-        } {
+        shippingCost: number;
+        promotionCodeTags: string[];
+        isSameAsBillingAddress: boolean;
+    } {
         return {
             shippingCost: 0,
             isSameAsBillingAddress: false,
@@ -138,6 +136,14 @@ export default Component.wrapComponentConfig({
             async handler(): Promise<void> {
                 await this.updateCartContext();
             },
+        },
+
+        'context.languageId'(languageId: string) {
+            if (!languageId) {
+                return;
+            }
+
+            State.commit('context/setLanguageId', languageId);
         },
 
         isSameAsBillingAddress(value): void {

@@ -33,7 +33,7 @@
                     class="sw-order-create-initial-modal__tab-product"
                     name="products"
                     :active-tab="active"
-                    :disabled="!customer"
+                    :disabled="!customer || undefined"
                 >
                     {{ $tc('sw-order.initialModal.tabProducts') }}
                 </sw-tabs-item>
@@ -45,7 +45,7 @@
                     class="sw-order-create-initial-modal__tab-options"
                     name="options"
                     :active-tab="active"
-                    :disabled="!customer"
+                    :disabled="!customer || undefined"
                 >
                     {{ $tc('sw-order.initialModal.tabOptions') }}
                 </sw-tabs-item>
@@ -84,7 +84,7 @@
                     {% block sw_order_create_modal_tabs_content_options %}
                     <sw-order-create-options
                         v-if="active === 'options'"
-                        :disabled="!customer"
+                        :disabled="!customer || undefined"
                         :disabled-auto-promotion="disabledAutoPromotion"
                         :promotion-codes="promotionCodes"
                         :context="context"
@@ -118,7 +118,7 @@
             class="sw-order-create-initial-modal__button-preview"
             size="small"
             variant="primary"
-            :disabled="!customer"
+            :disabled="!customer || undefined"
             :is-loading="isLoading"
             @click="onPreviewOrder"
         >

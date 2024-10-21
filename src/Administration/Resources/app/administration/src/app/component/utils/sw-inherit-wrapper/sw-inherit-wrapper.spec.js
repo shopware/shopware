@@ -10,6 +10,13 @@ async function createWrapper(options = {}) {
     });
 }
 
+const createWrapperGlobalValue = {
+    stubs: {
+        'sw-inheritance-switch': true,
+        'sw-help-text': true,
+    },
+};
+
 describe('src/app/component/utils/sw-inherit-wrapper', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper({
@@ -17,6 +24,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
                 value: 1,
                 inheritedValue: 2,
             },
+            global: createWrapperGlobalValue,
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -29,6 +37,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
                 inheritedValue: 2,
                 hasParent: true,
             },
+            global: createWrapperGlobalValue,
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -42,6 +51,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
                 inheritedValue: 1,
                 hasParent: true,
             },
+            global: createWrapperGlobalValue,
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -57,6 +67,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
                     detail: 'Whoops',
                 },
             },
+            global: createWrapperGlobalValue,
         });
 
         expect(wrapper.vm).toBeTruthy();

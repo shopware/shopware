@@ -10,32 +10,42 @@ async function createWrapper(customPropsData = {}) {
         languageId: '1a2b3c',
     };
 
-    return mount(await wrapTestComponent('sw-many-to-many-assignment-card', { sync: true }), {
-        props: {
-            columns: [],
-            entityCollection: entityCollection,
-            localMode: true,
-            ...customPropsData,
-        },
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>',
-                },
-                'sw-select-base': {
-                    template: '<div class="sw-select-base"></div>',
-                },
-                'sw-data-grid': {
-                    template: '<div><slot name="actions"></slot></div>',
-                },
-                'sw-context-menu': true,
-                'sw-context-menu-item': true,
+    return mount(
+        await wrapTestComponent('sw-many-to-many-assignment-card', {
+            sync: true,
+        }),
+        {
+            props: {
+                columns: [],
+                entityCollection: entityCollection,
+                localMode: true,
+                ...customPropsData,
             },
-            provide: {
-                repositoryFactory: {},
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div><slot></slot><slot name="grid"></slot></div>',
+                    },
+                    'sw-select-base': {
+                        template: '<div class="sw-select-base"></div>',
+                    },
+                    'sw-data-grid': {
+                        template: '<div><slot name="actions"></slot></div>',
+                    },
+                    'sw-context-menu': true,
+                    'sw-context-menu-item': true,
+                    'sw-icon': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-pagination': true,
+                },
+                provide: {
+                    repositoryFactory: {},
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {

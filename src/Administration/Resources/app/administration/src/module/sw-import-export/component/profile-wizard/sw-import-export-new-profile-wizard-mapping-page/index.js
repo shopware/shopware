@@ -10,9 +10,13 @@ import './sw-import-export-new-profile-wizard-mapping-page.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],
+
+    emits: ['next-allow'],
 
     props: {
         profile: {
@@ -44,8 +48,11 @@ export default {
         },
 
         mergeMappings() {
-            const requiredMappings = Object.entries(this.systemRequiredFields).map(mapping => {
-                const [key, mappedKey] = mapping;
+            const requiredMappings = Object.entries(this.systemRequiredFields).map((mapping) => {
+                const [
+                    key,
+                    mappedKey,
+                ] = mapping;
 
                 return { key, mappedKey };
             });

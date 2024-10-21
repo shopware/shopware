@@ -8,7 +8,14 @@ import template from './sw-order-document-settings-storno-modal.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: [
+        'loading-document',
+        'loading-preview',
+    ],
 
     props: {
         order: {
@@ -53,15 +60,13 @@ export default {
 
     methods: {
         createdComponent() {
-            this.numberRangeService.reserve(
-                `document_${this.currentDocumentType.technicalName}`,
-                this.order.salesChannelId,
-                true,
-            ).then((response) => {
-                this.documentConfig.documentNumber = response.number;
-                this.documentNumberPreview = this.documentConfig.documentNumber;
-                this.documentConfig.documentDate = (new Date()).toISOString();
-            });
+            this.numberRangeService
+                .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, true)
+                .then((response) => {
+                    this.documentConfig.documentNumber = response.number;
+                    this.documentNumberPreview = this.documentConfig.documentNumber;
+                    this.documentConfig.documentDate = new Date().toISOString();
+                });
         },
 
         onCreateDocument(additionalAction = false) {
@@ -72,20 +77,18 @@ export default {
             })[0];
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService.reserve(
-                    `document_${this.currentDocumentType.technicalName}`,
-                    this.order.salesChannelId,
-                    false,
-                ).then((response) => {
-                    this.documentConfig.custom.stornoNumber = response.number;
-                    if (response.number !== this.documentConfig.documentNumber) {
-                        this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                        });
-                    }
-                    this.documentConfig.documentNumber = response.number;
-                    this.callDocumentCreate(additionalAction, selectedInvoice.id);
-                });
+                this.numberRangeService
+                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
+                    .then((response) => {
+                        this.documentConfig.custom.stornoNumber = response.number;
+                        if (response.number !== this.documentConfig.documentNumber) {
+                            this.createNotificationInfo({
+                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                            });
+                        }
+                        this.documentConfig.documentNumber = response.number;
+                        this.callDocumentCreate(additionalAction, selectedInvoice.id);
+                    });
             } else {
                 this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
                 this.callDocumentCreate(additionalAction, selectedInvoice.id);

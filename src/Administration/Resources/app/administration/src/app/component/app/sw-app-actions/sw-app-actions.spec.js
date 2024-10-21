@@ -19,8 +19,10 @@ Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 
 describe('sw-app-actions', () => {
     let wrapper = null;
+    let router = null;
     let stubs;
 
+    // eslint-disable-next-line no-shadow
     async function createWrapper(router, resultData = actionResultData) {
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;
@@ -92,15 +94,28 @@ describe('sw-app-actions', () => {
                 template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
             },
             'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
+            'sw-checkbox-field': true,
+            'mt-button': true,
+            'sw-button-deprecated': true,
+            'mt-floating-ui': true,
         };
+
+        router = createRouter();
     });
 
     beforeEach(async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+        }
     });
 
     it('should be a Vue.js component', async () => {
-        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
@@ -108,13 +123,14 @@ describe('sw-app-actions', () => {
 
         expect(wrapper.vm).toBeTruthy();
 
-        expect(wrapper.classes()).toEqual(expect.arrayContaining([
-            'sw-app-actions',
-        ]));
+        expect(wrapper.classes()).toEqual(
+            expect.arrayContaining([
+                'sw-app-actions',
+            ]),
+        );
     });
 
     it('creates an sw-app-action-button per action', async () => {
-        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
@@ -132,17 +148,16 @@ describe('sw-app-actions', () => {
     });
 
     it('is not rendered if action buttons is empty', async () => {
-        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.list' });
         await flushPromises();
 
-        expect(wrapper.vm.$children).toHaveLength(0);
+        const emptyState = wrapper.find('.sw-app-actions__empty');
+        expect(emptyState.exists()).toBe(true);
     });
 
-    it('throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
-        const router = createRouter();
+    it('should throw a notification if appActionButtonService.appActionButtonService throws an error', async () => {
         wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -155,11 +170,11 @@ describe('sw-app-actions', () => {
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-app.component.sw-app-actions.messageErrorFetchButtons',
         });
-        expect(wrapper.vm.$children).toHaveLength(0);
+        const emptyState = wrapper.find('.sw-app-actions__empty');
+        expect(emptyState.exists()).toBe(true);
     });
 
     it('ignores pages where entity and view are not set', async () => {
-        const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -169,11 +184,11 @@ describe('sw-app-actions', () => {
         const notificationMock = wrapper.vm.createNotificationError;
 
         expect(notificationMock).toHaveBeenCalledTimes(0);
-        expect(wrapper.vm.$children).toHaveLength(0);
+        const emptyState = wrapper.find('.sw-app-actions__empty');
+        expect(emptyState.exists()).toBe(true);
     });
 
     it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
-        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
@@ -210,7 +225,6 @@ describe('sw-app-actions', () => {
     });
 
     it('calls appActionButtonService.runAction with correct response', async () => {
-        const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
@@ -236,7 +250,6 @@ describe('sw-app-actions', () => {
     });
 
     it('calls appActionButtonService.runAction with open modal response', async () => {
-        const router = createRouter();
         const openModalResponseData = {
             data: {
                 actionType: 'openModal',

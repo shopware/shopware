@@ -61,6 +61,8 @@ class LineItem extends Struct
 
     protected bool $modified = false;
 
+    protected bool $shippingCostAware = true;
+
     /**
      * The data timestamp can be used to record when the line item was last updated with data from the database.
      * Updating the data timestamp must be done by the corresponding cart data collector.
@@ -551,6 +553,37 @@ class LineItem extends Struct
     public function isModifiedByApp(): bool
     {
         return $this->modifiedByApp;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getHashContent(): array
+    {
+        $content = [
+            'quantity' => $this->getQuantity(),
+            'price' => $this->getPrice()?->getTotalPrice(),
+            'referenceId' => $this->getReferencedId(),
+            'children' => [],
+        ];
+
+        foreach ($this->getChildren() as $child) {
+            $content['children'][$child->getId()] = $child->getHashContent();
+        }
+
+        return $content;
+    }
+
+    public function setShippingCostAware(bool $shippingCostAware): self
+    {
+        $this->shippingCostAware = $shippingCostAware;
+
+        return $this;
+    }
+
+    public function isShippingCostAware(): bool
+    {
+        return $this->shippingCostAware;
     }
 
     public function jsonSerialize(): array

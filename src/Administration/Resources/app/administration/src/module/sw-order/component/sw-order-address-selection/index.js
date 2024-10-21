@@ -15,7 +15,11 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['change-address'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -77,10 +81,7 @@ export default {
         },
 
         addressRepository() {
-            return this.repositoryFactory.create(
-                this.customer.addresses.entity,
-                this.customer.addresses.source,
-            );
+            return this.repositoryFactory.create(this.customer.addresses.entity, this.customer.addresses.source);
         },
 
         customerRepository() {
@@ -100,35 +101,34 @@ export default {
 
         customFieldSetCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
-                .addAssociation('customFields');
+            criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address')).addAssociation('customFields');
 
             return criteria;
         },
+
         addressOptions() {
-            const addresses = (this.customer?.addresses || []).map(item => {
+            const addresses = (this.customer?.addresses || []).map((item) => {
                 return {
-                    label: `${item.street}, ${item.zipcode} ${item.city}, ${item.country?.translated?.name}`,
+                    label: this.addressLabel(item),
                     ...item,
                 };
             });
 
             // eslint-disable-next-line no-unused-expressions
-            this.address && addresses.unshift({
-                label: this.address?.zipCode !== null
-                    // eslint-disable-next-line max-len
-                    ? `${this.address.street}, ${this.address.zipcode} ${this.address.city}, ${this.address?.country?.translated?.name}`
-                    : `${this.address.street}, ${this.address.city}, ${this.address?.country?.translated?.name}`,
-                ...this.address,
-            });
+            this.address &&
+                addresses.unshift({
+                    label: this.addressLabel(this.address),
+                    ...this.address,
+                });
+
             return addresses;
         },
 
         modalTitle() {
             return this.$tc(
-                `sw-order.addressSelection.${this.currentAddress?._isNew
-                    ? 'modalTitleEditAddress'
-                    : 'modalTitleSelectAddress'}`,
+                `sw-order.addressSelection.${
+                    this.currentAddress?._isNew ? 'modalTitleEditAddress' : 'modalTitleSelectAddress'
+                }`,
             );
         },
 
@@ -148,9 +148,6 @@ export default {
         },
 
         onEditAddress(id) {
-            // set address selected
-            this.orderAddressId = id;
-
             if (id === this.address.id) {
                 this.currentAddress = this.address;
                 return;
@@ -179,13 +176,18 @@ export default {
 
             // edit order address
             if (this.currentAddress.id === this.address.id) {
-                return this.orderRepository.save(this.order, this.versionContext).then(() => {
-                    this.currentAddress = null;
-                }).catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-order.detail.messageSaveError'),
+                return this.orderRepository
+                    .save(this.order, this.versionContext)
+                    .then(() => {
+                        this.currentAddress = null;
+
+                        this.onAddressChange(this.address.id, true);
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: this.$tc('sw-order.detail.messageSaveError'),
+                        });
                     });
-                });
             }
 
             if (!this.isValidAddress(this.currentAddress)) {
@@ -196,7 +198,8 @@ export default {
                 return Promise.reject();
             }
 
-            const address = this.customer.addresses.get(this.currentAddress.id) ??
+            const address =
+                this.customer.addresses.get(this.currentAddress.id) ??
                 this.addressRepository.create(Shopware.Context.api, this.currentAddress.id);
 
             Object.assign(address, this.currentAddress);
@@ -216,7 +219,7 @@ export default {
             const ignoreFields = ['createdAt'];
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
 
-            return requiredAddressFields.every(field => (ignoreFields.indexOf(field) !== -1) || required(address[field]));
+            return requiredAddressFields.every((field) => ignoreFields.indexOf(field) !== -1 || required(address[field]));
         },
 
         onChangeDefaultAddress(data) {
@@ -244,11 +247,12 @@ export default {
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
         },
 
-        onAddressChange(customerAddressId) {
+        onAddressChange(customerAddressId, edited = false) {
             this.$emit('change-address', {
                 orderAddressId: this.orderAddressId,
                 customerAddressId: customerAddressId,
                 type: this.type,
+                edited,
             });
         },
 
@@ -257,21 +261,34 @@ export default {
                 return Promise.reject();
             }
 
-            return this.customerRepository.get(
-                this.orderCustomer.customerId,
-                Shopware.Context.api,
-                this.customerCriteria,
-            ).then((customer) => {
-                this.customer = customer;
-            });
+            return this.customerRepository
+                .get(this.orderCustomer.customerId, Shopware.Context.api, this.customerCriteria)
+                .then((customer) => {
+                    this.customer = customer;
+                });
         },
 
         getCustomFieldSet() {
-            return this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
-                .then((customFieldSets) => {
-                    this.customerAddressCustomFieldSets = customFieldSets;
-                });
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
+                this.customerAddressCustomFieldSets = customFieldSets;
+            });
+        },
+
+        addressLabel(address) {
+            const label = [
+                [
+                    address.company,
+                    address.department,
+                ]
+                    .filter((v) => v)
+                    .join(' - '),
+                address.street,
+                `${address.zipcode ?? ''} ${address.city}`.trim(),
+                address?.countryState?.translated?.name,
+                address?.country?.translated?.name,
+            ];
+
+            return label.filter((v) => v).join(', ');
         },
     },
 };

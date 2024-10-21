@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -16,6 +17,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
@@ -77,7 +79,8 @@ class TranslatorTest extends TestCase
             $connection,
             $localeCodeProvider,
             $snippetServiceMock,
-            false
+            false,
+            new EventDispatcher()
         );
 
         $item = new CacheItem();
@@ -139,7 +142,8 @@ class TranslatorTest extends TestCase
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $this->createMock(SnippetService::class),
-            false
+            false,
+            new EventDispatcher()
         );
 
         $snippetSetId = $translator->getSnippetSetId($locale);
@@ -161,8 +165,8 @@ class TranslatorTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::exactly(3))->method('fetchFirstColumn')->willReturn([$injectSnippetSetId, $domainSnippetSetId]);
 
-        $key1 = sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $injectSnippetSetId);
-        $key2 = sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $domainSnippetSetId);
+        $key1 = \sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $injectSnippetSetId);
+        $key2 = \sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $domainSnippetSetId);
         $snippetService = $this->createMock(SnippetService::class);
         $snippetService->expects(static::once())->method('findSnippetSetId')->with(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB')->willReturn($injectSnippetSetId);
 
@@ -178,7 +182,8 @@ class TranslatorTest extends TestCase
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $snippetService,
-            false
+            false,
+            new EventDispatcher()
         );
 
         $translator->injectSettings(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
@@ -202,7 +207,7 @@ class TranslatorTest extends TestCase
         yield 'without request' => [
             $snippetSetId,
             null,
-            sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
         ];
         yield 'without snippetSetId' => [
             null,
@@ -213,13 +218,13 @@ class TranslatorTest extends TestCase
         yield 'without salesChannelId' => [
             $snippetSetId,
             self::createRequest(null, $snippetSetId),
-            sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
         ];
 
         yield 'with injectSettings' => [
             $snippetSetId,
             null,
-            sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
+            \sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
             $salesChannelId, // Inject salesChannelId using injectSettings method
         ];
     }
@@ -290,6 +295,8 @@ class TranslatorTest extends TestCase
     #[DataProvider('provideTracingExamples')]
     public function testTracing(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $translator = new Translator(
             $this->createMock(SymfonyTranslator::class),
             new RequestStack(),
@@ -299,7 +306,8 @@ class TranslatorTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(LanguageLocaleCodeProvider::class),
             $this->createMock(SnippetService::class),
-            $enabled
+            $enabled,
+            new EventDispatcher()
         );
 
         $translator->trace('foo', function () use ($translator) {

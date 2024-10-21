@@ -1,24 +1,30 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/placeholder.mixin';
 import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount({
-        template: `
+    return shallowMount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('placeholder'),
-        ],
-        data() {
-            return {
-                name: 'sw-mock-field',
-            };
+            mixins: [
+                Shopware.Mixin.getByName('placeholder'),
+            ],
+            data() {
+                return {
+                    name: 'sw-mock-field',
+                };
+            },
         },
-    }, {
-        attachTo: document.body,
-    });
+        {
+            attachTo: document.body,
+        },
+    );
 }
 
 describe('src/app/mixin/placeholder.mixin.ts', () => {
@@ -99,11 +105,19 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
             ],
             'fallbackSnippet',
         ],
-    ].forEach(([args, expected], index) => {
-        it(`${index}: should return the correct placeholder result: "${expected}"`, () => {
-            const result = wrapper.vm.placeholder(...args);
+    ].forEach(
+        (
+            [
+                args,
+                expected,
+            ],
+            index,
+        ) => {
+            it(`${index}: should return the correct placeholder result: "${expected}"`, () => {
+                const result = wrapper.vm.placeholder(...args);
 
-            expect(result).toBe(expected);
-        });
-    });
+                expect(result).toBe(expected);
+            });
+        },
+    );
 });

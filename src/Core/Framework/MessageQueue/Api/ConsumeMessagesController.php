@@ -23,7 +23,7 @@ use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ConsumeMessagesController extends AbstractController
 {
     /**

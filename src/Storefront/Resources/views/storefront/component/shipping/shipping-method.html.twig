@@ -9,7 +9,8 @@
                                name="shippingMethodId"
                                value="{{ shipping.id }}"
                                {% if shipping.id is same as(context.shippingMethod.id) %}checked="checked"{% endif %}
-                               class="form-check-input shipping-method-input">
+                               class="form-check-input shipping-method-input"
+                               data-focus-id="{{ shipping.id }}">
                     {% endblock %}
 
                     {% block component_shipping_method_label %}
@@ -41,7 +42,7 @@
                                             {% set shippingDescription = (shippingDescription|length > 75 ? shippingDescription[:75] ~ ' ...' : shippingDescription) %}
                                         {% endif %}
 
-                                        <p title="{{ shipping.translated.description|raw }}">{{ shippingDescription }}</p>
+                                        <p class="mb-0" title="{{ shipping.translated.description|raw }}">{{ shippingDescription }}</p>
                                     {% endif %}
                                 </div>
                             {% endblock %}

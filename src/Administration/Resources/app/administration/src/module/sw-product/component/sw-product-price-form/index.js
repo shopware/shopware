@@ -12,6 +12,8 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -47,7 +49,11 @@ export default {
             'currencies',
         ]),
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
+        ...mapPropertyErrors('product', [
+            'taxId',
+            'price',
+            'purchasePrices',
+        ]),
 
         taxRateHelpText() {
             const link = {
@@ -82,8 +88,8 @@ export default {
             },
 
             set(newValue) {
-                this.product.price = (newValue?.price) || null;
-                this.product.purchasePrices = (newValue?.purchasePrices) || null;
+                this.product.price = newValue?.price || null;
+                this.product.purchasePrices = newValue?.purchasePrices || null;
             },
         },
 
@@ -140,6 +146,9 @@ export default {
             this.displayMaintainCurrencies = false;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed without replacement
+         */
         keymonitor(event) {
             if (event.key === ',') {
                 const value = event.currentTarget.value;
@@ -153,6 +162,10 @@ export default {
             }
 
             return tax.name;
+        },
+
+        updatePrices(index) {
+            this.product.price.splice(index, 1);
         },
     },
 };

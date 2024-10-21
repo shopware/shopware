@@ -10,7 +10,10 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-shopware-updates-index', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['updateService'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -39,7 +42,7 @@ Component.register('sw-settings-shopware-updates-index', {
     methods: {
         searchForUpdates() {
             this.isSearchingForUpdates = true;
-            this.updateService.checkForUpdates().then(response => {
+            this.updateService.checkForUpdates().then((response) => {
                 this.isSearchingForUpdates = false;
 
                 if (response.version) {
@@ -57,7 +60,9 @@ Component.register('sw-settings-shopware-updates-index', {
             this.updateModalShown = false;
 
             this.$nextTick(() => {
-                this.$router.push({ name: 'sw.settings.shopware.updates.wizard' });
+                this.$router.push({
+                    name: 'sw.settings.shopware.updates.wizard',
+                });
             });
         },
 
@@ -69,15 +74,18 @@ Component.register('sw-settings-shopware-updates-index', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.$refs.systemConfig.saveAll().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch((err) => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    message: err,
+            this.$refs.systemConfig
+                .saveAll()
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch((err) => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: err,
+                    });
                 });
-            });
         },
 
         onLoadingChanged(loading) {

@@ -13,7 +13,13 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

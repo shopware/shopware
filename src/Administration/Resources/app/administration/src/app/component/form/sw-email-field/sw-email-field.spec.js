@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-email-field', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-email-field-deprecated': true,
+                'mt-email-field': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

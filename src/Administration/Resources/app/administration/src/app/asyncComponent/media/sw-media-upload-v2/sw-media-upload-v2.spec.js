@@ -17,7 +17,9 @@ async function createWrapper(customOptions = {}) {
                 droppable: {},
             },
             stubs: {
-                'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+                'sw-icon': {
+                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+                },
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
@@ -33,6 +35,14 @@ async function createWrapper(customOptions = {}) {
                 'sw-field-error': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-popover': true,
+                'sw-help-text': true,
+                'mt-button': true,
+                'router-link': true,
+                'sw-loader': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
             provide: {
                 fileValidationService: new FileValidationService(),
@@ -52,11 +62,12 @@ async function createWrapper(customOptions = {}) {
                     removeListener: () => null,
                 },
                 configService: {
-                    getConfig: () => Promise.resolve({
-                        settings: {
-                            enableUrlFeature: true,
-                        },
-                    }),
+                    getConfig: () =>
+                        Promise.resolve({
+                            settings: {
+                                enableUrlFeature: true,
+                            },
+                        }),
                 },
             },
         },
@@ -81,7 +92,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         fileInputFilesGet = jest.fn();
         fileInputValueGet = jest.fn().mockReturnValue(fileInputValue);
-        fileInputValueSet = jest.fn().mockImplementation(v => {
+        fileInputValueSet = jest.fn().mockImplementation((v) => {
             fileInputValue = v;
         });
 
@@ -218,60 +229,72 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be enabled', async () => {
-        wrapper = mount({
-            template: '<sw-media-upload-v2 uploadTag="jest-upload" :addFilesOnMultiselect="true" @media-upload-sidebar-open="()=>{}"/>',
-        }, {
-            attachTo: document.body,
-            global: {
-                renderStubDefaultSlot: true,
-                directives: {
-                    droppable: {},
-                },
-                stubs: {
-                    'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                    'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-button-group': await wrapTestComponent('sw-button-group'),
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
-                    'sw-media-preview-v2': true,
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': true,
-                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-popover': true,
-                },
-                provide: {
-                    validationService: {},
-                    repositoryFactory: {
-                        create: () => ({
-                            create: () => ({}),
-                            save: () => Promise.resolve({}),
-                            saveAll: () => Promise.resolve({}),
-                        }),
+        wrapper = mount(
+            {
+                template:
+                    '<sw-media-upload-v2 uploadTag="jest-upload" :addFilesOnMultiselect="true" @media-upload-sidebar-open="()=>{}"/>',
+            },
+            {
+                attachTo: document.body,
+                global: {
+                    renderStubDefaultSlot: true,
+                    directives: {
+                        droppable: {},
                     },
-                    mediaService: {
-                        addListener: () => {},
-                        addUploads: () => Promise.resolve(),
-                        addUpload: () => Promise.resolve(),
-                        removeByTag: () => {},
-                        removeListener: () => null,
+                    stubs: {
+                        'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
+                        'sw-icon': {
+                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+                        },
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-context-button': await wrapTestComponent('sw-context-button'),
+                        'sw-button-group': await wrapTestComponent('sw-button-group'),
+                        'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                        'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
+                        'sw-media-preview-v2': true,
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': true,
+                        'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                        'sw-popover': true,
+                        'sw-help-text': true,
+                        'mt-button': true,
+                        'router-link': true,
+                        'sw-loader': true,
                     },
-                    configService: {
-                        getConfig: () => Promise.resolve({
-                            settings: {
-                                enableUrlFeature: true,
-                            },
-                        }),
+                    provide: {
+                        fileValidationService: new FileValidationService(),
+                        validationService: {},
+                        repositoryFactory: {
+                            create: () => ({
+                                create: () => ({}),
+                                save: () => Promise.resolve({}),
+                                saveAll: () => Promise.resolve({}),
+                            }),
+                        },
+                        mediaService: {
+                            addListener: () => {},
+                            addUploads: () => Promise.resolve(),
+                            addUpload: () => Promise.resolve(),
+                            removeByTag: () => {},
+                            removeListener: () => null,
+                        },
+                        configService: {
+                            getConfig: () =>
+                                Promise.resolve({
+                                    settings: {
+                                        enableUrlFeature: true,
+                                    },
+                                }),
+                        },
                     },
                 },
             },
-        });
+        );
         await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.open-media-sidebar');
@@ -279,60 +302,72 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be disabled', async () => {
-        wrapper = mount({
-            template: '<sw-media-upload-v2 uploadTag="jest-upload" :disabled="true" :addFilesOnMultiselect="true" @media-upload-sidebar-open="()=>{}"/>',
-        }, {
-            attachTo: document.body,
-            global: {
-                renderStubDefaultSlot: true,
-                directives: {
-                    droppable: {},
-                },
-                stubs: {
-                    'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                    'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-button-group': await wrapTestComponent('sw-button-group'),
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
-                    'sw-media-preview-v2': true,
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': true,
-                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-popover': true,
-                },
-                provide: {
-                    validationService: {},
-                    repositoryFactory: {
-                        create: () => ({
-                            create: () => ({}),
-                            save: () => Promise.resolve({}),
-                            saveAll: () => Promise.resolve({}),
-                        }),
+        wrapper = mount(
+            {
+                template:
+                    '<sw-media-upload-v2 uploadTag="jest-upload" :disabled="true" :addFilesOnMultiselect="true" @media-upload-sidebar-open="()=>{}"/>',
+            },
+            {
+                attachTo: document.body,
+                global: {
+                    renderStubDefaultSlot: true,
+                    directives: {
+                        droppable: {},
                     },
-                    mediaService: {
-                        addListener: () => {},
-                        addUploads: () => Promise.resolve(),
-                        addUpload: () => Promise.resolve(),
-                        removeByTag: () => {},
-                        removeListener: () => null,
+                    stubs: {
+                        'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
+                        'sw-icon': {
+                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+                        },
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-context-button': await wrapTestComponent('sw-context-button'),
+                        'sw-button-group': await wrapTestComponent('sw-button-group'),
+                        'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                        'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
+                        'sw-media-preview-v2': true,
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': true,
+                        'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                        'sw-popover': true,
+                        'sw-help-text': true,
+                        'mt-button': true,
+                        'router-link': true,
+                        'sw-loader': true,
                     },
-                    configService: {
-                        getConfig: () => Promise.resolve({
-                            settings: {
-                                enableUrlFeature: true,
-                            },
-                        }),
+                    provide: {
+                        fileValidationService: new FileValidationService(),
+                        validationService: {},
+                        repositoryFactory: {
+                            create: () => ({
+                                create: () => ({}),
+                                save: () => Promise.resolve({}),
+                                saveAll: () => Promise.resolve({}),
+                            }),
+                        },
+                        mediaService: {
+                            addListener: () => {},
+                            addUploads: () => Promise.resolve(),
+                            addUpload: () => Promise.resolve(),
+                            removeByTag: () => {},
+                            removeListener: () => null,
+                        },
+                        configService: {
+                            getConfig: () =>
+                                Promise.resolve({
+                                    settings: {
+                                        enableUrlFeature: true,
+                                    },
+                                }),
+                        },
                     },
                 },
             },
-        });
+        );
         await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.open-media-sidebar');
@@ -402,11 +437,13 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
 
         fileInputValue = 'dummy.pdf';
-        fileInputFilesGet.mockReturnValue([{
-            size: 12345,
-            name: 'dummy.pdf',
-            type: 'application/pdf',
-        }]);
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 12345,
+                name: 'dummy.pdf',
+                type: 'application/pdf',
+            },
+        ]);
 
         await fileInput.trigger('change');
 
@@ -424,11 +461,13 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
 
         fileInputValue = 'dummy.jpg';
-        fileInputFilesGet.mockReturnValue([{
-            size: 12345,
-            name: 'dummy.jpg',
-            type: 'image/jpg',
-        }]);
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 12345,
+                name: 'dummy.jpg',
+                type: 'image/jpg',
+            },
+        ]);
 
         await fileInput.trigger('change');
 
@@ -445,18 +484,22 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
 
         fileInputValue = 'dummy.pdf';
-        fileInputFilesGet.mockReturnValue([{
-            size: 1234,
-            name: 'dummy.pdf',
-            type: 'application/pdf',
-        }]);
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 1234,
+                name: 'dummy.pdf',
+                type: 'application/pdf',
+            },
+        ]);
 
         await fileInput.trigger('change');
-        expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([{
-            size: 1234,
-            name: 'dummy.pdf',
-            type: 'application/pdf',
-        }]);
+        expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([
+            {
+                size: 1234,
+                name: 'dummy.pdf',
+                type: 'application/pdf',
+            },
+        ]);
     });
 
     it('should emit media-upload-remove-image event when removing file', async () => {
@@ -494,7 +537,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
         wrapper.vm.mediaRepository.saveAll = jest.fn();
 
-        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
+        await wrapper.vm.handleUpload([
+            new File([''], 'foo.jpg'),
+            new File([''], 'bar.gif'),
+        ]);
 
         expect(wrapper.vm.mediaRepository.saveAll).toHaveBeenCalled();
     });
@@ -516,7 +562,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('should show multiple preview in multi mode', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
+        await wrapper.vm.handleUpload([
+            new File([''], 'foo.jpg'),
+            new File([''], 'bar.gif'),
+        ]);
 
         expect(Array.isArray(wrapper.vm.preview)).toBe(true);
     });
@@ -616,11 +665,13 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             'media',
             null,
             null,
-            [{
-                id: '123',
-                fileName: 'media',
-                mimeType: 'application/pdf',
-            }],
+            [
+                {
+                    id: '123',
+                    fileName: 'media',
+                    mimeType: 'application/pdf',
+                },
+            ],
             1,
             null,
         );
@@ -642,4 +693,3 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
     });
 });
-

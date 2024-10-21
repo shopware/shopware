@@ -8,6 +8,8 @@ import './sw-import-export-edit-profile-import-settings.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         profile: {
             type: Object,

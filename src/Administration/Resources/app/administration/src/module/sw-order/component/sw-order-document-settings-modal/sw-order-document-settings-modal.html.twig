@@ -25,7 +25,9 @@
             v-model:value="documentConfig.documentDate"
             date-type="date"
             required
+            hide-hint
             :label="$tc('sw-order.documentModal.labelDocumentDate')"
+            :placeholder="$tc('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
     </sw-container>
@@ -141,7 +143,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
                 <sw-context-button
-                    :disabled="!documentPreconditionsFulfilled"
+                    :disabled="!documentPreconditionsFulfilled || undefined"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}

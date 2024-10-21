@@ -1,7 +1,12 @@
 import { mount, config } from '@vue/test-utils';
 
 const subComponent = {
-    props: ['condition', 'parentCondition', 'level', 'disabled'],
+    props: [
+        'condition',
+        'parentCondition',
+        'level',
+        'disabled',
+    ],
     template: '<div class="sw-condition-sub-component"></div>',
 };
 
@@ -27,6 +32,7 @@ async function createWrapper(additionalProps = {}) {
 describe('src/app/component/rule/sw-condition-tree-node', () => {
     beforeEach(() => {
         config.global = {
+            ...config.global,
             stubs: {
                 'sw-condition-sub-component': subComponent,
             },
@@ -91,10 +97,7 @@ describe('src/app/component/rule/sw-condition-tree-node', () => {
         nodeComponent.vm.$emit('condition-delete');
 
         expect(removeNodeFromTreeSpy).toHaveBeenCalled();
-        expect(removeNodeFromTreeSpy).toHaveBeenCalledWith(
-            wrapper.props('parentCondition'),
-            wrapper.props('condition'),
-        );
+        expect(removeNodeFromTreeSpy).toHaveBeenCalledWith(wrapper.props('parentCondition'), wrapper.props('condition'));
     });
 
     it('inserts a new node before the current one if triggered from sub component', async () => {
@@ -118,13 +121,10 @@ describe('src/app/component/rule/sw-condition-tree-node', () => {
         );
 
         expect(insertNodeIntoTreeSpy).toHaveBeenCalled();
-        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(
-            wrapper.props('parentCondition'),
-            {
-                id: 'new-condition-id',
-                type: 'new-condition',
-            },
-        );
+        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(wrapper.props('parentCondition'), {
+            id: 'new-condition-id',
+            type: 'new-condition',
+        });
     });
 
     it('inserts node before with custom function if given', async () => {
@@ -161,13 +161,10 @@ describe('src/app/component/rule/sw-condition-tree-node', () => {
         );
 
         expect(insertNodeIntoTreeSpy).toHaveBeenCalled();
-        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(
-            wrapper.props('parentCondition'),
-            {
-                id: 'new-condition-id',
-                type: 'new-condition',
-            },
-        );
+        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(wrapper.props('parentCondition'), {
+            id: 'new-condition-id',
+            type: 'new-condition',
+        });
     });
 
     it('inserts node after with custom function if given', async () => {

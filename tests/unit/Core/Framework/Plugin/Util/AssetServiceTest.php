@@ -13,11 +13,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -43,7 +45,7 @@ class AssetServiceTest extends TestCase
             $kernelMock,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver(),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -66,7 +68,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver(),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -116,7 +118,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             $pluginLoader,
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver(),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -142,7 +144,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver(),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -181,7 +183,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver(),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -197,7 +199,9 @@ class AssetServiceTest extends TestCase
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver([
+                'TestApp' => new StaticFilesystem(),
+            ]),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -210,19 +214,15 @@ class AssetServiceTest extends TestCase
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
-        $appLoader = $this->createMock(AbstractAppLoader::class);
-        $appLoader
-            ->method('locatePath')
-            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
-            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
-
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            $appLoader,
+            new StaticSourceResolver([
+                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
+            ]),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -251,20 +251,20 @@ class AssetServiceTest extends TestCase
             ],
             'destination-nothing-changed' => [
                 'manifest' => [
-                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                    'one.js' => '9b88085012a490e232336863bf269917',
+                    'two.js' => '9b88085012a490e232336863bf269917',
+                    'three.js' => '9b88085012a490e232336863bf269917',
                 ],
                 'expectedWrites' => [],
                 'expectedDeletes' => [],
             ],
             'destination-new-and-removed' => [
                 'manifest' => [
-                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'four.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                    'one.js' => '9b88085012a490e232336863bf269917',
+                    'two.js' => '9b88085012a490e232336863bf269917',
+                    'four.js' => '9b88085012a490e232336863bf269917',
                 ],
                 'expectedWrites' => [
                     'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
@@ -275,10 +275,10 @@ class AssetServiceTest extends TestCase
             ],
             'destination-content-changed' => [
                 'manifest' => [
-                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
-                    'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
-                    'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                    'one.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                    'two.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                    'three.js' => '9b88085012a490e232336863bf269917',
                 ],
                 'expectedWrites' => [
                     'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
@@ -314,7 +314,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            $this->createMock(AbstractAppLoader::class),
+            new StaticSourceResolver(),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -343,10 +343,10 @@ class AssetServiceTest extends TestCase
             }));
 
         $expectedManifestFiles = [
-            'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-            'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-            'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-            'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            'one.js' => '9b88085012a490e232336863bf269917',
+            'static/js/app.js' => '9b88085012a490e232336863bf269917',
+            'three.js' => '9b88085012a490e232336863bf269917',
+            'two.js' => '9b88085012a490e232336863bf269917',
         ];
         ksort($expectedManifestFiles);
 
@@ -361,12 +361,6 @@ class AssetServiceTest extends TestCase
     public function testCopyDoesNotWriteManifestForLocalFilesystems(): void
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
-
-        $appLoader = $this->createMock(AbstractAppLoader::class);
-        $appLoader
-            ->method('locatePath')
-            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
-            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
 
         $mockFs = $this->createMock(FilesystemOperator::class);
         $mockFs
@@ -383,7 +377,9 @@ class AssetServiceTest extends TestCase
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            $appLoader,
+            new StaticSourceResolver([
+                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
+            ]),
             new ParameterBag(['shopware.filesystem.asset.type' => 'local'])
         );
 
@@ -403,12 +399,6 @@ class AssetServiceTest extends TestCase
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn($bundle);
-
-        $appLoader = $this->createMock(AbstractAppLoader::class);
-        $appLoader
-            ->method('locatePath')
-            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
-            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
 
         $filesystem = $this->createMock(FilesystemOperator::class);
 
@@ -434,7 +424,10 @@ class AssetServiceTest extends TestCase
                 $local = $expectedWrites[$path];
                 unset($expectedWrites[$path]);
 
-                static::assertSame(__DIR__ . '/../_fixtures/' . $local, $meta['uri'] ?? '');
+                static::assertSame(
+                    realpath(__DIR__ . '/../_fixtures/' . $local),
+                    isset($meta['uri']) ? realpath($meta['uri']) : ''
+                );
 
                 return true;
             });
@@ -447,7 +440,9 @@ class AssetServiceTest extends TestCase
             $kernel,
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            $appLoader,
+            new StaticSourceResolver([
+                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
+            ]),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -456,13 +451,13 @@ class AssetServiceTest extends TestCase
 
         $expectedManifestFiles = [
             'administration' => [
-                'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'one.js' => '9b88085012a490e232336863bf269917',
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'three.js' => '9b88085012a490e232336863bf269917',
+                'two.js' => '9b88085012a490e232336863bf269917',
             ],
             'examplebundle' => [
-                'test.txt' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'test.txt' => '9b88085012a490e232336863bf269917',
             ],
         ];
 

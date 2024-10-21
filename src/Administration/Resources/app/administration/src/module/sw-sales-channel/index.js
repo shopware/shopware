@@ -18,22 +18,45 @@ import defaultSearchConfiguration from './default-search-configuration';
 const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-sales-channel-defaults-select', () => import('./component/sw-sales-channel-defaults-select'));
+Shopware.Component.register(
+    'sw-sales-channel-defaults-select',
+    () => import('./component/sw-sales-channel-defaults-select'),
+);
 Shopware.Component.register('sw-sales-channel-modal', () => import('./component/sw-sales-channel-modal'));
 Shopware.Component.register('sw-sales-channel-modal-grid', () => import('./component/sw-sales-channel-modal-grid'));
 Shopware.Component.register('sw-sales-channel-modal-detail', () => import('./component/sw-sales-channel-modal-detail'));
 Shopware.Component.register('sw-sales-channel-detail-domains', () => import('./component/sw-sales-channel-detail-domains'));
-Shopware.Component.register('sw-sales-channel-detail-hreflang', () => import('./component/sw-sales-channel-detail-hreflang'));
+Shopware.Component.register(
+    'sw-sales-channel-detail-hreflang',
+    () => import('./component/sw-sales-channel-detail-hreflang'),
+);
 Shopware.Component.register('sw-sales-channel-detail', () => import('./page/sw-sales-channel-detail'));
-Shopware.Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', () => import('./page/sw-sales-channel-create'));
+Shopware.Component.extend(
+    'sw-sales-channel-create',
+    'sw-sales-channel-detail',
+    () => import('./page/sw-sales-channel-create'),
+);
 Shopware.Component.register('sw-sales-channel-list', () => import('./page/sw-sales-channel-list'));
 Shopware.Component.register('sw-sales-channel-detail-base', () => import('./view/sw-sales-channel-detail-base'));
 Shopware.Component.register('sw-sales-channel-detail-products', () => import('./view/sw-sales-channel-detail-products'));
 Shopware.Component.register('sw-sales-channel-detail-analytics', () => import('./view/sw-sales-channel-detail-analytics'));
-Shopware.Component.extend('sw-sales-channel-create-base', 'sw-sales-channel-detail-base', () => import('./view/sw-sales-channel-create-base'));
-Shopware.Component.register('sw-sales-channel-detail-product-comparison', () => import('./view/sw-sales-channel-detail-product-comparison'));
-Shopware.Component.register('sw-sales-channel-detail-product-comparison-preview', () => import('./view/sw-sales-channel-detail-product-comparison-preview'));
-Shopware.Component.register('sw-sales-channel-products-assignment-modal', () => import('./component/sw-sales-channel-products-assignment-modal'));
+Shopware.Component.extend(
+    'sw-sales-channel-create-base',
+    'sw-sales-channel-detail-base',
+    () => import('./view/sw-sales-channel-create-base'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-product-comparison',
+    () => import('./view/sw-sales-channel-detail-product-comparison'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-product-comparison-preview',
+    () => import('./view/sw-sales-channel-detail-product-comparison-preview'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-products-assignment-modal',
+    () => import('./component/sw-sales-channel-products-assignment-modal'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

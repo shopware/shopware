@@ -14,6 +14,12 @@ async function createWrapper(mediaServiceFunctions = {}) {
             },
             stubs: {
                 'sw-media-base-item': true,
+                'sw-media-preview-v2': true,
+                'sw-text-field': true,
+                'sw-context-menu-item': true,
+                'sw-media-modal-replace': true,
+                'sw-media-modal-delete': true,
+                'sw-media-modal-move': true,
             },
         },
     });
@@ -32,29 +38,30 @@ describe('components/media/sw-media-media-item', () => {
             },
         };
 
-        const wrapper = await createWrapper(
-            {
+        const wrapper = await createWrapper({
+            renameMedia: () =>
                 // eslint-disable-next-line prefer-promise-reject-errors
-                renameMedia: () => Promise.reject(
-                    {
-                        response: {
-                            data: {
-                                errors: [
-                                    error,
-                                ],
-                            },
+                Promise.reject({
+                    response: {
+                        data: {
+                            errors: [
+                                error,
+                            ],
                         },
                     },
-                ),
-            },
-        );
+                }),
+        });
 
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.$nextTick();
-        await wrapper.vm.onChangeName('new file name', {
-            isLoading: false,
-        }, () => {});
+        await wrapper.vm.onChangeName(
+            'new file name',
+            {
+                isLoading: false,
+            },
+            () => {},
+        );
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-media-item.notification.fileNameTooLong.message',
@@ -68,29 +75,30 @@ describe('components/media/sw-media-media-item', () => {
             code: 'CONTENT__MEDIA_FILE_FOO_BAR',
         };
 
-        const wrapper = await createWrapper(
-            {
+        const wrapper = await createWrapper({
+            renameMedia: () =>
                 // eslint-disable-next-line prefer-promise-reject-errors
-                renameMedia: () => Promise.reject(
-                    {
-                        response: {
-                            data: {
-                                errors: [
-                                    error,
-                                ],
-                            },
+                Promise.reject({
+                    response: {
+                        data: {
+                            errors: [
+                                error,
+                            ],
                         },
                     },
-                ),
-            },
-        );
+                }),
+        });
 
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.$nextTick();
-        await wrapper.vm.onChangeName('new file name', {
-            isLoading: false,
-        }, () => {});
+        await wrapper.vm.onChangeName(
+            'new file name',
+            {
+                isLoading: false,
+            },
+            () => {},
+        );
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-media-item.notification.renamingError.message',

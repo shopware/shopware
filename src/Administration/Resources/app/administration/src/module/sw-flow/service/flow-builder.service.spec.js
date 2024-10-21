@@ -1,38 +1,50 @@
+/**
+ * @package services-settings
+ */
+
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 
 describe('module/sw-flow/service/flow-builder.service.js', () => {
     const service = new FlowBuilderService();
     const data = {
-        appActions: [{
-            label: 'Telegram send message',
-            name: 'telegram.send.message',
-            swIcon: 'default-communication-speech-bubbles',
-            requirements: ['customerAware', 'orderAware'],
-            config: [
-                {
-                    name: 'password',
-                    label: {},
-                    type: 'password',
-                },
-                {
-                    name: 'singleSelect',
-                    label: {},
-                    type: 'single-select',
-                    options: ['2', '3'],
-                },
-                {
-                    name: 'datetime',
-                    label: {},
-                    type: 'datetime',
-                },
-                {
-                    name: 'colorpicker',
-                    label: {},
-                    type: 'colorpicker',
-                },
-            ],
-        }],
+        appActions: [
+            {
+                label: 'Telegram send message',
+                name: 'telegram.send.message',
+                swIcon: 'default-communication-speech-bubbles',
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
+                config: [
+                    {
+                        name: 'password',
+                        label: {},
+                        type: 'password',
+                    },
+                    {
+                        name: 'singleSelect',
+                        label: {},
+                        type: 'single-select',
+                        options: [
+                            '2',
+                            '3',
+                        ],
+                    },
+                    {
+                        name: 'datetime',
+                        label: {},
+                        type: 'datetime',
+                    },
+                    {
+                        name: 'colorpicker',
+                        label: {},
+                        type: 'colorpicker',
+                    },
+                ],
+            },
+        ],
         customerGroups: [
             {
                 id: '123',
@@ -100,13 +112,15 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                 },
             },
         ],
-        mailTemplates: [{
-            id: 'mailTemplate_id',
-            mailTemplateType: {
-                name: 'name',
-                description: 'description',
+        mailTemplates: [
+            {
+                id: 'mailTemplate_id',
+                mailTemplateType: {
+                    name: 'name',
+                    description: 'description',
+                },
             },
-        }],
+        ],
     };
 
     const translator = {
@@ -168,11 +182,35 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
 
     it('should get available entities correctly based on action name and actions list', async () => {
         const actions = [
-            { name: 'action.add.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
-            { name: 'action.add.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
-            { name: 'action.remove.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
-            { name: 'action.remove.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
-            { name: 'action.mail.send', requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'], extensions: [] },
+            {
+                name: 'action.add.order.tag',
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+                extensions: [],
+            },
+            {
+                name: 'action.add.customer.tag',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.remove.customer.tag',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.remove.order.tag',
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+                extensions: [],
+            },
+            {
+                name: 'action.mail.send',
+                requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'],
+                extensions: [],
+            },
             { name: 'action.stop.flow', requirements: [], extensions: [] },
         ];
 
@@ -195,30 +233,60 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
 
     it('should be able to rearrange array objects', async () => {
         const sequences = [
-            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
-            { id: 'eb342595680d42edbf05e8a953b70fc8', parentId: '944dd8656af44ab982598edb6ad41d58' },
-            { id: 'aa25ec634f474d87a5598b6a90d038ec', parentId: 'f1beccf9c40244e6ace2726d2afc476c' },
-            { id: '944dd8656af44ab982598edb6ad41d58', parentId: 'e4b79d717a684f589257ece332504b96' },
+            {
+                id: '900a915617054a5b8acbfda1a35831fa',
+                parentId: 'd2b3a82c22284566b6a56fb47d577bfd',
+            },
+            {
+                id: 'eb342595680d42edbf05e8a953b70fc8',
+                parentId: '944dd8656af44ab982598edb6ad41d58',
+            },
+            {
+                id: 'aa25ec634f474d87a5598b6a90d038ec',
+                parentId: 'f1beccf9c40244e6ace2726d2afc476c',
+            },
+            {
+                id: '944dd8656af44ab982598edb6ad41d58',
+                parentId: 'e4b79d717a684f589257ece332504b96',
+            },
             { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
-            { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
+            {
+                id: 'f1beccf9c40244e6ace2726d2afc476c',
+                parentId: '900a915617054a5b8acbfda1a35831fa',
+            },
             { id: 'c81366118ba64359895bb412602ef8a8', parentId: null },
             { id: 'e4b79d717a684f589257ece332504b96', parentId: null },
         ];
 
         const result = service.rearrangeArrayObjects(sequences);
-        result.forEach(item => {
+        result.forEach((item) => {
             delete item.children;
         });
 
         expect(result).toEqual([
             { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
-            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
-            { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
-            { id: 'aa25ec634f474d87a5598b6a90d038ec', parentId: 'f1beccf9c40244e6ace2726d2afc476c' },
+            {
+                id: '900a915617054a5b8acbfda1a35831fa',
+                parentId: 'd2b3a82c22284566b6a56fb47d577bfd',
+            },
+            {
+                id: 'f1beccf9c40244e6ace2726d2afc476c',
+                parentId: '900a915617054a5b8acbfda1a35831fa',
+            },
+            {
+                id: 'aa25ec634f474d87a5598b6a90d038ec',
+                parentId: 'f1beccf9c40244e6ace2726d2afc476c',
+            },
             { id: 'c81366118ba64359895bb412602ef8a8', parentId: null },
             { id: 'e4b79d717a684f589257ece332504b96', parentId: null },
-            { id: '944dd8656af44ab982598edb6ad41d58', parentId: 'e4b79d717a684f589257ece332504b96' },
-            { id: 'eb342595680d42edbf05e8a953b70fc8', parentId: '944dd8656af44ab982598edb6ad41d58' },
+            {
+                id: '944dd8656af44ab982598edb6ad41d58',
+                parentId: 'e4b79d717a684f589257ece332504b96',
+            },
+            {
+                id: 'eb342595680d42edbf05e8a953b70fc8',
+                parentId: '944dd8656af44ab982598edb6ad41d58',
+            },
         ]);
     });
 
@@ -243,7 +311,11 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                 datetime: '2023-03-23T12:00:00.000Z',
                 float: 5,
                 int: 1000,
-                multiSelect: ['2', '3', '5'],
+                multiSelect: [
+                    '2',
+                    '3',
+                    '5',
+                ],
                 password: 'shopware',
                 singleSelect: '3',
                 textEditor: 'editor',
@@ -254,7 +326,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
 
         const description = service.getActionDescriptions(data, sequence, translator);
         const keyFields = Object.keys(sequence.config);
-        keyFields.forEach(key => {
+        keyFields.forEach((key) => {
             expect(description.includes(key)).toBeTruthy();
         });
     });
@@ -292,7 +364,9 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toBe('sw-flow.actions.labelTo<br>sw-flow.actions.labelAffiliateCode<br>sw-flow.actions.labelCampaignCode');
+        expect(description).toBe(
+            'sw-flow.actions.labelTo<br>sw-flow.actions.labelAffiliateCode<br>sw-flow.actions.labelCampaignCode',
+        );
     });
 
     it('should be able to show change customer status description', () => {
@@ -339,9 +413,11 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         const sequence = {
             actionName: 'action.generate.document',
             config: {
-                documentTypes: [{
-                    documentType: 'mail',
-                }],
+                documentTypes: [
+                    {
+                        documentType: 'mail',
+                    },
+                ],
             },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
@@ -390,5 +466,47 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         };
         const description = service.getActionDescriptions(data, sequence, translator);
         expect(description).toContain('sw-flow.actions.downloadAccessLabel.revoked');
+    });
+
+    it('should add & get custom action description function', () => {
+        service.addDescriptionCallbacks({
+            'action.test': () => {
+                return 'Test';
+            },
+        });
+
+        expect(service.getDescriptionCallbacks()['action.test']).toBeDefined();
+        expect(service.getDescriptionCallbacks()['action.test'].call()).toBe('Test');
+    });
+
+    it('should use description callback when generating action description', () => {
+        const callbackMock = jest.fn(() => 'test');
+        service.addDescriptionCallbacks({
+            'action.test': callbackMock,
+        });
+
+        const sequence = {
+            actionName: 'action.test',
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(callbackMock).toHaveBeenCalled();
+        expect(description).toContain('test');
+    });
+
+    it('should use default description implementation if description callback is wrongly defined', () => {
+        service.addDescriptionCallbacks({
+            'action.test': 'wrong-type',
+        });
+
+        const sequence = {
+            actionName: 'action.test',
+            config: {
+                mailSend: 'sw-flow.actions.mailSend',
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.mailSend');
     });
 });

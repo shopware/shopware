@@ -98,13 +98,7 @@ workflow:
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
   - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
-  - >
-    if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
-        PLATFORM_VERSION='6.6.99.99';
-    else
-        PLATFORM_VERSION="${LATEST_TAG#"v"}"
-    fi
-  - composer config version "$PLATFORM_VERSION"
+  - composer config version "6.6.9999999.9999999-dev"
   - composer update
   - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
   - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
@@ -255,16 +249,16 @@ phpstan:
         reports:
             codequality: phpstan-report.json
 
-ecs:
+cs-fixer:
     stage: test
     needs: []
     rules:
         - if: '$CI_PIPELINE_SOURCE == "pipeline"'
           when: never
         - exists:
-              - ecs.php
+              - .php-cs-fixer.dist.php
     script:
-        - ${PROJECT_ROOT}/vendor/bin/ecs
+        - ${PROJECT_ROOT}/vendor/bin/php-cs-fixer fix --dry-run --diff
 
 jest (administration):
     stage: test

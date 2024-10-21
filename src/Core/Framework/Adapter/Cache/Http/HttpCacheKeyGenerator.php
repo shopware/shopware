@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -64,7 +65,7 @@ class HttpCacheKeyGenerator
 
         $parts = $event->getParts();
 
-        return 'http-cache-' . hash('sha256', implode('|', $parts));
+        return 'http-cache-' . Hasher::hash(implode('|', $parts));
     }
 
     private function getRequestUri(Request $request): string
@@ -81,7 +82,7 @@ class HttpCacheKeyGenerator
         $baseUrl = $request->attributes->get(self::SALES_CHANNEL_BASE_URL) ?? '';
         \assert(\is_string($baseUrl));
 
-        return sprintf(
+        return \sprintf(
             '%s%s%s%s',
             $request->getSchemeAndHttpHost(),
             $baseUrl,
@@ -97,7 +98,7 @@ class HttpCacheKeyGenerator
         if ($request->cookies->has(self::CONTEXT_CACHE_COOKIE)) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
-                $request->cookies->get(self::CONTEXT_CACHE_COOKIE)
+                $request->cookies->get(self::CONTEXT_CACHE_COOKIE, '')
             );
 
             return;
@@ -106,7 +107,7 @@ class HttpCacheKeyGenerator
         if ($request->cookies->has(self::CURRENCY_COOKIE)) {
             $event->add(
                 self::CURRENCY_COOKIE,
-                $request->cookies->get(self::CURRENCY_COOKIE)
+                $request->cookies->get(self::CURRENCY_COOKIE, '')
             );
 
             return;

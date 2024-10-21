@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal Concrete implementations of this class should not be extended or used as a base class/type hint.
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaUrlGenerator extends AbstractMediaUrlGenerator
 {
     public function __construct(private readonly FilesystemOperator $filesystem)
@@ -26,7 +26,7 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             $url = $this->filesystem->publicUrl($value->path);
 
             if ($value->updatedAt !== null) {
-                $url .= '?' . $value->updatedAt->getTimestamp();
+                $url .= '?ts=' . $value->updatedAt->getTimestamp();
             }
 
             $urls[$key] = $url;

@@ -26,7 +26,7 @@
                 v-for="(image, index) in images"
                 :key="index"
                 class="sw-image-slider__element-wrapper"
-                :aria-hidden="isHiddenItem(index)"
+                :aria-hidden="isHiddenItem(index) || undefined"
                 :style="componentStyles"
             >
 

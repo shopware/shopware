@@ -9,78 +9,89 @@ Shopware.State.registerModule('swShippingDetail', state);
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrices', () => {
     const createWrapper = async () => {
-        return mount(await wrapTestComponent('sw-settings-shipping-price-matrices', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                store: Shopware.State._store,
-                stubs: {
-                    'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
-                        sync: true,
-                    }),
-                    'sw-card': true,
-                    'sw-alert': true,
-                    'sw-container': true,
-                    'sw-select-rule-create': true,
-                    'sw-single-select': true,
-                    'sw-icon': true,
-                    'sw-popover': true,
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-context-button': await wrapTestComponent('sw-context-button', {
-                        sync: true,
-                    }),
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                    'sw-number-field': {
-                        template: '<input type="number" v-model="value" />',
-                        props: {
-                            value: 0,
+        return mount(
+            await wrapTestComponent('sw-settings-shipping-price-matrices', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    store: Shopware.State._store,
+                    stubs: {
+                        'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
+                            sync: true,
+                        }),
+                        'sw-card': true,
+                        'sw-alert': true,
+                        'sw-container': true,
+                        'sw-select-rule-create': true,
+                        'sw-single-select': true,
+                        'sw-icon': true,
+                        'sw-popover': true,
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-context-button': await wrapTestComponent('sw-context-button', {
+                            sync: true,
+                        }),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-number-field': {
+                            template: '<input type="number" v-model="value" />',
+                            props: [
+                                'value',
+                                'size',
+                            ],
                         },
+                        'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                        'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                        'sw-checkbox-field': true,
+                        'sw-data-grid-settings': true,
+                        'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                        'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', {
+                            sync: true,
+                        }),
+                        'sw-price-rule-modal': true,
+                        'router-link': true,
+                        'sw-loader': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'sw-data-grid-skeleton': true,
+                        'sw-help-text': true,
                     },
-                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-checkbox-field': true,
-                    'sw-data-grid-settings': true,
-                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                    'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', {
-                        sync: true,
-                    }),
-                },
-                mocks: {
-                    $te: () => false,
-                },
-                provide: {
-                    ruleConditionDataProviderService: {
-                        getRestrictedRules: () => Promise.resolve([]),
+                    mocks: {
+                        $te: () => false,
                     },
-                    repositoryFactory: {
-                        create: (name) => {
-                            if (name === 'rule') {
-                                return {
-                                    search: () => Promise.resolve([]),
-                                    get: () => Promise.resolve({}),
-                                };
-                            }
+                    provide: {
+                        ruleConditionDataProviderService: {
+                            getRestrictedRules: () => Promise.resolve([]),
+                        },
+                        repositoryFactory: {
+                            create: (name) => {
+                                if (name === 'rule') {
+                                    return {
+                                        search: () => Promise.resolve([]),
+                                        get: () => Promise.resolve({}),
+                                    };
+                                }
 
-                            if (name === 'shipping_method') {
-                                return {};
-                            }
+                                if (name === 'shipping_method') {
+                                    return {};
+                                }
 
-                            if (name === 'shipping_method_price') {
-                                return {
-                                    create: () => Promise.resolve([]),
-                                };
-                            }
+                                if (name === 'shipping_method_price') {
+                                    return {
+                                        create: () => Promise.resolve([]),
+                                    };
+                                }
 
-                            return null;
+                                return null;
+                            },
                         },
                     },
                 },
             },
-        });
+        );
     };
 
     beforeEach(async () => {
@@ -133,7 +144,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         // add remove method to array
         shippingMethod.prices.remove = (id) => {
-            shippingMethod.prices = shippingMethod.prices.filter(price => price.id !== id);
+            shippingMethod.prices = shippingMethod.prices.filter((price) => price.id !== id);
         };
     });
 
@@ -180,7 +191,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it('should render five shipping price matrices', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-
 
         await Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
@@ -410,7 +420,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         // add remove method to array
         shippingMethod.prices.remove = (id) => {
-            shippingMethod.prices = shippingMethod.prices.filter(price => price.id !== id);
+            shippingMethod.prices = shippingMethod.prices.filter((price) => price.id !== id);
         };
 
         const wrapper = await createWrapper();
@@ -592,7 +602,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         // add remove method to array
         shippingMethod.prices.remove = (id) => {
-            shippingMethod.prices = shippingMethod.prices.filter(price => price.id !== id);
+            shippingMethod.prices = shippingMethod.prices.filter((price) => price.id !== id);
         };
 
         const wrapper = await createWrapper();
@@ -673,11 +683,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(numberFields.length).toBeGreaterThan(0);
         expect(inheritanceSwitches.length).toBeGreaterThan(0);
 
-        allPricesMatrix.forEach(priceMatrix => {
+        allPricesMatrix.forEach((priceMatrix) => {
             expect(priceMatrix.props().disabled).toBe(true);
         });
 
-        numberFields.forEach(numberField => {
+        numberFields.forEach((numberField) => {
             // price field with pound currency should be disabled because of inheritance
             if (numberField.attributes().name.includes('pound')) {
                 return;
@@ -686,7 +696,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             expect(numberField.attributes().disabled).toBeDefined();
         });
 
-        inheritanceSwitches.forEach(inheritanceSwitch => {
+        inheritanceSwitches.forEach((inheritanceSwitch) => {
             expect(inheritanceSwitch.props().disabled).toBe(true);
         });
     });
@@ -713,11 +723,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(numberFields.length).toBeGreaterThan(0);
         expect(inheritanceSwitches.length).toBeGreaterThan(0);
 
-        allPricesMatrix.forEach(priceMatrix => {
+        allPricesMatrix.forEach((priceMatrix) => {
             expect(priceMatrix.props().disabled).toBe(false);
         });
 
-        numberFields.forEach(numberField => {
+        numberFields.forEach((numberField) => {
             // price field with pound currency should be disabled because of inheritance
             if (numberField.attributes().name.includes('pound')) {
                 return;
@@ -725,7 +735,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             expect(numberField.attributes().disabled).toBeUndefined();
         });
 
-        inheritanceSwitches.forEach(inheritanceSwitch => {
+        inheritanceSwitches.forEach((inheritanceSwitch) => {
             expect(inheritanceSwitch.props().disabled).toBe(false);
         });
     });

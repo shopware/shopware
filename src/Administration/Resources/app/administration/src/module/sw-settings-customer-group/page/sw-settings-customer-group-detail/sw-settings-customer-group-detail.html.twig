@@ -54,7 +54,7 @@
             class="sw-settings-customer-group-detail__save"
             variant="primary"
             :is-loading="isLoading"
-            :disabled="!allowSave"
+            :disabled="!allowSave || undefined"
             @click="onSave"
         >
             {{ $tc('sw-settings-customer-group.general.buttonSave') }}
@@ -98,7 +98,7 @@
                                 :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
                                 :error="customerGroupNameError"
                                 :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
-                                :disabled="!acl.can('customer_groups.editor')"
+                                :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
 
@@ -110,7 +110,7 @@
                                 :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
                                 :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 1)"
                                 :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 0)"
-                                :disabled="!acl.can('customer_groups.editor')"
+                                :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
 
@@ -121,7 +121,7 @@
                                 name="sw-field--customerGroup-registrationActive"
                                 class="sw-settings-customer-group-detail__registration-form-switch"
                                 :label="$tc('sw-settings-customer-group.detail.registrationForm')"
-                                :disabled="!acl.can('customer_groups.editor')"
+                                :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
                         </sw-container>
@@ -151,7 +151,7 @@
                         :label="$tc('sw-settings-customer-group.registration.title')"
                         :placeholder="placeholder(customerGroup, 'registrationTitle', $tc('sw-settings-customer-group.registration.placeholderTitle'))"
                         :error="registrationTitleError"
-                        :disabled="!acl.can('customer_groups.editor')"
+                        :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -161,7 +161,7 @@
                         v-model:value="customerGroup.registrationIntroduction"
                         :label="$tc('sw-settings-customer-group.registration.introduction')"
                         :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
-                        :disabled="!acl.can('customer_groups.editor')"
+                        :disabled="!acl.can('customer_groups.editor') || undefined"
                         sanitize-input
                         sanitize-field-name="customer_group_translation.registrationIntroduction"
                     />
@@ -174,7 +174,7 @@
                         name="sw-field--customerGroup-registrationSeoMetaDescription"
                         :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
                         :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
-                        :disabled="!acl.can('customer_groups.editor')"
+                        :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -185,7 +185,7 @@
                         name="sw-field--customerGroup-registrationOnlyCompanyRegistration"
                         :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
                         :help-text="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegisterHelpText')"
-                        :disabled="!acl.can('customer_groups.editor')"
+                        :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -208,7 +208,7 @@
                         name="sw-field--customerGroup-registrationSalesChannels"
                         class="sw-settings-customer-group-detail__sales-channel"
                         :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
-                        :disabled="!acl.can('customer_groups.editor')"
+                        :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
 

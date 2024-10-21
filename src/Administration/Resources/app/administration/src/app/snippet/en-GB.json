@@ -687,8 +687,10 @@
         "customerAgeRule": "Customer age",
         "customerDaysSinceLastLogin": "Time since last login",
         "customerDaysSinceFirstLogin": "Time since first login",
-        "customerAffiliateCodeRule": "Affiliate code",
-        "customerCampaignCodeRule": "Campaign code",
+        "customerAffiliateCodeRule": "Affiliate code (customer)",
+        "customerCampaignCodeRule": "Campaign code (customer)",
+        "orderAffiliateCodeRule": "Affiliate code (order)",
+        "orderCampaignCodeRule": "Campaign code (order)",
         "cartAmountRule": "Grand total",
         "cartPositionPrice": "Total",
         "goodsCountRule": "Total quantity of distinct products",
@@ -767,7 +769,7 @@
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",
-        "lineItemListPriceRatioRule": "Item with price/list price percentage ratio",
+        "lineItemListPriceRatioRule": "Item with price/list price ratio",
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
@@ -1188,6 +1190,7 @@
       "labelLink": "Link",
       "labelProduct": "Product",
       "labelCategory":"Category",
+      "labelMedia": "File",
       "labelEmail": "Email address",
       "labelPhoneNumber": "Phone number",
       "placeholderPhoneNumber": "Enter phone number...",
@@ -1611,6 +1614,17 @@
           "href": "https://account.shopware.com/"
         }
       }
+    }
+  },
+  "sw-datepicker": {
+    "date": {
+      "placeholder": "Select date..."
+    },
+    "time": {
+      "placeholder": "Select time..."
+    },
+    "datetime": {
+      "placeholder": "Select date and time..."
     }
   }
 }

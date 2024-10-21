@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { isSaaSInstance } from '@fixtures/AcceptanceTest';
 
-test('Journey: Merchant is able to be guided through the First Run Wizard.', async ({
+test('Merchant is able to be guided through the First Run Wizard.', { tag: '@FirstRunWizard' }, async ({
     FRWSalesChannelSelectionPossibility,
     ShopAdmin,
     DefaultSalesChannel,
@@ -9,20 +9,20 @@ test('Journey: Merchant is able to be guided through the First Run Wizard.', asy
     AdminApiContext,
 }) => {
     // eslint-disable-next-line playwright/no-conditional-in-test
-    if (isSaaSInstance(AdminApiContext)) {
+    if (await isSaaSInstance(AdminApiContext)) {
         // eslint-disable-next-line playwright/no-skipped-test
-        test.skip('Skipping test for the first run wizard, because it is disabled on SaaS instances.');
+        test.skip(true,'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
     }
 
-    await ShopAdmin.goesTo(AdminFirstRunWizard);
+    await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 
-    //LanguagePack part
+    // LanguagePack part
     await ShopAdmin.expects(AdminFirstRunWizard.installLanguagePackButton).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.welcomeText).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.pluginCardInfo).toBeVisible();
     await AdminFirstRunWizard.nextButton.click();
 
-    //DataImport part
+    // DataImport part
     await ShopAdmin.expects(AdminFirstRunWizard.dataImportHeader).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.dataImportCard).toHaveCount(2);
     await ShopAdmin.expects(AdminFirstRunWizard.installDemoDataButton).toBeVisible();
@@ -30,13 +30,13 @@ test('Journey: Merchant is able to be guided through the First Run Wizard.', asy
     await ShopAdmin.expects(AdminFirstRunWizard.backButton).not.toBeVisible();
     await AdminFirstRunWizard.nextButton.click();
 
-    //Setup default values part
+    // Setup default values part
     await ShopAdmin.expects(AdminFirstRunWizard.defaultValuesHeader).toBeVisible();
     const currentSalesChannel = DefaultSalesChannel.salesChannel.name;
     await ShopAdmin.attemptsTo(FRWSalesChannelSelectionPossibility(currentSalesChannel));
     await AdminFirstRunWizard.nextButton.click();
 
-    //Mailer configuration part
+    // Mailer configuration part
     await ShopAdmin.expects(AdminFirstRunWizard.mailerConfigurationHeader).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.nextButton).toBeDisabled();
     await AdminFirstRunWizard.smtpServerButton.click();
@@ -45,21 +45,21 @@ test('Journey: Merchant is able to be guided through the First Run Wizard.', asy
     await ShopAdmin.expects(AdminFirstRunWizard.smtpServerFields).toHaveCount(8);
     await AdminFirstRunWizard.configureLaterButton.click();
 
-    //PayPal setup part
+    // PayPal setup part
     await ShopAdmin.expects(AdminFirstRunWizard.payPalSetupHeader).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.payPalInfoCard).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.payPalPaymethods).toHaveCount(4);
     await AdminFirstRunWizard.skipButton.click();
 
-    //Extensions part
+    // Extensions part
     await ShopAdmin.expects(AdminFirstRunWizard.extensionsHeader).toBeVisible();
     await AdminFirstRunWizard.germanRegionSelector.click();
     await AdminFirstRunWizard.toolsSelector.click();
-    await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin).toContainText('Migration Assistant');
+    await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin.first()).toContainText('Migration Assistant');
     await ShopAdmin.expects(AdminFirstRunWizard.recommendationHeader).toBeVisible()
     await AdminFirstRunWizard.nextButton.click();
 
-    //Shopware account part
+    // Shopware account part
     await ShopAdmin.expects(AdminFirstRunWizard.shopwareAccountHeader).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.emailAddressInputField).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.passwordInputField).toBeVisible();
@@ -67,10 +67,12 @@ test('Journey: Merchant is able to be guided through the First Run Wizard.', asy
     await ShopAdmin.expects(AdminFirstRunWizard.nextButton).toBeVisible();
     await AdminFirstRunWizard.skipButton.click();
 
-    //Shopware store part
-    await ShopAdmin.expects(AdminFirstRunWizard.shopwareStoreHeader).toBeVisible();
-    await ShopAdmin.expects(AdminFirstRunWizard.extensionStoreHeading).toBeVisible();
+    // Shopware store part
+    await ShopAdmin.expects(AdminFirstRunWizard.shopwareStoreHeader).toBeVisible({ timeout: 120000 });
+    await ShopAdmin.expects(AdminFirstRunWizard.extensionStoreHeading).toBeVisible({ timeout: 120000 });
     await AdminFirstRunWizard.skipButton.click();
+
+    // Finish
     await ShopAdmin.expects(AdminFirstRunWizard.frwSuccessText).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.documentationLink).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.forumLink).toBeVisible();

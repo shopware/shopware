@@ -6,6 +6,7 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import RepositoryData from 'src/core/data/repository.data';
 import IdCollection from 'src/../test/_helper_/id.collection';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 const clientMock = global.repositoryFactoryMock.clientMock;
 const responses = global.repositoryFactoryMock.responses;
@@ -36,21 +37,68 @@ function mockContext() {
 }
 
 function createRepositoryData() {
-    return new RepositoryData(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        {},
-    );
+    return new RepositoryData(undefined, undefined, undefined, undefined, undefined, undefined, undefined, {});
 }
 
 describe('repository.data.ts', () => {
     beforeEach(async () => {
         clientMock.resetHistory();
+    });
+
+    it('should search with the criteria title', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        responses.addResponse({
+            method: 'POST',
+            url: '/search-ids/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product?title=ImmaTest',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        responses.addResponse({
+            method: 'POST',
+            url: '/search-ids/product?title=ImmaTest',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const repository = repositoryFactory.create('product');
+
+        const criteriaWithoutTitle = new Criteria();
+        const criteriaWithTitle = new Criteria();
+        criteriaWithTitle.setTitle('ImmaTest');
+
+        repository.search(criteriaWithoutTitle);
+        repository.searchIds(criteriaWithoutTitle);
+
+        expect(clientMock.history.post[0].url).toBe('/search/product');
+        expect(clientMock.history.post[1].url).toBe('/search-ids/product');
+
+        repository.search(criteriaWithTitle);
+        repository.searchIds(criteriaWithTitle);
+
+        expect(clientMock.history.post[2].url).toBe('/search/product?title=ImmaTest');
+        expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
     });
 
     it('should build the correct headers', async () => {
@@ -68,7 +116,6 @@ describe('repository.data.ts', () => {
         expect(actualHeaders).toEqual(exptectedHeaders);
     });
 
-
     it('should create one delete operation for multiple deletes', async () => {
         const ids = new IdCollection();
 
@@ -79,7 +126,9 @@ describe('repository.data.ts', () => {
             response: {},
         });
 
-        const repository = repositoryFactory.create('product', null, { useSync: true });
+        const repository = repositoryFactory.create('product', null, {
+            useSync: true,
+        });
         const context = Shopware.Context.api;
         const product = repository.create(context, ids.get('product'));
 
@@ -135,40 +184,67 @@ describe('repository.data.ts', () => {
         expect(request.url).toBe('_action/sync');
         expect(request.headers['single-operation']).toBe(true);
 
-        expect(request.data).toEqual(JSON.stringify([
-            {
-                action: 'delete',
-                payload: [
-                    { productId: ids.get('product'), optionId: ids.get('option-1') },
-                    { productId: ids.get('product'), optionId: ids.get('option-2') },
-                    { productId: ids.get('product'), optionId: ids.get('option-3') },
-                ],
-                entity: 'product_property',
-            },
-            {
-                action: 'delete',
-                payload: [
-                    { productId: ids.get('product'), categoryId: ids.get('cat-1') },
-                    { productId: ids.get('product'), categoryId: ids.get('cat-2') },
-                    { productId: ids.get('product'), categoryId: ids.get('cat-3') },
-                ],
-                entity: 'product_category',
-            },
-            {
-                key: 'write',
-                action: 'upsert',
-                entity: 'product',
-                payload: [
-                    {
-                        id: ids.get('product'),
-                        price: [{ currencyId: DEFAULT_CURRENCY, gross: 15, net: 10, linked: false }],
-                        productNumber: ids.get('product'),
-                        stock: 10,
-                        name: 'test',
-                    },
-                ],
-            },
-        ]));
+        expect(request.data).toEqual(
+            JSON.stringify([
+                {
+                    action: 'delete',
+                    payload: [
+                        {
+                            productId: ids.get('product'),
+                            optionId: ids.get('option-1'),
+                        },
+                        {
+                            productId: ids.get('product'),
+                            optionId: ids.get('option-2'),
+                        },
+                        {
+                            productId: ids.get('product'),
+                            optionId: ids.get('option-3'),
+                        },
+                    ],
+                    entity: 'product_property',
+                },
+                {
+                    action: 'delete',
+                    payload: [
+                        {
+                            productId: ids.get('product'),
+                            categoryId: ids.get('cat-1'),
+                        },
+                        {
+                            productId: ids.get('product'),
+                            categoryId: ids.get('cat-2'),
+                        },
+                        {
+                            productId: ids.get('product'),
+                            categoryId: ids.get('cat-3'),
+                        },
+                    ],
+                    entity: 'product_category',
+                },
+                {
+                    key: 'write',
+                    action: 'upsert',
+                    entity: 'product',
+                    payload: [
+                        {
+                            id: ids.get('product'),
+                            price: [
+                                {
+                                    currencyId: DEFAULT_CURRENCY,
+                                    gross: 15,
+                                    net: 10,
+                                    linked: false,
+                                },
+                            ],
+                            productNumber: ids.get('product'),
+                            stock: 10,
+                            name: 'test',
+                        },
+                    ],
+                },
+            ]),
+        );
     });
 
     it('should throw an 400 error when httpClient post call fails with error without source property', async () => {

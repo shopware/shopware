@@ -49,7 +49,10 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         if (currentTime - state.lastKeyTime > keystrokeDelay) {
             buffer = [key];
         } else {
-            buffer = [...state.buffer, key];
+            buffer = [
+                ...state.buffer,
+                key,
+            ];
         }
 
         state = {
@@ -84,4 +87,3 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         return restrictedTags.test(tagName);
     }
 }
-

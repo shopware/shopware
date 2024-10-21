@@ -13,6 +13,8 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'salesChannelService',
         'repositoryFactory',
@@ -70,10 +72,7 @@ export default {
         },
 
         domainRepository() {
-            return this.repositoryFactory.create(
-                this.salesChannel.domains.entity,
-                this.salesChannel.domains.source,
-            );
+            return this.repositoryFactory.create(this.salesChannel.domains.entity, this.salesChannel.domains.source);
         },
 
         salesChannelRepository() {
@@ -127,7 +126,8 @@ export default {
 
                     this.createNotificationSuccess(notificationValidateSuccess);
                     this.isValidateSuccessful = true;
-                }).catch((exception) => {
+                })
+                .catch((exception) => {
                     this.createNotificationError({
                         message: exception.response.data.errors[0].detail,
                     });
@@ -153,7 +153,8 @@ export default {
                     }
 
                     this.isPreviewSuccessful = true;
-                }).catch((exception) => {
+                })
+                .catch((exception) => {
                     this.createNotificationError({
                         message: exception.response.data.errors[0].detail,
                     });
@@ -168,7 +169,7 @@ export default {
 
             return function completerFunction(prefix) {
                 const entityMapping = entityMappingService.getEntityMapping(prefix, mapping);
-                return Object.keys(entityMapping).map(val => {
+                return Object.keys(entityMapping).map((val) => {
                     return { value: val };
                 });
             };

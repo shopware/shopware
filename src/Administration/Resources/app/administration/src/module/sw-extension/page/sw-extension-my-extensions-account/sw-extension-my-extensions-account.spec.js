@@ -8,61 +8,74 @@ const userInfo = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-extension-my-extensions-account', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-text-field': {
-                    props: ['value'],
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-extension-my-extensions-account', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-text-field': {
+                        props: ['value'],
+                        template: `
                     <input type="text" :value="value" @input="$emit('update:value', $event.target.value)" />
                 `,
-                },
-                'sw-password-field': {
-                    props: ['value'],
-                    template: `
+                    },
+                    'sw-password-field': {
+                        props: ['value'],
+                        template: `
 <input type="password" :value="value" @input="$emit('update:value', $event.target.value)" />
 `,
-                },
-            },
-            provide: {
-                shopwareExtensionService: {
-                    checkLogin: () => {
-                        return Promise.resolve({
-                            userInfo,
-                        });
+                    },
+                    'sw-skeleton': true,
+                    'sw-avatar': true,
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                    },
+                    'sw-meteor-card': {
+                        template: '<div><slot></slot></div>',
                     },
                 },
-                systemConfigApiService: {
-                    getValues: () => {
-                        return Promise.resolve({
-                            'core.store.apiUri': 'https://api.shopware.com',
-                            'core.store.licenseHost': 'sw6.test.shopware.in',
-                            'core.store.shopSecret': 'very.s3cret',
-                        });
+                provide: {
+                    shopwareExtensionService: {
+                        checkLogin: () => {
+                            return Promise.resolve({
+                                userInfo,
+                            });
+                        },
                     },
-                },
-                storeService: {
-                    login: (shopwareId, password) => {
-                        if (shopwareId !== 'max@muster.com') {
-                            return Promise.reject();
-                        }
-                        if (password !== 'v3ryS3cret') {
-                            return Promise.reject();
-                        }
-
-                        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
-
-                        return Promise.resolve();
+                    systemConfigApiService: {
+                        getValues: () => {
+                            return Promise.resolve({
+                                'core.store.apiUri': 'https://api.shopware.com',
+                                'core.store.licenseHost': 'sw6.test.shopware.in',
+                                'core.store.shopSecret': 'very.s3cret',
+                            });
+                        },
                     },
-                    logout: () => {
-                        Shopware.State.get('shopwareExtensions').userInfo = null;
+                    storeService: {
+                        login: (shopwareId, password) => {
+                            if (shopwareId !== 'max@muster.com') {
+                                return Promise.reject();
+                            }
+                            if (password !== 'v3ryS3cret') {
+                                return Promise.reject();
+                            }
 
-                        return Promise.resolve();
+                            Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+
+                            return Promise.resolve();
+                        },
+                        logout: () => {
+                            Shopware.State.get('shopwareExtensions').userInfo = null;
+
+                            return Promise.resolve();
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 /**

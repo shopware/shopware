@@ -11,6 +11,17 @@ const { Component, Utils } = Shopware;
 Component.register('sw-text-editor-toolbar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'created-el',
+        'destroyed-el',
+        'remove-link',
+        'text-style-change',
+        'table-edit',
+        'on-set-link',
+    ],
+
     props: {
         parentIsActive: {
             type: Boolean,
@@ -46,7 +57,6 @@ Component.register('sw-text-editor-toolbar', {
             required: false,
             default: false,
         },
-
     },
 
     data() {
@@ -54,7 +64,7 @@ Component.register('sw-text-editor-toolbar', {
             position: {},
             range: null,
             arrowPosition: {
-                '--left': '49%;',
+                '--left': '49%',
             },
             activeTags: [],
             currentColor: null,
@@ -155,8 +165,8 @@ Component.register('sw-text-editor-toolbar', {
                 const arrowWidth = 8;
                 const selectionBoundary = this.range.getBoundingClientRect();
 
-                let left = selectionBoundary.right - (selectionBoundary.width / 2);
-                left -= (leftSidebarWidth + arrowWidth);
+                let left = selectionBoundary.right - selectionBoundary.width / 2;
+                left -= leftSidebarWidth + arrowWidth;
                 this.arrowPosition['--left'] = `${left}px`;
                 this.arrowPosition['--right'] = 'unset';
             }
@@ -184,7 +194,7 @@ Component.register('sw-text-editor-toolbar', {
                 source = source.parentNode;
             }
 
-            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
                 return;
             }
 
@@ -228,7 +238,7 @@ Component.register('sw-text-editor-toolbar', {
 
             offsetTop += boundary.top - (this.$el.clientHeight + arrowHeight);
 
-            const middleBoundary = (boundary.left + boundary.width / 2) + 4;
+            const middleBoundary = boundary.left + boundary.width / 2 + 4;
             const halfWidth = this.$el.clientWidth / 2;
             const offsetLeft = middleBoundary - halfWidth;
 
@@ -251,11 +261,19 @@ Component.register('sw-text-editor-toolbar', {
 
             if (button.children) {
                 if (typeof button.expanded === 'undefined') {
-                    this.$set(button, 'expanded', false);
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(button, 'expanded', false);
+                    } else {
+                        button.expanded = false;
+                    }
                 }
 
                 button.children.forEach((child) => {
-                    this.$set(child, 'active', !!this.activeTags.includes(child.tag));
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(child, 'active', !!this.activeTags.includes(child.tag));
+                    } else {
+                        child.active = !!this.activeTags.includes(child.tag);
+                    }
                 });
             }
 
@@ -271,7 +289,11 @@ Component.register('sw-text-editor-toolbar', {
                 button.buttonVariant = this.currentLink?.buttonVariant ?? 'primary';
             }
 
-            this.$set(button, 'active', !!this.activeTags.includes(button.tag));
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(button, 'active', !!this.activeTags.includes(button.tag));
+            } else {
+                button.active = !!this.activeTags.includes(button.tag);
+            }
 
             return button;
         },
@@ -419,13 +441,7 @@ Component.register('sw-text-editor-toolbar', {
                     return;
                 }
 
-                this.$emit(
-                    'on-set-link',
-                    button.value,
-                    target,
-                    button.displayAsButton,
-                    button.buttonVariant,
-                );
+                this.$emit('on-set-link', button.value, target, button.displayAsButton, button.buttonVariant);
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;

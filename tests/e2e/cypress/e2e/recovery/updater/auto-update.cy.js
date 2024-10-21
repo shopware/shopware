@@ -7,7 +7,7 @@ describe('Minimal auto update', () => {
      * - install.lock must exist
      * - update-service-mock.js must be running
      */
-    it('@update: de-DE and EUR', { tags: ['pa-system-settings'] }, () => {
+    it('@update: de-DE and EUR', { tags: ['pa-services-settings'] }, () => {
         // Routes to wait for
         cy.intercept({ url: '*download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
         cy.intercept({ url: '*unpack*', method: 'get' }).as('unpack');

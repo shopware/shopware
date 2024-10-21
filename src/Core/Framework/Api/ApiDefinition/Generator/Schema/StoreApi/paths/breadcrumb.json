@@ -1,0 +1,87 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "components": {
+        "schemas": {
+            "BreadcrumbCollection": {
+                "type": "object",
+                "properties": {
+                    "breadcrumbs": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Breadcrumb"
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["breadcrumb_collection"]
+                    }
+                },
+                "required": [
+                    "breadcrumbs",
+                    "apiAlias"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/breadcrumb/{id}": {
+            "get": {
+                "tags": [
+                    "Experimental",
+                    "Breadcrumb"
+                ],
+                "summary": "Fetch a breadcrumb",
+                "description": "Perform search to get category or product breadcrumb. \n\nExperimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "readBreadcrumb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID for product or category",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type: category or product (optional - default: product)",
+                        "required": false,
+                        "schema": { "type": "string", "enum": ["product", "category"] }
+                    },
+                    {
+                        "name": "referrerCategoryId",
+                        "in": "query",
+                        "description": "UUID for referrer category only used for product breadcrumb",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Search result containing SeoUrl\\'s to be used as breadcrumb.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BreadcrumbCollection"
+                                }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

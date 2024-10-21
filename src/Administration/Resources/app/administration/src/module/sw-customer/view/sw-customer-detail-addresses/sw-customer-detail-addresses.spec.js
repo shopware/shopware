@@ -7,30 +7,33 @@ import { mount } from '@vue/test-utils';
 const { ShopwareError } = Shopware.Classes;
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-customer-detail-addresses', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: `<div class="sw-card">
+    return mount(
+        await wrapTestComponent('sw-customer-detail-addresses', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: `<div class="sw-card">
                     <slot name="toolbar"></slot>
                     <slot name="grid"></slot>
                     <slot></slot>
                 </div>`,
-                },
-                'sw-card-filter': {
-                    template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
-                },
-                'sw-field': true,
-                'sw-button': {
-                    template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-                },
-                'sw-modal': true,
-                'sw-icon': true,
-                'sw-one-to-many-grid': {
-                    props: ['collection'],
-                    template: `
+                    },
+                    'sw-card-filter': {
+                        template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                    },
+                    'sw-field': true,
+                    'sw-button': {
+                        emits: ['click'],
+                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+                    },
+                    'sw-modal': true,
+                    'sw-icon': true,
+                    'sw-one-to-many-grid': {
+                        props: ['collection'],
+                        template: `
                     <div>
                         <tbody>
                             <td v-for="item in collection">
@@ -40,60 +43,66 @@ async function createWrapper() {
                         </tbody>
                     </div>
                 `,
+                    },
+                    'sw-context-menu-item': {
+                        emits: ['click'],
+                        template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
+                    },
+                    'sw-customer-address-form': true,
+                    'sw-customer-address-form-options': true,
+                    'sw-radio-field': true,
+                    'sw-address': true,
                 },
-                'sw-context-menu-item': {
-                    template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
-                },
-                'sw-customer-address-form': true,
-                'sw-customer-address-form-options': true,
-            },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve([]),
-                            create: () => Promise.resolve({ id: '' }),
-                            clone: jest.fn(() => Promise.resolve({
-                                id: 'clone-address-id',
-                            })),
-                            get: (id) => {
-                                if (id === 'clone-address-id') {
-                                    return Promise.resolve({
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve([]),
+                                create: () => Promise.resolve({ id: '' }),
+                                clone: jest.fn(() =>
+                                    Promise.resolve({
                                         id: 'clone-address-id',
-                                        lastName: 'Thu',
-                                        firstName: 'Vo',
-                                        city: 'Berlin',
-                                        street: 'Legiendamm',
-                                        zipcode: '550000',
-                                    });
-                                }
+                                    }),
+                                ),
+                                get: (id) => {
+                                    if (id === 'clone-address-id') {
+                                        return Promise.resolve({
+                                            id: 'clone-address-id',
+                                            lastName: 'Thu',
+                                            firstName: 'Vo',
+                                            city: 'Berlin',
+                                            street: 'Legiendamm',
+                                            zipcode: '550000',
+                                        });
+                                    }
 
-                                return Promise.reject();
-                            },
-                        };
+                                    return Promise.reject();
+                                },
+                            };
+                        },
                     },
                 },
             },
-        },
 
-        props: {
-            customerEditMode: false,
-            customer: {
-                id: '1',
-                addresses: [
-                    {
-                        id: '1',
-                        lastName: 'Nguyen',
-                        firstName: 'Quynh',
-                        city: 'Berlin',
-                        street: 'Legiendamm',
-                        zipcode: '550000',
-                    },
-                ],
+            props: {
+                customerEditMode: false,
+                customer: {
+                    id: '1',
+                    addresses: [
+                        {
+                            id: '1',
+                            lastName: 'Nguyen',
+                            firstName: 'Quynh',
+                            city: 'Berlin',
+                            street: 'Legiendamm',
+                            zipcode: '550000',
+                        },
+                    ],
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {

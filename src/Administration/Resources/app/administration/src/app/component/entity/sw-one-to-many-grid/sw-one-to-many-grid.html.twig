@@ -22,7 +22,7 @@
         v-tooltip.bottom="tooltipDelete"
         class="sw-one-to-many-grid__delete-action"
         variant="danger"
-        :disabled="!allowDelete"
+        :disabled="!allowDelete || undefined"
         @click="deleteItem(item.id)"
     >
         {{ $tc('global.default.delete') }}

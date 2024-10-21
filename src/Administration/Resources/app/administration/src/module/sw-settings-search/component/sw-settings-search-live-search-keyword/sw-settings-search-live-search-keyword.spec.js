@@ -1,20 +1,23 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 const defaultHighlightClass = '.sw-settings-search-live-search-keyword__highlight';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-search-live-search-keyword', {
-        sync: true,
-    }), {
-        props: {
-            text: '',
-            searchTerm: '',
-            highlightClass: 'sw-settings-search-live-search-keyword__highlight',
+    return mount(
+        await wrapTestComponent('sw-settings-search-live-search-keyword', {
+            sync: true,
+        }),
+        {
+            props: {
+                text: '',
+                searchTerm: '',
+                highlightClass: 'sw-settings-search-live-search-keyword__highlight',
+            },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-search/component/sw-settings-search-live-search', () => {
@@ -66,6 +69,6 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         });
 
         const highlightItems = wrapper.findAll(defaultHighlightClass);
-        expect((highlightItems)).toHaveLength(wrapper.vm.searchTerm.split(' ').length);
+        expect(highlightItems).toHaveLength(wrapper.vm.searchTerm.split(' ').length);
     });
 });

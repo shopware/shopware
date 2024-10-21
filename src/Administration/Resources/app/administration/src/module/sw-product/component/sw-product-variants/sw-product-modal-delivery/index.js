@@ -9,7 +9,17 @@ import './sw-product-modal-delivery.scss';
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
+
+    emits: [
+        'modal-close',
+        'configuration-close',
+    ],
 
     props: {
         product: {
@@ -43,11 +53,18 @@ export default {
     methods: {
         createdComponent() {
             if (!this.product.variantListingConfig) {
-                this.$set(
-                    this.product,
-                    'variantListingConfig',
-                    { displayParent: null, configuratorGroupConfig: [], mainVariantId: null },
-                );
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.product, 'variantListingConfig', {
+                        displayParent: null,
+                        configuratorGroupConfig: [],
+                        mainVariantId: null,
+                    });
+                } else {
+                    this.product.variantListingConfig = {
+                        displayParent: null,
+                        configuratorGroupConfig: [],
+                    };
+                }
             }
         },
 

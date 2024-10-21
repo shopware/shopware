@@ -1,4 +1,7 @@
 /* global adminPath */
+/**
+ * @package services-settings
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 // eslint-disable-next-line
@@ -25,9 +28,11 @@ const conditionTypesApplyIsEmpty = [
 ];
 
 function importAllConditionTypes() {
-    return Promise.all(conditionTypesApplyIsEmpty.map(conditionType => {
-        return import(path.join(adminPath, conditionTypesRootPath, conditionType.filePath));
-    }));
+    return Promise.all(
+        conditionTypesApplyIsEmpty.map((conditionType) => {
+            return import(path.join(adminPath, conditionTypesRootPath, conditionType.filePath));
+        }),
+    );
 }
 
 async function createWrapperForComponent(componentName) {
@@ -62,6 +67,11 @@ async function createWrapperForComponent(componentName) {
                 'sw-icon': true,
                 'sw-popover': true,
                 'sw-datepicker': true,
+                'sw-loader': true,
+                'sw-context-menu': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),
@@ -100,18 +110,22 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         expect(conditionOptions.length).toBeGreaterThan(0);
         expect(conditionOptions.every((conditionOption) => conditionOption.exists())).toBe(true);
         // Expect always last option is "Empty"
-        expect(conditionOptions.filter(option => option.text() === 'global.sw-condition.operator.empty')).toHaveLength(1);
+        expect(conditionOptions.filter((option) => option.text() === 'global.sw-condition.operator.empty')).toHaveLength(1);
     });
 
     it.each(conditionTypesApplyIsEmpty)('Should delete value when operator is empty', async (conditionType) => {
         const wrapper = await createWrapperForComponent(conditionType.filePath);
 
-        const condition = { value: { operator: '=', [conditionType.value]: 'kyln' } };
+        const condition = {
+            value: { operator: '=', [conditionType.value]: 'kyln' },
+        };
         await wrapper.setProps({ condition: condition });
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.condition.value[conditionType.value]).toBe('kyln');
 
-        const conditionEmpty = { value: { operator: 'empty', [conditionType.value]: 'kyln' } };
+        const conditionEmpty = {
+            value: { operator: 'empty', [conditionType.value]: 'kyln' },
+        };
         await wrapper.setProps({ condition: conditionEmpty });
         await wrapper.vm.$nextTick();
         // Expect value always delete when operator is empty

@@ -14,6 +14,8 @@ const { Component } = Shopware;
 Component.register('sw-tabs', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         /**
          * Only used for new mt-tabs component
@@ -41,7 +43,7 @@ Component.register('sw-tabs', {
             return false;
         },
 
-        itemsBackwardCompatible() {
+        itemsBackwardCompatible(): TabItem[] {
             if (this.items) {
                 return this.items;
             }
@@ -58,40 +60,46 @@ Component.register('sw-tabs', {
              */
             let items = defaultSlotContent
                 .filter((item) => {
-                    // @ts-expect-error
-                    return (item.type?.name === 'sw-tabs-item') ||
+                    return (
+                        // @ts-expect-error
+                        item.type?.name === 'sw-tabs-item' ||
                         // eslint-disable-next-line @typescript-eslint/no-base-to-string
-                        (item.type?.toString() === 'Symbol(v-fgt)');
+                        item.type?.toString() === 'Symbol(v-fgt)'
+                    );
                 })
                 .map((item) => {
                     // Handle fragments
 
                     // eslint-disable-next-line @typescript-eslint/no-base-to-string
                     if (item.type?.toString() === 'Symbol(v-fgt)') {
-                        // @ts-expect-error
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                        return (item.children ?? [])?.filter((child) => child.type?.name === 'sw-tabs-item')
-                            // eslint-disable-next-line max-len
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
-                            .map((child: any) => {
-                                return {
-                                    // eslint-disable-next-line max-len
-                                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                                    label: child.props?.title ?? child.props?.name,
-                                    // eslint-disable-next-line max-len
-                                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                                    name: child.props?.name ?? child.props?.title,
-                                    onClick: () => {
-                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                                        if (child.props?.route) {
-                                            // eslint-disable-next-line max-len
-                                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-                                            void this.$router.push(child.props.route);
-                                        }
-                                    },
-                                };
-                            });
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        return (
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                            (item.children ?? [])
+                                // @ts-expect-error
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                                ?.filter((child) => child.type?.name === 'sw-tabs-item')
+                                // eslint-disable-next-line max-len
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
+                                .map((child: any) => {
+                                    return {
+                                        // eslint-disable-next-line max-len
+                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                                        label: child.props?.title ?? child.props?.name,
+                                        // eslint-disable-next-line max-len
+                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                                        name: child.props?.name ?? child.props?.title,
+                                        onClick: () => {
+                                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                                            if (child.props?.route) {
+                                                // eslint-disable-next-line max-len
+                                                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+                                                void this.$router.push(child.props.route);
+                                            }
+                                        },
+                                    };
+                                })
+                        );
                     }
                     return {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -113,11 +121,21 @@ Component.register('sw-tabs', {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return items;
         },
+
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        listeners(): Record<string, Function | Function[]> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     data(): {
         activeItem: unknown;
-        } {
+    } {
         return {
             activeItem: null,
         };
@@ -133,12 +151,15 @@ Component.register('sw-tabs', {
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
 
         mountedComponent() {

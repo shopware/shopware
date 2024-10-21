@@ -55,6 +55,10 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
             );
         }
 
+        if (!Feature::isActive('v6.7.0.0')) {
+            $request->query->set('onlyAvailable', '1');
+        }
+
         $result = $this->paymentMethodRoute->load($request, $context, $paymentCriteria);
         $paymentMethods = $this->ruleIdMatcher->filterCollection($result->getPaymentMethods(), $context->getRuleIds());
 

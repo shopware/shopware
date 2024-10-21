@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import createMenuService from 'src/app/service/menu.service';
 import catalogues from './_sw-admin-menu-item/catalogues';
@@ -15,15 +15,46 @@ const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
 async function createWrapper(options = {}) {
+    const router = createRouter({
+        routes: [
+            ...Shopware.Module.getModuleRoutes(),
+            {
+                path: '/sw/custom/entity/index',
+                name: 'sw.custom.entity.index',
+                type: 'core',
+                components: { default: 'sw-index' },
+                isChildren: false,
+                routeKey: 'index',
+            },
+        ],
+        route: {
+            meta: {
+                $module: {
+                    name: '',
+                },
+            },
+        },
+        history: createWebHashHistory(),
+    });
+
+    router.resolve = jest.fn(() => {
+        return {};
+    });
+
     return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
+                'sw-icon': {
+                    template: '<div class="sw-icon"></div>',
+                },
                 'sw-version': true,
                 'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
                 'sw-loader': true,
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
+                'router-link': {
+                    template: '<div class="router-link"><slot /></div>',
+                },
             },
             provide: {
                 menuService,
@@ -44,33 +75,25 @@ async function createWrapper(options = {}) {
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
                         const entityName = 'customEntityName';
-                        return [{
-                            id: `custom-entity/${entityName}`,
-                            label: `${entityName}.moduleTitle`,
-                            moduleType: 'plugin',
-                            path: 'sw.custom.entity.index',
-                            params: {
-                                entityName: entityName,
+                        return [
+                            {
+                                id: `custom-entity/${entityName}`,
+                                label: `${entityName}.moduleTitle`,
+                                moduleType: 'plugin',
+                                path: 'sw.custom.entity.index',
+                                params: {
+                                    entityName: entityName,
+                                },
+                                position: 100,
+                                parent: 'sw.second.top.level',
                             },
-                            position: 100,
-                            parent: 'sw.second.top.level',
-                        }];
+                        ];
                     },
                 },
             },
             mocks: {
                 $route: { meta: { $module: { name: '' } } },
-                $router: createRouter({
-                    routes: Shopware.Module.getModuleRoutes(),
-                    route: {
-                        meta: {
-                            $module: {
-                                name: '',
-                            },
-                        },
-                    },
-                    history: createWebHashHistory(),
-                }),
+                $router: router,
             },
         },
         ...options,
@@ -97,19 +120,24 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 },
             },
         });
-    });
-
-    beforeEach(async () => {
-        jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
-
-        Shopware.State.commit('setCurrentUser', null);
-        Shopware.State.get('settingsItems').settingsGroups.shop = [];
-        Shopware.State.get('settingsItems').settingsGroups.system = [];
 
         Shopware.Module.getModuleRegistry().clear();
         adminModules.forEach((adminModule) => {
             Shopware.Module.register(adminModule.name, adminModule);
         });
+    });
+
+    beforeEach(async () => {
+        // This is here to fix v-bind false error for transition "persisted"
+        config.global.stubs = {
+            transition: false,
+        };
+
+        jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
+
+        Shopware.State.commit('setCurrentUser', null);
+        Shopware.State.get('settingsItems').settingsGroups.shop = [];
+        Shopware.State.get('settingsItems').settingsGroups.system = [];
 
         Shopware.State.commit('shopwareApps/setApps', []);
 
@@ -172,7 +200,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         await wrapper.vm.$nextTick();
 
-
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
         expect(userTitle.text()).toBe('Copyreader');
@@ -185,10 +212,14 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         element1.classList.add('foo', 'bar');
         element2.classList.add('foo', 'bar');
 
-        wrapper.vm.removeClassesFromElements([
-            element1,
-            element2,
-        ], ['foo'], [element2]);
+        wrapper.vm.removeClassesFromElements(
+            [
+                element1,
+                element2,
+            ],
+            ['foo'],
+            [element2],
+        );
 
         expect(element1.classList.contains('bar')).toBe(true);
         expect(element1.classList.contains('foo')).toBe(false);
@@ -199,10 +230,22 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
     it('should be able to check if a mouse position is in a polygon', async () => {
         const polygon = [
-            [0, 287],
-            [0, 335],
-            [300, 431],
-            [300, 287],
+            [
+                0,
+                287,
+            ],
+            [
+                0,
+                335,
+            ],
+            [
+                300,
+                431,
+            ],
+            [
+                300,
+                287,
+            ],
         ];
 
         const insideMousePosition = {
@@ -221,13 +264,31 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should get polygon from menu item', async () => {
         const element = document.createElement('div');
         const entry = {
-            children: [{
-                name: 'foo',
-            }],
+            children: [
+                {
+                    name: 'foo',
+                },
+            ],
         };
 
-        expect(wrapper.vm.getPolygonFromMenuItem(element, entry))
-            .toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
+        expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([
+            [
+                0,
+                0,
+            ],
+            [
+                0,
+                0,
+            ],
+            [
+                0,
+                0,
+            ],
+            [
+                0,
+                0,
+            ],
+        ]);
     });
 
     it('should render correct admin menu entries', async () => {
@@ -273,12 +334,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         // Console error gets thrown for both levels
         expect(Shopware.Utils.debug.error.mock.calls[0][0]).toBeInstanceOf(Error);
         expect(Shopware.Utils.debug.error.mock.calls[0][0].toString()).toBe(
-            'Error: The navigation entry \"sw.fourth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
+            'Error: The navigation entry "sw.fourth.level.first" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
         );
 
         expect(Shopware.Utils.debug.error.mock.calls[1][0]).toBeInstanceOf(Error);
         expect(Shopware.Utils.debug.error.mock.calls[1][0].toString()).toBe(
-            'Error: The navigation entry \"sw.fifth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
+            'Error: The navigation entry "sw.fifth.level.first" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
         );
     });
 
@@ -383,5 +444,32 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
+    });
+
+    it('should not show icons in flyout menu items', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = await createWrapper({
+            attachTo: '#component',
+        });
+        await flushPromises();
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
+
+        await target.trigger('mouseenter');
+        await flushPromises();
+
+        const flyoutItem = wrapper.findComponent(
+            '.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first',
+        );
+        expect(flyoutItem.findAll('.sw-icon')).toHaveLength(0);
     });
 });

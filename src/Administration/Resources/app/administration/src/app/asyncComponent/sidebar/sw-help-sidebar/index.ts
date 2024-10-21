@@ -11,6 +11,8 @@ import './sw-help-sidebar.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['shortcutService'],
 
     props: {
@@ -21,7 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @required false
          * @public
          * @example <sw-help-sidebar selector="body"></sw-help-sidebar>
-        */
+         */
         selector: {
             type: String,
             required: false,
@@ -67,7 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @returns {void}
          * @description Adds the sidebar to the DOM
          * @private
-        */
+         */
         mountedComponent(): void {
             const el = document.querySelector(this.selector) as HTMLElement;
 
@@ -83,7 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @returns {void}
          * @description Removes the sidebar from the DOM after the transition is finished
          * @private
-        */
+         */
         beforeUnmountComponent(): void {
             const el = this.$el as HTMLElement;
 
@@ -112,7 +114,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @returns {void}
          * @description Closes the sidebar if the user clicks outside of the sidebar
          * @private
-        */
+         */
         mouseDown(event: MouseEvent): void {
             const helpSidebarContainer = this.$refs.helpSidebarContainer as HTMLElement;
 
@@ -132,7 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @returns {void}
          * @description Closes the sidebar if the user presses the escape key
          * @private
-        */
+         */
         escKey(event: KeyboardEvent): void {
             const target = event.target as HTMLElement;
 

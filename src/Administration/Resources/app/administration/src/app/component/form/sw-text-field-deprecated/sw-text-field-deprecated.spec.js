@@ -13,6 +13,11 @@ async function createWrapper(options = {}) {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-field-error': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
             },
             provide: {
                 validationService: {},
@@ -27,9 +32,7 @@ async function createWrapper(options = {}) {
 }
 
 async function createWrappedComponent() {
-    const wrapper = mount(await Shopware.Component.build(
-        'sw-text-field-mock',
-    ), {
+    const wrapper = mount(await Shopware.Component.build('sw-text-field-mock'), {
         global: {
             stubs: {
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -38,6 +41,11 @@ async function createWrappedComponent() {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-field-error': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
             },
             provide: {
                 validationService: {},

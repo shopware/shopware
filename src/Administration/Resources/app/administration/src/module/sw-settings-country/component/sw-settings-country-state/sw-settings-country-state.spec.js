@@ -1,85 +1,92 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-country-state', {
-        sync: true,
-    }), {
-        props: {
-            country: {
-                isNew: () => true,
-                active: true,
-                apiAlias: null,
-                createdAt: '2020-08-12T02:49:39.974+00:00',
-                customFields: null,
-                customerAddresses: [],
-                displayStateInRegistration: false,
-                forceStateInRegistration: false,
-                id: '44de136acf314e7184401d36406c1e90',
-                iso: 'AL',
-                iso3: 'ALB',
-                name: 'Albania',
-                orderAddresses: [],
-                position: 10,
-                salesChannelDefaultAssignments: [],
-                salesChannels: [],
-                shippingAvailable: true,
-                states: [],
-                taxRules: [],
-                translated: {},
-                translations: [],
-                updatedAt: '2020-08-16T06:57:40.559+00:00',
-                vatIdRequired: false,
-            },
-            isLoading: false,
-        },
-
-        global: {
-            mocks: {
-                $tc: key => key,
-                $route: {
-                    params: {
-                        id: 'id',
-                    },
+    return mount(
+        await wrapTestComponent('sw-settings-country-state', {
+            sync: true,
+        }),
+        {
+            props: {
+                country: {
+                    isNew: () => true,
+                    active: true,
+                    apiAlias: null,
+                    createdAt: '2020-08-12T02:49:39.974+00:00',
+                    customFields: null,
+                    customerAddresses: [],
+                    displayStateInRegistration: false,
+                    forceStateInRegistration: false,
+                    id: '44de136acf314e7184401d36406c1e90',
+                    iso: 'AL',
+                    iso3: 'ALB',
+                    name: 'Albania',
+                    orderAddresses: [],
+                    position: 10,
+                    salesChannelDefaultAssignments: [],
+                    salesChannels: [],
+                    shippingAvailable: true,
+                    states: [],
+                    taxRules: [],
+                    translated: {},
+                    translations: [],
+                    updatedAt: '2020-08-16T06:57:40.559+00:00',
+                    vatIdRequired: false,
                 },
-                $device: {
-                    getSystemKey: () => {},
-                    onResize: () => {},
-                },
+                isLoading: false,
             },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        get: () => {
-                            return Promise.resolve({});
+            global: {
+                mocks: {
+                    $tc: (key) => key,
+                    $route: {
+                        params: {
+                            id: 'id',
                         },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
+                    },
+                    $device: {
+                        getSystemKey: () => {},
+                        onResize: () => {},
                     },
                 },
-            },
 
-            stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-ignore-class': true,
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-simple-search-field': true,
-                'sw-context-menu-item': true,
-                'sw-extension-component-section': true,
-                'sw-one-to-many-grid': {
-                    props: ['allowDelete', 'collection'],
-                    template: `
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                return Promise.resolve({});
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                },
+
+                stubs: {
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-ignore-class': true,
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-simple-search-field': true,
+                    'sw-context-menu-item': true,
+                    'sw-extension-component-section': true,
+                    'sw-one-to-many-grid': {
+                        props: [
+                            'allowDelete',
+                            'collection',
+                        ],
+                        template: `
                     <div class="sw-one-to-many-grid">
                     <template v-for="item in collection">
                         <slot name="more-actions" v-bind="{ item }"></slot>
@@ -87,7 +94,7 @@ async function createWrapper(privileges = []) {
                             <sw-context-menu-item
                                 class="sw-one-to-many-grid__delete-action"
                                 variant="danger"
-                                :disabled="!allowDelete"
+                                :disabled="!allowDelete || undefined"
                                 @click="deleteItem(item.id)">
                                 {{ $tc('global.default.delete') }}
                             </sw-context-menu-item>
@@ -95,12 +102,16 @@ async function createWrapper(privileges = []) {
                     </template>
                     </div>
                 `,
+                    },
+                    'sw-empty-state': true,
+                    'sw-country-state-detail': true,
+                    'sw-context-button': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-loader': true,
                 },
-                'sw-empty-state': true,
             },
         },
-
-    });
+    );
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-state', () => {

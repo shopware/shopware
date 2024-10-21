@@ -16,10 +16,9 @@
                     data-off-canvas-filter="true"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    aria-label="{{ 'general.menuLink'|trans }}"
                 >
                     {% block element_product_listing_filter_button_icon %}
-                        {% sw_icon 'sliders-horizontal' %}
+                        {% sw_icon 'sliders-horizontal' style { size: 'sm', ariaHidden: true } %}
                     {% endblock %}
 
                     {{ 'listing.filterTitleText'|trans }}
@@ -34,7 +33,8 @@
                 >
                     {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
                         listing: listing,
-                        sidebar: sidebar
+                        sidebar: sidebar,
+                        ariaLiveUpdates: true
                     } %}
                 </div>
             {% endblock %}

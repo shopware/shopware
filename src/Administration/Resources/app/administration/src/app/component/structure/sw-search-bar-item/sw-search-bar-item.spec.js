@@ -63,7 +63,8 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
                     'sw-highlight-text': true,
                     'sw-shortcut-overview-item': true,
                     'router-link': {
-                        template: '<div class="sw-router-link"><slot></slot></div>',
+                        emits: ['click'],
+                        template: '<div class="sw-router-link" @click="$emit(\'click\', $event)"><slot></slot></div>',
                         props: ['to'],
                     },
                 },
@@ -122,9 +123,9 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-router-link').exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar-item__link').exists()).toBe(true);
 
-        await wrapper.find('.sw-router-link').trigger('click');
+        await wrapper.find('.sw-search-bar-item__link').trigger('click');
 
         expect(spyOnClickSearchResult).toHaveBeenCalledTimes(1);
         expect(spyOnClickSearchResult).toHaveBeenCalledWith('product', 'productId');

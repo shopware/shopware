@@ -1,7 +1,6 @@
-/*
+/**
  * @package inventory
  */
-
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -58,7 +57,10 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: ['items', 'allow-inline-edit'],
+                    props: [
+                        'items',
+                        'allow-inline-edit',
+                    ],
                     template: `
                         <div>
                             <template v-for="item in items">
@@ -73,6 +75,9 @@ async function createWrapper() {
                     props: ['disabled'],
                 },
                 'router-link': true,
+                'sw-checkbox-field': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
             },
         },
     });

@@ -16,6 +16,16 @@ import './sw-media-base-item.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    inject: ['systemConfigApiService'],
+
+    emits: [
+        'media-item-click',
+        'media-item-selection-add',
+        'media-item-selection-remove',
+    ],
+
     props: {
         item: {
             type: Object,
@@ -85,7 +95,12 @@ export default {
     data() {
         return {
             isInlineEdit: false,
+            defaultArReady: false,
         };
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     computed: {
@@ -126,25 +141,15 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
-
-        /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
-         */
-        getSpatialIconName() {
-            return !this.item.config?.spatial?.arReady ? 'regular-3d' : 'regular-AR';
-        },
-
-        /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
-         */
-        getSpatialSubline() {
-            return !this.item.config?.spatial?.arReady
-                ? this.$tc('sw-product.mediaForm.spatialSubline')
-                : this.$tc('sw-product.mediaForm.arSubline');
-        },
     },
 
     methods: {
+        createdComponent() {
+            this.systemConfigApiService.getValues('core.media').then((values) => {
+                this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
+            });
+        },
+
         handleItemClick(originalDomEvent) {
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
@@ -157,9 +162,10 @@ export default {
 
         isSelectionIndicatorClicked(path) {
             return path.some((parent) => {
-                return parent.classList && (
-                    parent.classList.contains('sw-media-base-item__selected-indicator') ||
-                    parent.classList.contains('sw-context-button')
+                return (
+                    parent.classList &&
+                    (parent.classList.contains('sw-media-base-item__selected-indicator') ||
+                        parent.classList.contains('sw-context-button'))
                 );
             });
         },

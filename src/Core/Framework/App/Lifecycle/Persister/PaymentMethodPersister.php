@@ -8,9 +8,9 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,7 +32,7 @@ class PaymentMethodPersister
     public function __construct(
         private readonly EntityRepository $paymentMethodRepository,
         private readonly MediaService $mediaService,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly SourceResolver $sourceResolver,
     ) {
         $this->mimeDetector = new FinfoMimeTypeDetector();
     }
@@ -47,7 +47,7 @@ class PaymentMethodPersister
 
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($defaultLocale);
-            $payload['handlerIdentifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+            $payload['handlerIdentifier'] = \sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
             $payload['technicalName'] = \sprintf('payment_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();
@@ -138,15 +138,17 @@ class PaymentMethodPersister
             return null;
         }
 
-        $icon = $this->appLoader->loadFile($manifest->getPath(), $iconPath);
-        if (!$icon) {
+        $fs = $this->sourceResolver->filesystemForManifest($manifest);
+
+        if (!$fs->has($iconPath)) {
             return null;
         }
 
-        $fileName = sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+        $fileName = \sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+        $icon = $fs->read($iconPath);
         $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
-        $mediaId = $existing !== null ? $existing->getOriginalMediaId() : null;
+        $mediaId = $existing?->getOriginalMediaId();
 
         if (!$mimeType) {
             return null;

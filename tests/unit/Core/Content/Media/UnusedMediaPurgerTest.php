@@ -1267,7 +1267,7 @@ class UnusedMediaPurgerTest extends TestCase
      */
     private function getMediaDefinition(array $fields): EntityDefinition
     {
-        $instance = new class() extends EntityDefinition {
+        $instance = new class extends EntityDefinition {
             /**
              * @var array<Field>
              */
@@ -1295,7 +1295,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     private function getProductMediaDefinition(bool $withFkey = true): EntityDefinition
     {
-        $definition = new class() extends EntityDefinition {
+        $definition = new class extends EntityDefinition {
             public bool $withFkey;
 
             public function getEntityName(): string
@@ -1324,7 +1324,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     private function getMetaDefinition(): EntityDefinition
     {
-        return new class() extends EntityDefinition {
+        return new class extends EntityDefinition {
             public function getEntityName(): string
             {
                 return 'media_meta';
@@ -1343,7 +1343,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     private function getMediaGalleryDefinition(): EntityDefinition
     {
-        return new class() extends EntityDefinition {
+        return new class extends EntityDefinition {
             public function getEntityName(): string
             {
                 return 'media_gallery';
@@ -1369,7 +1369,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     private function getMediaGalleryMappingDefinition(): EntityDefinition
     {
-        return new class() extends MappingEntityDefinition {
+        return new class extends MappingEntityDefinition {
             public function getEntityName(): string
             {
                 return 'media_gallery_mapping';
@@ -1389,7 +1389,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     private function getThumbnailDefinition(): EntityDefinition
     {
-        return new class() extends EntityDefinition {
+        return new class extends EntityDefinition {
             public function getEntityName(): string
             {
                 return 'media_thumbnail';

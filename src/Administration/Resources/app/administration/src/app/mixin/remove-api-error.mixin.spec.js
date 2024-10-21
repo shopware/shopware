@@ -1,26 +1,32 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/remove-api-error.mixin';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(attrs = {}) {
-    return mount({
-        template: `
+    return mount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('remove-api-error'),
-        ],
-        data() {
-            return {
-                name: 'sw-mock-field',
-                value: 'initial-value',
-            };
+            mixins: [
+                Shopware.Mixin.getByName('remove-api-error'),
+            ],
+            data() {
+                return {
+                    name: 'sw-mock-field',
+                    value: 'initial-value',
+                };
+            },
         },
-    }, {
-        attachTo: document.body,
-        attrs,
-    });
+        {
+            attachTo: document.body,
+            attrs,
+        },
+    );
 }
 
 describe('src/app/mixin/remove-api-error.mixin.ts', () => {

@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import swUsageDataConsentBanner from 'src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner';
 
 const usageDataService = {
     getConsent: () => jest.fn(),
@@ -12,30 +11,41 @@ const usageDataService = {
  * @package data-services
  */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
-    const wrapper = mount(await wrapTestComponent('sw-usage-data-consent-banner', {
-        sync: true,
-    }), {
-        props: {
-            canBeHidden,
-        },
-        global: {
-            stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-external-link': true,
-                'sw-internal-link': true,
-                'sw-help-text': true,
-                i18n: true,
+    const wrapper = mount(
+        await wrapTestComponent('sw-usage-data-consent-banner', {
+            sync: true,
+        }),
+        {
+            props: {
+                canBeHidden,
             },
-            provide: {
-                usageDataService,
-                acl: {
-                    can: () => isPrivileged,
+            global: {
+                stubs: {
+                    'sw-icon': await wrapTestComponent('sw-icon', {
+                        sync: true,
+                    }),
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-external-link': true,
+                    'sw-internal-link': true,
+                    'sw-help-text': true,
+                    i18n: true,
+                    'i18n-t': true,
+                    'sw-icon-deprecated': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                },
+                provide: {
+                    usageDataService,
+                    acl: {
+                        can: () => isPrivileged,
+                    },
                 },
             },
         },
-    });
+    );
 
     await flushPromises();
 
@@ -52,8 +62,6 @@ describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-bann
                 isBannerHidden: false,
             });
         }
-
-        Shopware.State.registerModule('usageData', swUsageDataConsentBanner);
     });
 
     it('should show the usage data consent banner', async () => {

@@ -64,7 +64,7 @@
             }"
             class="sw-settings-customer-group-list__create"
             variant="primary"
-            :disabled="!acl.can('customer_groups.creator')"
+            :disabled="!acl.can('customer_groups.creator') || undefined"
             :router-link="{ name: 'sw.settings.customer.group.create' }"
         >
             {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
@@ -80,7 +80,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_customer_group_list_card_content %}
             <sw-card
-                position-identifier="sw-settings-customer-group-list">
+                position-identifier="sw-settings-customer-group-list"
+            >
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_list_grid %}
@@ -101,9 +102,9 @@
                         :full-page="false"
                         :allow-view="acl.can('customer_groups.viewer')"
                         :allow-edit="acl.can('customer_groups.editor')"
-                        :allow-inline-edit="acl.can('customer_groups.editor')"
+                        :allow-inline-edit="acl.can('customer_groups.editor') || undefined"
                         :allow-delete="acl.can('customer_groups.deleter')"
-                        :show-selection="acl.can('customer_groups.deleter')"
+                        :show-selection="acl.can('customer_groups.deleter') || undefined"
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
                     >
@@ -122,7 +123,7 @@
                             <sw-context-menu-item
                                 class="sw-settings-customer-group-list-grid__delete-action"
                                 variant="danger"
-                                :disabled="!acl.can('customer_groups.deleter')"
+                                :disabled="!acl.can('customer_groups.deleter') || undefined"
                                 @click="onContextMenuDelete(item)"
                             >
                                 {{ $tc('global.default.delete') }}

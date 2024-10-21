@@ -1,0 +1,71 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartPriceReference": {
+                "type": "object",
+                "properties": {
+                    "purchaseUnit": {
+                        "type": "number"
+                    },
+                    "referenceUnit": {
+                        "type": "number"
+                    },
+                    "unitName": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cart_price_reference"]
+                    },
+                    "listPrice": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CartListPrice"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "regulationPrice": {
+                        "type": "object",
+                        "properties": {
+                            "price": {
+                                "type": "number"
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["cart_regulation_price"]
+                            }
+                        },
+                        "nullable": true
+                    },
+                    "hasRange": {
+                        "type": "boolean"
+                    },
+                    "variantId": {
+                        "type": "string",
+                        "format": "^[0-9a-f]{32}$",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "hasRange",
+                    "regulationPrice",
+                    "listPrice",
+                    "calculatedTaxes",
+                    "totalPrice",
+                    "quantity",
+                    "unitName"
+                ]
+            }
+        }
+    }
+}

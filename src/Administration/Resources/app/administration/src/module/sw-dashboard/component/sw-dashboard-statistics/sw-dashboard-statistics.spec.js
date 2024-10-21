@@ -8,8 +8,7 @@ const hasOrderTodayMock = [
 async function createWrapper(privileges = [], repository = {}) {
     const repositoryMock = {
         search: () => Promise.resolve([]),
-        buildHeaders: () => {
-        },
+        buildHeaders: () => {},
         ...repository,
     };
 
@@ -31,6 +30,13 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-extension-component-section': true,
                 'sw-icon': true,
                 'sw-field-error': true,
+                'router-link': true,
+                'sw-label': true,
+                'sw-context-menu-item': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-inheritance-switch': true,
             },
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),
@@ -43,7 +49,7 @@ async function createWrapper(privileges = [], repository = {}) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => (repositoryMock),
+                    create: () => repositoryMock,
                 },
                 stateStyleDataProviderService: {},
                 acl: {
@@ -86,11 +92,12 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
 
         Shopware.Application.addInitializer('httpClient', () => {
             return {
-                get: () => Promise.resolve({
-                    data: {
-                        statistic: [],
-                    },
-                }),
+                get: () =>
+                    Promise.resolve({
+                        data: {
+                            statistic: [],
+                        },
+                    }),
             };
         });
         jest.useFakeTimers('modern');
@@ -125,27 +132,27 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         expect(statisticsSum.exists()).toBeTruthy();
     });
 
-
     it('should show the todays stats', async () => {
         const orderSearchResult = {
-            search: () => Promise.resolve([
-                {
-                    id: '1a2b3c',
-                    orderNumber: '12345',
-                    amountTotal: 123.45,
-                    stateMachineState: {
-                        name: 'open',
+            search: () =>
+                Promise.resolve([
+                    {
+                        id: '1a2b3c',
+                        orderNumber: '12345',
+                        amountTotal: 123.45,
+                        stateMachineState: {
+                            name: 'open',
+                        },
                     },
-                },
-                {
-                    id: '1b2a3c',
-                    orderNumber: '23456',
-                    amountTotal: 19.45,
-                    stateMachineState: {
-                        name: 'closed',
+                    {
+                        id: '1b2a3c',
+                        orderNumber: '23456',
+                        amountTotal: 19.45,
+                        stateMachineState: {
+                            name: 'closed',
+                        },
                     },
-                },
-            ]),
+                ]),
         };
 
         orderSearchResult.criteris = { page: 1 };
@@ -176,7 +183,9 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         });
         await flushPromises();
 
-        const todaysTotalSum = wrapper.find('.sw-dashboard-statistics__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();
+        const todaysTotalSum = wrapper
+            .find('.sw-dashboard-statistics__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)')
+            .text();
         expect(todaysTotalSum).toBe('€43,383.13');
     });
 

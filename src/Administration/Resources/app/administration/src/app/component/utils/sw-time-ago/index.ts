@@ -5,6 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @package checkout
  * @description Render datetimes with relative values like "13 minutes ago" - works with dates in the past and future
  * @status ready
  * @example-type dynamic
@@ -15,18 +16,23 @@ const { Component } = Shopware;
 Component.register('sw-time-ago', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         date: {
-            type: [Date, String] as PropType<Date|string>,
+            type: [
+                Date,
+                String,
+            ] as PropType<Date | string>,
             required: true,
         },
     },
 
     data(): {
-        formattedRelativeTime: string|null,
-        interval: ReturnType<typeof setInterval>|null,
-        now: number,
-        } {
+        formattedRelativeTime: string | null;
+        interval: ReturnType<typeof setInterval> | null;
+        now: number;
+    } {
         return {
             formattedRelativeTime: null,
             interval: null,
@@ -83,9 +89,11 @@ Component.register('sw-time-ago', {
         isToday(): boolean {
             const today = new Date(Date.now());
 
-            return this.dateObject.getDate() === today.getDate() &&
+            return (
+                this.dateObject.getDate() === today.getDate() &&
                 this.dateObject.getMonth() === today.getMonth() &&
-                this.dateObject.getFullYear() === today.getFullYear();
+                this.dateObject.getFullYear() === today.getFullYear()
+            );
         },
     },
 
@@ -102,7 +110,7 @@ Component.register('sw-time-ago', {
         }, 30000);
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.interval) {
             clearInterval(this.interval);
         }

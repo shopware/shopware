@@ -114,10 +114,9 @@ class ModuleLoader
         }
 
         $source = $app->getMainModule()['source'] ?? '';
-        $secret = $app->getAppSecret() ?? '';
 
         return [
-            'source' => $this->sign($source, $secret, $context),
+            'source' => $this->sign($source, $app, $context),
         ];
     }
 
@@ -144,7 +143,7 @@ class ModuleLoader
     }
 
     /**
-     * @param Module     $module
+     * @param Module $module
      */
     private function getModuleUrlWithQuery(AppEntity $app, array $module, Context $context): ?string
     {
@@ -153,13 +152,11 @@ class ModuleLoader
             return null;
         }
 
-        $secret = $app->getAppSecret() ?? '';
-
-        return $this->sign($registeredSource, $secret, $context);
+        return $this->sign($registeredSource, $app, $context);
     }
 
-    private function sign(string $source, string $secret, Context $context): string
+    private function sign(string $source, AppEntity $app, Context $context): string
     {
-        return (string) $this->querySigner->signUri($source, $secret, $context);
+        return (string) $this->querySigner->signUri($source, $app, $context);
     }
 }

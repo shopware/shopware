@@ -3,6 +3,10 @@
  * @package services-settings
  */
 export default {
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['check-item'],
+
     data() {
         return {
             selection: {},

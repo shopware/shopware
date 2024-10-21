@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -7,15 +7,13 @@ import { createStore } from 'vuex';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity = productEntityOverride ||
-            {
-                metaTitle: 'test',
-            };
+        const productEntity = productEntityOverride || {
+            metaTitle: 'test',
+        };
 
-        const parentProduct = parentProductOverride ||
-            {
-                id: null,
-            };
+        const parentProduct = parentProductOverride || {
+            id: null,
+        };
 
         const productVariants = [
             {
@@ -78,6 +76,11 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-inheritance-switch': true,
+                    'sw-field-copyable': true,
+                    'sw-textarea-field-deprecated': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-highlight-text': true,
+                    'sw-loader': true,
                 },
             },
         });
@@ -141,7 +144,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         wrapper = await createWrapper(productEntity);
         await flushPromises();
 
-        const switchComponent = wrapper.getComponent({ name: 'sw-switch-field-deprecated__wrapped' });
+        const switchComponent = wrapper.getComponent({
+            name: 'sw-switch-field-deprecated__wrapped',
+        });
         const singleSelectComponent = wrapper.find('.sw-single-select');
 
         // check if switch is off
@@ -162,7 +167,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         wrapper = await createWrapper(productEntity);
         await flushPromises();
 
-        const switchComponent = wrapper.getComponent({ name: 'sw-switch-field-deprecated__wrapped' });
+        const switchComponent = wrapper.getComponent({
+            name: 'sw-switch-field-deprecated__wrapped',
+        });
         const singleSelectComponent = wrapper.get('.sw-single-select');
 
         // check if switch is turned on

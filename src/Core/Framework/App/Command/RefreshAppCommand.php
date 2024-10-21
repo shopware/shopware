@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
@@ -131,15 +132,21 @@ class RefreshAppCommand extends Command
 
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
     {
+        $default = true;
+        if (!empty($refreshableApps->getToBeDeleted())) {
+            $default = false;
+        }
+
         if (!$io->confirm(
-            sprintf(
+            \sprintf(
                 "%d apps will be installed, %d apps will be updated and %d apps will be deleted.\nDo you want to continue?",
                 \count($refreshableApps->getToBeInstalled()),
                 \count($refreshableApps->getToBeUpdated()),
                 \count($refreshableApps->getToBeDeleted())
-            )
+            ),
+            $default
         )) {
-            throw new UserAbortedCommandException();
+            throw AppException::userAborted();
         }
 
         foreach ($refreshableApps->getToBeInstalled() as $app) {
@@ -161,10 +168,10 @@ class RefreshAppCommand extends Command
             $this->appPrinter->printPermissions($app, $io, $install);
 
             if (!$io->confirm(
-                sprintf('Do you want to grant these permissions for app "%s"?', $app->getMetadata()->getName()),
+                \sprintf('Do you want to grant these permissions for app "%s"?', $app->getMetadata()->getName()),
                 false
             )) {
-                throw new UserAbortedCommandException();
+                throw AppException::userAborted();
             }
         }
     }

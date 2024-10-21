@@ -14,8 +14,6 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(CustomEntityEnrichmentService::class)]
@@ -449,7 +447,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     private function getCustomEntities(): CustomEntityXmlSchema
     {
-        $configPath = sprintf(
+        $configPath = \sprintf(
             self::FIXTURE_PATH,
             __DIR__,
             CustomEntityXmlSchema::FILENAME
@@ -460,7 +458,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     private function getAdminUiXmlSchema(string $fileName = AdminUiXmlSchema::FILENAME): AdminUiXmlSchema
     {
-        $configPath = sprintf(
+        $configPath = \sprintf(
             self::FIXTURE_PATH,
             __DIR__,
             $fileName

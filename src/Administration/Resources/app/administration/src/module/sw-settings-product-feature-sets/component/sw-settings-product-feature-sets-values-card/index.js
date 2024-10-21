@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -177,7 +179,11 @@ export default {
         },
 
         onPositionChange(features) {
-            this.$set(this.productFeatureSet, 'features', features);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.productFeatureSet, 'features', features);
+            } else {
+                this.productFeatureSet.features = features;
+            }
         },
 
         resetPositions() {
@@ -187,17 +193,21 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
-                primary: true,
-            }, {
-                property: 'type',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelType',
-            }, {
-                property: 'position',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
+                    primary: true,
+                },
+                {
+                    property: 'type',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelType',
+                },
+                {
+                    property: 'position',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
+                },
+            ];
         },
     },
 };

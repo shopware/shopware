@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -120,7 +120,7 @@ function getProductData(criteria) {
     ];
 
     // check if grid is sorting for currency
-    const sortingForCurrency = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('price'));
+    const sortingForCurrency = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('price'));
 
     if (sortingForCurrency) {
         const sortBy = criteria.sortings[0].field;
@@ -129,8 +129,8 @@ function getProductData(criteria) {
         products.sort((productA, productB) => {
             const currencyId = sortBy.split('.')[1];
 
-            const currencyValueA = productA.price.find(price => price.currencyId === currencyId).gross;
-            const currencyValueB = productB.price.find(price => price.currencyId === currencyId).gross;
+            const currencyValueA = productA.price.find((price) => price.currencyId === currencyId).gross;
+            const currencyValueB = productB.price.find((price) => price.currencyId === currencyId).gross;
 
             if (sortDirection === 'DESC') {
                 return currencyValueB - currencyValueA;
@@ -141,7 +141,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for name
-    const sortingForName = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('name'));
+    const sortingForName = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('name'));
 
     if (sortingForName) {
         const sortDirection = criteria.sortings[0].order;
@@ -158,7 +158,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for manufacturer name
-    const sortingForManufacturer = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('manufacturer'));
+    const sortingForManufacturer = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('manufacturer'));
 
     if (sortingForManufacturer) {
         const sortDirection = criteria.sortings[0].order;
@@ -196,7 +196,7 @@ function getCurrencyData() {
             id: CURRENCY_ID.EURO,
         },
         {
-            factor: 1.0457384950,
+            factor: 1.045738495,
             symbol: '£',
             isoCode: 'GBP',
             shortName: 'GBP',
@@ -216,16 +216,20 @@ async function createWrapper() {
 
     const router = createRouter({
         history: createWebHashHistory(),
-        routes: [{
-            name: 'sw.product.list',
-            path: '/sw/product/list',
-            component: await wrapTestComponent('sw-product-list'),
-            meta: {
-                $module: {
-                    entity: 'product',
+        routes: [
+            {
+                name: 'sw.product.list',
+                path: '/sw/product/list',
+                component: await wrapTestComponent('sw-product-list', {
+                    sync: true,
+                }),
+                meta: {
+                    $module: {
+                        entity: 'product',
+                    },
                 },
             },
-        }],
+        ],
     });
 
     router.push({ name: 'sw.product.list' });
@@ -242,16 +246,23 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: (name) => {
                             if (name === 'product') {
-                                return { search: (criteria) => {
-                                    const productData = getProductData(criteria);
+                                return {
+                                    search: (criteria) => {
+                                        const productData = getProductData(criteria);
 
-                                    return Promise.resolve(productData);
-                                } };
-                            } if (name === 'user_config') {
-                                return { search: () => Promise.resolve([]) };
+                                        return Promise.resolve(productData);
+                                    },
+                                };
+                            }
+                            if (name === 'user_config') {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                };
                             }
 
-                            return { search: () => Promise.resolve(getCurrencyData()) };
+                            return {
+                                search: () => Promise.resolve(getCurrencyData()),
+                            };
                         },
                     },
                     searchRankingService: {
@@ -331,6 +342,16 @@ async function createWrapper() {
                     'sw-color-badge': {
                         template: '<div></div>',
                     },
+                    'sw-button-group': true,
+                    'sw-text-field': true,
+                    'sw-label': true,
+                    'sw-number-field': true,
+                    'sw-bulk-edit-modal': true,
+                    'sw-product-clone-modal': true,
+                    'sw-product-variant-modal': true,
+                    'sw-sidebar-filter-panel': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
                 },
             },
         }),
@@ -405,13 +426,19 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const euroCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
-        const [firstEuroCell, secondEuroCell] = euroCells;
+        const [
+            firstEuroCell,
+            secondEuroCell,
+        ] = euroCells;
 
         expect(firstEuroCell.text()).toBe('€200.00');
         expect(secondEuroCell.text()).toBe('€600.00');
 
         const poundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        const [firstPoundCell, secondPoundCell] = poundCells;
+        const [
+            firstPoundCell,
+            secondPoundCell,
+        ] = poundCells;
 
         expect(firstPoundCell.text()).toBe('£22.00');
         expect(secondPoundCell.text()).toBe('£400.00');
@@ -424,7 +451,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         let sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        let [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells;
+        let [
+            firstSortedPoundCell,
+            secondSortedPoundCell,
+        ] = sortedPoundCells;
 
         expect(firstSortedPoundCell.text()).toBe('£22.00');
         expect(secondSortedPoundCell.text()).toBe('£400.00');
@@ -434,7 +464,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
-        [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells;
+        [
+            firstSortedPoundCell,
+            secondSortedPoundCell,
+        ] = sortedPoundCells;
 
         expect(firstSortedPoundCell.text()).toBe('£400.00');
         expect(secondSortedPoundCell.text()).toBe('£22.00');
@@ -449,7 +482,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const productNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--name');
-        const [firstProductNameASCSorted, secondProductNameASCSorted] = productNamesASCSorted;
+        const [
+            firstProductNameASCSorted,
+            secondProductNameASCSorted,
+        ] = productNamesASCSorted;
 
         expect(firstProductNameASCSorted.text()).toBe('Product 1');
         expect(secondProductNameASCSorted.text()).toBe('Product 2');
@@ -458,7 +494,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const productNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--name');
-        const [firstProductNameDESCSorted, secondProductNameDESCSorted] = productNamesDESCSorted;
+        const [
+            firstProductNameDESCSorted,
+            secondProductNameDESCSorted,
+        ] = productNamesDESCSorted;
 
         expect(firstProductNameDESCSorted.text()).toBe('Product 2');
         expect(secondProductNameDESCSorted.text()).toBe('Product 1');
@@ -477,7 +516,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const manufacturerNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
-        const [firstManufacturerNameASCSorted, secondManufacturerNameASCSorted] = manufacturerNamesASCSorted;
+        const [
+            firstManufacturerNameASCSorted,
+            secondManufacturerNameASCSorted,
+        ] = manufacturerNamesASCSorted;
 
         expect(firstManufacturerNameASCSorted.text()).toBe('Manufacturer A');
         expect(secondManufacturerNameASCSorted.text()).toBe('Manufacturer B');
@@ -486,7 +528,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         const manufacturerNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
-        const [firstManufacturerNameDESCSorted, secondManufacturerNameDESCSorted] = manufacturerNamesDESCSorted;
+        const [
+            firstManufacturerNameDESCSorted,
+            secondManufacturerNameDESCSorted,
+        ] = manufacturerNamesDESCSorted;
 
         expect(firstManufacturerNameDESCSorted.text()).toBe('Manufacturer B');
         expect(secondManufacturerNameDESCSorted.text()).toBe('Manufacturer A');
@@ -530,7 +575,10 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should return true if product has variants', async () => {
-        const [, product] = getProductData(mockCriteria());
+        const [
+            ,
+            product,
+        ] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);
@@ -630,13 +678,15 @@ describe('module/sw-product/page/sw-product-list', () => {
         });
 
         await wrapper.vm.onBulkEditItems();
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
-            name: 'sw.bulk.edit.product',
-            params: expect.objectContaining({
-                parentId: 'null',
-                includesDigital: '1',
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'sw.bulk.edit.product',
+                params: expect.objectContaining({
+                    parentId: 'null',
+                    includesDigital: '1',
+                }),
             }),
-        }));
+        );
 
         wrapper.vm.$router.push.mockRestore();
     });
@@ -651,7 +701,13 @@ describe('module/sw-product/page/sw-product-list', () => {
     it('should not have media and configuratorSettings association when loading product list', async () => {
         await wrapper.vm.getList();
 
-        expect(wrapper.vm.productCriteria.associations.some(association => association.association === 'media')).toBeFalsy();
-        expect(wrapper.vm.productCriteria.associations.some(association => association.association === 'configuratorSettings')).toBeFalsy();
+        expect(
+            wrapper.vm.productCriteria.associations.some((association) => association.association === 'media'),
+        ).toBeFalsy();
+        expect(
+            wrapper.vm.productCriteria.associations.some(
+                (association) => association.association === 'configuratorSettings',
+            ),
+        ).toBeFalsy();
     });
 });

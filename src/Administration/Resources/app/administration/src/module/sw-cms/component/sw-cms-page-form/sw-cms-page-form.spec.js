@@ -51,43 +51,50 @@ const defaultPage = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-page-form', {
-        sync: true,
-    }), {
-        props: {
-            page: defaultPage,
-        },
-        global: {
-            stubs: {
-                'sw-icon': {
-                    template: '<div></div>',
-                },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
-                    props: ['title'],
-                },
-                'sw-cms-el-config-text': {
-                    template: '<div class="sw-cms-el-config-text">Config element</div>',
-                    props: ['element', 'elementData'],
-                },
-                'sw-extension-component-section': true,
+    return mount(
+        await wrapTestComponent('sw-cms-page-form', {
+            sync: true,
+        }),
+        {
+            props: {
+                page: defaultPage,
             },
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
+            global: {
+                stubs: {
+                    'sw-icon': {
+                        template: '<div></div>',
                     },
-                    getCmsElementRegistry: () => {
-                        return {
-                            text: {
-                                configComponent: 'sw-cms-el-config-text',
-                            },
-                        };
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
+                        props: ['title'],
+                    },
+                    'sw-cms-el-config-text': {
+                        template: '<div class="sw-cms-el-config-text">Config element</div>',
+                        props: [
+                            'element',
+                            'elementData',
+                        ],
+                    },
+                    'sw-extension-component-section': true,
+                    'sw-alert': true,
+                },
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return {
+                                text: {
+                                    configComponent: 'sw-cms-el-config-text',
+                                },
+                            };
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-page-form', () => {
@@ -95,7 +102,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         resizeObserverList = [];
     });
 
-    it('should have only one empty state \'card\'', async () => {
+    it("should have only one empty state 'card'", async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

@@ -1,13 +1,10 @@
-/*
+/**
  * @package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import swManufacturerList from 'src/module/sw-manufacturer/page/sw-manufacturer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-
-Shopware.Component.register('sw-manufacturer-list', swManufacturerList);
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-manufacturer-list', { sync: true }), {
@@ -21,10 +18,13 @@ async function createWrapper(privileges = []) {
                 'sw-button': true,
                 'sw-loader': true,
                 'router-link': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-media-preview-v2': true,
             },
             provide: {
                 acl: {
-                    can: key => (key ? privileges.includes(key) : true),
+                    can: (key) => (key ? privileges.includes(key) : true),
                 },
                 stateStyleDataProviderService: {},
                 repositoryFactory: {

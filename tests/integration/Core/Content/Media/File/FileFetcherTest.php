@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('buyers-experience')]
 class FileFetcherTest extends TestCase
 {
-    final public const TEST_IMAGE = __DIR__ . '/../../../../../../src/Core/Content/Test/Media/fixtures/shopware-logo.png';
+    final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     private FileFetcher $fileFetcher;
 

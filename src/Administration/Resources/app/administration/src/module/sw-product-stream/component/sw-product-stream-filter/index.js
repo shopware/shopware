@@ -1,4 +1,4 @@
-/*
+/**
  * @package services-settings
  */
 
@@ -12,6 +12,8 @@ const { EntityDefinition } = Shopware;
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'createCondition',
@@ -50,7 +52,7 @@ export default {
             set(fields) {
                 let concatenation = fields.join('.');
 
-                if (concatenation.match('\.$')) {
+                if (concatenation.match('.$')) {
                     concatenation = concatenation.substring(0, concatenation.length);
                 }
 
@@ -121,23 +123,17 @@ export default {
                 }
             }
 
-            if (this.conditionDataProviderService.isNegatedType(type) &&
-                this.condition.type !== 'not'
-            ) {
+            if (this.conditionDataProviderService.isNegatedType(type) && this.condition.type !== 'not') {
                 this.wrapInNot(this.condition, type, parameters);
                 return false;
             }
 
-            if (this.condition.type === 'not' &&
-                !this.conditionDataProviderService.isNegatedType(type)
-            ) {
+            if (this.condition.type === 'not' && !this.conditionDataProviderService.isNegatedType(type)) {
                 this.unwrapNot(this.condition, type, parameters);
                 return false;
             }
 
-            if (this.condition.type === 'not' &&
-                this.conditionDataProviderService.isNegatedType(type)
-            ) {
+            if (this.condition.type === 'not' && this.conditionDataProviderService.isNegatedType(type)) {
                 this.unwrapNot(this.condition, type, parameters);
                 this.wrapInNot(this.condition, type, parameters);
                 return false;
@@ -175,27 +171,30 @@ export default {
 
         wrapInNot(condition, newType, parameters) {
             const { identifier: negatedType } = this.conditionDataProviderService.negateOperator(newType);
-            const conditionData = this.copyParameters({ ...condition, parameters });
+            const conditionData = this.copyParameters({
+                ...condition,
+                parameters,
+            });
             conditionData.type = negatedType;
 
             const query = this.createCondition(conditionData, condition.id, 0);
             this.insertNodeIntoTree(this.condition, query);
 
-            Object.assign(
-                condition,
-                {
-                    type: 'not',
-                    field: null,
-                    operator: null,
-                    value: null,
-                    parameters: null,
-                },
-            );
+            Object.assign(condition, {
+                type: 'not',
+                field: null,
+                operator: null,
+                value: null,
+                parameters: null,
+            });
         },
 
         unwrapNot(condition, newType, parameters) {
             const innerCondition = condition.queries[0];
-            const conditionData = this.copyParameters({ ...innerCondition, parameters });
+            const conditionData = this.copyParameters({
+                ...innerCondition,
+                parameters,
+            });
 
             conditionData.type = newType;
             Object.assign(condition, conditionData);

@@ -16,17 +16,22 @@ const { Component, State, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface GridColumn {
-    property: string,
-    dataIndex?: string,
-    label: string,
-    primary?: boolean,
+    property: string;
+    dataIndex?: string;
+    label: string;
+    primary?: boolean;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -34,25 +39,33 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        customers: EntityCollection<'customer'>|null,
-        isLoading: boolean,
-        isSwitchingCustomer: boolean,
-        showNewCustomerModal: boolean,
-        customer: Entity<'customer'>|null,
-        disableRouteParams: boolean,
-        } {
+        customers: EntityCollection<'customer'> | null;
+        isLoading: boolean;
+        isSwitchingCustomer: boolean;
+        showNewCustomerModal: boolean;
+        customer: Entity<'customer'> | null;
+        disableRouteParams: boolean;
+        showSalesChannelSelectModal: boolean;
+        showCustomerChangesModal: boolean;
+        salesChannelIds: string[];
+        customerDraft: Entity<'customer'> | null;
+    } {
         return {
             customers: null,
             isLoading: false,
             isSwitchingCustomer: false,
             showNewCustomerModal: false,
             customer: null,
+            customerDraft: null,
             disableRouteParams: true,
+            showSalesChannelSelectModal: false,
+            showCustomerChangesModal: false,
+            salesChannelIds: [],
         };
     },
 
     computed: {
-        customerData(): Entity<'customer'>| null {
+        customerData(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
@@ -64,6 +77,7 @@ export default Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannel');
+            criteria.addAssociation('boundSalesChannel');
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             if (this.term) {
@@ -80,8 +94,7 @@ export default Component.wrapComponentConfig({
                 .addAssociation('addresses')
                 .addAssociation('group')
                 .addAssociation('salutation')
-                .addAssociation('salesChannel')
-                .addAssociation('defaultPaymentMethod')
+                .addAssociation('salesChannel.languages')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
                 .addAssociation('defaultBillingAddress.countryState')
@@ -89,31 +102,41 @@ export default Component.wrapComponentConfig({
                 .addAssociation('defaultShippingAddress.country')
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
-                .addAssociation('tags');
+                .addAssociation('tags')
+                .addAssociation('boundSalesChannel');
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('defaultPaymentMethod');
+            }
 
             return criteria;
         },
 
         customerColumns(): GridColumn[] {
-            return [{
-                property: 'select',
-                label: '',
-            }, {
-                property: 'firstName',
-                dataIndex: 'lastName,firstName',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
-                primary: true,
-            }, {
-                property: 'customerNumber',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
-            },
-            {
-                property: 'salesChannel',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
-            }, {
-                property: 'email',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
-            }];
+            return [
+                {
+                    property: 'select',
+                    label: '',
+                },
+                {
+                    property: 'firstName',
+                    dataIndex: 'lastName,firstName',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
+                    primary: true,
+                },
+                {
+                    property: 'customerNumber',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+                },
+                {
+                    property: 'salesChannel',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
+                },
+                {
+                    property: 'email',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
+                },
+            ];
         },
 
         showEmptyState(): boolean {
@@ -136,31 +159,59 @@ export default Component.wrapComponentConfig({
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
+        salesChannelRepository(): RepositoryType<'sales_channel'> {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannelCriteria(): CriteriaType {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('active', true));
+
+            if (this.customer?.boundSalesChannelId) {
+                criteria.addFilter(Criteria.equals('id', this.customer.boundSalesChannelId));
+            }
+
+            return criteria;
+        },
+
+        isSelectSalesChannelDisabled(): boolean {
+            if (!this.customer?.salesChannelId) {
+                return true;
+            }
+
+            return !this.salesChannelIds.includes(this.customer.salesChannelId);
+        },
     },
 
     mounted() {
-        this.mountedComponent();
+        void this.mountedComponent();
     },
 
     methods: {
-        mountedComponent(): void {
+        async mountedComponent(): Promise<void> {
+            this.salesChannelIds = await this.loadSalesChannel();
+
             if (!this.customerData) {
                 return;
             }
 
             // @ts-expect-error
             this.$refs.customerFilter.term = this.customerData?.customerNumber;
-            this.onCheckCustomer(this.customerData);
+            void this.onSearch(this.customerData?.customerNumber);
+            void this.onCheckCustomer(this.customerData);
         },
 
-        getList() {
+        getList(): Promise<void> {
             this.isLoading = true;
-            return this.customerRepository.search(this.customerCriteria)
+            return this.customerRepository
+                .search(this.customerCriteria)
                 .then((customers) => {
                     this.customers = customers;
                     // @ts-expect-error
                     this.total = customers.total;
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -173,9 +224,46 @@ export default Component.wrapComponentConfig({
             return item.id === this.customer?.id;
         },
 
-        onCheckCustomer(item: Entity<'customer'>): void {
-            this.customer = item;
-            void this.handleSelectCustomer(item.id);
+        async onCheckCustomer(item: Entity<'customer'>) {
+            // If there's an existing customer, save it as a draft.
+            if (this.customer) {
+                this.customerDraft = this.customer;
+            }
+
+            this.customer = await this.customerRepository.get(item.id, Context.api, this.customerCriterion);
+
+            const isExists = (this.customer?.salesChannel?.languages || []).some(
+                (language) => language.id === Context.api.systemLanguageId,
+            );
+
+            if (!isExists && this.customer?.salesChannel?.languageId) {
+                State.commit('context/setLanguageId', this.customer.salesChannel.languageId);
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (isExists && !State.getters['context/isSystemDefaultLanguage']) {
+                State.commit('context/resetLanguageToDefault');
+            }
+
+            // If the customer belongs to a sales channel not in the allowed list and has no bound sales channel.
+            if (!this.customer?.boundSalesChannelId) {
+                this.showSalesChannelSelectModal = true;
+
+                return;
+            }
+
+            // If switching to a different customer whose sales channel is different from the current one.
+            if (
+                this.customerDraft &&
+                this.customer?.boundSalesChannelId &&
+                this.customerDraft.salesChannelId !== this.customer.boundSalesChannelId
+            ) {
+                this.showCustomerChangesModal = true;
+
+                return;
+            }
+
+            void this.handleSelectCustomer();
         },
 
         createCart(salesChannelId: string): Promise<void> {
@@ -183,24 +271,20 @@ export default Component.wrapComponentConfig({
             return State.dispatch('swOrder/createCart', { salesChannelId });
         },
 
-        setCustomer(customer: Entity<'customer'>|null): void {
+        setCustomer(customer: Entity<'customer'> | null): void {
             void State.dispatch('swOrder/selectExistingCustomer', { customer });
         },
 
-        async handleSelectCustomer(customerId: string): Promise<void> {
+        async handleSelectCustomer(): Promise<void> {
             this.isSwitchingCustomer = true;
 
             try {
-                const customer = await this.customerRepository
-                    .get(customerId, Context.api, this.customerCriterion);
-
                 if (!this.cart.token) {
                     // It is compulsory to create cart and get cart token first
-                    await this.createCart(customer?.salesChannelId ?? '');
+                    await this.createCart(this.customer?.salesChannelId ?? '');
                 }
 
-                this.customer = customer;
-                this.setCustomer(customer);
+                this.setCustomer(this.customer);
 
                 await this.updateCustomerContext();
             } catch {
@@ -244,6 +328,62 @@ export default Component.wrapComponentConfig({
                 salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
             });
+        },
+
+        async loadSalesChannel(): Promise<string[]> {
+            const { data: ids } = await this.salesChannelRepository.searchIds(this.salesChannelCriteria);
+
+            return ids;
+        },
+
+        onSalesChannelChange(salesChannelId: string): void {
+            if (!this.customer) {
+                return;
+            }
+
+            this.customer.salesChannelId = salesChannelId;
+        },
+
+        onCloseSalesChannelSelectModal() {
+            this.customer = this.customerDraft;
+
+            this.showSalesChannelSelectModal = false;
+        },
+
+        async onSelectSalesChannel() {
+            this.isLoading = true;
+
+            try {
+                await this.handleSelectCustomer();
+            } finally {
+                this.isLoading = false;
+                this.showSalesChannelSelectModal = false;
+            }
+        },
+
+        customerUnavailable(customer: Entity<'customer'>): boolean {
+            if (!this.salesChannelIds.length) {
+                return true;
+            }
+
+            return !!customer?.boundSalesChannelId && !this.salesChannelIds.includes(customer.boundSalesChannelId);
+        },
+
+        async onChangeCustomer() {
+            this.isLoading = true;
+
+            try {
+                await this.handleSelectCustomer();
+            } finally {
+                this.isLoading = false;
+                this.showCustomerChangesModal = false;
+            }
+        },
+
+        onCloseCustomerChangesModal() {
+            this.customer = this.customerDraft;
+
+            this.showCustomerChangesModal = false;
         },
     },
 });

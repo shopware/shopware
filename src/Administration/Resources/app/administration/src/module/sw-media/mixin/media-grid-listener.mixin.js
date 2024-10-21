@@ -8,6 +8,8 @@ const { Mixin } = Shopware;
  * @package buyers-experience
  */
 Mixin.register('media-grid-listener', {
+    emits: ['media-folder-change'],
+
     data() {
         return {
             selectedItems: [],

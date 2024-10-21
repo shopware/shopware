@@ -4,11 +4,25 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener">
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener"/>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
+            <argument type="service" id="logger"/>
+            <argument>%shopware.messenger.enforce_message_size%</argument>
+
+            <tag name="kernel.event_listener" event="Symfony\Component\Messenger\Event\SendMessageToTransportsEvent"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber">
             <argument type="service" id="shopware.increment.gateway.registry"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -36,6 +50,10 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer">
             <tag name="serializer.normalizer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator">
+            <argument type="service" id="messenger.default_serializer"/>
         </service>
     </services>
 </container>

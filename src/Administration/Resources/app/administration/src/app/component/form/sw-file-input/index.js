@@ -25,6 +25,10 @@ Component.register('sw-file-input', {
 
     inject: ['feature'],
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update:value'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -87,7 +91,10 @@ Component.register('sw-file-input', {
     methods: {
         mountedComponent() {
             if (this.$refs.dropzone) {
-                ['dragover', 'drop'].forEach((event) => {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);

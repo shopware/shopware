@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-date-range';
@@ -35,7 +38,6 @@ async function createWrapper(condition = {}) {
         },
     });
 }
-
 
 describe('component/rule/sw-condition-date-range', () => {
     let wrapper;

@@ -84,7 +84,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             try {
                 $this->repository->create([$entry], $this->context);
-                static::fail(sprintf('Create without required property \'%s\'', $property));
+                static::fail(\sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
             }
@@ -347,12 +347,12 @@ class ImportExportProfileRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'technicalName' => uniqid('technical_name_'),
-                'label' => sprintf('Test label %d %s', $i, $add),
+                'label' => \sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => ($i % 2 === 0),
-                'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
-                'fileType' => sprintf('Test file type %d %s', $i, $add),
-                'delimiter' => sprintf('Test delimiter %d %s', $i, $add),
-                'enclosure' => sprintf('Test enclosure %d %s', $i, $add),
+                'sourceEntity' => \sprintf('Test entity %d %s', $i, $add),
+                'fileType' => \sprintf('Test file type %d %s', $i, $add),
+                'delimiter' => \sprintf('Test delimiter %d %s', $i, $add),
+                'enclosure' => \sprintf('Test enclosure %d %s', $i, $add),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
         }

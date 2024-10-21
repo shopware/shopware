@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
@@ -42,6 +43,26 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class AppCheckoutGatewayTest extends TestCase
 {
+    public function testProcessWithoutAppsDoesNothing(): void
+    {
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository
+            ->expects(static::never())
+            ->method('search');
+
+        $gateway = new AppCheckoutGateway(
+            $this->createMock(AppCheckoutGatewayPayloadService::class),
+            new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger())),
+            $this->createMock(CheckoutGatewayCommandRegistry::class),
+            $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(ExceptionLogger::class),
+            $this->createMock(ActiveAppsLoader::class)
+        );
+
+        $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::createSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
+    }
+
     public function testProcess(): void
     {
         $context = Generator::createSalesChannelContext();
@@ -116,13 +137,17 @@ class AppCheckoutGatewayTest extends TestCase
             ->method('dispatch')
             ->with(static::equalTo(new CheckoutGatewayCommandsCollectedEvent($payload, $expectedCollection)));
 
+        $loader = $this->createMock(ActiveAppsLoader::class);
+        $loader->method('getActiveApps')->willReturn([$app]);
+
         $gateway = new AppCheckoutGateway(
             $payloadService,
             $executor,
             $registry,
             $appRepo,
             $eventDispatcher,
-            $this->createMock(ExceptionLogger::class)
+            $this->createMock(ExceptionLogger::class),
+            $loader
         );
 
         $gateway->process($payload);

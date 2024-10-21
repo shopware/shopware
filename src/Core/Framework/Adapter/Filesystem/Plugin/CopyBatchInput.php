@@ -13,15 +13,15 @@ class CopyBatchInput
     private $sourceFile;
 
     /**
-     * @param string|resource $sourceFile - Passing a path is recommended, resources should not be used for large files
-     * @param array<string>        $targetFiles
+     * @param string|resource $sourceFile Passing a path is recommended, resources should not be used for large files
+     * @param array<string> $targetFiles
      */
     public function __construct(
         $sourceFile,
         private readonly array $targetFiles
     ) {
         if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(\sprintf(
                 'CopyBatchInput expects first parameter to be either a resource or the filepath as a string, "%s" given.',
                 \gettype($sourceFile)
             ));

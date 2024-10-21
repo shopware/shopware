@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
@@ -63,18 +63,20 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
 
         await wrapper.vm.createdComponent();
 
-        expect(wrapper.vm.documentTypes).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                id: 1,
-                technicalName: 'invoice',
-                selected: false,
-            }),
-            expect.objectContaining({
-                id: 2,
-                technicalName: 'delivery_note',
-                selected: false,
-            }),
-        ]));
+        expect(wrapper.vm.documentTypes).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id: 1,
+                    technicalName: 'invoice',
+                    selected: false,
+                }),
+                expect.objectContaining({
+                    id: 2,
+                    technicalName: 'delivery_note',
+                    selected: false,
+                }),
+            ]),
+        );
         wrapper.vm.documentTypeRepository.search.mockRestore();
     });
 });

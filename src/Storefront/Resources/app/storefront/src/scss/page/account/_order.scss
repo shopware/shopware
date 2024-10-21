@@ -67,10 +67,6 @@
     display: inline-block;
 }
 
-.order-table-header-heading {
-    max-width: 290px;
-}
-
 .order-table-header-order-status {
     font-weight: $font-weight-bold;
 }
@@ -86,56 +82,62 @@
     margin-top: $spacer-sm;
 }
 
-.order-table-header-context-menu {
-    $width: 35px;
-    $height: $width;
+// @deprecated tag:v6.7.0 - Custom styling for `order-table-header-context-menu` will be removed. Bootstrap class `btn-light` will be used instead.
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .order-table-header-context-menu {
+        $width: 35px;
+        $height: $width;
+        float: right;
 
-    float: right;
-    border: 1px solid $sw-border-color;
-    border-radius: $border-radius;
-    width: $width;
-    height: $height;
-    padding: 0;
+        border: 1px solid $sw-border-color;
+        border-radius: $border-radius;
+        width: $width;
+        height: $height;
+        padding: 0;
 
-    &::after {
-        display: none;
-    }
-
-    .icon {
-        position: relative;
-        margin: 5px;
-
-        > svg {
-            color: $sw-text-color;
-            position: absolute;
-            top: 0;
-            left: 0;
+        &::after {
+            display: none;
         }
-    }
 
-    &-content {
-        padding-left: 10px;
-        padding-right: 10px;
+        .icon {
+            position: relative;
+            margin: 5px;
+
+            > svg {
+                color: $sw-text-color;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
+
+        &-content {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
     }
 }
 
-.order-table-header-context-menu-content-link {
-    display: block;
-    border: 0 none;
-    padding: 0;
-    width: 100%;
-    color: $sw-text-color;
-    background: none;
-    cursor: pointer;
-    text-align: left;
+// @deprecated tag:v6.7.0 - Custom styling for `order-table-header-context-menu-content-link` will be removed. Bootstrap class `dropdown-item` will be used instead.
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .order-table-header-context-menu-content-link {
+        display: block;
+        border: 0 none;
+        padding: 0;
+        width: 100%;
+        color: $sw-text-color;
+        background: none;
+        cursor: pointer;
+        text-align: left;
 
-    &:hover {
-        text-decoration: none;
-        color: $primary;
-    }
+        &:hover {
+            text-decoration: none;
+            color: $primary;
+        }
 
-    &:active {
-        outline: none;
+        &:active {
+            outline: none;
+        }
     }
 }
 
@@ -193,10 +195,6 @@
 
 .order-table-header-order-table {
     width: 100%;
-}
-
-.order-table-header-label {
-    display: none;
 }
 
 .payment-control input,
@@ -280,6 +278,12 @@
 
     .order-item-actions {
         text-align: right;
+    }
+}
+
+@include media-breakpoint-up(sm) {
+    .order-table-header-order-table-body .order-table-header-label {
+        @include visually-hidden();
     }
 }
 

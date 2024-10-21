@@ -16,8 +16,11 @@ const { Component } = Shopware;
 Component.register('sw-step-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
+        'addStep',
     ],
 
     props: {
@@ -67,7 +70,7 @@ Component.register('sw-step-item', {
 
     methods: {
         registerStep() {
-            this.stepDisplay.addStep?.(this);
+            this.addStep(this);
         },
 
         setActive(active) {
@@ -75,7 +78,14 @@ Component.register('sw-step-item', {
         },
 
         setVariant(variant) {
-            if (!['disabled', 'info', 'error', 'success'].includes(variant)) {
+            if (
+                ![
+                    'disabled',
+                    'info',
+                    'error',
+                    'success',
+                ].includes(variant)
+            ) {
                 return;
             }
 

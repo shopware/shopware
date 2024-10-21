@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 import OrderDocumentApiService from 'src/core/service/api/order-document.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
@@ -9,12 +12,9 @@ function createOrderDocumentApiService() {
     const loginService = createLoginService(client, Shopware.Context.api);
     const orderDocumentApiService = new OrderDocumentApiService(client, loginService);
 
-    clientMock.onAny().reply(
-        200,
-        {
-            data: null,
-        },
-    );
+    clientMock.onAny().reply(200, {
+        data: null,
+    });
 
     return { orderDocumentApiService, clientMock };
 }
@@ -52,7 +52,6 @@ describe('orderDocumentApiService', () => {
         });
     });
 
-
     describe('download', () => {
         it('is defined', async () => {
             const { orderDocumentApiService } = createOrderDocumentApiService();
@@ -63,7 +62,11 @@ describe('orderDocumentApiService', () => {
         it('calls the correct endpoint', async () => {
             const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
 
-            const documentIds = [1, 2, 3];
+            const documentIds = [
+                1,
+                2,
+                3,
+            ];
             const additionalParams = {};
 
             orderDocumentApiService.download(documentIds, additionalParams);

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Command;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartCompressor;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,6 +21,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
+ */
 #[AsCommand(
     name: 'cart:migrate',
     description: 'Migrate carts from redis to database',
@@ -28,12 +33,13 @@ class CartMigrateCommand extends Command
 {
     use ConsoleProgressTrait;
 
+    private const VALID_SOURCE_STORAGES = ['redis', 'sql'];
+    private const SECONDS_IN_A_DAY = 86400;
+
     /**
      * @internal
      *
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay|null $redis
-     *
-     * @phpstan-ignore-next-line param cannot be natively typed, as symfony might change the type in the future
+     * @param RedisTypeHint|null $redis
      */
     public function __construct(
         private $redis,
@@ -63,13 +69,9 @@ class CartMigrateCommand extends Command
             $this->redis = $this->factory->create($url);
         }
 
-        if ($this->redis === null) {
-            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
-        }
-
         $from = $input->getArgument('from');
-        if (!\in_array($from, ['redis', 'sql'], true)) {
-            throw new \RuntimeException('Invalid source storage: ' . $from . '. Valid values are "redis" or "sql".');
+        if (!\in_array($from, self::VALID_SOURCE_STORAGES, true)) {
+            throw CartException::cartMigrationInvalidSource($from, self::VALID_SOURCE_STORAGES);
         }
 
         if ($from === 'redis') {
@@ -95,7 +97,7 @@ class CartMigrateCommand extends Command
     private function redisToSql(InputInterface $input, OutputInterface $output): int
     {
         if ($this->redis === null) {
-            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
+            throw CartException::cartMigrationMissingRedisConnection();
         }
 
         $this->io = new ShopwareStyle($input, $output);
@@ -106,8 +108,9 @@ class CartMigrateCommand extends Command
         if (empty($keys)) {
             $this->io->success('No carts found in Redis');
 
-            return 0;
+            return self::SUCCESS;
         }
+
         $this->progress = $this->io->createProgressBar(\count($keys));
         $this->progress->setFormat("<info>[%message%]</info>\n%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%");
         $this->progress->setMessage('Migrating carts from Redis to SQL');
@@ -150,11 +153,7 @@ class CartMigrateCommand extends Command
 
         $queue->execute();
 
-        $this->progress->finish();
-
-        $this->io->success('Migration from Redis to SQL was successful');
-
-        $this->io->newLine(2);
+        $this->finishProgress(new ProgressFinishedEvent('Migration from Redis to SQL was successful'));
 
         return self::SUCCESS;
     }
@@ -162,20 +161,20 @@ class CartMigrateCommand extends Command
     private function sqlToRedis(InputInterface $input, OutputInterface $output): int
     {
         if ($this->redis === null) {
-            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
+            throw CartException::cartMigrationMissingRedisConnection();
         }
 
         $this->io = new ShopwareStyle($input, $output);
 
-        $count = $this->connection->fetchOne('SELECT COUNT(token) FROM cart');
+        $count = (int) $this->connection->fetchOne('SELECT COUNT(token) FROM cart');
 
         if ($count === 0) {
-            $this->io->success('No carts found in Redis');
+            $this->io->success('No carts found in SQL database');
 
             return 0;
         }
 
-        $this->progress = $this->io->createProgressBar((int) $count);
+        $this->progress = $this->io->createProgressBar($count);
         $this->progress->setFormat("<info>[%message%]</info>\n%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%");
         $this->progress->setMessage('Migrating carts from SQL to Redis');
 
@@ -200,17 +199,13 @@ class CartMigrateCommand extends Command
                     'content' => $newCart,
                 ]);
 
-                $this->redis->set($key, $value, ['EX' => $this->expireDays * 86400]);
+                $this->redis->set($key, $value, ['EX' => $this->expireDays * self::SECONDS_IN_A_DAY]);
             }
 
             $this->progress->advance(\count($values));
         }
 
-        $this->progress->finish();
-
-        $this->io->success('Migration from SQL to Redis was successful');
-
-        $this->io->newLine(2);
+        $this->finishProgress(new ProgressFinishedEvent('Migration from SQL to Redis was successful'));
 
         return self::SUCCESS;
     }

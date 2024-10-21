@@ -14,7 +14,7 @@ class FilesystemConfigMigrationCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         foreach (self::MIGRATED_FS as $fs) {
-            $key = sprintf('shopware.filesystem.%s', $fs);
+            $key = \sprintf('shopware.filesystem.%s', $fs);
             $urlKey = $key . '.url';
             $typeKey = $key . '.type';
             $configKey = $key . '.config';

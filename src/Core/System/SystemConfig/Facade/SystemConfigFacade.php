@@ -14,7 +14,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @script-service miscellaneous
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';
@@ -100,7 +100,7 @@ class SystemConfigFacade
         ', ['appId' => Uuid::fromHexToBytes($appId)]);
 
         if (!$privileges) {
-            throw new \RuntimeException(sprintf('Privileges for app with id "%s" not found.', $appId));
+            throw new \RuntimeException(\sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
         return $this->appData[$appId] = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);

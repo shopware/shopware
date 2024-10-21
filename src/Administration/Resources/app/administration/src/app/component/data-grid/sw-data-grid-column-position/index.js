@@ -24,6 +24,14 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-data-grid-column-position', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'lower-position-value',
+        'position-changed',
+        'raise-position-value',
+    ],
+
     mixins: [
         Mixin.getByName('position'),
     ],

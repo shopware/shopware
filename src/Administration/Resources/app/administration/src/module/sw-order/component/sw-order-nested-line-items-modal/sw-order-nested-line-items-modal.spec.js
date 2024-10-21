@@ -62,53 +62,70 @@ const mockChildrenCollection = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-nested-line-items-modal', { sync: true }), {
-        props: {
-            order: {
-                currency: {
-                    isoCode: localCurrency,
+    return mount(
+        await wrapTestComponent('sw-order-nested-line-items-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                order: {
+                    currency: {
+                        isoCode: localCurrency,
+                    },
                 },
+                lineItem: mockParent,
+                context: {},
             },
-            lineItem: mockParent,
-            context: {},
-        },
-        global: {
-            provide: {
-                shortcutService: {
-                    startEventListener: () => {
+            global: {
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
                     },
-                    stopEventListener: () => {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: (criteria) => {
+                                const parentIds = criteria.filters
+                                    .find((filter) => filter.field === 'parentId')
+                                    .value.split('|');
+                                const entities = mockChildrenCollection.filter((entity) =>
+                                    parentIds.includes(entity.parentId),
+                                );
+
+                                // children association mock
+                                entities.forEach((entity) => {
+                                    entity.children = mockChildrenCollection.filter((child) => child.parentId === entity.id);
+                                });
+
+                                return Promise.resolve(entities);
+                            },
+                        }),
                     },
                 },
-                repositoryFactory: {
-                    create: () => ({
-                        search: (criteria) => {
-                            const parentIds = criteria.filters.find(filter => filter.field === 'parentId')
-                                .value.split('|');
-                            const entities = mockChildrenCollection.filter(entity => parentIds.includes(entity.parentId));
-
-                            // children association mock
-                            entities.forEach((entity) => {
-                                entity.children = mockChildrenCollection.filter(child => child.parentId === entity.id);
-                            });
-
-                            return Promise.resolve(entities);
-                        },
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal', {
+                        sync: true,
                     }),
+                    'sw-loader': await wrapTestComponent('sw-loader', {
+                        sync: true,
+                    }),
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', {
+                        sync: true,
+                    }),
+                    'sw-icon': true,
+                    'sw-loader-deprecated': true,
+                    'router-link': true,
+                },
+                mocks: {
+                    $tc: (snippet) => snippet,
                 },
             },
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
-                'sw-loader': await wrapTestComponent('sw-loader', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', { sync: true }),
-            },
-            mocks: {
-                $tc: snippet => snippet,
-            },
         },
-    });
+    );
 }
 
 describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () => {
@@ -151,63 +168,72 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
                 unitPrice: 10,
                 totalPrice: 100,
                 taxRate: 1,
-            }, {
+            },
+            {
                 label: 'lineItem 1.1',
                 nestingLevel: 2,
                 quantity: 11,
                 unitPrice: 110,
                 totalPrice: 1100,
                 taxRate: 1.1,
-            }, {
+            },
+            {
                 label: 'lineItem 1.1.1',
                 nestingLevel: 3,
                 quantity: 111,
                 unitPrice: 1110,
                 totalPrice: 11100,
                 taxRate: 1.11,
-            }, {
+            },
+            {
                 label: 'lineItem 1.1.1.1',
                 nestingLevel: 4,
                 quantity: 1111,
                 unitPrice: 11110,
                 totalPrice: 111100,
                 taxRate: 1.111,
-            }, {
+            },
+            {
                 label: 'lineItem 1.1.1.1.1',
                 nestingLevel: 5,
                 quantity: 11111,
                 unitPrice: 111110,
                 totalPrice: 1111100,
                 taxRate: 1.1111,
-            }, {
+            },
+            {
                 label: 'lineItem 1.1.2',
                 nestingLevel: 3,
                 quantity: 112,
                 unitPrice: 1120,
                 totalPrice: 11200,
                 taxRate: 1.12,
-            }, {
+            },
+            {
                 label: 'lineItem 1.2',
                 nestingLevel: 2,
                 quantity: 12,
                 unitPrice: 120,
                 totalPrice: 1200,
                 taxRate: 1.2,
-            }, {
+            },
+            {
                 label: 'lineItem 1.3',
                 nestingLevel: 2,
                 quantity: 13,
                 unitPrice: 130,
                 totalPrice: 1300,
                 taxRate: 1.3,
-            }, {
+            },
+            {
                 label: 'lineItem 2',
                 nestingLevel: 1,
                 quantity: 2,
                 unitPrice: 20,
                 totalPrice: 200,
                 taxRate: 2,
-            }, {
+            },
+            {
                 label: 'lineItem 2.1',
                 nestingLevel: 2,
                 quantity: 21,
@@ -235,5 +261,4 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
             expect(currentTax.text()).toContain(`${data.taxRate} %`);
         });
     });
-    resetFilters();
 });

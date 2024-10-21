@@ -31,9 +31,23 @@ export default class FormAutoSubmitPlugin extends Plugin {
          * @type null|number
          */
         delayChangeEvent: null,
+
+        /**
+         * When true, the `FormAutoSubmitPlugin` will try to re-focus the previously focused element after page or ajax reload.
+         * @type {boolean}
+         */
+        autoFocus: true,
+
+        /**
+         * The key under which the focus state is saved in `window.focusHandler`.
+         * @type {string}
+         */
+        focusHandlerKey: 'form-auto-submit',
     };
 
     init() {
+        this.formSubmittedByCaptcha = false;
+
         this._getForm();
 
         if (!this._form) {
@@ -53,6 +67,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
         }
 
         this._registerEvents();
+        this._resumeFocusState();
     }
 
     /**
@@ -91,6 +106,11 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
             this._form.removeEventListener('change', onChange);
             this._form.addEventListener('change', onChange);
+
+            // // Remove the loading indicator before leaving the page to not cache it in back/forward-cache.
+            window.addEventListener('pagehide', () => {
+                PageLoadingIndicatorUtil.remove();
+            });
         }
     }
 
@@ -117,8 +137,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
             return;
         }
 
+        this._saveFocusState(event.target);
         this._submitNativeForm();
-
     }
 
     /**
@@ -146,7 +166,11 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
         this.$emitter.publish('beforeSubmit');
 
-        this.sendAjaxFormSubmit();
+        this._saveFocusState(event.target);
+
+        if (!this.formSubmittedByCaptcha) {
+            this.sendAjaxFormSubmit();
+        }
     }
 
     sendAjaxFormSubmit() {
@@ -193,5 +217,40 @@ export default class FormAutoSubmitPlugin extends Plugin {
         input.setAttribute('value', value);
 
         return input;
+    }
+
+    /**
+     * @param {HTMLElement} element
+     * @private
+     */
+    _saveFocusState(element) {
+        if (!this.options.autoFocus) {
+            return;
+        }
+
+        // If the form is submitted via AJAX, use the focusHandler in memory, otherwise use the persistent focusHandler.
+        if (this.options.useAjax) {
+            window.focusHandler.saveFocusState(this.options.focusHandlerKey, `[data-focus-id="${element.dataset.focusId}"]`);
+            return;
+        }
+
+        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[data-focus-id="${element.dataset.focusId}"]`);
+    }
+
+    /**
+     * @private
+     */
+    _resumeFocusState() {
+        if (!this.options.autoFocus) {
+            return;
+        }
+
+        // If the form is submitted via AJAX, use the focusHandler in memory, otherwise use the persistent focusHandler.
+        if (this.options.useAjax) {
+            window.focusHandler.resumeFocusState(this.options.focusHandlerKey);
+            return;
+        }
+
+        window.focusHandler.resumeFocusStatePersistent(this.options.focusHandlerKey);
     }
 }

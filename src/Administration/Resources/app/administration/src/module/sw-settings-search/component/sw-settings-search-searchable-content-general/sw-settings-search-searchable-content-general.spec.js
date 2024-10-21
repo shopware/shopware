@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
@@ -9,51 +9,63 @@ import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
 global.allowedErrors.push(missingGetListMethod);
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-search-searchable-content-general', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
+    return mount(
+        await wrapTestComponent('sw-settings-search-searchable-content-general', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
 
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
-            },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        save: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            save: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                    searchRankingService: {},
                 },
-                searchRankingService: {},
 
+                stubs: {
+                    'sw-empty-state': true,
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-pagination': true,
+                    'sw-data-grid-skeleton': await wrapTestComponent('sw-data-grid-skeleton'),
+                    'sw-context-button': true,
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-single-select': true,
+                    'sw-number-field': true,
+                    'sw-checkbox-field': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-bulk-edit-modal': true,
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                },
             },
 
-            stubs: {
-                'sw-empty-state': true,
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-pagination': true,
-                'sw-data-grid-skeleton': await wrapTestComponent('sw-data-grid-skeleton'),
-                'sw-context-button': true,
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+            props: {
+                isEmpty: false,
+                columns: [],
+                repository: {},
+                fieldConfigs: [],
             },
         },
-
-        props: {
-            isEmpty: false,
-            columns: [],
-            repository: {},
-            fieldConfigs: [],
-        },
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-general', () => {
@@ -109,13 +121,9 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         });
         await flushPromises();
 
-        const firstRow = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--0',
-        );
+        const firstRow = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
 
-        await firstRow.find(
-            '.sw-settings-search__searchable-content-list-reset',
-        ).trigger('click');
+        await firstRow.find('.sw-settings-search__searchable-content-list-reset').trigger('click');
 
         expect(wrapper.vm.onResetRanking).toHaveBeenCalled();
     });

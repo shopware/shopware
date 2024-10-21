@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -107,7 +108,7 @@ class CheckoutRegisterPageLoader
     private function getById(string $addressId, SalesChannelContext $context): CustomerAddressEntity
     {
         if (!Uuid::isValid($addressId)) {
-            throw new InvalidUuidException($addressId);
+            throw UuidException::invalidUuid($addressId);
         }
 
         if ($context->getCustomer() === null) {
@@ -142,11 +143,7 @@ class CheckoutRegisterPageLoader
 
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('country.states');
-
-        $countries = $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
+        $countries = $this->countryRoute->load(new Request(), new Criteria(), $salesChannelContext)->getCountries();
 
         $countries->sortCountryAndStates();
 

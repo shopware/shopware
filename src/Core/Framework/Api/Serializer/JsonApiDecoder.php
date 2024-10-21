@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -51,13 +52,11 @@ class JsonApiDecoder implements DecoderInterface
     {
         $this->validateResourceIdentifier($resource);
 
-        \assert(\is_string($resource['id']));
-        \assert(\is_string($resource['type']));
-        $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
+        $hash = $this->getIdentifierHash($resource);
 
         if (!\array_key_exists($hash, $includes)) {
             throw new InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Resolving relationship "%s(%s)" failed due to non-existence.',
                     $resource['type'],
                     $resource['id']
@@ -199,7 +198,7 @@ class JsonApiDecoder implements DecoderInterface
      */
     private function getIdentifierHash(array $resource): string
     {
-        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
+        return Hasher::hash(['id' => $resource['id'], 'type' => $resource['type']]);
     }
 
     /**

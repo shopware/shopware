@@ -19,6 +19,10 @@ async function createWrapper() {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-icon': true,
                 'icons-small-search': true,
+                'sw-field-copyable': await wrapTestComponent('sw-field-copyable'),
+                'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
+                'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
+                'sw-help-text': await wrapTestComponent('sw-help-text'),
             },
             provide: {
                 validationService: {},
@@ -44,8 +48,7 @@ describe('components/base/sw-simple-search-field', () => {
     });
 
     it('should emit `input` event', async () => {
-        await wrapper.find('input[type="text"]')
-            .setValue('@input Sw Simple Search Field Typing');
+        await wrapper.find('input[type="text"]').setValue('@input Sw Simple Search Field Typing');
 
         /* wait for `$emit('input')` */
         await wrapper.vm.$nextTick();

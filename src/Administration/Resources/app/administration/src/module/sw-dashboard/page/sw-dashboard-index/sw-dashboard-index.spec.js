@@ -14,6 +14,14 @@ async function createWrapper(privileges = []) {
                 'sw-dashboard-statistics': true,
                 'sw-usage-data-consent-banner': true,
                 'sw-help-text': true,
+                'sw-extension-component-section': true,
+                'sw-search-bar': true,
+                'sw-app-topbar-button': true,
+                'sw-notification-center': true,
+                'sw-help-center-v2': true,
+                'router-link': true,
+                'sw-app-actions': true,
+                'sw-error-summary': true,
             },
             mocks: {
                 $tc: jest.fn().mockImplementation((snippetPath, number, placeholders) => {
@@ -34,7 +42,9 @@ async function createWrapper(privileges = []) {
             provide: {
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -142,20 +152,18 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
             expectedTimeSlot: '23h',
         },
     ].forEach(({ dateTime, expectedTimeSlot }) => {
-        it(
-            `should return datetime aware headline for daytime: ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
-            async () => {
-                wrapper = await createWrapper();
-                await flushPromises();
+        it(`should return datetime aware headline for daytime: ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`, async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
 
-                const greetingType = 'daytimeHeadline';
-                /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
-                /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
-                jest.setSystemTime(dateTime);
-                expect(wrapper.vm.getGreetingTimeKey(greetingType))
-                    .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
-            },
-        );
+            const greetingType = 'daytimeHeadline';
+            /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
+            /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
+            jest.setSystemTime(dateTime);
+            expect(wrapper.vm.getGreetingTimeKey(greetingType)).toContain(
+                `sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`,
+            );
+        });
     });
 
     [
@@ -196,20 +204,18 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
             expectedTimeSlot: '23h',
         },
     ].forEach(({ dateTime, expectedTimeSlot }) => {
-        it(
-            `should return datetime aware welcoming subline for daytime:\
-            ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
-            async () => {
-                wrapper = await createWrapper();
-                await flushPromises();
+        it(`should return datetime aware welcoming subline for daytime:\
+            ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`, async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
 
-                const greetingType = 'daytimeWelcomeText';
-                /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
-                /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
-                jest.setSystemTime(dateTime);
-                expect(wrapper.vm.getGreetingTimeKey(greetingType))
-                    .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
-            },
-        );
+            const greetingType = 'daytimeWelcomeText';
+            /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
+            /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
+            jest.setSystemTime(dateTime);
+            expect(wrapper.vm.getGreetingTimeKey(greetingType)).toContain(
+                `sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`,
+            );
+        });
     });
 });

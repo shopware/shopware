@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -44,7 +46,7 @@ export default {
         },
 
         promotionCriteria() {
-            return (new Criteria(this.page, this.limit))
+            return new Criteria(this.page, this.limit)
                 .setTerm(this.term)
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
         },
@@ -92,32 +94,37 @@ export default {
         },
 
         getPromotionColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-promotion-v2.list.columnName',
-                routerLink: 'sw.promotion.v2.detail',
-                inlineEdit: 'string',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'active',
-                label: 'sw-promotion-v2.list.columnActive',
-                inlineEdit: 'boolean',
-                allowResize: true,
-                align: 'center',
-            }, {
-                property: 'validFrom',
-                label: 'sw-promotion-v2.list.columnValidFrom',
-                inlineEdit: 'date',
-                allowResize: true,
-                align: 'center',
-            }, {
-                property: 'validUntil',
-                label: 'sw-promotion-v2.list.columnValidUntil',
-                inlineEdit: 'date',
-                allowResize: true,
-                align: 'center',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-promotion-v2.list.columnName',
+                    routerLink: 'sw.promotion.v2.detail',
+                    inlineEdit: 'string',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'active',
+                    label: 'sw-promotion-v2.list.columnActive',
+                    inlineEdit: 'boolean',
+                    allowResize: true,
+                    align: 'center',
+                },
+                {
+                    property: 'validFrom',
+                    label: 'sw-promotion-v2.list.columnValidFrom',
+                    inlineEdit: 'date',
+                    allowResize: true,
+                    align: 'center',
+                },
+                {
+                    property: 'validUntil',
+                    label: 'sw-promotion-v2.list.columnValidUntil',
+                    inlineEdit: 'date',
+                    allowResize: true,
+                    align: 'center',
+                },
+            ];
         },
 
         updateTotal({ total }) {

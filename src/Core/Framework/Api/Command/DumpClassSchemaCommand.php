@@ -113,7 +113,7 @@ class DumpClassSchemaCommand extends Command
             }
         }
 
-        throw new \InvalidArgumentException(sprintf('Invalid class given %s', $className));
+        throw new \InvalidArgumentException(\sprintf('Invalid class given %s', $className));
     }
 
     private function resolveNames(array $stmts): array
@@ -245,7 +245,7 @@ class DumpClassSchemaCommand extends Command
     {
         if (!file_exists($this->schemaPath)) {
             if (!mkdir($concurrentDirectory = $this->schemaPath, 0777, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+                throw new \RuntimeException(\sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
         }
 

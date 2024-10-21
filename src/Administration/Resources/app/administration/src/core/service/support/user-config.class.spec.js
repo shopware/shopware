@@ -1,10 +1,13 @@
-import Vue from 'vue';
+/**
+ * @package admin
+ */
+import { reactive } from 'vue';
 import UserConfigBaseClass from './user-config.class';
 
 class UserConfigImplementation extends UserConfigBaseClass {
     static USER_CONFIG_KEY = 'favorites';
 
-    state = Vue.observable({ favorites: [] });
+    state = reactive({ favorites: [] });
 
     getFavoriteBlockNames() {
         return this.state.favorites;
@@ -48,12 +51,14 @@ responses.addResponse({
     status: 200,
     response: {
         data: {
-            data: [{
-                id: '8badf7ebe678ab968fe88c269c214ea6',
-                userId: '8fe88c269c214ea68badf7ebe678ab96',
-                key: UserConfigImplementation.USER_CONFIG_KEY,
-                value: [],
-            }],
+            data: [
+                {
+                    id: '8badf7ebe678ab968fe88c269c214ea6',
+                    userId: '8fe88c269c214ea68badf7ebe678ab96',
+                    key: UserConfigImplementation.USER_CONFIG_KEY,
+                    value: [],
+                },
+            ],
         },
     },
 });
@@ -67,7 +72,6 @@ responses.addResponse({
     },
 });
 
-
 describe('src/Administration/Resources/app/administration/src/core/service/support/user-config.class.ts', () => {
     let service;
 
@@ -80,7 +84,10 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
     });
 
     it('getFavoriteBlockNames > should return favorites from internal state', () => {
-        const expected = ['foo', 'bar'];
+        const expected = [
+            'foo',
+            'bar',
+        ];
         service.state.favorites = expected;
 
         expect(service.getFavoriteBlockNames()).toEqual(expected);
@@ -88,7 +95,10 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
 
     it('isFavorite > checks if given string is included in favorites', () => {
         const expected = 'bar';
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         expect(service.isFavorite(expected)).toBeTruthy();
     });
@@ -97,7 +107,10 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         const newItem = 'biz';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         service.update(true, newItem);
 
@@ -109,7 +122,10 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         const removedItem = 'bar';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         service.update(false, removedItem);
 
@@ -121,7 +137,10 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         const existingItem = 'foo';
         const nonExistingItem = 'biz';
 
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         service.update(false, nonExistingItem);
         expect(service.isFavorite(nonExistingItem)).toBeFalsy();
@@ -155,8 +174,16 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
     it('getCriteria > returns a criteria including specific filters', () => {
         const criteria = service.getCriteria(UserConfigImplementation.USER_CONFIG_KEY);
 
-        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: UserConfigImplementation.USER_CONFIG_KEY });
-        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'userId', value: '8fe88c269c214ea68badf7ebe678ab96' });
+        expect(criteria.filters).toContainEqual({
+            type: 'equals',
+            field: 'key',
+            value: UserConfigImplementation.USER_CONFIG_KEY,
+        });
+        expect(criteria.filters).toContainEqual({
+            type: 'equals',
+            field: 'userId',
+            value: '8fe88c269c214ea68badf7ebe678ab96',
+        });
     });
 
     it('getCurrentUserId > returns the userId of the current session user', () => {

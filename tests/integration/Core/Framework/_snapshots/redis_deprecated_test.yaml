@@ -1,0 +1,27 @@
+shopware:
+    # delayed cache invalidation
+    cache:
+        invalidation:
+            delay: 1
+            delay_options:
+                dsn: '%env(string:REDIS_URL)%'
+
+    # increment storage
+    increment:
+        redis_increment:
+            type: 'redis'
+            config:
+                url: '%env(string:REDIS_URL)%'
+
+    # number ranges
+    number_range:
+        increment_storage: "redis"
+        config:
+            dsn: '%env(string:REDIS_URL)%'
+
+    # cart storage
+    cart:
+        storage:
+            type: 'redis'
+            config:
+                dsn: '%env(string:REDIS_URL)%'

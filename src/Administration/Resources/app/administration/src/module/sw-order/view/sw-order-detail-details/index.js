@@ -13,9 +13,50 @@ const { mapGetters, mapState, mapPropertyErrors } = Component.getComponentHelper
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveEdits: {
+            from: 'swOrderDetailOnSaveEdits',
+            default: null,
+        },
+        swOrderDetailOnLoadingChange: {
+            from: 'swOrderDetailOnLoadingChange',
+            default: null,
+        },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
+        swOrderDetailOnReloadEntityData: {
+            from: 'swOrderDetailOnReloadEntityData',
+            default: null,
+        },
+        swOrderDetailOnError: {
+            from: 'swOrderDetailOnError',
+            default: null,
+        },
+        acl: {
+            from: 'acl',
+            default: null,
+        },
+        repositoryFactory: {
+            from: 'repositoryFactory',
+            default: null,
+        },
+    },
+
+    emits: [
+        'update-loading',
+        'save-and-recalculate',
+        'save-and-reload',
+        'save-edits',
+        'reload-entity-data',
+        'error',
     ],
 
     props: {
@@ -56,7 +97,12 @@ export default {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                if (
+                    ![
+                        'cancelled',
+                        'failed',
+                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
+                ) {
                     return this.order.transactions[i];
                 }
             }
@@ -107,12 +153,12 @@ export default {
         },
 
         selectedBillingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'billing');
+            const currentAddress = this.orderAddressIds.find((item) => item.type === 'billing');
             return currentAddress?.customerAddressId || this.billingAddress.id;
         },
 
         selectedShippingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
+            const currentAddress = this.orderAddressIds.find((item) => item.type === 'shipping');
             return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
 
@@ -133,10 +179,16 @@ export default {
     methods: {
         createdComponent() {
             this.$emit('update-loading', true);
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(true);
+            }
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
                 this.$emit('update-loading', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
             });
         },
 
@@ -149,26 +201,44 @@ export default {
 
         saveAndRecalculate() {
             this.$emit('save-and-recalculate');
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                this.swOrderDetailOnSaveAndRecalculate();
+            }
         },
 
         saveAndReload() {
             this.$emit('save-and-reload');
+            if (this.swOrderDetailOnSaveAndReload) {
+                this.swOrderDetailOnSaveAndReload();
+            }
         },
 
         onSaveEdits() {
             this.$emit('save-edits');
+            if (this.swOrderDetailOnSaveEdits) {
+                this.swOrderDetailOnSaveEdits();
+            }
         },
 
         reloadEntityData() {
             this.$emit('reload-entity-data');
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            }
         },
 
         showError(error) {
             this.$emit('error', error);
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            }
         },
 
         updateLoading(loadingValue) {
-            State.commit('swOrderDetail/setLoading', ['order', loadingValue]);
+            State.commit('swOrderDetail/setLoading', [
+                'order',
+                loadingValue,
+            ]);
         },
 
         validateTrackingCode(searchTerm) {
@@ -178,7 +248,7 @@ export default {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            const isExist = this.delivery?.trackingCodes?.find((code) => code === trackingCode);
             return !isExist;
         },
 

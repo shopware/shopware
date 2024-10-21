@@ -19,8 +19,8 @@ class ChangelogDefinition
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    #[Assert\NotBlank(message: 'The Jira ticket should not be blank')]
-    #[Assert\Regex(pattern: '/^NEXT-\d+$/', message: 'The Jira ticket has an invalid format')]
+    #[Assert\NotBlank(message: 'No issue was referenced')]
+    #[Assert\Regex(pattern: '/^(NEXT-|#)\d+$/', message: 'The issue has an invalid format')]
     private string $issue;
 
     private ?string $flag = null;
@@ -88,7 +88,7 @@ class ChangelogDefinition
         }
 
         if ($this->flag && !Feature::has($this->flag)) {
-            $context->buildViolation(sprintf('Unknown flag %s is assigned ', $this->flag))
+            $context->buildViolation(\sprintf('Unknown flag %s is assigned ', $this->flag))
                 ->atPath('flag')
                 ->addViolation();
         }
@@ -291,7 +291,7 @@ EOD;
 
     private function buildViolationSectionSeparator(ExecutionContextInterface $context, ChangelogSection $currentSection, string $nextSection): void
     {
-        $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_SECTION_SEPARATOR, $currentSection->value, $nextSection))
+        $context->buildViolation(\sprintf(self::VIOLATION_MESSAGE_SECTION_SEPARATOR, $currentSection->value, $nextSection))
             ->atPath($currentSection->name)
             ->addViolation();
     }
@@ -318,7 +318,7 @@ EOD;
                     continue 2;
                 }
             }
-            $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry, implode(', ', array_column(ChangelogKeyword::cases(), 'value'))))
+            $context->buildViolation(\sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry, implode(', ', array_column(ChangelogKeyword::cases(), 'value'))))
                 ->atPath($currentSection->name)
                 ->addViolation();
         }

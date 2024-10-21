@@ -17,6 +17,6 @@ class OneToOne extends Field
         public string $ref = 'id',
         public bool|array $api = false
     ) {
-        parent::__construct(type: self::TYPE, api: $api);
+        parent::__construct(type: self::TYPE, api: $api, column: $column);
     }
 }

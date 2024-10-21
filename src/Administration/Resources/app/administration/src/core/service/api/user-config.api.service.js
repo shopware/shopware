@@ -4,7 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point 'user-config'
  * @class
  * @extends ApiService
- * @package system-settings
+ * @package services-settings
  */
 class UserConfigService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '_info/config-me') {
@@ -55,11 +55,9 @@ class UserConfigService extends ApiService {
     upsert(upsertData) {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient
-            .post(this.getApiBasePath(), upsertData, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return this.httpClient.post(this.getApiBasePath(), upsertData, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
     }
 }
 

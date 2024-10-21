@@ -1,8 +1,8 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_checkbox_field %}
 <div
-    class="sw-field--checkbox"
     :class="swCheckboxFieldClasses"
+    class="sw-field--checkbox"
 >
     <div
         class="sw-field--checkbox__content"
@@ -31,7 +31,7 @@
         <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
             v-bind="{
-                ...$attrs,
+                ...attrsWithoutClass,
                 ...inheritanceAttrs
             }"
             :is-inheritance-field="inheritanceAttrs.isInheritanceField"

@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 const { merge, cloneDeep } = Shopware.Utils.object;
 const { Criteria } = Shopware.Data;
 const { Service, Module } = Shopware;
@@ -73,7 +76,7 @@ export default function createSearchRankingService() {
 
         const query = {};
 
-        Object.keys(userSearchPreference).forEach(entity => {
+        Object.keys(userSearchPreference).forEach((entity) => {
             const fields = userSearchPreference[entity];
             if (_isEmptyObject(fields)) {
                 return;
@@ -144,15 +147,14 @@ export default function createSearchRankingService() {
             return _getDefaultSearchFieldsByEntity(currentModule, searchTypeConstants.MODULE);
         }
 
-        if (_isEmptyObject(currentModule.defaultSearchConfiguration) ||
-            !_isEntitySearchable(userConfigSearchFieldsByEntity, searchTypeConstants.MODULE)) {
+        if (
+            _isEmptyObject(currentModule.defaultSearchConfiguration) ||
+            !_isEntitySearchable(userConfigSearchFieldsByEntity, searchTypeConstants.MODULE)
+        ) {
             return {};
         }
 
-        return _scoring(
-            userConfigSearchFieldsByEntity,
-            entityName,
-        );
+        return _scoring(userConfigSearchFieldsByEntity, entityName);
     }
 
     function clearCacheUserSearchConfiguration() {
@@ -174,10 +176,7 @@ export default function createSearchRankingService() {
             return cacheDefaultSearchScore[entity];
         }
 
-        cacheDefaultSearchScore[entity] = _scoring(
-            defaultSearchConfiguration,
-            entity,
-        );
+        cacheDefaultSearchScore[entity] = _scoring(defaultSearchConfiguration, entity);
 
         return cacheDefaultSearchScore[entity];
     }
@@ -242,7 +241,7 @@ export default function createSearchRankingService() {
         }
         const cloneCriteria = cloneDeep(oldCriteria);
 
-        queryScores.forEach(queryScore => {
+        queryScores.forEach((queryScore) => {
             cloneCriteria.addQuery(...queryScore);
         });
 
@@ -256,18 +255,19 @@ export default function createSearchRankingService() {
      * @returns {Array}
      */
     function _buildQueryScores(fieldScores, searchTerm) {
-        let terms = searchTerm.split(' ').filter(term => {
+        let terms = searchTerm.split(' ').filter((term) => {
             return term.length > 1;
         });
         terms = [...new Set(terms)];
 
         const queryScores = [];
 
-        Object.keys(fieldScores).forEach(field => {
+        Object.keys(fieldScores).forEach((field) => {
             terms.forEach((term) => {
-                queryScores.push(
-                    [Criteria.contains(field, term), fieldScores[field]],
-                );
+                queryScores.push([
+                    Criteria.contains(field, term),
+                    fieldScores[field],
+                ]);
             });
         });
 
@@ -287,7 +287,7 @@ export default function createSearchRankingService() {
 
         let scores = {};
 
-        Object.keys(searchRankingFields).forEach(field => {
+        Object.keys(searchRankingFields).forEach((field) => {
             const nested = searchRankingFields[field];
             const select = root ? `${root}.${field}` : field;
 
@@ -331,7 +331,6 @@ export default function createSearchRankingService() {
             return cacheUserSearchConfiguration;
         });
     }
-
 
     /**
      * @param {String} entityName

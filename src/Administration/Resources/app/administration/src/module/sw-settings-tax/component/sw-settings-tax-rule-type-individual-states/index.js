@@ -11,6 +11,8 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -44,10 +46,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!this.taxRule.data
-                || !this.taxRule.data.states
-                || !this.taxRule.data.states.length
-            ) {
+            if (!this.taxRule.data || !this.taxRule.data.states || !this.taxRule.data.states.length) {
                 this.taxRule.data = { states: [] };
                 this.individualStates = new EntityCollection(
                     this.stateRepository.route,
@@ -58,7 +57,7 @@ export default {
                 const criteria = new Criteria(1, 25);
                 criteria.setIds(this.taxRule.data.states);
 
-                this.stateRepository.search(criteria, Context.api).then(collection => {
+                this.stateRepository.search(criteria, Context.api).then((collection) => {
                     this.individualStates = collection;
                 });
             }

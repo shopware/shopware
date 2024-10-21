@@ -24,12 +24,14 @@
                 {% endblock %}
             </slot>
         </div>
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_page_top_bar_actions %}
         <div
             class="sw-page__top-bar-actions"
             :style="topBarActionStyles"
         >
+            <sw-app-topbar-button />
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_notification_center %}
             <sw-notification-center />
@@ -153,6 +155,7 @@
         <div class="sw-page__main-content">
             <div
                 class="sw-page__main-content-inner"
+                v-bind="$attrs"
                 v-on="additionalEventListeners"
             >
                 <slot name="content">

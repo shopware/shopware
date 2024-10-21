@@ -8,13 +8,17 @@ use Shopware\Core\Checkout\Payment\Event\RecurringPaymentOrderCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - will be removed with new payment handlers
  */
 #[CoversClass(RecurringPaymentOrderCriteriaEvent::class)]
 class RecurringPaymentOrderCriteriaEventTest extends TestCase
 {
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testEvent(): void
     {
         $orderId = Uuid::randomHex();

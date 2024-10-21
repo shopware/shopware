@@ -11,6 +11,8 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cacheApiService',
     ],
@@ -62,7 +64,7 @@ export default {
                     'product.many-to-many-id-field',
                     'product.category-denormalizer',
                     'product.cheapest-price',
-                    'product.rating-averaget',
+                    'product.rating-average',
                     'product.stream',
                     'product.search-keyword',
                     'product.seo-url',
@@ -98,9 +100,9 @@ export default {
                 return '';
             }
 
-            return this.cacheInfo.httpCache ?
-                this.$tc('sw-settings-cache.toolbar.httpCacheOn') :
-                this.$tc('sw-settings-cache.toolbar.httpCacheOff');
+            return this.cacheInfo.httpCache
+                ? this.$tc('sw-settings-cache.toolbar.httpCacheOn')
+                : this.$tc('sw-settings-cache.toolbar.httpCacheOff');
         },
 
         environmentValue() {
@@ -109,9 +111,9 @@ export default {
                 return '';
             }
 
-            return this.cacheInfo.environment === 'dev' ?
-                this.$tc('sw-settings-cache.toolbar.environmentDev') :
-                this.$tc('sw-settings-cache.toolbar.environmentProd');
+            return this.cacheInfo.environment === 'dev'
+                ? this.$tc('sw-settings-cache.toolbar.environmentDev')
+                : this.$tc('sw-settings-cache.toolbar.environmentProd');
         },
 
         cacheAdapterValue() {
@@ -130,7 +132,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.cacheApiService.info().then(result => {
+            this.cacheApiService.info().then((result) => {
                 this.cacheInfo = result.data;
                 this.componentIsBuilding = false;
                 this.isLoading = false;
@@ -152,27 +154,58 @@ export default {
             }, 60000);
         },
 
+        clearDataCache() {
+            this.createNotificationInfo({
+                message: this.$tc('sw-settings-cache.notifications.clearDataCache.started'),
+            });
+
+            this.processes.normalClearCache = true;
+            this.cacheApiService
+                .delayed()
+                .then(() => {
+                    this.processSuccess.normalClearCache = true;
+
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-cache.notifications.clearDataCache.success'),
+                    });
+                })
+                .catch(() => {
+                    this.processSuccess.normalClearCache = false;
+
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-cache.notifications.clearDataCache.error'),
+                    });
+                })
+                .finally(() => {
+                    this.processes.normalClearCache = false;
+                });
+        },
+
         clearCache() {
             this.createNotificationInfo({
                 message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
             });
 
             this.processes.normalClearCache = true;
-            this.cacheApiService.clear().then(() => {
-                this.processSuccess.normalClearCache = true;
+            this.cacheApiService
+                .clear()
+                .then(() => {
+                    this.processSuccess.normalClearCache = true;
 
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
-                });
-            }).catch(() => {
-                this.processSuccess.normalClearCache = false;
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
+                    });
+                })
+                .catch(() => {
+                    this.processSuccess.normalClearCache = false;
 
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                    });
+                })
+                .finally(() => {
+                    this.processes.normalClearCache = false;
                 });
-            }).finally(() => {
-                this.processes.normalClearCache = false;
-            });
         },
 
         updateIndexes() {
@@ -187,17 +220,21 @@ export default {
                 this.createOnlySelection(only);
             }
 
-            this.cacheApiService.index(skip, only).then(() => {
-                this.decreaseWorkerPoll();
-                this.createNotificationInfo({
-                    message: this.$tc('sw-settings-cache.notifications.index.started'),
+            this.cacheApiService
+                .index(skip, only)
+                .then(() => {
+                    this.decreaseWorkerPoll();
+                    this.createNotificationInfo({
+                        message: this.$tc('sw-settings-cache.notifications.index.started'),
+                    });
+                    this.processSuccess.updateIndexes = true;
+                })
+                .catch(() => {
+                    this.processSuccess.updateIndexes = false;
+                })
+                .finally(() => {
+                    this.processes.updateIndexes = false;
                 });
-                this.processSuccess.updateIndexes = true;
-            }).catch(() => {
-                this.processSuccess.updateIndexes = false;
-            }).finally(() => {
-                this.processes.updateIndexes = false;
-            });
         },
 
         changeSelection(selected, name) {
@@ -215,7 +252,10 @@ export default {
 
         createOnlySelection(only) {
             // eslint-disable-next-line no-restricted-syntax
-            for (const [indexerName, updaters] of Object.entries(this.indexers)) {
+            for (const [
+                indexerName,
+                updaters,
+            ] of Object.entries(this.indexers)) {
                 if (this.indexerSelection.indexOf(indexerName) > -1) {
                     only.push(indexerName);
                 }
@@ -243,7 +283,10 @@ export default {
             const leafs = [];
 
             // eslint-disable-next-line no-restricted-syntax
-            for (const [indexerName, updaters] of Object.entries(this.indexers)) {
+            for (const [
+                indexerName,
+                updaters,
+            ] of Object.entries(this.indexers)) {
                 if (updaters.length > 0) {
                     leafs.push(...updaters);
                 } else {
@@ -251,7 +294,7 @@ export default {
                 }
             }
 
-            this.indexerSelection = leafs.filter(entry => this.indexerSelection.indexOf(entry) === -1);
+            this.indexerSelection = leafs.filter((entry) => this.indexerSelection.indexOf(entry) === -1);
         },
     },
 };

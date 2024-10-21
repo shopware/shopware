@@ -96,7 +96,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
     }
 
     /**
-     * @param array<string, mixed>               $data
+     * @param array<string, mixed> $data
      */
     public function renderBody(
         ProductExportEntity $productExport,

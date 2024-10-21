@@ -8,7 +8,15 @@ import template from './sw-first-run-wizard-mailer-local.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['systemConfigApiService'],
+
+    emits: [
+        'buttons-update',
+        'frw-set-title',
+        'frw-redirect',
+    ],
 
     data() {
         return {
@@ -128,12 +136,15 @@ export default {
         saveMailerSettings() {
             this.isLoading = true;
 
-            return this.systemConfigApiService.saveValues(this.mailerSettings).then(() => {
-                this.$emit('frw-redirect', this.nextAction);
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.systemConfigApiService
+                .saveValues(this.mailerSettings)
+                .then(() => {
+                    this.$emit('frw-redirect', this.nextAction);
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
     },
 };

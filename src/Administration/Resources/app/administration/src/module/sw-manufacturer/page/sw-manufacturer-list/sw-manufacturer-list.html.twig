@@ -49,7 +49,7 @@
                 showOnDisabledElements: true
             }"
             :router-link="{ name: 'sw.manufacturer.create' }"
-            :disabled="!acl.can('product_manufacturer.creator')"
+            :disabled="!acl.can('product_manufacturer.creator') || undefined"
             class="sw-manufacturer-list__add-manufacturer"
             variant="primary"
         >
@@ -84,10 +84,10 @@
                 :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 :disable-data-fetching="true"
-                :allow-edit="acl.can('product_manufacturer.editor')"
-                :allow-inline-edit="acl.can('product_manufacturer.editor')"
-                :allow-delete="acl.can('product_manufacturer.deleter')"
-                :show-selections="acl.can('product_manufacturer.deleter')"
+                :allow-edit="acl.can('product_manufacturer.editor') || undefined"
+                :allow-inline-edit="acl.can('product_manufacturer.editor') || undefined"
+                :allow-delete="acl.can('product_manufacturer.deleter') || undefined"
+                :show-selections="acl.can('product_manufacturer.deleter') || undefined"
                 identifier="sw-manufacturer-list"
                 @update-records="updateTotal"
                 @page-change="onPageChange"

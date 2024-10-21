@@ -18,6 +18,7 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetUrlDataAttribute: 'data-url',
         searchWidgetCollapseButtonSelector: '.js-search-toggle-btn',
         searchWidgetCollapseClass: 'collapsed',
+        searchWidgetCloseButtonSelector: '.js-search-close-btn',
 
         searchWidgetDelay: 250,
         searchWidgetMinChars: 3,
@@ -27,6 +28,7 @@ export default class SearchWidgetPlugin extends Plugin {
         try {
             this._inputField = DomAccess.querySelector(this.el, this.options.searchWidgetInputFieldSelector);
             this._submitButton = DomAccess.querySelector(this.el, this.options.searchWidgetButtonFieldSelector);
+            this._closeButton = DomAccess.querySelector(this.el, this.options.searchWidgetCloseButtonSelector);
             this._url = DomAccess.getAttribute(this.el, this.options.searchWidgetUrlDataAttribute);
         } catch (e) {
             return;
@@ -68,6 +70,10 @@ export default class SearchWidgetPlugin extends Plugin {
 
         // add click event for mobile search
         this._registerInputFocus();
+
+        // add click event listener to close button
+        this._closeButton.addEventListener('click', this._onCloseButtonClick.bind(this));
+
     }
 
     _handleSearchEvent(event) {
@@ -133,7 +139,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _clearSuggestResults() {
-        // reseet arrow navigation helper to enable form submit on enter
+        // reset arrow navigation helper to enable form submit on enter
         this._navigationHelper.resetIterator();
 
         // remove all result popovers
@@ -166,15 +172,25 @@ export default class SearchWidgetPlugin extends Plugin {
     }
 
     /**
-     * When the suggest is shown, trigger the focus on the input field
+     * Close the search results popover
+     * @private
+     */
+    _onCloseButtonClick() {
+        this._clearSuggestResults();
+
+        this._inputField.focus();
+    }
+
+    /**
+     * When the suggestion is shown, trigger the focus on the input field
      * @private
      */
     _registerInputFocus() {
         this._toggleButton = DomAccess.querySelector(document, this.options.searchWidgetCollapseButtonSelector, false);
 
-        if(!this._toggleButton) {
+        if (!this._toggleButton) {
             console.warn(`Called selector '${this.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`);
-            return
+            return;
         }
 
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';

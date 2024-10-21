@@ -1,7 +1,7 @@
 {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
 
 {% block layout_search_suggest %}
-    <div class="search-suggest js-search-result">
+    <div class="search-suggest js-search-result" aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}">
         {% block layout_search_suggest_container %}
             <ul class="search-suggest-container">
                 {% block layout_search_suggest_results %}
@@ -41,7 +41,8 @@
                                                         {% endif %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {
-                                                            size: 'lg'
+                                                            size: 'lg',
+                                                            ariaHidden: true
                                                         } %}
                                                     {% endif %}
                                                 </div>
@@ -106,6 +107,7 @@
                                         <div class="col">
                                             <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
                                                title="{{ 'header.searchAllResults'|trans|striptags }}"
+                                               aria-label="{{ 'header.searchAllResults'|trans|striptags }}"
                                                class="search-suggest-total-link">
                                                 {% sw_icon 'arrow-head-right' style { size: 'sm' } %}
                                                 {{ 'header.searchAllResults'|trans|sw_sanitize }}

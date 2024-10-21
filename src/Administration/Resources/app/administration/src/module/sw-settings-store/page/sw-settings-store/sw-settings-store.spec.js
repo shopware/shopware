@@ -1,37 +1,44 @@
-import { mount } from '@vue/test-utils';
-
-async function createWrapper(customString = '') {
-    return mount(await wrapTestComponent('sw-settings-store', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-page': {
-                    template: '<div><slot name="content"></slot></div>',
-                },
-                'sw-card-view': true,
-                'sw-system-config': {
-                    template: '<div></div>',
-                    data() {
-                        return {
-                            actualConfigData: {
-                                null: {
-                                    'core.store.licenseHost': customString,
-                                },
-                            },
-                        };
-                    },
-                },
-                'sw-skeleton': true,
-            },
-        },
-    });
-}
-
 /**
  * @package checkout
  */
+
+import { mount } from '@vue/test-utils';
+
+async function createWrapper(customString = '') {
+    return mount(
+        await wrapTestComponent('sw-settings-store', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-page': {
+                        template: '<div><slot name="content"></slot></div>',
+                    },
+                    'sw-card-view': true,
+                    'sw-system-config': {
+                        template: '<div></div>',
+                        data() {
+                            return {
+                                actualConfigData: {
+                                    null: {
+                                        'core.store.licenseHost': customString,
+                                    },
+                                },
+                            };
+                        },
+                    },
+                    'sw-skeleton': true,
+                    'sw-search-bar': true,
+                    'sw-icon': true,
+                    'sw-button-process': true,
+                },
+            },
+        },
+    );
+}
+
 describe('src/module/sw-settings-store/page/sw-settings-store', () => {
     it('should be a vue.js component', async () => {
         const wrapper = await createWrapper();
@@ -55,7 +62,7 @@ describe('src/module/sw-settings-store/page/sw-settings-store', () => {
 
         setTrimAndCompare(
             '                               ' +
-            '                                     String with many spaces at the beginning',
+                '                                     String with many spaces at the beginning',
             'String with many spaces at the beginning',
         );
 

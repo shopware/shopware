@@ -8,7 +8,15 @@ import './sw-first-run-wizard-shopware-domain.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['firstRunWizardService'],
+
+    emits: [
+        'frw-set-title',
+        'buttons-update',
+        'frw-redirect',
+    ],
 
     data() {
         return {
@@ -24,9 +32,7 @@ export default {
 
     computed: {
         domainToVerify() {
-            return this.createShopDomain
-                ? this.newShopDomain
-                : this.selectedShopDomain;
+            return this.createShopDomain ? this.newShopDomain : this.selectedShopDomain;
         },
 
         isDomainEmpty() {
@@ -58,21 +64,24 @@ export default {
             this.updateButtons();
             this.setTitle();
 
-            this.firstRunWizardService.getLicenseDomains().then((response) => {
-                const { items } = response;
+            this.firstRunWizardService
+                .getLicenseDomains()
+                .then((response) => {
+                    const { items } = response;
 
-                if (!items || items.length < 1) {
-                    return;
-                }
+                    if (!items || items.length < 1) {
+                        return;
+                    }
 
-                this.licenceDomains = items;
-                this.selectedShopDomain = items[0].domain;
-            }).finally(() => {
-                if (this.licenceDomains.length <= 0) {
-                    this.createShopDomain = true;
-                }
-                this.isLoading = false;
-            });
+                    this.licenceDomains = items;
+                    this.selectedShopDomain = items[0].domain;
+                })
+                .finally(() => {
+                    if (this.licenceDomains.length <= 0) {
+                        this.createShopDomain = true;
+                    }
+                    this.isLoading = false;
+                });
         },
 
         setTitle() {
@@ -108,19 +117,22 @@ export default {
 
             this.domainError = null;
 
-            return this.firstRunWizardService.verifyLicenseDomain({
-                domain,
-                testEnvironment,
-            }).then(() => {
-                this.$emit('frw-redirect', this.nextAction);
-                return false;
-            }).catch((error) => {
-                const msg = error.response.data.errors.pop();
+            return this.firstRunWizardService
+                .verifyLicenseDomain({
+                    domain,
+                    testEnvironment,
+                })
+                .then(() => {
+                    this.$emit('frw-redirect', this.nextAction);
+                    return false;
+                })
+                .catch((error) => {
+                    const msg = error.response.data.errors.pop();
 
-                this.domainError = msg;
+                    this.domainError = msg;
 
-                return true;
-            });
+                    return true;
+                });
         },
     },
 };

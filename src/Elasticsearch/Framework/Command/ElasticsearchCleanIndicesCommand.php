@@ -52,7 +52,7 @@ class ElasticsearchCleanIndicesCommand extends Command
         $io->table(['Indices to be deleted:'], array_map(static fn (string $name) => [$name], $indices));
 
         if (!$input->getOption('force')) {
-            if (!$io->confirm(sprintf('Delete these %d indices?', \count($indices)), false)) {
+            if (!$io->confirm(\sprintf('Delete these %d indices?', \count($indices)), false)) {
                 $io->writeln('Deletion aborted.');
 
                 return self::FAILURE;

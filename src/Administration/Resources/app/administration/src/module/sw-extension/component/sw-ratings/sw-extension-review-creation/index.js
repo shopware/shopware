@@ -10,7 +10,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['extensionStoreActionService'],
+
+    emits: ['created'],
 
     mixins: ['sw-extension-error'],
 
@@ -58,8 +62,7 @@ export default {
         },
 
         hasError() {
-            return this.errors.headlineError !== null
-                || this.errors.ratingError !== null;
+            return this.errors.headlineError !== null || this.errors.ratingError !== null;
         },
 
         disabled() {

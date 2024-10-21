@@ -8,6 +8,8 @@ import './sw-settings-search-live-search-keyword.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         text: {
             type: String,
@@ -34,9 +36,7 @@ export default {
         },
 
         parsedMsg() {
-            return this.text.split(
-                new RegExp(this.parsedSearch, 'gi'),
-            );
+            return this.text.split(new RegExp(this.parsedSearch, 'gi'));
         },
     },
 

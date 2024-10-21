@@ -20,12 +20,15 @@
     "@typescript-eslint/parser": "^6.7.2",
     "dotenv": "^16.3.1",
     "eslint": "^8.49.0",
-    "eslint-plugin-playwright": "^0.16.0",
+    "eslint-plugin-playwright": "^1.6.2",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@playwright/test": "1.44.0",
-    "@shopware-ag/acceptance-test-suite": "1.4.0",
-    "@shopware/api-client": "^0.0.0-canary-20230823113412"
+    "@playwright/test": "1.45.3",
+    "@currents/playwright": "^1.5.11",
+    "@shopware-ag/acceptance-test-suite": "3.8.4",
+    "@shopware/api-client": "^0.0.0-canary-20230823113412",
+    "playwright-lighthouse": "4.0.0",
+    "lighthouse": "12.2.0"
   }
 }

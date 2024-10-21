@@ -4,12 +4,26 @@
 
 import template from './sw-product-visibility-select.html.twig';
 
-const { EntityCollection } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    emits: ['item-add'],
+
+    props: {
+        criteria: {
+            type: Object,
+            required: false,
+            default(props) {
+                const criteria = new Criteria(1, props.resultLimit);
+                criteria.addSorting(Criteria.sort('name', 'ASC'));
+                return criteria;
+            },
+        },
+    },
 
     data() {
         return {
@@ -33,7 +47,7 @@ export default {
 
     methods: {
         isSelected(item) {
-            return this.currentCollection.some(entity => {
+            return this.currentCollection.some((entity) => {
                 return entity.salesChannelId === item.id;
             });
         },
@@ -41,7 +55,7 @@ export default {
         addItem(item) {
             // Remove when already selected
             if (this.isSelected(item)) {
-                const associationEntity = this.currentCollection.find(entity => {
+                const associationEntity = this.currentCollection.find((entity) => {
                     return entity.salesChannelId === item.id;
                 });
                 this.remove(associationEntity);

@@ -1,5 +1,6 @@
 /**
  * @package checkout
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -58,7 +59,7 @@ export default {
         },
 
         defaultCurrency(state) {
-            return state.currencies.find(currency => currency.isSystemDefault);
+            return state.currencies.find((currency) => currency.isSystemDefault);
         },
 
         usedRules(state, getters) {
@@ -66,7 +67,7 @@ export default {
         },
 
         unrestrictedPriceMatrixExists(state) {
-            return state.shippingMethod.prices.some(shippingPrice => {
+            return state.shippingMethod.prices.some((shippingPrice) => {
                 return shippingPrice.ruleId === null;
             });
         },

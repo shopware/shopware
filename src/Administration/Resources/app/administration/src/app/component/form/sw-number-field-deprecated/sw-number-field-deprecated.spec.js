@@ -3,11 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
 
 const createWrapper = async (additionalOptions = {}, value = null) => {
     return mount(await wrapTestComponent('sw-number-field-deprecated', { sync: true }), {
@@ -19,6 +14,10 @@ const createWrapper = async (additionalOptions = {}, value = null) => {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},
@@ -128,7 +127,9 @@ describe('app/component/form/sw-number-field-deprecated', () => {
     });
 
     it('should fill digits when appropriate', async () => {
-        const wrapper = await createWrapper({ propsData: { fillDigits: true } });
+        const wrapper = await createWrapper({
+            propsData: { fillDigits: true },
+        });
         await flushPromises();
 
         const input = wrapper.find('input');
@@ -317,5 +318,53 @@ describe('app/component/form/sw-number-field-deprecated', () => {
 
         expect(input.exists()).toBe(true);
         expect(input.element.value).toBe('0');
+    });
+
+    it('should increase the value after typing some value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        input.element.value = '5';
+        await input.trigger('input');
+        await input.trigger('keydown.up');
+
+        expect(input.element.value).toBe('5.01');
+    });
+
+    it('should decrease the value after typing some value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        input.element.value = '5';
+        await input.trigger('input');
+        await input.trigger('keydown.down');
+
+        expect(input.element.value).toBe('4.99');
+    });
+
+    it('should emit "ends-with-decimal-separator" event when input ends with decimal separator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        await input.setValue('5.');
+
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
+            [true],
+        ]);
+    });
+
+    it('should emit "ends-with-decimal-separator" event with false value when input does not end with decimal separator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        await input.setValue('5');
+
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
+            [false],
+        ]);
     });
 });

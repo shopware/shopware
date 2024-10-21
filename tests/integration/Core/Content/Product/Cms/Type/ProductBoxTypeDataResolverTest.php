@@ -22,8 +22,10 @@ use Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -122,7 +124,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
     public function testEnrichWithStaticConfig(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {
-            $this->systemConfig->method('get')->willReturn(true);
+            $this->systemConfig->method('getBool')->willReturn(true);
         }
 
         $salesChannelId = 'f3489c46df62422abdea4aa1bb03511c';
@@ -130,6 +132,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
         $product->setAvailableStock($availableStock);
+        $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
 
         $salesChannel = new SalesChannelEntity();
@@ -257,8 +260,13 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setType('product-box');
         $slot->setFieldConfig($fieldConfig);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Property foo do not exist in class ' . SalesChannelProductEntity::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(PropertyNotFoundException::class);
+            $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s".', SalesChannelProductEntity::class));
+        } else {
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage(\sprintf('Property foo do not exist in class %s', SalesChannelProductEntity::class));
+        }
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }

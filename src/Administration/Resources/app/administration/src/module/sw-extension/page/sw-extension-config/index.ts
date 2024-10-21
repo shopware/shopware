@@ -6,10 +6,10 @@ import './sw-extension-config.scss';
 const { Mixin } = Shopware;
 
 type ComponentData = {
-    salesChannelId: string|null,
-    extension: Extension|null,
-    fromLink: RouteLocationNamedRaw|null,
-}
+    salesChannelId: string | null;
+    extension: Extension | null;
+    fromLink: RouteLocationNamedRaw | null;
+};
 
 /**
  * @package checkout
@@ -17,6 +17,8 @@ type ComponentData = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     beforeRouteEnter(to, from, next) {
         next((vm) => {
@@ -92,9 +94,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         refreshExtension(): void {
-            this.extension = this.myExtensions.find((ext) => {
-                return ext.name === this.namespace;
-            }) ?? null;
+            this.extension =
+                this.myExtensions.find((ext) => {
+                    return ext.name === this.namespace;
+                }) ?? null;
         },
 
         async onSave(): Promise<void> {

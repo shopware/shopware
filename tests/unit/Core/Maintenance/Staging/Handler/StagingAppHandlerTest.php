@@ -45,7 +45,7 @@ class StagingAppHandlerTest extends TestCase
 
         static::assertNull($configService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
 
-        static::assertEquals(['app', 'integration'], $tables);
-        static::assertEquals(['app_id', 'integration_id'], $ids);
+        static::assertSame(['app', 'integration'], $tables);
+        static::assertSame(['app_id', 'integration_id'], $ids);
     }
 }

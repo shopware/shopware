@@ -25,6 +25,7 @@ async function createWrapper(errors = {}, options = {}) {
                 'sw-alert': await wrapTestComponent('sw-alert'),
                 'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated'),
                 'sw-icon': true,
+                'mt-banner': true,
             },
             ...options,
         },

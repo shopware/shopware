@@ -143,7 +143,7 @@ class FileNameValidatorTest extends TestCase
     {
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage(
-            sprintf(
+            \sprintf(
                 'Filename must not contain character "%x"',
                 \ord($input)
             )

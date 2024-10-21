@@ -16,6 +16,15 @@ const { Component } = Shopware;
 Component.register('sw-confirm-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'remove-error',
+        'blur',
+        'submit-cancel',
+        'input',
+    ],
+
     props: {
         value: {
             type: String,

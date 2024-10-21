@@ -84,7 +84,7 @@ class LineItemListPriceRatioRule extends Rule
 
         $listPriceRatioAmount = null;
         if ($listPrice instanceof ListPrice) {
-            $listPriceRatioAmount = $listPrice->getPercentage();
+            $listPriceRatioAmount = (100 - $listPrice->getPercentage()) / 100;
         }
 
         return RuleComparison::numeric($listPriceRatioAmount, (float) $this->amount, $this->operator);

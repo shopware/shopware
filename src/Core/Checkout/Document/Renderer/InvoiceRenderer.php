@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -57,12 +56,14 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
             return $result;
         }
 
+        $languageIdChain = $context->getLanguageIdChain();
+
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
             $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode);
             $context = $context->assign([
-                'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+                'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$languageIdChain]))),
             ]);
 
             // TODO: future implementation (only fetch required data and associations)
@@ -167,35 +168,5 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
             $order->getSalesChannelId(),
             $operation->isPreview()
         );
-    }
-
-    /**
-     * @param  array<string, mixed> $config
-     */
-    private function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
-    {
-        if (empty($config['displayAdditionalNoteDelivery']) || empty($config['deliveryCountries'])) {
-            return false;
-        }
-
-        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
-        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return false;
-        }
-
-        $orderDelivery = $order->getDeliveries()?->first();
-        if (!$orderDelivery) {
-            return false;
-        }
-
-        $shippingAddress = $orderDelivery->getShippingOrderAddress();
-        $country = $shippingAddress?->getCountry();
-        if ($country === null) {
-            return false;
-        }
-
-        $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
-
-        return $isCompanyTaxFree && \in_array($country->getId(), $config['deliveryCountries'], true);
     }
 }

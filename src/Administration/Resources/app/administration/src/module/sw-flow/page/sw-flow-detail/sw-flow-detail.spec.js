@@ -3,13 +3,18 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
+/**
+ * @package services-settings
+ */
+
+class MockFlowBuilderService extends FlowBuilderService {
+    rearrangeArrayObjects = jest.fn((sequence) => {
+        return sequence;
+    });
+}
+
 Shopware.Service().register('flowBuilderService', () => {
-    return {
-        ...new FlowBuilderService(),
-        rearrangeArrayObjects: (sequences) => {
-            return sequences;
-        },
-    };
+    return new MockFlowBuilderService();
 });
 
 const sequenceFixture = {
@@ -81,105 +86,103 @@ const mockBusinessEvents = [
     },
 ];
 
-async function createWrapper(
-    query = {},
-    config = {},
-    flowId = null,
-    saveSuccess = true,
-    param = {},
-) {
-    return mount(await wrapTestComponent('sw-flow-detail', {
-        sync: true,
-    }), {
-        props: {
-            flowId: flowId,
-        },
-        global: {
-            provide: {
-                repositoryFactory: {
-                    create: (entity) => {
-                        if (entity === 'flow_sequence') {
+async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
+    return mount(
+        await wrapTestComponent('sw-flow-detail', {
+            sync: true,
+        }),
+        {
+            props: {
+                flowId: flowId,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: (entity) => {
+                            if (entity === 'flow_sequence') {
+                                return {
+                                    sync: jest.fn((sequences) => {
+                                        expect(sequences).toHaveLength(2);
+
+                                        const ids = [];
+                                        sequences.forEach((sequence) => {
+                                            ids.push(sequence.id);
+                                        });
+
+                                        expect(ids).toEqual([
+                                            '1',
+                                            '3',
+                                        ]);
+                                    }),
+                                    syncDeleted: jest.fn((sequencesIds) => {
+                                        const ids = [];
+                                        sequencesIds.forEach((sequenceId) => {
+                                            ids.push(sequenceId);
+                                        });
+
+                                        expect(ids).toEqual([
+                                            '2',
+                                            '4',
+                                        ]);
+                                    }),
+                                    create: () => {
+                                        return {};
+                                    },
+                                };
+                            }
+
                             return {
-                                sync: jest.fn((sequences) => {
-                                    expect(sequences).toHaveLength(2);
-
-                                    const ids = [];
-                                    sequences.forEach((sequence) => {
-                                        ids.push(sequence.id);
-                                    });
-
-                                    expect(ids).toEqual(['1', '3']);
-                                }),
-                                syncDeleted: jest.fn((sequencesIds) => {
-                                    const ids = [];
-                                    sequencesIds.forEach((sequenceId) => {
-                                        ids.push(sequenceId);
-                                    });
-
-                                    expect(ids).toEqual(['2', '4']);
-                                }),
                                 create: () => {
                                     return {};
                                 },
-                            };
-                        }
-
-                        return {
-                            create: () => {
-                                return {};
-                            },
-                            save: () => {
-                                return saveSuccess ? Promise.resolve() : Promise.reject();
-                            },
-                            get: (id) => {
-                                if (id === ID_FLOW) {
-                                    return Promise.resolve(
-                                        {
+                                save: () => {
+                                    return saveSuccess ? Promise.resolve() : Promise.reject();
+                                },
+                                get: (id) => {
+                                    if (id === ID_FLOW) {
+                                        return Promise.resolve({
                                             id,
                                             name: 'Flow 1',
                                             eventName: 'checkout.customer',
                                             config,
-                                        },
-                                    );
-                                }
+                                        });
+                                    }
 
-                                return Promise.resolve(
-                                    {
+                                    return Promise.resolve({
                                         id,
                                         name: 'Flow template 1',
                                         config,
-                                    },
-                                );
-                            },
-                            search: () => {
-                                if (entity === 'rule') {
-                                    return Promise.resolve([
-                                        { id: '1111', name: 'test rule' },
-                                    ]);
-                                }
+                                    });
+                                },
+                                search: () => {
+                                    if (entity === 'rule') {
+                                        return Promise.resolve([
+                                            { id: '1111', name: 'test rule' },
+                                        ]);
+                                    }
 
-                                return Promise.resolve([]);
-                            },
-                            sync: () => {
-                                return Promise.resolve();
-                            },
-                            syncDeleted: () => {
-                                return Promise.resolve();
-                            },
-                        };
+                                    return Promise.resolve([]);
+                                },
+                                sync: () => {
+                                    return Promise.resolve();
+                                },
+                                syncDeleted: () => {
+                                    return Promise.resolve();
+                                },
+                            };
+                        },
+                    },
+                    flowBuilderService: Shopware.Service('flowBuilderService'),
+                    ruleConditionDataProviderService: {
+                        getRestrictedRules: () => Promise.resolve([]),
                     },
                 },
-                flowBuilderService: Shopware.Service('flowBuilderService'),
-                ruleConditionDataProviderService: {
-                    getRestrictedRules: () => Promise.resolve([]),
+                mocks: {
+                    $route: { params: param, query: query },
                 },
-            },
-            mocks: {
-                $route: { params: param, query: query },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                         <div class="sw-page">
                             <slot name="search-bar"></slot>
                             <slot name="smart-bar-back"></slot>
@@ -192,17 +195,40 @@ async function createWrapper(
                             <slot></slot>
                         </div>
                     `,
+                    },
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item', {
+                        sync: true,
+                    }),
+                    'router-view': true,
+                    'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-skeleton': true,
+                    'sw-alert': true,
+                    'sw-flow-leave-page-modal': true,
+                    'sw-tabs': {
+                        template: `
+                        <div class="sw-tabs">
+                            <slot></slot>
+                        </div>
+                    `,
+                    },
+                    'sw-card-view': {
+                        template: `
+                        <div class="sw-card-view">
+                            <slot></slot>
+                        </div>
+                    `,
+                    },
+                    'sw-icon': true,
+                    'router-link': true,
+                    'sw-loader': true,
                 },
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
-                'router-view': true,
-                'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-skeleton': true,
-                'sw-alert': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/page/sw-flow-detail', () => {
@@ -257,13 +283,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             isNew: () => true,
         };
 
-        Shopware.State.commit(
-            'swFlowState/setFlow',
-            {
-                ...flow,
-                getOrigin: () => flow,
-            },
-        );
+        Shopware.State.commit('swFlowState/setFlow', {
+            ...flow,
+            getOrigin: () => flow,
+        });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(4);
@@ -286,13 +309,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             sequences: getSequencesCollection(sequencesFixture),
         };
 
-        Shopware.State.commit(
-            'swFlowState/setFlow',
-            {
-                ...flow,
-                getOrigin: () => flow,
-            },
-        );
+        Shopware.State.commit('swFlowState/setFlow', {
+            ...flow,
+            getOrigin: () => flow,
+        });
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(4);
@@ -307,11 +327,17 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
     it('should not able to saving flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
-        const wrapper = await createWrapper({
-            type: 'template',
-        }, {}, null, true, {
-            flowTemplateId: ID_FLOW_TEMPLATE,
-        });
+        const wrapper = await createWrapper(
+            {
+                type: 'template',
+            },
+            {},
+            null,
+            true,
+            {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        );
 
         const flowTemplate = {
             name: 'Flow template',
@@ -347,17 +373,16 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit(
-            'swFlowState/setFlow',
-            {
-                eventName: 'checkout.customer',
-                name: 'Flow 1',
-                sequences: getSequencesCollection([{
+        Shopware.State.commit('swFlowState/setFlow', {
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: getSequencesCollection([
+                {
                     ...sequenceFixture,
                     ruleId: '',
-                }]),
-            },
-        );
+                },
+            ]),
+        });
 
         let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
         expect(invalidSequences).toEqual([]);
@@ -376,13 +401,18 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     it('should set route for card tabs when creating a new flow', async () => {
         global.activeAclRoles = ['flow.editor'];
 
-        const wrapper = await createWrapper({}, {
-            eventName: 'checkout.customer',
-            sequences: [{
-                id: 'sequence-id',
-                config: {},
-            }],
-        });
+        const wrapper = await createWrapper(
+            {},
+            {
+                eventName: 'checkout.customer',
+                sequences: [
+                    {
+                        id: 'sequence-id',
+                        config: {},
+                    },
+                ],
+            },
+        );
         await flushPromises();
 
         const tabs = {
@@ -402,15 +432,23 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     it('should be able to create flow from flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
 
-        const wrapper = await createWrapper({}, {
-            eventName: 'checkout.customer',
-            sequences: [{
-                id: 'sequence-id',
-                config: {},
-            }],
-        }, null, true, {
-            flowTemplateId: ID_FLOW_TEMPLATE,
-        });
+        const wrapper = await createWrapper(
+            {},
+            {
+                eventName: 'checkout.customer',
+                sequences: [
+                    {
+                        id: 'sequence-id',
+                        config: {},
+                    },
+                ],
+            },
+            null,
+            true,
+            {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        );
 
         await flushPromises();
 
@@ -424,15 +462,23 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     it('should set flowTemplateId in route for card tabs when creating flow from flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
 
-        const wrapper = await createWrapper({}, {
-            eventName: 'checkout.customer',
-            sequences: [{
-                id: 'sequence-id',
-                config: {},
-            }],
-        }, null, true, {
-            flowTemplateId: ID_FLOW_TEMPLATE,
-        });
+        const wrapper = await createWrapper(
+            {},
+            {
+                eventName: 'checkout.customer',
+                sequences: [
+                    {
+                        id: 'sequence-id',
+                        config: {},
+                    },
+                ],
+            },
+            null,
+            true,
+            {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        );
         await flushPromises();
 
         const tabs = {
@@ -458,8 +504,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         const sequences = [
             { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
-            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
-            { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
+            {
+                id: '900a915617054a5b8acbfda1a35831fa',
+                parentId: 'd2b3a82c22284566b6a56fb47d577bfd',
+            },
+            {
+                id: 'f1beccf9c40244e6ace2726d2afc476c',
+                parentId: '900a915617054a5b8acbfda1a35831fa',
+            },
         ];
 
         jest.spyOn(Shopware.Utils, 'createId')
@@ -467,20 +519,39 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             .mockReturnValueOnce('900a915617054a5b8acbfda1a35831fa_new')
             .mockReturnValueOnce('f1beccf9c40244e6ace2726d2afc476c_new');
 
-        expect(JSON.stringify(wrapper.vm.buildSequencesFromConfig(sequences))).toEqual(JSON.stringify(getSequencesCollection([
-            { id: 'd2b3a82c22284566b6a56fb47d577bfd_new', parentId: null },
-            { id: '900a915617054a5b8acbfda1a35831fa_new', parentId: 'd2b3a82c22284566b6a56fb47d577bfd_new' },
-            { id: 'f1beccf9c40244e6ace2726d2afc476c_new', parentId: '900a915617054a5b8acbfda1a35831fa_new' },
-        ])));
+        expect(JSON.stringify(wrapper.vm.buildSequencesFromConfig(sequences))).toEqual(
+            JSON.stringify(
+                getSequencesCollection([
+                    {
+                        id: 'd2b3a82c22284566b6a56fb47d577bfd_new',
+                        parentId: null,
+                    },
+                    {
+                        id: '900a915617054a5b8acbfda1a35831fa_new',
+                        parentId: 'd2b3a82c22284566b6a56fb47d577bfd_new',
+                    },
+                    {
+                        id: 'f1beccf9c40244e6ace2726d2afc476c_new',
+                        parentId: '900a915617054a5b8acbfda1a35831fa_new',
+                    },
+                ]),
+            ),
+        );
     });
 
     it('should be able to show the warning message when editing flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
-        const wrapper = await createWrapper({
-            type: 'template',
-        }, {}, null, true, {
-            flowTemplateId: ID_FLOW_TEMPLATE,
-        });
+        const wrapper = await createWrapper(
+            {
+                type: 'template',
+            },
+            {},
+            null,
+            true,
+            {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        );
         await flushPromises();
 
         const alertElement = wrapper.find('.sw-flow-detail__template');
@@ -490,11 +561,17 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     it('should be able to get rule data for flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
 
-        const wrapper = await createWrapper({
-            type: 'template',
-        }, {}, null, true, {
-            flowTemplateId: ID_FLOW_TEMPLATE,
-        });
+        const wrapper = await createWrapper(
+            {
+                type: 'template',
+            },
+            {},
+            null,
+            true,
+            {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        );
 
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 

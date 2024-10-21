@@ -21,7 +21,17 @@ const { fileReader } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
+
+    emits: [
+        'click',
+        'media-preview-play',
+    ],
 
     playableVideoFormats: [
         'video/mp4',

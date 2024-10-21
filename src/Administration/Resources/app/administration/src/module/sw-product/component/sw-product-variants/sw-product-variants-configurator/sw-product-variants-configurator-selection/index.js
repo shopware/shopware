@@ -1,4 +1,4 @@
-/*
+/**
  * @package inventory
  */
 
@@ -11,7 +11,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['option-select'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -21,6 +25,20 @@ export default {
         product: {
             type: Object,
             required: true,
+        },
+        /**
+         * @deprecated tag:v6.7.0 - The disabled props will be removed.
+         */
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    watch: {
+        disabled() {
+            this.selectOptions(this.$refs.optionGrid);
         },
     },
 
@@ -59,10 +77,10 @@ export default {
 
         selectOptions(grid) {
             grid.selectAll(false);
-
             this.preventSelection = true;
             this.options.forEach((configurator) => {
                 if (configurator.option) {
+                    configurator.option.gridDisabled = this.disabled && !configurator._isNew;
                     grid.selectItem(!configurator.isDeleted, configurator.option);
                 }
             });
@@ -75,7 +93,7 @@ export default {
                 return;
             }
 
-            const exists = this.options.find(i => i.optionId === item.id);
+            const exists = this.options.find((i) => i.optionId === item.id);
 
             if (exists) {
                 this.options.remove(exists.id);

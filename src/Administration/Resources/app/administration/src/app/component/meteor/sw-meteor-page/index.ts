@@ -7,9 +7,9 @@ import './sw-meteor-page.scss';
 const { Component } = Shopware;
 
 type ComponentData = {
-    module: ModuleManifest|null,
-    parentRoute: string|null,
-}
+    module: ModuleManifest | null;
+    parentRoute: string | null;
+};
 
 /**
  * @package admin
@@ -18,6 +18,8 @@ type ComponentData = {
  */
 Component.register('sw-meteor-page', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         fullWidth: {
@@ -33,7 +35,7 @@ Component.register('sw-meteor-page', {
         },
 
         fromLink: {
-            type: Object as PropType<RouteLocationNamedRaw|null>,
+            type: Object as PropType<RouteLocationNamedRaw | null>,
             required: false,
             default: null,
         },
@@ -58,14 +60,25 @@ Component.register('sw-meteor-page', {
         },
 
         hasIconOrIconSlot(): boolean {
-            return this.hasIcon ||
-                typeof this.$slots['smart-bar-icon'] !== 'undefined' ||
-                typeof this.$scopedSlots['smart-bar-icon'] !== 'undefined';
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return (
+                    this.hasIcon ||
+                    typeof this.$slots['smart-bar-icon'] !== 'undefined' ||
+                    typeof this.$scopedSlots['smart-bar-icon'] !== 'undefined'
+                );
+            }
+
+            return this.hasIcon || typeof this.$slots['smart-bar-icon'] !== 'undefined';
         },
 
         hasTabs(): boolean {
-            return typeof this.$slots['page-tabs'] !== 'undefined' ||
-                typeof this.$scopedSlots['page-tabs'] !== 'undefined';
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return (
+                    typeof this.$slots['page-tabs'] !== 'undefined' || typeof this.$scopedSlots['page-tabs'] !== 'undefined'
+                );
+            }
+
+            return typeof this.$slots['page-tabs'] !== 'undefined';
         },
 
         pageColor(): string {
@@ -73,7 +86,7 @@ Component.register('sw-meteor-page', {
         },
     },
 
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         void Shopware.State.dispatch('error/resetApiErrors');
     },
 
@@ -92,7 +105,7 @@ Component.register('sw-meteor-page', {
 
         initPage(): void {
             if (typeof this.$route?.meta?.$module !== 'undefined') {
-                this.module = this.$route.meta.$module as ModuleManifest|null;
+                this.module = this.$route.meta.$module as ModuleManifest | null;
             }
 
             if (typeof this.$route?.meta?.parentPath === 'string') {

@@ -114,7 +114,7 @@ class StorefrontRoutingTest extends TestCase
     }
 
     /**
-     * @return  array<array<int, RequestTestCase>>
+     * @return array<array<int, RequestTestCase>>
      */
     public static function getRequestTestCaseProvider(): array
     {
@@ -214,7 +214,7 @@ class StorefrontRoutingTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, array<int, array<string, string|null>>|string>>  $salesChannels
+     * @param array<int, array<string, array<int, array<string, string|null>>|string>> $salesChannels
      */
     private function createSalesChannels(array $salesChannels): SalesChannelContext
     {

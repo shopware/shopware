@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -12,12 +13,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 
 #[Package('core')]
 class TranslationsSerializer extends FieldSerializer
 {
     /**
+     * @param EntityRepository<LanguageCollection> $languageRepository
+     *
      * @internal
      */
     public function __construct(private readonly EntityRepository $languageRepository)
@@ -31,7 +35,7 @@ class TranslationsSerializer extends FieldSerializer
         }
 
         if (!$associationField instanceof TranslationsAssociationField) {
-            throw new \InvalidArgumentException('Expected first argument to be an instance of ' . TranslationsAssociationField::class);
+            throw ImportExportException::invalidInstanceType('associationField', TranslationsAssociationField::class);
         }
 
         if ($translations instanceof EntityCollection) {
@@ -64,7 +68,7 @@ class TranslationsSerializer extends FieldSerializer
     public function deserialize(Config $config, Field $associationField, $translations): mixed
     {
         if (!$associationField instanceof TranslationsAssociationField) {
-            throw new \InvalidArgumentException('Expected *ToOneField');
+            throw ImportExportException::invalidInstanceType('associationField', '*ToOneField');
         }
 
         $translations = \is_array($translations) ? $translations : iterator_to_array($translations);
@@ -103,11 +107,14 @@ class TranslationsSerializer extends FieldSerializer
 
     private function mapToTranslationCode(string $languageId): string
     {
+        if (!Uuid::isValid($languageId)) {
+            return $languageId;
+        }
+
         $criteria = (new Criteria([$languageId]))->addAssociation('translationCode');
 
-        /** @var LanguageEntity|null $language */
         $language = $this->languageRepository
-            ->search($criteria, Context::createDefaultContext())
+            ->search($criteria, Context::createDefaultContext())->getEntities()
             ->first();
 
         return $language && $language->getTranslationCode() ? $language->getTranslationCode()->getCode() : $languageId;

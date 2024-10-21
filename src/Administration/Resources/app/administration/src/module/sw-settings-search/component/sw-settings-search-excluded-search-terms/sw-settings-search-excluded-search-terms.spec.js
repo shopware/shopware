@@ -1,88 +1,112 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], resetError = false) {
-    return mount(await wrapTestComponent('sw-settings-search-excluded-search-terms', {
-        sync: true,
-    }), {
-        props: {
-            searchConfigs: {
-                excludedTerms: ['i', 'a', 'on', 'in', 'of', 'at', 'right', 'he', 'she', 'we', 'us', 'our'],
-            },
-        },
-
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                validationService: {},
-                repositoryFactory: {
-                    create: () => ({
-                        save: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+    return mount(
+        await wrapTestComponent('sw-settings-search-excluded-search-terms', {
+            sync: true,
+        }),
+        {
+            props: {
+                searchConfigs: {
+                    excludedTerms: [
+                        'i',
+                        'a',
+                        'on',
+                        'in',
+                        'of',
+                        'at',
+                        'right',
+                        'he',
+                        'she',
+                        'we',
+                        'us',
+                        'our',
+                    ],
                 },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+            },
 
-                        return privileges.includes(identifier);
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    validationService: {},
+                    repositoryFactory: {
+                        create: () => ({
+                            save: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    excludedSearchTermService: {
+                        resetExcludedSearchTerm: jest.fn(() => {
+                            if (resetError === true) {
+                                return Promise.reject();
+                            }
+                            return Promise.resolve();
+                        }),
                     },
                 },
-                excludedSearchTermService: {
-                    resetExcludedSearchTerm: jest.fn(() => {
-                        if (resetError === true) {
-                            return Promise.reject();
-                        }
-                        return Promise.resolve();
-                    }),
-                },
-            },
 
-            stubs: {
-                'sw-card': {
-                    template: `
+                stubs: {
+                    'sw-card': {
+                        template: `
                     <div class="sw-card">
                         <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-empty-state': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-container': true,
-                'sw-card-filter': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-data-grid-column-position': await wrapTestComponent('sw-data-grid-column-position'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-pagination': await wrapTestComponent('sw-pagination'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-icon': true,
-                'sw-select-field': true,
-                'sw-popover': {
-                    props: ['popoverClass'],
-                    template: `
+                    },
+                    'sw-empty-state': true,
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-container': true,
+                    'sw-card-filter': true,
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-data-grid-column-position': await wrapTestComponent('sw-data-grid-column-position'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-pagination': await wrapTestComponent('sw-pagination'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-icon': true,
+                    'sw-select-field': true,
+                    'sw-popover': {
+                        props: ['popoverClass'],
+                        template: `
                     <div class="sw-popover" :class="popoverClass">
                         <slot></slot>
                     </div>`,
+                    },
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-data-grid-skeleton': true,
+                    'sw-loader': true,
+                    'mt-button': true,
+                    'router-link': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'mt-checkbox': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
-                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-data-grid-skeleton': true,
-                'sw-loader': true,
             },
         },
-
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-excluded-search-terms', () => {
@@ -141,8 +165,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         await flushPromises();
 
         const firstRowContext = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
-        await firstRowContext.find('.sw-data-grid__cell--actions .sw-context-button__button')
-            .trigger('click');
+        await firstRowContext.find('.sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
         await flushPromises();
         const contextMenu = wrapper.find('.sw-context-menu');
         expect(contextMenu.isVisible()).toBeTruthy();
@@ -159,8 +182,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         await flushPromises();
 
         const firstRowContext = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
-        await firstRowContext.find('.sw-data-grid__cell--actions .sw-context-button__button')
-            .trigger('click');
+        await firstRowContext.find('.sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
         await flushPromises();
         const contextMenu = wrapper.find('.sw-context-menu');
         expect(contextMenu.isVisible()).toBeTruthy();
@@ -192,7 +214,6 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         const addExcludedTermButton = wrapper.find('.sw-button.sw-button--ghost.sw-button--small');
         expect(addExcludedTermButton.attributes().disabled).toBeDefined();
     });
-
 
     it('should allow add excluded terms', async () => {
         const wrapper = await createWrapper([
@@ -253,9 +274,12 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to reset excluded search term to default with error message', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.creator',
-        ], true);
+        const wrapper = await createWrapper(
+            [
+                'product_search_config.creator',
+            ],
+            true,
+        );
 
         wrapper.vm.createNotificationError = jest.fn();
         await flushPromises();

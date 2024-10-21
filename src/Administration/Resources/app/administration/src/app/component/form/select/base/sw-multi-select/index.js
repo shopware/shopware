@@ -26,7 +26,12 @@ const { debounce, get } = Shopware.Utils;
  */
 Component.register('sw-multi-select', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
+
+    inject: ['feature'],
 
     emits: [
         'update:value',
@@ -34,9 +39,8 @@ Component.register('sw-multi-select', {
         'item-remove',
         'search-term-change',
         'display-values-expand',
+        'paginate',
     ],
-
-    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -90,7 +94,7 @@ Component.register('sw-multi-select', {
             type: Function,
             required: false,
             default({ options, labelProperty, searchTerm }) {
-                return options.filter(option => {
+                return options.filter((option) => {
                     const label = this.getKey(option, labelProperty);
                     if (!label) {
                         return false;
@@ -114,9 +118,11 @@ Component.register('sw-multi-select', {
                 return [];
             }
 
-            return this.options.filter((item) => {
-                return this.currentValue.includes(this.getKey(item, this.valueProperty));
-            }).slice(0, this.limit);
+            return this.options
+                .filter((item) => {
+                    return this.currentValue.includes(this.getKey(item, this.valueProperty));
+                })
+                .slice(0, this.limit);
         },
 
         totalValuesCount() {
@@ -150,17 +156,24 @@ Component.register('sw-multi-select', {
 
         visibleResults() {
             if (this.searchTerm) {
-                return this.searchFunction(
-                    {
-                        options: this.options,
-                        labelProperty: this.labelProperty,
-                        valueProperty: this.valueProperty,
-                        searchTerm: this.searchTerm,
-                    },
-                );
+                return this.searchFunction({
+                    options: this.options,
+                    labelProperty: this.labelProperty,
+                    valueProperty: this.valueProperty,
+                    searchTerm: this.searchTerm,
+                });
             }
 
             return this.options;
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 
@@ -179,7 +192,10 @@ Component.register('sw-multi-select', {
 
             this.$emit('item-add', item);
 
-            this.currentValue = [...this.currentValue, identifier];
+            this.currentValue = [
+                ...this.currentValue,
+                identifier,
+            ];
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();

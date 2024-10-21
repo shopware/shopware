@@ -39,7 +39,7 @@ use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'user';

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 import type { Module } from 'vuex';
 import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
@@ -9,8 +10,8 @@ export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>
 
 interface TabsState {
     tabItems: {
-        [positionId: string]: TabItemEntry[]
-    }
+        [positionId: string]: TabItemEntry[];
+    };
 }
 
 const TabsStore: Module<TabsState, VuexRootState> = {

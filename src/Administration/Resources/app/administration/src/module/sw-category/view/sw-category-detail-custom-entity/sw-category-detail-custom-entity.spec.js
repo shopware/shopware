@@ -56,44 +56,73 @@ async function createWrapper() {
         },
     });
 
-    return mount(await wrapTestComponent('sw-category-detail-custom-entity', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /></div>',
-                    props: ['title', 'position-identifier'],
-                },
-                'sw-entity-single-select': {
-                    template: '<div class="sw-entity-single-select"></div>',
-                    props: ['value', 'label', 'help-text', 'disabled', 'criteria', 'entity', 'required'],
-                },
-                'sw-many-to-many-assignment-card': {
-                    template: '<div class="sw-many-to-many-assignment-card"><slot name="prepend-select" /><slot name="empty-state" /></div>',
-                    props: ['entityCollection', 'title', 'columns', 'local-mode', 'label-property', 'criteria', 'select-label', 'placeholder'],
-                    model: {
-                        prop: 'entityCollection',
-                        event: 'change',
+    return mount(
+        await wrapTestComponent('sw-category-detail-custom-entity', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot /></div>',
+                        props: [
+                            'title',
+                            'position-identifier',
+                        ],
+                    },
+                    'sw-entity-single-select': {
+                        template: '<div class="sw-entity-single-select"></div>',
+                        props: [
+                            'value',
+                            'label',
+                            'help-text',
+                            'disabled',
+                            'criteria',
+                            'entity',
+                            'required',
+                        ],
+                    },
+                    'sw-many-to-many-assignment-card': {
+                        template:
+                            '<div class="sw-many-to-many-assignment-card"><slot name="prepend-select" /><slot name="empty-state" /></div>',
+                        props: [
+                            'entityCollection',
+                            'title',
+                            'columns',
+                            'local-mode',
+                            'label-property',
+                            'criteria',
+                            'select-label',
+                            'placeholder',
+                        ],
+                        model: {
+                            prop: 'entityCollection',
+                            event: 'change',
+                        },
+                    },
+                    'sw-empty-state': {
+                        template: '<div class="sw-empty-state"></div>',
+                        props: [
+                            'title',
+                            'absolute',
+                        ],
                     },
                 },
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                    props: ['title', 'absolute'],
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: (repositoryName) => {
-                        switch (repositoryName) {
-                            case 'custom_entity':
-                                return customEntityRepositoryMock;
-                            default:
-                                throw new Error(`No Mock for ${repositoryName} Repository not found`);
-                        }
+                provide: {
+                    repositoryFactory: {
+                        create: (repositoryName) => {
+                            switch (repositoryName) {
+                                case 'custom_entity':
+                                    return customEntityRepositoryMock;
+                                default:
+                                    throw new Error(`No Mock for ${repositoryName} Repository not found`);
+                            }
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts', () => {
@@ -118,18 +147,22 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             helpText: 'sw-category.base.customEntity.assignment.helpText',
             disabled: false,
             criteria: expect.objectContaining({
-                filters: [{
-                    field: 'flags',
-                    type: 'contains',
-                    value: 'cms-aware',
-                }],
+                filters: [
+                    {
+                        field: 'flags',
+                        type: 'contains',
+                        value: 'cms-aware',
+                    },
+                ],
             }),
             entity: 'custom_entity',
             required: '',
         });
 
         // select a custom entity type
-        entitySelect.vm.$emit('update:value', customEntity1.id, { name: customEntity1.name });
+        entitySelect.vm.$emit('update:value', customEntity1.id, {
+            name: customEntity1.name,
+        });
         await flushPromises();
 
         // expect the custom entity type and the customEntityAssignments to have been updated
@@ -138,17 +171,21 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
 
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').exists()).toBe(false);
         expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual({
-            columns: [{
-                dataIndex: 'cmsAwareTitle',
-                label: 'sw-category.base.customEntity.instanceAssignment.title',
-                property: 'cmsAwareTitle',
-            }],
+            columns: [
+                {
+                    dataIndex: 'cmsAwareTitle',
+                    label: 'sw-category.base.customEntity.instanceAssignment.title',
+                    property: 'cmsAwareTitle',
+                },
+            ],
             criteria: expect.objectContaining({
-                sortings: [{
-                    field: 'cmsAwareTitle',
-                    naturalSorting: false,
-                    order: 'ASC',
-                }],
+                sortings: [
+                    {
+                        field: 'cmsAwareTitle',
+                        naturalSorting: false,
+                        order: 'ASC',
+                    },
+                ],
             }),
             entityCollection: customEntity1.instanceRepository,
             labelProperty: 'cmsAwareTitle',
@@ -173,28 +210,34 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             helpText: 'sw-category.base.customEntity.assignment.helpText',
             disabled: false,
             criteria: expect.objectContaining({
-                filters: [{
-                    field: 'flags',
-                    type: 'contains',
-                    value: 'cms-aware',
-                }],
+                filters: [
+                    {
+                        field: 'flags',
+                        type: 'contains',
+                        value: 'cms-aware',
+                    },
+                ],
             }),
             entity: 'custom_entity',
             required: '',
         });
 
         expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual({
-            columns: [{
-                dataIndex: 'cmsAwareTitle',
-                label: 'sw-category.base.customEntity.instanceAssignment.title',
-                property: 'cmsAwareTitle',
-            }],
+            columns: [
+                {
+                    dataIndex: 'cmsAwareTitle',
+                    label: 'sw-category.base.customEntity.instanceAssignment.title',
+                    property: 'cmsAwareTitle',
+                },
+            ],
             criteria: expect.objectContaining({
-                sortings: [{
-                    field: 'cmsAwareTitle',
-                    naturalSorting: false,
-                    order: 'ASC',
-                }],
+                sortings: [
+                    {
+                        field: 'cmsAwareTitle',
+                        naturalSorting: false,
+                        order: 'ASC',
+                    },
+                ],
             }),
             entityCollection: customEntity1.instanceRepository,
             labelProperty: 'cmsAwareTitle',
@@ -205,69 +248,87 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         });
 
         // select another custom entity type
-        wrapper.getComponent('.sw-entity-single-select').vm.$emit('update:value', customEntity2.id, { name: customEntity2.name });
+        wrapper.getComponent('.sw-entity-single-select').vm.$emit('update:value', customEntity2.id, {
+            name: customEntity2.name,
+        });
         await flushPromises();
 
-        expect(wrapper.getComponent('.sw-entity-single-select').props()).toEqual(expect.objectContaining({
-            value: customEntity2.id,
-            label: 'sw-category.base.customEntity.assignment.label',
-            helpText: 'sw-category.base.customEntity.assignment.helpText',
-            disabled: false,
-            criteria: expect.objectContaining({
-                filters: [{
-                    field: 'flags',
-                    type: 'contains',
-                    value: 'cms-aware',
-                }],
+        expect(wrapper.getComponent('.sw-entity-single-select').props()).toEqual(
+            expect.objectContaining({
+                value: customEntity2.id,
+                label: 'sw-category.base.customEntity.assignment.label',
+                helpText: 'sw-category.base.customEntity.assignment.helpText',
+                disabled: false,
+                criteria: expect.objectContaining({
+                    filters: [
+                        {
+                            field: 'flags',
+                            type: 'contains',
+                            value: 'cms-aware',
+                        },
+                    ],
+                }),
+                entity: 'custom_entity',
+                required: '',
             }),
-            entity: 'custom_entity',
-            required: '',
-        }));
+        );
 
-        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual(expect.objectContaining({
-            columns: [{
-                dataIndex: 'cmsAwareTitle',
-                label: 'sw-category.base.customEntity.instanceAssignment.title',
-                property: 'cmsAwareTitle',
-            }],
-            criteria: expect.objectContaining({
-                sortings: [{
-                    field: 'cmsAwareTitle',
-                    naturalSorting: false,
-                    order: 'ASC',
-                }],
+        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual(
+            expect.objectContaining({
+                columns: [
+                    {
+                        dataIndex: 'cmsAwareTitle',
+                        label: 'sw-category.base.customEntity.instanceAssignment.title',
+                        property: 'cmsAwareTitle',
+                    },
+                ],
+                criteria: expect.objectContaining({
+                    sortings: [
+                        {
+                            field: 'cmsAwareTitle',
+                            naturalSorting: false,
+                            order: 'ASC',
+                        },
+                    ],
+                }),
+                entityCollection: customEntity2.instanceRepository,
+                labelProperty: 'cmsAwareTitle',
+                localMode: false,
+                placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
+                selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
+                title: 'sw-category.base.customEntity.cardTitle',
             }),
-            entityCollection: customEntity2.instanceRepository,
-            labelProperty: 'cmsAwareTitle',
-            localMode: false,
-            placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
-            selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
-            title: 'sw-category.base.customEntity.cardTitle',
-        }));
+        );
 
         // trigger a change event
         wrapper.getComponent('.sw-many-to-many-assignment-card').vm.$emit('update:entity-collection', emptyEntityCollection);
         await flushPromises();
 
-        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual(expect.objectContaining({
-            columns: [{
-                dataIndex: 'cmsAwareTitle',
-                label: 'sw-category.base.customEntity.instanceAssignment.title',
-                property: 'cmsAwareTitle',
-            }],
-            criteria: expect.objectContaining({
-                sortings: [{
-                    field: 'cmsAwareTitle',
-                    naturalSorting: false,
-                    order: 'ASC',
-                }],
+        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual(
+            expect.objectContaining({
+                columns: [
+                    {
+                        dataIndex: 'cmsAwareTitle',
+                        label: 'sw-category.base.customEntity.instanceAssignment.title',
+                        property: 'cmsAwareTitle',
+                    },
+                ],
+                criteria: expect.objectContaining({
+                    sortings: [
+                        {
+                            field: 'cmsAwareTitle',
+                            naturalSorting: false,
+                            order: 'ASC',
+                        },
+                    ],
+                }),
+                entityCollection: emptyEntityCollection,
+                labelProperty: 'cmsAwareTitle',
+                localMode: false,
+                placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
+                selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
+                title: 'sw-category.base.customEntity.cardTitle',
             }),
-            entityCollection: emptyEntityCollection,
-            labelProperty: 'cmsAwareTitle',
-            localMode: false,
-            placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
-            selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
-            title: 'sw-category.base.customEntity.cardTitle',
-        }));
+        );
     });
 });

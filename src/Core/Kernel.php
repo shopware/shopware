@@ -7,8 +7,10 @@ use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
@@ -97,6 +99,11 @@ class Kernel extends HttpKernel
 
                 yield $bundle;
             }
+        }
+
+        if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service\Service::class])) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The %s bundle should be added to config/bundles.php');
+            yield new Service\Service();
         }
 
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
@@ -188,13 +195,27 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/var/cache/%s_h%s%s',
             EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
             $this->getEnvironment(),
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
         );
+    }
+
+    public function getBuildDir(): string
+    {
+        if (EnvironmentHelper::hasVariable('APP_BUILD_DIR')) {
+            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment;
+        }
+
+        return parent::getBuildDir();
+    }
+
+    public function getLogDir(): string
+    {
+        return (string) EnvironmentHelper::getVariable('APP_LOG_DIR', parent::getLogDir());
     }
 
     public function getPluginLoader(): KernelPluginLoader
@@ -312,13 +333,11 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        $pluginHash = md5((string) json_encode($plugins, \JSON_THROW_ON_ERROR));
-
-        return md5((string) \json_encode([
+        return Hasher::hash([
             $this->cacheId,
-            substr((string) $this->shopwareVersionRevision, 0, 8),
-            substr($pluginHash, 0, 8),
-        ], \JSON_THROW_ON_ERROR));
+            (string) $this->shopwareVersionRevision,
+            $plugins,
+        ]);
     }
 
     protected function initializeDatabaseConnectionVariables(): void
@@ -335,9 +354,12 @@ class Kernel extends HttpKernel
             $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
             $connectionVariables = [];
 
-            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', false);
+            /**
+             * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
+             */
+            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
             if ($timeZoneSupportEnabled) {
-                $connectionVariables[] = 'SET @@session.time_zone = "UTC"';
+                $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
             }
 
             if ($setSessionVariables) {

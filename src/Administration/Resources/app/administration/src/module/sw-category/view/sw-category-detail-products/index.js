@@ -12,7 +12,12 @@ const ShopwareError = Shopware.Classes.ShopwareError;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         'placeholder',
@@ -55,7 +60,8 @@ export default {
                     dataIndex: 'name',
                     routerLink: 'sw.product.detail',
                     sortable: false,
-                }, {
+                },
+                {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-category.base.products.columnManufacturerLabel'),
                     routerLink: 'sw.manufacturer.detail',
@@ -73,16 +79,20 @@ export default {
         },
 
         productCriteria() {
-            return (new Criteria(1, 10))
+            return new Criteria(1, 10)
                 .addAssociation('options.group')
                 .addAssociation('manufacturer')
-                .addFilter(Criteria.multi('OR', [
-                    Criteria.equals('parentId', null),
-                    Criteria.multi('AND', [
-                        Criteria.not('AND', [Criteria.equals('parentId', null)]),
-                        Criteria.equals('categories.id', this.category.id),
+                .addFilter(
+                    Criteria.multi('OR', [
+                        Criteria.equals('parentId', null),
+                        Criteria.multi('AND', [
+                            Criteria.not('AND', [
+                                Criteria.equals('parentId', null),
+                            ]),
+                            Criteria.equals('categories.id', this.category.id),
+                        ]),
                     ]),
-                ]));
+                );
         },
 
         productStreamInvalidError() {
@@ -169,11 +179,13 @@ export default {
         },
 
         loadProductStreamPreview() {
-            this.productStreamRepository.get(this.category.productStreamId)
+            this.productStreamRepository
+                .get(this.category.productStreamId)
                 .then((response) => {
                     this.productStreamFilter = response.apiFilter;
                     this.productStreamInvalid = response.invalid;
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.productStreamFilter = null;
                     this.productStreamInvalid = true;
                 });
@@ -186,8 +198,7 @@ export default {
         },
 
         getParentProducts(products) {
-            const parentIds = products.map((product) => product.parentId)
-                .filter((id) => id !== null);
+            const parentIds = products.map((product) => product.parentId).filter((id) => id !== null);
 
             if (parentIds.length > 0) {
                 const criteria = new Criteria(1, parentIds.length)

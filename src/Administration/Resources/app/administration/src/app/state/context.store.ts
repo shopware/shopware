@@ -1,67 +1,68 @@
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
 import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
 import type { Module } from 'vuex';
 
 type ApiAuthToken = {
-    access: string,
-    expiry: number,
-    refresh: string
-}
+    access: string;
+    expiry: number;
+    refresh: string;
+};
 
 interface ContextState {
     app: {
         config: {
             adminWorker: null | {
-                enableAdminWorker: boolean,
-                enableQueueStatsWorker: boolean,
-                enableNotificationWorker: boolean,
-                transports: string[]
-            },
+                enableAdminWorker: boolean;
+                enableQueueStatsWorker: boolean;
+                enableNotificationWorker: boolean;
+                transports: string[];
+            };
             bundles: null | {
                 [BundleName: string]: {
-                    css: string | string[],
-                    js: string | string[],
-                    permissions?: privileges,
-                    integrationId?: string,
-                    active?: boolean,
-                }
-            },
-            version: null | string,
-            versionRevision: null | string,
-        },
-        environment: null | 'development' | 'production' | 'testing',
-        fallbackLocale: null | string,
+                    css: string | string[];
+                    js: string | string[];
+                    permissions?: privileges;
+                    integrationId?: string;
+                    active?: boolean;
+                };
+            };
+            version: null | string;
+            versionRevision: null | string;
+        };
+        environment: null | 'development' | 'production' | 'testing';
+        fallbackLocale: null | string;
         features: null | {
-            [FeatureKey: string]: boolean
-        },
-        firstRunWizard: null | boolean,
-        systemCurrencyISOCode: null | string,
-        systemCurrencyId: null | string,
-        disableExtensions: boolean,
-    },
+            [FeatureKey: string]: boolean;
+        };
+        firstRunWizard: null | boolean;
+        systemCurrencyISOCode: null | string;
+        systemCurrencyId: null | string;
+        disableExtensions: boolean;
+    };
     api: {
-        apiPath: null | string,
-        apiResourcePath: null | string,
-        assetsPath: null | string,
-        authToken: null | ApiAuthToken,
-        basePath: null | string,
-        pathInfo: null | string,
-        inheritance: null | boolean,
-        installationPath: null | string,
-        languageId: null | string,
+        apiPath: null | string;
+        apiResourcePath: null | string;
+        assetsPath: null | string;
+        authToken: null | ApiAuthToken;
+        basePath: null | string;
+        pathInfo: null | string;
+        inheritance: null | boolean;
+        installationPath: null | string;
+        languageId: null | string;
         language: null | {
-            name: string,
-            parentId?: string,
-        },
-        apiVersion: null | string,
-        liveVersionId: null | string,
-        systemLanguageId: null | string,
-        currencyId: null | string,
-        versionId: null | string,
-    }
+            name: string;
+            parentId?: string;
+        };
+        apiVersion: null | string;
+        liveVersionId: null | string;
+        systemLanguageId: null | string;
+        currencyId: null | string;
+        versionId: null | string;
+    };
 }
 
 const ContextStore: Module<ContextState, VuexRootState> = {
@@ -143,7 +144,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             state.api.systemLanguageId = value;
         },
 
-        setAppEnvironment(state, value: 'development'|'production'|'testing') {
+        setAppEnvironment(state, value: 'development' | 'production' | 'testing') {
             state.app.environment = value;
         },
 
@@ -151,7 +152,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             state.app.fallbackLocale = value;
         },
 
-        setAppFeatures(state, value: { [featureKey: string]: boolean}) {
+        setAppFeatures(state, value: { [featureKey: string]: boolean }) {
             state.app.features = value;
         },
 
@@ -167,22 +168,28 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             state.app.systemCurrencyISOCode = value;
         },
 
-        setAppConfigAdminWorker(state, value: {
-            enableAdminWorker: boolean,
-            enableQueueStatsWorker: boolean,
-            enableNotificationWorker: boolean,
-            transports: string[]
-        }) {
+        setAppConfigAdminWorker(
+            state,
+            value: {
+                enableAdminWorker: boolean;
+                enableQueueStatsWorker: boolean;
+                enableNotificationWorker: boolean;
+                transports: string[];
+            },
+        ) {
             state.app.config.adminWorker = value;
         },
 
-        setAppConfigBundles(state, value: {
-            [BundleName: string]: {
-                css: string | string[],
-                js: string | string[],
-                permissions: privileges,
-            }
-        }) {
+        setAppConfigBundles(
+            state,
+            value: {
+                [BundleName: string]: {
+                    css: string | string[];
+                    js: string | string[];
+                    permissions: privileges;
+                };
+            },
+        ) {
             state.app.config.bundles = value;
         },
 
@@ -196,7 +203,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         addAppValue<K extends keyof ContextState['app']>(
             state: ContextState,
-            { key, value }: { key: K, value: ContextState['app'][K] },
+            { key, value }: { key: K; value: ContextState['app'][K] },
         ) {
             if (value === 'true') {
                 state.app[key] = true as ContextState['app'][K];
@@ -215,14 +222,14 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         addApiValue<K extends keyof ContextState['api']>(
             state: ContextState,
-            { key, value }: { key: K, value: ContextState['api'][K] },
+            { key, value }: { key: K; value: ContextState['api'][K] },
         ) {
             state.api[key] = value;
         },
 
         addAppConfigValue<K extends keyof ContextState['app']['config']>(
             state: ContextState,
-            { key, value }: { key: K, value: ContextState['app']['config'][K] },
+            { key, value }: { key: K; value: ContextState['app']['config'][K] },
         ) {
             state.app.config[key] = value;
         },
@@ -234,6 +241,10 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         resetLanguageToDefault(state) {
             state.api.languageId = state.api.systemLanguageId;
+        },
+
+        setLanguageId(state, newLanguageId: string) {
+            state.api.languageId = newLanguageId;
         },
     },
 

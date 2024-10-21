@@ -1,7 +1,8 @@
 import { mount } from '@vue/test-utils';
-import swOrderStateSelectV2 from 'src/module/sw-order/component/sw-order-state-select-v2';
 
-Shopware.Component.register('sw-order-state-select-v2', swOrderStateSelectV2);
+/**
+ * @package checkout
+ */
 
 describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
     async function createWrapper() {
@@ -9,6 +10,10 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
             global: {
                 stubs: {
                     'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-select-base': true,
                 },
             },
             props: {
@@ -64,15 +69,17 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         const singleSelect = wrapper.findComponent('.sw-single-select');
         await singleSelect.vm.$emit('update:value', 'in_progress');
 
-        expect(wrapper.emitted('state-select')[0]).toEqual(['order', 'in_progress']);
+        expect(wrapper.emitted('state-select')[0]).toEqual([
+            'order',
+            'in_progress',
+        ]);
     });
 
     it('should show placeholder correctly', async () => {
         const wrapper = await createWrapper();
         const singleSelect = wrapper.findComponent('.sw-single-select');
 
-        expect(singleSelect.props('placeholder'))
-            .toBe('sw-order.stateCard.labelSelectStatePlaceholder');
+        expect(singleSelect.props('placeholder')).toBe('sw-order.stateCard.labelSelectStatePlaceholder');
 
         await wrapper.setProps({
             placeholder: 'Open',

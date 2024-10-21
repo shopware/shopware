@@ -9,7 +9,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CountHandledMessagesListener implements EventSubscriberInterface
 {
     private int $handledMessages = 0;

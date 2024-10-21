@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Tab::class)]
@@ -27,11 +25,9 @@ class TabTest extends TestCase
         );
 
         $tab = Tab::fromXml($tabElement);
-        static::assertInstanceOf(Tab::class, $tab);
-        static::assertEquals('TabTest', $tab->getName());
+        static::assertSame('TabTest', $tab->getName());
 
         $cardsList = $tab->getCards();
-        static::assertIsArray($cardsList);
         static::assertInstanceOf(Card::class, \array_pop($cardsList));
     }
 }

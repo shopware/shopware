@@ -18,9 +18,7 @@ const { Component } = Shopware;
  * </sw-boolean-radio-group>
  */
 Component.register('sw-boolean-radio-group', {
-
-    template:
-`
+    template: `
 <sw-radio-field
     class="sw-boolean-radio-group"
     v-bind="$attrs"
@@ -32,6 +30,10 @@ Component.register('sw-boolean-radio-group', {
 `,
 
     inject: ['feature'],
+
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update:value'],
 
     props: {
         value: {

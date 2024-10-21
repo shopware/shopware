@@ -8,6 +8,16 @@ import './sw-settings-snippet-sidebar.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'sw-sidebar-close',
+        'sw-sidebar-open',
+        'change',
+        'sw-sidebar-collaps-refresh-grid',
+        'sidebar-reset-all',
+    ],
+
     props: {
         filterItems: {
             type: Array,
@@ -69,7 +79,7 @@ export default {
                 return;
             }
 
-            this.$refs.filterSideBar.openContent();
+            this.$refs.filterSideBar?.openContent?.();
             this.filterSidebarIsOpen = true;
 
             this.$emit('sw-sidebar-open');

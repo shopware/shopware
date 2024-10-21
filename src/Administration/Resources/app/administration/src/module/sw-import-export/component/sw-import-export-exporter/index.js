@@ -13,7 +13,15 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['importExport', 'repositoryFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'importExport',
+        'repositoryFactory',
+        'feature',
+    ],
+
+    emits: ['export-started'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -45,9 +53,7 @@ export default {
             criteria.addSorting(Criteria.sort('label'));
 
             if (this.sourceEntity.length > 0) {
-                criteria.addFilter(
-                    Criteria.equals('sourceEntity', this.sourceEntity),
-                );
+                criteria.addFilter(Criteria.equals('sourceEntity', this.sourceEntity));
             }
             criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'import')]));
 
@@ -59,11 +65,13 @@ export default {
         },
 
         showProductVariantsInfo() {
-            return this.selectedProfile &&
+            return (
+                this.selectedProfile &&
                 this.selectedProfile.sourceEntity === 'product' &&
                 this.config &&
                 this.config.parameters &&
-                this.config.parameters.includeVariants;
+                this.config.parameters.includeVariants
+            );
         },
 
         logRepository() {

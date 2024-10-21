@@ -11,12 +11,19 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
         'orderStateMachineService',
         'stateMachineService',
         'stateStyleDataProviderService',
+    ],
+
+    emits: [
+        'show-status-history',
+        'save-edits',
     ],
 
     mixins: [
@@ -79,10 +86,7 @@ export default {
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
-                Criteria.equals(
-                    'state_machine_state.stateMachine.technicalName',
-                    `${this.entityName}.state`,
-                ),
+                Criteria.equals('state_machine_state.stateMachine.technicalName', `${this.entityName}.state`),
             );
 
             return criteria;
@@ -110,10 +114,8 @@ export default {
         stateSelectBackgroundStyle() {
             const technicalName = this.entity.stateMachineState.technicalName;
 
-            return this.stateStyleDataProviderService.getStyle(
-                `${this.entityName}.state`,
-                technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(`${this.entityName}.state`, technicalName)
+                .selectBackgroundStyle;
         },
 
         stateTransitionMethod() {
@@ -151,10 +153,7 @@ export default {
                 this.stateMachineStateRepository.search(this.stateMachineStateCriteria),
                 this.stateMachineService.getState(this.entityName, this.entity.id),
             ]).then((data) => {
-                this.stateOptions = this.buildTransitionOptions(
-                    data[0],
-                    data[1].data.transitions,
-                );
+                this.stateOptions = this.buildTransitionOptions(data[0], data[1].data.transitions);
 
                 this.statesLoading = false;
                 return Promise.resolve();
@@ -210,19 +209,21 @@ export default {
         onLeaveModalConfirm(docIds, sendMail = true) {
             this.showStateChangeModal = false;
 
-            this.stateTransitionMethod(
-                this.entity.id,
-                this.currentActionName,
-                { documentIds: docIds, sendMail },
-            ).then(() => {
-                this.getLastChange();
-
-                return this.getTransitionOptions();
-            }).then(() => {
-                this.$emit('save-edits');
-            }).catch((error) => {
-                this.createStateChangeErrorNotification(error);
+            this.stateTransitionMethod(this.entity.id, this.currentActionName, {
+                documentIds: docIds,
+                sendMail,
             })
+                .then(() => {
+                    this.getLastChange();
+
+                    return this.getTransitionOptions();
+                })
+                .then(() => {
+                    this.$emit('save-edits');
+                })
+                .catch((error) => {
+                    this.createStateChangeErrorNotification(error);
+                })
                 .finally(() => {
                     this.stateChangeModalConfirmed = false;
                     this.currentActionName = null;
@@ -242,5 +243,4 @@ export default {
             });
         },
     },
-
 };

@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductSuggestRouteResponse extends StoreApiResponse
 {
     /**

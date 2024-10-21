@@ -9,6 +9,8 @@ import './sw-dashboard-index.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     data() {
         return {
             cachedHeadlineGreetingKey: null,
@@ -24,11 +26,9 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         welcomeMessage() {
             const greetingName = this.greetingName;
-            const welcomeMessage = this.$tc(
-                this.cachedHeadlineGreetingKey,
-                1,
-                { greetingName },
-            );
+            const welcomeMessage = this.$tc(this.cachedHeadlineGreetingKey, 1, {
+                greetingName,
+            });
 
             // in the headline we want to greet the user by his firstname
             // if his first name is not available, we remove the personalized greeting part
@@ -63,15 +63,21 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
+            /* @deprecated tag:v6.7.0 - Will be removed, use API instead */
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-dashboard-detail__todayOrderData',
                 path: 'todayOrderData',
                 scope: this,
+                deprecated: true,
+                deprecationMessage: 'No replacement available, use API instead.',
             });
+            /* @deprecated tag:v6.7.0 - Will be removed, use API instead */
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-dashboard-detail__statisticDateRanges',
                 path: 'statisticDateRanges',
                 scope: this,
+                deprecated: true,
+                deprecationMessage: 'No replacement available, use API instead.',
             });
 
             this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');
@@ -96,12 +102,12 @@ export default Shopware.Component.wrapComponentConfig({
             // to find the right timeslot, we user array.find() which will stop after first match
             // for that reason the greetingTimes must be ordered from latest to earliest hour
             const greetingTimes = Object.keys(greetings)
-                .map(entry => parseInt(entry.replace('h', ''), 10))
+                .map((entry) => parseInt(entry.replace('h', ''), 10))
                 .sort((a, b) => a - b)
                 .reverse();
 
             /* find the current time slot */
-            const greetingTime = greetingTimes.find(time => hourNow >= time) || greetingTimes[0];
+            const greetingTime = greetingTimes.find((time) => hourNow >= time) || greetingTimes[0];
             const greetingIndex = Math.floor(Math.random() * greetings[`${greetingTime}h`].length);
 
             return `${translateKey}.${greetingTime}h[${greetingIndex}]`;

@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 describe('src/app/main.ts', () => {
     let VueAdapter;
 
@@ -85,7 +88,7 @@ describe('src/app/main.ts', () => {
             return jest.fn(() => {
                 return {
                     addCondition: jest.fn(() => {}),
-                    getRestrictionsByGroup: jest.fn(() => ([])),
+                    getRestrictionsByGroup: jest.fn(() => []),
                     addAwarenessConfiguration: jest.fn(() => {}),
                 };
             });
@@ -93,7 +96,9 @@ describe('src/app/main.ts', () => {
         serviceMocks.RuleConditionService = (await import('src/app/service/rule-condition.service')).default;
 
         jest.mock('src/app/service/product-stream-condition.service');
-        serviceMocks.ProductStreamConditionService = (await import('src/app/service/product-stream-condition.service')).default;
+        serviceMocks.ProductStreamConditionService = (
+            await import('src/app/service/product-stream-condition.service')
+        ).default;
 
         jest.mock('src/app/service/state-style.service');
         serviceMocks.StateStyleService = (await import('src/app/service/state-style.service')).default;
@@ -126,7 +131,9 @@ describe('src/app/main.ts', () => {
         serviceMocks.ShopwareUpdatesListener = (await import('src/core/service/shopware-updates-listener.service')).default;
 
         jest.mock('src/core/service/customer-group-registration-listener.service');
-        serviceMocks.CustomerGroupRegistrationListener = (await import('src/core/service/customer-group-registration-listener.service')).default;
+        serviceMocks.CustomerGroupRegistrationListener = (
+            await import('src/core/service/customer-group-registration-listener.service')
+        ).default;
 
         jest.mock('src/app/service/locale-helper.service');
         serviceMocks.LocaleHelperService = (await import('src/app/service/locale-helper.service')).default;
@@ -162,10 +169,14 @@ describe('src/app/main.ts', () => {
         serviceMocks.EntityValidationService = (await import('src/app/service/entity-validation.service')).default;
 
         jest.mock('src/app/service/custom-entity-definition.service');
-        serviceMocks.CustomEntityDefinitionService = (await import('src/app/service/custom-entity-definition.service')).default;
+        serviceMocks.CustomEntityDefinitionService = (
+            await import('src/app/service/custom-entity-definition.service')
+        ).default;
 
         jest.mock('src/core/service/usage-data-consent-listener.service');
-        serviceMocks.addUsageDataConsentListener = (await import('src/core/service/usage-data-consent-listener.service')).default;
+        serviceMocks.addUsageDataConsentListener = (
+            await import('src/core/service/usage-data-consent-listener.service')
+        ).default;
 
         jest.mock('src/app/service/file-validation.service');
         serviceMocks.FileValidationService = (await import('src/app/service/file-validation.service')).default;
@@ -198,9 +209,10 @@ describe('src/app/main.ts', () => {
     it('should add all initializer to Application', () => {
         const initializers = Shopware.Application.getContainer('init').$list();
 
-        expect(initializers).toHaveLength(32);
+        expect(initializers).toHaveLength(35);
         expect(initializers).toContain('apiServices');
         expect(initializers).toContain('state');
+        expect(initializers).toContain('store');
         expect(initializers).toContain('coreMixin');
         expect(initializers).toContain('coreDirectives');
         expect(initializers).toContain('coreFilter');
@@ -231,6 +243,8 @@ describe('src/app/main.ts', () => {
         expect(initializers).toContain('userInformation');
         expect(initializers).toContain('worker');
         expect(initializers).toContain('usageData');
+        expect(initializers).toContain('topbarButton');
+        expect(initializers).toContain('teaserPopover');
     });
 
     it('should add all services to Application', () => {

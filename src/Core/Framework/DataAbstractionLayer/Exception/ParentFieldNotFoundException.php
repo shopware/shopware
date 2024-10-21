@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::parentFieldNotFound instead
+ */
 #[Package('core')]
 class ParentFieldNotFoundException extends ShopwareHttpException
 {
@@ -19,6 +24,11 @@ class ParentFieldNotFoundException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__PARENT_FIELD_NOT_FOUND_EXCEPTION';
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.7.0.0', 'DataAbstractionLayerException::parentFieldNotFound'),
+        );
+
+        return DataAbstractionLayerException::PARENT_FIELD_NOT_FOUND_EXCEPTION;
     }
 }

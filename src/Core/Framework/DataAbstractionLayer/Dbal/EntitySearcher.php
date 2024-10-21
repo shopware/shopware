@@ -75,7 +75,7 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        $this->addGroupBy($definition, $criteria, $context, $query, $table);
+        $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
 
         // add pagination
         if ($criteria->getOffset() !== null) {
@@ -163,35 +163,16 @@ class EntitySearcher implements EntitySearcherInterface
             return \count($data);
         }
 
-        $query->resetQueryPart('orderBy');
+        $query->resetOrderBy();
         $query->setMaxResults(null);
         $query->setFirstResult(0);
 
         $total = new QueryBuilder($this->connection);
         $total->select(['COUNT(*)'])
-            ->from(sprintf('(%s) total', $query->getSQL()))
+            ->from(\sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return (int) $total->executeQuery()->fetchOne();
-    }
-
-    private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void
-    {
-        if ($criteria->getGroupFields()) {
-            foreach ($criteria->getGroupFields() as $grouping) {
-                $accessor = $this->queryHelper->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
-
-                $query->addGroupBy($accessor);
-            }
-
-            return;
-        }
-
-        if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
-            $query->addGroupBy(
-                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
-            );
-        }
     }
 
     /**

@@ -39,12 +39,10 @@ export default class AppActionButtonService extends ApiService {
         }
 
         return this.httpClient
-            .get(
-                `app-system/action-button/${entity}/${view}`,
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            ).then(({ data }) => {
+            .get(`app-system/action-button/${entity}/${view}`, {
+                headers: this.getBasicHeaders(),
+            })
+            .then(({ data }) => {
                 return data.actions;
             });
     }
@@ -56,13 +54,8 @@ export default class AppActionButtonService extends ApiService {
      * @param {Object} params
      */
     runAction(id, params = {}) {
-        return this.httpClient
-            .post(
-                `app-system/action-button/run/${id}`,
-                params,
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            );
+        return this.httpClient.post(`app-system/action-button/run/${id}`, params, {
+            headers: this.getBasicHeaders(),
+        });
     }
 }

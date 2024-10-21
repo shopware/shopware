@@ -10,9 +10,9 @@ https://sass-guidelin.es/#the-7-1-pattern
 /*
  * Variables, Mixins, Functions
  * ---------------------------- */
+@import 'abstract/functions/feature';
 @import 'variables';
 @import 'abstract/mixins/truncate-multiline';
-@import 'abstract/functions/feature';
 
 /*
  * Skin variables
@@ -76,16 +76,19 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/line-item';
 @import 'component/visibility';
 @import 'component/ar-overlay';
+@import 'component/ar-splash-screen';
 
 /*
  * Layout-related sections
  * ----------------------- */
 @import 'layout/container';
+// @deprecated tag:v6.7.0 - File "_top-bar.scss" will be removed. Appearance will be styled by Bootstrap variables in "scss/skin/shopware/layout/_top-bar.scss".
 @import 'layout/top-bar';
 @import 'layout/header';
 @import 'layout/header-minimal';
 @import 'layout/footer';
 @import 'layout/main-navigation';
+/** @deprecated tag:v6.7.0 - Can be removed, is covered via template layout/navbar/navbar.html.twig */
 @import 'layout/navigation-flyout';
 @import 'layout/navigation-offcanvas';
 @import 'layout/offcanvas-cart';

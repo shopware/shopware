@@ -1,13 +1,19 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package buyers-experience
+ */
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-block-html', {
-        sync: true,
-    }), {
-        slots: {
-            content: '<div>Test</div>',
+    return mount(
+        await wrapTestComponent('sw-cms-block-html', {
+            sync: true,
+        }),
+        {
+            slots: {
+                content: '<div>Test</div>',
+            },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/blocks/html/html/component/index.ts', () => {

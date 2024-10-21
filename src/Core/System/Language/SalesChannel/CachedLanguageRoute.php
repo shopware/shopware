@@ -6,8 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheKeyEvent;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('buyers-experience')]
 class CachedLanguageRoute extends AbstractLanguageRoute
@@ -42,7 +46,7 @@ class CachedLanguageRoute extends AbstractLanguageRoute
 
     public static function buildName(string $id): string
     {
-        return 'language-route-' . $id;
+        return LanguageRoute::buildName($id);
     }
 
     public function getDecorated(): AbstractLanguageRoute
@@ -53,6 +57,9 @@ class CachedLanguageRoute extends AbstractLanguageRoute
     #[Route(path: '/store-api/language', name: 'store-api.language', methods: ['GET', 'POST'], defaults: ['_entity' => 'language'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($request, $context, $criteria);
         }
@@ -89,7 +96,7 @@ class CachedLanguageRoute extends AbstractLanguageRoute
             return null;
         }
 
-        return self::buildName($context->getSalesChannelId()) . '-' . md5(Json::encode($event->getParts()));
+        return self::buildName($context->getSalesChannelId()) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

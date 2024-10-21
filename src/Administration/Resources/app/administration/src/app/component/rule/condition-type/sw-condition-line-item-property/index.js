@@ -16,7 +16,10 @@ const { EntityCollection, Criteria } = Shopware.Data;
 Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     data() {
         return {
@@ -41,11 +44,17 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item
             },
             set(identifiers) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, identifiers };
+                this.condition.value = {
+                    ...this.condition.value,
+                    identifiers,
+                };
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.identifiers']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.identifiers',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;

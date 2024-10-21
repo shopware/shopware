@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Install a new Shopware instance. @install', async ({ page }) => {
+test('Install a new Shopware instance.', { tag: '@Install' }, async ({ page }) => {
     await page.goto(process.env.APP_URL);
 
     await page.getByRole('link', { name: 'Next' }).click();
@@ -8,16 +8,16 @@ test('Install a new Shopware instance. @install', async ({ page }) => {
     await page.getByText('I agree to the General Terms and Conditions of Business (GTC)').click();
     await page.getByRole('button', { name: 'Next' }).click();
 
-    await page.getByLabel('Server:').fill('database');
-    await page.getByLabel('User:').fill('root');
-    await page.getByLabel('Password:').fill('app');
+    await page.getByLabel('Server:').fill(process.env.ATS_DATABASE_HOST ?? 'database');
+    await page.getByLabel('User:').fill(process.env.ATS_DATABASE_USERNAME ?? 'root');
+    await page.getByLabel('Password:').fill(process.env.ATS_DATABASE_PASSWORD ?? 'app');
 
     await page.getByText('New database:').click();
-    await page.locator('#databaseName_new').fill('install_test');
+    await page.locator('#databaseName_new').fill(process.env.ATS_DATABASE_NAME ?? 'install_test');
 
     await page.getByRole('button', { name: 'Start installation' }).click();
 
-    await test.slow();
+    test.slow();
 
     await expect(page.locator('#import-finished:visible div').first())
         .toHaveText('Shopware 6 has been installed!', { timeout: 120000 });

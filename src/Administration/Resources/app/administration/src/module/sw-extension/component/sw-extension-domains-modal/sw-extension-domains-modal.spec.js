@@ -7,6 +7,9 @@ async function createWrapper(propsData) {
                 $t: (...args) => JSON.stringify([...args]),
                 $tc: (...args) => JSON.stringify([...args]),
             },
+            stubs: {
+                'sw-button': true,
+            },
         },
         props: {
             extensionLabel: 'SEO Professional App',
@@ -21,7 +24,7 @@ async function createWrapper(propsData) {
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     it('should not show any domains: null', async () => {
         const wrapper = await createWrapper({
-            domains: null,
+            domains: [],
         });
 
         expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(0);
@@ -29,7 +32,7 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
 
     it('should not show any domains: undefined', async () => {
         const wrapper = await createWrapper({
-            domains: undefined,
+            domains: [],
         });
 
         expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(0);
@@ -45,8 +48,11 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
 
     [
         ['htpps://www.google.com'],
-        ['https://www.google.com', 'https://bing.com'],
-    ].forEach(domains => {
+        [
+            'https://www.google.com',
+            'https://bing.com',
+        ],
+    ].forEach((domains) => {
         it(`should show the domains which are given via the property, domain count: ${domains.length}`, async () => {
             const wrapper = await createWrapper({
                 domains,
@@ -54,7 +60,7 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
 
             expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(domains.length);
 
-            domains.forEach(domain => {
+            domains.forEach((domain) => {
                 expect(wrapper.find('.sw-extension-domains-modal__list').text()).toContain(domain);
             });
         });

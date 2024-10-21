@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ */
+
 const mockBusinessEvents = [
     {
         name: 'checkout.customer.before.login',
@@ -64,6 +68,11 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 'sw-empty-state': true,
                 'sw-search-bar': true,
                 'sw-alert': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 repositoryFactory: {
@@ -71,9 +80,11 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                         search: () => {
                             return Promise.resolve(customFlowData);
                         },
-                        clone: jest.fn(() => Promise.resolve({
-                            id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
-                        })),
+                        clone: jest.fn(() =>
+                            Promise.resolve({
+                                id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
+                            }),
+                        ),
                     }),
                 },
 
@@ -112,7 +123,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
     });
 }
 
-describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
+describe('module/sw-flow/view/listing/sw-flow-list', () => {
     Shopware.Service().register('businessEventService', () => {
         return {
             getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
@@ -212,14 +223,18 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
     });
 
     it('should show trigger column correctly with unknown trigger', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ], false, [
-            {
-                id: '44de136acf314e7184401d36406c1e90',
-                eventName: 'checkout.order.custom',
-            },
-        ]);
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            false,
+            [
+                {
+                    id: '44de136acf314e7184401d36406c1e90',
+                    eventName: 'checkout.order.custom',
+                },
+            ],
+        );
 
         await flushPromises();
 
@@ -228,9 +243,12 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
     });
 
     it('should show custom trigger column correctly', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ], true);
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            true,
+        );
 
         await wrapper.vm.$nextTick();
 

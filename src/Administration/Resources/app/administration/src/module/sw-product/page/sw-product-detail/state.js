@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -130,7 +131,11 @@ export default {
                     return true;
                 }
 
-                const cardKeys = ['essential_characteristics', 'custom_fields', 'labelling'];
+                const cardKeys = [
+                    'essential_characteristics',
+                    'custom_fields',
+                    'labelling',
+                ];
 
                 if (cardKeys.includes(key) && !getters.showModeSetting) {
                     return false;
@@ -163,7 +168,7 @@ export default {
         },
 
         setCustomFields(state, fieldSet) {
-            state.customFieldSets = state.customFieldSets.map(set => {
+            state.customFieldSets = state.customFieldSets.map((set) => {
                 if (set.id === fieldSet.id) {
                     return fieldSet;
                 }
@@ -218,12 +223,7 @@ export default {
         setTaxes(state, newTaxes) {
             state.taxes = newTaxes;
 
-            if (
-                state.product &&
-                state.product.taxId === null &&
-                !state.parentProduct &&
-                !state.parentProduct.id
-            ) {
+            if (state.product && state.product.taxId === null && !state.parentProduct && !state.parentProduct.id) {
                 state.product.taxId = state.taxes[0].id;
             }
         },

@@ -37,35 +37,64 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
         };
     }
 
-
     async function createWrapper(logEntity = getLogEntityMock()) {
-        return mount(await wrapTestComponent('sw-import-export-activity-result-modal', { sync: true }), {
-            props: {
-                logEntity,
-            },
-            global: {
-                provide: {
-                    importExport: {},
+        return mount(
+            await wrapTestComponent('sw-import-export-activity-result-modal', {
+                sync: true,
+            }),
+            {
+                props: {
+                    logEntity,
                 },
-                stubs: {
-                    'sw-card': {
-                        template: '<div><slot></slot></div>',
+                global: {
+                    provide: {
+                        importExport: {},
                     },
-                    'sw-color-badge': true,
-                    'sw-button': true,
-                    'sw-grid': true,
+                    stubs: {
+                        'sw-card': {
+                            template: '<div><slot></slot></div>',
+                        },
+                        'sw-color-badge': true,
+                        'sw-button': true,
+                        'sw-grid': true,
+                        'sw-grid-column': true,
+                    },
                 },
             },
-        });
+        );
     }
 
     it.each([
-        ['Profile name', 'Default product', 'profile'],
-        ['File name', 'Default product_20211108-141453.csv', 'file-name'],
-        ['Imported records', '1', 'imported'],
-        ['Date / time', '8 November 2021 at 14:50', 'date'],
-        ['User', 'admin', 'user'],
-        ['Type', 'sw-import-export.activity.detail.importLabel', 'type'],
+        [
+            'Profile name',
+            'Default product',
+            'profile',
+        ],
+        [
+            'File name',
+            'Default product_20211108-141453.csv',
+            'file-name',
+        ],
+        [
+            'Imported records',
+            '1',
+            'imported',
+        ],
+        [
+            'Date / time',
+            '8 November 2021 at 14:50',
+            'date',
+        ],
+        [
+            'User',
+            'admin',
+            'user',
+        ],
+        [
+            'Type',
+            'sw-import-export.activity.detail.importLabel',
+            'type',
+        ],
     ])('should display %s', async (_, expectedValue, selector) => {
         const wrapper = await createWrapper();
         await flushPromises();

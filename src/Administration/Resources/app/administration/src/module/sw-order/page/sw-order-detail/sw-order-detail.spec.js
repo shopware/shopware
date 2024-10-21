@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 async function createWrapper(order = {}) {
@@ -59,6 +59,10 @@ async function createWrapper(order = {}) {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-icon': true,
+                'sw-language-switch': true,
+                'sw-order-leave-page-modal': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
             },
             provide: {
                 repositoryFactory: {
@@ -96,7 +100,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         window.dispatchEvent(new Event('beforeunload'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionContext.versionId, oldVersionContext);
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
+            wrapper.vm.orderId,
+            oldVersionContext.versionId,
+            oldVersionContext,
+        );
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
     });
@@ -110,7 +118,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
-        await Shopware.State.commit('swOrderDetail/setOrder', { orderNumber: 1 });
+        await Shopware.State.commit('swOrderDetail/setOrder', {
+            orderNumber: 1,
+        });
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
@@ -166,7 +176,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'documents',
             'tags',
             'billingAddress',
-        ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
+        ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {
@@ -233,12 +243,23 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             referencedId: null,
         };
 
+        const deliveryDiscount = {
+            id: 'deliveryId2',
+        };
+
+        const deliveries = [
+            {
+                id: 'deliveryId',
+            },
+            deliveryDiscount,
+        ];
 
         wrapper = await createWrapper({
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
             ],
+            deliveries,
         });
 
         wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
@@ -247,7 +268,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+        expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
         expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+        expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
 
         await wrapper.vm.onSaveAndRecalculate();
         expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
@@ -269,12 +292,23 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             referencedId: null,
         };
 
+        const deliveryDiscount = {
+            id: 'deliveryId2',
+        };
+
+        const deliveries = [
+            {
+                id: 'deliveryId',
+            },
+            deliveryDiscount,
+        ];
 
         wrapper = await createWrapper({
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
             ],
+            deliveries,
         });
 
         wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
@@ -283,11 +317,14 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+        expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
         expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+        expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
 
         await wrapper.vm.onRecalculateAndReload();
 
         expect(wrapper.vm.promotionsToDelete).toHaveLength(1);
+        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(1);
         expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
         expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
     });
@@ -308,22 +345,36 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             referencedId: null,
         };
 
+        const deliveryDiscount = {
+            id: 'deliveryId2',
+        };
+
+        const deliveries = [
+            {
+                id: 'deliveryId',
+            },
+            deliveryDiscount,
+        ];
 
         wrapper = await createWrapper({
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
             ],
+            deliveries,
         });
 
         await flushPromises();
 
         wrapper.vm.promotionsToDelete = ['promotionLineItemId'];
+        wrapper.vm.deliveryDiscountsToDelete = ['deliveryId2'];
 
         await wrapper.vm.onSaveEdits();
 
         expect(wrapper.vm.order.lineItems).toHaveLength(1);
+        expect(wrapper.vm.order.deliveries).toHaveLength(1);
         expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
+        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
     });
 
     it('should handle order address update', async () => {

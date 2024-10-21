@@ -267,7 +267,7 @@ class FlowExecutorTest extends TestCase
         $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
         $connection = $this->createMock(Connection::class);
 
-        $action = new class() extends FlowAction implements TransactionalAction {
+        $action = new class extends FlowAction implements TransactionalAction {
             public bool $handled = false;
 
             public function requirements(): array
@@ -316,7 +316,7 @@ class FlowExecutorTest extends TestCase
         $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
         $connection = $this->createMock(Connection::class);
 
-        $action = new class() extends FlowAction implements TransactionalAction {
+        $action = new class extends FlowAction implements TransactionalAction {
             public function requirements(): array
             {
                 return [];
@@ -376,7 +376,7 @@ class FlowExecutorTest extends TestCase
         $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
         $connection = $this->createMock(Connection::class);
 
-        $action = new class() extends FlowAction implements TransactionalAction {
+        $action = new class extends FlowAction implements TransactionalAction {
             public function requirements(): array
             {
                 return [];
@@ -428,7 +428,7 @@ class FlowExecutorTest extends TestCase
         $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
         $connection = $this->createMock(Connection::class);
 
-        $action = new class() extends FlowAction implements TransactionalAction {
+        $action = new class extends FlowAction implements TransactionalAction {
             public function requirements(): array
             {
                 return [];

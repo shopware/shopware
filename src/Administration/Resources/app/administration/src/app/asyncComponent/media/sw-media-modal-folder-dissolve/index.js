@@ -15,7 +15,14 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['mediaFolderService'],
+
+    emits: [
+        'media-folder-dissolve-modal-close',
+        'media-folder-dissolve-modal-dissolve',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -26,14 +33,16 @@ export default {
             required: true,
             type: Array,
             validator(value) {
-                return (value.length !== 0);
+                return value.length !== 0;
             },
         },
     },
 
     methods: {
         closeDissolveModal(originalDomEvent) {
-            this.$emit('media-folder-dissolve-modal-close', { originalDomEvent });
+            this.$emit('media-folder-dissolve-modal-close', {
+                originalDomEvent,
+            });
         },
 
         async _dissolveSelection(item) {
@@ -44,21 +53,17 @@ export default {
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc(
-                        'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
-                        1,
-                        { folderName: item.name },
-                    ),
+                    message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.message', 1, {
+                        folderName: item.name,
+                    }),
                 });
                 return item.id;
             } catch {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc(
-                        'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
-                        1,
-                        { folderName: item.name },
-                    ),
+                    message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.message', 1, {
+                        folderName: item.name,
+                    }),
                 });
 
                 return null;
@@ -71,31 +76,26 @@ export default {
             const dissolvedIds = [];
 
             try {
-                await Promise.all(this.itemsToDissolve.map((item) => {
-                    dissolvedIds.push(item.id);
-                    return this._dissolveSelection(item);
-                }));
+                await Promise.all(
+                    this.itemsToDissolve.map((item) => {
+                        dissolvedIds.push(item.id);
+                        return this._dissolveSelection(item);
+                    }),
+                );
 
                 if (this.itemsToDissolve.length > 1) {
                     this.createNotificationSuccess({
                         title: this.$root.$tc('global.default.success'),
-                        message: this.$root.$tc(
-                            'global.sw-media-modal-folder-dissolve.notification.successOverall.message',
-                        ),
+                        message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.successOverall.message'),
                     });
                 }
 
-                this.$emit(
-                    'media-folder-dissolve-modal-dissolve',
-                    dissolvedIds,
-                );
+                this.$emit('media-folder-dissolve-modal-dissolve', dissolvedIds);
             } catch {
                 if (this.itemsToDissolve.length > 1) {
                     this.createNotificationError({
                         title: this.$root.$tc('global.default.error'),
-                        message: this.$root.$tc(
-                            'global.sw-media-modal-folder-dissolve.notification.errorOverall.message',
-                        ),
+                        message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.errorOverall.message'),
                     });
                 }
             }

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
@@ -41,9 +42,7 @@ class WriteCommandQueue
     {
         $decoded = self::decodeCommandPrimary($registry, $command);
 
-        $string = json_encode($decoded, \JSON_THROW_ON_ERROR);
-
-        return md5($string);
+        return Hasher::hash($decoded);
     }
 
     /**
@@ -151,7 +150,7 @@ class WriteCommandQueue
         }
         sort($decodedPrimaryKey);
 
-        $hash = $definition->getEntityName() . ':' . md5(json_encode($decodedPrimaryKey, \JSON_THROW_ON_ERROR));
+        $hash = $definition->getEntityName() . ':' . Hasher::hash($decodedPrimaryKey);
 
         return $this->entityCommands[$hash] ?? [];
     }
@@ -205,7 +204,7 @@ class WriteCommandQueue
     }
 
     /**
-     * @param array<string, array<string, FkField>>  $foreignKeys
+     * @param array<string, array<string, FkField>> $foreignKeys
      * @param array<string, bool> $mapping
      */
     private function hasUnresolvedForeignKey(string $entity, array $foreignKeys, array $mapping, WriteCommand $command): bool

@@ -1,5 +1,5 @@
-/*
- * @package inventory
+/**
+ * @package services-settings
  */
 
 import { mount } from '@vue/test-utils';
@@ -34,10 +34,8 @@ async function createWrapper(privileges = []) {
             },
             provide: {
                 conditionDataProviderService: {
-                    getPlaceholderData: () => {
-                    },
-                    getComponentByCondition: () => {
-                    },
+                    getPlaceholderData: () => {},
+                    getComponentByCondition: () => {},
                     allowedJsonAccessors: {
                         'json.test': {
                             value: 'json.test',
@@ -48,8 +46,7 @@ async function createWrapper(privileges = []) {
                 availableTypes: {},
                 availableGroups: [],
                 childAssociationField: {},
-                createCondition: () => {
-                },
+                createCondition: () => {},
                 productCustomFields: {
                     test: 'customFields.test',
                 },
@@ -62,10 +59,8 @@ async function createWrapper(privileges = []) {
                         return privileges.includes(identifier);
                     },
                 },
-                insertNodeIntoTree: () => {
-                },
-                removeNodeFromTree: () => {
-                },
+                insertNodeIntoTree: () => {},
+                removeNodeFromTree: () => {},
             },
         },
     });
@@ -86,13 +81,37 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
     });
 
     it.each([
-        ['true', 'sw-context-button-stub', 'product_stream.viewer'],
-        [undefined, 'sw-context-button-stub', 'product_stream.viewer, product_stream.editor'],
-        ['true', 'sw-product-stream-value-stub', 'product_stream.viewer'],
-        [undefined, 'sw-product-stream-value-stub', 'product_stream.viewer, product_stream.editor'],
-        ['true', 'sw-product-stream-field-select-stub', 'product_stream.viewer'],
-        [undefined, 'sw-product-stream-field-select-stub', 'product_stream.viewer, product_stream.editor'],
-    ])('should have %p as disabled state on \'%s\' when having %s role', async (state, element, role) => {
+        [
+            'true',
+            'sw-context-button-stub',
+            'product_stream.viewer',
+        ],
+        [
+            undefined,
+            'sw-context-button-stub',
+            'product_stream.viewer, product_stream.editor',
+        ],
+        [
+            'true',
+            'sw-product-stream-value-stub',
+            'product_stream.viewer',
+        ],
+        [
+            undefined,
+            'sw-product-stream-value-stub',
+            'product_stream.viewer, product_stream.editor',
+        ],
+        [
+            'true',
+            'sw-product-stream-field-select-stub',
+            'product_stream.viewer',
+        ],
+        [
+            undefined,
+            'sw-product-stream-field-select-stub',
+            'product_stream.viewer, product_stream.editor',
+        ],
+    ])("should have %p as disabled state on '%s' when having %s role", async (state, element, role) => {
         const roles = role.split(', ');
 
         const wrapper = await createWrapper(roles);
@@ -134,4 +153,3 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
         expect(wrapper.vm.fields).toEqual(['json.test']);
     });
 });
-

@@ -536,7 +536,7 @@ class CriteriaParser
             $aggregation instanceof TermsAggregation => $this->parseTermsAggregation($aggregation, $fieldName, $definition, $context),
             $aggregation instanceof DateHistogramAggregation => $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context),
             $aggregation instanceof RangeAggregation => $this->parseRangeAggregation($aggregation, $fieldName),
-            default => throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', $aggregation::class)),
+            default => throw new \RuntimeException(\sprintf('Provided aggregation of class %s not supported', $aggregation::class)),
         };
     }
 
@@ -551,7 +551,7 @@ class CriteriaParser
 
             if ($field instanceof TranslatedField) {
                 foreach ($context->getLanguageIdChain() as $languageId) {
-                    $query->add(new ExistsQuery(sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
+                    $query->add(new ExistsQuery(\sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
             } else {
                 $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
@@ -640,16 +640,11 @@ class CriteriaParser
         $query = new PrefixQuery($accessor, $value);
 
         if ($field instanceof TranslatedField) {
-            $multiMatchFields = [];
+            $query = new DisMaxQuery();
 
             foreach ($context->getLanguageIdChain() as $languageId) {
-                $multiMatchFields[] = $this->getTranslatedFieldName($accessor, $languageId) . '.search';
+                $query->addQuery(new WildcardQuery($this->getTranslatedFieldName($accessor, $languageId), $value . '*'));
             }
-
-            $query = new MultiMatchQuery($multiMatchFields, $value, [
-                'type' => 'phrase_prefix',
-                'slop' => 5,
-            ]);
         }
 
         return $this->createNestedQuery(
@@ -695,7 +690,7 @@ class CriteriaParser
                 ),
             ];
 
-            return $this->constructScriptQueryOrFallback($scriptContent, $parameters);
+            return $this->constructScriptQuery($scriptContent, $parameters);
         }
 
         if ($this->isCheapestPriceField($filter->getField(), true)) {
@@ -707,7 +702,7 @@ class CriteriaParser
                 ),
             ];
 
-            return $this->constructScriptQueryOrFallback($scriptContent, $parameters);
+            return $this->constructScriptQuery($scriptContent, $parameters);
         }
 
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
@@ -1017,10 +1012,10 @@ class CriteriaParser
         $parts = explode('.', $accessor);
 
         if ($parts[0] !== 'customFields') {
-            return sprintf('%s.%s', $accessor, $languageId);
+            return \sprintf('%s.%s', $accessor, $languageId);
         }
 
-        return sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
+        return \sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
     }
 
     private function loadScriptContent(string $filename): string
@@ -1056,9 +1051,8 @@ class CriteriaParser
     /**
      * @param array<string, mixed> $script
      * @param array<string, mixed> $parameters
-     * Returns an instance of the new ScriptQuery or the legacy ScriptIdQuery based on the version.
      */
-    private function constructScriptQueryOrFallback(array $script, array $parameters): BuilderInterface
+    private function constructScriptQuery(array $script, array $parameters): ScriptQuery
     {
         return new ScriptQuery($script['source'], $parameters);
     }

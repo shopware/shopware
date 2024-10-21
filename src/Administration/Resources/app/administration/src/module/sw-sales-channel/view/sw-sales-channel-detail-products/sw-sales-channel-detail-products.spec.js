@@ -18,12 +18,62 @@ function mockCriteria() {
 }
 
 const productsMock = [
-    { id: '101', active: true, name: 'product-101', productNumber: '001', visibilities: [{ id: '1', productId: '101', salesChannelId: 'storefrontSalesChannelTypeId' }] },
-    { id: '102', active: false, name: 'product-102', productNumber: '002', visibilities: [{ id: '2', productId: '202', salesChannelId: 'storefrontSalesChannelTypeId' }] },
+    {
+        id: '101',
+        active: true,
+        name: 'product-101',
+        productNumber: '001',
+        visibilities: [
+            {
+                id: '1',
+                productId: '101',
+                salesChannelId: 'storefrontSalesChannelTypeId',
+            },
+        ],
+    },
+    {
+        id: '102',
+        active: false,
+        name: 'product-102',
+        productNumber: '002',
+        visibilities: [
+            {
+                id: '2',
+                productId: '202',
+                salesChannelId: 'storefrontSalesChannelTypeId',
+            },
+        ],
+    },
 ];
 const variantProductMocks = [
-    { id: '201', active: true, name: 'product-101.1', productNumber: '001.1', parentId: '101', visibilities: [{ id: '1', productId: '101', salesChannelId: 'storefrontSalesChannelTypeId' }] },
-    { id: '202', active: true, name: 'product-101.2', productNumber: '001.2', parentId: '101', visibilities: [{ id: '2', productId: '202', salesChannelId: 'storefrontSalesChannelTypeId' }] },
+    {
+        id: '201',
+        active: true,
+        name: 'product-101.1',
+        productNumber: '001.1',
+        parentId: '101',
+        visibilities: [
+            {
+                id: '1',
+                productId: '101',
+                salesChannelId: 'storefrontSalesChannelTypeId',
+            },
+        ],
+    },
+    {
+        id: '202',
+        active: true,
+        name: 'product-101.2',
+        productNumber: '001.2',
+        parentId: '101',
+        visibilities: [
+            {
+                id: '2',
+                productId: '202',
+                salesChannelId: 'storefrontSalesChannelTypeId',
+            },
+        ],
+    },
 ];
 productsMock.has = (id) => {
     return productsMock.some((item) => {
@@ -34,101 +84,117 @@ productsMock.has = (id) => {
 const productMock = {
     visibilities: [
         { id: '01', productId: '101', salesChannelId: 'apiSalesChannelTypeId' },
-        { id: '02', productId: '101', salesChannelId: 'storefrontSalesChannelTypeId' },
+        {
+            id: '02',
+            productId: '101',
+            salesChannelId: 'storefrontSalesChannelTypeId',
+        },
     ],
 };
 
 async function createWrapper({ salesChannel, products } = {}) {
-    return mount(await wrapTestComponent('sw-sales-channel-detail-products', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>',
-                },
-                'sw-container': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-sales-channel-detail-products', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>',
+                    },
+                    'sw-container': {
+                        template: `
                         <div class="sw-container">
                             <slot></slot>
                         </div>
                     `,
-                },
-                'sw-card-section': {
-                    template: `
+                    },
+                    'sw-card-section': {
+                        template: `
                         <div class="sw-card-section">
                             <slot></slot>
                         </div>
                     `,
-                },
-                'sw-entity-listing': {
-                    props: ['items', 'allowEdit', 'allowDelete'],
-                    template: `
+                    },
+                    'sw-entity-listing': {
+                        props: [
+                            'items',
+                            'allowEdit',
+                            'allowDelete',
+                        ],
+                        template: `
                         <div class="sw-entity-listing">
                             <template v-for="item in items">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
                     `,
-                    data() {
-                        return {
-                            selection: {},
-                        };
-                    },
-                    methods: {
-                        resetSelection() {
-                            this.selection = {};
+                        data() {
+                            return {
+                                selection: {},
+                            };
+                        },
+                        methods: {
+                            resetSelection() {
+                                this.selection = {};
+                            },
                         },
                     },
-                },
-                'sw-empty-state': {
-                    template: `
+                    'sw-empty-state': {
+                        template: `
                         <div class="sw-empty-state">
                             <slot></slot>
                             <slot name="actions"></slot>
                         </div>
                     `,
+                    },
+                    'sw-pagination': true,
+                    'sw-simple-search-field': true,
+                    'sw-button': {
+                        template: '<button class="sw-button"><slot></slot></button>',
+                        props: ['disabled'],
+                    },
+                    'sw-icon': true,
+                    'sw-sales-channel-products-assignment-modal': true,
+                    'sw-context-menu-item': true,
+                    'sw-extension-component-section': true,
+                    'sw-ignore-class': true,
+                    'sw-checkbox-field': true,
+                    'router-link': true,
+                    'sw-product-variant-info': true,
                 },
-                'sw-pagination': true,
-                'sw-simple-search-field': true,
-                'sw-button': {
-                    template: '<button class="sw-button"><slot></slot></button>',
-                    props: ['disabled'],
-                },
-                'sw-icon': true,
-                'sw-sales-channel-products-assignment-modal': true,
-                'sw-context-menu-item': true,
-                'sw-extension-component-section': true,
-                'sw-ignore-class': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: (entity) => {
-                        return {
-                            create: async () => {},
-                            search: async () => {
-                                if (entity === 'product') {
-                                    const entityCollection = products ?? [];
-                                    entityCollection.criteria = mockCriteria();
-                                    entityCollection.total = products.length;
+                provide: {
+                    repositoryFactory: {
+                        create: (entity) => {
+                            return {
+                                create: async () => {},
+                                search: async () => {
+                                    if (entity === 'product') {
+                                        const entityCollection = products ?? [];
+                                        entityCollection.criteria = mockCriteria();
+                                        entityCollection.total = products.length;
 
-                                    return entityCollection;
-                                }
+                                        return entityCollection;
+                                    }
 
-                                return [];
-                            },
-                            delete: async () => {},
-                            syncDeleted: async () => {},
-                            saveAll: async () => {},
-                        };
+                                    return [];
+                                },
+                                delete: async () => {},
+                                syncDeleted: async () => {},
+                                saveAll: async () => {},
+                            };
+                        },
                     },
                 },
             },
-        },
-        props: {
-            salesChannel: salesChannel ?? {
-                id: 'storefrontSalesChannelTypeId',
+            props: {
+                salesChannel: salesChannel ?? {
+                    id: 'storefrontSalesChannelTypeId',
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', () => {
@@ -137,14 +203,20 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should get products successful', async () => {
-        const wrapper = await createWrapper({ salesChannel: { id: 'apiSalesChannelTypeId' }, products: productsMock });
+        const wrapper = await createWrapper({
+            salesChannel: { id: 'apiSalesChannelTypeId' },
+            products: productsMock,
+        });
         await flushPromises();
 
         expect(wrapper.getComponent('.sw-entity-listing').props('items')).toEqual(productsMock);
     });
 
     it('should delete product successful', async () => {
-        const wrapper = await createWrapper({ salesChannel: { id: 'apiSalesChannelTypeId' }, products: productsMock });
+        const wrapper = await createWrapper({
+            salesChannel: { id: 'apiSalesChannelTypeId' },
+            products: productsMock,
+        });
         await wrapper.getComponent('.sw-entity-listing').vm.$emit('selection-change', {
             101: productMock,
         });
@@ -163,18 +235,14 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should delete product failed', async () => {
-        const wrapper = await createWrapper({ salesChannel: { id: 'apiSalesChannelTypeId' }, products: productsMock });
+        const wrapper = await createWrapper({
+            salesChannel: { id: 'apiSalesChannelTypeId' },
+            products: productsMock,
+        });
 
         await wrapper.setData({
             searchTerm: 'Awesome Product',
         });
-
-        wrapper.vm.$refs.entityListing = {
-            selection: {
-                101: productMock,
-            },
-        };
-        await flushPromises();
 
         wrapper.vm.productVisibilityRepository.delete = jest.fn(() => Promise.reject(new Error('Error')));
         wrapper.vm.createNotificationError = jest.fn();
@@ -189,7 +257,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should get delete id correctly', async () => {
-        const wrapper = await createWrapper({ salesChannel: { id: 'apiSalesChannelTypeId' } });
+        const wrapper = await createWrapper({
+            salesChannel: { id: 'apiSalesChannelTypeId' },
+        });
 
         const deleteId = wrapper.vm.getDeleteId(productMock);
 
@@ -260,7 +330,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: productsMock, searchTerm: 'Awesome Product' });
+        await wrapper.setData({
+            products: productsMock,
+            searchTerm: 'Awesome Product',
+        });
 
         const createButton = wrapper.getComponent('.sw-button');
         expect(createButton.props('disabled')).toBe(false);
@@ -270,7 +343,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: productsMock, searchTerm: 'Awesome Product' });
+        await wrapper.setData({
+            products: productsMock,
+            searchTerm: 'Awesome Product',
+        });
 
         const createButton = wrapper.getComponent('.sw-button');
         expect(createButton.props('disabled')).toBe(true);
@@ -405,7 +481,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should not be able to delete variants which have inherit visibility', async () => {
-        const wrapper = await createWrapper({ products: [...productsMock, ...variantProductMocks] });
+        const wrapper = await createWrapper({
+            products: [
+                ...productsMock,
+                ...variantProductMocks,
+            ],
+        });
         await flushPromises();
 
         expect(wrapper.vm.isProductRemovable(variantProductMocks[0])).toBe(false);

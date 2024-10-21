@@ -1,7 +1,6 @@
 /**
  * @package admin
  */
-
 import template from './sw-block-field.html.twig';
 import './sw-block-field.scss';
 
@@ -14,14 +13,24 @@ Component.register('sw-block-field', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         size: {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['small', 'medium', 'default'],
+            validValues: [
+                'small',
+                'medium',
+                'default',
+            ],
             validator(val) {
-                return ['small', 'medium', 'default'].includes(val);
+                return [
+                    'small',
+                    'medium',
+                    'default',
+                ].includes(val);
             },
         },
     },
@@ -44,6 +53,15 @@ Component.register('sw-block-field', {
                 },
                 this.swBlockSize,
             ];
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

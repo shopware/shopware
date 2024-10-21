@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>3D Files</title>
+        <title lang="de-DE">3D Dateien</title>
+
+        <input-field type="bool">
+            <name>defaultEnableAugmentedReality</name>
+            <label>Enable AR by default</label>
+            <label lang="de-DE">AR standardmäßig aktivieren</label>
+            <helpText>3D files will automatically have AR enabled when presented in the storefront.</helpText>
+            <helpText lang="de-DE">3D Dateien wird AR automatisch aktiviert, wenn sie in der Storefront angezeigt werden.</helpText>
+        </input-field>
+    </card>
+</config>

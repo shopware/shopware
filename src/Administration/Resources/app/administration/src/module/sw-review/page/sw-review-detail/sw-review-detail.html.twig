@@ -29,7 +29,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-review-detail__save-action"
             variant="primary"
-            :disabled="isLoading || !acl.can('review.editor')"
+            :disabled="isLoading || !acl.can('review.editor') || undefined"
             :process-success="isSaveSuccessful"
             @update:process-success="onSaveFinish"
             @click="onSave"
@@ -225,7 +225,7 @@
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_email_content %}
                                                 <dd v-if="review.customer">
-                                                    {{ review.customer.email }}
+                                                    {{ emailIdnFilter(review.customer.email) }}
                                                 </dd>
                                                 <dd v-else>
                                                     {{ review.externalEmail }}
@@ -268,7 +268,7 @@
                             class="sw-review__language-select"
                             required
                             show-clearable-button
-                            :disabled="!acl.can('review.editor')"
+                            :disabled="!acl.can('review.editor') || undefined"
                             :label="$tc('sw-review.detail.labelLanguage')"
                             :criteria="languageCriteria"
                         />
@@ -280,7 +280,7 @@
                             v-model:value="review.status"
                             name="sw-field--review-status"
                             class="status-switch"
-                            :disabled="!acl.can('review.editor')"
+                            :disabled="!acl.can('review.editor') || undefined"
                             :label="$tc('sw-review.detail.labelStatus')"
                             bordered
                         />
@@ -301,7 +301,7 @@
                         v-model:value="review.comment"
                         name="sw-field--review-comment"
                         class="sw-review__comment-field"
-                        :disabled="!acl.can('review.editor')"
+                        :disabled="!acl.can('review.editor') || undefined"
                         :label="$tc('sw-review.detail.titleCardComment')"
                         :placeholder="$tc('sw-review.detail.placeholderComment')"
                     />

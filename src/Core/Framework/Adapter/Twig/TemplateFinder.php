@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
@@ -91,7 +92,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
                 return $templatePath;
             }
 
-            throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
+            throw new LoaderError(\sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
         }
 
         // if no other bundle extends the requested template, load the original template
@@ -103,7 +104,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
             return $templatePath;
         }
 
-        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
+        throw new LoaderError(\sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
     }
 
     public function reset(): void
@@ -146,7 +147,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
     private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {
-            $configHash = md5((string) json_encode($queue, \JSON_THROW_ON_ERROR));
+            $configHash = Hasher::hash($queue);
 
             $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
             $fileSystemCache->setConfigHash($configHash);

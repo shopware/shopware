@@ -9,6 +9,7 @@ use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('checkout')]
@@ -30,11 +31,11 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         // @see https://github.com/php/php-src/issues/9950
         if ($tokenStruct->getExpires() > 0) {
             $expires = $expires->modify(
-                sprintf('+%d seconds', $tokenStruct->getExpires())
+                \sprintf('+%d seconds', $tokenStruct->getExpires())
             );
         } else {
             $expires = $expires->modify(
-                sprintf('-%d seconds', abs($tokenStruct->getExpires()))
+                \sprintf('-%d seconds', abs($tokenStruct->getExpires()))
             );
         }
 
@@ -132,6 +133,6 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
     private static function normalize(string $token): string
     {
-        return substr(hash('sha256', $token), 0, 32);
+        return substr(Hasher::hash($token, 'sha256'), 0, 32);
     }
 }

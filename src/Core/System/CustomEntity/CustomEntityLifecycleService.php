@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\System\CustomEntity;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -27,14 +27,14 @@ class CustomEntityLifecycleService
         private readonly CustomEntityEnrichmentService $customEntityEnrichmentService,
         private readonly CustomEntityXmlSchemaValidator $customEntityXmlSchemaValidator,
         private readonly string $projectDir,
-        private readonly AbstractAppLoader $appLoader
+        private readonly SourceResolver $sourceResolver
     ) {
     }
 
     public function updatePlugin(string $pluginId, string $pluginPath): ?CustomEntityXmlSchema
     {
         return $this->update(
-            sprintf(
+            \sprintf(
                 '%s/%s/src/Resources/',
                 $this->projectDir,
                 $pluginPath,
@@ -44,18 +44,18 @@ class CustomEntityLifecycleService
         );
     }
 
-    public function updateApp(string $appId, string $appPath): ?CustomEntityXmlSchema
+    public function updateApp(AppEntity $app): ?CustomEntityXmlSchema
     {
-        $resourcePath = $this->appLoader->locatePath($appPath, 'Resources');
+        $fs = $this->sourceResolver->filesystemForApp($app);
 
-        if ($resourcePath === null) {
+        if (!$fs->has('Resources')) {
             return null;
         }
 
         return $this->update(
-            $resourcePath,
+            $fs->path('Resources'),
             AppEntity::class,
-            $appId
+            $app->getId()
         );
     }
 

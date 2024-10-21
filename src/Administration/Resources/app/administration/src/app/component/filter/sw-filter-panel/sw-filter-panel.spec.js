@@ -70,12 +70,22 @@ async function createWrapper() {
             entity: 'product',
             filters,
             storeKey: 'config',
-            defaults: ['filter1', 'filter2', 'filter3', 'filter4', 'filter5', 'filter6', 'filter7'],
+            defaults: [
+                'filter1',
+                'filter2',
+                'filter3',
+                'filter4',
+                'filter5',
+                'filter6',
+                'filter7',
+            ],
         },
         global: {
             stubs: {
                 'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-select-field': await wrapTestComponent('sw-select-field', {
+                    sync: true,
+                }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
@@ -89,14 +99,22 @@ async function createWrapper() {
                 'sw-string-filter': true,
                 'sw-number-filter': true,
                 'sw-date-filter': true,
+                'sw-help-text': true,
+                'sw-select-result': true,
+                'sw-highlight-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
+                'mt-select': true,
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        create: () => Promise.resolve({
-                            key: 'config',
-                            userId: '1',
-                        }),
+                        create: () =>
+                            Promise.resolve({
+                                key: 'config',
+                                userId: '1',
+                            }),
                         search: () => Promise.resolve(savedFilterData),
                         save: () => Promise.resolve([]),
                     }),
@@ -124,7 +142,6 @@ describe('components/sw-filter-panel', () => {
         expect(wrapper.find('sw-number-filter-stub').exists()).toBeTruthy();
         expect(wrapper.find('sw-date-filter-stub').exists()).toBeTruthy();
     });
-
 
     it('should update filter with updated values', async () => {
         const wrapper = await createWrapper();
@@ -164,7 +181,10 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            defaults: ['filter1', 'filter2'],
+            defaults: [
+                'filter1',
+                'filter2',
+            ],
         });
 
         expect(wrapper.find('.sw-boolean-filter').exists()).toBeTruthy();
@@ -199,11 +219,13 @@ describe('components/sw-filter-panel', () => {
                         id: '5e59f3ea47a342dd8ff1a0af2cda475',
                     },
                 ],
-                criteria: [{
-                    type: 'equalsAny',
-                    field: 'salutation.id',
-                    value: '5e59f3ea47a342dd8ff1a0af2cda475',
-                }],
+                criteria: [
+                    {
+                        type: 'equalsAny',
+                        field: 'salutation.id',
+                        value: '5e59f3ea47a342dd8ff1a0af2cda475',
+                    },
+                ],
             },
         };
 

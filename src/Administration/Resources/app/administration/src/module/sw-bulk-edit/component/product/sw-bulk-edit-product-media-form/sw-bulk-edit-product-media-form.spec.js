@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
@@ -16,36 +16,49 @@ async function createWrapper() {
         },
     });
 
-    return mount(await wrapTestComponent('sw-bulk-edit-product-media-form', { sync: true }), {
-        attachTo: document.body,
-        global: {
-            plugins: [store],
-            directives: {
-                draggable: {},
-                droppable: {},
-                popover: {},
-            },
-            mocks: {
-                $store: store,
-            },
-            stubs: {
-                'sw-upload-listener': true,
-                'sw-product-image': await wrapTestComponent('sw-product-image'),
-                'sw-media-upload-v2': true,
-                'sw-media-preview-v2': true,
-                'sw-product-media-form': true,
-                'sw-icon': true,
-                'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-            },
-            provide: {
-                repositoryFactory: {},
+    return mount(
+        await wrapTestComponent('sw-bulk-edit-product-media-form', {
+            sync: true,
+        }),
+        {
+            attachTo: document.body,
+            global: {
+                plugins: [store],
+                directives: {
+                    draggable: {},
+                    droppable: {},
+                    popover: {},
+                },
+                mocks: {
+                    $store: store,
+                },
+                stubs: {
+                    'sw-upload-listener': true,
+                    'sw-product-image': await wrapTestComponent('sw-product-image'),
+                    'sw-media-upload-v2': true,
+                    'sw-media-preview-v2': true,
+                    'sw-product-media-form': true,
+                    'sw-icon': true,
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-loader': true,
+                    'sw-label': true,
+                    'router-link': true,
+                },
+                provide: {
+                    repositoryFactory: {},
+                    systemConfigApiService: {
+                        getValues: () => {
+                            return Promise.resolve({});
+                        },
+                    },
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form', () => {

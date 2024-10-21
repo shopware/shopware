@@ -159,7 +159,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 
     private function generateKey(string $salesChannelId, string $domainId, string $languageId, Request $request, SalesChannelContext $context): string
     {
-        $key = self::buildName($salesChannelId, $domainId, $languageId) . md5($this->generator->getSalesChannelContextHash($context));
+        $key = self::buildName($salesChannelId, $domainId, $languageId) . $this->generator->getSalesChannelContextHash($context);
 
         $event = new NotFoundPageCacheKeyEvent($key, $request, $context);
 

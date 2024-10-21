@@ -8,11 +8,15 @@ import './sw-promotion-v2-rule-select.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
         'feature',
     ],
+
+    emits: ['update:collection'],
 
     props: {
         collection: {
@@ -57,6 +61,15 @@ export default {
                 ruleAwareGroupKey: this.ruleAwareGroupKey,
             };
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
@@ -65,10 +78,7 @@ export default {
         },
 
         onSaveRule(ruleId) {
-            const ruleRepository = this.repositoryFactory.create(
-                this.collection.entity,
-                this.collection.source,
-            );
+            const ruleRepository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
 
             ruleRepository.assign(ruleId, this.collection.context).then(() => {
                 ruleRepository.search(this.collection.criteria, this.collection.context).then((searchResult) => {

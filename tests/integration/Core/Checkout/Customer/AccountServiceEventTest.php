@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -159,8 +160,13 @@ class AccountServiceEventTest extends TestCase
         $dispatcher->removeListener(CustomerLogoutEvent::class, $listenerClosure);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function testChangeDefaultPaymentMethod(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $email = 'info@example.com';
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 

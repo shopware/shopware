@@ -12,7 +12,11 @@ const EntityCollection = Shopware.Data.EntityCollection;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['on-change-sales-channel'],
 
     mixins: [],
 
@@ -111,7 +115,7 @@ export default {
         },
 
         hasAdditionalSeoSlot() {
-            return this.$scopedSlots.hasOwnProperty('seo-additional');
+            return this.$slots.hasOwnProperty('seo-additional');
         },
 
         allowInput() {
@@ -134,12 +138,22 @@ export default {
     },
 
     created() {
-        this.$root.$on('seo-url-save-finish', this.clearDefaultSeoUrls);
+        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            this.$root.$on('seo-url-save-finish', this.clearDefaultSeoUrls);
+        } else {
+            Shopware.Utils.EventBus.on('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
+        }
+
         this.createdComponent();
     },
 
-    beforeDestroy() {
-        this.$root.$off('seo-url-save-finish', this.clearDefaultSeoUrls);
+    beforeUnmount() {
+        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            this.$root.$off('seo-url-save-finish', this.clearDefaultSeoUrls);
+        } else {
+            Shopware.Utils.EventBus.off('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
+        }
+
         Shopware.State.unregisterModule('swSeoUrl');
     },
 
@@ -221,9 +235,10 @@ export default {
             if (!currentSeoUrl) {
                 const entity = this.seoUrlRepository.create();
                 // Fetch any seo url as template, since we need to know foreignKey, pathInfo and the routeName
-                const seoUrl = this.seoUrlCollection.find((item) => {
-                    return item.pathInfo && item.routeName && item.foreignKey;
-                }) || {};
+                const seoUrl =
+                    this.seoUrlCollection.find((item) => {
+                        return item.pathInfo && item.routeName && item.foreignKey;
+                    }) || {};
 
                 entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? seoUrl.foreignKey;
                 entity.isCanonical = true;

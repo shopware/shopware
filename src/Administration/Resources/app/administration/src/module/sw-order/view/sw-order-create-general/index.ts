@@ -1,13 +1,6 @@
 import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-order-create-general.html.twig';
-import type {
-    CalculatedTax,
-    CartDelivery,
-    LineItem,
-    Cart,
-    PromotionCodeTag,
-    SalesChannelContext,
-} from '../../order.types';
+import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
 
 /**
  * @package checkout
@@ -20,14 +13,16 @@ const { get, format, array } = Utils;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('cart-notification'),
     ],
 
     data(): {
-        isLoading: boolean,
-        } {
+        isLoading: boolean;
+    } {
         return {
             isLoading: false,
         };
@@ -94,8 +89,9 @@ export default Component.wrapComponentConfig({
                 return [];
             }
 
-            return this.sortByTaxRate(this.cart.price.calculatedTaxes ?? [])
-                .filter((price: CalculatedTax) => price.tax !== 0);
+            return this.sortByTaxRate(this.cart.price.calculatedTaxes ?? []).filter(
+                (price: CalculatedTax) => price.tax !== 0,
+            );
         },
 
         displayRounded(): boolean {
@@ -157,21 +153,20 @@ export default Component.wrapComponentConfig({
             });
         },
 
-        onShippingChargeEdited(amount: number): void {
-            const positiveAmount = Math.abs(amount);
-            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
-            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
+        onShippingChargeEdited(): void {
             this.isLoading = true;
 
             State.dispatch('swOrder/modifyShippingCosts', {
                 salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
                 shippingCosts: this.cartDelivery.shippingCosts,
-            }).catch((error) => {
-                this.$emit('error', error);
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            })
+                .catch((error) => {
+                    this.$emit('error', error);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onRemoveItems(lineItemKeys: string[]): Promise<void> {
@@ -184,18 +179,22 @@ export default Component.wrapComponentConfig({
             })
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
-                    lineItemKeys.forEach(key => {
-                        const removedTag = State.get('swOrder').promotionCodes
-                            .find((tag: PromotionCodeTag) => tag.discountId === key);
+                    lineItemKeys.forEach((key) => {
+                        const removedTag = State.get('swOrder').promotionCodes.find(
+                            (tag: PromotionCodeTag) => tag.discountId === key,
+                        );
 
                         if (removedTag) {
-                            State.commit('swOrder/setPromotionCodes', State.get('swOrder').promotionCodes
-                                .filter((item: PromotionCodeTag) => {
+                            State.commit(
+                                'swOrder/setPromotionCodes',
+                                State.get('swOrder').promotionCodes.filter((item: PromotionCodeTag) => {
                                     return item.discountId !== removedTag.discountId;
-                                }));
+                                }),
+                            );
                         }
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -212,6 +211,12 @@ export default Component.wrapComponentConfig({
             return price.sort((prev: CalculatedTax, current: CalculatedTax) => {
                 return prev.taxRate - current.taxRate;
             });
+        },
+
+        onShippingChargeUpdated(amount: number): void {
+            const positiveAmount = Math.abs(amount);
+            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
+            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
         },
     },
 });

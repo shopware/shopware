@@ -81,6 +81,7 @@ import type ListingMixin from './app/mixin/listing.mixin';
 import type CartNotificationMixin from './module/sw-order/mixin/cart-notification.mixin';
 import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension-error.mixin';
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
+import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
@@ -89,6 +90,10 @@ import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
+import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
+import type { TopBarButtonStore } from './app/store/topbar-button.store';
+import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
+import type { CmsService } from './module/sw-cms/service/cms.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -103,26 +108,14 @@ export interface SubContainer<ContainerName extends string> {
 
 type SalutationFilterEntityType = {
     salutation: {
-        id: string,
-        salutationKey: string,
-        displayName: string
-    },
-    title: string,
-    firstName: string,
-    lastName: string,
-    [key: string]: unknown
-};
-
-type CmsService = {
-    registerCmsElement: (config: { [key: string]: unknown }) => void,
-    registerCmsBlock: $TSFixMeFunction,
-    getCmsElementConfigByName: $TSFixMeFunction,
-    getCmsBlockConfigByName: $TSFixMeFunction,
-    getCmsElementRegistry: $TSFixMeFunction,
-    getCmsBlockRegistry: $TSFixMeFunction,
-    getEntityMappingTypes: $TSFixMeFunction,
-    getPropertyByMappingPath: $TSFixMeFunction,
-    getCmsServiceState: $TSFixMeFunction,
+        id: string;
+        salutationKey: string;
+        displayName: string;
+    };
+    title: string;
+    firstName: string;
+    lastName: string;
+    [key: string]: unknown;
 };
 
 // declare global types
@@ -138,22 +131,22 @@ declare global {
      * Dangerous "unknown" types which are specific enough but do not provide type safety.
      * You should avoid using these.
      */
-    type $TSDangerUnknownObject = {[key: string|symbol]: unknown};
+    type $TSDangerUnknownObject = { [key: string | symbol]: unknown };
 
     /**
      * Mark some properties as required
      */
-    type Require<T, K extends keyof T> = T&{[P in K]-?: T[P]};
+    type Require<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
     /**
      * Mark some properties as optional
      */
-    type Optional<T, K extends keyof T> = T&{[P in K]?: T[P]};
+    type Optional<T, K extends keyof T> = T & { [P in K]?: T[P] };
 
     /**
      * Mark some properties as optional
      */
-    type Remove<T, K extends keyof T> = T&{[P in K]?: never};
+    type Remove<T, K extends keyof T> = T & { [P in K]?: never };
 
     /**
      * Make the Shopware object globally available
@@ -165,7 +158,7 @@ declare global {
     interface Window {
         Shopware: ShopwareClass;
         _features_: {
-            [featureName: string]: boolean
+            [featureName: string]: boolean;
         };
         processingInactivityLogout?: boolean;
         _sw_extension_component_collection: DevtoolComponent[];
@@ -174,174 +167,182 @@ declare global {
     }
 
     const _features_: {
-        [featureName: string]: boolean
+        [featureName: string]: boolean;
     };
 
     /**
      * Define global container for the bottle.js containers
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface ServiceContainer extends SubContainer<'service'>{
-        loginService: LoginService,
-        feature: FeatureService,
-        menuService: $TSFixMe,
-        privileges: PrivilegesService,
-        customEntityDefinitionService: CustomEntityDefinitionService,
-        cmsPageTypeService: CmsPageTypeService,
-        acl: AclService,
-        jsonApiParserService: typeof JsonApiParserService,
-        validationService: $TSFixMe,
-        entityValidationService: EntityValidationService,
-        timezoneService: $TSFixMe,
-        ruleConditionDataProviderService: RuleConditionService,
-        productStreamConditionService: $TSFixMe,
-        customFieldDataProviderService: $TSFixMe,
-        extensionHelperService: ExtensionHelperService,
-        languageAutoFetchingService: $TSFixMe,
-        stateStyleDataProviderService: StateStyleService,
-        searchTypeService: $TSFixMe,
-        localeToLanguageService: $TSFixMe,
-        entityMappingService: $TSFixMe,
-        shortcutService: $TSFixMe,
-        licenseViolationService: $TSFixMe,
-        localeHelper: $TSFixMe,
-        filterService: $TSFixMe,
-        mediaDefaultFolderService: $TSFixMe,
-        appAclService: $TSFixMe,
-        appCmsService: $TSFixMe,
-        entityHydrator: $TSFixMe,
-        entityFactory: $TSFixMe,
-        userService: UserApiService,
-        shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
-        cmsService: CmsService,
-        cmsElementFavorites: cmsElementFavoritesService,
-        cmsBlockFavorites: cmsBlockFavoritesService,
-        searchRankingService: $TSFixMe,
-        searchPreferencesService: $TSFixMe,
-        storeService: StoreApiService,
-        contextStoreService: StoreContextService,
-        checkoutStoreService: CheckoutStoreService,
-        orderStateMachineService: OrderStateMachineApiService,
-        repositoryFactory: RepositoryFactory,
-        snippetService: $TSFixMe,
-        recentlySearchService: $TSFixMe,
-        extensionSdkService: ExtensionSdkService,
-        appModulesService: AppModulesService,
-        cartStoreService: CartStoreService,
-        customSnippetApiService: CustomSnippetApiService,
-        userActivityService: UserActivityService,
-        filterFactory: FilterFactoryData,
-        systemConfigApiService: SystemConfigApiService,
-        usageDataService: UsageDataApiService,
-        configService: ConfigApiService,
-        importExport: ImportExportService,
-        fileValidationService: FileValidationService,
+    interface ServiceContainer extends SubContainer<'service'> {
+        loginService: LoginService;
+        feature: FeatureService;
+        menuService: $TSFixMe;
+        privileges: PrivilegesService;
+        customEntityDefinitionService: CustomEntityDefinitionService;
+        cmsPageTypeService: CmsPageTypeService;
+        acl: AclService;
+        jsonApiParserService: typeof JsonApiParserService;
+        validationService: $TSFixMe;
+        entityValidationService: EntityValidationService;
+        timezoneService: $TSFixMe;
+        ruleConditionDataProviderService: RuleConditionService;
+        productStreamConditionService: $TSFixMe;
+        customFieldDataProviderService: $TSFixMe;
+        extensionHelperService: ExtensionHelperService;
+        languageAutoFetchingService: $TSFixMe;
+        stateStyleDataProviderService: StateStyleService;
+        searchTypeService: $TSFixMe;
+        localeToLanguageService: $TSFixMe;
+        entityMappingService: $TSFixMe;
+        shortcutService: $TSFixMe;
+        licenseViolationService: $TSFixMe;
+        localeHelper: $TSFixMe;
+        filterService: $TSFixMe;
+        mediaDefaultFolderService: $TSFixMe;
+        appAclService: $TSFixMe;
+        appCmsService: $TSFixMe;
+        entityHydrator: $TSFixMe;
+        entityFactory: $TSFixMe;
+        userService: UserApiService;
+        shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        cmsService: CmsService;
+        cmsElementFavorites: cmsElementFavoritesService;
+        cmsBlockFavorites: cmsBlockFavoritesService;
+        searchRankingService: $TSFixMe;
+        searchPreferencesService: $TSFixMe;
+        storeService: StoreApiService;
+        contextStoreService: StoreContextService;
+        checkoutStoreService: CheckoutStoreService;
+        orderStateMachineService: OrderStateMachineApiService;
+        repositoryFactory: RepositoryFactory;
+        snippetService: $TSFixMe;
+        recentlySearchService: $TSFixMe;
+        extensionSdkService: ExtensionSdkService;
+        appModulesService: AppModulesService;
+        cartStoreService: CartStoreService;
+        customSnippetApiService: CustomSnippetApiService;
+        userActivityService: UserActivityService;
+        filterFactory: FilterFactoryData;
+        systemConfigApiService: SystemConfigApiService;
+        usageDataService: UsageDataApiService;
+        configService: ConfigApiService;
+        importExport: ImportExportService;
+        fileValidationService: FileValidationService;
     }
 
     interface MixinContainer {
-        notification: typeof NotificationMixin,
-        validation: typeof ValidationMixin,
-        'user-settings': typeof UserSettingsMixin,
-        'sw-inline-snippet': typeof SwInlineSnippetMixin,
-        salutation: typeof SalutationMixin,
-        ruleContainer: typeof RuleContainerMixin,
-        'remove-api-error': typeof RemoveApiErrorMixin,
-        position: typeof PositionMixin,
-        placeholder: typeof PlaceholderMixin,
-        listing: typeof ListingMixin,
-        'cart-notification': typeof CartNotificationMixin,
-        'sw-extension-error': typeof SwExtensionErrorMixin,
-        'cms-element': typeof CmsElementMixin,
-        'generic-condition': typeof GenericConditionMixin,
-        'sw-form-field': typeof SwFormFieldMixin,
-        'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin,
+        notification: typeof NotificationMixin;
+        validation: typeof ValidationMixin;
+        'user-settings': typeof UserSettingsMixin;
+        'sw-inline-snippet': typeof SwInlineSnippetMixin;
+        salutation: typeof SalutationMixin;
+        ruleContainer: typeof RuleContainerMixin;
+        'remove-api-error': typeof RemoveApiErrorMixin;
+        position: typeof PositionMixin;
+        placeholder: typeof PlaceholderMixin;
+        listing: typeof ListingMixin;
+        'cart-notification': typeof CartNotificationMixin;
+        'sw-extension-error': typeof SwExtensionErrorMixin;
+        'cms-element': typeof CmsElementMixin;
+        'cms-state': typeof CmsStateMixin;
+        'generic-condition': typeof GenericConditionMixin;
+        'sw-form-field': typeof SwFormFieldMixin;
+        'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface InitContainer extends SubContainer<'init'>{
-        state: $TSFixMe, // has to be removed once we moved to vite
-        router: $TSFixMe,
-        httpClient: AxiosInstance,
+    interface InitContainer extends SubContainer<'init'> {
+        state: $TSFixMe; // has to be removed once we moved to vite
+        router: $TSFixMe;
+        httpClient: AxiosInstance;
     }
-    interface InitPostContainer extends SubContainer<'init-post'>{}
-    interface InitPreContainer extends SubContainer<'init-pre'>{
-        state: $TSFixMe
+    interface InitPostContainer extends SubContainer<'init-post'> {}
+    interface InitPreContainer extends SubContainer<'init-pre'> {
+        state: $TSFixMe;
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface FactoryContainer extends SubContainer<'factory'>{
-        component: typeof AsyncComponentFactory,
-        template: $TSFixMe,
-        module: typeof ModuleFactory,
-        entity: $TSFixMe,
-        state: () => FullState,
-        serviceFactory: $TSFixMe,
-        classesFactory: $TSFixMe,
-        mixin: $TSFixMe,
-        directive: typeof DirectiveFactory,
-        filter: typeof FilterFactory,
-        locale: typeof LocaleFactory,
-        shortcut: $TSFixMe,
-        plugin: $TSFixMe,
-        apiService: typeof ApiServiceFactory,
-        entityDefinition: typeof EntityDefinitionFactory,
-        workerNotification: typeof WorkerNotificationFactory,
+    interface FactoryContainer extends SubContainer<'factory'> {
+        component: typeof AsyncComponentFactory;
+        template: $TSFixMe;
+        module: typeof ModuleFactory;
+        entity: $TSFixMe;
+        state: () => FullState;
+        serviceFactory: $TSFixMe;
+        classesFactory: $TSFixMe;
+        mixin: $TSFixMe;
+        directive: typeof DirectiveFactory;
+        filter: typeof FilterFactory;
+        locale: typeof LocaleFactory;
+        shortcut: $TSFixMe;
+        plugin: $TSFixMe;
+        apiService: typeof ApiServiceFactory;
+        entityDefinition: typeof EntityDefinitionFactory;
+        workerNotification: typeof WorkerNotificationFactory;
     }
 
     interface FilterTypes {
-        asset: (value: string) => string,
-        currency: $TSFixMeFunction,
-        date: (value: string, options?: Intl.DateTimeFormatOptions) => string,
-        'file-size': $TSFixMeFunction,
-        'media-name': $TSFixMeFunction,
-        salutation: (entity: SalutationFilterEntityType, fallbackSnippet: string) => string,
-        'stock-color-variant': $TSFixMeFunction
-        striphtml: (value: string) => string,
-        'thumbnail-size': $TSFixMeFunction,
-        truncate: $TSFixMeFunction,
-        'unicode-uri': $TSFixMeFunction,
-        [key: string]: ((...args: any[]) => any)|undefined,
+        asset: (value: string) => string;
+        currency: $TSFixMeFunction;
+        date: (value: string, options?: Intl.DateTimeFormatOptions) => string;
+        'file-size': $TSFixMeFunction;
+        'media-name': $TSFixMeFunction;
+        salutation: (entity: SalutationFilterEntityType, fallbackSnippet: string) => string;
+        'stock-color-variant': $TSFixMeFunction;
+        striphtml: (value: string) => string;
+        'thumbnail-size': $TSFixMeFunction;
+        truncate: $TSFixMeFunction;
+        'unicode-uri': $TSFixMeFunction;
+        [key: string]: ((...args: any[]) => any) | undefined;
     }
 
     interface ComponentHelper {
-        mapState: typeof mapState,
-        mapMutations: typeof mapMutations,
-        mapGetters: typeof mapGetters,
-        mapActions: typeof mapActions,
-        mapPropertyErrors: typeof mapErrors.mapPropertyErrors,
-        mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors,
-        mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors,
-        mapPageErrors: typeof mapErrors.mapPageErrors,
+        mapState: typeof mapState;
+        mapMutations: typeof mapMutations;
+        mapGetters: typeof mapGetters;
+        mapActions: typeof mapActions;
+        mapPropertyErrors: typeof mapErrors.mapPropertyErrors;
+        mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors;
+        mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors;
+        mapPageErrors: typeof mapErrors.mapPageErrors;
     }
 
     /**
      * Define global state for the Vuex store
+     * @deprecated tag:v6.8.0 - Will be removed use PiniaRootState instead
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
-        context: ContextState,
-        extensions: ExtensionsState,
-        tabs: TabsState,
-        extensionComponentSections: ExtensionComponentSectionsState,
-        paymentOverviewCardState: PaymentOverviewCardState,
-        swOrder: SwOrderState,
+        context: ContextState;
+        extensions: ExtensionsState;
+        tabs: TabsState;
+        extensionComponentSections: ExtensionComponentSectionsState;
+        paymentOverviewCardState: PaymentOverviewCardState;
+        swOrder: SwOrderState;
         session: {
-            currentUser: EntitySchema.Entities['user'],
-            userPending: boolean,
-            languageId: string,
-            currentLocale: string|null,
-        },
-        swCategoryDetail: $TSFixMe,
-        menuItem: MenuItemState,
-        extensionSdkModules: ExtensionSdkModuleState,
-        extensionMainModules: MainModuleState,
-        modals: ModalsState,
-        actionButtons: ActionButtonState,
-        shopwareExtensions: ShopwareExtensionsState,
-        extensionEntryRoutes: $TSFixMe,
-        shopwareApps: ShopwareAppsState,
-        sdkLocation: SdkLocationState,
-        usageData: UsageDataModuleState
-        adminHelpCenter: AdminHelpCenterState,
+            currentUser: EntitySchema.Entities['user'];
+            userPending: boolean;
+            languageId: string;
+            currentLocale: string | null;
+        };
+        swCategoryDetail: $TSFixMe;
+        menuItem: MenuItemState;
+        extensionSdkModules: ExtensionSdkModuleState;
+        extensionMainModules: MainModuleState;
+        modals: ModalsState;
+        actionButtons: ActionButtonState;
+        shopwareExtensions: ShopwareExtensionsState;
+        extensionEntryRoutes: $TSFixMe;
+        shopwareApps: ShopwareAppsState;
+        sdkLocation: SdkLocationState;
+        usageData: UsageDataModuleState;
+        adminHelpCenter: AdminHelpCenterState;
+    }
+
+    interface PiniaRootState {
+        cmsPage: CmsPageStore;
+        topBarButton: TopBarButtonStore;
+        teaserPopover: TeaserPopoverStore;
     }
 
     /**
@@ -357,24 +358,24 @@ declare global {
      * @see Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory
      */
     interface ShopwareHttpError {
-        code: string,
-        status: string,
-        title: string,
-        detail: string,
+        code: string;
+        status: string;
+        title: string;
+        detail: string;
         meta?: {
-            file: string,
-            line: string,
-            trace?: { [key: string]: string },
-            parameters?: object,
-            previous?: ShopwareHttpError,
-        },
-        trace?: { [key: string]: string },
+            file: string;
+            line: string;
+            trace?: { [key: string]: string };
+            parameters?: object;
+            previous?: ShopwareHttpError;
+        };
+        trace?: { [key: string]: string };
     }
 
     interface StoreApiException extends ShopwareHttpError {
         meta?: ShopwareHttpError['meta'] & {
-            documentationLink?: string,
-        }
+            documentationLink?: string;
+        };
     }
 
     const flushPromises: () => Promise<void>;
@@ -388,15 +389,16 @@ declare global {
 /**
  * Link global bottle.js container to the bottle.js container interface
  */
-declare module 'bottlejs' { // Use the same module name as the import string
+declare module 'bottlejs' {
+    // Use the same module name as the import string
     type IContainerChildren = 'factory' | 'service' | 'init' | 'init-post' | 'init-pre';
 
     interface IContainer {
-        factory: FactoryContainer,
-        service: ServiceContainer,
-        'init-pre': InitPreContainer,
-        init: InitContainer,
-        'init-post': InitPostContainer,
+        factory: FactoryContainer;
+        service: ServiceContainer;
+        'init-pre': InitPreContainer;
+        init: InitContainer;
+        'init-post': InitPostContainer;
     }
 }
 
@@ -415,18 +417,19 @@ interface LegacyPublicProperties {
     $off(event?: string | string[], fn?: Function): this;
     $children: LegacyPublicProperties[];
     $listeners: Record<string, Function | Function[]>;
+    isCompatEnabled: (key: string) => boolean;
     /* eslint-enable @typescript-eslint/ban-types */
 }
 
 interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
-    $createTitle: (identifier?: string | null) => string,
-    $router: Router,
-    $store: Store<VuexRootState>,
+    $createTitle: (identifier?: string | null) => string;
+    $router: Router;
+    $store: Store<VuexRootState>;
     // $route: SwRouteLocationNormalizedLoaded,
     // eslint-disable-next-line @typescript-eslint/ban-types
-    $tc: I18n<{}, {}, {}, string, true>['global']['tc'],
+    $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
     // eslint-disable-next-line @typescript-eslint/ban-types
-    $t: I18n<{}, {}, {}, string, true>['global']['t'],
+    $t: I18n<{}, {}, {}, string, true>['global']['t'];
 }
 
 declare module 'vue' {
@@ -435,22 +438,24 @@ declare module 'vue' {
 
     interface ComponentCustomOptions {
         shortcuts?: {
-            [key: string]: string | {
-                active: boolean | ((this: App) => boolean),
-                method: string
-            }
-        },
+            [key: string]:
+                | string
+                | {
+                      active: boolean | ((this: App) => boolean);
+                      method: string;
+                  };
+        };
 
         extensionApiDevtoolInformation?: {
-            property?: string,
-            method?: string,
-            positionId?: (currentComponent: any) => string,
-            helpText?: string,
-        }
+            property?: string;
+            method?: string;
+            positionId?: (currentComponent: any) => string;
+            helpText?: string;
+        };
     }
 
     interface PropOptions {
-        validValues?: any[]
+        validValues?: any[];
     }
 }
 
@@ -462,6 +467,6 @@ declare module '@vue/runtime-core' {
 declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
-        version?: number
+        version?: number;
     }
 }

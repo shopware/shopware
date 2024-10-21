@@ -9,8 +9,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -46,6 +47,9 @@ class CachedProductListingRoute extends AbstractProductListingRoute
     #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($categoryId, $request, $context, $criteria);
+        }
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($categoryId, $request, $context, $criteria);
         }
@@ -88,7 +92,7 @@ class CachedProductListingRoute extends AbstractProductListingRoute
             return null;
         }
 
-        return self::buildName($categoryId) . '-' . md5(Json::encode($event->getParts()));
+        return self::buildName($categoryId) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

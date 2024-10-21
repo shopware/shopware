@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -21,33 +24,46 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     };
 
     const modal = async () => {
-        return mount(await wrapTestComponent('sw-bulk-edit-modal', {
-            sync: true,
-        }), {
-            props: {
-                selection: {
-                    uuid1: { id: 'uuid1', manufacturer: 'Wordify', name: 'Portia Jobson' },
-                    uuid2: { id: 'uuid2', manufacturer: 'Twitternation', name: 'Baxy Eardley' },
-                    uuid3: { id: 'uuid3', manufacturer: 'Skidoo', name: 'Arturo Staker' },
-                },
-                bulkGridEditColumns: [],
-                currencies: [],
-            },
-            global: {
-                stubs: stubs,
-                data() {
-                    return {};
-                },
-                provide: {
-                    shortcutService: {
-                        startEventListener: () => {
+        return mount(
+            await wrapTestComponent('sw-bulk-edit-modal', {
+                sync: true,
+            }),
+            {
+                props: {
+                    selection: {
+                        uuid1: {
+                            id: 'uuid1',
+                            manufacturer: 'Wordify',
+                            name: 'Portia Jobson',
                         },
-                        stopEventListener: () => {
+                        uuid2: {
+                            id: 'uuid2',
+                            manufacturer: 'Twitternation',
+                            name: 'Baxy Eardley',
+                        },
+                        uuid3: {
+                            id: 'uuid3',
+                            manufacturer: 'Skidoo',
+                            name: 'Arturo Staker',
+                        },
+                    },
+                    bulkGridEditColumns: [],
+                    currencies: [],
+                },
+                global: {
+                    stubs: stubs,
+                    data() {
+                        return {};
+                    },
+                    provide: {
+                        shortcutService: {
+                            startEventListener: () => {},
+                            stopEventListener: () => {},
                         },
                     },
                 },
             },
-        });
+        );
     };
 
     beforeAll(async () => {
@@ -61,6 +77,14 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-icon': true,
             'sw-button': true,
             'sw-select-field': true,
+            'sw-loader': true,
+            'sw-context-menu-item': true,
+            'sw-context-button': true,
+            'sw-data-grid-settings': true,
+            'sw-data-grid-column-boolean': true,
+            'sw-data-grid-inline-edit': true,
+            'router-link': true,
+            'sw-data-grid-skeleton': true,
         };
     });
 

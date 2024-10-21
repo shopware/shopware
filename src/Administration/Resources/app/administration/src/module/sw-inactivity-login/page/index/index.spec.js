@@ -1,6 +1,9 @@
 import { BroadcastChannel } from 'worker_threads';
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package admin
+ */
 async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()) {
     return mount(await wrapTestComponent('sw-inactivity-login', { sync: true }), {
         props: {
@@ -32,6 +35,13 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'router-link': true,
+                'sw-field-copyable': true,
+                'sw-icon-deprecated': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-loader-deprecated': true,
             },
             mocks: {
                 $router: {
@@ -41,6 +51,17 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
             provide: {
                 loginService: {
                     loginByUsername,
+                    setRememberMe: (active = true) => {
+                        if (!active) {
+                            localStorage.removeItem('rememberMe');
+                            return;
+                        }
+
+                        const duration = new Date();
+                        duration.setDate(duration.getDate() + 14);
+
+                        localStorage.setItem('rememberMe', `${+duration}`);
+                    },
                 },
                 shortcutService: {
                     startEventListener: () => {},
@@ -73,7 +94,10 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     });
 
     afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: original });
+        Object.defineProperty(window, 'location', {
+            configurable: true,
+            value: original,
+        });
     });
 
     it('should be a Vue.js component', async () => {
@@ -90,7 +114,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         const container = wrapper.find('.sw-inactivity-login');
         expect(container.exists()).toBe(true);
-        expect((container.element).style.backgroundImage).toBe('url(data:urlFoOBaR)');
+        expect(container.element.style.backgroundImage).toBe('url(data:urlFoOBaR)');
     });
 
     it('should push to login without last known user', async () => {
@@ -200,7 +224,10 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const push = jest.fn();
         sessionStorage.setItem('lastKnownUser', 'max');
         sessionStorage.setItem('sw-admin-previous-route_foo', '{ "fullPath": "sw.example.route.index" }');
-        const wrapper = await createWrapper(push, jest.fn(() => Promise.resolve()));
+        const wrapper = await createWrapper(
+            push,
+            jest.fn(() => Promise.resolve()),
+        );
         await flushPromises();
 
         const rememberMe = wrapper.find('.sw-field--checkbox input');

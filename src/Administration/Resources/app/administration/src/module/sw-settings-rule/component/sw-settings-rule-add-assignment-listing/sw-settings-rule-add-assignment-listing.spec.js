@@ -67,28 +67,50 @@ const defaultProps = {
 };
 
 async function createWrapper(props = defaultProps) {
-    return mount(await wrapTestComponent('sw-settings-rule-add-assignment-listing', { sync: true }), {
-        props,
-        global: {
-            stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-card-filter': await wrapTestComponent('sw-card-filter'),
-                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-pagination': await wrapTestComponent('sw-pagination'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
+    return mount(
+        await wrapTestComponent('sw-settings-rule-add-assignment-listing', {
+            sync: true,
+        }),
+        {
+            props,
+            global: {
+                stubs: {
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-card-filter': await wrapTestComponent('sw-card-filter'),
+                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-pagination': await wrapTestComponent('sw-pagination'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-product-variant-info': true,
+                    'sw-icon': true,
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-loader': true,
+                    'sw-context-menu-item': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-field-error': true,
+                    'sw-select-field': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing', () => {
@@ -100,16 +122,18 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
     it('should add entity context associations', async () => {
         const testAssociation = 'testAssociation';
 
-        entityRepositoryMock.search.mockResolvedValueOnce(createEntityCollectionMock('testEntity', [
-            {
-                ...entityResultMock[0],
-                testAssociation: [
-                    {
-                        id: defaultProps.ruleId,
-                    },
-                ],
-            },
-        ]));
+        entityRepositoryMock.search.mockResolvedValueOnce(
+            createEntityCollectionMock('testEntity', [
+                {
+                    ...entityResultMock[0],
+                    testAssociation: [
+                        {
+                            id: defaultProps.ruleId,
+                        },
+                    ],
+                },
+            ]),
+        );
 
         await createWrapper({
             ...defaultProps,
@@ -125,8 +149,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
 
         const criteria = new Criteria(1, 10);
         criteria.addAssociation(testAssociation);
-        criteria.getAssociation(testAssociation)
-            .addFilter(Criteria.equals('id', defaultProps.ruleId));
+        criteria.getAssociation(testAssociation).addFilter(Criteria.equals('id', defaultProps.ruleId));
 
         expect(entityRepositoryMock.search).toHaveBeenNthCalledWith(1, criteria, expect.any(Object));
     });
@@ -189,13 +212,15 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
         const testSearchColumn = 'testColumn';
         const testSearchTerm = 'test';
 
-        const entityContext = defaultField ? entityContextMock : {
-            ...entityContextMock,
-            addContext: {
-                ...entityContextMock.addContext,
-                searchColumn: testSearchColumn,
-            },
-        };
+        const entityContext = defaultField
+            ? entityContextMock
+            : {
+                  ...entityContextMock,
+                  addContext: {
+                      ...entityContextMock.addContext,
+                      searchColumn: testSearchColumn,
+                  },
+              };
 
         const wrapper = await createWrapper({
             ...defaultProps,
@@ -227,12 +252,14 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
     });
 
     it('should make assigned item unselectable', async () => {
-        entityRepositoryMock.search.mockResolvedValueOnce(createEntityCollectionMock('testEntity', [
-            {
-                ...entityResultMock[0],
-                test: defaultProps.ruleId,
-            },
-        ]));
+        entityRepositoryMock.search.mockResolvedValueOnce(
+            createEntityCollectionMock('testEntity', [
+                {
+                    ...entityResultMock[0],
+                    test: defaultProps.ruleId,
+                },
+            ]),
+        );
 
         const wrapper = await createWrapper({
             ...defaultProps,
@@ -250,12 +277,14 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
     });
 
     it('should make assigned item unselectable by association', async () => {
-        entityRepositoryMock.search.mockResolvedValueOnce(createEntityCollectionMock('testEntity', [
-            {
-                ...entityResultMock[0],
-                test: ['a'],
-            },
-        ]));
+        entityRepositoryMock.search.mockResolvedValueOnce(
+            createEntityCollectionMock('testEntity', [
+                {
+                    ...entityResultMock[0],
+                    test: ['a'],
+                },
+            ]),
+        );
 
         const wrapper = await createWrapper({
             ...defaultProps,
@@ -273,19 +302,22 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
     });
 
     it.each([
-        { name: 'auto', taxType: 'auto', expected: 'sw-settings-shipping.shippingCostOptions.auto' },
+        {
+            name: 'auto',
+            taxType: 'auto',
+            expected: 'sw-settings-shipping.shippingCostOptions.auto',
+        },
         { name: 'empty', taxType: '', expected: '' },
         { name: 'no option', taxType: 'test', expected: '' },
     ])('should add shipping tax type label: $name', async ({ taxType, expected }) => {
-        entityRepositoryMock.search.mockResolvedValueOnce(createEntityCollectionMock(
-            'testEntity',
-            [
+        entityRepositoryMock.search.mockResolvedValueOnce(
+            createEntityCollectionMock('testEntity', [
                 {
                     ...entityResultMock[0],
                     taxType,
                 },
-            ],
-        ));
+            ]),
+        );
 
         const wrapper = await createWrapper({
             ...defaultProps,
@@ -308,15 +340,19 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
     });
 
     it('should paginate items', async () => {
-        entityRepositoryMock.search.mockResolvedValue(createEntityCollectionMock(
-            'testEntity',
-            Array(30).fill(entityResultMock[0]).map((item, index) => {
-                return {
-                    ...item,
-                    name: `test-name-${index}`,
-                };
-            }),
-        ));
+        entityRepositoryMock.search.mockResolvedValue(
+            createEntityCollectionMock(
+                'testEntity',
+                Array(30)
+                    .fill(entityResultMock[0])
+                    .map((item, index) => {
+                        return {
+                            ...item,
+                            name: `test-name-${index}`,
+                        };
+                    }),
+            ),
+        );
 
         const wrapper = await createWrapper();
         await flushPromises();

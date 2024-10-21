@@ -8,6 +8,8 @@ import './sw-users-permissions-permissions-grid.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['privileges'],
 
     props: {
@@ -26,7 +28,7 @@ export default {
         permissionsWithParents() {
             const permissionsWithParents = [];
 
-            this.parents.forEach(parent => {
+            this.parents.forEach((parent) => {
                 permissionsWithParents.push({
                     type: 'parent',
                     value: parent,
@@ -34,7 +36,7 @@ export default {
 
                 const children = this.getPermissionsForParent(parent);
 
-                children.forEach(child => {
+                children.forEach((child) => {
                     permissionsWithParents.push(child);
                 });
             });
@@ -42,12 +44,11 @@ export default {
             return permissionsWithParents;
         },
 
-
         permissions() {
             const privileges = this.privileges.getPrivilegesMappings();
 
             return privileges
-                .filter(privilege => privilege.category === 'permissions')
+                .filter((privilege) => privilege.category === 'permissions')
                 .sort((a, b) => {
                     const labelA = this.$tc(`sw-privileges.permissions.${a.key}.label`);
                     const labelB = this.$tc(`sw-privileges.permissions.${b.key}.label`);
@@ -63,7 +64,10 @@ export default {
                         return parents;
                     }
 
-                    return [...parents, privilege.parent];
+                    return [
+                        ...parents,
+                        privilege.parent,
+                    ];
                 }, [])
                 .sort((a, b) => {
                     const labelA = this.$tc(`sw-privileges.permissions.parents.${a || 'other'}`);
@@ -76,14 +80,14 @@ export default {
         usedDependencies() {
             const dependencies = new Set();
 
-            this.role.privileges.forEach(privilegeKey => {
+            this.role.privileges.forEach((privilegeKey) => {
                 const privilegeRole = this.privileges.getPrivilegeRole(privilegeKey);
 
                 if (!privilegeRole) {
                     return;
                 }
 
-                privilegeRole.dependencies.forEach(dependency => {
+                privilegeRole.dependencies.forEach((dependency) => {
                     dependencies.add(dependency);
                 });
             });
@@ -135,13 +139,13 @@ export default {
         },
 
         removePermission(identifier) {
-            this.role.privileges = this.role.privileges.filter(privilege => {
+            this.role.privileges = this.role.privileges.filter((privilege) => {
                 return privilege !== identifier;
             });
         },
 
         isPermissionSelected(permissionKey, permissionRole) {
-            return this.role.privileges.some(privilege => {
+            return this.role.privileges.some((privilege) => {
                 return privilege === `${permissionKey}.${permissionRole}`;
             });
         },
@@ -153,7 +157,7 @@ export default {
         changeAllPermissionsForKey(permissionKey) {
             const areAllSelected = this.allPermissionsForKeySelected(permissionKey);
 
-            this.roles.forEach(role => {
+            this.roles.forEach((role) => {
                 const identifier = `${permissionKey}.${role}`;
                 const privilegeExists = this.privileges.existsPrivilege(identifier);
 
@@ -170,7 +174,7 @@ export default {
         },
 
         allPermissionsForKeySelected(permissionKey) {
-            const containsUnselected = this.roles.some(permissionRole => {
+            const containsUnselected = this.roles.some((permissionRole) => {
                 const doesExist = this.privileges.existsPrivilege(`${permissionKey}.${permissionRole}`);
 
                 if (!doesExist) {
@@ -184,7 +188,7 @@ export default {
         },
 
         getPermissionsForParent(parentKey) {
-            return this.permissions.filter(permission => {
+            return this.permissions.filter((permission) => {
                 return permission.parent === parentKey;
             });
         },
@@ -192,7 +196,7 @@ export default {
         areAllChildrenRolesSelected(parentKey, roleKey) {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
 
-            const hasUnselected = permissionsForParent.some(permission => {
+            const hasUnselected = permissionsForParent.some((permission) => {
                 if (permission.roles[roleKey] === undefined) {
                     return false;
                 }
@@ -204,7 +208,7 @@ export default {
         },
 
         areAllChildrenWithAllRolesSelected(parentKey) {
-            return this.roles.every(roleKey => {
+            return this.roles.every((roleKey) => {
                 return this.areAllChildrenRolesSelected(parentKey, roleKey);
             });
         },
@@ -212,7 +216,7 @@ export default {
         areSomeChildrenRolesSelected(parentKey, roleKey, ignoreMissingPrivilege = true) {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
 
-            return permissionsForParent.some(permission => {
+            return permissionsForParent.some((permission) => {
                 if (!ignoreMissingPrivilege) {
                     const privilegeExists = this.privileges.existsPrivilege(`${permission.key}.${roleKey}`);
 
@@ -226,7 +230,7 @@ export default {
         },
 
         areSomeChildrenWithAllRolesSelected(parentKey) {
-            return this.roles.every(roleKey => {
+            return this.roles.every((roleKey) => {
                 return this.areSomeChildrenRolesSelected(parentKey, roleKey, false);
             });
         },
@@ -234,7 +238,7 @@ export default {
         isParentRoleDisabled(parentKey, roleKey) {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
 
-            return permissionsForParent.every(permission => {
+            return permissionsForParent.every((permission) => {
                 return this.isPermissionDisabled(permission.key, roleKey);
             });
         },
@@ -243,7 +247,7 @@ export default {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
             const allChildrenRolesSelected = this.areAllChildrenRolesSelected(parentKey, roleKey);
 
-            permissionsForParent.forEach(permission => {
+            permissionsForParent.forEach((permission) => {
                 if (!permission.roles[roleKey]) {
                     return;
                 }
@@ -266,8 +270,8 @@ export default {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
             const allChildrenWithAllRolesSelected = this.areAllChildrenWithAllRolesSelected(parentKey);
 
-            return this.roles.forEach(roleKey => {
-                permissionsForParent.forEach(permission => {
+            return this.roles.forEach((roleKey) => {
+                permissionsForParent.forEach((permission) => {
                     const identifier = `${permission.key}.${roleKey}`;
 
                     if (allChildrenWithAllRolesSelected) {
@@ -280,7 +284,7 @@ export default {
         },
 
         parentRoleHasChildRoles(parentKey, roleKey) {
-            return this.getPermissionsForParent(parentKey).some(currentRole => {
+            return this.getPermissionsForParent(parentKey).some((currentRole) => {
                 return currentRole.roles[roleKey] !== undefined;
             });
         },

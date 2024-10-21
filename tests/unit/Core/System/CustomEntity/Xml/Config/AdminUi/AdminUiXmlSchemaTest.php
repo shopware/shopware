@@ -19,8 +19,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(AdminUiXmlSchema::class)]

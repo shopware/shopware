@@ -18,8 +18,6 @@ use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[Group('skip-paratest')]

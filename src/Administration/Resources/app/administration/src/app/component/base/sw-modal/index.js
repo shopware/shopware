@@ -19,9 +19,13 @@ const utils = Shopware.Utils;
 Component.register('sw-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['shortcutService'],
+
+    emits: ['modal-close'],
 
     props: {
         title: {
@@ -44,12 +48,22 @@ Component.register('sw-modal', {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'small', 'large', 'full'],
+            validValues: [
+                'default',
+                'small',
+                'large',
+                'full',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['default', 'small', 'large', 'full'].includes(value);
+                return [
+                    'default',
+                    'small',
+                    'large',
+                    'full',
+                ].includes(value);
             },
         },
 
@@ -96,7 +110,7 @@ Component.register('sw-modal', {
     computed: {
         modalClasses() {
             return {
-                [`sw-modal--${this.variant}`]: (this.variant && !this.size),
+                [`sw-modal--${this.variant}`]: this.variant && !this.size,
                 'sw-modal--has-sidebar': this.showHelpSidebar,
             };
         },
@@ -162,7 +176,7 @@ Component.register('sw-modal', {
         },
 
         setFocusToModal() {
-            this.$el.querySelector('.sw-modal__dialog').focus();
+            this.$el?.querySelector?.('.sw-modal__dialog').focus();
         },
 
         closeModalOnClickOutside(domEvent) {

@@ -16,22 +16,27 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
     ],
 
     data(): {
-        isLoading: boolean,
-        isSaveSuccessful: boolean,
-        showInvalidCodeModal: boolean,
-        showRemindPaymentModal: boolean,
-        remindPaymentModalLoading: boolean,
-        orderId: string | null,
-        orderTransaction: { id: string, paymentMethodId: string } | null,
-        paymentMethodName: string,
-        } {
+        isLoading: boolean;
+        isSaveSuccessful: boolean;
+        showInvalidCodeModal: boolean;
+        showRemindPaymentModal: boolean;
+        remindPaymentModalLoading: boolean;
+        orderId: string | null;
+        orderTransaction: { id: string; paymentMethodId: string } | null;
+        paymentMethodName: string;
+    } {
         return {
             isLoading: false,
             isSaveSuccessful: false,
@@ -82,7 +87,7 @@ export default Shopware.Component.wrapComponentConfig({
         this.createdComponent();
     },
 
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.unregisterModule();
     },
 
@@ -109,7 +114,14 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
-            void this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
+            State.commit(
+                'context/setLanguageId',
+                localStorage.getItem('sw-admin-current-language') || Shopware.Defaults.systemLanguageId,
+            );
+            void this.$router.push({
+                name: 'sw.order.detail',
+                params: { id: this.orderId },
+            });
         },
 
         onSaveOrder(): Promise<void> {
@@ -117,38 +129,37 @@ export default Shopware.Component.wrapComponentConfig({
                 this.isLoading = true;
                 this.isSaveSuccessful = false;
 
-                return State
-                    .dispatch('swOrder/saveOrder', {
+                return (
+                    State.dispatch('swOrder/saveOrder', {
                         salesChannelId: this.customer?.salesChannelId,
                         contextToken: this.cart.token,
                     })
-                    .then((response) => {
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        this.orderId = response?.data?.id;
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        this.orderTransaction = response?.data?.transactions?.[0];
+                        .then((response) => {
+                            // eslint-disable-next-line max-len
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                            this.orderId = response?.data?.id;
+                            // eslint-disable-next-line max-len
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                            this.orderTransaction = response?.data?.transactions?.[0];
 
-                        if (!this.orderTransaction) {
-                            return;
-                        }
+                            if (!this.orderTransaction) {
+                                return;
+                            }
 
-                        void this.paymentMethodRepository.get(
-                            this.orderTransaction.paymentMethodId,
-                            Context.api,
-                            new Criteria(1, 1),
-                        ).then((paymentMethod) => {
-                            this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
-                        });
+                            void this.paymentMethodRepository
+                                .get(this.orderTransaction.paymentMethodId, Context.api, new Criteria(1, 1))
+                                .then((paymentMethod) => {
+                                    this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
+                                });
 
-                        this.showRemindPaymentModal = true;
-                    })
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    .catch((error) => this.showError(error))
-                    .finally(() => {
-                        this.isLoading = false;
-                    });
+                            this.showRemindPaymentModal = true;
+                        })
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        .catch((error) => this.showError(error))
+                        .finally(() => {
+                            this.isLoading = false;
+                        })
+                );
             }
 
             if (this.invalidPromotionCodes.length > 0) {
@@ -166,12 +177,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            void State
-                .dispatch('swOrder/cancelCart', {
-                    salesChannelId: this.customer.salesChannelId,
-                    contextToken: this.cart.token,
-                })
-                .then(() => this.redirectToOrderList());
+            void State.dispatch('swOrder/cancelCart', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+            }).then(() => this.redirectToOrderList());
         },
 
         showError(error: unknown = null) {

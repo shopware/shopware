@@ -8,7 +8,10 @@ import './sw-usage-data-consent-banner.scss';
  */
 export default Shopware.Component.wrapComponentConfig({
     name: 'sw-usage-data-consent-banner',
+
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -23,7 +26,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    data(): { showLinkToSettingsPage: boolean, showThankYouBanner: boolean } {
+    data(): { showLinkToSettingsPage: boolean; showThankYouBanner: boolean } {
         return {
             showLinkToSettingsPage: false,
             showThankYouBanner: false,

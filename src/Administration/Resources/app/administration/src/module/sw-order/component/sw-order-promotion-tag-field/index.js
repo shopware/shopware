@@ -12,6 +12,11 @@ const { format } = Utils;
 export default {
     template,
 
+    emits: [
+        'update:value',
+        'on-remove-code',
+    ],
+
     props: {
         currency: {
             type: Object,
@@ -31,6 +36,14 @@ export default {
                 'sw-tagged-field__tag-list--disabled': this.disabled,
             };
         },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
@@ -43,7 +56,7 @@ export default {
                 return;
             }
 
-            const tag = this.value.find(item => item.code === this.newTagName);
+            const tag = this.value.find((item) => item.code === this.newTagName);
 
             if (tag) {
                 return;
@@ -53,7 +66,10 @@ export default {
                 code: this.newTagName,
             };
 
-            this.$emit('update:value', [...this.value, newTagItem]);
+            this.$emit('update:value', [
+                ...this.value,
+                newTagItem,
+            ]);
 
             this.newTagName = '';
         },
@@ -78,15 +94,13 @@ export default {
 
             const { value, discountScope, discountType, groupId } = item;
 
-            const discountValue = discountType === 'percentage'
-                ? value
-                : format.currency(Number(value), this.currency.isoCode);
+            const discountValue =
+                discountType === 'percentage' ? value : format.currency(Number(value), this.currency.isoCode);
 
-            return this.$tc(
-                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,
-                0,
-                { value: discountValue, groupId },
-            );
+            return this.$tc(`sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0, {
+                value: discountValue,
+                groupId,
+            });
         },
     },
 };

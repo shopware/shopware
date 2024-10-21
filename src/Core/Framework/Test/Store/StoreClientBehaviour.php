@@ -168,6 +168,9 @@ trait StoreClientBehaviour
         return $instanceService->getShopwareVersion();
     }
 
+    /**
+     * @return EntityRepository<UserCollection>
+     */
     protected function getUserRepository(): EntityRepository
     {
         return $this->getContainer()->get('user.repository');

@@ -10,7 +10,7 @@ export async function loadThreeJs(): Promise<void> {
             isLoaded: false,
             promise: null,
             promiseResolve: null,
-        }
+        };
     }
 
     /* eslint-disable */

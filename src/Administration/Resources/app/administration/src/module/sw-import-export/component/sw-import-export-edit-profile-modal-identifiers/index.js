@@ -12,6 +12,8 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'importExportUpdateByMapping',
@@ -126,12 +128,12 @@ export default {
 
     methods: {
         createdComponent() {
-            this.languageRepository.search(this.languageCriteria).then(languages => {
+            this.languageRepository.search(this.languageCriteria).then((languages) => {
                 this.languages = languages;
                 this.languages.push({ locale: { code: 'DEFAULT' } });
             });
 
-            this.currencyRepository.search(this.currencyCriteria).then(currencies => {
+            this.currencyRepository.search(this.currencyCriteria).then((currencies) => {
                 this.currencies = currencies;
                 this.currencies.push({ isoCode: 'DEFAULT' });
             });

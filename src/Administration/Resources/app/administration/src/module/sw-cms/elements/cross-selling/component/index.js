@@ -11,6 +11,8 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder'),
@@ -65,7 +67,7 @@ export default {
         },
 
         crossSellingProducts() {
-            return (this.element.data.product.crossSellings.length)
+            return this.element.data.product.crossSellings.length
                 ? this.element.data.product.crossSellings[0].assignedProducts
                 : [];
         },
@@ -116,16 +118,19 @@ export default {
                 this.createdComponent();
             }
 
-            if (this.currentDeviceView === 'mobile'
-                || (this.$refs.productHolder && this.$refs.productHolder.offsetWidth < 500)
+            if (
+                this.currentDeviceView === 'mobile' ||
+                (this.$refs.productHolder && this.$refs.productHolder.offsetWidth < 500)
             ) {
                 this.sliderBoxLimit = 1;
                 return;
             }
 
-            if (!this.element.config.elMinWidth.value ||
+            if (
+                !this.element.config.elMinWidth.value ||
                 this.element.config.elMinWidth.value === 'px' ||
-                this.element.config.elMinWidth.value.indexOf('px') === -1) {
+                this.element.config.elMinWidth.value.indexOf('px') === -1
+            ) {
                 this.sliderBoxLimit = 3;
                 return;
             }

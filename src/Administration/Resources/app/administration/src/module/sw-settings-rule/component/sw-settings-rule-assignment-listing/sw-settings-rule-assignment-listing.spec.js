@@ -48,20 +48,42 @@ const defaultProps = {
 };
 
 async function createWrapper(props = defaultProps) {
-    return mount(await wrapTestComponent('sw-settings-rule-assignment-listing', { sync: true }), {
-        props,
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-data-gird': await wrapTestComponent('sw-data-grid'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+    return mount(
+        await wrapTestComponent('sw-settings-rule-assignment-listing', {
+            sync: true,
+        }),
+        {
+            props,
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-data-gird': await wrapTestComponent('sw-data-grid'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-bulk-edit-modal': true,
+                    'sw-icon': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-pagination': true,
+                    'sw-field-error': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-loader': true,
+                    'router-link': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-assignment-listing', () => {

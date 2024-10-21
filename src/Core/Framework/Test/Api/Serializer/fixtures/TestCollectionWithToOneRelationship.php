@@ -95,7 +95,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'private' => false,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870', $baseUrl),
+                        'self' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870', $baseUrl),
                     ],
                     'relationships' => [
                         'user' => [
@@ -104,121 +104,121 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                                 'id' => '6f51622eb3814c75ae0263cece27ce72',
                             ],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/user', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/user', $baseUrl),
                             ],
                         ],
                         'categories' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/categories', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/categories', $baseUrl),
                             ],
                         ],
                         'productManufacturers' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-manufacturers', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-manufacturers', $baseUrl),
                             ],
                         ],
                         'productMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-media', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-media', $baseUrl),
                             ],
                         ],
                         'avatarUsers' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/avatar-users', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/avatar-users', $baseUrl),
                             ],
                         ],
                         'translations' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/translations', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/translations', $baseUrl),
                             ],
                         ],
                         'thumbnails' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/thumbnails', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/thumbnails', $baseUrl),
                             ],
                         ],
                         'mediaFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/media-folder', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/media-folder', $baseUrl),
                             ],
                         ],
                         'propertyGroupOptions' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/property-group-options', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/property-group-options', $baseUrl),
                             ],
                         ],
                         'tags' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/tags', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/tags', $baseUrl),
                             ],
                         ],
                         'mailTemplateMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/mail-template-media', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/mail-template-media', $baseUrl),
                             ],
                         ],
                         'documentBaseConfigs' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/document-base-configs', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/document-base-configs', $baseUrl),
                             ],
                         ],
                         'shippingMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/shipping-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/shipping-methods', $baseUrl),
                             ],
                         ],
                         'paymentMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/payment-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/payment-methods', $baseUrl),
                             ],
                         ],
                         'productConfiguratorSettings' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-configurator-settings', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-configurator-settings', $baseUrl),
                             ],
                         ],
                         'orderLineItems' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/order-line-items', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/order-line-items', $baseUrl),
                             ],
                         ],
                         'cmsBlocks' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-blocks', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-blocks', $baseUrl),
                             ],
                         ],
                         'cmsSections' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-sections', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-sections', $baseUrl),
                             ],
                         ],
                         'cmsPages' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-pages', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-pages', $baseUrl),
                             ],
                         ],
                         'documents' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/documents', $baseUrl),
+                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/documents', $baseUrl),
                             ],
                         ],
                     ],
@@ -247,7 +247,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'private' => false,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248', $baseUrl),
+                        'self' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248', $baseUrl),
                     ],
                     'relationships' => [
                         'user' => [
@@ -256,121 +256,121 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                                 'id' => '6f51622eb3814c75ae0263cece27ce72',
                             ],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/user', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/user', $baseUrl),
                             ],
                         ],
                         'categories' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/categories', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/categories', $baseUrl),
                             ],
                         ],
                         'productManufacturers' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-manufacturers', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-manufacturers', $baseUrl),
                             ],
                         ],
                         'productMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-media', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-media', $baseUrl),
                             ],
                         ],
                         'avatarUsers' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/avatar-users', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/avatar-users', $baseUrl),
                             ],
                         ],
                         'translations' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/translations', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/translations', $baseUrl),
                             ],
                         ],
                         'thumbnails' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/thumbnails', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/thumbnails', $baseUrl),
                             ],
                         ],
                         'mediaFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/media-folder', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/media-folder', $baseUrl),
                             ],
                         ],
                         'propertyGroupOptions' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/property-group-options', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/property-group-options', $baseUrl),
                             ],
                         ],
                         'tags' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/tags', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/tags', $baseUrl),
                             ],
                         ],
                         'mailTemplateMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/mail-template-media', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/mail-template-media', $baseUrl),
                             ],
                         ],
                         'documentBaseConfigs' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/document-base-configs', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/document-base-configs', $baseUrl),
                             ],
                         ],
                         'shippingMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/shipping-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/shipping-methods', $baseUrl),
                             ],
                         ],
                         'paymentMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/payment-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/payment-methods', $baseUrl),
                             ],
                         ],
                         'productConfiguratorSettings' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-configurator-settings', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-configurator-settings', $baseUrl),
                             ],
                         ],
                         'orderLineItems' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/order-line-items', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/order-line-items', $baseUrl),
                             ],
                         ],
                         'cmsBlocks' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-blocks', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-blocks', $baseUrl),
                             ],
                         ],
                         'cmsSections' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-sections', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-sections', $baseUrl),
                             ],
                         ],
                         'cmsPages' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-pages', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-pages', $baseUrl),
                             ],
                         ],
                         'documents' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/documents', $baseUrl),
+                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/documents', $baseUrl),
                             ],
                         ],
                     ],
@@ -396,55 +396,55 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'title' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
+                        'self' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
                     ],
                     'relationships' => [
                         'locale' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/locale', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/locale', $baseUrl),
                             ],
                         ],
                         'avatarMedia' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/avatar-media', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/avatar-media', $baseUrl),
                             ],
                         ],
                         'media' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/media', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/media', $baseUrl),
                             ],
                         ],
                         'accessKeys' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/access-keys', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/access-keys', $baseUrl),
                             ],
                         ],
                         'stateMachineHistoryEntries' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries', $baseUrl),
                             ],
                         ],
                         'importExportLogEntries' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/import-export-log-entries', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/import-export-log-entries', $baseUrl),
                             ],
                         ],
                         'recoveryUser' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/recovery-user', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/recovery-user', $baseUrl),
                             ],
                         ],
                         'aclRoles' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/acl-roles', $baseUrl),
+                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/acl-roles', $baseUrl),
                             ],
                         ],
                     ],

@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeHttpClient from 'src/app/init/http.init';
 
 describe('src/app/init/http.init', () => {

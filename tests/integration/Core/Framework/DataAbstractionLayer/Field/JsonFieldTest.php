@@ -41,7 +41,9 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\EmptyEntityExistence;
 class JsonFieldTest extends TestCase
 {
     use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     private Connection $connection;
@@ -68,6 +70,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }
@@ -344,13 +347,13 @@ EOF;
         $criteria = new Criteria();
 
         $connection = $this->getContainer()->get(Connection::class);
-        $insertInjection = sprintf(
+        $insertInjection = \sprintf(
             'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", %s)',
             (string) $connection->quote($taxId),
             (string) $taxRate, // use php string conversion, to avoid locale based float to string conversion in sprintf
             (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
-        $keyWithQuotes = sprintf(
+        $keyWithQuotes = \sprintf(
             'data.%s\')) = "%s"); %s; SELECT 1 FROM ((("',
             $randomKey,
             'bar',

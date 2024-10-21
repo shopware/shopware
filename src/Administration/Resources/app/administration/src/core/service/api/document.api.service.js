@@ -65,9 +65,7 @@ class DocumentApiService extends ApiService {
                 const errors = response.data?.errors;
 
                 if (errors && errors.hasOwnProperty(orderId)) {
-                    this.$listener(
-                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errors[orderId].pop()),
-                    );
+                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errors[orderId].pop()));
 
                     return;
                 }
@@ -89,36 +87,24 @@ class DocumentApiService extends ApiService {
         const config = JSON.stringify(params);
 
         return this.httpClient
-            .get(
-                `/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview`,
-                {
-                    params: { config },
-                    responseType: 'blob',
-                    headers: this.getBasicHeaders(),
-                },
-            )
+            .get(`/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview`, {
+                params: { config },
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
             .catch(async (error) => {
                 const errorObject = JSON.parse(await error.response.data.text());
                 if (errorObject.errors) {
-                    this.$listener(
-                        this.createDocumentEvent(
-                            'create-document-fail',
-                            errorObject.errors.pop(),
-                        ),
-                    );
+                    this.$listener(this.createDocumentEvent('create-document-fail', errorObject.errors.pop()));
                 }
             });
     }
 
     getDocument(documentId, documentDeepLink, context, download = false) {
-        return this.httpClient
-            .get(
-                `/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`,
-                {
-                    responseType: 'blob',
-                    headers: this.getBasicHeaders(),
-                },
-            );
+        return this.httpClient.get(`/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`, {
+            responseType: 'blob',
+            headers: this.getBasicHeaders(),
+        });
     }
 
     createDocumentEvent(action, payload) {

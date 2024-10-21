@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -25,8 +26,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[Group('skip-paratest')]
@@ -66,6 +65,7 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->client,
             $searchHelper,
+            $this->createMock(LoggerInterface::class),
             [],
             []
         );

@@ -55,8 +55,8 @@ class LockValidator implements EventSubscriberInterface
 
         foreach ($lockedEntities as $entity => $_isLocked) {
             $violations->add(new ConstraintViolation(
-                sprintf($message, $entity),
-                sprintf($message, '{{ entity }}'),
+                \sprintf($message, $entity),
+                \sprintf($message, '{{ entity }}'),
                 ['{{ entity }}' => $entity],
                 null,
                 '/',

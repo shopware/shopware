@@ -13,7 +13,16 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-base', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
+
+    emits: [
+        'select-expanded',
+        'select-collapsed',
+        'clear',
+    ],
 
     props: {
         isLoading: {
@@ -44,6 +53,15 @@ Component.register('sw-select-base', {
     computed: {
         swFieldClasses() {
             return { 'has--focus': this.expanded };
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 
@@ -91,7 +109,7 @@ Component.register('sw-select-base', {
             const myFocusable = this.$el.querySelector(focusableSelector);
             const keyboardFocusable = [
                 ...document.querySelectorAll(focusableSelector),
-            ].filter(el => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined);
+            ].filter((el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined);
 
             keyboardFocusable.forEach((element, index) => {
                 if (index > 0 && element === myFocusable) {
@@ -108,9 +126,11 @@ Component.register('sw-select-base', {
                 path = this.computePath(event);
             }
 
-            if (!path.find((element) => {
-                return element === this.$el;
-            })) {
+            if (
+                !path.find((element) => {
+                    return element === this.$el;
+                })
+            ) {
                 this.collapse();
             }
         },

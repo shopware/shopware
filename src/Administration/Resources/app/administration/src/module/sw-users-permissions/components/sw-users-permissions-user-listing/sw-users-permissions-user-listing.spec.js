@@ -1,53 +1,65 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-users-permissions-user-listing', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+    return mount(
+        await wrapTestComponent('sw-users-permissions-user-listing', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
+                    userService: {},
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve([]),
+                        }),
+                    },
+                    loginService: {},
+                    searchRankingService: {},
                 },
-                userService: {},
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                    }),
+                mocks: {
+                    $route: { query: '' },
                 },
-                loginService: {},
-                searchRankingService: {},
-            },
-            mocks: {
-                $route: { query: '' },
-            },
-            stubs: {
-                'sw-card': true,
-                'sw-container': true,
-                'sw-simple-search-field': true,
-                'sw-button': true,
-                'sw-data-grid': {
-                    props: ['dataSource', 'columns'],
-                    template: `
+                stubs: {
+                    'sw-card': true,
+                    'sw-container': true,
+                    'sw-simple-search-field': true,
+                    'sw-button': true,
+                    'sw-data-grid': {
+                        props: [
+                            'dataSource',
+                            'columns',
+                        ],
+                        template: `
 <div class="sw-data-grid-stub">
   <template v-for="item in dataSource">
       <slot name="actions" v-bind="{ item }"></slot>
   </template>
 </div>
 `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-avatar': true,
+                    'router-link': true,
+                    'sw-pagination': true,
+                    'sw-password-field': true,
                 },
-                'sw-context-menu-item': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/components/sw-users-permissions-user-listing', () => {
@@ -63,23 +75,29 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('the data-grid should show the right columns', async () => {
         const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
-        expect(swDataGrid.props().columns).toStrictEqual([{
-            property: 'username',
-            label: 'sw-users-permissions.users.user-grid.labelUsername',
-        }, {
-            property: 'firstName',
-            label: 'sw-users-permissions.users.user-grid.labelFirstName',
-        }, {
-            property: 'lastName',
-            label: 'sw-users-permissions.users.user-grid.labelLastName',
-        }, {
-            property: 'aclRoles',
-            sortable: false,
-            label: 'sw-users-permissions.users.user-grid.labelRoles',
-        }, {
-            property: 'email',
-            label: 'sw-users-permissions.users.user-grid.labelEmail',
-        }]);
+        expect(swDataGrid.props().columns).toStrictEqual([
+            {
+                property: 'username',
+                label: 'sw-users-permissions.users.user-grid.labelUsername',
+            },
+            {
+                property: 'firstName',
+                label: 'sw-users-permissions.users.user-grid.labelFirstName',
+            },
+            {
+                property: 'lastName',
+                label: 'sw-users-permissions.users.user-grid.labelLastName',
+            },
+            {
+                property: 'aclRoles',
+                sortable: false,
+                label: 'sw-users-permissions.users.user-grid.labelRoles',
+            },
+            {
+                property: 'email',
+                label: 'sw-users-permissions.users.user-grid.labelEmail',
+            },
+        ]);
     });
 
     it('the data-grid should get the right user data', async () => {
@@ -87,7 +105,26 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(swDataGrid.props().dataSource).toStrictEqual([]);
 
         await wrapper.setData({
-            user: [{
+            user: [
+                {
+                    localeId: '12345',
+                    username: 'maxmuster',
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    email: 'max@mustermann.com',
+                },
+                {
+                    localeId: '7dc07b43229843d387bb5f59233c2d66',
+                    username: 'admin',
+                    firstName: '',
+                    lastName: 'admin',
+                    email: 'info@shopware.com',
+                },
+            ],
+        });
+
+        expect(swDataGrid.props().dataSource).toStrictEqual([
+            {
                 localeId: '12345',
                 username: 'maxmuster',
                 firstName: 'Max',
@@ -100,23 +137,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 firstName: '',
                 lastName: 'admin',
                 email: 'info@shopware.com',
-            }],
-        });
-
-        expect(swDataGrid.props().dataSource).toStrictEqual([{
-            localeId: '12345',
-            username: 'maxmuster',
-            firstName: 'Max',
-            lastName: 'Mustermann',
-            email: 'max@mustermann.com',
-        },
-        {
-            localeId: '7dc07b43229843d387bb5f59233c2d66',
-            username: 'admin',
-            firstName: '',
-            lastName: 'admin',
-            email: 'info@shopware.com',
-        }]);
+            },
+        ]);
     });
 
     it('the card should contain the right title', async () => {

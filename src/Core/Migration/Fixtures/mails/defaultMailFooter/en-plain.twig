@@ -1,7 +1,7 @@
 
 
         Address:
-        {{ config('core.basicInformation.address')|striptags }}
+        {{ config('core.basicInformation.address')|striptags('<br>')|replace({"<br>":"\n"}) }}
 
         Bank account:
-        {{ config('core.basicInformation.bankAccount')|striptags }}
+        {{ config('core.basicInformation.bankAccount')|striptags('<br>')|replace({"<br>":"\n"}) }}

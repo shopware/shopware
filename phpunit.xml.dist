@@ -13,13 +13,15 @@
                       The phpunit file traversal is really inefficient for our test structure. A naive definition results in
                       more than 70000 files being traversed, which has to be done for each thread/process.
                   -->
-            <directory suffix=".php">src/Core/Framework</directory>
-            <directory suffix=".php">src/Core/Content</directory>
             <directory suffix=".php">src/Core/Checkout</directory>
+            <directory suffix=".php">src/Core/Content</directory>
+            <directory suffix=".php">src/Core/Framework</directory>
             <directory suffix=".php">src/Core/DevOps</directory>
-            <directory suffix=".php">src/Core/Maintenance</directory>
-            <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Core/Installer</directory>
+            <directory suffix=".php">src/Core/Maintenance</directory>
+            <directory suffix=".php">src/Core/Profiling</directory>
+            <directory suffix=".php">src/Core/System</directory>
+            <directory suffix=".php">src/Core/Service</directory>
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
@@ -69,7 +71,10 @@
             <file>src/Core/Framework/Adapter/Twig/functions.php</file>
             <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
+            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
+            <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
+            <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
             <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
             <directory suffix=".php">src/Core/DevOps/Test/Command/stubs</directory>
             <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
@@ -123,35 +128,21 @@
     </source>
     <php>
         <ini name="error_reporting" value="-1"/>
+        <ini name="memory_limit" value="-1"/>
         <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
         <env name="APP_ENV" value="test"/>
         <env name="APP_DEBUG" value="1"/>
         <env name="APP_SECRET" value="def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48"/>
         <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0"/>
         <env name="SHELL_VERBOSITY" value="-1"/>
+        <server name="TESTS_RUNNING" value="1"/>
         <server name="MAILER_URL" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
-        <!-- Legacy -->
-        <testsuite name="storefront">
-            <directory>src/Storefront/Test</directory>
-        </testsuite>
-        <testsuite name="content">
-            <directory>src/Core/Content/Test</directory>
-        </testsuite>
-        <testsuite name="framework">
-            <directory>src/Core/Framework/Test</directory>
-            <directory>src/Core/Test</directory>
-        </testsuite>
-        <testsuite name="migration">
-            <directory>src/Core/Migration/Test</directory>
-        </testsuite>
-        <!-- new Structure -->
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
@@ -161,7 +152,7 @@
         <testsuite name="devops">
             <directory>tests/devops</directory>
         </testsuite>
-        <testsuite name="migration-tests">
+        <testsuite name="migration">
             <directory>tests/migration</directory>
         </testsuite>
         <!-- Paratest -->
@@ -169,8 +160,6 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit</directory>
-            <exclude>src/Storefront/Test/Migration</exclude>
-            <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>
     <extensions>

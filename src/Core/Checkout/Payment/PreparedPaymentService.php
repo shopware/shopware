@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
@@ -15,12 +16,16 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntit
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, use `PaymentProcessor` instead
+ */
 #[Package('checkout')]
 class PreparedPaymentService
 {
@@ -41,6 +46,11 @@ class PreparedPaymentService
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): ?Struct {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         try {
             $paymentHandler = $this->getPaymentHandlerFromSalesChannelContext($salesChannelContext);
             if (!$paymentHandler) {
@@ -67,6 +77,11 @@ class PreparedPaymentService
         SalesChannelContext $salesChannelContext,
         ?Struct $preOrderStruct
     ): void {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         try {
             $transaction = $this->getTransaction($order, $salesChannelContext);
             if ($transaction === null) {
@@ -103,7 +118,7 @@ class PreparedPaymentService
         return $transactions->last();
     }
 
-    private function getPaymentHandlerFromTransaction(OrderTransactionEntity $transaction): PaymentHandlerInterface
+    private function getPaymentHandlerFromTransaction(OrderTransactionEntity $transaction): AbstractPaymentHandler|PaymentHandlerInterface
     {
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
@@ -118,7 +133,7 @@ class PreparedPaymentService
         return $paymentHandler;
     }
 
-    private function getPaymentHandlerFromSalesChannelContext(SalesChannelContext $salesChannelContext): ?PaymentHandlerInterface
+    private function getPaymentHandlerFromSalesChannelContext(SalesChannelContext $salesChannelContext): AbstractPaymentHandler|PaymentHandlerInterface|null
     {
         $paymentMethod = $salesChannelContext->getPaymentMethod();
 

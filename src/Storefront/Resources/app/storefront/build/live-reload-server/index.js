@@ -1,8 +1,9 @@
+/* eslint no-console: 0 */
+
 /**
  * This module creates a live reload server for the Shopware storefront.
  */
-
-module.exports = function createLiveReloadServer() {
+module.exports = function createLiveReloadServer(sslOptions) {
     return new Promise((resolve, reject) => {
         const webpack = require('webpack');
         const WebpackDevServer = require('webpack-dev-server');
@@ -10,9 +11,20 @@ module.exports = function createLiveReloadServer() {
 
         const compiler = webpack(webpackConfig);
 
+        let serverConfig = {
+            type: 'http',
+        };
+        if (Object.keys(sslOptions).length !== 0) {
+            serverConfig = {
+                type: 'https',
+                options: sslOptions,
+            };
+        }
+
         const devServerOptions = Object.assign({}, webpackConfig[0].devServer, {
             open: false,
             host: '0.0.0.0',
+            server: serverConfig,
             devMiddleware: {
                 stats: {
                     colors: true,
@@ -30,7 +42,6 @@ module.exports = function createLiveReloadServer() {
                 reject(error);
             }
 
-            // eslint-disable-next-line no-console
             console.log('Starting the hot reload server: \n');
         })();
 

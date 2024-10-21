@@ -15,6 +15,20 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
     inject: ['feature'],
 
+    emits: [
+        'update-records',
+        'delete-item-finish',
+        'delete-item-failed',
+        'delete-items-failed',
+        'items-delete-finish',
+        'inline-edit-save',
+        'inline-edit-cancel',
+        'column-sort',
+        'page-change',
+        'bulk-edit-modal-open',
+        'bulk-edit-modal-close',
+    ],
+
     props: {
         detailRoute: {
             type: String,
@@ -35,7 +49,10 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         // eslint-disable-next-line vue/require-default-prop
         dataSource: {
-            type: [Array, Object],
+            type: [
+                Array,
+                Object,
+            ],
             required: false,
         },
 
@@ -50,7 +67,13 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             type: Array,
             required: false,
             default() {
-                return [10, 25, 50, 75, 100];
+                return [
+                    10,
+                    25,
+                    50,
+                    75,
+                    100,
+                ];
             },
         },
 
@@ -195,13 +218,16 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.deleteId = null;
 
             // send delete request to the server, immediately
-            return this.repository.delete(id, this.items.context).then(() => {
-                this.resetSelection();
-                this.$emit('delete-item-finish', id);
-                return this.doSearch();
-            }).catch((errorResponse) => {
-                this.$emit('delete-item-failed', { id, errorResponse });
-            });
+            return this.repository
+                .delete(id, this.items.context)
+                .then(() => {
+                    this.resetSelection();
+                    this.$emit('delete-item-finish', id);
+                    return this.doSearch();
+                })
+                .catch((errorResponse) => {
+                    this.$emit('delete-item-failed', { id, errorResponse });
+                });
         },
 
         deleteItems() {
@@ -211,12 +237,18 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             selectedIds = Object.keys(this.selection);
 
-            return this.repository.syncDeleted(selectedIds, this.items.context).then(() => {
-                return this.deleteItemsFinish();
-            }).catch((errorResponse) => {
-                this.$emit('delete-items-failed', { selectedIds, errorResponse });
-                return this.deleteItemsFinish();
-            });
+            return this.repository
+                .syncDeleted(selectedIds, this.items.context)
+                .then(() => {
+                    return this.deleteItemsFinish();
+                })
+                .catch((errorResponse) => {
+                    this.$emit('delete-items-failed', {
+                        selectedIds,
+                        errorResponse,
+                    });
+                    return this.deleteItemsFinish();
+                });
         },
 
         deleteItemsFinish() {
@@ -263,9 +295,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             }
 
             this.lastSortedColumn.dataIndex.split(',').forEach((field) => {
-                this.items.criteria.addSorting(
-                    Criteria.sort(field, direction, this.lastSortedColumn.naturalSorting),
-                );
+                this.items.criteria.addSorting(Criteria.sort(field, direction, this.lastSortedColumn.naturalSorting));
             });
 
             this.currentSortBy = this.lastSortedColumn.dataIndex;

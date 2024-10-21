@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import RuleConditionsConfigApiService from 'src/core/service/api/rule-conditions-config.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
@@ -22,11 +25,7 @@ describe('ruleConditionsConfigApiService', () => {
     it('is request send correctly', async () => {
         const { ruleConditionsConfigApiService, clientMock } = getRuleConditionsConfigApiService();
 
-        clientMock.onGet('/_info/rule-config')
-            .reply(
-                200,
-                ruleConditionsConfig,
-            );
+        clientMock.onGet('/_info/rule-config').reply(200, ruleConditionsConfig);
 
         await ruleConditionsConfigApiService.load();
 

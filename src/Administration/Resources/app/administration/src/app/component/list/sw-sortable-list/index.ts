@@ -6,29 +6,43 @@ import './sw-sortable-list.scss';
 const { Component } = Shopware;
 
 interface DragConfig {
-    delay: number,
-    dragGroup: number | string,
-    draggableCls: string,
-    draggingStateCls: string,
-    dragElementCls: string,
-    validDragCls: string,
-    invalidDragCls: string,
-    preventEvent: boolean,
-    validateDrop: boolean,
-    validateDrag: boolean,
-    onDragStart: (...args: never[]) => void,
-    onDragEnter: (...args: never[]) => void,
-    onDragLeave: (...args: never[]) => void,
-    onDrop: (...args: never[]) => void,
-    data: Record<string, unknown>,
-    disabled: boolean,
+    delay: number;
+    dragGroup: number | string;
+    draggableCls: string;
+    draggingStateCls: string;
+    dragElementCls: string;
+    validDragCls: string;
+    invalidDragCls: string;
+    preventEvent: boolean;
+    validateDrop: boolean;
+    validateDrag: boolean;
+    onDragStart: (...args: never[]) => void;
+    onDragEnter: (...args: never[]) => void;
+    onDragLeave: (...args: never[]) => void;
+    onDrop: (...args: never[]) => void;
+    data: Record<string, unknown>;
+    disabled: boolean;
 }
 
 interface ScrollOnDragConf {
-    speed: number,
-    margin: number,
-    accelerationMargin: number,
+    speed: number;
+    margin: number;
+    accelerationMargin: number;
 }
+
+const defaultConfig = {
+    delay: 300,
+    dragGroup: 'sw-sortable-list',
+    validDragCls: 'is--valid-drag',
+    preventEvent: true,
+    disabled: false,
+} as DragConfig;
+
+const defaultScrollOnDragConf = {
+    speed: 50,
+    margin: 100,
+    accelerationMargin: 0,
+} as ScrollOnDragConf;
 
 /**
  * @package admin
@@ -50,6 +64,8 @@ interface ScrollOnDragConf {
 Component.register('sw-sortable-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         items: {
             type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,
@@ -67,9 +83,7 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<DragConfig>,
             required: false,
             default(): DragConfig {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultConfig;
+                return defaultConfig;
             },
         },
         scrollOnDrag: {
@@ -84,33 +98,21 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<ScrollOnDragConf>,
             required: false,
             default(): ScrollOnDragConf {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultScrollOnDragConf;
+                return defaultScrollOnDragConf;
             },
         },
     },
 
     data(): {
-        dragElement: Element|null,
-        defaultConfig: DragConfig,
-        defaultScrollOnDragConf: ScrollOnDragConf,
-        sortedItems: Array<Entity<keyof EntitySchema.Entities>>,
-        scrollEventTicking: boolean,
-        } {
+        dragElement: Element | null;
+        defaultConfig: DragConfig;
+        defaultScrollOnDragConf: ScrollOnDragConf;
+        sortedItems: Array<Entity<keyof EntitySchema.Entities>>;
+        scrollEventTicking: boolean;
+    } {
         return {
-            defaultConfig: {
-                delay: 300,
-                dragGroup: 'sw-sortable-list',
-                validDragCls: 'is--valid-drag',
-                preventEvent: true,
-                disabled: false,
-            } as DragConfig,
-            defaultScrollOnDragConf: {
-                speed: 50,
-                margin: 100,
-                accelerationMargin: 0,
-            } as ScrollOnDragConf,
+            defaultConfig,
+            defaultScrollOnDragConf,
             sortedItems: [...this.items],
             dragElement: null,
             scrollEventTicking: false,
@@ -138,16 +140,19 @@ Component.register('sw-sortable-list', {
         },
 
         mergedScrollOnDragConfig(): ScrollOnDragConf {
-            return { ...this.defaultScrollOnDragConf, ...this.scrollOnDragConf } as ScrollOnDragConf;
+            return {
+                ...this.defaultScrollOnDragConf,
+                ...this.scrollOnDragConf,
+            } as ScrollOnDragConf;
         },
 
-        scrollableParent(): Element|null {
-            return this.findScrollableParent(this.$el as Element|null);
+        scrollableParent(): Element | null {
+            return this.findScrollableParent(this.$el as Element | null);
         },
     },
 
     methods: {
-        findScrollableParent(node: Element|null): Element|null {
+        findScrollableParent(node: Element | null): Element | null {
             if (node === null) {
                 return null;
             }
@@ -183,8 +188,8 @@ Component.register('sw-sortable-list', {
                 this.scroll();
             }
 
-            const draggedIndex = this.sortedItems.findIndex(c => c.id === draggedComponent.id);
-            const droppedIndex = this.sortedItems.findIndex(c => c.id === droppedComponent.id);
+            const draggedIndex = this.sortedItems.findIndex((c) => c.id === draggedComponent.id);
+            const droppedIndex = this.sortedItems.findIndex((c) => c.id === droppedComponent.id);
 
             if (draggedIndex < 0 || droppedIndex < 0) {
                 return;

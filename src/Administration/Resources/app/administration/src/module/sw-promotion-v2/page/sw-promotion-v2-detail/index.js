@@ -12,6 +12,8 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -75,16 +77,14 @@ export default {
         },
 
         promotionCriteria() {
-            const criteria = (new Criteria(1, 1))
+            const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')
                 .addAssociation('discounts.discountRules')
                 .addAssociation('salesChannels');
 
-            criteria.getAssociation('discounts')
-                .addSorting(Criteria.sort('createdAt', 'ASC'));
+            criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
-            criteria.getAssociation('individualCodes')
-                .setLimit(25);
+            criteria.getAssociation('individualCodes');
 
             return criteria;
         },
@@ -159,7 +159,8 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.promotionRepository.get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
+            return this.promotionRepository
+                .get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
                 .then((promotion) => {
                     if (promotion === null) {
                         return;
@@ -172,10 +173,11 @@ export default {
                     }
 
                     // Needed to enrich the VueX state below
-                    this.promotion.hasOrders = (promotion.orderCount !== null) ? promotion.orderCount > 0 : false;
+                    this.promotion.hasOrders = promotion.orderCount !== null ? promotion.orderCount > 0 : false;
 
                     Shopware.State.commit('swPromotionDetail/setPromotion', this.promotion);
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -191,7 +193,12 @@ export default {
                 return;
             }
 
-            if (![this.cleanUpIndividualCodes, this.cleanUpFixedCode].some(check => check)) {
+            if (
+                ![
+                    this.cleanUpIndividualCodes,
+                    this.cleanUpFixedCode,
+                ].some((check) => check)
+            ) {
                 this.savePromotion();
 
                 return;
@@ -211,7 +218,10 @@ export default {
 
         createPromotion() {
             return this.savePromotion().then(() => {
-                this.$router.push({ name: 'sw.promotion.v2.detail', params: { id: this.promotion.id } });
+                this.$router.push({
+                    name: 'sw.promotion.v2.detail',
+                    params: { id: this.promotion.id },
+                });
             });
         },
 

@@ -58,7 +58,7 @@
             class="sw-settings-country-list__button-create"
             variant="primary"
             :router-link="{ name: 'sw.settings.country.create' }"
-            :disabled="!acl.can('country.creator')"
+            :disabled="!acl.can('country.creator') || undefined"
         >
             {{ $tc('sw-settings-country.list.buttonAddCountry') }}
         </sw-button>
@@ -98,10 +98,10 @@
                         detail-route="sw.settings.country.detail"
                         :show-selection="true"
                         :is-loading="isLoading"
-                        :allow-view="acl.can('country.viewer')"
-                        :allow-edit="acl.can('country.editor')"
-                        :allow-inline-edit="acl.can('country.editor')"
-                        :allow-delete="acl.can('country.deleter')"
+                        :allow-view="acl.can('country.viewer') || undefined"
+                        :allow-edit="acl.can('country.editor') || undefined"
+                        :allow-inline-edit="acl.can('country.editor') || undefined"
+                        :allow-delete="acl.can('country.deleter') || undefined"
                         @inline-edit-save="onInlineEditSave"
                     >
 
@@ -140,7 +140,7 @@
                             {% block sw_settings_country_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 :router-link="{ name: 'sw.settings.country.detail', params: { id: item.id, edit: 'edit' }}"
-                                :disabled="!acl.can('country.editor') && !acl.can('country.viewer')"
+                                :disabled="!acl.can('country.editor') && !acl.can('country.viewer') || undefined"
                                 class="sw-country-list__edit-action"
                             >
                                 {{ detailPageLinkText }}
@@ -152,7 +152,7 @@
                             <sw-context-menu-item
                                 class="sw-country-list__delete-action"
                                 variant="danger"
-                                :disabled="!acl.can('country.deleter')"
+                                :disabled="!acl.can('country.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-country.list.contextMenuDelete') }}

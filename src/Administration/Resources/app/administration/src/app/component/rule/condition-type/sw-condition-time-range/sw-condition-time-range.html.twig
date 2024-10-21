@@ -10,7 +10,8 @@
         date-type="time"
         required
         :config="datepickerConfig"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
+        :placeholder="$tc('sw-datepicker.time.placeholder')"
     />
     {% endblock %}
 
@@ -22,8 +23,9 @@
         size="medium"
         date-type="time"
         required
-        :disabled="disabled"
         :config="datepickerConfig"
+        :disabled="disabled || undefined"
+        :placeholder="$tc('sw-datepicker.time.placeholder')"
     />
     {% endblock %}
 </div>

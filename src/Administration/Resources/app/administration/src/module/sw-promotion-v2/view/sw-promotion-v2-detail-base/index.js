@@ -10,10 +10,18 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'promotionCodeApiService',
         'customFieldDataProviderService',
+    ],
+
+    emits: [
+        'generate-individual-codes-finish',
+        'delete-individual-codes-finish',
+        'clean-up-codes',
     ],
 
     mixins: [
@@ -59,13 +67,18 @@ export default {
 
     computed: {
         codeTypeOptions() {
-            return Object.entries(this.CODE_TYPES).map(type => Object.create({
-                label: this.$tc(`sw-promotion-v2.detail.base.codes.${type[0].toLowerCase()}.description`),
-                value: type[1],
-            }));
+            return Object.entries(this.CODE_TYPES).map((type) =>
+                Object.create({
+                    label: this.$tc(`sw-promotion-v2.detail.base.codes.${type[0].toLowerCase()}.description`),
+                    value: type[1],
+                }),
+            );
         },
 
-        ...mapPropertyErrors('promotion', ['name', 'validUntil']),
+        ...mapPropertyErrors('promotion', [
+            'name',
+            'validUntil',
+        ]),
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
@@ -112,7 +125,7 @@ export default {
                 }
 
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
-                    isBigger = (aValue - bValue) > 0;
+                    isBigger = aValue - bValue > 0;
                 }
 
                 if (isBigger !== null) {
@@ -128,10 +141,12 @@ export default {
         },
 
         onChangeCodeType(value) {
-            const hasInactiveIndividualCodes = value !== this.CODE_TYPES.INDIVIDUAL &&
-                (this.promotion.individualCodes !== null && this.promotion.individualCodes.length > 0);
-            const hasInactiveFixedCode = value !== this.CODE_TYPES.FIXED &&
-                (this.promotion.code !== null && this.promotion.code.length > 0);
+            const hasInactiveIndividualCodes =
+                value !== this.CODE_TYPES.INDIVIDUAL &&
+                this.promotion.individualCodes !== null &&
+                this.promotion.individualCodes.length > 0;
+            const hasInactiveFixedCode =
+                value !== this.CODE_TYPES.FIXED && this.promotion.code !== null && this.promotion.code.length > 0;
 
             this.$emit('clean-up-codes', hasInactiveIndividualCodes, hasInactiveFixedCode);
             this.setNewCodeType(value);
@@ -152,12 +167,15 @@ export default {
 
         onGenerateCodeFixed() {
             this.isGenerating = true;
-            this.promotionCodeApiService.generateCodeFixed().then((code) => {
-                this.promotion.code = code;
-                this.isGenerateSuccessful = true;
-            }).finally(() => {
-                this.isGenerating = false;
-            });
+            this.promotionCodeApiService
+                .generateCodeFixed()
+                .then((code) => {
+                    this.promotion.code = code;
+                    this.isGenerateSuccessful = true;
+                })
+                .finally(() => {
+                    this.isGenerating = false;
+                });
         },
 
         generateFinish() {

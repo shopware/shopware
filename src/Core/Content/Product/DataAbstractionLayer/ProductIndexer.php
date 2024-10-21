@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Defaults;
@@ -40,9 +42,12 @@ class ProductIndexer extends EntityIndexer
     final public const STREAM_UPDATER = 'product.stream';
     final public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
     final public const STATES_UPDATER = 'product.states';
+    private const UPDATE_IDS_CHUNK_SIZE = 50;
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -69,9 +74,6 @@ class ProductIndexer extends EntityIndexer
         return 'product.indexer';
     }
 
-    /**
-     * @param array{offset: int|null}|null $offset
-     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->getIterator($offset);
@@ -87,14 +89,14 @@ class ProductIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $updates = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
+        $ids = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if (empty($ids)) {
             return null;
         }
 
-        Profiler::trace('product:indexer:inheritance', function () use ($updates, $event): void {
-            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
+        Profiler::trace('product:indexer:inheritance', function () use ($ids, $event): void {
+            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $event->getContext());
         });
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
@@ -102,21 +104,32 @@ class ProductIndexer extends EntityIndexer
             $this->stockStorage->index(array_values($stocks), $event->getContext());
         });
 
-        $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
-        $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
-
-        $delayed = \array_unique(\array_filter(\array_merge(
-            $this->getParentIds($updates),
-            $this->getChildrenIds($updates)
+        $parentAndChildIdsToBeChunked = \array_unique(\array_filter(\array_merge(
+            $this->getParentIds($ids),
+            $this->getChildrenIds($ids)
         )));
 
-        foreach (\array_chunk($delayed, 50) as $chunk) {
+        foreach (\array_chunk($parentAndChildIdsToBeChunked, self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
             $child = new ProductIndexingMessage($chunk, null, $event->getContext());
             $child->setIndexer($this->getName());
             EntityIndexerRegistry::addSkips($child, $event->getContext());
 
             $this->messageBus->dispatch($child);
         }
+
+        $idsToBeChunked = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
+        $idsForReturnedMessage = \array_shift($idsToBeChunked);
+
+        foreach ($idsToBeChunked as $chunk) {
+            $message = new ProductIndexingMessage($chunk, null, $event->getContext());
+            $message->setIndexer($this->getName());
+            $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
+
+            $this->messageBus->dispatch($message);
+        }
+
+        $message = new ProductIndexingMessage($idsForReturnedMessage, null, $event->getContext());
+        $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
 
         return $message;
     }
@@ -220,11 +233,10 @@ class ProductIndexer extends EntityIndexer
         Profiler::trace('product:indexer:event', function () use ($ids, $context, $message): void {
             $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
         });
+
+        $this->eventDispatcher->dispatch(new InvalidateProductCache(ids: $ids, force: false));
     }
 
-    /**
-     * @return string[]
-     */
     public function getOptions(): array
     {
         return [
@@ -260,7 +272,7 @@ class ProductIndexer extends EntityIndexer
     /**
      * @param array<string> $ids
      *
-     * @return string[]
+     * @return array<string>
      */
     private function getParentIds(array $ids): array
     {
@@ -276,7 +288,7 @@ class ProductIndexer extends EntityIndexer
     /**
      * @param array<string> $ids
      *
-     * @return array|mixed[]
+     * @return array<string>
      */
     private function filterVariants(array $ids): array
     {

@@ -32,9 +32,10 @@ const createWrapper = async () => {
             stubs: {
                 'sw-text-field': true,
                 'sw-entity-single-select': true,
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
             },
         },
-
     });
 };
 

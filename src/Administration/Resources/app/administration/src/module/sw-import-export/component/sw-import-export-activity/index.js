@@ -14,7 +14,13 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'importExport', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'importExport',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -79,13 +85,12 @@ export default {
             const criteria = new Shopware.Data.Criteria();
 
             if (this.type === 'import') {
-                criteria.addFilter(Criteria.multi(
-                    'OR',
-                    [
+                criteria.addFilter(
+                    Criteria.multi('OR', [
                         Criteria.equals('activity', 'import'),
                         Criteria.equals('activity', 'dryrun'),
-                    ],
-                ));
+                    ]),
+                );
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
@@ -96,8 +101,7 @@ export default {
             criteria.addAssociation('user');
             criteria.addAssociation('file');
             criteria.addAssociation('profile');
-            criteria.getAssociation('invalidRecordsLog')
-                .addAssociation('file');
+            criteria.getAssociation('invalidRecordsLog').addAssociation('file');
 
             return criteria;
         },
@@ -132,13 +136,17 @@ export default {
                     allowResize: true,
                     primary: false,
                 },
-                ...(this.type === 'import' ? [{
-                    property: 'invalidRecords',
-                    dataIndex: 'records',
-                    label: 'sw-import-export.activity.columns.invalidRecords',
-                    allowResize: true,
-                    primary: false,
-                }] : []),
+                ...(this.type === 'import'
+                    ? [
+                          {
+                              property: 'invalidRecords',
+                              dataIndex: 'records',
+                              label: 'sw-import-export.activity.columns.invalidRecords',
+                              allowResize: true,
+                              primary: false,
+                          },
+                      ]
+                    : []),
                 {
                     property: 'file.size',
                     dataIndex: 'file.size',
@@ -152,17 +160,18 @@ export default {
                     label: 'sw-import-export.activity.columns.user',
                     allowResize: true,
                     primary: false,
-                }];
+                },
+            ];
         },
 
         hasActivitiesInProgress() {
-            return this.logs.filter(log => log.state === 'progress').length > 0;
+            return this.logs.filter((log) => log.state === 'progress').length > 0;
         },
 
         downloadFileText() {
-            return this.type === 'export' ?
-                this.$t('sw-import-export.activity.contextMenu.downloadExportFile') :
-                this.$t('sw-import-export.activity.contextMenu.downloadImportFile');
+            return this.type === 'export'
+                ? this.$t('sw-import-export.activity.contextMenu.downloadExportFile')
+                : this.$t('sw-import-export.activity.contextMenu.downloadImportFile');
         },
 
         // show when not loading and logs are there
@@ -181,15 +190,15 @@ export default {
         },
 
         emptyStateSubLine() {
-            return this.type === 'export' ?
-                this.$t('sw-import-export.activity.emptyState.subLineExport') :
-                this.$t('sw-import-export.activity.emptyState.subLineImport');
+            return this.type === 'export'
+                ? this.$t('sw-import-export.activity.emptyState.subLineExport')
+                : this.$t('sw-import-export.activity.emptyState.subLineImport');
         },
 
         emptyStateTitle() {
-            return this.type === 'export' ?
-                this.$t('sw-import-export.activity.emptyState.titleExport') :
-                this.$t('sw-import-export.activity.emptyState.titleImport');
+            return this.type === 'export'
+                ? this.$t('sw-import-export.activity.emptyState.titleExport')
+                : this.$t('sw-import-export.activity.emptyState.titleImport');
         },
 
         dateFilter() {
@@ -215,7 +224,7 @@ export default {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         if (this.activitiesReloadTimer) {
             window.clearInterval(this.activitiesReloadTimer);
         }
@@ -233,43 +242,50 @@ export default {
         async fetchActivities() {
             this.isLoading = true;
 
-            this.logRepository.search(this.activityCriteria).then(result => {
-                if (!(result instanceof EntityCollection)) {
-                    return Promise.reject(new Error(this.$t('global.notification.notificationLoadingDataErrorMessage')));
-                }
+            this.logRepository
+                .search(this.activityCriteria)
+                .then((result) => {
+                    if (!(result instanceof EntityCollection)) {
+                        return Promise.reject(new Error(this.$t('global.notification.notificationLoadingDataErrorMessage')));
+                    }
 
-                this.updateActivitiesFromLogs(result);
+                    this.updateActivitiesFromLogs(result);
 
-                this.logs = result;
+                    this.logs = result;
 
-                return Promise.resolve();
-            }).catch(error => {
-                this.createNotificationError({
-                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    return Promise.resolve();
+                })
+                .catch((error) => {
+                    this.createNotificationError({
+                        message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         async updateActivitiesInProgress() {
             const criteria = Criteria.fromCriteria(this.activityCriteria);
-            criteria.setIds(this.logs.filter(log => log.state === 'progress').getIds());
+            criteria.setIds(this.logs.filter((log) => log.state === 'progress').getIds());
             criteria.addAssociation('file');
 
-            this.logRepository.search(criteria).then(result => {
-                if (!(result instanceof EntityCollection)) {
-                    return Promise.reject(new Error(this.$t('global.notification.notificationLoadingDataErrorMessage')));
-                }
+            this.logRepository
+                .search(criteria)
+                .then((result) => {
+                    if (!(result instanceof EntityCollection)) {
+                        return Promise.reject(new Error(this.$t('global.notification.notificationLoadingDataErrorMessage')));
+                    }
 
-                this.updateActivitiesFromLogs(result);
+                    this.updateActivitiesFromLogs(result);
 
-                return Promise.resolve();
-            }).catch(error => {
-                this.createNotificationError({
-                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    return Promise.resolve();
+                })
+                .catch((error) => {
+                    this.createNotificationError({
+                        message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
                 });
-            });
         },
 
         updateActivitiesFromLogs(logs) {
@@ -281,7 +297,7 @@ export default {
                 }
 
                 const originalState = activity.state;
-                Object.keys(log).forEach(key => {
+                Object.keys(log).forEach((key) => {
                     activity[key] = log[key];
                 });
 
@@ -291,8 +307,8 @@ export default {
 
                 const config = {
                     message: this.$tc(
-                        (this.stateText?.[log.activity]?.[log.state] ?? ''),
-                        (log.state === 'failed' && log.invalidRecordsLog ? 2 : 1),
+                        this.stateText?.[log.activity]?.[log.state] ?? '',
+                        log.state === 'failed' && log.invalidRecordsLog ? 2 : 1,
                         {
                             profile: log.profileName,
                         },
@@ -316,13 +332,16 @@ export default {
         },
 
         async onOpenProfile(id) {
-            this.profileRepository.get(id).then((result) => {
-                this.selectedProfile = result;
-            }).catch((error) => {
-                this.createNotificationError({
-                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+            this.profileRepository
+                .get(id)
+                .then((result) => {
+                    this.selectedProfile = result;
+                })
+                .catch((error) => {
+                    this.createNotificationError({
+                        message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
                 });
-            });
         },
 
         onAbortProcess(item) {
@@ -365,18 +384,22 @@ export default {
 
         saveSelectedProfile() {
             this.isLoading = true;
-            this.profileRepository.save(this.selectedProfile).then(() => {
-                this.selectedProfile = null;
-                this.createNotificationSuccess({
-                    message: this.$t('sw-import-export.profile.messageSaveSuccess'),
+            this.profileRepository
+                .save(this.selectedProfile)
+                .then(() => {
+                    this.selectedProfile = null;
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-import-export.profile.messageSaveSuccess'),
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-import-export.profile.messageSaveError'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$t('sw-import-export.profile.messageSaveError'),
-                });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         calculateFileSize(size) {

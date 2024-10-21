@@ -10,7 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['element-update'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -86,10 +90,21 @@ export default {
         updateElementData(media = null) {
             const mediaId = media === null ? null : media.id;
             if (!this.element.data) {
-                this.$set(this.element, 'data', { mediaId, media });
-            } else {
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.element, 'data', { mediaId, media });
+                } else {
+                    this.element.data = { mediaId, media };
+                }
+
+                return;
+            }
+
+            if (this.isCompatEnabled('INSTANCE_SET')) {
                 this.$set(this.element.data, 'mediaId', mediaId);
                 this.$set(this.element.data, 'media', media);
+            } else {
+                this.element.data.mediaId = mediaId;
+                this.element.data.media = media;
             }
         },
 
@@ -103,12 +118,7 @@ export default {
             this.$emit('element-update', this.element);
         },
 
-        onChangeDisplayMode(value) {
-            if (value === 'cover') {
-                this.element.config.verticalAlign.value = null;
-                this.element.config.horizontalAlign.value = null;
-            }
-
+        onChangeDisplayMode() {
             this.$emit('element-update', this.element);
         },
     },

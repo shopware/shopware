@@ -8,6 +8,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
+                'mt-icon': true,
             },
         },
     });

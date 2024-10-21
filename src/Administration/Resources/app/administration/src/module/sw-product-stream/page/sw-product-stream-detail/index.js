@@ -15,7 +15,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'productStreamConditionService', 'acl', 'customFieldDataProviderService'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'productStreamConditionService',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     provide() {
         return {
@@ -89,10 +96,7 @@ export default {
                 return null;
             }
 
-            return this.repositoryFactory.create(
-                this.productStream.filters.entity,
-                this.productStream.filters.source,
-            );
+            return this.repositoryFactory.create(this.productStream.filters.entity, this.productStream.filters.source);
         },
 
         customFieldSetRepository() {
@@ -250,12 +254,17 @@ export default {
 
                 this.isLoading = true;
 
-                return this.productStreamRepository.clone(this.productStream.id, behavior, Shopware.Context.api)
+                return this.productStreamRepository
+                    .clone(this.productStream.id, behavior, Shopware.Context.api)
                     .then((clone) => {
-                        const route = { name: 'sw.product.stream.detail', params: { id: clone.id } };
+                        const route = {
+                            name: 'sw.product.stream.detail',
+                            params: { id: clone.id },
+                        };
 
                         this.$router.push(route);
-                    }).catch(() => {
+                    })
+                    .catch(() => {
                         this.isLoading = false;
 
                         this.createNotificationError({
@@ -273,7 +282,10 @@ export default {
                 this.productStream.filters = this.productStreamFiltersTree;
                 return this.saveProductStream()
                     .then(() => {
-                        this.$router.push({ name: 'sw.product.stream.detail', params: { id: this.productStream.id } });
+                        this.$router.push({
+                            name: 'sw.product.stream.detail',
+                            params: { id: this.productStream.id },
+                        });
                         this.isSaveSuccessful = true;
                     })
                     .catch(() => {
@@ -282,7 +294,8 @@ export default {
                     });
             }
 
-            return this.productStreamRepository.save(this.productStream, Context.api)
+            return this.productStreamRepository
+                .save(this.productStream, Context.api)
                 .then(this.syncProductStreamFilters)
                 .then(() => {
                     return this.loadEntityData(this.productStream.id);
@@ -299,9 +312,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc(
-                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                ),
+                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 
@@ -310,18 +321,17 @@ export default {
         },
 
         syncProductStreamFilters() {
-            return this.productStreamFiltersRepository.sync(this.productStreamFiltersTree, Context.api)
-                .then(() => {
-                    if (this.deletedProductStreamFilters.length > 0) {
-                        return this.productStreamFiltersRepository
-                            .syncDeleted(this.deletedProductStreamFilters, Context.api)
-                            .then(() => {
-                                this.deletedProductStreamFilters = [];
-                            });
-                    }
+            return this.productStreamFiltersRepository.sync(this.productStreamFiltersTree, Context.api).then(() => {
+                if (this.deletedProductStreamFilters.length > 0) {
+                    return this.productStreamFiltersRepository
+                        .syncDeleted(this.deletedProductStreamFilters, Context.api)
+                        .then(() => {
+                            this.deletedProductStreamFilters = [];
+                        });
+                }
 
-                    return Promise.resolve();
-                });
+                return Promise.resolve();
+            });
         },
 
         onCancel() {
@@ -343,23 +353,20 @@ export default {
             const loadingPromises = [];
             return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
                 const singleCriteria = new Criteria(1, null);
-                singleCriteria
-                    .addAssociation('customFields')
-                    .addAssociation('relations');
-
+                singleCriteria.addAssociation('customFields').addAssociation('relations');
 
                 customFieldSets.forEach((customFieldSet) => {
                     loadingPromises.push(
-                        this.customFieldSetRepository.get(customFieldSet.id, Context.api, singleCriteria).then(set => {
-                            const customFields = set.customFields
-                                .reduce((acc, customField) => {
-                                    acc[customField.name] = this.mapCustomFieldType({
-                                        type: customField.type,
-                                        value: `customFields.${customField.name}`,
-                                        label: this.getCustomFieldLabel(customField),
-                                    });
-                                    return acc;
-                                }, {});
+                        this.customFieldSetRepository.get(customFieldSet.id, Context.api, singleCriteria).then((set) => {
+                            const customFields = set.customFields.reduce((acc, customField) => {
+                                acc[customField.name] = this.mapCustomFieldType({
+                                    type: customField.type,
+                                    value: `customFields.${customField.name}`,
+                                    label: this.getCustomFieldLabel(customField),
+                                    config: customField.config,
+                                });
+                                return acc;
+                            }, {});
                             Object.assign(this.productCustomFields, customFields);
                         }),
                     );

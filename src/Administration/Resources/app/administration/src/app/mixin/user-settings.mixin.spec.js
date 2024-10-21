@@ -1,33 +1,39 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/user-settings.mixin';
 import { mount } from '@vue/test-utils';
 
 let createRepositoryFactoryMock;
 
 async function createWrapper() {
-    return mount({
-        template: `
+    return mount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('user-settings'),
-        ],
-        data() {
-            return {
-                name: 'sw-mock-field',
-            };
+            mixins: [
+                Shopware.Mixin.getByName('user-settings'),
+            ],
+            data() {
+                return {
+                    name: 'sw-mock-field',
+                };
+            },
         },
-    }, {
-        attachTo: document.body,
-        global: {
-            mocks: {
-                repositoryFactory: {
-                    create: () => createRepositoryFactoryMock,
+        {
+            attachTo: document.body,
+            global: {
+                mocks: {
+                    repositoryFactory: {
+                        create: () => createRepositoryFactoryMock,
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/app/mixin/user-settings.mixin.ts', () => {
@@ -60,26 +66,22 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
     it('should reject when acl rights are missing', async () => {
         global.activeAclRoles = [];
 
-        await expect(wrapper.vm.getUserSettingsEntity(
-            'my-identifier',
-            'my-user-id',
-        )).rejects.toEqual();
+        await expect(wrapper.vm.getUserSettingsEntity('my-identifier', 'my-user-id')).rejects.toEqual();
     });
 
     it('should receives the whole settings entity via identifier key', async () => {
         createRepositoryFactoryMock = {
-            search: jest.fn(() => Promise.resolve([
-                {
-                    id: 'my-user-id',
-                    key: 'my-identifier',
-                },
-            ])),
+            search: jest.fn(() =>
+                Promise.resolve([
+                    {
+                        id: 'my-user-id',
+                        key: 'my-identifier',
+                    },
+                ]),
+            ),
         };
 
-        const result = await wrapper.vm.getUserSettingsEntity(
-            'my-identifier',
-            'my-user-id',
-        );
+        const result = await wrapper.vm.getUserSettingsEntity('my-identifier', 'my-user-id');
 
         expect(result).toEqual({
             id: 'my-user-id',
@@ -110,10 +112,7 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
             search: jest.fn(() => Promise.resolve([])),
         };
 
-        const result = await wrapper.vm.getUserSettingsEntity(
-            'my-identifier',
-            'my-user-id',
-        );
+        const result = await wrapper.vm.getUserSettingsEntity('my-identifier', 'my-user-id');
 
         expect(result).toBeNull();
 
@@ -138,19 +137,18 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
 
     it('should return the user settings value', async () => {
         createRepositoryFactoryMock = {
-            search: jest.fn(() => Promise.resolve([
-                {
-                    value: {
-                        my: 'value',
+            search: jest.fn(() =>
+                Promise.resolve([
+                    {
+                        value: {
+                            my: 'value',
+                        },
                     },
-                },
-            ])),
+                ]),
+            ),
         };
 
-        const result = await wrapper.vm.getUserSettings(
-            'my-identifier',
-            'my-user-id',
-        );
+        const result = await wrapper.vm.getUserSettings('my-identifier', 'my-user-id');
 
         expect(result).toEqual({
             my: 'value',
@@ -177,24 +175,25 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
 
     it('should save the user settings', async () => {
         createRepositoryFactoryMock = {
-            search: jest.fn(() => Promise.resolve([
-                {
-                    value: {
-                        my: 'value',
+            search: jest.fn(() =>
+                Promise.resolve([
+                    {
+                        value: {
+                            my: 'value',
+                        },
                     },
-                },
-            ])),
-            save: jest.fn(() => Promise.resolve({
-                save: 'success',
-            })),
+                ]),
+            ),
+            save: jest.fn(() =>
+                Promise.resolve({
+                    save: 'success',
+                }),
+            ),
         };
 
-        const result = await wrapper.vm.saveUserSettings(
-            'my-identifier',
-            {
-                entity: 'value',
-            },
-        );
+        const result = await wrapper.vm.saveUserSettings('my-identifier', {
+            entity: 'value',
+        });
 
         expect(result).toEqual({
             save: 'success',

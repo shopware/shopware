@@ -1,7 +1,7 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account - Login: Visual tests', () => {
-    it('@visual: check appearance of basic storefront login workflow', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of basic storefront login workflow', { tags: ['pa-services-settings'] }, () => {
         if (!Cypress.env('testDataUsage')) {
             return;
         }

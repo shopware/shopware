@@ -109,7 +109,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @param callable(): void  $callback
+     * @param callable(): void $callback
      */
     public function addSuccess(callable $callback): void
     {
@@ -117,7 +117,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @param callable(): void  $callback
+     * @param callable(): void $callback
      */
     public function addError(callable $callback): void
     {

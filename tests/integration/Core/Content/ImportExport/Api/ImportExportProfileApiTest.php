@@ -381,12 +381,12 @@ class ImportExportProfileApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'technicalName' => uniqid('test_name_'),
-                'label' => sprintf('Test label %d %s', $i, $add),
+                'label' => \sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => (($i % 2 === 0) ? true : false),
-                'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
-                'fileType' => sprintf('Test file type %d %s', $i, $add),
-                'delimiter' => sprintf('Test delimiter %d %s', $i, $add),
-                'enclosure' => sprintf('Test enclosure %d %s', $i, $add),
+                'sourceEntity' => \sprintf('Test entity %d %s', $i, $add),
+                'fileType' => \sprintf('Test file type %d %s', $i, $add),
+                'delimiter' => \sprintf('Test delimiter %d %s', $i, $add),
+                'enclosure' => \sprintf('Test enclosure %d %s', $i, $add),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
         }

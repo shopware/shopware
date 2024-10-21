@@ -1,7 +1,10 @@
 import template from './sw-settings-document-list.html.twig';
 import './sw-settings-document-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 /**
  * @package services-settings
@@ -9,6 +12,8 @@ const { Mixin, Data: { Criteria } } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -50,10 +55,7 @@ export default {
                 criteria.setTerm(this.term);
             }
 
-            criteria
-                .addAssociation('documentType')
-                .getAssociation('salesChannels')
-                .addAssociation('salesChannel');
+            criteria.addAssociation('documentType').getAssociation('salesChannels').addAssociation('salesChannel');
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
+use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -27,12 +28,18 @@ class AppException extends HttpException
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
     public const FEATURES_REQUIRE_APP_SECRET = 'FRAMEWORK__APP_FEATURES_REQUIRE_APP_SECRET';
+    public const APP_SECRET_MISSING = 'FRAMEWORK__APP_SECRET_MISSING';
     public const ACTION_BUTTON_PROCESS_EXCEPTION = 'FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED';
     public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
     public const XML_PARSE_ERROR = 'FRAMEWORK_APP__XML_PARSE_ERROR';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
-
+    final public const APP_PAYMENT_INVALID_TRANSACTION_ID = 'APP_PAYMENT__INVALID_TRANSACTION_ID';
+    final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
+    public const NO_SOURCE_SUPPORTS = 'FRAMEWORK__APP_NO_SOURCE_SUPPORTS';
+    public const CANNOT_MOUNT_APP_FILESYSTEM = 'FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM';
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+    public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
+    public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -81,11 +88,16 @@ class AppException extends HttpException
 
     public static function notFound(string $identifier): self
     {
+        return static::notFoundByField($identifier);
+    }
+
+    public static function notFoundByField(string $value, string $field = 'identifier'): self
+    {
         return new AppNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::NOT_FOUND,
             self::$couldNotFindMessage,
-            ['entity' => 'app', 'field' => 'identifier', 'value' => $identifier]
+            ['entity' => 'app', 'field' => $field, 'value' => $value]
         );
     }
 
@@ -148,13 +160,23 @@ class AppException extends HttpException
     {
         $featuresAsString = \count($features) < 3
             ? implode(' and ', $features)
-            : sprintf('%s and %s', implode(', ', \array_slice($features, 0, -1)), array_pop($features));
+            : \sprintf('%s and %s', implode(', ', \array_slice($features, 0, -1)), array_pop($features));
 
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::FEATURES_REQUIRE_APP_SECRET,
             'App "{{ appName }}" could not be installed/updated because it uses features {{ features }} but has no secret',
             ['appName' => $appName, 'features' => $featuresAsString],
+        );
+    }
+
+    public static function appSecretMissing(string $appName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SECRET_MISSING,
+            'App secret is missing for app {{ appName }}',
+            ['appName' => $appName]
         );
     }
 
@@ -206,7 +228,7 @@ class AppException extends HttpException
             return new XmlParsingException($file, $message);
         }
 
-        return new AppXmlParsingException($file, $message);
+        return AppXmlParsingException::cannotParseFile($file, $message);
     }
 
     public static function missingRequestParameter(string $parameterName): self
@@ -225,6 +247,81 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE,
             'The checkout gateway payload is invalid'
+        );
+    }
+
+    public static function interrupted(string $errorMessage, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_INTERRUPTED,
+            'The app payment process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
+            [
+                'errorMessage' => $errorMessage,
+            ],
+            $e
+        );
+    }
+
+    public static function invalidTransaction(string $transactionId, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_INVALID_TRANSACTION_ID,
+            'The transaction with id {{ transactionId }} is invalid or could not be found.',
+            ['transactionId' => $transactionId],
+            $e
+        );
+    }
+
+    public static function noSourceSupports(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_SOURCE_SUPPORTS,
+            'App is not supported by any source.',
+        );
+    }
+
+    public static function sourceDoesNotExist(string $sourceClassName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_SOURCE_SUPPORTS,
+            'The source "{{ sourceClassName }}" does not exist',
+            [
+                'sourceClassName' => $sourceClassName,
+            ]
+        );
+    }
+
+    public static function cannotMountAppFilesystem(string $appName, HttpException $exception): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_MOUNT_APP_FILESYSTEM,
+            'Cannot mount a filesystem for App "{{ app }}". Error: "{{ error }}"',
+            ['app' => $appName, 'error' => $exception->getMessage()],
+            $exception
+        );
+    }
+
+    public static function userAborted(): self
+    {
+        return new UserAbortedCommandException(
+            Response::HTTP_BAD_REQUEST,
+            self::USER_ABORTED,
+            'User aborted operation'
+        );
+    }
+
+    public static function cannotReadFile(string $file): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_READ_FILE,
+            'Unable to read file: "{{ file }}"',
+            ['file' => $file]
         );
     }
 }

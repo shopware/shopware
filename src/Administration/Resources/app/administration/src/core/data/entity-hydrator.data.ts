@@ -11,55 +11,62 @@ import EntityCollection from './entity-collection.data';
 import type { Property } from './entity-definition.data';
 
 type meta = {
-    totalCountMode: number,
-    total: number,
-}
+    totalCountMode: number;
+    total: number;
+};
 
 type links = {
-    [relation: string]: string,
-}
+    [relation: string]: string;
+};
 
 type row = {
-    id: string,
-    type: string,
+    id: string;
+    type: string;
     attributes: {
-        [key: string|symbol]: unknown
-    },
-    links: links,
+        [key: string | symbol]: unknown;
+    };
+    links: links;
     relationships: {
-        [key: string|symbol]: unknown
-    },
-    meta?: meta,
-}
+        [key: string | symbol]: unknown;
+    };
+    meta?: meta;
+};
+
+type aggregations = {
+    [key: string]: {
+        name: string;
+        [key: string]: unknown;
+    };
+};
 
 type data = {
-    data: [row],
-    included: [row],
+    data: [row];
+    included: [row];
     links: {
-        [relation: string]: string,
-    },
-    meta?: meta,
-    aggregations: [],
-}
+        [relation: string]: string;
+    };
+    meta?: meta;
+    aggregations: aggregations;
+};
 
 type field = {
-    entity: keyof EntitySchema.Entities,
-}
+    entity: keyof EntitySchema.Entities;
+};
 
 type schema = {
     properties: {
-        [key: string|symbol]: field,
-    },
-    isToManyAssociation: (field: field) => boolean,
-    isToOneAssociation: (field: field) => boolean,
-}
+        [key: string | symbol]: field;
+    };
+    isToManyAssociation: (field: field) => boolean;
+    isToOneAssociation: (field: field) => boolean;
+};
 
 type toOneData = {
     data: {
-        type: string,
-        id: string
-    }
-}
+        type: string;
+        id: string;
+    };
+};
 
 type entityNames = keyof EntitySchema.Entities;
 
@@ -135,7 +142,7 @@ export default class EntityHydrator {
         response: data,
         context: apiContext,
         criteria: Criteria,
-    ): Entity<EntityName>|null {
+    ): Entity<EntityName> | null {
         if (!row) {
             return null;
         }
@@ -157,31 +164,37 @@ export default class EntityHydrator {
         data.id = id;
 
         // hydrate empty json fields
-        Object.entries(data).forEach(([attributeKey, attributeValue]) => {
-            const field = schema.getField(attributeKey);
+        Object.entries(data).forEach(
+            ([
+                attributeKey,
+                attributeValue,
+            ]) => {
+                const field = schema.getField(attributeKey);
 
-            if (!field) {
-                return;
-            }
+                if (!field) {
+                    return;
+                }
 
-            if (!schema.isJsonField(field)) {
-                return;
-            }
+                if (!schema.isJsonField(field)) {
+                    return;
+                }
 
-            if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
-                data[attributeKey] = {};
-                return;
-            }
+                if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
+                    data[attributeKey] = {};
+                    return;
+                }
 
-            const isEmptyObject = !Array.isArray(attributeValue)
-                    && typeof attributeValue === 'object'
-                    && attributeValue !== null
-                    && Object.keys(attributeValue).length <= 0;
+                const isEmptyObject =
+                    !Array.isArray(attributeValue) &&
+                    typeof attributeValue === 'object' &&
+                    attributeValue !== null &&
+                    Object.keys(attributeValue).length <= 0;
 
-            if (schema.isJsonListField(field) && (isEmptyObject || attributeValue === null)) {
-                data[attributeKey] = [];
-            }
-        });
+                if (schema.isJsonListField(field) && (isEmptyObject || attributeValue === null)) {
+                    data[attributeKey] = [];
+                }
+            },
+        );
 
         Object.keys(row.relationships).forEach((property) => {
             const value = row.relationships[property] as data;
@@ -191,7 +204,7 @@ export default class EntityHydrator {
                 data[property] = this.hydrateExtensions(id, value, schema, response, context, criteria);
             }
 
-            const field: Property = (schema.properties as {[key: string]: unknown})[property] as Property;
+            const field: Property = (schema.properties as { [key: string]: unknown })[property] as Property;
 
             if (!field) {
                 return true;
@@ -202,7 +215,7 @@ export default class EntityHydrator {
                     criteria,
                     property,
                     value,
-                    (field.entity as keyof EntitySchema.Entities),
+                    field.entity as keyof EntitySchema.Entities,
                     context,
                     response,
                 );
@@ -238,7 +251,7 @@ export default class EntityHydrator {
         value: unknown,
         response: data,
         context: apiContext,
-    ): Entity<entityNames>|null {
+    ): Entity<entityNames> | null {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
 
         const nestedRaw = this.getIncluded((value as toOneData).data.type, (value as toOneData).data.id, response);
@@ -273,13 +286,9 @@ export default class EntityHydrator {
         response: data,
     ): EntityCollection<entityNames> {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
-        const apiResourcePath = context?.apiResourcePath as string ?? '';
+        const apiResourcePath = (context?.apiResourcePath as string) ?? '';
 
-        const url = value.links.related.substr(
-            value.links.related.indexOf(apiResourcePath)
-            +
-            apiResourcePath.length,
-        );
+        const url = value.links.related.substr(value.links.related.indexOf(apiResourcePath) + apiResourcePath.length);
 
         const collection = new EntityCollection<entityNames>(url, entityName, context, associationCriteria);
 
@@ -311,7 +320,7 @@ export default class EntityHydrator {
     getIncluded(entityName: string, id: string, response: data): row {
         // @ts-expect-error
         return response.included.find((included) => {
-            return (included.id === id && included.type === entityName);
+            return included.id === id && included.type === entityName;
         });
     }
 
@@ -325,7 +334,7 @@ export default class EntityHydrator {
         response: data,
         context: apiContext,
         criteria: Criteria,
-    ): {[key: string]: unknown} {
+    ): { [key: string]: unknown } {
         const extension = this.getIncluded('extension', id, response);
 
         const data = { ...extension.attributes };

@@ -4,7 +4,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "snippet-set"
  * @class
  * @extends ApiService
- * @package system-settings
+ * @package services-settings
  */
 class SnippetSetApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'snippet-set') {
@@ -26,11 +26,7 @@ class SnippetSetApiService extends ApiService {
         sort = { ...defaultSort, ...sort };
 
         return this.httpClient
-            .post(
-                `/_action/${this.getApiBasePath()}`,
-                { page, limit, filters, sort },
-                { headers },
-            )
+            .post(`/_action/${this.getApiBasePath()}`, { page, limit, filters, sort }, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -46,7 +42,10 @@ class SnippetSetApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/baseFile`, { params, headers })
+            .get(`/_action/${this.getApiBasePath()}/baseFile`, {
+                params,
+                headers,
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -55,11 +54,9 @@ class SnippetSetApiService extends ApiService {
     getAuthors() {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/author`, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return this.httpClient.get(`/_action/${this.getApiBasePath()}/author`, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
     }
 }
 

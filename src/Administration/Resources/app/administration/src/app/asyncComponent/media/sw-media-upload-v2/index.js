@@ -25,6 +25,8 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -33,13 +35,24 @@ export default {
         'fileValidationService',
     ],
 
+    emits: [
+        'media-drop',
+        'media-upload-sidebar-open',
+        'media-upload-remove-image',
+        'media-upload-add-file',
+    ],
+
     mixins: [
         Mixin.getByName('notification'),
     ],
 
     props: {
         source: {
-            type: [Object, String, File],
+            type: [
+                Object,
+                String,
+                File,
+            ],
             required: false,
             default: null,
         },
@@ -47,9 +60,17 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: ['compact', 'regular', 'small'],
+            validValues: [
+                'compact',
+                'regular',
+                'small',
+            ],
             validator(value) {
-                return ['compact', 'regular', 'small'].includes(value);
+                return [
+                    'compact',
+                    'regular',
+                    'small',
+                ].includes(value);
             },
             default: 'regular',
         },
@@ -153,6 +174,12 @@ export default {
             required: false,
             default: false,
         },
+
+        onMediaUploadSidebarOpen: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -183,7 +210,10 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            }
+            return !!this.onMediaUploadSidebarOpen;
         },
 
         isDragActiveClass() {
@@ -249,7 +279,7 @@ export default {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -273,7 +303,10 @@ export default {
 
         mountedComponent() {
             if (this.$refs.dropzone) {
-                ['dragover', 'drop'].forEach((event) => {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -287,7 +320,10 @@ export default {
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
-            ['dragover', 'drop'].forEach((event) => {
+            [
+                'dragover',
+                'drop',
+            ].forEach((event) => {
                 window.addEventListener(event, this.stopEventPropagation, false);
             });
 
@@ -442,7 +478,10 @@ export default {
                 }
 
                 if (this.addFilesOnMultiselect) {
-                    this.preview = [...this.preview, ...newMediaFiles];
+                    this.preview = [
+                        ...this.preview,
+                        ...newMediaFiles,
+                    ];
                 } else {
                     this.preview = newMediaFiles;
                 }
@@ -455,7 +494,13 @@ export default {
                 const targetEntity = this.getMediaEntityForUpload();
                 syncEntities.push(targetEntity);
 
-                return { src: fileHandle, targetId: targetEntity.id, fileName, extension, isPrivate: targetEntity.private };
+                return {
+                    src: fileHandle,
+                    targetId: targetEntity.id,
+                    fileName,
+                    extension,
+                    isPrivate: targetEntity.private,
+                };
             });
 
             await this.mediaRepository.saveAll(syncEntities, Context.api);

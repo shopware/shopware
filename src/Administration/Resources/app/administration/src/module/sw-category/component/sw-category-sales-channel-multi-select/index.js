@@ -9,6 +9,8 @@ const { EntityCollection } = Shopware.Data;
 export default {
     template,
 
+    emits: ['item-add'],
+
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');

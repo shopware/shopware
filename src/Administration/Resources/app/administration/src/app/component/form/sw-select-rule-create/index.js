@@ -22,10 +22,17 @@ Component.register('sw-select-rule-create', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',
         'ruleConditionDataProviderService',
+    ],
+
+    emits: [
+        'save-rule',
+        'dismiss-rule',
     ],
 
     props: {
@@ -46,8 +53,7 @@ Component.register('sw-select-rule-create', {
             required: false,
             default() {
                 const criteria = new Criteria(1, 25);
-                criteria.addSorting(Criteria.sort('name', 'ASC', false))
-                    .addAssociation('conditions');
+                criteria.addSorting(Criteria.sort('name', 'ASC', false)).addAssociation('conditions');
 
                 return criteria;
             },

@@ -9,7 +9,14 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
+
+    emits: [
+        'attribute-edit-cancel',
+        'attribute-edit-save',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),

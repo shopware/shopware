@@ -5,91 +5,99 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-delivery-time-detail', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    params: {
-                        id: '1',
+    return mount(
+        await wrapTestComponent('sw-settings-delivery-time-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        params: {
+                            id: '1',
+                        },
                     },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return {
-                                name: '',
-                                min: 0,
-                                max: 0,
-                                unit: '',
-                                isNew: () => true,
-                            };
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return {
+                                    name: '',
+                                    min: 0,
+                                    max: 0,
+                                    unit: '',
+                                    isNew: () => true,
+                                };
+                            },
+
+                            get: (id) => {
+                                const deliveryTimes = [
+                                    {
+                                        id: '1',
+                                        name: '1 - 3 weeks',
+                                        min: 1,
+                                        max: 3,
+                                        unit: 'week',
+                                        isNew: () => false,
+                                    },
+                                    {
+                                        id: 2,
+                                        name: '2 - 5 days',
+                                        min: 2,
+                                        max: 5,
+                                        unit: 'day',
+                                        isNew: () => false,
+                                    },
+                                ];
+
+                                return Promise.resolve(
+                                    deliveryTimes.find((deliveryTime) => {
+                                        return deliveryTime.id === id;
+                                    }),
+                                );
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
                         },
-
-                        get: (id) => {
-                            const deliveryTimes = [
-                                {
-                                    id: '1',
-                                    name: '1 - 3 weeks',
-                                    min: 1,
-                                    max: 3,
-                                    unit: 'week',
-                                    isNew: () => false,
-                                },
-                                {
-                                    id: 2,
-                                    name: '2 - 5 days',
-                                    min: 2,
-                                    max: 5,
-                                    unit: 'day',
-                                    isNew: () => false,
-                                },
-                            ];
-
-                            return Promise.resolve(deliveryTimes.find((deliveryTime) => {
-                                return deliveryTime.id === id;
-                            }));
-                        },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
+                    },
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([]),
                     },
                 },
-                customFieldDataProviderService: {
-                    getCustomFieldSets: () => Promise.resolve([]),
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
                     </div>`,
+                    },
+                    'sw-button': true,
+                    'sw-button-process': true,
+                    'sw-language-switch': true,
+                    'sw-card-view': true,
+                    'sw-card': true,
+                    'sw-container': true,
+                    'sw-text-field': true,
+                    'sw-number-field': true,
+                    'sw-language-info': true,
+                    'sw-single-select': true,
+                    'sw-skeleton': true,
+                    'sw-custom-field-set-renderer': true,
                 },
-                'sw-button': true,
-                'sw-button-process': true,
-                'sw-language-switch': true,
-                'sw-card-view': true,
-                'sw-card': true,
-                'sw-container': true,
-                'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-language-info': true,
-                'sw-single-select': true,
-                'sw-skeleton': true,
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail', () => {
@@ -153,7 +161,9 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         // Assume that user navigate to sw-setting-delivery-time-create page
-        await wrapper.setData({ deliveryTime: wrapper.vm.deliveryTimeRepository.create() });
+        await wrapper.setData({
+            deliveryTime: wrapper.vm.deliveryTimeRepository.create(),
+        });
 
         await wrapper.vm.$nextTick();
 
@@ -176,4 +186,3 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         });
     });
 });
-

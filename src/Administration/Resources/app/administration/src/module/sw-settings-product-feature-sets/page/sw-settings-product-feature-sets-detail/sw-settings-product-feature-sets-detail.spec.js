@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ */
+
 const classes = {
     componentRoot: 'sw-settings-product-feature-sets-detail',
     fieldLabel: 'sw-field__label',
@@ -13,77 +17,88 @@ const text = {
 };
 
 const detailPage = async (additionalOptions = {}, privileges = []) => {
-    return mount(await wrapTestComponent('sw-settings-product-feature-sets-detail', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-page': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-settings-product-feature-sets-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-page': {
+                        template: `
 <div class="sw-page">
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>
                     `,
-                },
-                'sw-button-process': true,
-                'sw-card-view': await wrapTestComponent('sw-card-view'),
-                'sw-language-info': true,
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-ignore-class': true,
-                'sw-text-field': await wrapTestComponent('sw-text-field', {
-                    sync: true,
-                }),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', {
-                    sync: true,
-                }),
-                'sw-textarea-field': await wrapTestComponent('sw-textarea-field', {
-                    sync: true,
-                }),
-                'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', {
-                    sync: true,
-                }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': true,
-                'sw-settings-product-feature-sets-values-card': true,
-                'sw-extension-component-section': true,
-                'sw-skeleton': true,
-                i18n: true,
-            },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
                     },
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => Promise.resolve(),
+                    'sw-button-process': true,
+                    'sw-card-view': await wrapTestComponent('sw-card-view'),
+                    'sw-language-info': true,
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-ignore-class': true,
+                    'sw-text-field': await wrapTestComponent('sw-text-field', {
+                        sync: true,
                     }),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', {
+                        sync: true,
+                    }),
+                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field', {
+                        sync: true,
+                    }),
+                    'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', {
+                        sync: true,
+                    }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-settings-product-feature-sets-values-card': true,
+                    'sw-extension-component-section': true,
+                    'sw-skeleton': true,
+                    i18n: true,
+                    'sw-language-switch': true,
+                    'sw-error-summary': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-loader': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
                 },
-                validationService: {},
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => Promise.resolve(),
+                        }),
+                    },
+                    validationService: {},
+                },
+                ...additionalOptions,
             },
-            ...additionalOptions,
-        },
-        props: {
-            productFeatureSet: {
-                id: null,
-                name: null,
-                description: null,
-                features: [
-                    {},
-                ],
+            props: {
+                productFeatureSet: {
+                    id: null,
+                    name: null,
+                    description: null,
+                    features: [
+                        {},
+                    ],
+                },
             },
         },
-    });
+    );
 };
 
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail', () => {
@@ -135,7 +150,9 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         const saveButton = wrapper.get('.sw-settings-currency-detail__save-action');
         const fieldName = wrapper.findComponent('.sw-settings-product-feature-sets-detail__name');
         const fieldDescription = wrapper.findComponent('.sw-settings-product-feature-sets-detail__description');
-        const productFeatureSetsValuesCard = wrapper.findComponent('.sw-settings-product-feature-sets-detail__tax-rule-grid');
+        const productFeatureSetsValuesCard = wrapper.findComponent(
+            '.sw-settings-product-feature-sets-detail__tax-rule-grid',
+        );
 
         expect(saveButton.attributes().disabled).toBe('true');
         expect(fieldName.vm.$attrs.disabled).toBe(true);
@@ -162,7 +179,9 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         const saveButton = wrapper.get('.sw-settings-currency-detail__save-action');
         const fieldName = wrapper.findComponent('.sw-settings-product-feature-sets-detail__name');
         const fieldDescription = wrapper.findComponent('.sw-settings-product-feature-sets-detail__description');
-        const productFeatureSetsValuesCard = wrapper.findComponent('.sw-settings-product-feature-sets-detail__tax-rule-grid');
+        const productFeatureSetsValuesCard = wrapper.findComponent(
+            '.sw-settings-product-feature-sets-detail__tax-rule-grid',
+        );
 
         expect(saveButton.attributes().disabled).toBeUndefined();
         expect(fieldName.vm.$attrs.disabled).toBe(false);

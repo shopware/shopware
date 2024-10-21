@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
     ],
@@ -22,8 +24,7 @@ export default {
 
     computed: {
         ruleCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
         },
     },
 };

@@ -8,7 +8,11 @@ import template from './sw-seo-main-category.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['main-category-add'],
 
     props: {
         currentSalesChannelId: {

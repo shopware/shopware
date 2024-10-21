@@ -7,11 +7,18 @@ import { defineAsyncComponent } from 'vue';
 import components from './component-imports';
 import syncComponents from './syncComponents';
 
+const registryCache = new Map();
+
 async function importComponent(componentName) {
     // Check if the component is registered in the component-imports.js.
     // If not, the component is not wrapped and needs to be resolved manually.
     if (!components[componentName]) {
         throw new Error(`Component ${componentName} not found in component-imports.js. Resolve imports manually.`);
+    }
+
+    // Check if the component is already registered and cached
+    if (registryCache.has(componentName)) {
+        return registryCache.get(componentName);
     }
 
     /**
@@ -42,6 +49,9 @@ async function importComponent(componentName) {
     if (componentConfig.e) {
         Shopware.Component.extend(componentName, componentConfig.en, component);
     }
+
+    // Cache the component
+    registryCache.set(componentName, component);
 
     return component;
 }

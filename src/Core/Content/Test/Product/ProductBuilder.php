@@ -164,14 +164,14 @@ class ProductBuilder
     protected array $mainCategories = [];
 
     /**
-     * @var array<string, array<array<mixed>>>
-     */
-    private array $dependencies = [];
-
-    /**
      * @var array<array<mixed>>
      */
     protected array $variantListingConfig = [];
+
+    /**
+     * @var array<string, array<array<mixed>>>
+     */
+    private array $dependencies = [];
 
     public function __construct(
         IdsCollection $ids,

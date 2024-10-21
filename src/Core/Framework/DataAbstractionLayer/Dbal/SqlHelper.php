@@ -28,14 +28,14 @@ class SqlHelper
         $columnSelectSql = '';
 
         foreach ($fields as $columnAlias => $column) {
-            $columnSelectSql .= sprintf('\'%s\', %s,', $columnAlias, $column);
+            $columnSelectSql .= \sprintf('\'%s\', %s,', $columnAlias, $column);
         }
 
         $columnSelectSql = rtrim($columnSelectSql, ',');
 
         $sql = 'JSON_OBJECT(%s) as %s';
 
-        return sprintf($sql, $columnSelectSql, $alias);
+        return \sprintf($sql, $columnSelectSql, $alias);
     }
 
     /**
@@ -54,7 +54,7 @@ class SqlHelper
         $columnSelectSql = '';
 
         foreach ($fields as $columnAlias => $column) {
-            $columnSelectSql .= sprintf('\'%s\', %s,', $columnAlias, $column);
+            $columnSelectSql .= \sprintf('\'%s\', %s,', $columnAlias, $column);
         }
 
         $columnSelectSql = rtrim($columnSelectSql, ',');
@@ -71,6 +71,6 @@ CONCAT(
 ) as %s
 EOF;
 
-        return sprintf($sql, $columnSelectSql, $alias);
+        return \sprintf($sql, $columnSelectSql, $alias);
     }
 }

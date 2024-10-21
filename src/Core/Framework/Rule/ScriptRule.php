@@ -67,7 +67,7 @@ class ScriptRule extends Rule
 
         $script = new Script(
             $name,
-            sprintf('
+            \sprintf('
                 {%% apply spaceless %%}
                     {%% macro evaluate(%1$s) %%}
                         %2$s

@@ -13,7 +13,11 @@ const { Component } = Shopware;
 Component.register('sw-login-recovery', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['userRecoveryService'],
+
+    emits: ['is-loading'],
 
     data() {
         return {
@@ -39,11 +43,14 @@ Component.register('sw-login-recovery', {
         sendRecoveryMail() {
             this.$emit('is-loading');
 
-            this.userRecoveryService.createRecovery(this.email).then(() => {
-                this.displayRecoveryInfo();
-            }).catch(error => {
-                this.displayRecoveryInfo(error.response.data);
-            });
+            this.userRecoveryService
+                .createRecovery(this.email)
+                .then(() => {
+                    this.displayRecoveryInfo();
+                })
+                .catch((error) => {
+                    this.displayRecoveryInfo(error.response.data);
+                });
         },
 
         displayRecoveryInfo(data = null) {

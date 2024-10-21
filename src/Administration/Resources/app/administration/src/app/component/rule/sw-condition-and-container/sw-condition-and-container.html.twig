@@ -20,7 +20,7 @@
         <sw-condition-tree-node
             :parent-condition="condition"
             :condition="child"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             :level="level + 1"
         />
     </template>

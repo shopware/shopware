@@ -13,11 +13,19 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
         'feature',
         'mediaService',
+    ],
+
+    emits: [
+        'generator-open',
+        'delivery-open',
+        'variants-finish-update',
     ],
 
     mixins: [
@@ -26,6 +34,11 @@ export default {
     ],
 
     props: {
+        productEntity: {
+            type: Object,
+            required: true,
+        },
+
         selectedGroups: {
             type: Array,
             required: true,
@@ -147,25 +160,27 @@ export default {
 
         currencyColumns() {
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            return this.currencies.sort((_a, b) => {
-                return b.isSystemDefault ? 1 : -1;
-            }).map((currency) => {
-                return {
-                    property: `price.${currency.id}.net`,
-                    label: currency.translated.name || currency.name,
-                    visible: currency.isSystemDefault,
-                    allowResize: true,
-                    primary: false,
-                    rawData: false,
-                    inlineEdit: 'number',
-                    width: '250px',
-                };
-            });
+            return this.currencies
+                .sort((_a, b) => {
+                    return b.isSystemDefault ? 1 : -1;
+                })
+                .map((currency) => {
+                    return {
+                        property: `price.${currency.id}.net`,
+                        label: currency.translated.name || currency.name,
+                        visible: currency.isSystemDefault,
+                        allowResize: true,
+                        primary: false,
+                        rawData: false,
+                        inlineEdit: 'number',
+                        width: '250px',
+                    };
+                });
         },
 
         canBeDeletedCriteria() {
             const criteria = new Criteria(1, 25);
-            const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);
+            const variantIds = this.toBeDeletedVariantIds.map((variant) => variant.id);
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
             return criteria;
@@ -209,8 +224,9 @@ export default {
                 return;
             }
 
-            item.downloads = item.downloads
-                .filter(download => `${download.media.fileName}.${download.media.fileExtension}` !== fileName);
+            item.downloads = item.downloads.filter(
+                (download) => `${download.media.fileName}.${download.media.fileExtension}` !== fileName,
+            );
 
             this.productRepository.save(item);
         },
@@ -232,13 +248,16 @@ export default {
                 newDownload.productId = item.id;
                 newDownload.media = media;
 
-                Shopware.State.commit('swProductDetail/setVariants', this.variants.map((variant) => {
-                    if (variant.id === item.id) {
-                        variant.downloads.push(newDownload);
-                        this.productRepository.save(variant);
-                    }
-                    return variant;
-                }));
+                Shopware.State.commit(
+                    'swProductDetail/setVariants',
+                    this.variants.map((variant) => {
+                        if (variant.id === item.id) {
+                            variant.downloads.push(newDownload);
+                            this.productRepository.save(variant);
+                        }
+                        return variant;
+                    }),
+                );
             });
         },
 
@@ -259,7 +278,10 @@ export default {
                     return;
                 }
 
-                Shopware.State.commit('swProductDetail/setLoading', ['variants', true]);
+                Shopware.State.commit('swProductDetail/setLoading', [
+                    'variants',
+                    true,
+                ]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
@@ -277,11 +299,10 @@ export default {
                     .addFilter(Criteria.equals('product.parentId', this.product.id))
                     .addFilter(Criteria.multi('AND', productStatesFilter));
 
-                searchCriteria
-                    .getAssociation('media')
-                    .addSorting(Criteria.sort('position'));
+                searchCriteria.getAssociation('media').addSorting(Criteria.sort('position'));
 
-                searchCriteria.getAssociation('options')
+                searchCriteria
+                    .getAssociation('options')
                     .addSorting(Criteria.sort('groupId'))
                     .addSorting(Criteria.sort('id'));
 
@@ -301,22 +322,22 @@ export default {
 
                 // check for other sort values
                 if (this.sortBy === 'name') {
-                    searchCriteria
-                        .addSorting(Criteria.sort('product.options.name', this.sortDirection));
+                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection));
                 } else {
                     searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
 
                 // Start search
-                this.productRepository
-                    .search(searchCriteria)
-                    .then((res) => {
-                        this.total = res.total;
-                        Shopware.State.commit('swProductDetail/setVariants', res);
-                        Shopware.State.commit('swProductDetail/setLoading', ['variants', false]);
-                        this.$emit('variants-finish-update', this.variants);
-                        resolve();
-                    });
+                this.productRepository.search(searchCriteria).then((res) => {
+                    this.total = res.total;
+                    Shopware.State.commit('swProductDetail/setVariants', res);
+                    Shopware.State.commit('swProductDetail/setLoading', [
+                        'variants',
+                        false,
+                    ]);
+                    this.$emit('variants-finish-update', this.variants);
+                    resolve();
+                });
             });
         },
 
@@ -333,6 +354,7 @@ export default {
                 criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
                 criteria.addQuery(Criteria.contains('product.options.name', term), 500);
             });
+            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
 
             // return the input
             return criteria;
@@ -341,7 +363,8 @@ export default {
         getFilterOptions() {
             // Prepare groups
             const groups = [...this.selectedGroups]
-                .sort((a, b) => a.position - b.position).map((group, index) => {
+                .sort((a, b) => a.position - b.position)
+                .map((group, index) => {
                     const children = this.getOptionsForGroup(group.id);
 
                     return {
@@ -359,32 +382,40 @@ export default {
                 const options = this.getOptionsForGroup(group.id);
 
                 // Iterate for each group options
-                const optionsForGroup = options.sort((elementA, elementB) => {
-                    return elementA.position - elementB.position;
-                }).map((element, index) => {
-                    const option = element.option;
+                const optionsForGroup = options
+                    .sort((elementA, elementB) => {
+                        return elementA.position - elementB.position;
+                    })
+                    .map((element, index) => {
+                        const option = element.option;
 
-                    // Get previous element
-                    let afterId = null;
-                    if (index > 0) {
-                        afterId = options[index - 1].option.id;
-                    }
+                        // Get previous element
+                        let afterId = null;
+                        if (index > 0) {
+                            afterId = options[index - 1].option.id;
+                        }
 
-                    return {
-                        id: option.id,
-                        name: option.name,
-                        childCount: 0,
-                        parentId: option.groupId,
-                        afterId,
-                        storeObject: element,
-                    };
-                });
+                        return {
+                            id: option.id,
+                            name: option.name,
+                            childCount: 0,
+                            parentId: option.groupId,
+                            afterId,
+                            storeObject: element,
+                        };
+                    });
 
-                return [...result, ...optionsForGroup];
+                return [
+                    ...result,
+                    ...optionsForGroup,
+                ];
             }, []);
 
             // Assign groups and children to order objects
-            this.filterOptions = [...groups, ...children];
+            this.filterOptions = [
+                ...groups,
+                ...children,
+            ];
         },
 
         resetFilterOptions() {
@@ -486,7 +517,11 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                this.$delete(variant.price, foundVariantIndex);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(variant.price, foundVariantIndex);
+                } else {
+                    delete variant.price[foundVariantIndex];
+                }
             }
 
             if (variant.price.length <= 0 || Object.keys(variant.price).length <= 0) {
@@ -522,7 +557,11 @@ export default {
             };
 
             // add new price currency to variant
-            this.$set(variant.price, variant.price.length, newPrice);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(variant.price, variant.price.length, newPrice);
+            } else {
+                variant.price.push(newPrice);
+            }
         },
 
         onMediaInheritanceRestore(variant, isInlineEdit) {
@@ -546,7 +585,11 @@ export default {
             variant.forceMediaInheritanceRemove = true;
             this.product.media.forEach(({ id, mediaId, position }) => {
                 const media = this.productMediaRepository.create(Context.api);
-                Object.assign(media, { mediaId, position, productId: this.product.id });
+                Object.assign(media, {
+                    mediaId,
+                    position,
+                    productId: this.product.id,
+                });
                 if (this.product.coverId === id) {
                     variant.coverId = media.id;
                 }
@@ -584,30 +627,35 @@ export default {
                 return `${acc}${index > 0 ? ' - ' : ''}${option.translated.name}`;
             }, '');
 
-            this.productRepository.save(variation).then(() => {
-                // create success notification
-                const titleSaveSuccess = this.$tc('global.default.success');
-                const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
-                    name: productName,
-                });
+            this.productRepository
+                .save(variation)
+                .then(() => {
+                    // create success notification
+                    const titleSaveSuccess = this.$tc('global.default.success');
+                    const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
+                        name: productName,
+                    });
 
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess,
-                });
+                    this.createNotificationSuccess({
+                        title: titleSaveSuccess,
+                        message: messageSaveSuccess,
+                    });
 
-                // update items
-                this.getList();
-            }).catch(() => {
-                // create error notification
-                const titleSaveError = this.$tc('global.default.error');
-                const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
+                    // update items
+                    this.getList();
+                })
+                .catch(() => {
+                    // create error notification
+                    const titleSaveError = this.$tc('global.default.error');
+                    const messageSaveError = this.$tc(
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                    );
 
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError,
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError,
+                    });
                 });
-            });
         },
 
         onInlineEditCancel() {
@@ -623,9 +671,9 @@ export default {
         onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;
-            const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);
+            const variantIds = this.toBeDeletedVariantIds.map((variant) => variant.id);
 
-            this.canVariantBeDeleted().then(canBeDeleted => {
+            this.canVariantBeDeleted().then((canBeDeleted) => {
                 if (!canBeDeleted) {
                     this.modalLoading = false;
                     this.toBeDeletedVariantIds = [];
@@ -636,6 +684,8 @@ export default {
 
                     return;
                 }
+
+                this.updateVariantListingConfig(variantIds);
 
                 this.productRepository.syncDeleted(variantIds).then(() => {
                     this.modalLoading = false;
@@ -680,10 +730,11 @@ export default {
             await this.$nextTick();
 
             let includesDigital = '0';
-            const digital = Object.values(this.$refs.variantGrid.selection)
-                .filter(product => product.states.includes('is-download'));
+            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
+                product.states.includes('is-download'),
+            );
             if (digital.length > 0) {
-                includesDigital = (digital.filter(product => product.isCloseout).length !== digital.length) ? '1' : '2';
+                includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }
 
             this.$router.push({
@@ -704,6 +755,25 @@ export default {
 
         variantIsDigital(variant) {
             return this.productStates.includes('all') && variant.states && variant.states.includes('is-download');
+        },
+
+        updateVariantListingConfig(variantIds) {
+            if (variantIds.length === this.variants.length) {
+                this.productEntity.variantListingConfig = null;
+            }
+
+            const mainVariantId = this.productEntity.variantListingConfig?.mainVariantId;
+            if (mainVariantId && variantIds.includes(mainVariantId)) {
+                this.productEntity.variantListingConfig.mainVariantId = null;
+
+                const displaySingleProduct = this.productEntity.variantListingConfig?.displayParent !== null;
+
+                if (displaySingleProduct) {
+                    this.productEntity.variantListingConfig.displayParent = true;
+                }
+            }
+
+            this.productRepository.save(this.productEntity);
         },
     },
 };

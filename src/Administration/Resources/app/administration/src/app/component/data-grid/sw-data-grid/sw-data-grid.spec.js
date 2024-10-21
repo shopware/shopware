@@ -6,14 +6,6 @@ import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-/* const localVue = createLocalVue();
-localVue.directive('popover', {});
-localVue.directive('tooltip', {
-    bind(el, binding) {
-        el.setAttribute('data-tooltip-message', binding.value);
-    },
-}); */
-
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
     id: '021150d043ee49e18642daef58e92c96',
@@ -64,24 +56,47 @@ describe('components/data-grid/sw-data-grid', () => {
         }
 
         stubs = {
-            'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+            'sw-switch-field': await wrapTestComponent('sw-switch-field', {
+                sync: true,
+            }),
             'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
+                sync: true,
+            }),
             'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
             'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
-            'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
-            'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
+            'sw-context-button': await wrapTestComponent('sw-context-button', {
+                sync: true,
+            }),
+            'sw-context-menu': await wrapTestComponent('sw-context-menu', {
+                sync: true,
+            }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
             'sw-button': await wrapTestComponent('sw-button', { sync: true }),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-popover': await wrapTestComponent('sw-popover'),
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-            'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+            'sw-base-field': await wrapTestComponent('sw-base-field', {
+                sync: true,
+            }),
             'sw-field-error': true,
             'sw-context-menu-divider': true,
             'sw-button-group': true,
+            'sw-data-grid-column-boolean': true,
+            'sw-data-grid-inline-edit': true,
+            'router-link': true,
+            'sw-data-grid-skeleton': true,
+            'mt-checkbox': true,
+            'mt-icon': true,
+            'sw-inheritance-switch': true,
+            'sw-ai-copilot-badge': true,
+            'sw-help-text': true,
+            'mt-button': true,
+            'sw-loader': true,
+            'mt-floating-ui': true,
+            'mt-switch': true,
         };
 
         return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
@@ -89,7 +104,7 @@ describe('components/data-grid/sw-data-grid', () => {
                 directives: {
                     popover: {},
                     tooltip: {
-                        bind(el, binding) {
+                        beforeMount(el, binding) {
                             el.setAttribute('data-tooltip-message', binding.value);
                         },
                     },
@@ -99,7 +114,9 @@ describe('components/data-grid/sw-data-grid', () => {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve([userConfig ?? defaultUserConfig]);
+                                return Promise.resolve([
+                                    userConfig ?? defaultUserConfig,
+                                ]);
                             },
                             save: () => {
                                 return Promise.resolve();
@@ -116,23 +133,50 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+            'sw-switch-field': await wrapTestComponent('sw-switch-field', {
+                sync: true,
+            }),
             'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
+                sync: true,
+            }),
             'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-icon': true,
-            'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
-            'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
+            'sw-context-button': await wrapTestComponent('sw-context-button', {
+                sync: true,
+            }),
+            'sw-context-menu': await wrapTestComponent('sw-context-menu', {
+                sync: true,
+            }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
             'sw-button': await wrapTestComponent('sw-button', { sync: true }),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-popover': await wrapTestComponent('sw-popover'),
-            'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+            'sw-base-field': await wrapTestComponent('sw-base-field', {
+                sync: true,
+            }),
             'sw-field-error': true,
             'sw-context-menu-divider': true,
             'sw-button-group': true,
+            'sw-data-grid-column-boolean': true,
+            'sw-data-grid-inline-edit': true,
+            'router-link': true,
+            'sw-data-grid-skeleton': true,
+            'mt-checkbox': true,
+            'mt-icon': true,
+            'sw-inheritance-switch': true,
+            'sw-ai-copilot-badge': true,
+            'sw-help-text': true,
+            'mt-button': true,
+            'sw-loader': true,
+            'mt-floating-ui': true,
+            'mt-switch': true,
         };
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
     it('should be a Vue.js component', async () => {
@@ -230,41 +274,49 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('remove property in client', async () => {
-        const wrapper = await createWrapper({
-            showSettings: true,
-            identifier: 'sw-customer-list',
-            columns: [
-                { property: 'name', label: 'Name' },
-            ],
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
-            ],
-        }, {
-            createdAt: '2021-01-21T06:52:41.857+00:00',
-            id: '021150d043ee49e18642daef58e92c96',
-            key: 'grid.setting.sw-customer-list',
-            updatedAt: '2021-01-21T06:54:00.252+00:00',
-            userId: 'd9a43905b72e43b7b669c6b005a3cf15',
-            value: {
+        const wrapper = await createWrapper(
+            {
+                showSettings: true,
+                identifier: 'sw-customer-list',
                 columns: [
+                    { property: 'name', label: 'Name' },
+                ],
+                dataSource: [
+                    { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
                     {
-                        dataIndex: 'name',
-                        label: 'Name',
-                        property: 'name',
-                        visible: false,
-                    },
-                    {
-                        dataIndex: 'company',
-                        label: 'Company',
-                        property: 'company',
-                        visible: false,
+                        id: 'uuid2',
+                        company: 'Twitternation',
+                        name: 'Baxy Eardley',
                     },
                 ],
-                compact: true,
-                previews: true,
             },
-        }, true);
+            {
+                createdAt: '2021-01-21T06:52:41.857+00:00',
+                id: '021150d043ee49e18642daef58e92c96',
+                key: 'grid.setting.sw-customer-list',
+                updatedAt: '2021-01-21T06:54:00.252+00:00',
+                userId: 'd9a43905b72e43b7b669c6b005a3cf15',
+                value: {
+                    columns: [
+                        {
+                            dataIndex: 'name',
+                            label: 'Name',
+                            property: 'name',
+                            visible: false,
+                        },
+                        {
+                            dataIndex: 'company',
+                            label: 'Company',
+                            property: 'company',
+                            visible: false,
+                        },
+                    ],
+                    compact: true,
+                    previews: true,
+                },
+            },
+            true,
+        );
 
         expect(wrapper.vm.showSettings).toBe(true);
         expect(wrapper.findComponent(stubs['sw-context-menu']).exists()).toBe(false);
@@ -282,7 +334,6 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(1);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
         expect(wrapper.vm.currentColumns[1]).toBeUndefined();
@@ -292,36 +343,44 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('add property in client', async () => {
-        const wrapper = await createWrapper({
-            showSettings: true,
-            identifier: 'sw-customer-list',
-            columns: [
-                { property: 'name', label: 'Name' },
-                { property: 'company', label: 'Company' },
-            ],
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
-            ],
-        }, {
-            createdAt: '2021-01-21T06:52:41.857+00:00',
-            id: '021150d043ee49e18642daef58e92c96',
-            key: 'grid.setting.sw-customer-list',
-            updatedAt: '2021-01-21T06:54:00.252+00:00',
-            userId: 'd9a43905b72e43b7b669c6b005a3cf15',
-            value: {
+        const wrapper = await createWrapper(
+            {
+                showSettings: true,
+                identifier: 'sw-customer-list',
                 columns: [
+                    { property: 'name', label: 'Name' },
+                    { property: 'company', label: 'Company' },
+                ],
+                dataSource: [
+                    { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
                     {
-                        dataIndex: 'name',
-                        label: 'Name',
-                        property: 'name',
-                        visible: false,
+                        id: 'uuid2',
+                        company: 'Twitternation',
+                        name: 'Baxy Eardley',
                     },
                 ],
-                compact: true,
-                previews: true,
             },
-        }, true);
+            {
+                createdAt: '2021-01-21T06:52:41.857+00:00',
+                id: '021150d043ee49e18642daef58e92c96',
+                key: 'grid.setting.sw-customer-list',
+                updatedAt: '2021-01-21T06:54:00.252+00:00',
+                userId: 'd9a43905b72e43b7b669c6b005a3cf15',
+                value: {
+                    columns: [
+                        {
+                            dataIndex: 'name',
+                            label: 'Name',
+                            property: 'name',
+                            visible: false,
+                        },
+                    ],
+                    compact: true,
+                    previews: true,
+                },
+            },
+            true,
+        );
 
         expect(wrapper.vm.showSettings).toBe(true);
         expect(wrapper.findComponent(stubs['sw-context-menu']).exists()).toBe(false);
@@ -339,7 +398,6 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(2);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
         expect(wrapper.vm.currentColumns[1].visible).toBe(true);
@@ -349,40 +407,44 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('add property value in client', async () => {
-        const wrapper = await createWrapper({
-            showSettings: true,
-            identifier: 'sw-customer-list',
-            columns: [
-                { property: 'name', label: 'Name', mockProperty: true },
-            ],
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-            ],
-        }, {
-            createdAt: '2021-01-21T06:52:41.857+00:00',
-            id: '021150d043ee49e18642daef58e92c96',
-            key: 'grid.setting.sw-customer-list',
-            updatedAt: '2021-01-21T06:54:00.252+00:00',
-            userId: 'd9a43905b72e43b7b669c6b005a3cf15',
-            value: {
+        const wrapper = await createWrapper(
+            {
+                showSettings: true,
+                identifier: 'sw-customer-list',
                 columns: [
-                    {
-                        dataIndex: 'name',
-                        label: 'Name',
-                        property: 'name',
-                        visible: false,
-                    },
-                    {
-                        dataIndex: 'company',
-                        label: 'Company',
-                        property: 'company',
-                        visible: false,
-                    },
+                    { property: 'name', label: 'Name', mockProperty: true },
                 ],
-                compact: true,
-                previews: true,
+                dataSource: [
+                    { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+                ],
             },
-        }, true);
+            {
+                createdAt: '2021-01-21T06:52:41.857+00:00',
+                id: '021150d043ee49e18642daef58e92c96',
+                key: 'grid.setting.sw-customer-list',
+                updatedAt: '2021-01-21T06:54:00.252+00:00',
+                userId: 'd9a43905b72e43b7b669c6b005a3cf15',
+                value: {
+                    columns: [
+                        {
+                            dataIndex: 'name',
+                            label: 'Name',
+                            property: 'name',
+                            visible: false,
+                        },
+                        {
+                            dataIndex: 'company',
+                            label: 'Company',
+                            property: 'company',
+                            visible: false,
+                        },
+                    ],
+                    compact: true,
+                    previews: true,
+                },
+            },
+            true,
+        );
 
         expect(wrapper.vm.showSettings).toBe(true);
         expect(wrapper.findComponent(stubs['sw-context-menu']).exists()).toBe(false);
@@ -400,7 +462,6 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(1);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
         expect(wrapper.vm.currentColumns[0].mockProperty).toBe(true);
@@ -410,36 +471,44 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('remove property value in client', async () => {
-        const wrapper = await createWrapper({
-            showSettings: true,
-            identifier: 'sw-customer-list',
-            columns: [
-                { property: 'name', label: 'Name' },
-            ],
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
-            ],
-        }, {
-            createdAt: '2021-01-21T06:52:41.857+00:00',
-            id: '021150d043ee49e18642daef58e92c96',
-            key: 'grid.setting.sw-customer-list',
-            updatedAt: '2021-01-21T06:54:00.252+00:00',
-            userId: 'd9a43905b72e43b7b669c6b005a3cf15',
-            value: {
+        const wrapper = await createWrapper(
+            {
+                showSettings: true,
+                identifier: 'sw-customer-list',
                 columns: [
+                    { property: 'name', label: 'Name' },
+                ],
+                dataSource: [
+                    { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
                     {
-                        dataIndex: 'name',
-                        label: 'Name',
-                        property: 'name',
-                        visible: false,
-                        mockProperty: true,
+                        id: 'uuid2',
+                        company: 'Twitternation',
+                        name: 'Baxy Eardley',
                     },
                 ],
-                compact: true,
-                previews: true,
             },
-        }, true);
+            {
+                createdAt: '2021-01-21T06:52:41.857+00:00',
+                id: '021150d043ee49e18642daef58e92c96',
+                key: 'grid.setting.sw-customer-list',
+                updatedAt: '2021-01-21T06:54:00.252+00:00',
+                userId: 'd9a43905b72e43b7b669c6b005a3cf15',
+                value: {
+                    columns: [
+                        {
+                            dataIndex: 'name',
+                            label: 'Name',
+                            property: 'name',
+                            visible: false,
+                            mockProperty: true,
+                        },
+                    ],
+                    compact: true,
+                    previews: true,
+                },
+            },
+            true,
+        );
 
         expect(wrapper.vm.showSettings).toBe(true);
         expect(wrapper.findComponent(stubs['sw-context-menu']).exists()).toBe(false);
@@ -461,7 +530,6 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
         expect(wrapper.vm.currentColumns[0].mockProperty).toBeUndefined();
 
-
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
     });
@@ -469,7 +537,10 @@ describe('components/data-grid/sw-data-grid', () => {
     const cases = {
         'simple field': { accessor: 'id', expected: '123' },
         'translated field': { accessor: 'name', expected: 'translated' },
-        'translated field with accessor': { accessor: 'translated.name', expected: 'translated' },
+        'translated field with accessor': {
+            accessor: 'translated.name',
+            expected: 'translated',
+        },
         'nested object with simple field': {
             accessor: 'manufacturer.description',
             expected: 'manufacturer-description',
@@ -483,24 +554,38 @@ describe('components/data-grid/sw-data-grid', () => {
             expected: 'manufacturer-translated',
         },
         'unknown field': { accessor: 'unknown', expected: undefined },
-        'nested unknown field': { accessor: 'manufacturer.unknown', expected: undefined },
+        'nested unknown field': {
+            accessor: 'manufacturer.unknown',
+            expected: undefined,
+        },
         'unknown nested object': {
             accessor: 'unknown.unknown',
             expected: undefined,
             errorMsg: '[[sw-data-grid] Can not resolve accessor: unknown.unknown]',
         },
 
-        'test last function': { accessor: 'transactions.last().name', expected: 'last' },
-        'test first function': { accessor: 'transactions.first().name', expected: 'first' },
-        'test array access on collection': { accessor: 'transactions[1].name', expected: 'second' },
+        'test last function': {
+            accessor: 'transactions.last().name',
+            expected: 'last',
+        },
+        'test first function': {
+            accessor: 'transactions.first().name',
+            expected: 'first',
+        },
+        'test array access on collection': {
+            accessor: 'transactions[1].name',
+            expected: 'second',
+        },
 
         'test array element 1': { accessor: 'arrayField[0]', expected: 1 },
         'test array element 2': { accessor: 'arrayField[1]', expected: 2 },
         'test array element 3': { accessor: 'arrayField[2]', expected: 3 },
 
-        'test null object': { accessor: 'payload.customerId',
+        'test null object': {
+            accessor: 'payload.customerId',
             expected: null,
-            errorMsg: '[[sw-data-grid] Can not resolve accessor: payload.customerId]' },
+            errorMsg: '[[sw-data-grid] Can not resolve accessor: payload.customerId]',
+        },
         'test nested null object': {
             accessor: 'customer.type.name',
             expected: null,
@@ -509,78 +594,109 @@ describe('components/data-grid/sw-data-grid', () => {
     };
 
     // This test cases previously tested for console.warn calls. This was removed because vue compat emits too many warnings
-    Object.entries(cases).forEach(([key, testCase]) => {
-        it(`should render columns with ${key}`, async () => {
-            const wrapper = await createWrapper();
-            const grid = wrapper.vm;
+    Object.entries(cases).forEach(
+        ([
+            key,
+            testCase,
+        ]) => {
+            it(`should render columns with ${key}`, async () => {
+                jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
 
-            const data = {
-                name: 'original',
-                translated: {
-                    name: 'translated',
-                },
-                manufacturer: new Entity('test', 'product_manufacturer', {
-                    description: 'manufacturer-description',
-                    name: 'manufacturer',
-                    translated: { name: 'manufacturer-translated' },
-                }),
-                plainObject: {
-                    name: 'object',
-                },
-                transactions: new EntityCollection('', 'order_transaction', {}, {}, [
-                    { name: 'first' },
-                    { name: 'second' },
-                    { name: 'last' },
-                ], 1, null),
-                arrayField: [1, 2, 3],
-                payload: null,
-                customer: { type: null },
-            };
+                const wrapper = await createWrapper();
+                const grid = wrapper.vm;
 
-            const entity = new Entity('123', 'test', data);
+                const data = {
+                    name: 'original',
+                    translated: {
+                        name: 'translated',
+                    },
+                    manufacturer: new Entity('test', 'product_manufacturer', {
+                        description: 'manufacturer-description',
+                        name: 'manufacturer',
+                        translated: { name: 'manufacturer-translated' },
+                    }),
+                    plainObject: {
+                        name: 'object',
+                    },
+                    transactions: new EntityCollection(
+                        '',
+                        'order_transaction',
+                        {},
+                        {},
+                        [
+                            { name: 'first' },
+                            { name: 'second' },
+                            { name: 'last' },
+                        ],
+                        1,
+                        null,
+                    ),
+                    arrayField: [
+                        1,
+                        2,
+                        3,
+                    ],
+                    payload: null,
+                    customer: { type: null },
+                };
 
-            const column = { property: testCase.accessor };
-            const result = grid.renderColumn(entity, column);
+                const entity = new Entity('123', 'test', data);
 
-            expect(result).toBe(testCase.expected);
-        });
+                const column = { property: testCase.accessor };
+                const result = grid.renderColumn(entity, column);
 
-        it(`should render different columns dynamically with ${key}`, async () => {
-            const wrapper = await createWrapper();
-            const grid = wrapper.vm;
+                expect(result).toBe(testCase.expected);
+            });
 
-            const data = {
-                name: 'original',
-                translated: {
-                    name: 'translated',
-                },
-                manufacturer: new Entity('test', 'product_manufacturer', {
-                    description: 'manufacturer-description',
-                    name: 'manufacturer',
-                    translated: { name: 'manufacturer-translated' },
-                }),
-                plainObject: {
-                    name: 'object',
-                },
-                transactions: new EntityCollection('', 'order_transaction', { }, { }, [
-                    { name: 'first' },
-                    { name: 'second' },
-                    { name: 'last' },
-                ], 1, null),
-                arrayField: [1, 2, 3],
-                payload: null,
-                customer: { type: null },
-            };
+            it(`should render different columns dynamically with ${key}`, async () => {
+                const wrapper = await createWrapper();
+                const grid = wrapper.vm;
 
-            const entity = new Entity('123', 'test', data);
+                const data = {
+                    name: 'original',
+                    translated: {
+                        name: 'translated',
+                    },
+                    manufacturer: new Entity('test', 'product_manufacturer', {
+                        description: 'manufacturer-description',
+                        name: 'manufacturer',
+                        translated: { name: 'manufacturer-translated' },
+                    }),
+                    plainObject: {
+                        name: 'object',
+                    },
+                    transactions: new EntityCollection(
+                        '',
+                        'order_transaction',
+                        {},
+                        {},
+                        [
+                            { name: 'first' },
+                            { name: 'second' },
+                            { name: 'last' },
+                        ],
+                        1,
+                        null,
+                    ),
+                    arrayField: [
+                        1,
+                        2,
+                        3,
+                    ],
+                    payload: null,
+                    customer: { type: null },
+                };
 
-            const column = { property: testCase.accessor };
+                const entity = new Entity('123', 'test', data);
 
-            const result = grid.renderColumn(entity, column);
+                const column = { property: testCase.accessor };
 
-            expect(result).toBe(testCase.expected);
-        });
-    });
+                const result = grid.renderColumn(entity, column);
+
+                expect(result).toBe(testCase.expected);
+            });
+        },
+    );
 
     it('should pre select grid using preSelection prop', async () => {
         const preSelection = {
@@ -605,7 +721,11 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+                uuid1: {
+                    id: 'uuid1',
+                    company: 'Wordify',
+                    name: 'Portia Jobson',
+                },
             },
         });
 
@@ -635,7 +755,11 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+                uuid1: {
+                    id: 'uuid1',
+                    company: 'Wordify',
+                    name: 'Portia Jobson',
+                },
             },
         });
 
@@ -652,6 +776,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
     it('should add all records to grid selection when clicking select all', async () => {
         const wrapper = await createWrapper();
+
         await wrapper.setProps({
             identifier: 'sw-customer-list',
         });
@@ -664,7 +789,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const expectedState = {};
 
-        defaultProps.dataSource.forEach(item => {
+        defaultProps.dataSource.forEach((item) => {
             expectedState[item.id] = item;
         });
 
@@ -679,7 +804,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const curentGridState = {};
 
-        defaultProps.dataSource.forEach(item => {
+        defaultProps.dataSource.forEach((item) => {
             curentGridState[item.id] = item;
         });
 
@@ -706,7 +831,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const curentGridState = {};
 
-        defaultProps.dataSource.forEach(item => {
+        defaultProps.dataSource.forEach((item) => {
             curentGridState[item.id] = item;
         });
 
@@ -854,7 +979,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        newRows.forEach(row => {
+        newRows.forEach((row) => {
             const checkbox = row.find('.sw-field__checkbox input');
             expect(checkbox.attributes().disabled).toBe('');
         });
@@ -868,7 +993,11 @@ describe('components/data-grid/sw-data-grid', () => {
     it('should render icon column header', async () => {
         const wrapper = await createWrapper({
             columns: [
-                { property: 'name', label: 'Name', iconLabel: 'regular-file-text' },
+                {
+                    property: 'name',
+                    label: 'Name',
+                    iconLabel: 'regular-file-text',
+                },
                 { property: 'company', label: 'Company' },
             ],
             dataSource: [
@@ -883,7 +1012,12 @@ describe('components/data-grid/sw-data-grid', () => {
     it('should render icon column header with tooltip', async () => {
         const wrapper = await createWrapper({
             columns: [
-                { property: 'name', label: 'Name', iconLabel: 'regular-file-text', iconTooltip: 'tooltip message' },
+                {
+                    property: 'name',
+                    label: 'Name',
+                    iconLabel: 'regular-file-text',
+                    iconTooltip: 'tooltip message',
+                },
                 { property: 'company', label: 'Company' },
             ],
             dataSource: [
@@ -893,6 +1027,19 @@ describe('components/data-grid/sw-data-grid', () => {
 
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
         expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe('tooltip message');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe(
+            'tooltip message',
+        );
+    });
+
+    it('should render a row for each item in isRecordDisabled prop', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isRecordDisabled: (record) => record.id === 'uuid1',
+        });
+
+        const row = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+
+        expect(row.classes()).toContain('is--disabled');
     });
 });

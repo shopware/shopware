@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -62,28 +64,33 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.countryRepository.search(criteria, Shopware.Context.api).then((items) => {
-                this.total = items.total;
-                this.country = items;
-                this.isLoading = false;
+            this.countryRepository
+                .search(criteria, Shopware.Context.api)
+                .then((items) => {
+                    this.total = items.total;
+                    this.country = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onInlineEditSave(promise, country) {
-            promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name }),
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name }),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-country.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-country.detail.messageSaveError'),
-                });
-            });
         },
 
         onChangeLanguage(languageId) {
@@ -108,30 +115,36 @@ export default {
         },
 
         getCountryColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnName',
-                routerLink: 'sw.settings.country.detail',
-                primary: true,
-            }, {
-                property: 'position',
-                inlineEdit: 'number',
-                label: 'sw-settings-country.list.columnPosition',
-            }, {
-                property: 'iso',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnIso',
-            }, {
-                property: 'iso3',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnIso3',
-            }, {
-                property: 'active',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnActive',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnName',
+                    routerLink: 'sw.settings.country.detail',
+                    primary: true,
+                },
+                {
+                    property: 'position',
+                    inlineEdit: 'number',
+                    label: 'sw-settings-country.list.columnPosition',
+                },
+                {
+                    property: 'iso',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnIso',
+                },
+                {
+                    property: 'iso3',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnIso3',
+                },
+                {
+                    property: 'active',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnActive',
+                },
+            ];
         },
     },
 };

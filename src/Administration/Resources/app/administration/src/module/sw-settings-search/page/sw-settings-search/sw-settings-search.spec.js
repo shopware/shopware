@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -25,47 +25,52 @@ const mockData = [
 async function createWrapper() {
     const router = createRouter({
         history: createWebHashHistory(),
-        routes: [{
-            name: 'sw.settings.search.index.general',
-            path: '/sw/settings/search/index/general',
-            component: await wrapTestComponent('sw-settings-search', {
-                sync: true,
-            }),
-        }, {
-            name: 'sw.settings.search.index.liveSearch',
-            path: '/sw/settings/search/index/live-search/',
-        }],
+        routes: [
+            {
+                name: 'sw.settings.search.index.general',
+                path: '/sw/settings/search/index/general',
+                component: await wrapTestComponent('sw-settings-search', {
+                    sync: true,
+                }),
+            },
+            {
+                name: 'sw.settings.search.index.liveSearch',
+                path: '/sw/settings/search/index/live-search/',
+            },
+        ],
     });
 
-    return mount(await wrapTestComponent('sw-settings-search', {
-        sync: true,
-    }), {
-        global: {
-            router,
+    return mount(
+        await wrapTestComponent('sw-settings-search', {
+            sync: true,
+        }),
+        {
+            global: {
+                router,
 
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
-                        },
-                        save: (productSearchConfigs) => {
-                            if (!productSearchConfigs) {
-                                // eslint-disable-next-line prefer-promise-reject-errors
-                                return Promise.reject({ error: 'Error' });
-                            }
-                            return Promise.resolve();
-                        },
-                        create: jest.fn(() => {
-                            return {};
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
+                            },
+                            save: (productSearchConfigs) => {
+                                if (!productSearchConfigs) {
+                                    // eslint-disable-next-line prefer-promise-reject-errors
+                                    return Promise.reject({ error: 'Error' });
+                                }
+                                return Promise.resolve();
+                            },
+                            create: jest.fn(() => {
+                                return {};
+                            }),
                         }),
-                    }),
+                    },
                 },
-            },
 
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -78,31 +83,34 @@ async function createWrapper() {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-icon': true,
-                'sw-language-switch': true,
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-card-view': {
-                    template: `
+                    },
+                    'sw-icon': true,
+                    'sw-language-switch': true,
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-card-view': {
+                        template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
                 `,
+                    },
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),
+                    'sw-modal': true,
+                    'router-link': true,
+                    'router-view': true,
+                    'sw-skeleton': true,
+                    'mt-tabs': true,
+                    'sw-extension-component-section': true,
                 },
-                'sw-tabs': await wrapTestComponent('sw-tabs'),
-                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),
-                'sw-modal': true,
-                'router-link': true,
-                'router-view': true,
-                'sw-skeleton': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-search/page/sw-settings-search', () => {

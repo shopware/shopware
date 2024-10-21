@@ -8,7 +8,11 @@ import './sw-extension-rating-stars.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    emits: ['update:rating'],
 
     props: {
         editable: {
@@ -103,9 +107,11 @@ export default {
         },
 
         showPartialStar(key) {
-            return this.ratingValue % 1 !== 0
+            return (
+                this.ratingValue % 1 !== 0 &&
                 // subtract because rtl direction is used
-                && (this.maxRating - Math.ceil(this.ratingValue)) === key;
+                this.maxRating - Math.ceil(this.ratingValue) === key
+            );
         },
     },
 };

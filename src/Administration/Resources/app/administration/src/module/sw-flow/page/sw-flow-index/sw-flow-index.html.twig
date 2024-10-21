@@ -29,6 +29,9 @@
     <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_index_smart_bar_actions_extension %}
+        <sw-extension-teaser-popover
+            position-identifier="sw-flow-upload-flow-button"
+        />
         {% endblock %}
 
         <sw-button
@@ -41,7 +44,7 @@
             class="sw-flow-list__create"
             variant="primary"
             :router-link="{ name: 'sw.flow.create' }"
-            :disabled="!acl.can('flow.creator')"
+            :disabled="!acl.can('flow.creator') || undefined"
         >
             {{ $tc('sw-flow.list.buttonAddFlow') }}
         </sw-button>

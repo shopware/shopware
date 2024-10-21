@@ -63,7 +63,7 @@ class CacheValueCompressor
         }
 
         if ($uncompressed === false) {
-            throw new \RuntimeException(sprintf('Could not uncompress "%s"', $value));
+            throw new \RuntimeException(\sprintf('Could not uncompress "%s"', $value));
         }
 
         return unserialize($uncompressed);

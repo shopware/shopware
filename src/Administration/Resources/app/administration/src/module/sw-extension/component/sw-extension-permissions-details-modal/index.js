@@ -8,6 +8,10 @@ import './sw-extension-permissions-details-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['modal-close'],
+
     props: {
         permissions: {
             type: Object,
@@ -49,6 +53,14 @@ export default {
         ankerId() {
             return this.selectedEntity !== '' ? `permission-${this.selectedEntity}` : null;
         },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     mounted() {
@@ -72,7 +84,10 @@ export default {
             const topOfElement = entityElement.offsetTop;
             const headRow = this.$el.querySelector('.sw-extension-permissions-details-modal__operations');
 
-            modalBody.scroll({ top: topOfElement - headRow.offsetHeight, behavior: 'smooth' });
+            modalBody.scroll({
+                top: topOfElement - headRow.offsetHeight,
+                behavior: 'smooth',
+            });
         },
 
         close() {

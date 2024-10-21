@@ -14,13 +14,28 @@ export default {
                 helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
             types: [
-                { id: 'datetime', name: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime') },
-                { id: 'date', name: this.$tc('sw-settings-custom-field.customField.detail.labelDate') },
-                { id: 'time', name: this.$tc('sw-settings-custom-field.customField.detail.labelTime') },
+                {
+                    id: 'datetime',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime'),
+                },
+                {
+                    id: 'date',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDate'),
+                },
+                {
+                    id: 'time',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelTime'),
+                },
             ],
             timeForms: [
-                { id: 'true', name: this.$tc('sw-settings-custom-field.customField.detail.labelYes') },
-                { id: 'false', name: this.$tc('sw-settings-custom-field.customField.detail.labelNo') },
+                {
+                    id: 'true',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelYes'),
+                },
+                {
+                    id: 'false',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelNo'),
+                },
             ],
         };
     },
@@ -36,7 +51,9 @@ export default {
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('config')) {
-                this.$set(this.currentCustomField.config, 'config', { time_24hr: true });
+                this.$set(this.currentCustomField.config, 'config', {
+                    time_24hr: true,
+                });
             }
         },
     },

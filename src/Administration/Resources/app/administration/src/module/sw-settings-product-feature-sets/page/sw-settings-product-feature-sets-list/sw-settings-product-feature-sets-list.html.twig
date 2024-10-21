@@ -41,7 +41,7 @@
         {% block sw_settings_product_feature_set_list_smart_bar_actions_add %}
         <sw-button
             :router-link="{ name: 'sw.settings.product.feature.sets.create' }"
-            :disabled="!acl.can('product_feature_sets.creator')"
+            :disabled="!acl.can('product_feature_sets.creator') || undefined"
             class="sw-settings-product-feature-sets-list-grid__create-button"
             variant="primary"
         >
@@ -98,7 +98,7 @@
                     {% block sw_settings_product_feature_set_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         :router-link="{ name: 'sw.settings.product.feature.sets.detail', params: { id: item.id, edit: 'edit' }}"
-                        :disabled="!acl.can('product_feature_sets.editor')"
+                        :disabled="!acl.can('product_feature_sets.editor') || undefined"
                         class="sw-product-feature-sets-list__edit-action"
                     >
                         {{ $tc('sw-settings-product-feature-sets.list.contextMenuEdit') }}
@@ -108,7 +108,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
-                        :disabled="item.isSystemDefault || !acl.can('product_feature_sets.deleter')"
+                        :disabled="item.isSystemDefault || !acl.can('product_feature_sets.deleter') || undefined"
                         variant="danger"
                         class="sw-product-feature-sets-list__delete-action"
                         @click="onDelete(item.id)"

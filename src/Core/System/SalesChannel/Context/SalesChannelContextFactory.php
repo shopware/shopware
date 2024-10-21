@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
@@ -127,6 +128,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $salesChannelContext->lockPermissions();
         }
 
+        if (\array_key_exists(SalesChannelContextService::IMITATING_USER_ID, $options)) {
+            $salesChannelContext->setImitatingUserId($options[SalesChannelContextService::IMITATING_USER_ID]);
+        }
+
         $salesChannelContext->setTaxState($this->taxDetector->getTaxState($salesChannelContext));
 
         return $salesChannelContext;
@@ -187,8 +192,13 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             return $context->getPaymentMethod();
         }
 
-        $id = $customer->getLastPaymentMethodId() ?? $customer->getDefaultPaymentMethodId();
-        if ($id === $context->getPaymentMethod()->getId()) {
+        $id = $customer->getLastPaymentMethodId();
+
+        if (!Feature::isActive('v6.7.0.0') && $id === null) {
+            $id = $customer->getDefaultPaymentMethodId();
+        }
+
+        if ($id === null || $id === $context->getPaymentMethod()->getId()) {
             // NEXT-21735 - does not execute on every test run
             return $context->getPaymentMethod();
         }
@@ -220,7 +230,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria([$customerId]);
         $criteria->setTitle('context-factory::customer');
         $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultPaymentMethod');
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $criteria->addAssociation('defaultPaymentMethod');
+        }
 
         /** @var SalesChannelApiSource $source */
         $source = $context->getSource();

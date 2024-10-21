@@ -3,48 +3,54 @@
  */
 
 import { mount } from '@vue/test-utils';
-import swSalesChannelProductsAssignmentModal from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
 
-Shopware.Component.register('sw-sales-channel-products-assignment-modal', swSalesChannelProductsAssignmentModal);
-
 async function createWrapper(activeTab = 'singleProducts') {
-    return mount(await wrapTestComponent('sw-sales-channel-products-assignment-modal', { sync: true }), {
-        global: {
-            directives: {
-                hide: {},
-            },
-            stubs: {
-                'sw-sales-channel-products-assignment-single-products': true,
-                'sw-sales-channel-product-assignment-categories': true,
-                'sw-sales-channel-products-assignment-dynamic-product-groups': true,
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-sales-channel-products-assignment-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                directives: {
+                    hide: {},
                 },
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="content"></slot><slot name="modal-footer"></slot></div>',
-                },
-                'sw-tabs': {
-                    data() {
-                        return { active: activeTab };
+                stubs: {
+                    'sw-sales-channel-products-assignment-single-products': true,
+                    'sw-sales-channel-product-assignment-categories': true,
+                    'sw-sales-channel-products-assignment-dynamic-product-groups': true,
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-modal': {
+                        template:
+                            '<div class="sw-modal"><slot></slot><slot name="content"></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-tabs': {
+                        data() {
+                            return { active: activeTab };
+                        },
+                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'router-link': true,
                 },
-                'sw-tabs-item': true,
-                'sw-icon': true,
-                'sw-loader': true,
+            },
+            props: {
+                salesChannel: {
+                    id: 1,
+                    name: 'Headless',
+                },
+                isAssignProductLoading: false,
             },
         },
-        props: {
-            salesChannel: {
-                id: 1,
-                name: 'Headless',
-            },
-            isAssignProductLoading: false,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal', () => {
@@ -70,7 +76,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.find('.sw-button--primary').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
-        expect(wrapper.emitted('products-add')[0]).toEqual([wrapper.vm.products]);
+        expect(wrapper.emitted('products-add')[0]).toEqual([
+            wrapper.vm.products,
+        ]);
     });
 
     it('should emit products data when clicking Add Products button to assign product by categories', async () => {

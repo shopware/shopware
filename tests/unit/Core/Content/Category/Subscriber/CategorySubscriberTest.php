@@ -28,8 +28,6 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
- *
- * @package content
  */
 #[CoversClass(CategorySubscriber::class)]
 class CategorySubscriberTest extends TestCase

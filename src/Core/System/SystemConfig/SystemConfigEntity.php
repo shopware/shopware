@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SystemConfigEntity extends Entity
 {
     use EntityIdTrait;

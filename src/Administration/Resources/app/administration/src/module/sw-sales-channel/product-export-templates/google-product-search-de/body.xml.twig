@@ -24,7 +24,7 @@
     {%- endif -%}
 
     <g:price>{{ price.unitPrice|number_format(context.currency.itemRounding.decimals, '.', '') }} {{ context.currency.isoCode }}</g:price>
-    <g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
+    <g:brand>{{ product.manufacturer.translated.name|escape ?? '' }}</g:brand>
     <g:gtin>{{ product.ean }}</g:gtin>
     <g:mpn>{{ product.manufacturerNumber }}</g:mpn>
     <g:shipping>

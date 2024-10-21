@@ -8,6 +8,13 @@ import template from './sw-order-create-details-body.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'on-edit-billing-address',
+        'on-edit-shipping-address',
+    ],
+
     props: {
         // eslint-disable-next-line vue/require-default-prop
         customer: {

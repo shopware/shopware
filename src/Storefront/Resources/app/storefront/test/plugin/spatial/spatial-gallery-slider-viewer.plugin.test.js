@@ -22,7 +22,6 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
     beforeEach(() => {
         mockElement = document.createElement('div');
-        mockElement.setAttribute('data-product-slider-position', 1);
         window.threeJs = {};
         window.threeJs.PerspectiveCamera = function () {
             return {
@@ -35,7 +34,7 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
         window.threeJs.Scene = function () {
             return {
                 add: jest.fn(),
-                remove: function () {}
+                remove: function () { }
             }
         };
 
@@ -58,7 +57,7 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
                         }
                     },
                     setReferenceSpaceType: jest.fn(),
-                    getReferenceSpace: jest.fn(()=> {
+                    getReferenceSpace: jest.fn(() => {
                         return {
                             addEventListener: jest.fn()
                         }
@@ -71,11 +70,17 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
             }
         };
 
-        spatialGallerySliderViewerPlugin = new SpatialGallerySliderViewerPlugin(mockElement);
+        spatialGallerySliderViewerPlugin = new SpatialGallerySliderViewerPlugin(mockElement, {
+            sliderPosition: "1",
+            lightIntensity: "100",
+            modelUrl: "http://test/file.glb",
+        });
+
+        jest.clearAllMocks();
     });
 
     test('plugin initializes', () => {
-        expect(typeof  spatialGallerySliderViewerPlugin).toBe('object');
+        expect(typeof spatialGallerySliderViewerPlugin).toBe('object');
         expect(spatialGallerySliderViewerPlugin.sliderIndex).toBe(1);
     });
 
@@ -90,24 +95,26 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
     test('initViewer with undefined light will set it from scene', () => {
         spatialGallerySliderViewerPlugin.spatialLightCompositionUtil = undefined;
+        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
 
         spatialGallerySliderViewerPlugin.initViewer(true);
 
-        expect(typeof  spatialGallerySliderViewerPlugin.spatialLightCompositionUtil).toBe('object');
+        expect(typeof spatialGallerySliderViewerPlugin.spatialLightCompositionUtil).toBe('object');
 
     });
 
     test('initViewer with defined model will not load model again', () => {
         spatialGallerySliderViewerPlugin.ready = false;
         spatialGallerySliderViewerPlugin.model = {};
-        spatialGallerySliderViewerPlugin.el.setAttribute('data-spatial-model-url', 'http://test/file.glb');
+        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
         const loadSingleObjectByUrlSpy = jest.spyOn(spatialGallerySliderViewerPlugin.spatialObjectLoaderUtil, 'loadSingleObjectByUrl');
         const initRenderSpy = jest.spyOn(spatialGallerySliderViewerPlugin.spatialProductSliderRenderUtil, 'initRender');
+        expect(loadSingleObjectByUrlSpy).toHaveBeenCalledTimes(1);
 
         spatialGallerySliderViewerPlugin.initViewer(false);
 
         expect(spatialGallerySliderViewerPlugin.ready).toBe(true);
-        expect(loadSingleObjectByUrlSpy).not.toHaveBeenCalled();
+        expect(loadSingleObjectByUrlSpy).toHaveBeenCalledTimes(1);
         expect(initRenderSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -120,6 +127,18 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
         expect(spatialCanvasSizeUpdateUtilUpdateSpy).toHaveBeenCalled();
         expect(spatialOrbitControlsUtilUpdateSpy).toHaveBeenCalled();
+    });
+
+    test('initViewer with model and light intensity', async () => {
+        spatialGallerySliderViewerPlugin.el.setAttribute('data-spatial-light-intensity', '100');
+        spatialGallerySliderViewerPlugin.el.setAttribute('data-spatial-model-url', 'http://test/file.glb');
+        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
+
+        spatialGallerySliderViewerPlugin.initViewer(false);
+
+        await new Promise(process.nextTick);
+
+        expect(spatialGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
     });
 
     test('initViewer with defined spatial model url will load model', async () => {

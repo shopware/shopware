@@ -30,7 +30,23 @@ const { Component } = Shopware;
 Component.register('sw-wizard', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
+
+    provide() {
+        return {
+            swWizardPageAdd: this.addPage,
+            swWizardPageRemove: this.removePage,
+        };
+    },
+
+    emits: [
+        'finish',
+        'pages-updated',
+        'current-page-change',
+        'close',
+    ],
 
     props: {
         showNavigationDots: {
@@ -79,8 +95,7 @@ Component.register('sw-wizard', {
 
     computed: {
         hasFooterSlot() {
-            return !!this.$slots['footer-left-button']
-                || !!this.$slots['footer-right-button'];
+            return !!this.$slots['footer-left-button'] || !!this.$slots['footer-right-button'];
         },
 
         pagesCount() {

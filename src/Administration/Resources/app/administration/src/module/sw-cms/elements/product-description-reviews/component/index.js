@@ -10,6 +10,8 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder'),
@@ -65,7 +67,11 @@ export default {
 
     watch: {
         pageType(newPageType) {
-            this.$set(this.element, 'locked', (newPageType === 'product_detail'));
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.element, 'locked', newPageType === 'product_detail');
+            } else {
+                this.element.locked = newPageType === 'product_detail';
+            }
         },
     },
 
@@ -77,7 +83,12 @@ export default {
         createdComponent() {
             this.initElementConfig('product-description-reviews');
             this.initElementData('product-description-reviews');
-            this.$set(this.element, 'locked', this.isProductPageType);
+
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.element, 'locked', this.isProductPageType);
+            } else {
+                this.element.locked = this.isProductPageType;
+            }
         },
     },
 };

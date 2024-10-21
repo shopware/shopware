@@ -63,6 +63,7 @@
                                     editable
                                     :value="cartDelivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
+                                    @update:value="onShippingChargeUpdated"
                                 >
                                     {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
                                 </sw-order-saveable-field>
@@ -73,12 +74,10 @@
                             v-for="(delivery, index) in cartDeliveryDiscounts"
                             :key="index"
                         >
-                            <dt
-                            >
+                            <dt>
                                 {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                             </dt>
-                            <dd
-                            >
+                            <dd>
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
                             </dd>
                         </template>
@@ -95,12 +94,10 @@
                                 v-for="(calculatedTax, index) in filteredCalculatedTaxes"
                                 :key="index"
                             >
-                                <dt
-                                >
+                                <dt>
                                     {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
-                                <dd
-                                >
+                                <dd>
                                     {{ currencyFilter(calculatedTax.tax, currency.isoCode, currency.totalRounding.decimals) }}
                                 </dd>
                             </template>

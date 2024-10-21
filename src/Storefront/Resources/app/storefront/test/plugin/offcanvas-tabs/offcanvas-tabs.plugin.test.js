@@ -23,6 +23,11 @@ describe('OffCanvasTabsPlugin test', () => {
 
         window.PluginManager.initializePlugins = jest.fn();
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         jest.useFakeTimers();
     });
 

@@ -13,26 +13,20 @@ use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 #[Package('core')]
 class TestCacheClearer
 {
-    /**
-     * @var CacheClearerInterface
-     */
-    protected $cacheClearer;
+    protected CacheClearerInterface $cacheClearer;
 
-    /**
-     * @var string
-     */
-    protected $cacheDir;
+    protected string $cacheDir;
 
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
+    protected Filesystem $filesystem;
 
     /**
      * @var CacheItemPoolInterface[]
      */
-    protected $adapters;
+    protected array $adapters;
 
+    /**
+     * @param CacheItemPoolInterface[] $adapters
+     */
     public function __construct(
         array $adapters,
         CacheClearerInterface $cacheClearer,

@@ -83,6 +83,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer">
             <argument>%shopware.dbal.token_minimum_length%</argument>
+            <argument>%shopware.search.preserved_chars%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
@@ -302,6 +303,8 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber">
@@ -646,6 +649,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Sync\SyncService" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="event_dispatcher"/>
@@ -710,6 +719,12 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.dal.versioning.expire_days%</argument>
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityTelemetrySubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

@@ -5,6 +5,13 @@ import HtmlOffcanvas from 'src/plugin/offcanvas/html-offcanvas.plugin';
  */
 describe('HtmlOffcanvas tests', () => {
 
+    beforeEach(() => {
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+    });
+
     afterEach(() => {
         jest.useRealTimers();
         document.body.innerHTML = '';

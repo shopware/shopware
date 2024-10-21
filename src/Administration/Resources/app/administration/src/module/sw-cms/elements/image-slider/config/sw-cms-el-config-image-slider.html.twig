@@ -86,18 +86,19 @@
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                         <sw-select-field
                             v-model:value="element.config.displayMode.value"
-                            :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                             class="sw-cms-el-config-image-slider__setting-display-mode"
+                            :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+                            :help-text="$tc('sw-cms.elements.imageSlider.config.helpText.displayMode')"
                             @update:value="onChangeDisplayMode"
                         >
                             <option value="standard">
                                 {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
                             </option>
-                            <option value="cover">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-                            </option>
                             <option value="contain">
                                 {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
+                            </option>
+                            <option value="cover">
+                                {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
                             </option>
                         </sw-select-field>
                         {% endblock %}
@@ -206,7 +207,7 @@
                                 number-type="int"
                                 :min="0"
                                 :max="9999999"
-                                :disabled="!showSlideConfig"
+                                :disabled="!showSlideConfig || undefined"
                                 :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
@@ -219,7 +220,7 @@
                                 number-type="int"
                                 :min="0"
                                 :max="9999999"
-                                :disabled="!showSlideConfig"
+                                :disabled="!showSlideConfig || undefined"
                                 :label="$tc('sw-cms.elements.general.config.label.speed')"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
                                 :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"

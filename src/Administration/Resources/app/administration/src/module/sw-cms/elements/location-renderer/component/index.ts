@@ -12,6 +12,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-location-renderer', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -62,7 +64,7 @@ Component.register('sw-cms-el-location-renderer', {
     data(): {
         unpublishData: null | (() => void);
         unpublishDataWithElementId: null | (() => void);
-        } {
+    } {
         return {
             unpublishData: null,
             unpublishDataWithElementId: null,

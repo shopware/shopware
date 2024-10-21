@@ -38,7 +38,7 @@ class TreeUpdater
      */
     public function batchUpdate(array $updateIds, string $entity, Context $context/* , bool $recursive = false */): void
     {
-        $recursive = func_get_arg(3) ?? true;
+        $recursive = \func_num_args() > 3 ? func_get_arg(3) : false;
 
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
         if (empty($updateIds)) {
@@ -335,11 +335,11 @@ class TreeUpdater
             return;
         }
 
+        /** @var TreePathField|null $pathField */
         $pathField = $definition->getFields()->filterInstance(TreePathField::class)->first();
-        \assert($pathField instanceof TreePathField);
 
+        /** @var TreeLevelField|null $levelField */
         $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
-        \assert($levelField instanceof TreeLevelField);
 
         foreach ($updateIds as $updateId) {
             $entity = $this->updatePath($updateId, $bag);

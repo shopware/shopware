@@ -26,6 +26,13 @@ describe('Form auto submit plugin', () => {
     beforeEach(() => {
         window.HTMLFormElement.prototype.submit = spyNativeFormSubmit;
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+            saveFocusStatePersistent: jest.fn(),
+            resumeFocusStatePersistent: jest.fn(),
+        }
+
         document.body.innerHTML = template;
 
         spyOnSubmit = jest.spyOn(FormAutoSubmitPlugin.prototype, '_onSubmit');

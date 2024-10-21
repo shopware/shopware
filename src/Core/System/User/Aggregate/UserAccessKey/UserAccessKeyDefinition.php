@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserAccessKeyDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'user_access_key';

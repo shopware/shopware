@@ -32,10 +32,7 @@ function getMixinRegistry(): Map<string, unknown> {
  * Register a new mixin
  */
 // eslint-disable-next-line max-len
-function register<T, MixinName extends keyof MixinContainer>(
-    mixinName: MixinName,
-    mixin: T,
-): T {
+function register<T, MixinName extends keyof MixinContainer>(mixinName: MixinName, mixin: T): T {
     if (mixinRegistry.has(mixinName)) {
         warn(
             'MixinFactory',
@@ -46,7 +43,7 @@ function register<T, MixinName extends keyof MixinContainer>(
         return mixinRegistry.get(mixinName) as T;
     }
 
-    addToMixinRegistry(mixinName, mixin as MixinContainer[MixinName]);
+    addToMixinRegistry(mixinName, mixin as unknown as MixinContainer[MixinName]);
 
     return mixinRegistry.get(mixinName) as T;
 }

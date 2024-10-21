@@ -9,6 +9,10 @@ import './sw-product-restriction-selection.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['restriction-delete'],
+
     props: {
         groupsWithOptions: {
             type: Array,
@@ -67,7 +71,7 @@ export default {
             this.optionLoading = false;
         },
 
-        'selectedOptions'() {
+        selectedOptions() {
             const selectedOptionArray = this.selectedOptions !== null ? this.selectedOptions : [];
 
             this.restriction.options = selectedOptionArray;

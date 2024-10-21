@@ -231,7 +231,8 @@
           "message": {
             "template-applied-message": "Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes."
           }
-        }
+        },
+        "cliCommand": "CLI Command to generate the product export"
       },
       "hreflang": {
         "title": "Hreflang",

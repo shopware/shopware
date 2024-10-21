@@ -26,18 +26,37 @@
                         {% endblock %}
                     {% else %}
                         {% block page_account_orders_overview %}
-                            <div class="account-orders-overview">
+                            {# @deprecated tag:v6.7.0 - Order list will be `<li>` instead if `<div>` #}
+                            {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                                <ul class="account-orders-overview list-unstyled">
+                            {%- else -%}
+                                <div class="account-orders-overview" role="list">
+                            {%- endif -%}
                                 {% block page_account_orders_table %}
                                     {% block page_account_orders_table_body %}
                                         {% for order in page.orders %}
-                                            <div class="order-table"
-                                                 data-order-detail-loader="true">
+                                            {# @deprecated tag:v6.7.0 - Order item will be `<li>` instead if `<div>` #}
+                                            {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                                                <li class="order-table" data-order-detail-loader="true">
+                                            {%- else -%}
+                                                <div class="order-table" data-order-detail-loader="true" role="listitem">
+                                            {%- endif -%}
                                                 {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
-                                            </div>
+                                            {# @deprecated tag:v6.7.0 - Order item will be `<li>` instead if `<div>` #}
+                                            {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                                                </div>
+                                            {%- else -%}
+                                                </li>
+                                            {%- endif -%}
                                         {% endfor %}
                                     {% endblock %}
                                 {% endblock %}
-                            </div>
+                            {# @deprecated tag:v6.7.0 - Order list will be `<li>` instead if `<div>` #}
+                            {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                                </div>
+                            {%- else -%}
+                                </ul>
+                            {%- endif -%}
                         {% endblock %}
 
                         {% block page_account_orders_paging %}
@@ -58,7 +77,13 @@
                                               action="{{ path('frontend.account.order.page') }}"
                                               method="post"
                                               data-form-ajax-submit="true"
-                                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
+                                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
+                                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-ajax-pagination="true"{% endif %}>
+
+                                            {# @deprecated tag:v6.7.0 - Form input for page information will be a single input instead of multiple radio inputs within `pagination.html.twig`. #}
+                                            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                <input type="hidden" name="p" value="1">
+                                            {% endif %}
 
                                             {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
                                             {% if feature('v6.7.0.0') %}

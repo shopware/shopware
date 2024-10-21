@@ -30,6 +30,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Singl
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestRootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestSubDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\TranslatableTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\TranslatableTestHydrator;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\TranslatableTestTranslationDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -57,6 +60,8 @@ class EntityHydratorTest extends TestCase
                 CustomFieldPlainTestDefinition::class,
                 CustomFieldTestDefinition::class,
                 CustomFieldTestTranslationDefinition::class,
+                TranslatableTestDefinition::class,
+                TranslatableTestTranslationDefinition::class,
                 SingleEntityDependencyTestRootDefinition::class,
                 SingleEntityDependencyTestSubDefinition::class,
                 SingleEntityDependencyTestDependencyDefinition::class,
@@ -108,6 +113,35 @@ class EntityHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($extended), $foreignKeys->get('extendedFk'));
     }
 
+    public function testTranslationWithZeroStringField(): void
+    {
+        $definition = $this->definitionInstanceRegistry->get(TranslatableTestDefinition::class);
+
+        $id = Uuid::randomBytes();
+
+        $rows = [
+            [
+                'test.id' => $id,
+                'test.name' => '0',
+                'test.translation.name' => '0',
+            ],
+        ];
+
+        $container = new ContainerBuilder();
+        $hydrator = new TranslatableTestHydrator($container);
+        $container->set(TranslatableTestHydrator::class, $hydrator);
+
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
+        static::assertCount(1, $structs);
+
+        static::assertEquals(1, $structs->count());
+
+        $first = $structs->first();
+        static::assertNotNull($first);
+        static::assertSame('0', $first->get('name'));
+        static::assertSame('0', $first->getTranslation('name'));
+    }
+
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void
     {
         $definition = $this->definitionInstanceRegistry->get(CustomFieldPlainTestDefinition::class);
@@ -149,9 +183,9 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": "0"}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": "0"}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT DEUTSCH"}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
             ],
         ];
 
@@ -170,9 +204,9 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT DEUTSCH"}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
             ],
         ];
 
@@ -190,9 +224,9 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": null}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "0"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "0"}',
             ],
         ];
 
@@ -211,11 +245,11 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{}',
                 'test.translation.customTranslated' => '{"custom_test_inheritance": "CHILD ENGLISH"}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_inheritance": "CHILD GERMAN"}',
-                'test.translation.fallback_2.customTranslated' => '{"custom_test_inheritance": "CHILD SWISS"}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_inheritance": "CHILD GERMAN"}',
+                'test.translation.override_2.customTranslated' => '{"custom_test_inheritance": "CHILD SWISS"}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_inheritance": "PARENT ENGLISH"}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_check": "0", "custom_test_inheritance": "PARENT GERMAN"}',
-                'test.parent.translation.fallback_2.customTranslated' => '{"custom_test_inheritance": "PARENT SWISS"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_check": "0", "custom_test_inheritance": "PARENT GERMAN"}',
+                'test.parent.translation.override_2.customTranslated' => '{"custom_test_inheritance": "PARENT SWISS"}',
             ],
         ];
 
@@ -246,7 +280,7 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": "1"}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": "1"}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": "Example", "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": "Example", "custom_test_check": null}',
             ],
         ];
 

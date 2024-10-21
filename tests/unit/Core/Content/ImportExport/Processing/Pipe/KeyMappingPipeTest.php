@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(KeyMappingPipe::class)]
 class KeyMappingPipeTest extends TestCase
 {
@@ -330,5 +330,25 @@ class KeyMappingPipeTest extends TestCase
         static::assertSame([
             'TestCustomString' => 'hello world',
         ], $actualOutput);
+    }
+
+    public function testOutIgnoresRecordsWithoutMapping(): void
+    {
+        $record = [
+            'csv-column-name' => 'value',
+            'a' => 'b',
+        ];
+        $mapping = [
+            ['mappedKey' => 'csv-column-name', 'key' => 'db-field'],
+        ];
+
+        $keyMappingPipe = new KeyMappingPipe($mapping, true);
+        $config = new Config($mapping, [], []);
+
+        $pipeOutResult = $keyMappingPipe->out($config, $record);
+        static::assertInstanceOf(\Traversable::class, $pipeOutResult);
+
+        $actualOutput = iterator_to_array($pipeOutResult);
+        static::assertSame(['db-field' => 'value'], $actualOutput);
     }
 }

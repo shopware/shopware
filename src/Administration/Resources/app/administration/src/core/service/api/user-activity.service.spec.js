@@ -12,7 +12,7 @@ function createUserActivityApiService() {
 }
 
 /**
- * @package system-settings
+ * @package services-settings
  */
 describe('userActivityApiService', () => {
     it('is registered correctly', async () => {
@@ -24,12 +24,9 @@ describe('userActivityApiService', () => {
     it('increment frequently used correctly', async () => {
         const { userActivityApiService, clientMock } = createUserActivityApiService();
 
-        clientMock.onPost('/_action/increment/user_activity').reply(
-            200,
-            {
-                success: true,
-            },
-        );
+        clientMock.onPost('/_action/increment/user_activity').reply(200, {
+            success: true,
+        });
 
         const data = {
             key: 'product@sw.product.index',
@@ -46,23 +43,22 @@ describe('userActivityApiService', () => {
     it('get frequently used correctly', async () => {
         const { userActivityApiService, clientMock } = createUserActivityApiService();
 
-        clientMock.onGet('/_action/increment/user_activity').reply(
-            200,
-            {
-                data: [
-                    {
-                        count: '3',
-                        key: 'dashboard@sw.dashboard.index',
-                    },
-                    {
-                        count: '2',
-                        key: 'product@sw.product.index',
-                    },
-                ],
-            },
-        );
+        clientMock.onGet('/_action/increment/user_activity').reply(200, {
+            data: [
+                {
+                    count: '3',
+                    key: 'dashboard@sw.dashboard.index',
+                },
+                {
+                    count: '2',
+                    key: 'product@sw.product.index',
+                },
+            ],
+        });
 
-        const recentlySearch = await userActivityApiService.getIncrement({ cluster: 'id' });
+        const recentlySearch = await userActivityApiService.getIncrement({
+            cluster: 'id',
+        });
 
         expect(recentlySearch).toEqual({
             data: [

@@ -562,11 +562,7 @@ class ProductEntity extends Entity implements \Stringable
 
     public function getCurrencyPrice(string $currencyId): ?Price
     {
-        if ($this->price === null) {
-            return null;
-        }
-
-        return $this->price->getCurrencyPrice($currencyId);
+        return $this->price?->getCurrencyPrice($currencyId);
     }
 
     public function getManufacturerNumber(): ?string

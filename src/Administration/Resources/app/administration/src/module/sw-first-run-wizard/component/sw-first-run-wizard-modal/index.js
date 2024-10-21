@@ -8,6 +8,8 @@ import './sw-first-run-wizard-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['firstRunWizardService'],
 
     data() {
@@ -33,9 +35,7 @@ export default {
 
     computed: {
         columns() {
-            return this.showSteps
-                ? '1fr 4fr'
-                : '1fr';
+            return this.showSteps ? '1fr 4fr' : '1fr';
         },
 
         variant() {
@@ -218,7 +218,7 @@ export default {
     },
 
     watch: {
-        '$route'(to) {
+        $route(to) {
             this.handleRouteUpdate(to);
         },
     },
@@ -270,10 +270,9 @@ export default {
         },
 
         finishFRW() {
-            this.firstRunWizardService.setFRWFinish()
-                .then(() => {
-                    document.location.href = document.location.origin + document.location.pathname;
-                });
+            this.firstRunWizardService.setFRWFinish().then(() => {
+                document.location.href = document.location.origin + document.location.pathname;
+            });
         },
 
         onExtensionActivated() {

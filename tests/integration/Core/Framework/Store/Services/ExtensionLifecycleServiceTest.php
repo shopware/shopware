@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\StoreException;
@@ -26,6 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 #[Group('skip-paratest')]
+#[Package('checkout')]
 class ExtensionLifecycleServiceTest extends TestCase
 {
     use ExtensionBehaviour;
@@ -41,6 +43,8 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     /**
      * @var EntityRepository<ThemeCollection>|null
+     *
+     * @phpstan-ignore property.unusedType (can be null in a test, where the storefront is not installed)
      */
     private ?EntityRepository $themeRepository;
 
@@ -208,7 +212,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         ]], $this->context);
 
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
+        $this->expectExceptionMessage(\sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             $testApp->getName(),
@@ -254,7 +258,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->expectException(StoreException::class);
         $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
-        $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
+        $this->expectExceptionMessage(\sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             'TestAppTheme',

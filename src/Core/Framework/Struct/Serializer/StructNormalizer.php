@@ -115,7 +115,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         $struct = $reflectionClass->newInstanceWithoutConstructor();
         if (!$struct instanceof Struct) {
             throw new InvalidArgumentException(
-                sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName())
+                \sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName())
             );
         }
 
@@ -139,7 +139,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
             if (!\array_key_exists($name, $arguments)) {
                 if (!$constructorParam->isOptional()) {
                     throw new InvalidArgumentException(
-                        sprintf(
+                        \sprintf(
                             'Required constructor parameter missing: "$%s". Please check if the property is protected and not private.',
                             $name
                         )
@@ -159,7 +159,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         $struct = $reflectionClass->newInstanceArgs($params);
         if (!$struct instanceof Struct) {
             throw new InvalidArgumentException(
-                sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName())
+                \sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName())
             );
         }
         $struct->assign($arguments);

@@ -11,20 +11,23 @@ async function createWrapper(state = {}) {
 
     Shopware.State.registerModule('swCategoryDetail', {
         namespaced: true,
-        state: deepMergeObject({
-            category: {
-                media: [],
-                name: 'Computer parts',
-                footerSalesChannels: [],
-                navigationSalesChannels: [],
-                serviceSalesChannels: [],
-                productAssignmentType: 'product',
-                isNew: () => false,
+        state: deepMergeObject(
+            {
+                category: {
+                    media: [],
+                    name: 'Computer parts',
+                    footerSalesChannels: [],
+                    navigationSalesChannels: [],
+                    serviceSalesChannels: [],
+                    productAssignmentType: 'product',
+                    isNew: () => false,
+                },
+                landingPage: {
+                    cmsPageId: null,
+                },
             },
-            landingPage: {
-                cmsPageId: null,
-            },
-        }, state),
+            state,
+        ),
     });
 
     return mount(await wrapTestComponent('sw-landing-page-detail-base', { sync: true }), {
@@ -37,17 +40,29 @@ async function createWrapper(state = {}) {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value', 'disabled'],
+                    template:
+                        '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                    props: [
+                        'value',
+                        'disabled',
+                    ],
                 },
                 'sw-switch-field': {
-                    template: '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: ['value', 'disabled'],
+                    template:
+                        '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
+                    props: [
+                        'value',
+                        'disabled',
+                    ],
                 },
                 'sw-entity-tag-select': {
                     template: '<input type="select" class="sw-entity-tag-select"/>',
                     props: ['disabled'],
                 },
+                'sw-entity-multi-select': true,
+                'sw-alert': true,
+                'sw-textarea-field': true,
+                'sw-custom-field-set-renderer': true,
             },
             mocks: {
                 placeholder: () => {},

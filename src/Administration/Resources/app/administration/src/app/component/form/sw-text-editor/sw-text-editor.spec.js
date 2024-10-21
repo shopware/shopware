@@ -8,23 +8,10 @@ async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
     document.body.innerHTML = '<div id="app"></div>';
 
-    // localVue.directive('tooltip', {});
-
     return mount(await wrapTestComponent('sw-text-editor', { sync: true }), {
         attachTo: document.getElementById('app'),
         props: {
             allowInlineDataMapping,
-        },
-        data() {
-            return {
-                cmsPageState: {
-                    currentMappingTypes: {
-                        string: [
-                            'category.type',
-                        ],
-                    },
-                },
-            };
         },
         global: {
             stubs: {
@@ -40,15 +27,32 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
+                'sw-code-editor': {
+                    template: '<div id="sw-code-editor"></div>',
+                },
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,
+                'sw-text-editor-table-toolbar': true,
+                'sw-text-editor-toolbar-table-button': true,
+                'sw-email-field': true,
+                'sw-entity-single-select': true,
+                'sw-category-tree-field': true,
+                'mt-button': true,
+                'router-link': true,
+                'sw-loader': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'mt-switch': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},
@@ -111,6 +115,17 @@ describe('src/app/component/form/sw-text-editor', () => {
     let wrapper;
 
     beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPage',
+            state: () => ({
+                currentMappingTypes: {
+                    string: [
+                        'category.type',
+                    ],
+                },
+            }),
+        });
+
         // 'Implement' innerText in JSDOM: https://github.com/jsdom/jsdom/issues/1245
         Object.defineProperty(global.Element.prototype, 'innerText', {
             get() {
@@ -193,7 +208,6 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.find('.sw-text-editor__content-placeholder').exists()).toBe(false);
         expect(wrapper.vm.placeholderVisible).toBe(true);
 
-
         // input something and expect the placeholderVisible flag to be unset
         wrapper.findComponent('#sw-code-editor').vm.$emit('blur', 'something');
         await wrapper.vm.$nextTick();
@@ -246,22 +260,28 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(emittedValue[0]).toEqual(expectedValue);
     });
 
-    const buttonVariantsDataProvider = [{
-        buttonVariant: 'none',
-        resultClasses: '',
-    }, {
-        buttonVariant: 'primary',
-        resultClasses: 'btn btn-primary',
-    }, {
-        buttonVariant: 'secondary',
-        resultClasses: 'btn btn-secondary',
-    }, {
-        buttonVariant: 'primary-sm',
-        resultClasses: 'btn btn-primary btn-sm',
-    }, {
-        buttonVariant: 'secondary-sm',
-        resultClasses: 'btn btn-secondary btn-sm',
-    }];
+    const buttonVariantsDataProvider = [
+        {
+            buttonVariant: 'none',
+            resultClasses: '',
+        },
+        {
+            buttonVariant: 'primary',
+            resultClasses: 'btn btn-primary',
+        },
+        {
+            buttonVariant: 'secondary',
+            resultClasses: 'btn btn-secondary',
+        },
+        {
+            buttonVariant: 'primary-sm',
+            resultClasses: 'btn btn-primary btn-sm',
+        },
+        {
+            buttonVariant: 'secondary-sm',
+            resultClasses: 'btn btn-secondary btn-sm',
+        },
+    ];
 
     buttonVariantsDataProvider.forEach(({ buttonVariant, resultClasses }) => {
         it(`should always render correct links as correct button types (buttonVariant: ${buttonVariant})`, async () => {
@@ -310,7 +330,9 @@ describe('src/app/component/form/sw-text-editor', () => {
         await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
 
         // eslint-disable-next-line max-len
-        const inlineMappingButton = wrapper.find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon');
+        const inlineMappingButton = wrapper.find(
+            '.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon',
+        );
         await inlineMappingButton.trigger('click');
         await flushPromises();
 
@@ -508,13 +530,16 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, `
+        await addTextToEditor(
+            wrapper,
+            `
             <p id="paragraphWithoutLink">No Link</p>
 
             <p id="paragraphWithLink">
                 <a id="linkText" href="http://shopware.com" target="_self">Shopware</a>
             </p>
-        `);
+        `,
+        );
 
         // select "Shopware"
         const linkText = document.getElementById('linkText');
@@ -522,7 +547,9 @@ describe('src/app/component/form/sw-text-editor', () => {
         document.dispatchEvent(new Event('mouseup'));
 
         // click on link button
-        const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        const linkButtonIcon = wrapper.find(
+            '.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon',
+        );
         await linkButtonIcon.trigger('click');
         await flushPromises();
 
@@ -544,13 +571,16 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, `
+        await addTextToEditor(
+            wrapper,
+            `
             <p id="paragraphWithoutLink">No Link</p>
 
             <p id="paragraphWithLink">
                 <a id="linkText" href="http://shopware.com" target="_blank">Shopware</a>
             </p>
-        `);
+        `,
+        );
 
         // select "Shopware"
         const linkText = document.getElementById('linkText');
@@ -558,7 +588,9 @@ describe('src/app/component/form/sw-text-editor', () => {
         document.dispatchEvent(new Event('mouseup'));
 
         // click on link button
-        const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        const linkButtonIcon = wrapper.find(
+            '.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon',
+        );
         await linkButtonIcon.trigger('click');
         await flushPromises();
 
@@ -580,13 +612,16 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, `
+        await addTextToEditor(
+            wrapper,
+            `
             <p id="paragraphWithoutLink">No link</p>
 
             <p id="paragraphWithLink">
                 <a id="linkText" href="http://shopware.com" target="_blank">Shopware</a>
             </p>
-        `);
+        `,
+        );
 
         // select "No Link"
         const paragraphWithoutLink = document.getElementById('paragraphWithoutLink');
@@ -594,7 +629,9 @@ describe('src/app/component/form/sw-text-editor', () => {
         document.dispatchEvent(new Event('mouseup'));
 
         // click on link button
-        const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        const linkButtonIcon = wrapper.find(
+            '.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon',
+        );
         await linkButtonIcon.trigger('click');
         await flushPromises();
 
@@ -616,13 +653,16 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, `
+        await addTextToEditor(
+            wrapper,
+            `
             <p id="paragraphWithoutLink">No link</p>
 
             <p id="paragraphWithLink">
                 <a id="linkText" href="http://shopware.com" target="_blank">Shopware</a>
             </p>
-        `);
+        `,
+        );
 
         // select "Shopware"
         const linkText = document.getElementById('linkText');
@@ -675,10 +715,13 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, `
+        await addTextToEditor(
+            wrapper,
+            `
             <a id="linkOne" href="http://shopware.com" target="_self">Shopware</a>
             <a id="linkTwo" href="http://google.com" target="_blank">Google</a>
-        `);
+        `,
+        );
 
         // select "Shopware"
         const linkOne = document.getElementById('linkOne');
@@ -732,7 +775,10 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u>Shop<strike id="anchor">ware</strike></u></bold></a>');
+        await addTextToEditor(
+            wrapper,
+            '<a href="http://shopware.com" target="_blank"><bold><u>Shop<strike id="anchor">ware</strike></u></bold></a>',
+        );
 
         // select "ware"
         const linkOne = document.getElementById('anchor');
@@ -760,7 +806,10 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u id="content">Shopware</u></bold></a>');
+        await addTextToEditor(
+            wrapper,
+            '<a href="http://shopware.com" target="_blank"><bold><u id="content">Shopware</u></bold></a>',
+        );
 
         // select anything to trigger the toolbar
         const content = document.getElementById('content');
@@ -826,8 +875,14 @@ describe('src/app/component/form/sw-text-editor', () => {
         await wrapper.get('.sw-text-editor__content-editor').trigger('copy', { clipboardData: { setData } });
 
         expect(setData.mock.calls).toContainEqual(
-            ['text/html', '<strike><u><bold>ware</bold></u></strike>'],
-            ['text/plain', 'ware'],
+            [
+                'text/html',
+                '<strike><u><bold>ware</bold></u></strike>',
+            ],
+            [
+                'text/plain',
+                'ware',
+            ],
         );
     });
 
@@ -859,8 +914,11 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // paste styled 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
-        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
-        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\"><strike><u><bold>test</bold></u></strike></span>');
+        expect(getData.mock.calls).toEqual([
+            ['text/plain'],
+            ['text/html'],
+        ]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id="anchor"><strike><u><bold>test</bold></u></strike></span>');
     });
 
     it('should paste text instead of html when the shift key is pressed', async () => {
@@ -891,11 +949,14 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // paste styled 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
-        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
-        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
+        expect(getData.mock.calls).toEqual([
+            ['text/plain'],
+            ['text/html'],
+        ]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
     });
 
-    it('should fall back to pasting text into the wysiwyg editor if html isn\'t available', async () => {
+    it("should fall back to pasting text into the wysiwyg editor if html isn't available", async () => {
         wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
@@ -919,8 +980,11 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // paste 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
-        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
-        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
+        expect(getData.mock.calls).toEqual([
+            ['text/plain'],
+            ['text/html'],
+        ]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
     });
 
     it('should not render transparent background', async () => {
@@ -975,5 +1039,101 @@ describe('src/app/component/form/sw-text-editor', () => {
         await flushPromises();
 
         expect(document.body.querySelector('.sw-text-editor-toolbar')).toBeNull();
+    });
+
+    it('should allow to right click and copy selected text', async () => {
+        wrapper = await createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        // Add selection
+        const paragraph = wrapper.find('#paragraph');
+        await addAndCheckSelection(wrapper, paragraph.element, 0, 11, 'Hello World');
+
+        await paragraph.trigger('mousedown', { button: 2 });
+
+        const selection = document.getSelection();
+        expect(selection.toString()).toBe('Hello World');
+    });
+
+    it('should fix loose text nodes and wrap them in paragraphs on "Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum</p><div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter' });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should fix consecutive minor nodes and wrap them all together in a single paragraph on "Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<br><b>Lorem ipsum</b> Lorem <i>ipsum</i><p>Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum<br><b>Lorem ipsum</b> Lorem <i>ipsum</i></p><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter' });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should not trigger the node fix on "Shift + Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+        const expectedContent = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter', shiftKey: true });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should replace div elements including their attributes if option is set', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content =
+            'Lorem ipsum<div class="foo" style="font-weight: bold">Lorem ipsum</div><p class="bar">Lorem ipsum</p>';
+        const expectedContent =
+            '<p>Lorem ipsum</p><p class="foo" style="font-weight: bold">Lorem ipsum</p><p class="bar">Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        wrapper.vm.fixWrongNodes(true);
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should correctly detect minor nodes in the editor content', async () => {
+        wrapper = await createWrapper();
+
+        const content = 'Lorem ipsum<b>Lorem ipsum</b><div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        expect(wrapper.vm.hasDirectMinorElements()).toBe(true);
+
+        const contentWithoutMinorNode = '<p>Lorem ipsum</p><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, contentWithoutMinorNode);
+
+        expect(wrapper.vm.hasDirectMinorElements()).toBe(false);
     });
 });

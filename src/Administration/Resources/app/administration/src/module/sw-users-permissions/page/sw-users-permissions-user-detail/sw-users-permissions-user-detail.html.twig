@@ -30,7 +30,7 @@
             class="sw-settings-user-detail__save-action"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !acl.can('users_and_permissions.editor')"
+            :disabled="isLoading || !acl.can('users_and_permissions.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -72,7 +72,7 @@
                             v-model:value="user.firstName"
                             name="sw-field--user-firstName"
                             class="sw-settings-user-detail__grid-firstName"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :error="userFirstNameError"
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelFirstName')"
@@ -85,7 +85,7 @@
                             v-model:value="user.lastName"
                             name="sw-field--user-lastName"
                             class="sw-settings-user-detail__grid-lastName"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :error="userLastNameError"
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelLastName')"
@@ -99,7 +99,7 @@
                             name="sw-field--user-email"
                             class="sw-settings-user-detail__grid-eMail"
                             :error="userEmailError"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelEmail')"
                         />
@@ -113,7 +113,7 @@
                             class="sw-settings-user-detail__grid-username"
                             :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
                             :error="userUsernameError"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelUsername')"
                             @update:value="checkUsername"
@@ -134,7 +134,7 @@
                             :upload-tag="user.id"
                             :allow-multi-select="false"
                             :source-context="user"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             default-folder="user"
                             @media-drop="onDropMedia"
                             @media-upload-sidebar-open="onOpenMedia"
@@ -148,7 +148,7 @@
                             class="sw-settings-user-detail__grid-password"
                             :value="user.password"
                             name="sw-field--user-password"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                             :error="userPasswordError"
                             autocomplete="off"
@@ -163,7 +163,7 @@
                             name="sw-field--user-localeId"
                             class="sw-settings-user-detail__grid-language"
                             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :error="userLocaleIdError"
                             required
                             :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
@@ -189,7 +189,7 @@
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
                             :is-loading="timezoneOptions.length <= 0"
-                            :disabled="!acl.can('user.update_profile')"
+                            :disabled="!acl.can('user.update_profile') || undefined"
                         />
                         {% endblock %}
 
@@ -200,7 +200,7 @@
                             name="sw-field--user-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                            :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
+                            :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
                         />
                         {% endblock %}
 
@@ -210,7 +210,7 @@
                             v-model:value="user.title"
                             name="sw-field--user-title"
                             class="sw-settings-user-detail__grid-jobTitle"
-                            :disabled="!acl.can('users_and_permissions.editor')"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
                         />
                         {% endblock %}
@@ -227,7 +227,7 @@
                             name="sw-field--user-aclRoles"
                             class="sw-settings-user-detail__grid-aclRoles"
                             :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
-                            :disabled="user.admin || !acl.can('users_and_permissions.editor')"
+                            :disabled="user.admin || !acl.can('users_and_permissions.editor') || undefined"
                             :criteria="aclRoleCriteria"
                             label-property="name"
                         />
@@ -249,7 +249,7 @@
                 {%  block sw_setting_user_detail_card_integrations %}
                 <sw-card
                     :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')"
-                    position-identifier="sw-users-permissions-user-detail"
+                    position-identifier="sw-users-permissions-user-detail-integrations"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_user_detail_grid_toolbar %}
@@ -259,7 +259,7 @@
                         <sw-button
                             variant="primary"
                             size="small"
-                            :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')"
+                            :disabled="!$route.params.id || !acl.can('users_and_permissions.editor') || undefined"
                             @click="addAccessKey"
                         >
                             {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
@@ -289,7 +289,7 @@
                                 {% block sw_settings_user_detail_grid_columns_actions_edit %}
                                 <sw-context-menu-item
                                     class="sw-settings-user-detail__grid-context-menu-edit sw-product-list__edit-action"
-                                    :disabled="!acl.can('users_and_permissions.editor')"
+                                    :disabled="!acl.can('users_and_permissions.editor') || undefined"
                                     @click="onShowDetailModal(item.id)"
                                 >
                                     {{ $tc('sw-users-permissions.users.user-detail.contextMenuEdit') }}
@@ -300,7 +300,7 @@
                                 {% block sw_settings_user_detail_grid_columns_actions_delete %}
                                 <sw-context-menu-item
                                     class="sw-settings-user-detail__grid-context-menu-delete"
-                                    :disabled="!acl.can('users_and_permissions.editor')"
+                                    :disabled="!acl.can('users_and_permissions.editor') || undefined"
                                     variant="danger"
                                     @click="showDeleteModal = item.id"
                                 >
@@ -466,7 +466,7 @@
                 {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
                 <sw-button
                     size="small"
-                    :disabled="isModalLoading"
+                    :disabled="isModalLoading || undefined"
                     @click="onCloseDetailModal"
                 >
                     {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
@@ -478,7 +478,7 @@
                 <sw-button
                     size="small"
                     class="sw-settings-user-detail__save-action"
-                    :disabled="isModalLoading && !!currentIntegration.label"
+                    :disabled="isModalLoading && !!currentIntegration.label || undefined"
                     variant="primary"
                     @click="onSaveIntegration"
                 >

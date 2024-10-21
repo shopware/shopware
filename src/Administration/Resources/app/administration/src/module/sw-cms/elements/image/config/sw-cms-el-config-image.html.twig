@@ -51,16 +51,17 @@
         v-model:value="element.config.displayMode.value"
         class="sw-cms-el-config-image__display-mode"
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+        :help-text="$tc('sw-cms.elements.general.config.helpText.displayMode')"
         @update:value="onChangeDisplayMode"
     >
         <option value="standard">
             {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
         </option>
-        <option value="cover">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-        </option>
         <option value="stretch">
             {{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}
+        </option>
+        <option value="cover">
+            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
         </option>
     </sw-select-field>
     {% endblock %}
@@ -83,7 +84,7 @@
         v-model:value="element.config.verticalAlign.value"
         :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-        :disabled="element.config.displayMode.value === 'cover'"
+        :disabled="['cover'].includes(element.config.displayMode.value)"
     >
         <option value="flex-start">
             {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}

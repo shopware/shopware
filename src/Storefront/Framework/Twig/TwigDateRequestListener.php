@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Framework\Twig;
 
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -36,9 +38,15 @@ class TwigDateRequestListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        $timezone = (string) $event->getRequest()->cookies->get(self::TIMEZONE_COOKIE);
+        $request = $event->getRequest();
 
-        if (!$timezone || !\in_array($timezone, timezone_identifiers_list(), true) || $timezone === 'UTC') {
+        if (!\in_array(StorefrontRouteScope::ID, $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []), true)) {
+            return;
+        }
+
+        $timezone = (string) $request->cookies->get(self::TIMEZONE_COOKIE);
+
+        if ($timezone === 'UTC' || !$timezone || !\in_array($timezone, timezone_identifiers_list(), true)) {
             // Default will be UTC @see https://symfony.com/doc/current/reference/configuration/twig.html#timezone
             return;
         }

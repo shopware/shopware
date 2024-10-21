@@ -41,7 +41,7 @@ class ResolveAppUrlChangeCommand extends Command
 
         if ($strategy === null || !\array_key_exists($strategy, $availableStrategies)) {
             if ($strategy !== null) {
-                $io->note(sprintf('Strategy with name: "%s" not found.', $strategy));
+                $io->note(\sprintf('Strategy with name: "%s" not found.', $strategy));
             }
 
             $strategy = $io->choice(

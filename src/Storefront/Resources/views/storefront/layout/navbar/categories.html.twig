@@ -1,6 +1,11 @@
-{% macro recursiveCategory(navigationTree, level, page, navigationMedia) %}
+{% block layout_navbar_categories %}
     {% set navigationMaxDepth = 3 %}
+
+    {% if not level %}
+        {% set level = 0 %}
+    {% endif %}
     {% set activeId = page.header.navigation.active.id %}
+
     {% set activePath = page.header.navigation.active.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
@@ -30,23 +35,17 @@
                         {% endif %}
                     {% endblock %}
 
-                    {% block layout_navigation_categories_recoursion %}
+                    {% block layout_navbar_categories_recoursion %}
                         {% if level < navigationMaxDepth %}
-                            {{ _self.recursiveCategory(treeItem.children, level +1, page, navigationMedia) }}
+                            {% sw_include '@Storefront/storefront/layout/navbar/categories.html.twig' with {
+                                navigationTree: treeItem.children,
+                                level: level + 1,
+                                page: page
+                            } only %}
                         {% endif %}
                     {% endblock %}
                 </div>
             {% endblock %}
         {% endfor %}
     </div>
-{% endmacro %}
-
-{% block layout_navbar_categories %}
-    {% from _self import recursiveCategory %}
-
-    {% if not level %}
-        {% set level = 0 %}
-    {% endif %}
-
-    {{ recursiveCategory(navigationTree, level, page, navigationMedia) }}
 {% endblock %}

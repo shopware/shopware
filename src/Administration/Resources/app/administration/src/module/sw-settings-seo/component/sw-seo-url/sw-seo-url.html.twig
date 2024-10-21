@@ -49,7 +49,7 @@
         >
             <sw-sales-channel-switch
                 ref="salesChannelSwitch"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 :label="$tc('sw-seo-url.labelSalesChannelSelect')"
                 @change-sales-channel-id="onSalesChannelChanged"
             />

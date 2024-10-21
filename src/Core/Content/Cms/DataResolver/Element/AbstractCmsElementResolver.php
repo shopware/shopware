@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -29,44 +30,44 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         }
 
         $value = $entity;
-        $parts = explode('.', $path);
+        $entityPath = explode('.', $path);
 
-        // if property does not exist, try to omit the first key as it may contains the entity name.
+        // if property does not exist, try to omit the first key as it may contain the entity name.
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (\count($parts) > 0) {
-            $part = array_shift($parts);
+        while (\count($entityPath) > 0) {
+            $entityPathPart = array_shift($entityPath);
 
             if ($value === null) {
                 break;
             }
 
             try {
+                $parentValue = $value;
                 switch (true) {
                     case \is_array($value):
-                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+                        $value = $value[$entityPathPart] ?? null;
 
                         break;
                     case $value instanceof Entity:
-                        $value = $value->get($part);
+                        $value = $value->get($entityPathPart);
 
                         break;
                     case $value instanceof Struct:
                         $value = $value->getVars();
-                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+                        $value = $value[$entityPathPart] ?? null;
 
                         break;
                     default:
                         $value = null;
                 }
 
-                // if we are at the destination entity and it does not have a value for the field
-                // on it's on, then try to get the translation fallback
-                if ($value === null) {
-                    $value = $entity->getTranslation($part);
+                // On the last element, try to get the translation if nothing else was found
+                if ($value === null && $parentValue instanceof Entity) {
+                    $value = $parentValue->getTranslation($entityPathPart);
                 }
-            } catch (\InvalidArgumentException $ex) {
+            } catch (PropertyNotFoundException|\InvalidArgumentException $ex) {
                 if (!$smartDetect) {
                     throw $ex;
                 }
@@ -108,7 +109,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         $parts = explode('.', $path);
         $fields = $definition->getFields();
 
-        // if property does not exist, try to omit the first key as it may contains the entity name.
+        // if property does not exist, try to omit the first key as it may contain the entity name.
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
@@ -168,32 +169,29 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
     protected function resolveEntityValues(EntityResolverContext $resolverContext, string $content): ?string
     {
         // https://regex101.com/r/idIfbk/1
-        $content = preg_replace_callback(
+        return preg_replace_callback(
             '/{{\s*(?<property>[\w.\d]+)\s*}}/',
             function ($matches) use ($resolverContext) {
                 try {
                     return $this->resolveEntityValueToString($resolverContext->getEntity(), $matches['property'], $resolverContext);
-                } catch (\InvalidArgumentException) {
+                } catch (PropertyNotFoundException|\InvalidArgumentException) {
                     return $matches[0];
                 }
             },
             $content
         );
-
-        return $content;
     }
 
     private function getKeyByManyToMany(ManyToManyAssociationField $field): ?string
     {
         $referenceDefinition = $field->getReferenceDefinition();
 
-        /** @var ManyToManyAssociationField|null $manyToMany */
         $manyToMany = $field->getToManyReferenceDefinition()->getFields()
             ->filterInstance(ManyToManyAssociationField::class)
             ->filter(static fn (ManyToManyAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
             ->first();
 
-        if (!$manyToMany) {
+        if (!$manyToMany instanceof ManyToManyAssociationField) {
             return null;
         }
 
@@ -204,14 +202,12 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
     {
         $referenceDefinition = $field->getReferenceDefinition();
 
-        /** @var ManyToOneAssociationField|null $manyToOne */
         $manyToOne = $field->getReferenceDefinition()->getFields()
             ->filterInstance(ManyToOneAssociationField::class)
             ->filter(static fn (ManyToOneAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
-            ->first()
-        ;
+            ->first();
 
-        if (!$manyToOne) {
+        if (!$manyToOne instanceof ManyToOneAssociationField) {
             return null;
         }
 

@@ -88,7 +88,7 @@ class Migration1689257577AddMissingTransactionMailFlow extends MigrationStep
                     'position' => 1,
                     'true_case' => 0,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'config' => sprintf(
+                    'config' => \sprintf(
                         '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
                         Uuid::fromBytesToHex($mailTemplate['mailTemplateId'])
                     ),
@@ -116,7 +116,7 @@ class Migration1689257577AddMissingTransactionMailFlow extends MigrationStep
             $sequenceConfig[] = [
                 'id' => Uuid::randomHex(),
                 'actionName' => SendMailAction::ACTION_NAME,
-                'config' => sprintf(
+                'config' => \sprintf(
                     '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
                     Uuid::fromBytesToHex($mailTemplate['mailTemplateId'])
                 ),

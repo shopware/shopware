@@ -20,15 +20,17 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MailService extends AbstractMailService
 {
     /**
@@ -157,7 +159,7 @@ class MailService extends AbstractMailService
 
         $mail = $this->mailFactory->create(
             $data['subject'],
-            [$senderEmail => $data['senderName']],
+            [(string) $senderEmail => $data['senderName']],
             $recipients,
             $contents,
             $mediaUrls,
@@ -184,11 +186,28 @@ class MailService extends AbstractMailService
             return null;
         }
 
+        if (isset($data['attachments'])) {
+            foreach ($data['attachments'] as $attachment) {
+                if (!$attachment instanceof DataPart) {
+                    continue;
+                }
+                $mail->addPart($attachment);
+            }
+        }
+
         $event = new MailBeforeSentEvent($data, $mail, $context, $templateData['eventName'] ?? null);
         $this->eventDispatcher->dispatch($event);
 
         if ($event->isPropagationStopped()) {
             return null;
+        }
+
+        if ($this->isTestMode()) {
+            $headers = $mail->getHeaders();
+            $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? null);
+            $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannelId);
+            $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
+            $mail->setHeaders($headers);
         }
 
         $this->mailSender->send($mail);
@@ -228,11 +247,9 @@ class MailService extends AbstractMailService
     /**
      * Attaches header and footer to given email bodies
      *
-     * @param array<string, mixed> $data
-     * e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
+     * @param array<string, mixed> $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
-     * @return array{'text/plain': string, 'text/html': string}
-     * e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     * @return array{'text/plain': string, 'text/html': string} e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
      */
@@ -252,8 +269,8 @@ class MailService extends AbstractMailService
             \assert(\is_string($data['contentHtml']));
 
             return [
-                'text/plain' => sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
-                'text/html' => sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
+                'text/plain' => \sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
+                'text/html' => \sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
             ];
         }
 
@@ -320,6 +337,11 @@ class MailService extends AbstractMailService
      */
     private function isTestMode(array $data = []): bool
     {
+        $stagingMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG);
+        if ($stagingMode) {
+            return true;
+        }
+
         return !empty($data['testMode']);
     }
 

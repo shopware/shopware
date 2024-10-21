@@ -8,11 +8,13 @@ const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
 /**
- * @package system-settings
+ * @package services-settings
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'bulkEditApiFactory',
@@ -219,9 +221,10 @@ export default {
         bulkEditData: {
             handler(value) {
                 const { orders, orderTransactions, orderDeliveries, statusMails } = value;
-                this.isStatusSelected = (orders.isChanged && orders.value)
-                    || (orderTransactions.isChanged && orderTransactions.value)
-                    || (orderDeliveries?.isChanged && orderDeliveries.value);
+                this.isStatusSelected =
+                    (orders.isChanged && orders.value) ||
+                    (orderTransactions.isChanged && orderTransactions.value) ||
+                    (orderDeliveries?.isChanged && orderDeliveries.value);
 
                 this.isStatusMailsSelected = statusMails.isChanged;
             },
@@ -253,7 +256,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         Shopware.State.unregisterModule('swBulkEdit');
     },
 
@@ -279,8 +282,17 @@ export default {
         },
 
         setRouteMetaModule() {
-            this.$set(this.$route.meta.$module, 'color', '#A092F0');
-            this.$set(this.$route.meta.$module, 'icon', 'regular-shopping-bag');
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.$route.meta.$module, 'color', '#A092F0');
+                this.$set(this.$route.meta.$module, 'icon', 'regular-shopping-bag');
+            } else {
+                if (!this.$route.meta.$module) {
+                    this.$route.meta.$module = {};
+                }
+
+                this.$route.meta.$module.color = '#A092F0';
+                this.$route.meta.$module.icon = 'regular-shopping-bag';
+            }
         },
 
         loadBulkEditData() {
@@ -292,28 +304,46 @@ export default {
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
-                    this.$set(this.bulkEditData, bulkEditForm.name, {
-                        isChanged: false,
-                        type: 'overwrite',
-                        value: null,
-                    });
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(this.bulkEditData, bulkEditForm.name, {
+                            isChanged: false,
+                            type: 'overwrite',
+                            value: null,
+                        });
+                    } else {
+                        this.bulkEditData[bulkEditForm.name] = {
+                            isChanged: false,
+                            type: 'overwrite',
+                            value: null,
+                        };
+                    }
                 });
             });
 
-            this.$set(this.bulkEditData, 'customFields', {
-                type: 'overwrite',
-                value: null,
-            });
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.bulkEditData, 'customFields', {
+                    type: 'overwrite',
+                    value: null,
+                });
 
-            this.$set(this.bulkEditData, 'statusMails', {
-                ...this.bulkEditData.statusMails,
-                disabled: true,
-            });
+                this.$set(this.bulkEditData, 'statusMails', {
+                    ...this.bulkEditData.statusMails,
+                    disabled: true,
+                });
 
-            this.$set(this.bulkEditData, 'documents', {
-                ...this.bulkEditData.documents,
-                disabled: true,
-            });
+                this.$set(this.bulkEditData, 'documents', {
+                    ...this.bulkEditData.documents,
+                    disabled: true,
+                });
+            } else {
+                this.bulkEditData.customFields = {
+                    type: 'overwrite',
+                    value: null,
+                };
+
+                this.bulkEditData.statusMails.disabled = true;
+                this.bulkEditData.documents.disabled = true;
+            }
 
             this.order.documents = {
                 documentType: {},
@@ -322,22 +352,27 @@ export default {
         },
 
         fetchStatusOptions(field) {
-            return this.fetchStateMachineStates(field).then(states => {
-                return this.fetchToStateMachineTransitions(states);
-            }).then(toStates => {
-                switch (field) {
-                    case 'orderTransactions.orderId':
-                        this.transactionStatus = toStates;
-                        break;
-                    case 'orderDeliveries.orderId':
-                        this.deliveryStatus = toStates;
-                        break;
-                    default:
-                        this.orderStatus = toStates;
-                }
-            }).catch(error => this.createNotificationError({
-                message: error,
-            }));
+            return this.fetchStateMachineStates(field)
+                .then((states) => {
+                    return this.fetchToStateMachineTransitions(states);
+                })
+                .then((toStates) => {
+                    switch (field) {
+                        case 'orderTransactions.orderId':
+                            this.transactionStatus = toStates;
+                            break;
+                        case 'orderDeliveries.orderId':
+                            this.deliveryStatus = toStates;
+                            break;
+                        default:
+                            this.orderStatus = toStates;
+                    }
+                })
+                .catch((error) =>
+                    this.createNotificationError({
+                        message: error,
+                    }),
+                );
         },
 
         fetchStateMachineStates(field) {
@@ -356,30 +391,36 @@ export default {
                     versionField = 'orders.versionId';
             }
 
-            const requests = payloadChunks.map(ids => {
+            const requests = payloadChunks.map((ids) => {
                 const criteria = new Criteria(1, null);
 
-                criteria.addFilter(Criteria.multi('AND', [
-                    Criteria.equalsAny(field, ids),
-                    Criteria.equals(versionField, Shopware.Context.api.liveVersionId),
-                ]));
+                criteria.addFilter(
+                    Criteria.multi('AND', [
+                        Criteria.equalsAny(field, ids),
+                        Criteria.equals(versionField, Shopware.Context.api.liveVersionId),
+                    ]),
+                );
 
                 return this.stateMachineStateRepository.searchIds(criteria);
             });
 
-            return Promise.all(requests).then(responses => {
-                let states = [];
+            return Promise.all(requests)
+                .then((responses) => {
+                    let states = [];
 
-                responses.forEach(order => {
-                    if (order?.data) {
-                        states = [...order.data];
-                    }
-                });
+                    responses.forEach((order) => {
+                        if (order?.data) {
+                            states = [...order.data];
+                        }
+                    });
 
-                return states;
-            }).catch(error => this.createNotificationError({
-                message: error,
-            }));
+                    return states;
+                })
+                .catch((error) =>
+                    this.createNotificationError({
+                        message: error,
+                    }),
+                );
         },
 
         fetchToStateMachineTransitions(states) {
@@ -389,33 +430,37 @@ export default {
 
             return this.stateMachineStateRepository
                 .search(this.toStateMachineStatesCriteria(states), Shopware.Context.api)
-                .then(response => {
+                .then((response) => {
                     if (!response.length) {
                         return [];
                     }
 
-                    const fromStates = response.map(state => {
-                        if (state?.fromStateMachineTransitions) {
-                            return state.fromStateMachineTransitions;
-                        }
+                    const fromStates = response
+                        .map((state) => {
+                            if (state?.fromStateMachineTransitions) {
+                                return state.fromStateMachineTransitions;
+                            }
 
-                        return null;
-                    }).filter(state => state !== null);
+                            return null;
+                        })
+                        .filter((state) => state !== null);
 
-                    let entries = intersectionBy(...fromStates, 'actionName')
-                        .filter(state => state?.toStateMachineState);
+                    let entries = intersectionBy(...fromStates, 'actionName').filter((state) => state?.toStateMachineState);
 
-                    entries = uniqBy(entries, entry => {
+                    entries = uniqBy(entries, (entry) => {
                         return entry.toStateMachineState.technicalName;
                     });
 
-                    return entries.map(entry => ({
+                    return entries.map((entry) => ({
                         label: entry.toStateMachineState.translated.name,
                         value: entry.actionName,
                     }));
-                }).catch(error => this.createNotificationError({
-                    message: error,
-                }));
+                })
+                .catch((error) =>
+                    this.createNotificationError({
+                        message: error,
+                    }),
+                );
         },
 
         toStateMachineStatesCriteria(states) {
@@ -433,38 +478,47 @@ export default {
                 syncData: [],
             };
 
-            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
+            const dataPush = [
+                'orderTransactions',
+                'orderDeliveries',
+                'orders',
+            ];
 
-            Object.entries(this.bulkEditData).forEach(([key, item]) => {
-                if (item.isChanged || (key === 'customFields' && item.value)) {
-                    const payload = {
-                        field: key,
-                        type: item.type,
-                        value: item.value,
-                    };
+            Object.entries(this.bulkEditData).forEach(
+                ([
+                    key,
+                    item,
+                ]) => {
+                    if (item.isChanged || (key === 'customFields' && item.value)) {
+                        const payload = {
+                            field: key,
+                            type: item.type,
+                            value: item.value,
+                        };
 
-                    if (dataPush.includes(key)) {
-                        const documentTypes = this.order?.documents?.documentType;
+                        if (dataPush.includes(key)) {
+                            const documentTypes = this.order?.documents?.documentType;
 
-                        if (this.bulkEditData?.documents?.isChanged) {
-                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
-                                documentTypeName => documentTypes[documentTypeName] === true,
-                            );
+                            if (this.bulkEditData?.documents?.isChanged) {
+                                const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                    (documentTypeName) => documentTypes[documentTypeName] === true,
+                                );
 
-                            if (selectedDocumentTypes.length > 0) {
-                                payload.documentTypes = selectedDocumentTypes;
-                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
+                                if (selectedDocumentTypes.length > 0) {
+                                    payload.documentTypes = selectedDocumentTypes;
+                                    payload.skipSentDocuments = this.order.documents.skipSentDocuments;
+                                }
                             }
-                        }
 
-                        payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                        payload.value = this.order?.[key];
-                        data.statusData.push(payload);
-                    } else if (key !== 'documents' && key !== 'statusMails') {
-                        data.syncData.push(payload);
+                            payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                            payload.value = this.order?.[key];
+                            data.statusData.push(payload);
+                        } else if (key !== 'documents' && key !== 'statusMails') {
+                            data.syncData.push(payload);
+                        }
                     }
-                }
-            });
+                },
+            );
 
             return data;
         },
@@ -486,7 +540,7 @@ export default {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
             const requests = [];
 
-            payloadChunks.forEach(payload => {
+            payloadChunks.forEach((payload) => {
                 if (statusData.length) {
                     requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
                 }

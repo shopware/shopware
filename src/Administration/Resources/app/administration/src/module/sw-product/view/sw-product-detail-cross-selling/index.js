@@ -12,7 +12,12 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     props: {
         allowEdit: {
@@ -79,16 +84,19 @@ export default {
             );
 
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('crossSellingId', crossSelling.id))
+            criteria
+                .addFilter(Criteria.equals('crossSellingId', crossSelling.id))
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('product');
 
-            repository.search(
-                criteria,
-                { ...Shopware.Context.api, inheritance: true },
-            ).then((assignedProducts) => {
-                crossSelling.assignedProducts = assignedProducts;
-            });
+            repository
+                .search(criteria, {
+                    ...Shopware.Context.api,
+                    inheritance: true,
+                })
+                .then((assignedProducts) => {
+                    crossSelling.assignedProducts = assignedProducts;
+                });
 
             return crossSelling;
         },

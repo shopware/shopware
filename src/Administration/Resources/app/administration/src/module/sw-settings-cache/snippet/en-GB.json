@@ -13,9 +13,12 @@
       "cacheAdapter": "Cache adapters"
     },
     "section": {
-      "clearCachesHeadline": "Clear caches",
-      "clearCachesText": "The cache is immediately cleared synchronously for all used adapters.",
-      "clearCachesButton": "Clear caches",
+      "clearCachesHeadline": "Clear cache",
+      "clearCachesText": "Immediately clears all cached data synchronously for all adapters.",
+      "clearCachesButton": "Clear cache",
+      "clearDataCachesHeadline": "Clear data cache",
+      "clearDataCachesText": "Changes to  non-essential shop data (everything unrelated to price calculation) are not immediately visible. Clear the data cache to be able to see your recent changes.",
+      "clearDataCachesButton": "Clear data cache",
       "indexesHeadline": "Indexes",
       "indexesText": "All indexes are updated asynchronously. Keep track of the progress by monitoring the notifications.",
       "indexesButton": "Update indexes",
@@ -32,6 +35,11 @@
         "started": "Clearing caches.",
         "success": "All caches cleared.",
         "error": "Unable to clear caches ."
+      },
+      "clearDataCache": {
+        "started": "Clearing data cache.",
+        "success": "All pending changes applied.",
+        "error": "Unable to clear data cache."
       },
       "index": {
         "started": "Building indexes.",

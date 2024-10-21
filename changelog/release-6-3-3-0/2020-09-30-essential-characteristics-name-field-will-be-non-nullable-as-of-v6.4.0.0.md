@@ -11,7 +11,7 @@ author_github: @philipgatzka
 
 ## `name` attribute of `ProductFeatureSetTranslationDefinition` will be non-nullable
 
-With [NEXT-11000](https://issues.shopware.com/issues/NEXT-11000), the `name` attribute in
+With [4456](https://github.com/shopware/shopware/issues/4456), the `name` attribute in
 [ProductFeatureSetTranslationDefinition](https://github.com/shopware/platform/blob/master/src/Core/Content/Product/Aggregate/ProductFeatureSetTranslation/ProductFeatureSetTranslationDefinition.php)
 was marked non-nullable. This change is also implemented on database-level with
 [Migration1601388975RequireFeatureSetName.php](https://github.com/shopware/platform/blob/master/src/Core/Migration/Migration1601388975RequireFeatureSetName.php).

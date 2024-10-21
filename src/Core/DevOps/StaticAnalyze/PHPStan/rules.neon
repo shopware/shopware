@@ -5,7 +5,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule # @deprecated tag:v6.7.0 - Configure \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule instead
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
@@ -14,3 +14,5 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RouteScopeRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessagesShouldNotUsePHPStanTypes
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UseCLIContextRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoInconfiguredMetricAllowed
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UseHasherRule

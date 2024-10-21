@@ -68,7 +68,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $contextLanguage = $languages->get($context->getContext()->getLanguageId());
         if (!$contextLanguage) {
-            throw new \RuntimeException(sprintf('Context language with id %s not found', $context->getContext()->getLanguageId()));
+            throw new \RuntimeException(\sprintf('Context language with id %s not found', $context->getContext()->getLanguageId()));
         }
 
         $page = new HeaderPagelet(

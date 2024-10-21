@@ -8,6 +8,13 @@ import './sw-media-add-thumbnail-form.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: [
+        'thumbnail-form-size-add',
+        'on-input',
+    ],
+
     props: {
         disabled: {
             type: Boolean,
@@ -38,7 +45,10 @@ export default {
         },
 
         onAdd() {
-            this.$emit('thumbnail-form-size-add', { width: this.width, height: this.height });
+            this.$emit('thumbnail-form-size-add', {
+                width: this.width,
+                height: this.height,
+            });
             this.width = null;
             this.height = null;
         },

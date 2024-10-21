@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -104,7 +105,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
+            $this->context
         );
 
         $id = Uuid::randomHex();
@@ -121,6 +122,8 @@ class DaysSinceLastOrderRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
     public function testWithRealCustomerEntity(): void
@@ -152,7 +155,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 StateMachineTransitionActions::ACTION_PROCESS,
                 'stateId',
             ),
-            Context::createDefaultContext()
+            $this->context
         );
 
         $this->stateMachineRegistry->transition(
@@ -162,7 +165,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 StateMachineTransitionActions::ACTION_COMPLETE,
                 'stateId',
             ),
-            Context::createDefaultContext()
+            $this->context
         );
 
         /** @var CustomerCollection|CustomerEntity[] $result */

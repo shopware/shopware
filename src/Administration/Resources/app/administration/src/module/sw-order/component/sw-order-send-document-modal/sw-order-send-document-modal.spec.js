@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package checkout
+ */
+
 const mockOrderWithMailHeaderFooter = {
     orderCustomer: {
         email: 'test@shopware.com',
@@ -120,37 +124,19 @@ const mockMailHeaderFooter = {
 const mockRepositoryFactory = (entity, mailTemplates) => {
     if (entity === 'mail_template') {
         return {
-            search: jest.fn(() => Promise.resolve(
-                new EntityCollection(
-                    '',
-                    '',
-                    Shopware.Context.api,
-                    null,
-                    mailTemplates,
-                    2,
-                ),
-            )),
-            get: jest.fn((value) => Promise.resolve(mailTemplates.filter(mailTemplate => mailTemplate.id === value)[0])),
+            search: jest.fn(() =>
+                Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, mailTemplates, 2)),
+            ),
+            get: jest.fn((value) => Promise.resolve(mailTemplates.filter((mailTemplate) => mailTemplate.id === value)[0])),
         };
     }
     if (entity === 'mail_header_footer') {
         return {
             search: (criteria) => {
                 if (criteria.filters[0].value === null) {
-                    return Promise.reject(
-                        new Error('mailHeaderFooterId should not be null in criteria filter!'),
-                    );
+                    return Promise.reject(new Error('mailHeaderFooterId should not be null in criteria filter!'));
                 }
-                return Promise.resolve(
-                    new EntityCollection(
-                        '',
-                        '',
-                        Shopware.Context.api,
-                        null,
-                        [mockMailHeaderFooter],
-                        1,
-                    ),
-                );
+                return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [mockMailHeaderFooter], 1));
             },
         };
     }
@@ -177,6 +163,19 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-description-list': await wrapTestComponent('sw-description-list'),
+                'sw-container': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-product-variant-info': true,
+                'sw-icon': true,
+                'router-link': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
             },
             provide: {
                 repositoryFactory: {
@@ -199,14 +198,16 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const descriptionListElements = wrapper.findAll('sw-description-list > dd');
+        const descriptionListElements = wrapper.findAll('.sw-description-list > dd');
         expect(descriptionListElements[0].text()).toBe(String(mockDocuments[0].documentNumber));
         expect(descriptionListElements[1].text()).toBe(String(mockDocuments[0].documentType.name));
         expect(descriptionListElements[2].text()).toBe('23 January 2024 at 14:00');
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(mockMailTemplates[0].mailTemplateType.name);
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
+            mockMailTemplates[0].mailTemplateType.name,
+        );
 
-        const textFields = wrapper.findAll('sw-text-field');
+        const textFields = wrapper.findAll('sw-text-field-stub');
         expect(textFields[0].attributes('value')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
         expect(textFields[1].attributes('value')).toBe(mockMailTemplates[0].subject);
     });
@@ -225,16 +226,12 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     });
 
     it('should truncate mail template description', async () => {
-        const wrapper = await createWrapper(
-            defaultProps,
-            true,
-            [
-                {
-                    ...mockMailTemplates[0],
-                    description: 'swag'.repeat(50),
-                },
-            ],
-        );
+        const wrapper = await createWrapper(defaultProps, true, [
+            {
+                ...mockMailTemplates[0],
+                description: 'swag'.repeat(50),
+            },
+        ]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select__selection').trigger('click');
@@ -250,7 +247,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await flushPromises();
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
-        expect(previewContent.element.innerHTML).toBe(mockMailHeaderFooter.headerHtml + mockMailTemplates[0].contentHtml + mockMailHeaderFooter.footerHtml);
+        expect(previewContent.element.innerHTML).toBe(
+            mockMailHeaderFooter.headerHtml + mockMailTemplates[0].contentHtml + mockMailHeaderFooter.footerHtml,
+        );
     });
 
     it('should not display the email content preview between a header and footer with missing mailHeaderFooterId', async () => {
@@ -274,13 +273,17 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-select-option--1').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(mockMailTemplates[1].mailTemplateType.name);
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
+            mockMailTemplates[1].mailTemplateType.name,
+        );
 
-        const textFields = wrapper.findAll('sw-text-field');
+        const textFields = wrapper.findAll('sw-text-field-stub');
         expect(textFields[1].attributes('value')).toBe(mockMailTemplates[1].subject);
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
-        expect(previewContent.element.innerHTML).toBe(mockMailHeaderFooter.headerHtml + mockMailTemplates[1].contentHtml + mockMailHeaderFooter.footerHtml);
+        expect(previewContent.element.innerHTML).toBe(
+            mockMailHeaderFooter.headerHtml + mockMailTemplates[1].contentHtml + mockMailHeaderFooter.footerHtml,
+        );
     });
 
     it('should emit the modal closing message', async () => {
@@ -313,8 +316,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('');
-        expect(wrapper.find('sw-text-field:nth-of-type(1)').text()).toBe('');
-        expect(wrapper.find('sw-text-field:nth-of-type(2)').text()).toBe('');
+        expect(wrapper.find('sw-text-field-stub:nth-of-type(1)').text()).toBe('');
+        expect(wrapper.find('sw-text-field-stub:nth-of-type(2)').text()).toBe('');
         expect(wrapper.find('.sw-order-send-document-modal__email-content').text()).toBe('');
     });
 
@@ -328,8 +331,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-select-option--2').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-text-field:nth-of-type(1)').text()).toBe('');
-        expect(wrapper.find('sw-text-field:nth-of-type(2)').text()).toBe('');
+        expect(wrapper.find('sw-text-field-stub:nth-of-type(1)').text()).toBe('');
+        expect(wrapper.find('sw-text-field-stub:nth-of-type(2)').text()).toBe('');
         expect(wrapper.find('.sw-order-send-document-modal__email-content').text()).toBe('');
     });
 

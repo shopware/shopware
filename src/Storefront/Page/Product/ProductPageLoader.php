@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -16,6 +16,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -58,15 +59,16 @@ class ProductPageLoader
             ->addAssociation('manufacturer.media')
             ->addAssociation('options.group')
             ->addAssociation('properties.group')
-            ->addAssociation('mainCategories.category')
-            ->addAssociation('media');
+            ->addAssociation('mainCategories.category');
+
+        $criteria->getAssociation('media')->addSorting(
+            new FieldSorting('position')
+        );
 
         $this->eventDispatcher->dispatch(new ProductPageCriteriaEvent($productId, $criteria, $context));
 
         $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();
-
-        $product->getMedia()?->sort(fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition());
 
         if ($product->getMedia() && $product->getCover()) {
             $product->setMedia(new ProductMediaCollection(array_merge(
@@ -168,9 +170,19 @@ class ProductPageLoader
             return;
         }
 
-        $blocks = $page->getCmsPage()?->getSections()?->first()?->getBlocks();
-        if ($blocks === null) {
+        $sections = $page->getCmsPage()?->getSections();
+        if ($sections === null) {
             return;
+        }
+
+        $blocks = new CmsBlockCollection();
+        foreach ($sections as $section) {
+            $sectionBlocks = $section->getBlocks();
+            if ($sectionBlocks === null) {
+                continue;
+            }
+
+            $blocks->merge($sectionBlocks);
         }
 
         $descriptionReviewsStruct = $blocks->filterByProperty('type', ProductDescriptionReviewsCmsElementResolver::TYPE)->first()?->getSlots()?->first()?->getData();

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
+use Shopware\Core\Framework\Util\Hasher;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -106,11 +107,11 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 if (!\is_string($var)) {
                     throw new \InvalidArgumentException(
-                        sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
+                        \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
                     );
                 }
 
-                return md5($var);
+                return Hasher::hash($var, 'md5');
             }),
         ];
     }

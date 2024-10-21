@@ -50,7 +50,11 @@ const createWrapper = async (startingDragConfig) => {
         },
         methods: {
             onDragStart(dragConfig, draggedElement, dragElement) {
-                this.$emit('drag-start', { dragConfig, draggedElement, dragElement });
+                this.$emit('drag-start', {
+                    dragConfig,
+                    draggedElement,
+                    dragElement,
+                });
             },
 
             onDragEnter(dragData, dropData) {
@@ -93,21 +97,13 @@ describe('directives/dragdrop', () => {
     it('should be exist class name is--droppable', async () => {
         wrapper = await createWrapper();
 
-        expect(
-            wrapper.findAll('span')
-                .at(0)
-                .classes('is--droppable'),
-        ).toBe(true);
+        expect(wrapper.findAll('span').at(0).classes('is--droppable')).toBe(true);
     });
 
     it('should be exist class name is--draggable', async () => {
         wrapper = await createWrapper();
 
-        expect(
-            wrapper.findAll('span')
-                .at(0)
-                .classes('is--draggable'),
-        ).toBe(true);
+        expect(wrapper.findAll('span').at(0).classes('is--draggable')).toBe(true);
     });
 
     it('should remove class name `is--draggable` for the draggable directive', async () => {
@@ -356,7 +352,6 @@ describe('directives/dragdrop', () => {
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
-
 
         await dragDrop1.trigger('mousedown', {
             buttons: 1,

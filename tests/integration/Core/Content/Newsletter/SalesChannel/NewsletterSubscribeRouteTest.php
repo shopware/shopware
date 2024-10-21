@@ -405,7 +405,7 @@ class NewsletterSubscribeRouteTest extends TestCase
                 'POST',
                 '/store-api/newsletter/subscribe',
                 [
-                    'email' => 'test@example.com',
+                    'email' => 'test@exämple.com',
                     'option' => 'direct',
                     'storefrontUrl' => 'http://localhost',
                     'firstName' => 'Y',
@@ -413,7 +413,7 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@xn--exmple-cua.com" AND status = "direct"');
         static::assertSame(1, $count);
     }
 

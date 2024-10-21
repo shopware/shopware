@@ -20,6 +20,15 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                       "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                       "in": "header",
+                       "name": "sw-include-seo-urls",
+                       "required": false,
+                       "schema": {
+                         "type": "boolean"
+                       }
                     }
                 ],
                 "requestBody": {

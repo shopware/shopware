@@ -16,7 +16,7 @@ export default class SpatialMovementNoteUtil {
         noteSelector: '[data-spatial-movement-note]',
         hiddenClass: 'spatial-canvas-note--hidden',
         touchTextDataAttribute: 'data-spatial-movement-note-touch-text',
-    }
+    };
 
     constructor(plugin: SpatialBaseViewerPlugin) {
         this.plugin = plugin;

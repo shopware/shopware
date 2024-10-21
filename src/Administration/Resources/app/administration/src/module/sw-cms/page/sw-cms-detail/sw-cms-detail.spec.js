@@ -6,7 +6,6 @@ import { mount } from '@vue/test-utils';
 import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
@@ -14,73 +13,61 @@ const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
 const mediaID = 'TEST-MEDIA-ID';
 
-const defaultRepository = {
-    search: () => Promise.resolve(new EntityCollection(
-        '',
-        '',
-        Shopware.Context.api,
-        null,
-        [{ name: 'defaultRepository' }],
-        1,
-    )),
-    get: () => Promise.resolve({
-        sections: [{
-            blocks: [],
-        }],
-        type: CMS.PAGE_TYPES.LANDING,
-    }),
-    save: jest.fn(() => Promise.resolve()),
-    clone: jest.fn(() => Promise.resolve()),
-};
-
-const categoryRepository = {
-    search: () => Promise.resolve([{ id: categoryID, products: { entity: 'product', source: 'source' }, mediaId: mediaID }]),
-};
-
-const productRepository = {
-    search: () => Promise.resolve([{ id: productID }]),
-
-};
-
-const mediaRepository = {
-    get: () => Promise.resolve({ id: mediaID }),
-};
-
-
-async function createWrapper() {
+async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
     const cmsPageTypeService = new CmsPageTypeService();
 
-    return mount(await wrapTestComponent('sw-cms-detail', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-page': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-cms-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-page': {
+                        template: `
                         <div class="sw-page">
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content"></slot>
                             <slot></slot>
                         </div>
                     `,
-                },
-                'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
-                'sw-alert': true,
-                'sw-language-switch': true,
-                'sw-router-link': true,
-                'sw-icon': true,
-                'router-link': true,
-                'sw-button-process': true,
-                'sw-cms-stage-add-section': true,
-                'sw-cms-sidebar': true,
-                'sw-loader': true,
-                'sw-cms-section': true,
-                'sw-cms-layout-assignment-modal': true,
-                'sw-button': true,
-                'sw-app-actions': true,
-                'sw-modal': {
-                    template: `
+                    },
+                    'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
+                    'sw-alert': true,
+                    'sw-language-switch': true,
+                    'sw-router-link': true,
+                    'sw-icon': true,
+                    'router-link': true,
+                    'sw-button-process': true,
+                    'sw-cms-stage-add-section': true,
+                    'sw-cms-sidebar': await wrapTestComponent('sw-cms-sidebar'),
+                    'sw-sidebar-item': {
+                        template: `
+                        <div class="sw-sidebar-item">
+                            <slot></slot>
+                        </div>
+                    `,
+                        props: ['disabled'],
+                        methods: {
+                            openContent() {
+                                this.$emit('openContent');
+                            },
+                        },
+                    },
+                    'sw-sidebar-collapse': await wrapTestComponent('sw-sidebar-collapse'),
+                    'sw-cms-detail': await wrapTestComponent('sw-cms-detail'),
+                    'sw-cms-block': await wrapTestComponent('sw-cms-block'),
+                    'sw-cms-block-config': await wrapTestComponent('sw-cms-block-config'),
+                    'sw-cms-section-config': await wrapTestComponent('sw-cms-section-config'),
+                    'sw-cms-section-actions': await wrapTestComponent('sw-cms-section-actions'),
+                    'sw-loader': true,
+                    'sw-cms-section': await wrapTestComponent('sw-cms-section'),
+                    'sw-cms-layout-assignment-modal': true,
+                    'sw-button': true,
+                    'sw-app-actions': true,
+                    'sw-modal': {
+                        template: `
                     <div class="sw-modal-stub">
                         <slot></slot>
 
@@ -89,60 +76,174 @@ async function createWrapper() {
                         </div>
                     </div>
                 `,
-                },
-                'sw-confirm-modal': {
-                    template: '<div></div>',
-                    props: ['text'],
-                },
-            },
-            mocks: {
-                $route: { params: { id: '1a' } },
-                $device: {
-                    getSystemKey: () => 'Strg',
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: (name) => {
-                        switch (name) {
-                            case 'category':
-                                return categoryRepository;
-                            case 'product':
-                                return productRepository;
-                            case 'media':
-                                return mediaRepository;
-                            default:
-                                return defaultRepository;
-                        }
+                    },
+                    'sw-confirm-modal': {
+                        template: '<div></div>',
+                        props: ['text'],
                     },
                 },
-                cmsPageTypeService,
-                entityFactory: {},
-                entityHydrator: {},
-                loginService: {},
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {
-                            'product-listing': {},
-                        };
+                mocks: {
+                    $route: { params: { id: '1a' } },
+                    $device: {
+                        getSystemKey: () => 'Strg',
                     },
                 },
-                appCmsService: {},
-                cmsDataResolverService: {
-                    // eslint-disable-next-line prefer-promise-reject-errors
-                    resolve: () => Promise.reject('foo'),
+
+                provide: {
+                    cmsPageTypeService,
+                    cmsBlockFavorites: {
+                        isFavorite() {
+                            return false;
+                        },
+                    },
+                    entityFactory: {},
+                    entityHydrator: {},
+                    loginService: {},
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {
+                                'product-listing': {},
+                            };
+                        },
+                        isBlockAllowedInPageType: () => {
+                            return true;
+                        },
+                    },
+                    appCmsService: {},
+                    cmsDataResolverService: {
+                        // eslint-disable-next-line prefer-promise-reject-errors
+                        resolve: () => Promise.reject('foo'),
+                    },
+                    systemConfigApiService: {
+                        getValues: () => {
+                            return {
+                                'core.cms.default_category_cms_page': '1a',
+                                'core.cms.default_product_cms_page': '1a',
+                            };
+                        },
+                    },
+                    repositoryFactory: {
+                        create: (name) => {
+                            switch (name) {
+                                case 'cms_block':
+                                    return {
+                                        clone: jest.fn(() =>
+                                            Promise.resolve({
+                                                id: 'cloned-block-id',
+                                            }),
+                                        ),
+                                        get: jest.fn(() =>
+                                            Promise.resolve({
+                                                id: 'cloned-block-id',
+                                                position: 1,
+                                                slots: [],
+                                                visibility: [
+                                                    {
+                                                        mobile: true,
+                                                        tablet: true,
+                                                        desktop: true,
+                                                    },
+                                                ],
+                                            }),
+                                        ),
+                                        save: jest.fn(() => Promise.resolve()),
+                                    };
+                                case 'cms_section':
+                                    return {
+                                        clone: jest.fn(() =>
+                                            Promise.resolve({
+                                                id: 'cloned-section-id',
+                                            }),
+                                        ),
+                                        get: jest.fn(() =>
+                                            Promise.resolve({
+                                                id: 'cloned-section-id',
+                                                position: 1,
+                                                blocks: [],
+                                                visibility: [
+                                                    {
+                                                        mobile: true,
+                                                        tablet: true,
+                                                        desktop: true,
+                                                    },
+                                                ],
+                                            }),
+                                        ),
+                                        save: jest.fn(() => Promise.resolve()),
+                                    };
+                                case 'category':
+                                    return {
+                                        search: () =>
+                                            Promise.resolve([
+                                                {
+                                                    id: categoryID,
+                                                    products: {
+                                                        entity: 'product',
+                                                        source: 'source',
+                                                    },
+                                                    mediaId: mediaID,
+                                                    media: {
+                                                        id: mediaID,
+                                                    },
+                                                },
+                                            ]),
+                                    };
+                                case 'product':
+                                    return {
+                                        search: () =>
+                                            Promise.resolve([
+                                                { id: productID },
+                                            ]),
+                                    };
+                                default:
+                                    return {
+                                        search: () =>
+                                            Promise.resolve(
+                                                new EntityCollection(
+                                                    '',
+                                                    '',
+                                                    Shopware.Context.api,
+                                                    null,
+                                                    [
+                                                        {
+                                                            name: 'defaultRepository',
+                                                        },
+                                                    ],
+                                                    1,
+                                                ),
+                                            ),
+                                        get: () =>
+                                            Promise.resolve({
+                                                sections: [
+                                                    {
+                                                        blocks: [],
+                                                        visibility: [
+                                                            {
+                                                                mobile: true,
+                                                                tablet: true,
+                                                                desktop: true,
+                                                            },
+                                                        ],
+                                                    },
+                                                ],
+                                                type: CMS.PAGE_TYPES.LANDING,
+                                                versionId: versionId,
+                                            }),
+                                        save: jest.fn(() => Promise.resolve()),
+                                        clone: jest.fn(() => Promise.resolve()),
+                                    };
+                            }
+                        },
+                    },
                 },
-                systemConfigApiService: {},
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/page/sw-cms-detail', () => {
-    const cmsPageStateBackup = { ...Shopware.State._store.state.cmsPageState };
-
     beforeEach(async () => {
-        Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
+        Shopware.Store.get('cmsPage').$reset();
 
         jest.spyOn(global.console, 'warn').mockImplementation(() => {});
         jest.resetModules();
@@ -173,15 +274,15 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const cmsStageAddSections = wrapper.findAll('sw-cms-stage-add-section-stub');
         expect(cmsStageAddSections).toHaveLength(2);
-        cmsStageAddSections.forEach(cmsStageAddSection => {
+        cmsStageAddSections.forEach((cmsStageAddSection) => {
             expect(cmsStageAddSection.attributes().disabled).toBe('true');
         });
 
-        const stageSection = wrapper.find('.sw-cms-stage-section');
-        expect(stageSection.attributes().disabled).toBe('true');
+        const cmsSectionActions = wrapper.find('.sw-cms-section__actions');
+        expect(cmsSectionActions.classes()).toContain('is--disabled');
 
-        const cmsSidebar = wrapper.find('sw-cms-sidebar-stub');
-        expect(cmsSidebar.attributes().disabled).toBe('true');
+        const cmsSidebarItems = wrapper.findAll('.sw-cms-sidebar .sw-sidebar-item');
+        expect(cmsSidebarItems).toHaveLength(5);
     });
 
     it('should enable all fields when ACL rights are missing', async () => {
@@ -203,14 +304,14 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const cmsStageAddSections = wrapper.findAll('sw-cms-stage-add-section-stub');
         expect(cmsStageAddSections).toHaveLength(2);
-        cmsStageAddSections.forEach(cmsStageAddSection => {
+        cmsStageAddSections.forEach((cmsStageAddSection) => {
             expect(cmsStageAddSection.attributes().disabled).toBeUndefined();
         });
 
         const stageSection = wrapper.find('.sw-cms-stage-section');
         expect(stageSection.attributes().disabled).toBeUndefined();
 
-        const cmsSidebar = wrapper.find('sw-cms-sidebar-stub');
+        const cmsSidebar = wrapper.find('.sw-cms-sidebar');
         expect(cmsSidebar.attributes().disabled).toBeUndefined();
     });
 
@@ -224,11 +325,21 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 type: 'product_detail',
                 name: 'Product page',
-                sections: [{
-                    blocks: [{
-                        slots: [{ type: 'buy-box' }, { type: 'buy-box' }],
-                    }],
-                }],
+                sections: [
+                    {
+                        blocks: [
+                            {
+                                slots: [
+                                    { type: 'buy-box' },
+                                    { type: 'buy-box' },
+                                ],
+                            },
+                        ],
+                        visibility: [
+                            { mobile: true, tablet: true, desktop: true },
+                        ],
+                    },
+                ],
             },
         });
 
@@ -268,6 +379,9 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                                 slots: [],
                             },
                         ],
+                        visibility: [
+                            { mobile: true, tablet: true, desktop: true },
+                        ],
                     },
                 ],
             },
@@ -292,15 +406,14 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.setData({
             page: {
                 type: 'product_list',
-
             },
         });
 
-        const State = Shopware.State._store.state.cmsPageState;
+        const State = Shopware.Store._rootState.state.value.cmsPage;
 
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.loadFirstDemoEntity();
+        wrapper.vm.onDemoEntityChange();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -336,15 +449,14 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.setData({
             page: {
                 type: 'product_detail',
-
             },
         });
 
-        const State = Shopware.State._store.state.cmsPageState;
+        const State = Shopware.Store._rootState.state.value.cmsPage;
 
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.loadFirstDemoEntity();
+        wrapper.vm.onDemoEntityChange();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -376,7 +488,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.systemConfigApiService.saveValues = saveSpy;
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
-        wrapper.findComponent('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
+        wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
@@ -389,6 +501,27 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(saveSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('should not assign as default layout if is not on live version', async () => {
+        global.activeAclRoles = ['system_config:read'];
+        const wrapper = await createWrapper('not-live-version-id');
+
+        expect(wrapper.vm.isDefaultLayout).toBe(false);
+    });
+
+    it('should assign as default layout if is on live version', async () => {
+        global.activeAclRoles = ['system_config:read'];
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            page: {
+                id: '1a',
+                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+            },
+        });
+
+        expect(wrapper.vm.isDefaultLayout).toBe(true);
+    });
+
     it('should not set the default layout when canceling and closing', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -399,7 +532,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.systemConfigApiService.saveValues = saveSpy;
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
-        wrapper.findComponent('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
+        wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
@@ -413,7 +546,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
 
-        wrapper.findComponent('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
+        wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
@@ -429,22 +562,27 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.loadPageCriteria;
 
-        ['categories', 'landingPages', 'products', 'products.manufacturer'].forEach((association) => {
+        [
+            'categories',
+            'landingPages',
+            'products',
+            'products.manufacturer',
+        ].forEach((association) => {
             expect(criteria.getAssociation(association).getLimit()).toBe(25);
         });
     });
 
-    it('should set the currentPageType in the cmsPageState', async () => {
+    it('should set the currentPageType in the cmsPage', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let State = Shopware.State._store.state.cmsPageState;
+        let State = Shopware.Store._rootState.state.value.cmsPage;
         expect(State.currentPageType).toBe(CMS.PAGE_TYPES.LANDING);
 
-        wrapper.findComponent('sw-cms-sidebar-stub').vm.$emit('page-type-change', CMS.PAGE_TYPES.SHOP);
+        wrapper.findComponent('.sw-cms-sidebar').vm.$emit('page-type-change', CMS.PAGE_TYPES.SHOP);
         await flushPromises();
 
-        State = Shopware.State._store.state.cmsPageState;
+        State = Shopware.Store._rootState.state.value.cmsPage;
         expect(State.currentPageType).toBe(CMS.PAGE_TYPES.SHOP);
         expect(wrapper.vm.page.type).toBe(CMS.PAGE_TYPES.SHOP);
     });
@@ -483,5 +621,136 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(backSpy).toHaveBeenCalledTimes(1);
         expect(pushSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('should duplicate a block correctly', async () => {
+        global.activeAclRoles = ['cms.editor'];
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        await wrapper.setData({
+            page: {
+                name: 'Test layout',
+                type: 'product_list',
+                sections: new EntityCollection(null, 'cms_section', wrapper.vm.layoutVersionContext, new Criteria(1, 25), [
+                    {
+                        name: 'Section 1',
+                        visibility: {
+                            mobile: true,
+                            tablet: true,
+                            desktop: true,
+                        },
+                        blocks: new EntityCollection(
+                            null,
+                            'cms_block',
+                            wrapper.vm.layoutVersionContext,
+                            new Criteria(1, 25),
+                            [
+                                {
+                                    id: 'main-block-id',
+                                    type: 'product-listing',
+                                    position: 0,
+                                    slots: [],
+                                    visibility: {
+                                        mobile: true,
+                                        tablet: true,
+                                        desktop: true,
+                                    },
+                                },
+                            ],
+                        ),
+                    },
+                ]),
+            },
+        });
+
+        await flushPromises();
+
+        const blockConfig = wrapper.find('.sw-cms-block__config-overlay');
+        await blockConfig.trigger('click');
+        expect(blockConfig.classes()).toContain('is--active');
+
+        await flushPromises();
+
+        const duplicateButton = wrapper.find('.sw-cms-block-config__quickaction');
+        await duplicateButton.trigger('click');
+
+        expect(wrapper.vm.blockRepository.clone).toHaveBeenCalledWith(
+            'main-block-id',
+            expect.any(Object),
+            wrapper.vm.layoutVersionContext,
+        );
+
+        const blocks = wrapper.vm.page.sections[0].blocks;
+        expect(blocks).toHaveLength(2);
+        expect(blocks[1].id).toBe('cloned-block-id');
+        expect(blocks[1].position).toBe(1);
+    });
+
+    it('should duplicate a section correctly', async () => {
+        global.activeAclRoles = ['cms.editor'];
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        await wrapper.setData({
+            page: {
+                name: 'Test layout',
+                type: 'product_list',
+                sections: new EntityCollection(null, 'cms_section', wrapper.vm.layoutVersionContext, new Criteria(1, 25), [
+                    {
+                        name: 'Section 1',
+                        id: 'main-section-id',
+                        visibility: {
+                            mobile: true,
+                            tablet: true,
+                            desktop: true,
+                        },
+                        position: 0,
+                        blocks: new EntityCollection(
+                            null,
+                            'cms_block',
+                            wrapper.vm.layoutVersionContext,
+                            new Criteria(1, 25),
+                            [
+                                {
+                                    id: 'main-block-id',
+                                    type: 'product-listing',
+                                    position: 0,
+                                    slots: [],
+                                    visibility: {
+                                        mobile: true,
+                                        tablet: true,
+                                        desktop: true,
+                                    },
+                                },
+                            ],
+                        ),
+                    },
+                ]),
+            },
+        });
+
+        await flushPromises();
+
+        const sectionConfig = wrapper.find('.sw-cms-section__action');
+        await sectionConfig.trigger('click');
+
+        await flushPromises();
+
+        const duplicateButton = wrapper.find('.sw-cms-section-config__quickaction');
+        await duplicateButton.trigger('click');
+
+        expect(wrapper.vm.sectionRepository.clone).toHaveBeenCalledWith(
+            'main-section-id',
+            expect.any(Object),
+            wrapper.vm.layoutVersionContext,
+        );
+
+        const sections = wrapper.vm.page.sections;
+        expect(sections).toHaveLength(2);
+        expect(sections[1].id).toBe('cloned-section-id');
+        expect(sections[1].position).toBe(1);
     });
 });

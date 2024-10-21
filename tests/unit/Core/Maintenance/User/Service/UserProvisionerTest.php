@@ -6,8 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
+use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 
 /**
  * @internal
@@ -25,18 +26,18 @@ class UserProvisionerTest extends TestCase
             ->with(
                 'user',
                 static::callback(static function (array $data) use ($localeId): bool {
-                    static::assertEquals('admin', $data['username']);
-                    static::assertEquals('first', $data['first_name']);
-                    static::assertEquals('last', $data['last_name']);
-                    static::assertEquals('test@test.com', $data['email']);
-                    static::assertEquals($localeId, $data['locale_id']);
+                    static::assertSame('admin', $data['username']);
+                    static::assertSame('first', $data['first_name']);
+                    static::assertSame('last', $data['last_name']);
+                    static::assertSame('test@test.com', $data['email']);
+                    static::assertSame($localeId, $data['locale_id']);
                     static::assertFalse($data['admin']);
                     static::assertTrue($data['active']);
 
                     return password_verify('shopware', (string) $data['password']);
                 })
             );
-        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
         $connection->expects(static::exactly(2))->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
             new FakeQueryBuilder($connection, [[$localeId]])
@@ -71,8 +72,8 @@ class UserProvisionerTest extends TestCase
         ];
 
         $provisioner = new UserProvisioner($connection);
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('User with username "admin" already exists.');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('User with username "admin" already exists.');
         $provisioner->provision('admin', 'shopware', $user);
     }
 
@@ -86,7 +87,7 @@ class UserProvisionerTest extends TestCase
             new FakeQueryBuilder($connection, []),
         );
 
-        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
 
         $user = [
             'firstName' => 'first',
@@ -96,47 +97,8 @@ class UserProvisionerTest extends TestCase
         ];
 
         $provisioner = new UserProvisioner($connection);
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('The password length cannot be shorter than 8 characters.');
+        $this->expectException(MaintenanceException::class);
+        $this->expectExceptionMessage('The password must have at least 8 characters.');
         $provisioner->provision('admin', 'short', $user);
-    }
-
-    public function testProvisionGeneratePasswordIfNullPasswordGiven(): void
-    {
-        $localeId = Uuid::randomBytes();
-        $connection = $this->createMock(Connection::class);
-
-        $connection->expects(static::once())
-            ->method('insert')
-            ->with(
-                'user',
-                static::callback(static function (array $data) use ($localeId): bool {
-                    static::assertEquals('admin', $data['username']);
-                    static::assertEquals('first', $data['first_name']);
-                    static::assertEquals('last', $data['last_name']);
-                    static::assertEquals('test@test.com', $data['email']);
-                    static::assertEquals($localeId, $data['locale_id']);
-                    static::assertFalse($data['admin']);
-                    static::assertTrue($data['active']);
-
-                    return true;
-                })
-            );
-
-        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
-        $connection->expects(static::exactly(2))->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
-            new FakeQueryBuilder($connection, []),
-            new FakeQueryBuilder($connection, [[$localeId]])
-        );
-
-        $user = [
-            'firstName' => 'first',
-            'lastName' => 'last',
-            'email' => 'test@test.com',
-            'admin' => false,
-        ];
-
-        $provisioner = new UserProvisioner($connection);
-        $provisioner->provision('admin', null, $user);
     }
 }

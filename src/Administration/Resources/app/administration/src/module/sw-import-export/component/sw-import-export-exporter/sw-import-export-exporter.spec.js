@@ -30,17 +30,19 @@ const repositoryMockFactory = () => {
                 },
             ];
 
-            return Promise.resolve(profiles.filter((profile) => {
-                let isAllowed = true;
+            return Promise.resolve(
+                profiles.filter((profile) => {
+                    let isAllowed = true;
 
-                criteria.filters.forEach(filter => {
-                    if (filter.type === 'equals' && profile[filter.field] !== filter.value) {
-                        isAllowed = false;
-                    }
-                });
+                    criteria.filters.forEach((filter) => {
+                        if (filter.type === 'equals' && profile[filter.field] !== filter.value) {
+                            isAllowed = false;
+                        }
+                    });
 
-                return isAllowed;
-            }));
+                    return isAllowed;
+                }),
+            );
         },
     };
 };
@@ -49,59 +51,71 @@ describe('components/sw-import-export-exporter', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-import-export-exporter', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-loader': true,
-                    'sw-icon': true,
-                    'sw-switch-field': true,
-                    'sw-field-error': true,
-                    'sw-import-export-progress': true,
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
-                    'sw-popover': await wrapTestComponent('sw-popover'),
-                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'sw-alert': await wrapTestComponent('sw-alert'),
-                    'sw-import-export-exporter': await wrapTestComponent('sw-import-export-exporter', { sync: true }),
-                    'sw-button': true,
-                },
-                provide: {
-                    shortcutService: {
-                        startEventListener: () => {},
-                        stopEventListener: () => {},
-                    },
-                    importExport: {
-                        export: (profileId, cb, config) => {
-                            if (!config.error) {
-                                return Promise.resolve();
-                            }
-
-                            // eslint-disable-next-line prefer-promise-reject-errors
-                            return Promise.reject({
-                                response: {
-                                    data: {
-                                        errors: [
-                                            {
-                                                code: 'This is an error code',
-                                                detail: 'This is an detailed error message',
-                                            },
-                                        ],
-                                    },
-                                },
-                            });
+        wrapper = mount(
+            await wrapTestComponent('sw-import-export-exporter', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-loader': true,
+                        'sw-icon': true,
+                        'sw-switch-field': true,
+                        'sw-field-error': true,
+                        'sw-import-export-progress': true,
+                        'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                        'sw-select-result': await wrapTestComponent('sw-select-result'),
+                        'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                        'sw-popover': await wrapTestComponent('sw-popover'),
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                        'sw-alert': await wrapTestComponent('sw-alert'),
+                        'sw-import-export-exporter': await wrapTestComponent('sw-import-export-exporter', { sync: true }),
+                        'sw-button': true,
+                        'sw-product-variant-info': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                        'sw-alert-deprecated': {
+                            template: '<div><slot></slot></div>',
                         },
                     },
-                    repositoryFactory: {
-                        create: () => repositoryMockFactory(),
+                    provide: {
+                        shortcutService: {
+                            startEventListener: () => {},
+                            stopEventListener: () => {},
+                        },
+                        importExport: {
+                            export: (profileId, cb, config) => {
+                                if (!config.error) {
+                                    return Promise.resolve();
+                                }
+
+                                // eslint-disable-next-line prefer-promise-reject-errors
+                                return Promise.reject({
+                                    response: {
+                                        data: {
+                                            errors: [
+                                                {
+                                                    code: 'This is an error code',
+                                                    detail: 'This is an detailed error message',
+                                                },
+                                            ],
+                                        },
+                                    },
+                                });
+                            },
+                        },
+                        repositoryFactory: {
+                            create: () => repositoryMockFactory(),
+                        },
                     },
                 },
             },
-        });
+        );
 
         await flushPromises();
     });
@@ -194,9 +208,7 @@ describe('components/sw-import-export-exporter', () => {
         expect(variantsWarningLink.at(0).text()).toContain('sw-import-export.exporter.directExportVariantsLabel');
 
         expect(variantsWarningLink.at(1).exists()).toBeTruthy();
-        expect(variantsWarningLink.at(1).text()).toContain(
-            'sw-import-export.exporter.directExportPropertiesLabel',
-        );
+        expect(variantsWarningLink.at(1).text()).toContain('sw-import-export.exporter.directExportPropertiesLabel');
     });
 
     it('should show a modal which only contains configurator settings profiles', async () => {
@@ -232,7 +244,7 @@ describe('components/sw-import-export-exporter', () => {
 
         const results = wrapper.findAll('.sw-highlight-text');
         const resultNames = [];
-        results.forEach(result => resultNames.push(result.text()));
+        results.forEach((result) => resultNames.push(result.text()));
 
         expect(resultNames).toContain('Default product');
         expect(resultNames).toContain('Default configurator settings');
@@ -241,7 +253,9 @@ describe('components/sw-import-export-exporter', () => {
     });
 
     it('should show only matching profiles when sourceEntity property is set', async () => {
-        await wrapper.setProps({ sourceEntity: 'product_configurator_setting' });
+        await wrapper.setProps({
+            sourceEntity: 'product_configurator_setting',
+        });
         await flushPromises();
 
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
@@ -249,7 +263,7 @@ describe('components/sw-import-export-exporter', () => {
 
         const results = await wrapper.findAll('.sw-highlight-text');
         const resultNames = [];
-        results.forEach(result => resultNames.push(result.text()));
+        results.forEach((result) => resultNames.push(result.text()));
 
         expect(resultNames).not.toContain('Default product');
         expect(resultNames).toContain('Default configurator settings');
@@ -264,7 +278,6 @@ describe('components/sw-import-export-exporter', () => {
                 error: true,
             },
         });
-
 
         wrapper.vm.createNotificationError = jest.fn();
 

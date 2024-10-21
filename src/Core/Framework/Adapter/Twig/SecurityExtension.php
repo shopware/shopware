@@ -49,7 +49,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(sprintf('Function "%s" is not allowed', $function));
+            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $function));
         }
 
         $result = [];
@@ -76,7 +76,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(sprintf('Function "%s" is not allowed', $function));
+            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $function));
         }
 
         if (!\is_array($array)) {
@@ -104,7 +104,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(sprintf('Function "%s" is not allowed', $arrow));
+            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
         }
 
         if (\is_array($array)) {
@@ -133,7 +133,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(sprintf('Function "%s" is not allowed', $arrow));
+            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
         }
 
         if ($array instanceof \Traversable) {

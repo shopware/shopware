@@ -19,7 +19,7 @@
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                     :error="ruleNameError"
-                    :disabled="!acl.can('rule.editor')"
+                    :disabled="!acl.can('rule.editor') || undefined"
                     required
                 />
                 {% endblock %}
@@ -32,7 +32,7 @@
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"
-                    :disabled="!acl.can('rule.editor')"
+                    :disabled="!acl.can('rule.editor') || undefined"
                     required
                 />
                 {% endblock %}
@@ -45,7 +45,7 @@
                 name="sw-field--rule-description"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
-                :disabled="!acl.can('rule.editor')"
+                :disabled="!acl.can('rule.editor') || undefined"
             />
             {% endblock %}
 
@@ -60,7 +60,7 @@
                     value-property="id"
                     label-property="name"
                     :label="$tc('sw-settings-rule.detail.labelType')"
-                    :disabled="!acl.can('rule.editor')"
+                    :disabled="!acl.can('rule.editor') || undefined"
                     :options="availableModuleTypes"
                 >
                     <template #selection-label-property="{ item }">
@@ -81,7 +81,7 @@
                     name="sw-field--rule-tags"
                     class="sw-settings-rule-detail__tags-field"
                     :label="$tc('global.sw-tag-field.title')"
-                    :disabled="!acl.can('rule.editor')"
+                    :disabled="!acl.can('rule.editor') || undefined"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderTags')"
                 />
                 {% endblock %}
@@ -100,6 +100,12 @@
         :is-loading="isLoading"
         :title="$tc('sw-settings-rule.detail.ruleCard')"
     >
+        <template #header-right>
+            <sw-extension-teaser-popover
+                position-identifier="sw-settings-rule-preview-mode-switch"
+            />
+        </template>
+
         <sw-condition-tree
             :initial-conditions="conditions"
             :condition-repository="conditionRepository"
@@ -108,7 +114,7 @@
             :association-value="rule.id"
             :association-entity="rule"
             :root-condition="null"
-            :disabled="!acl.can('rule.editor')"
+            :disabled="!acl.can('rule.editor') || undefined"
             @conditions-changed="$emit('conditions-changed', $event)"
             @initial-loading-done="$emit('tree-finished-loading')"
         />
@@ -126,7 +132,7 @@
     >
         <sw-custom-field-set-renderer
             :entity="rule"
-            :disabled="!acl.can('rule.editor')"
+            :disabled="!acl.can('rule.editor') || undefined"
             :sets="customFieldSets"
         />
     </sw-card>

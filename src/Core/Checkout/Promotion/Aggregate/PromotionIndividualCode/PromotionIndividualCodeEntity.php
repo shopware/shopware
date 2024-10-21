@@ -92,8 +92,8 @@ class PromotionIndividualCodeEntity extends Entity
      * Sets the code to the state "redeemed" by building
      * a payload and assigning the provided values.
      *
-     * @param string $orderId      order that has been placed with this code
-     * @param string $customerId   the customer id of the order
+     * @param string $orderId order that has been placed with this code
+     * @param string $customerId the customer id of the order
      * @param string $customerName the full name of the customer when placing the order
      *
      * @throws PromotionException

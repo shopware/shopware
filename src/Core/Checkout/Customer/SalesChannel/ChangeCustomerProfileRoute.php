@@ -157,7 +157,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         \assert(\is_numeric($birthdayMonth));
         \assert(\is_numeric($birthdayYear));
 
-        return new \DateTime(sprintf(
+        return new \DateTime(\sprintf(
             '%s-%s-%s',
             $birthdayYear,
             $birthdayMonth,

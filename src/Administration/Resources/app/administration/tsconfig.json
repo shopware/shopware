@@ -11,6 +11,7 @@
     "types": [
       "vite/client",
       "@types/webpack-env",
+      "jest"
     ],
     "resolveJsonModule": true,
     "allowJs": true,
@@ -23,5 +24,6 @@
     "noErrorTruncation": false,
   },
   "include": ["./src/**/*", "./scripts/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "files": ["node_modules/jest-expect-message/types/index.d.ts"]
 }

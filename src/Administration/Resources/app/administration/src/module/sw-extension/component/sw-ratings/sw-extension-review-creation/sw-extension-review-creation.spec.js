@@ -26,45 +26,64 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
     });
 
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-extension-review-creation', { sync: true }), {
-            global: {
-                provide: {
-                    validationService: {},
-                    extensionStoreActionService: {
-                        rateExtension: jest.fn(),
+        return mount(
+            await wrapTestComponent('sw-extension-review-creation', {
+                sync: true,
+            }),
+            {
+                global: {
+                    provide: {
+                        validationService: {},
+                        extensionStoreActionService: {
+                            rateExtension: jest.fn(),
+                        },
+                    },
+                    stubs: {
+                        'sw-extension-review-creation-inputs': await wrapTestComponent(
+                            'sw-extension-review-creation-inputs',
+                            { sync: true },
+                        ),
+                        'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                        'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                        'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                        'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+                        'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
+                        'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
+                        'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
+                            sync: true,
+                        }),
+                        'sw-icon': true,
+                        'sw-textarea-field': {
+                            template: '<textarea></textarea>',
+                        },
+                        'sw-gtc-checkbox': await wrapTestComponent('sw-gtc-checkbox', { sync: true }),
+                        'sw-button': await wrapTestComponent('sw-button', {
+                            sync: true,
+                        }),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                        'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+                        'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
+                        'sw-external-link-deprecated': await wrapTestComponent('sw-external-link-deprecated', {
+                            sync: true,
+                        }),
+                        'sw-loader': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                        'router-link': true,
                     },
                 },
-                stubs: {
-                    'sw-extension-review-creation-inputs': await wrapTestComponent('sw-extension-review-creation-inputs', { sync: true }),
-                    'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
-                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                    'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
-                    'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
-                    'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
-                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
-                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-icon': true,
-                    'sw-textarea-field': {
-                        template: '<textarea></textarea>',
+                props: {
+                    extension: {
+                        name: 'Test',
                     },
-                    'sw-gtc-checkbox': await wrapTestComponent('sw-gtc-checkbox', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                    'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
-                    'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
-                    'sw-external-link-deprecated': await wrapTestComponent('sw-external-link-deprecated', { sync: true }),
-                    'sw-loader': true,
                 },
             },
-            props: {
-                extension: {
-                    name: 'Test',
-                },
-            },
-        });
+        );
     }
 
     it('should enable the button when the gtc are accepted', async () => {

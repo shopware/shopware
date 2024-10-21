@@ -47,7 +47,7 @@
                                     ],
                                     "properties": {
                                         "action": {
-                                            "description": "The action indicates what should happen with the provided payload.\n    * `upsert`: The Sync API does not differ between create and update operations,\n    but always performs an upsert operation. During an upsert, the system checks whether the entity already exists in the\n    system and updates it if an identifier has been passed, otherwise a new entity is created with this identifier.\n    * `delete`: Deletes entites with the provided identifiers",
+                                            "description": "The action indicates what should happen with the provided payload.\n    * `upsert`: The Sync API does not differ between create and update operations,\n    but always performs an upsert operation. During an upsert, the system checks whether the entity already exists in the\n    system and updates it if an identifier has been passed, otherwise a new entity is created with this identifier.\n    * `delete`: Deletes entities with the provided identifiers",
                                             "type": "string",
                                             "enum": [
                                                 "upsert",
@@ -65,6 +65,16 @@
                                             "items": {
                                                 "type": "object"
                                             }
+                                        },
+                                        "filter": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#\/components\/schemas\/CriteriaFilter"
+                                                },
+                                                {
+                                                    "description": "Only for delete operations: Instead of providing IDs in the payload, the filter by which should be deleted can be provided directly."
+                                                }
+                                            ]
                                         }
                                     },
                                     "type": "object"
@@ -81,15 +91,15 @@
                                 "schema": {
                                     "properties": {
                                         "data": {
-                                            "description": "Object with information about updated entites",
+                                            "description": "Object with information about updated entities",
                                             "type": "object"
                                         },
                                         "notFound": {
-                                            "description": "Object with information about not found entites",
+                                            "description": "Object with information about not found entities",
                                             "type": "object"
                                         },
                                         "deleted": {
-                                            "description": "Object with information about deleted entites",
+                                            "description": "Object with information about deleted entities",
                                             "type": "object"
                                         }
                                     },

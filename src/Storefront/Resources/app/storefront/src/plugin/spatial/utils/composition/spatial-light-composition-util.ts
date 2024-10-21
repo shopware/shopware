@@ -5,8 +5,8 @@ export type Light = {
     type: string,
     color: string,
     intensity: number,
-    position?: {x: number, y: number, z: number},
-    target?: {x: number, y: number, z: number},
+    position?: { x: number, y: number, z: number },
+    target?: { x: number, y: number, z: number },
 }
 
 /**
@@ -27,24 +27,24 @@ export default class SpatialLightCompositionUtil {
             type: 'directional',
             color: '#ffffff',
             intensity: 1,
-            position: {x: -5, y: 2, z: 2},
-            target: {x: 0, y: 0, z: 0},
+            position: { x: -5, y: 2, z: 2 },
+            target: { x: 0, y: 0, z: 0 },
         },
         {
             id: 'directional',
             type: 'directional',
             color: '#ffffff',
             intensity: 1,
-            position: {x: 0, y: 2, z: 2},
-            target: {x: 0, y: 0, z: 0},
+            position: { x: 0, y: 2, z: 2 },
+            target: { x: 0, y: 0, z: 0 },
         },
         {
             id: 'directional',
             type: 'directional',
             color: '#ffffff',
             intensity: 1,
-            position: {x: 5, y: 2, z: 2},
-            target: {x: 0, y: 0, z: 0},
+            position: { x: 5, y: 2, z: 2 },
+            target: { x: 0, y: 0, z: 0 },
         },
     ];
 
@@ -52,8 +52,15 @@ export default class SpatialLightCompositionUtil {
     private scene: Scene;
     private lightGroup: Group;
 
-    constructor(scene: Scene, lights?: Light[]) {
+    constructor(scene: Scene, intensity?: string, lights?: Light[]) {
         this.lights = lights ?? SpatialLightCompositionUtil.defaultLights;
+
+        if (intensity) {
+            this.lights.forEach(light => {
+                light.intensity = Number(intensity) / 100;
+            });
+        }
+
         this.scene = scene;
         // eslint-disable-next-line
         this.lightGroup = new window.threeJs.Group();

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -46,6 +47,11 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())
                 ->append($this->createStagingNode())
+                ->append($this->createSystemConfigNode())
+                ->append($this->createMessengerSection())
+                ->append($this->createSearchSection())
+                ->append($this->createTelemetrySection())
+                ->append($this->createRedisSection())
             ->end();
 
         return $treeBuilder;
@@ -316,6 +322,12 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('media'))->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode('remote_thumbnails')
+                    ->children()
+                        ->booleanNode('enable')->end()
+                        ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                    ->end()
+                ->end()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
@@ -420,7 +432,11 @@ class Configuration implements ConfigurationInterface
                                     ->defaultValue('redis')
                                 ->end()
                                 ->scalarNode('dsn')
+                                    ->setDeprecated('shopware/core', '6.7.0.0', 'dsn is deprecated and will be removed with Shopware 6.7. Use connection instead.')
                                     ->defaultValue('redis://localhost')
+                                ->end()
+                                ->scalarNode('connection')
+                                    ->defaultValue(null)
                                 ->end()
                             ->end()
                         ->end()
@@ -553,6 +569,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('config')
                             ->children()
                                 ->scalarNode('dsn')->end()
+                                ->scalarNode('connection')->defaultValue(null)->end()
                             ->end()
                     ->end()
             ->end();
@@ -575,6 +592,7 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('config')
                 ->children()
                     ->scalarNode('dsn')->end()
+                    ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
             ->end();
 
@@ -842,6 +860,19 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createSystemConfigNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('system_config');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('default')->scalarPrototype()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createHttpCacheSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('http_cache');
@@ -851,6 +882,10 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->arrayNode('cookies')
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->end()
+                ->end()
                 ->arrayNode('ignored_url_parameters')
                     ->scalarPrototype()->end()
                 ->end()
@@ -888,6 +923,112 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ->end();
+
+        return $rootNode;
+    }
+
+    private function createMessengerSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('messenger');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('routing_overwrite')
+                    ->useAttributeAsKey('name')
+                    ->scalarPrototype()->end()
+                ->end()
+                // @deprecated tag:v6.7.0 - Set `enforce_message_size` to default true. Also change the `config-schema.json` accordingly
+                ->booleanNode('enforce_message_size')->defaultFalse()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSearchSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('search');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->integerNode('term_max_length')->defaultValue(300)->end()
+            ->arrayNode('preserved_chars')
+            ->performNoDeepMerging()->defaultValue([])
+            ->prototype('scalar')->end()
+            ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTelemetrySection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('telemetry');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+            ->arrayNode('metrics')
+                ->children()
+                    ->scalarNode('namespace')->end()
+                    ->booleanNode('allow_unknown_labels')->defaultFalse()->end()
+                    ->booleanNode('allow_unknown_label_values')->defaultFalse()->end()
+                    ->booleanNode('enable_internal_metrics')->defaultFalse()->end()
+                    ->booleanNode('enabled')->defaultFalse()->end()
+                    ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('definitions')
+                        ->useAttributeAsKey('name')
+                        ->arrayPrototype()
+                            ->children()
+                                ->enumNode('type')
+                                    ->isRequired()
+                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                ->end()
+                                ->scalarNode('description')->end()
+                                ->scalarNode('unit')->end()
+                                ->scalarNode('enabled')->defaultTrue()->end()
+                                ->arrayNode('parameters')
+                                    ->variablePrototype()
+                                ->end()
+                                ->end()
+                                ->arrayNode('labels')
+                                    ->useAttributeAsKey('label_name')
+                                    ->arrayPrototype()
+                                        ->children()
+                                            ->arrayNode('allowed_values')
+                                                ->scalarPrototype()
+                                            ->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+        ->end()
+        ->end();
+
+        return $rootNode;
+    }
+
+    private function createRedisSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('redis');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->arrayNode('connections')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('dsn')->isRequired()->end()
+                            // Additional options if necessary
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
 
         return $rootNode;
     }

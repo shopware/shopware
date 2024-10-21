@@ -6,7 +6,12 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-datepicker', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-datepicker-deprecated': true,
+                'mt-datepicker': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

@@ -10,6 +10,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-notification-center', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     mixins: [
@@ -33,14 +35,18 @@ Component.register('sw-notification-center', {
 
         additionalContextButtonClass() {
             return {
-                'sw-notification-center__context-button--new-available': this.notifications.some(n => !n.visited),
+                'sw-notification-center__context-button--new-available': this.notifications.some((n) => !n.visited),
             };
         },
     },
 
     created() {
         this.unsubscribeFromStore = Shopware.State.subscribeAction(this.createNotificationFromSystemError);
-        this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
+        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
+        } else {
+            Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
+        }
     },
 
     beforeDestroyed() {
@@ -48,7 +54,11 @@ Component.register('sw-notification-center', {
             this.unsubscribeFromStore();
         }
 
-        this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
+        if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
+        } else {
+            Shopware.Utils.EventBus.$off('on-change-notification-center-visibility', this.changeVisibility);
+        }
     },
 
     methods: {

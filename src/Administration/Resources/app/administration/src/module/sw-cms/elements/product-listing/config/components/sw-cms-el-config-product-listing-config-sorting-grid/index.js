@@ -10,6 +10,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     mixins: [
@@ -86,7 +88,7 @@ export default {
         },
 
         fetchCustomFields() {
-            this.customFieldRepository.search(this.customFieldCriteria).then(response => {
+            this.customFieldRepository.search(this.customFieldCriteria).then((response) => {
                 this.customFields = response;
             });
         },
@@ -96,7 +98,7 @@ export default {
                 return '';
             }
 
-            const labels = fields.map(currentField => {
+            const labels = fields.map((currentField) => {
                 if (this.isItemACustomField(currentField.field)) {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
@@ -112,7 +114,7 @@ export default {
         isItemACustomField(fieldName) {
             const strippedFieldName = this.stripCustomFieldPath(fieldName);
 
-            return this.customFields.some(currentCustomField => {
+            return this.customFields.some((currentCustomField) => {
                 return currentCustomField.name === strippedFieldName;
             });
         },
@@ -135,7 +137,7 @@ export default {
         },
 
         getCustomFieldByName(technicalName) {
-            return this.customFields.find(currentCustomField => {
+            return this.customFields.find((currentCustomField) => {
                 return currentCustomField.name === technicalName;
             });
         },

@@ -1,17 +1,18 @@
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
 import type { Module } from 'vuex';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type MainModule = {
-    extensionName: string,
-    moduleId: string,
+    extensionName: string;
+    moduleId: string;
 };
 
 interface MainModuleState {
-    mainModules: MainModule[]
+    mainModules: MainModule[];
 }
 
 const MainModuleStore: Module<MainModuleState, VuexRootState> = {

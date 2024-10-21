@@ -13,7 +13,13 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -60,10 +66,7 @@ export default {
 
         priceRepository() {
             if (this.product && this.product.prices) {
-                return this.repositoryFactory.create(
-                    this.product.prices.entity,
-                    this.product.prices.source,
-                );
+                return this.repositoryFactory.create(this.product.prices.entity, this.product.prices.source);
             }
             return null;
         },
@@ -131,10 +134,7 @@ export default {
         },
 
         isLoaded() {
-            return !this.isLoading &&
-                   this.currencies &&
-                   this.taxes &&
-                   this.product;
+            return !this.isLoading && this.currencies && this.taxes && this.product;
         },
 
         currencyColumns() {
@@ -164,7 +164,8 @@ export default {
                     primary: true,
                     rawData: false,
                     width: '120px',
-                }, {
+                },
+                {
                     property: 'quantityEnd',
                     label: 'sw-product.advancedPrices.columnTo',
                     visible: true,
@@ -183,14 +184,16 @@ export default {
                 },
             ];
 
-            return [...priceColumns, ...this.currencyColumns];
+            return [
+                ...priceColumns,
+                ...this.currencyColumns,
+            ];
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
     },
-
 
     watch: {
         'product.prices': {
@@ -220,13 +223,19 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
+                Shopware.State.commit('swProductDetail/setLoading', [
+                    'rules',
+                    true,
+                ]);
             }
             this.ruleRepository.search(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.State.commit('swProductDetail/setLoading', ['rules', false]);
+                Shopware.State.commit('swProductDetail/setLoading', [
+                    'rules',
+                    false,
+                ]);
             });
 
             this.isInherited = this.isChild && !this.product.prices.total;
@@ -264,7 +273,9 @@ export default {
              * this $nextTick is needed because vue first needs to remove the modal from the DOM.
              * without it this would not happen.
              */
-            this.$nextTick(() => { changeRules(); });
+            this.$nextTick(() => {
+                changeRules();
+            });
         },
 
         async onAddNewPriceGroup(ruleId = null) {
@@ -285,13 +296,15 @@ export default {
             newPriceRule.quantityStart = 1;
             newPriceRule.quantityEnd = null;
             newPriceRule.currencyId = this.defaultCurrency.id;
-            newPriceRule.price = [{
-                currencyId: this.defaultCurrency.id,
-                gross: this.isSetDefaultPrice ? 0 : this.defaultPrice.gross,
-                linked: this.defaultPrice.linked,
-                net: this.isSetDefaultPrice ? 0 : this.defaultPrice.net,
-                listPrice: null,
-            }];
+            newPriceRule.price = [
+                {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.isSetDefaultPrice ? 0 : this.defaultPrice.gross,
+                    linked: this.defaultPrice.linked,
+                    net: this.isSetDefaultPrice ? 0 : this.defaultPrice.net,
+                    listPrice: null,
+                },
+            ];
 
             if (this.defaultPrice.listPrice) {
                 newPriceRule.price[0].listPrice = {
@@ -317,7 +330,7 @@ export default {
         },
 
         onPriceGroupDelete(ruleId) {
-            const allPriceRules = this.product.prices.map(priceRule => {
+            const allPriceRules = this.product.prices.map((priceRule) => {
                 return { id: priceRule.id, ruleId: priceRule.ruleId };
             });
 
@@ -450,13 +463,15 @@ export default {
             const highestEndValue = Math.max(...priceGroup.prices.map((price) => price.quantityEnd));
             newPriceRule.quantityStart = highestEndValue + 1;
 
-            newPriceRule.price = [{
-                currencyId: this.defaultCurrency.id,
-                gross: this.defaultPrice.gross,
-                linked: this.defaultPrice.linked,
-                net: this.defaultPrice.net,
-                listPrice: null,
-            }];
+            newPriceRule.price = [
+                {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.gross,
+                    linked: this.defaultPrice.linked,
+                    net: this.defaultPrice.net,
+                    listPrice: null,
+                },
+            ];
 
             if (this.defaultPrice.listPrice) {
                 newPriceRule.price[0].listPrice = {
@@ -519,7 +534,7 @@ export default {
                 message: this.$tc('sw-product.advancedPrices.advancedPriceDisabledTooltip'),
                 width: 275,
                 showDelay: 200,
-                disabled: (itemIndex !== 0 || quantity !== 1),
+                disabled: itemIndex !== 0 || quantity !== 1,
             };
         },
     },

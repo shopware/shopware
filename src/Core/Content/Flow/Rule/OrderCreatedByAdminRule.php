@@ -16,7 +16,7 @@ class OrderCreatedByAdminRule extends FlowRule
     /**
      * @internal
      */
-    public function __construct(private bool $shouldOrderBeCreatedByAdmin = true)
+    public function __construct(protected bool $shouldOrderBeCreatedByAdmin = true)
     {
         parent::__construct();
     }

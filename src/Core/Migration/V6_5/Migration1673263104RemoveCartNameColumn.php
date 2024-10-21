@@ -19,7 +19,7 @@ class Migration1673263104RemoveCartNameColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $isCartNameNullable = <<<SQL
+        $isCartNameNullable = <<<'SQL'
             SELECT is_nullable
             FROM information_schema.columns
             WHERE table_schema = ?
@@ -36,8 +36,6 @@ class Migration1673263104RemoveCartNameColumn extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        if ($connection->fetchOne('SHOW COLUMNS FROM `cart` LIKE \'name\'') === 'name') {
-            $connection->executeStatement('ALTER TABLE `cart` DROP COLUMN `name`');
-        }
+        $this->dropColumnIfExists($connection, 'cart', 'name');
     }
 }

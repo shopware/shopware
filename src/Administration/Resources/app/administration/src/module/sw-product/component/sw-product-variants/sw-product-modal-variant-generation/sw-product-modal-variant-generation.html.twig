@@ -62,9 +62,16 @@
         {% block sw_product_modal_variant_generation_sidebar_descriptions %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
-        <p v-if="activeTab == 'options'">
-            {{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}
-        </p>
+        <div v-if="activeTab == 'options'">
+            <p>{{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}</p>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_modal_variant_generation_sidebar_add_only_selected %}
+            <sw-switch-field
+                v-model:value="isAddOnly"
+                :label="$tc('sw-product.variations.configuratorModal.addVariantsOnly')"
+            />
+            {% endblock %}
+        </div>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -88,6 +95,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_main %}
     <div class="sw-product-modal-variant-generation__main">
+        {# @deprecated tag:v6.7.0 - The property :disabled will be removed, use isAddOnly instead #}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_selection %}
         <sw-product-variants-configurator-selection
@@ -96,6 +104,8 @@
             :options="product.configuratorSettings"
             :overlay="false"
             :collapsible="false"
+            :disabled="isAddOnly"
+            :is-add-only="isAddOnly"
             @variations-finish-generate="$emit('variations-finish-generate')"
             @option-select="calcVariantsNumber()"
         />
@@ -128,7 +138,7 @@
         {% block sw_product_modal_variant_generation_footer_cancel %}
         <sw-button
             size="small"
-            @click="$emit('modal-close')"
+            @click="onModalCancel"
         >
             {{ $tc('sw-product.variations.cancelVariationsButton') }}
         </sw-button>

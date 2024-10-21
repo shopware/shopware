@@ -1,6 +1,7 @@
 /**
- * @private
  * @package services-settings
+ * @private
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default {
     namespaced: true,

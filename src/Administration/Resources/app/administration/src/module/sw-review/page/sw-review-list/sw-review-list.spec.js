@@ -18,23 +18,27 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => ({
                         create: () => {
-                            return Promise.resolve([{
-                                id: '1a2b3c',
-                                entity: 'review',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                            }]);
+                            return Promise.resolve([
+                                {
+                                    id: '1a2b3c',
+                                    entity: 'review',
+                                    customerId: 'd4c3b2a1',
+                                    productId: 'd4c3b2a1',
+                                    salesChannelId: 'd4c3b2a1',
+                                },
+                            ]);
                         },
                         search: () => {
-                            return Promise.resolve([{
-                                id: '1a2b3c',
-                                entity: 'review',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                                sourceEntitiy: 'product-review',
-                            }]);
+                            return Promise.resolve([
+                                {
+                                    id: '1a2b3c',
+                                    entity: 'review',
+                                    customerId: 'd4c3b2a1',
+                                    productId: 'd4c3b2a1',
+                                    salesChannelId: 'd4c3b2a1',
+                                    sourceEntitiy: 'product-review',
+                                },
+                            ]);
                         },
                     }),
                 },
@@ -56,6 +60,11 @@ async function createWrapper() {
                 'sw-language-switch': true,
                 'sw-empty-state': true,
                 'sw-context-menu-item': true,
+                'sw-data-grid-column-boolean': true,
+                'router-link': true,
+                'sw-rating-stars': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
             },
         },
     });

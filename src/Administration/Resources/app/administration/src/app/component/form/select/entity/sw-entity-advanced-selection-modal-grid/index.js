@@ -4,6 +4,7 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @package buyers-experience
  * @status prototype
  */
 Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing', {
@@ -14,14 +15,12 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
             type: Function,
             required: false,
             default(item) {
-                const isSelectableByDefault = !this.reachMaximumSelectionExceed ||
+                const isSelectableByDefault =
+                    !this.reachMaximumSelectionExceed ||
                     Object.keys(this.selection).includes(item[this.itemIdentifierProperty]);
                 let isSelectableByRestrictions = true;
 
-                if (
-                    this.isRecordSelectableCallback !== null &&
-                    this.isRecordSelectableCallback !== undefined
-                ) {
+                if (this.isRecordSelectableCallback !== null && this.isRecordSelectableCallback !== undefined) {
                     const callbackResult = this.isRecordSelectableCallback(item);
 
                     if (callbackResult.isSelectable !== null && callbackResult.isSelectable !== undefined) {
@@ -52,7 +51,7 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
                 return false;
             }
 
-            const isSomeRecordSelectable = this.records.some(item => {
+            const isSomeRecordSelectable = this.records.some((item) => {
                 return this.isRecordSelectable(item);
             });
 
@@ -60,10 +59,12 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
                 return true;
             }
 
-            const currentVisibleIds = this.records.map(record => record.id);
+            const currentVisibleIds = this.records.map((record) => record.id);
 
-            return this.reachMaximumSelectionExceed
-                && Object.keys(this.selection).every(id => !currentVisibleIds.includes(id));
+            return (
+                this.reachMaximumSelectionExceed &&
+                Object.keys(this.selection).every((id) => !currentVisibleIds.includes(id))
+            );
         },
 
         allSelectedChecked() {
@@ -80,7 +81,7 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
             }
 
             const selectedItems = Object.values(this.selection);
-            const isSomeRecordSelectable = this.records.some(item => {
+            const isSomeRecordSelectable = this.records.some((item) => {
                 return this.isRecordSelectable(item);
             });
 
@@ -88,7 +89,7 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
                 return false;
             }
 
-            return this.records.every(item => {
+            return this.records.every((item) => {
                 if (!this.isRecordSelectable(item)) {
                     return true;
                 }
@@ -102,10 +103,7 @@ Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing',
 
     methods: {
         getSelectableTooltip(item) {
-            if (
-                this.isRecordSelectableCallback === null ||
-                this.isRecordSelectableCallback === undefined
-            ) {
+            if (this.isRecordSelectableCallback === null || this.isRecordSelectableCallback === undefined) {
                 return { message: '', disabled: true };
             }
 

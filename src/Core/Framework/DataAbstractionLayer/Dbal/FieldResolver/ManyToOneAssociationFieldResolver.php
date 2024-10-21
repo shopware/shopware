@@ -102,7 +102,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         $fk = $definition->getFields()->getByStorageName($field->getStorageName());
 
         if (!$fk) {
-            throw new \RuntimeException(sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
+            throw new \RuntimeException(\sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
         }
 
         if ($fk instanceof IdField && $field->is(PrimaryKey::class)) {
@@ -110,7 +110,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         }
 
         if ($fk instanceof FkField && $field->is(Required::class)) {
-            return sprintf(
+            return \sprintf(
                 'IFNULL(%s, %s)',
                 EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName()),
                 EntityDefinitionQueryHelper::escape($root . '.parent') . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
@@ -132,7 +132,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         $fkVersionId = $this->getVersionField($context, $field);
         if ($fkVersionId) {
             if ($field->is(Inherited::class) && $context->getContext()->considerInheritance()) {
-                return sprintf(
+                return \sprintf(
                     ' AND IFNULL(#root#.%s, %s.%s) = #alias#.%s',
                     EntityDefinitionQueryHelper::escape($fkVersionId),
                     EntityDefinitionQueryHelper::escape($context->getAlias() . '.parent'),
@@ -141,7 +141,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
                 );
             }
 
-            return sprintf(
+            return \sprintf(
                 ' AND #root#.%s = #alias#.%s',
                 EntityDefinitionQueryHelper::escape($fkVersionId),
                 EntityDefinitionQueryHelper::escape('version_id'),
@@ -153,7 +153,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
             // fk version id pointing to the current definition.
             $ownFkVersionIdk = $context->getDefinition()->getEntityName() . '_version_id';
             if ($field->getReferenceDefinition()->getFields()->getByStorageName($ownFkVersionIdk)) {
-                return sprintf(
+                return \sprintf(
                     ' AND #root#.%s = #alias#.%s',
                     EntityDefinitionQueryHelper::escape('version_id'),
                     EntityDefinitionQueryHelper::escape($ownFkVersionIdk),
@@ -161,7 +161,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
             }
         }
 
-        return sprintf(
+        return \sprintf(
             ' AND #alias#.%s = UNHEX("%s")',
             EntityDefinitionQueryHelper::escape('version_id'),
             Defaults::LIVE_VERSION,

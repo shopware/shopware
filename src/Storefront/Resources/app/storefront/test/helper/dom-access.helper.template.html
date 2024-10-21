@@ -3,9 +3,32 @@
         <h2>This is a template</h2>
     </div>
 
+    <a href="#">This is a link and the first focusable element</a>
+
     <div class="with-object-attribute"
          data-x-things="{ &quot;a&quot;: &quot;a string&quot;, &quot;n&quot;: 50, &quot;s&quot;: &quot;1.2&quot; }">
     </div>
+
+    <button class="btn btn-primary">This is a button</button>
+
+    <div class="parent-element">
+        <a tabindex="-1">This is a non focus-able link</a>
+        <button tabindex="-1">This is a non focus-able button</button>
+
+        <label for="first-name">This is a label</label>
+        <input id="first-name" value="This is an input field">
+
+        <input type="hidden" value="1">
+
+        <label for="select-box">This is a label</label>
+        <select id="select-box">
+            <option value="1">Option 1</option>
+            <option value="1">Option 2</option>
+        </select>
+    </div>
+
+    <label for="description-text">Description:</label>
+    <textarea id="description-text">This is a textarea and the last focusable element</textarea>
 
     <ul class="empty-list"></ul>
     <ul class="non-empty-list">

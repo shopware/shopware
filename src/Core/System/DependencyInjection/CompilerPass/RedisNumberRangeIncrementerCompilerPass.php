@@ -27,7 +27,7 @@ class RedisNumberRangeIncrementerCompilerPass implements CompilerPassInterface
 
         // @deprecated tag:v6.7.0 - remove this if block
         if (\in_array($storage, array_keys(self::DEPRECATED_MAPPING), true)) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', sprintf(
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf(
                 'Parameter value "%s" will not be supported. Please use one of the following values: %s',
                 $storage,
                 implode(', ', self::DEPRECATED_MAPPING)
@@ -40,10 +40,18 @@ class RedisNumberRangeIncrementerCompilerPass implements CompilerPassInterface
         if ($container->hasParameter('shopware.number_range.redis_url') && $container->getParameter('shopware.number_range.redis_url') !== false) {
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
-                'Parameter "shopware.number_range.redis_url" is deprecated and will be removed. Please use "shopware.number_range.config.dsn" instead.'
+                'Parameter "shopware.number_range.redis_url" is deprecated and will be removed. Please use "shopware.number_range.config.name" instead.'
             );
 
             $container->setParameter('shopware.number_range.config.dsn', $container->getParameter('shopware.number_range.redis_url'));
+        }
+
+        // @deprecated tag:v6.7.0 - remove this if block
+        if ($container->hasParameter('shopware.number_range.config.dsn') && $container->getParameter('shopware.number_range.config.dsn') !== false) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.7.0.0',
+                'Parameter "shopware.number_range.config.dsn" is deprecated and will be removed. Please use "shopware.number_range.config.connection" instead.'
+            );
         }
 
         switch ($storage) {
@@ -63,12 +71,21 @@ class RedisNumberRangeIncrementerCompilerPass implements CompilerPassInterface
                 $container->removeDefinition(IncrementRedisStorage::class);
                 break;
             case 'redis':
-                if (!$container->hasParameter('shopware.number_range.config.dsn')) {
+                if (
+                    !$container->hasParameter('shopware.number_range.config.dsn') // @deprecated tag:v6.7.0 - remove this line (as config.dsn will be removed)
+                    && $container->getParameter('shopware.number_range.config.connection') === null
+                ) {
                     throw DependencyInjectionException::redisNotConfiguredForNumberRangeIncrementer();
                 }
 
                 $container->removeDefinition(IncrementSqlStorage::class);
                 break;
+        }
+
+        // @deprecated tag:v6.7.0 - remove this if block
+        if (!$container->hasParameter('shopware.number_range.config.dsn')) {
+            // to avoid changing default values in config or using expression language in service configuration
+            $container->setParameter('shopware.number_range.config.dsn', null);
         }
     }
 }

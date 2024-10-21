@@ -1,0 +1,18 @@
+diff --git a/node_modules/jest-expect-message/dist/withMessage.js b/node_modules/jest-expect-message/dist/withMessage.js
+index 3a972c3..275d158 100644
+--- a/node_modules/jest-expect-message/dist/withMessage.js
++++ b/node_modules/jest-expect-message/dist/withMessage.js
+@@ -101,8 +101,11 @@ var _default = expect => {
+ 
+   expectProxy.extend = o => {
+     expect.extend(o); // add new matchers to expect
+-
+-    expectProxy = Object.assign(expectProxy, expect); // clone new asymmetric matchers
++    Object.keys(expect).forEach((key) => {
++      if (key !== 'extend') {    // or !(key in eventProxy)
++        expectProxy[key] = expect[key];
++      }
++    })
+   };
+ 
+   return expectProxy;

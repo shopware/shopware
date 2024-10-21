@@ -17,7 +17,7 @@ class CustomerCreatedByAdminRule extends Rule
     /**
      * @internal
      */
-    public function __construct(private readonly bool $shouldCustomerBeCreatedByAdmin = true)
+    public function __construct(protected bool $shouldCustomerBeCreatedByAdmin = true)
     {
         parent::__construct();
     }

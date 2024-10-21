@@ -329,7 +329,7 @@ class SchemaBuilder
                     'onUpdate' => $update,
                     'onDelete' => $delete,
                 ],
-                sprintf('fk.%s.%s', $definition->getEntityName(), $field->getStorageName())
+                \sprintf('fk.%s.%s', $definition->getEntityName(), $field->getStorageName())
             );
         }
     }

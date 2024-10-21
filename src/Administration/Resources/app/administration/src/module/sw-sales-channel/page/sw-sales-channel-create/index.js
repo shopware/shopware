@@ -18,6 +18,8 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
@@ -47,7 +49,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
+            this.$router.push({
+                name: 'sw.sales.channel.detail',
+                params: { id: this.salesChannel.id },
+            });
         },
 
         onSave() {

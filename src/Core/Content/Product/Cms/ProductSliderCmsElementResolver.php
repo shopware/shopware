@@ -16,12 +16,16 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
@@ -33,7 +37,8 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
      */
     public function __construct(
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly SalesChannelRepository $productRepository,
     ) {
     }
 
@@ -111,7 +116,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            $finalProducts = $this->handleProductStream($streamResult);
+            $finalProducts = $this->handleProductStream($streamResult, $resolverContext->getSalesChannelContext());
             $slider->setProducts($finalProducts);
             $slider->setStreamId($productConfig->getStringValue());
         }
@@ -139,7 +144,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private function filterOutOutOfStockHiddenCloseoutProducts(ProductCollection $products): ProductCollection
     {
         return $products->filter(function (ProductEntity $product) {
-            if ($product->getIsCloseout() && $product->getAvailableStock() <= 0) {
+            if ($product->getIsCloseout() && $product->getStock() <= 0) {
                 return false;
             }
 
@@ -189,6 +194,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $criteria->setLimit($limit);
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('manufacturer');
+        $this->addGrouping($criteria);
 
         if ($sorting === 'random') {
             return $this->addRandomSort($criteria);
@@ -227,33 +233,86 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         return $criteria;
     }
 
-    private function handleProductStream(ProductCollection $streamResult): ProductCollection
+    private function handleProductStream(ProductCollection $streamResult, SalesChannelContext $context): ProductCollection
     {
-        $finalProducts = new ProductCollection();
+        $finalProductIds = $this->collectFinalProductIds($streamResult);
+
+        $fetchedProducts = $this->fetchProductsByIds($finalProductIds, $context);
+
+        return $this->buildFinalProductCollection($finalProductIds, $fetchedProducts);
+    }
+
+    /**
+     * @return string[] List of product ids
+     */
+    private function collectFinalProductIds(ProductCollection $streamResult): array
+    {
+        $finalProductIds = [];
 
         foreach ($streamResult as $product) {
             $variantConfig = $product->getVariantListingConfig();
 
             if (!$variantConfig) {
+                $finalProductIds[] = $product->getId();
+                continue;
+            }
+
+            $idToDisplay = $variantConfig->getDisplayParent() ? $product->getParentId() : $variantConfig->getMainVariantId();
+
+            if ($idToDisplay) {
+                $finalProductIds[] = $idToDisplay;
+            } else {
+                $finalProductIds[] = $product->getId();
+            }
+        }
+
+        return array_unique($finalProductIds);
+    }
+
+    /**
+     * @param string[] $finalProductIds List of product ids
+     */
+    private function fetchProductsByIds(array $finalProductIds, SalesChannelContext $context): ProductCollection
+    {
+        if (empty($finalProductIds)) {
+            return new ProductCollection();
+        }
+
+        $criteria = new Criteria($finalProductIds);
+        $criteria->addAssociation('options.group');
+
+        /** @var ProductCollection $products */
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
+
+        return $products;
+    }
+
+    /**
+     * @param string[] $finalProductIds List of product ids
+     */
+    private function buildFinalProductCollection(array $finalProductIds, ProductCollection $fetchedProducts): ProductCollection
+    {
+        $finalProducts = new ProductCollection();
+
+        foreach ($finalProductIds as $productId) {
+            $product = $fetchedProducts->get($productId);
+            if ($product instanceof ProductEntity && !$finalProducts->has($product->getId())) {
                 $finalProducts->add($product);
-                continue;
             }
-
-            $idToFetch = $variantConfig->getDisplayParent() ? $product->getParentId() : $variantConfig->getMainVariantId();
-
-            if ($idToFetch === null) {
-                continue;
-            }
-
-            $productToAdd = $streamResult->get($idToFetch);
-
-            if (!$productToAdd) {
-                continue;
-            }
-
-            $finalProducts->add($productToAdd);
         }
 
         return $finalProducts;
+    }
+
+    private function addGrouping(Criteria $criteria): void
+    {
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new EqualsFilter('displayGroup', null)]
+            )
+        );
     }
 }

@@ -2,7 +2,6 @@
  * @package admin
  */
 
-
 describe('core/application.js', () => {
     const originalInjectJs = Shopware.Application.injectJs;
 
@@ -11,7 +10,7 @@ describe('core/application.js', () => {
         Shopware.Context.app.config.bundles = {};
     });
 
-    it('should be error tolerant if loading a plugin\'s files fails', async () => {
+    it("should be error tolerant if loading a plugin's files fails", async () => {
         const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
 
         Shopware.Application.injectJs = async () => {
@@ -22,7 +21,9 @@ describe('core/application.js', () => {
             js: ['some.js'],
         });
 
-        expect(warningSpy).toHaveBeenCalledWith('Error while loading plugin', { js: ['some.js'] });
+        expect(warningSpy).toHaveBeenCalledWith('Error while loading plugin', {
+            js: ['some.js'],
+        });
         expect(result).toBeNull();
     });
 

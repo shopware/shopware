@@ -4,38 +4,45 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-missing-element-modal', {
-        sync: true,
-    }), {
-        props: {
-            missingElements: [],
-        },
-        global: {
-            mocks: {
-                $tc: (key, number, value) => {
-                    if (!value) {
-                        return key;
-                    }
-                    return key + JSON.stringify(value);
+    return mount(
+        await wrapTestComponent('sw-cms-missing-element-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                missingElements: [],
+            },
+            global: {
+                mocks: {
+                    $tc: (key, number, value) => {
+                        if (!value) {
+                            return key;
+                        }
+                        return key + JSON.stringify(value);
+                    },
+                },
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
+                },
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
-            provide: {
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
-                },
-            },
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-            },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
@@ -63,9 +70,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper
-            .find('.sw-cms-missing-element-modal__dont-remind')
-            .find('input').trigger('change');
+        await wrapper.find('.sw-cms-missing-element-modal__dont-remind').find('input').trigger('change');
 
         const pageChangeEvents = wrapper.emitted()['modal-dont-remind-change'];
 
@@ -77,9 +82,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
-        expect(title.text()).toBe(
-            'sw-cms.components.cmsMissingElementModal.title{"element":""}',
-        );
+        expect(title.text()).toBe('sw-cms.components.cmsMissingElementModal.title{"element":""}');
     });
 
     it('should expose one missing element', async () => {
@@ -100,7 +103,10 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: ['buyBox', 'productDescriptionReviews'],
+            missingElements: [
+                'buyBox',
+                'productDescriptionReviews',
+            ],
         });
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
@@ -115,7 +121,11 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: ['buyBox', 'productDescriptionReviews', 'crossSelling'],
+            missingElements: [
+                'buyBox',
+                'productDescriptionReviews',
+                'crossSelling',
+            ],
         });
 
         const title = wrapper.find('.sw-cms-missing-element-modal__title');

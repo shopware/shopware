@@ -8,6 +8,10 @@ import './sw-settings-snippet-filter-switch.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['update:value'],
+
     props: {
         label: {
             type: String,
@@ -46,7 +50,10 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return ['small', 'large'].includes(value);
+                return [
+                    'small',
+                    'large',
+                ].includes(value);
             },
         },
 

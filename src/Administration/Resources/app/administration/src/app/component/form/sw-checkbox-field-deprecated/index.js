@@ -16,11 +16,18 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-checkbox-field-deprecated', {
     template,
+
     inheritAttrs: false,
 
-    emits: ['update:value'],
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
+
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
@@ -100,13 +107,19 @@ Component.register('sw-checkbox-field-deprecated', {
 
     computed: {
         swCheckboxFieldClasses() {
-            return {
+            const classes = {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
                 'is--partly-checked': this.isPartlyChecked,
                 'sw-field__checkbox--ghost': this.ghostValue,
             };
+
+            if (this.$attrs.class) {
+                classes[this.$attrs.class] = true;
+            }
+
+            return classes;
         },
 
         swCheckboxFieldContentClasses() {
@@ -149,10 +162,19 @@ Component.register('sw-checkbox-field-deprecated', {
         iconName() {
             return this.isPartlyChecked ? 'regular-minus-xxs' : 'regular-checkmark-xxs';
         },
+
+        attrsWithoutClass() {
+            return {
+                ...this.$attrs,
+                class: undefined,
+            };
+        },
     },
 
     watch: {
-        value() { this.currentValue = this.value; },
+        value() {
+            this.currentValue = this.value;
+        },
     },
 
     methods: {

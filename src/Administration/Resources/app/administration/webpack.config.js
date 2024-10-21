@@ -19,6 +19,7 @@ const fs = require('fs');
 const chalk = require('chalk');
 const WebpackBar = require('webpackbar');
 const { default: InjectPlugin, ENTRY_ORDER } = require('webpack-inject-plugin');
+const { VueLoaderPlugin } = require('vue-loader')
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -181,9 +182,17 @@ const assetsPluginInstance = new AssetsPlugin({
     fileTypes: ['js', 'css'],
     includeAllFileTypes: false,
     fullPath: true,
-    path: path.resolve(__dirname, 'v_dist'),
     prettyPrint: true,
+
+    // The path is virtual as the file only exists in memory (virtual dist)
+    path: path.resolve(__dirname, 'v_dist'),
     keepInMemory: true,
+
+    // Fix: Admin watch failed without Storefront due to missing "sw-plugin-dev.json".
+    // Writing metadata even for empty plugins resolves this.
+    // @see application.ts@688
+    metadata: 'shopware',
+
     processOutput: function filterAssetsOutput(output) {
         const filteredOutput = { ...output };
 
@@ -263,6 +272,20 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     module: {
         rules: [
             {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+                include: [
+                    /**
+                     * Only needed for unit tests in plugins. It throws an ESLint error
+                     * in production build
+                     */
+                    path.resolve(__dirname, 'src'),
+                    fs.realpathSync(path.resolve(pluginPath, '..', 'src')),
+                    path.resolve(pluginPath, '..', 'test'),
+                ],
+                options: {},
+            },
+            {
                 test: /\.(html|twig)$/,
                 use: [
                     {
@@ -284,7 +307,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 ],
             },
             {
-                test: /\.(js|ts|tsx?|vue)$/,
+                test: /\.(js|ts|tsx?)$/,
                 loader: 'swc-loader',
                 include: [
                     /**
@@ -531,6 +554,8 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         new webpack.ProvidePlugin({
             process: 'process/browser',
         }),
+
+        new VueLoaderPlugin(),
 
         ...(() => {
             if (isDev) {

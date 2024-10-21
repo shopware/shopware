@@ -13,6 +13,7 @@ class MessageQueueException extends HttpException
     public const QUEUE_CANNOT_UNSERIALIZE_MESSAGE = 'FRAMEWORK__QUEUE_CANNOT_UNSERIALIZE_MESSAGE';
     public const WORKER_IS_LOCKED = 'FRAMEWORK__WORKER_IS_LOCKED';
     public const CANNOT_FIND_SCHEDULED_TASK = 'FRAMEWORK__CANNOT_FIND_SCHEDULED_TASK';
+    public const QUEUE_MESSAGE_SIZE_EXCEEDS = 'FRAMEWORK__QUEUE_MESSAGE_SIZE_EXCEEDS';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -50,6 +51,16 @@ class MessageQueueException extends HttpException
             self::CANNOT_FIND_SCHEDULED_TASK,
             self::$couldNotFindMessage,
             ['entity' => 'scheduled task', 'field' => 'name', 'value' => $name]
+        );
+    }
+
+    public static function queueMessageSizeExceeded(string $messageName): self
+    {
+        return new self(
+            Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
+            self::QUEUE_MESSAGE_SIZE_EXCEEDS,
+            'The message {{ message }} exceeds 256 kB size limit',
+            ['message' => $messageName]
         );
     }
 }

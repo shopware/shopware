@@ -616,6 +616,42 @@ class EntityDispatchServiceTest extends TestCase
         static::assertNotNull($appConfig->get($ruleTagRunKey));
     }
 
+    /**
+     * @return array<string, array{isConsentGiven: bool, lastConsentDate: ?\DateTimeImmutable, now: ?\DateTimeImmutable, expectedLastRunDate: ?\DateTimeImmutable}>
+     */
+    public static function lastRunDateProvider(): array
+    {
+        $now = new \DateTimeImmutable();
+        $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
+
+        return [
+            'Consent was never given' => [
+                'isConsentGiven' => false,
+                'lastConsentDate' => null,
+                'now' => $now,
+                'expectedLastRunDate' => null,
+            ],
+            'Consent was revoked' => [
+                'isConsentGiven' => false,
+                'lastConsentDate' => $lastConsentDate,
+                'now' => $now,
+                'expectedLastRunDate' => $lastConsentDate,
+            ],
+            'Consent is given and was never revoked before' => [
+                'isConsentGiven' => true,
+                'lastConsentDate' => null,
+                'now' => $now,
+                'expectedLastRunDate' => $now,
+            ],
+            'Consent is given but was revoked in the past' => [
+                'isConsentGiven' => true,
+                'lastConsentDate' => $lastConsentDate,
+                'now' => $now,
+                'expectedLastRunDate' => $now,
+            ],
+        ];
+    }
+
     private function createConsentService(bool $isApprovalGiven, ?\DateTimeImmutable $lastConsentDate, \DateTimeImmutable $now = new \DateTimeImmutable()): ConsentService
     {
         $systemConfigEntity = new SystemConfigEntity();
@@ -654,41 +690,5 @@ class EntityDispatchServiceTest extends TestCase
         $service->expects(static::any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
 
         return $service;
-    }
-
-    /**
-     * @return array<string, array{isConsentGiven: bool, lastConsentDate: ?\DateTimeImmutable, now: ?\DateTimeImmutable, expectedLastRunDate: ?\DateTimeImmutable}>
-     */
-    public static function lastRunDateProvider(): array
-    {
-        $now = new \DateTimeImmutable();
-        $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
-
-        return [
-            'Consent was never given' => [
-                'isConsentGiven' => false,
-                'lastConsentDate' => null,
-                'now' => $now,
-                'expectedLastRunDate' => null,
-            ],
-            'Consent was revoked' => [
-                'isConsentGiven' => false,
-                'lastConsentDate' => $lastConsentDate,
-                'now' => $now,
-                'expectedLastRunDate' => $lastConsentDate,
-            ],
-            'Consent is given and was never revoked before' => [
-                'isConsentGiven' => true,
-                'lastConsentDate' => null,
-                'now' => $now,
-                'expectedLastRunDate' => $now,
-            ],
-            'Consent is given but was revoked in the past' => [
-                'isConsentGiven' => true,
-                'lastConsentDate' => $lastConsentDate,
-                'now' => $now,
-                'expectedLastRunDate' => $now,
-            ],
-        ];
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-product-media.html.twig';
 
@@ -11,6 +11,8 @@ const { isEmpty } = Utils.types;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -54,7 +56,6 @@ export default {
 
             return criteria;
         },
-
     },
 
     created() {
@@ -73,7 +74,8 @@ export default {
         },
 
         getMediaDefaultFolderId() {
-            return this.mediaDefaultFolderRepository.search(this.mediaDefaultFolderCriteria, Context.api)
+            return this.mediaDefaultFolderRepository
+                .search(this.mediaDefaultFolderCriteria, Context.api)
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
                     if (defaultFolder === null) {

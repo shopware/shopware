@@ -11,7 +11,7 @@
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
         :plural="matchesAll"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -25,7 +25,7 @@
         :min="0"
         :digits="20"
         number-type="float"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 </div>

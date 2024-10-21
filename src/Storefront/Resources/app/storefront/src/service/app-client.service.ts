@@ -1,10 +1,20 @@
+import MemoryStorage from 'src/helper/storage/memory-storage.helper';
+
 /**
  * @package storefront
  */
 export default class AppClientService {
     private readonly name: string;
+    private storage: Storage;
+
     constructor(name: string) {
         this.name = name;
+
+        try {
+            this.storage = window.sessionStorage;
+        } catch (e) {
+            this.storage = new MemoryStorage();
+        }
     }
 
     get(url: RequestInfo, options: RequestInit = {}) {
@@ -35,7 +45,7 @@ export default class AppClientService {
      * Resets the token for the current app. This will force the next request to fetch a new token.
      */
     reset(): void {
-        window.sessionStorage.removeItem(this.getStorageKey());
+        this.storage.removeItem(this.getStorageKey());
     }
 
     // @ts-ignore
@@ -45,20 +55,20 @@ export default class AppClientService {
 
     private async getHeaders() {
         const key = this.getStorageKey();
-        if (!window.sessionStorage.getItem(key)) {
+        if (!this.storage.getItem(key)) {
             const data = await this.fetchHeaders();
 
-            window.sessionStorage.setItem(key, JSON.stringify(data));
+            this.storage.setItem(key, JSON.stringify(data));
 
             return data.headers;
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = JSON.parse(window.sessionStorage.getItem(key));
+        const data = JSON.parse(this.storage.getItem(key));
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
         if (new Date(data.expires) < new Date()) {
-            window.sessionStorage.removeItem(key);
+            this.storage.removeItem(key);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return await this.getHeaders();
@@ -99,6 +109,6 @@ export default class AppClientService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options.headers = {...options.headers, ...await this.getHeaders()};
 
-        return fetch(url, options)
+        return fetch(url, options);
     }
 }

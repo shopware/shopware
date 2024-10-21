@@ -15,6 +15,8 @@ const profileTypes = {
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {
@@ -25,14 +27,11 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors(
-            'profile',
-            [
-                'name',
-                'sourceEntity',
-                'type',
-            ],
-        ),
+        ...mapPropertyErrors('profile', [
+            'name',
+            'sourceEntity',
+            'type',
+        ]),
 
         supportedProfileTypes() {
             return [
@@ -126,7 +125,7 @@ export default {
             if (!this.profile.sourceEntity) {
                 return false;
             }
-            const currentEntity = this.supportedEntities.find(entity => entity.value === this.profile.sourceEntity);
+            const currentEntity = this.supportedEntities.find((entity) => entity.value === this.profile.sourceEntity);
             if (currentEntity.type === profileTypes.IMPORT_EXPORT) {
                 return false;
             }
@@ -152,15 +151,20 @@ export default {
             }
 
             if (this.profile.type === profileTypes.IMPORT) {
-                return ![profileTypes.IMPORT, profileTypes.IMPORT_EXPORT].includes(item.type);
+                return ![
+                    profileTypes.IMPORT,
+                    profileTypes.IMPORT_EXPORT,
+                ].includes(item.type);
             }
 
             if (this.profile.type === profileTypes.EXPORT) {
-                return ![profileTypes.EXPORT, profileTypes.IMPORT_EXPORT].includes(item.type);
+                return ![
+                    profileTypes.EXPORT,
+                    profileTypes.IMPORT_EXPORT,
+                ].includes(item.type);
             }
 
             return true;
         },
     },
 };
-

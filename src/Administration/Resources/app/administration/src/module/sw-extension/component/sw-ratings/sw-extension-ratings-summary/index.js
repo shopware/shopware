@@ -8,6 +8,8 @@ import './sw-extension-ratings-summary.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         summary: {
             type: Object,

@@ -2,6 +2,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @package inventory
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -70,27 +71,31 @@ export default {
                 criteria = new Criteria(1, 25);
             }
 
-            return repository.get(id, apiContext, criteria).then((category) => {
-                category.isColumn = false;
-                if (category.parentId !== null) {
-                    const parentCriteria = new Criteria(1, 25);
-                    parentCriteria.addAssociation('footerSalesChannels');
+            return repository
+                .get(id, apiContext, criteria)
+                .then((category) => {
+                    category.isColumn = false;
+                    if (category.parentId !== null) {
+                        const parentCriteria = new Criteria(1, 25);
+                        parentCriteria.addAssociation('footerSalesChannels');
 
-                    return repository.get(category.parentId, apiContext, parentCriteria).then((parent) => {
-                        category.parent = parent;
+                        return repository.get(category.parentId, apiContext, parentCriteria).then((parent) => {
+                            category.parent = parent;
 
-                        category.isColumn = category.parent !== undefined
-                            && category.parent.footerSalesChannels !== undefined
-                            && category.parent.footerSalesChannels.length !== 0;
+                            category.isColumn =
+                                category.parent !== undefined &&
+                                category.parent.footerSalesChannels !== undefined &&
+                                category.parent.footerSalesChannels.length !== 0;
 
-                        return Promise.resolve(category);
-                    });
-                }
+                            return Promise.resolve(category);
+                        });
+                    }
 
-                return Promise.resolve(category);
-            }).then((category) => {
-                commit('setActiveCategory', { category });
-            });
+                    return Promise.resolve(category);
+                })
+                .then((category) => {
+                    commit('setActiveCategory', { category });
+                });
         },
     },
 };

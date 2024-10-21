@@ -40,49 +40,66 @@ const mockProfile = {
     },
 };
 
-async function createWrapper(params = { searchError: false, parentProfileTotal: 1, missingRequiredFieldsLength: 0, systemRequiredFields: {} }) {
-    return mount(await wrapTestComponent('sw-import-export-edit-profile-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-select-base': true,
-                'sw-button': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
-                'sw-modal': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => {
-                                if (params.searchError) {
-                                    return Promise.reject();
-                                }
+async function createWrapper(
+    params = {
+        searchError: false,
+        parentProfileTotal: 1,
+        missingRequiredFieldsLength: 0,
+        systemRequiredFields: {},
+    },
+) {
+    return mount(
+        await wrapTestComponent('sw-import-export-edit-profile-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-select-base': true,
+                    'sw-button': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'sw-modal': true,
+                    'sw-alert': true,
+                    'sw-import-export-edit-profile-general': true,
+                    'sw-import-export-edit-profile-field-indicators': true,
+                    'sw-import-export-edit-profile-import-settings': true,
+                    'sw-import-export-edit-profile-modal-mapping': true,
+                    'sw-import-export-edit-profile-modal-identifiers': true,
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => {
+                                    if (params.searchError) {
+                                        return Promise.reject();
+                                    }
 
-                                return Promise.resolve(getMockParentProfiles(params.parentProfileTotal));
-                            },
-                        };
+                                    return Promise.resolve(getMockParentProfiles(params.parentProfileTotal));
+                                },
+                            };
+                        },
                     },
-                },
-                importExportProfileMapping: {
-                    validate: () => {
-                        return {
-                            missingRequiredFields: {
-                                length: params.missingRequiredFieldsLength,
-                            },
-                        };
+                    importExportProfileMapping: {
+                        validate: () => {
+                            return {
+                                missingRequiredFields: {
+                                    length: params.missingRequiredFieldsLength,
+                                },
+                            };
+                        },
+                        getSystemRequiredFields: () => {
+                            return params.systemRequiredFields;
+                        },
                     },
-                    getSystemRequiredFields: () => {
-                        return params.systemRequiredFields;
-                    },
-                },
-                importExportUpdateByMapping: {
-                    removeUnusedMappings: () => {
+                    importExportUpdateByMapping: {
+                        removeUnusedMappings: () => {},
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal', () => {
@@ -104,18 +121,28 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const mockParentProfiles = getMockParentProfiles();
 
-        expect((await wrapper.vm.getParentProfileSelected())).toEqual(mockParentProfiles[0]);
+        expect(await wrapper.vm.getParentProfileSelected()).toEqual(mockParentProfiles[0]);
     });
 
     it('should be null of parentProfile', async () => {
-        wrapper = await createWrapper({ searchError: false, parentProfileTotal: 0, missingRequiredFieldsLength: 0, systemRequiredFields: {} });
+        wrapper = await createWrapper({
+            searchError: false,
+            parentProfileTotal: 0,
+            missingRequiredFieldsLength: 0,
+            systemRequiredFields: {},
+        });
         await wrapper.setProps({ profile: mockProfile });
 
-        expect((await wrapper.vm.getParentProfileSelected())).toBeNull();
+        expect(await wrapper.vm.getParentProfileSelected()).toBeNull();
     });
 
     it('should be null of parentProfile when search was error', async () => {
-        wrapper = await createWrapper({ searchError: true, parentProfileTotal: 1, missingRequiredFieldsLength: 0, systemRequiredFields: {} });
+        wrapper = await createWrapper({
+            searchError: true,
+            parentProfileTotal: 1,
+            missingRequiredFieldsLength: 0,
+            systemRequiredFields: {},
+        });
 
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -132,7 +159,12 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     });
 
     it('should be save profile fail with missing required fields', async () => {
-        wrapper = await createWrapper({ searchError: false, parentProfileTotal: 1, missingRequiredFieldsLength: 1, systemRequiredFields: {} });
+        wrapper = await createWrapper({
+            searchError: false,
+            parentProfileTotal: 1,
+            missingRequiredFieldsLength: 1,
+            systemRequiredFields: {},
+        });
         await wrapper.setProps({ profile: mockProfile });
 
         await wrapper.vm.saveProfile();

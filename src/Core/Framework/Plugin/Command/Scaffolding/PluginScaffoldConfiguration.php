@@ -13,7 +13,7 @@ class PluginScaffoldConfiguration
     public const ROUTE_XML_OPTION_NAME = 'create-route-xml';
 
     /**
-     * @param array<string, mixed>  $options
+     * @param array<string, mixed> $options
      */
     public function __construct(
         public readonly string $name,

@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -34,6 +37,8 @@ async function createWrapper() {
                     template: '<div class="sw-button-process"></div>',
                     props: ['disabled'],
                 },
+                'sw-promotion-v2-individual-codes-behavior': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 repositoryFactory: {
@@ -102,7 +107,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
 
         const wrapper = await createWrapper();
 
-        wrapper.findAllComponents('.sw-field').forEach(el => {
+        wrapper.findAllComponents('.sw-field').forEach((el) => {
             expect(el.props('disabled')).toBe(true);
         });
         expect(wrapper.findComponent('.sw-button-process').props('disabled')).toBe(true);
@@ -113,7 +118,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
 
         const wrapper = await createWrapper();
 
-        wrapper.findAllComponents('.sw-field').forEach(el => expect(el.props('disabled')).toBeFalsy());
+        wrapper.findAllComponents('.sw-field').forEach((el) => expect(el.props('disabled')).toBeFalsy());
         expect(wrapper.findComponent('.sw-button-process').props('disabled')).toBe(false);
     });
 });

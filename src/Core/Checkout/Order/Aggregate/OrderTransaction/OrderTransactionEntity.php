@@ -60,6 +60,11 @@ class OrderTransactionEntity extends Entity
 
     protected ?OrderTransactionCaptureCollection $captures = null;
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $validationData = [];
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -148,5 +153,21 @@ class OrderTransactionEntity extends Entity
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getValidationData(): array
+    {
+        return $this->validationData;
+    }
+
+    /**
+     * @param array<string, mixed> $validationData
+     */
+    public function setValidationData(array $validationData): void
+    {
+        $this->validationData = $validationData;
     }
 }

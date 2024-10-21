@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -31,15 +32,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[Package('core')]
 class OpenApiDefinitionSchemaBuilder
 {
+    private CamelCaseToSnakeCaseNameConverter $converter;
+
+    /**
+     * @internal
+     */
+    public function __construct()
+    {
+        $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
+    }
+
     /**
      * @return Schema[]
      */
@@ -62,6 +76,8 @@ class OpenApiDefinitionSchemaBuilder
         $extensions = [];
         $extensionRelationships = [];
 
+        $defaults = $definition->getDefaults();
+
         foreach ($definition->getFields() as $field) {
             if (!$this->shouldFieldBeIncluded($field, $forSalesChannel)) {
                 continue;
@@ -73,7 +89,14 @@ class OpenApiDefinitionSchemaBuilder
                 continue;
             }
 
-            if ($field->is(Required::class) && !$field instanceof VersionField && !$field instanceof ReferenceVersionField) {
+            if (
+                $field->is(Required::class)
+                && !$field instanceof VersionField
+                && !$field instanceof ReferenceVersionField
+                && !$field instanceof CreatedAtField
+                && !$field instanceof UpdatedAtField
+                && !\array_key_exists($field->getPropertyName(), $defaults)
+            ) {
                 $requiredAttributes[] = $field->getPropertyName();
             }
 
@@ -140,14 +163,20 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                if ($field->is(Required::class) && !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof FkField) {
+                if (
+                    $field->is(Required::class)
+                    && !$field instanceof VersionField
+                    && !$field instanceof ReferenceVersionField
+                    && !$field instanceof CreatedAtField
+                    && !$field instanceof UpdatedAtField
+                    && !$field instanceof FkField) {
                     $requiredAttributes[] = $field->getPropertyName();
                 }
             }
         }
 
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
-        $requiredAttributes = array_unique($requiredAttributes);
+        $requiredAttributes = array_values(array_unique($requiredAttributes));
 
         if (!$onlyFlat && $apiType === 'jsonapi') {
             $schema[$schemaName . 'JsonApi'] = new Schema([
@@ -220,13 +249,14 @@ class OpenApiDefinitionSchemaBuilder
 
     private function snakeCaseToCamelCase(string $input): string
     {
-        return str_replace('_', '', ucwords($input, '_'));
+        return $this->converter->denormalize($input);
     }
 
     private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
     {
         if ($field->getPropertyName() === 'translations'
-            || preg_match('#translations$#i', $field->getPropertyName())) {
+            || preg_match('#translations$#i', $field->getPropertyName())
+        ) {
             return false;
         }
 
@@ -367,6 +397,12 @@ class OpenApiDefinitionSchemaBuilder
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
                 'items' => $this->getPropertyAssocsByField($jsonField instanceof ListField ? $jsonField->getFieldType() : null),
+            ]);
+        } elseif ($jsonField instanceof PriceField) {
+            $definition = new Property([
+                'type' => 'array',
+                'property' => $jsonField->getPropertyName(),
+                'items' => new Schema(['ref' => '#/components/schemas/Price']),
             ]);
         } else {
             $definition = new Property([
@@ -513,12 +549,7 @@ class OpenApiDefinitionSchemaBuilder
 
     private function isDeprecated(Field $field): bool
     {
-        $deprecated = $field->getFlag(Deprecated::class);
-        if ($deprecated) {
-            return true;
-        }
-
-        return false;
+        return $field->getFlag(Deprecated::class) !== null;
     }
 
     private function getRelationShipEntity(Property $relationship): string

@@ -26,9 +26,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
-                'sw-icon': {
-                    template: '<div />',
-                },
+                'sw-icon': true,
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {
@@ -39,6 +37,13 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                         };
                     },
                 },
+                'sw-password-field': true,
+                'sw-step-display': true,
+                'sw-step-item': true,
+                'sw-plugin-card': true,
+                'sw-select-field': true,
+                'router-link': true,
+                'sw-help-text': true,
             },
             mocks: {
                 $route: { name: 'sw.first.run.wizard.index.welcome' },
@@ -55,6 +60,8 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 userService: {
                     getUser: () => Promise.resolve({ data: {} }),
                 },
+                loginService: {},
+                systemConfigApiService: {},
             },
         },
         props: {},
@@ -427,7 +434,9 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         await closeButton.trigger('click');
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.index.system',
+        });
     });
 
     it('should reload after push route to settings page when getting closed and extension was activated', async () => {
@@ -447,7 +456,9 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         await closeButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.index.system',
+        });
         expect(window.location.reload).toHaveBeenCalled();
     });
 
@@ -466,7 +477,9 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         await closeButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.index.system',
+        });
         expect(window.location.reload).not.toHaveBeenCalled();
     });
 
@@ -510,7 +523,9 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         await wrapper.find('.sw-button--primary').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.first.run.wizard.index.mailer.smtp' });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.first.run.wizard.index.mailer.smtp',
+        });
     });
 
     it('should redirect to local mailer settings', async () => {
@@ -522,12 +537,16 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const localOption = wrapper.find('.sw-first-run-wizard-mailer-selection__selection');
 
         expect(localOption.exists()).toBe(true);
-        expect(localOption.find('.sw-first-run-wizard-mailer-selection__help-text').attributes('text')).toBe('sw-first-run-wizard.mailerSelection.localOptionHelptext');
+        expect(localOption.find('.sw-first-run-wizard-mailer-selection__help-text').attributes('text')).toBe(
+            'sw-first-run-wizard.mailerSelection.localOptionHelptext',
+        );
 
         await localOption.trigger('click');
         await wrapper.find('.sw-button--primary').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.first.run.wizard.index.mailer.local' });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.first.run.wizard.index.mailer.local',
+        });
     });
 });

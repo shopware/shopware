@@ -1,75 +1,77 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-country-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
+    return mount(
+        await wrapTestComponent('sw-settings-country-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
 
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
-                    },
-                },
-            },
-
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([
-                                {
-                                    active: true,
-                                    apiAlias: null,
-                                    createdAt: '2020-08-12T02:49:39.974+00:00',
-                                    customFields: null,
-                                    customerAddresses: [],
-                                    displayStateInRegistration: false,
-                                    forceStateInRegistration: false,
-                                    id: '44de136acf314e7184401d36406c1e90',
-                                    iso: 'AL',
-                                    iso3: 'ALB',
-                                    name: 'Albania',
-                                    orderAddresses: [],
-                                    position: 10,
-                                    salesChannelDefaultAssignments: [],
-                                    salesChannels: [],
-                                    shippingAvailable: true,
-                                    states: [],
-                                    taxFree: false,
-                                    taxRules: [],
-                                    translated: {},
-                                    translations: [],
-                                    updatedAt: '2020-08-16T06:57:40.559+00:00',
-                                },
-                            ]);
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
                         },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
                     },
                 },
-                feature: {
-                    isActive: () => true,
-                },
-                searchRankingService: {},
-            },
 
-            stubs: {
-                'sw-page': {
-                    template: `
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([
+                                    {
+                                        active: true,
+                                        apiAlias: null,
+                                        createdAt: '2020-08-12T02:49:39.974+00:00',
+                                        customFields: null,
+                                        customerAddresses: [],
+                                        displayStateInRegistration: false,
+                                        forceStateInRegistration: false,
+                                        id: '44de136acf314e7184401d36406c1e90',
+                                        iso: 'AL',
+                                        iso3: 'ALB',
+                                        name: 'Albania',
+                                        orderAddresses: [],
+                                        position: 10,
+                                        salesChannelDefaultAssignments: [],
+                                        salesChannels: [],
+                                        shippingAvailable: true,
+                                        states: [],
+                                        taxFree: false,
+                                        taxRules: [],
+                                        translated: {},
+                                        translations: [],
+                                        updatedAt: '2020-08-16T06:57:40.559+00:00',
+                                    },
+                                ]);
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    feature: {
+                        isActive: () => true,
+                    },
+                    searchRankingService: {},
+                },
+
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -82,24 +84,27 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card-view': {
-                    template: `
+                    },
+                    'sw-card-view': {
+                        template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card': {
-                    template: `
+                    },
+                    'sw-card': {
+                        template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
-                },
-                'sw-entity-listing': {
-                    props: ['items', 'detailPageLinkText'],
-                    template: `
+                    },
+                    'sw-entity-listing': {
+                        props: [
+                            'items',
+                            'detailPageLinkText',
+                        ],
+                        template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
@@ -111,15 +116,17 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `,
+                    },
+                    'sw-language-switch': true,
+                    'sw-search-bar': true,
+                    'sw-context-menu-item': true,
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-checkbox-field': true,
                 },
-                'sw-language-switch': true,
-                'sw-search-bar': true,
-                'sw-context-menu-item': true,
-                'sw-icon': true,
-                'sw-button': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
@@ -161,7 +168,6 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
         expect(createButton.attributes().disabled).toBeTruthy();
     });
-
 
     it('should be able to edit a country', async () => {
         const wrapper = await createWrapper([

@@ -10,7 +10,12 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -56,15 +61,18 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.currencyRepository.search(criteria).then((items) => {
-                this.total = items.total;
-                this.currency = items;
-                this.isLoading = false;
+            this.currencyRepository
+                .search(criteria)
+                .then((items) => {
+                    this.total = items.total;
+                    this.currency = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onChangeLanguage(languageId) {
@@ -73,16 +81,18 @@ export default {
         },
 
         onInlineEditSave(promise, currency) {
-            promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name }),
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name }),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-currency.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-currency.detail.messageSaveError'),
-                });
-            });
         },
 
         onDelete(id) {
@@ -101,29 +111,33 @@ export default {
             });
         },
 
-
         getCurrencyColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnName',
-                routerLink: 'sw.settings.currency.detail',
-                width: '250px',
-                primary: true,
-            }, {
-                property: 'shortName',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnShortName',
-            }, {
-                property: 'symbol',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnSymbol',
-            }, {
-                property: 'factor',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnFactor',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnName',
+                    routerLink: 'sw.settings.currency.detail',
+                    width: '250px',
+                    primary: true,
+                },
+                {
+                    property: 'shortName',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnShortName',
+                },
+                {
+                    property: 'symbol',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnSymbol',
+                },
+                {
+                    property: 'factor',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnFactor',
+                },
+            ];
         },
     },
 };

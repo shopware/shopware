@@ -47,7 +47,7 @@ class AnnotationTagTest extends TestCase
         'Test/AnnotationTagTester.php',
         'Test/AnnotationTagTesterTest.php',
         // uses @experimental annotation check
-        'Core/ApiRoutesHaveASchemaTest.php',
+        'Core/Framework/ApiRoutesHaveASchemaTest.php',
     ];
 
     private string $rootDir;
@@ -207,7 +207,7 @@ class AnnotationTagTest extends TestCase
 
         if (\count($versions) > 2) {
             throw new \LogicException(
-                sprintf(
+                \sprintf(
                     'There should only be one live and one deprecated version at the same time. Found Manifest schema versions: %s',
                     print_r($versions, true)
                 )

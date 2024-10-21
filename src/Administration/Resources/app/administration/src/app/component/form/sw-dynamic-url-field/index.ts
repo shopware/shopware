@@ -7,7 +7,7 @@ import './sw-dynamic-url-field.scss';
 const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
+type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
 
 /**
  * @package admin
@@ -16,6 +16,8 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
  */
 Component.register('sw-dynamic-url-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -30,13 +32,13 @@ Component.register('sw-dynamic-url-field', {
     },
 
     data(): {
-        lastEmittedLink: string,
-        linkTarget: string,
-        isHTTPs: boolean,
-        displayAsButton: boolean,
-        linkCategory: LinkCategories,
-        categoryCollection?: EntityCollectionType<'category'>,
-        } {
+        lastEmittedLink: string;
+        linkTarget: string;
+        isHTTPs: boolean;
+        displayAsButton: boolean;
+        linkCategory: LinkCategories;
+        categoryCollection?: EntityCollectionType<'category'>;
+    } {
         return {
             lastEmittedLink: '',
             linkTarget: '',
@@ -58,13 +60,10 @@ Component.register('sw-dynamic-url-field', {
             criteria.addAssociation('options.group');
 
             criteria.addFilter(
-                Criteria.multi(
-                    'OR',
-                    [
-                        Criteria.equals('product.childCount', 0),
-                        Criteria.equals('product.childCount', null),
-                    ],
-                ),
+                Criteria.multi('OR', [
+                    Criteria.equals('product.childCount', 0),
+                    Criteria.equals('product.childCount', null),
+                ]),
             );
 
             return criteria;
@@ -121,18 +120,30 @@ Component.register('sw-dynamic-url-field', {
         },
 
         getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
-            const categoryCriteria = (new Criteria(1, 25)).addFilter(Criteria.equals('id', categoryId));
+            const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
 
-        async parseLink(link: string): Promise<{ type: LinkCategories, target: string }> {
+        async parseLink(link: string): Promise<{ type: LinkCategories; target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail'].includes(slicedLink[1])) {
+            if (
+                link.startsWith(this.seoUrlReplacePrefix) &&
+                [
+                    'navigation',
+                    'detail',
+                    'mediaId',
+                ].includes(slicedLink[1])
+            ) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                } else if (slicedLink[1] === 'mediaId') {
+                    slicedLink[1] = 'media';
                 }
-                return { type: slicedLink[1] as LinkCategories, target: slicedLink[2] };
+                return {
+                    type: slicedLink[1] as LinkCategories,
+                    target: slicedLink[2],
+                };
             }
 
             if (link.startsWith('mailto:')) {
@@ -173,6 +184,8 @@ Component.register('sw-dynamic-url-field', {
                     return `${this.seoUrlReplacePrefix}/detail/${this.linkTarget}#`;
                 case 'navigation':
                     return `${this.seoUrlReplacePrefix}/navigation/${this.linkTarget}#`;
+                case 'media':
+                    return `${this.seoUrlReplacePrefix}/mediaId/${this.linkTarget}#`;
                 case 'email':
                     return `mailto:${this.linkTarget}`;
                 case 'phone':

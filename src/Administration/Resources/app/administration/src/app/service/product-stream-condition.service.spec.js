@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 
 describe('app/service/product-stream-condition.service.js', () => {

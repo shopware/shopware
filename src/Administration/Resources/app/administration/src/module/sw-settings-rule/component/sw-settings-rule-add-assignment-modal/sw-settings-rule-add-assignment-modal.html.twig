@@ -6,21 +6,11 @@
     :variant="modalSize"
     @modal-close="onCloseAddModal"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_rule_add_assignment_modal_listing %}
-    <sw-settings-rule-add-assignment-listing
-        v-if="entityContext.entityName !== 'category'"
-        class="sw-settings-rule-detail-assignments__entity-listing"
-        :entity-context="entityContext"
-        :rule-id="rule.id"
-        @select-item="onSelect"
-    />
-    {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_add_assignment_modal_category_tree %}
     <sw-settings-rule-category-tree
-        v-else
+        v-if="entityContext.entityName === 'category'"
         :rule="rule"
         :association="entityContext.addContext.association"
         :categories-collection="entities"
@@ -28,6 +18,17 @@
         :hide-search="true"
         placeholder="Add categories"
         @on-selection="onSelect"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_rule_add_assignment_modal_listing %}
+    <sw-settings-rule-add-assignment-listing
+        v-else
+        class="sw-settings-rule-detail-assignments__entity-listing"
+        :entity-context="entityContext"
+        :rule-id="rule.id"
+        @select-item="onSelect"
     />
     {% endblock %}
 

@@ -12,7 +12,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
+    compatConfig: Shopware.compatConfig,
+
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'filterFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -33,6 +40,7 @@ export default {
             availableCampaignCodes: [],
             filterCriteria: [],
             defaultFilters: [
+                'customer-number-filter',
                 'affiliate-code-filter',
                 'campaign-code-filter',
                 'customer-group-request-filter',
@@ -73,7 +81,7 @@ export default {
 
             defaultCriteria.setTerm(this.term);
 
-            this.sortBy.split(',').forEach(sortBy => {
+            this.sortBy.split(',').forEach((sortBy) => {
                 defaultCriteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
             });
 
@@ -81,9 +89,14 @@ export default {
                 .addAssociation('defaultBillingAddress')
                 .addAssociation('group')
                 .addAssociation('requestedGroup')
-                .addAssociation('salesChannel');
+                .addAssociation('boundSalesChannel');
 
-            this.filterCriteria.forEach(filter => {
+            // @deprecated tag:v6.7.0 - Will be removed, because it's unused
+            if (!Shopware.Feature.isActive('v6.7.0.0')) {
+                defaultCriteria.addAssociation('salesChannel');
+            }
+
+            this.filterCriteria.forEach((filter) => {
                 defaultCriteria.addFilter(filter);
             });
 
@@ -92,10 +105,12 @@ export default {
 
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addFilter(Criteria.not(
-                'AND',
-                [Criteria.equals('affiliateCode', null), Criteria.equals('campaignCode', null)],
-            ));
+            criteria.addFilter(
+                Criteria.not('AND', [
+                    Criteria.equals('affiliateCode', null),
+                    Criteria.equals('campaignCode', null),
+                ]),
+            );
             criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
 
@@ -103,7 +118,16 @@ export default {
         },
 
         listFilterOptions() {
-            return {
+            const options = {
+                'customer-number-filter': {
+                    property: 'customerNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-customer.filter.customerNumber.label'),
+                    placeholder: this.$tc('sw-customer.filter.customerNumber.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',
@@ -141,11 +165,6 @@ export default {
                     label: this.$tc('sw-customer.filter.status.label'),
                     placeholder: this.$tc('sw-customer.filter.status.placeholder'),
                 },
-                'default-payment-method-filter': {
-                    property: 'defaultPaymentMethod',
-                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
-                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
-                },
                 'group-filter': {
                     property: 'group',
                     label: this.$tc('sw-customer.filter.customerGroup.label'),
@@ -167,6 +186,16 @@ export default {
                     placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
                 },
             };
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                options['default-payment-method-filter'] = {
+                    property: 'defaultPaymentMethod',
+                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
+                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
+                };
+            }
+
+            return options;
         },
 
         listFilters() {
@@ -175,6 +204,10 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
         },
     },
 
@@ -197,23 +230,27 @@ export default {
         },
 
         onInlineEditSave(promise, customer) {
-            promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) }),
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) }),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
-                });
-            });
         },
 
         async getList() {
             this.isLoading = true;
 
-            const criteria = await Shopware.Service('filterService')
-                .mergeWithStoredFilters(this.storeKey, this.defaultCriteria);
+            const criteria = await Shopware.Service('filterService').mergeWithStoredFilters(
+                this.storeKey,
+                this.defaultCriteria,
+            );
 
             const newCriteria = await this.addQueryScores(this.term, criteria);
 
@@ -264,84 +301,103 @@ export default {
         },
 
         getCustomerColumns() {
-            const columns = [{
-                property: 'firstName',
-                dataIndex: 'lastName,firstName',
-                inlineEdit: 'string',
-                label: 'sw-customer.list.columnName',
-                routerLink: 'sw.customer.detail',
-                width: '250px',
-                allowResize: true,
-                primary: true,
-                useCustomSort: true,
-            }, {
-                property: 'defaultBillingAddress.street',
-                label: 'sw-customer.list.columnStreet',
-                allowResize: true,
-                useCustomSort: true,
-            }, {
-                property: 'defaultBillingAddress.zipcode',
-                label: 'sw-customer.list.columnZip',
-                align: 'right',
-                allowResize: true,
-                useCustomSort: true,
-            }, {
-                property: 'defaultBillingAddress.city',
-                label: 'sw-customer.list.columnCity',
-                allowResize: true,
-                useCustomSort: true,
-            }, {
-                property: 'customerNumber',
-                dataIndex: 'customerNumber',
-                naturalSorting: true,
-                label: 'sw-customer.list.columnCustomerNumber',
-                allowResize: true,
-                inlineEdit: 'string',
-                align: 'right',
-                useCustomSort: true,
-            }, {
-                property: 'group',
-                dataIndex: 'group',
-                naturalSorting: true,
-                label: 'sw-customer.list.columnGroup',
-                allowResize: true,
-                inlineEdit: 'string',
-                align: 'right',
-                useCustomSort: true,
-            }, {
-                property: 'email',
-                inlineEdit: 'string',
-                label: 'sw-customer.list.columnEmail',
-                allowResize: true,
-                useCustomSort: true,
-            }, {
-                property: 'affiliateCode',
-                inlineEdit: 'string',
-                label: 'sw-customer.list.columnAffiliateCode',
-                allowResize: true,
-                visible: false,
-                useCustomSort: true,
-            }, {
-                property: 'campaignCode',
-                inlineEdit: 'string',
-                label: 'sw-customer.list.columnCampaignCode',
-                allowResize: true,
-                visible: false,
-                useCustomSort: true,
-            }, {
-                property: 'boundSalesChannelId',
-                label: 'sw-customer.list.columnBoundSalesChannel',
-                allowResize: true,
-                visible: false,
-                useCustomSort: true,
-            }, {
-                property: 'active',
-                inlineEdit: 'boolean',
-                label: 'sw-customer.list.columnActive',
-                allowResize: true,
-                visible: false,
-                useCustomSort: true,
-            }];
+            const columns = [
+                {
+                    property: 'firstName',
+                    dataIndex: 'lastName,firstName',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnName',
+                    routerLink: 'sw.customer.detail',
+                    width: '250px',
+                    allowResize: true,
+                    primary: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'company',
+                    label: 'sw-customer.list.columnCompany',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'defaultBillingAddress.street',
+                    label: 'sw-customer.list.columnStreet',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'defaultBillingAddress.zipcode',
+                    label: 'sw-customer.list.columnZip',
+                    align: 'right',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'defaultBillingAddress.city',
+                    label: 'sw-customer.list.columnCity',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'customerNumber',
+                    dataIndex: 'customerNumber',
+                    naturalSorting: true,
+                    label: 'sw-customer.list.columnCustomerNumber',
+                    allowResize: true,
+                    inlineEdit: 'string',
+                    align: 'right',
+                    useCustomSort: true,
+                },
+                {
+                    property: 'group',
+                    dataIndex: 'group',
+                    naturalSorting: true,
+                    label: 'sw-customer.list.columnGroup',
+                    allowResize: true,
+                    inlineEdit: 'string',
+                    align: 'right',
+                    useCustomSort: true,
+                },
+                {
+                    property: 'email',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnEmail',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'affiliateCode',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnAffiliateCode',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'campaignCode',
+                    inlineEdit: 'string',
+                    label: 'sw-customer.list.columnCampaignCode',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'boundSalesChannelId',
+                    label: 'sw-customer.list.columnBoundSalesChannel',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+                {
+                    property: 'active',
+                    inlineEdit: 'boolean',
+                    label: 'sw-customer.list.columnActive',
+                    allowResize: true,
+                    visible: false,
+                    useCustomSort: true,
+                },
+            ];
 
             return columns;
         },
@@ -349,14 +405,16 @@ export default {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.customerRepository.search(this.filterSelectCriteria)
+            return this.customerRepository
+                .search(this.filterSelectCriteria)
                 .then(({ aggregations }) => {
                     this.availableAffiliateCodes = aggregations?.affiliateCodes?.buckets ?? [];
                     this.availableCampaignCodes = aggregations?.campaignCodes?.buckets ?? [];
                     this.filterLoading = false;
 
                     return aggregations;
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.filterLoading = false;
                 });
         },

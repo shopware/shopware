@@ -6,72 +6,87 @@ const mockSlotId = 'MOCK-SLOT-ID';
 const pageMock = {
     id: pageId,
     name: 'CMS-PAGE-NAME',
-    sections: [{
-        blocks: [{
-            slots: [{
-                id: mockSlotId,
-                type: 'text-block-mock',
-                config: {
-                    content: {
-                        value: 'Test text',
-                        source: 'static',
-                    },
-                    entity: 'test-entity',
-                    required: true,
-                    type: 'text',
+    sections: [
+        {
+            blocks: [
+                {
+                    slots: [
+                        {
+                            id: mockSlotId,
+                            type: 'text-block-mock',
+                            config: {
+                                content: {
+                                    value: 'Test text',
+                                    source: 'static',
+                                },
+                                entity: 'test-entity',
+                                required: true,
+                                type: 'text',
+                            },
+                        },
+                    ],
                 },
-            }],
-        }],
-    }],
+            ],
+        },
+    ],
     type: 'product_list',
 };
 
-
+/**
+ * @package content
+ */
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-generic-cms-page-assignment', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
-                },
-                'sw-cms-list-item': {
-                    template: '<div class="sw-cms-list-item"></div>',
-                    props: ['page'],
-                },
-                'sw-button': {
-                    template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-                },
-                'sw-cms-layout-modal': {
-                    template: '<div class="sw-cms-layout-modal"></div>',
-                },
-                'sw-cms-page-form': {
-                    template: '<div class="sw-cms-page-form"></div>',
-                    props: ['page'],
-                },
-            },
-            provide: {
-                cmsPageTypeService: {
-                    getType(type) {
-                        return {
-                            title: `sw-cms.detail.label.pageType.${Shopware.Utils.string.camelCase(type)}`,
-                        };
+    return mount(
+        await wrapTestComponent('sw-generic-cms-page-assignment', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot></div>',
                     },
+                    'sw-cms-list-item': {
+                        template: '<div class="sw-cms-list-item"></div>',
+                        props: ['page'],
+                    },
+                    'sw-button': {
+                        emits: ['click'],
+                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+                    },
+                    'sw-cms-layout-modal': {
+                        template: '<div class="sw-cms-layout-modal"></div>',
+                    },
+                    'sw-cms-page-form': {
+                        template: '<div class="sw-cms-page-form"></div>',
+                        props: ['page'],
+                    },
+                    'sw-icon': true,
                 },
-                repositoryFactory: {
-                    create: (name) => {
-                        switch (name) {
-                            case 'cms_page':
-                                return {
-                                    search: jest.fn(() => Promise.resolve([pageMock])),
-                                };
-                            default:
-                                throw new Error(`No repository for ${name} configured`);
-                        }
+                provide: {
+                    cmsPageTypeService: {
+                        getType(type) {
+                            return {
+                                title: `sw-cms.detail.label.pageType.${Shopware.Utils.string.camelCase(type)}`,
+                            };
+                        },
+                    },
+                    repositoryFactory: {
+                        create: (name) => {
+                            switch (name) {
+                                case 'cms_page':
+                                    return {
+                                        search: jest.fn(() => Promise.resolve([pageMock])),
+                                    };
+                                default:
+                                    throw new Error(`No repository for ${name} configured`);
+                            }
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 /**
@@ -79,17 +94,15 @@ async function createWrapper() {
  */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('cmsPage');
+        Shopware.Store.register({
+            id: 'cmsPage',
+            state: () => ({
                 currentPage: null,
-            },
-            mutations: {
-                setCurrentPage(state, page) {
-                    state.currentPage = page;
+            }),
+            actions: {
+                setCurrentPage(page) {
+                    this.currentPage = page;
                 },
             },
         });
@@ -138,7 +151,9 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await flushPromises();
 
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMock.name);
-        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageType.productList');
+        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe(
+            'sw-cms.detail.label.pageType.productList',
+        );
         expect(wrapper.getComponent('.sw-cms-list-item').props('page')).toEqual(pageMock);
         expect(wrapper.getComponent('.sw-cms-page-form').props('page')).toEqual(pageMock);
     });
@@ -216,28 +231,38 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         const pageMockWithOverrides = {
             id: pageMock.id,
             name: 'CMS-PAGE-NAME',
-            sections: [{
-                blocks: [{
-                    slots: [{
-                        id: mockSlotId,
-                        type: 'text-block-mock',
-                        config: {
-                            content: {
-                                value: '<h1>TEST<h1>',
-                                source: 'static',
-                            },
-                            entity: 'test-entity',
-                            required: true,
-                            type: 'text',
+            sections: [
+                {
+                    blocks: [
+                        {
+                            slots: [
+                                {
+                                    id: mockSlotId,
+                                    type: 'text-block-mock',
+                                    config: {
+                                        content: {
+                                            value: '<h1>TEST<h1>',
+                                            source: 'static',
+                                        },
+                                        entity: 'test-entity',
+                                        required: true,
+                                        type: 'text',
+                                    },
+                                },
+                            ],
                         },
-                    }],
-                }],
-            }],
+                    ],
+                },
+            ],
             type: 'product_list',
         };
 
-        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMockWithOverrides.name);
-        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageType.productList');
+        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(
+            pageMockWithOverrides.name,
+        );
+        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe(
+            'sw-cms.detail.label.pageType.productList',
+        );
         expect(wrapper.getComponent('.sw-cms-list-item').props('page')).toStrictEqual(pageMockWithOverrides);
         expect(wrapper.getComponent('.sw-cms-page-form').props('page')).toStrictEqual(pageMockWithOverrides);
     });
@@ -245,21 +270,29 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
     it('should emit slotOverrides when the cmsPage is changed', async () => {
         global.Shopware.Data.ChangesetGenerator = class ChangesetGeneratorMock {
             generate() {
-                return { changes: {
-                    sections: [{
-                        blocks: [{
-                            slots: [{
-                                id: mockSlotId,
-                                config: {
-                                    content: {
-                                        source: 'static',
-                                        value: '<h1>TEST</h1>',
+                return {
+                    changes: {
+                        sections: [
+                            {
+                                blocks: [
+                                    {
+                                        slots: [
+                                            {
+                                                id: mockSlotId,
+                                                config: {
+                                                    content: {
+                                                        source: 'static',
+                                                        value: '<h1>TEST</h1>',
+                                                    },
+                                                },
+                                            },
+                                        ],
                                     },
-                                },
-                            }],
-                        }],
-                    }],
-                } };
+                                ],
+                            },
+                        ],
+                    },
+                };
             }
         };
 
@@ -278,17 +311,19 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         });
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.$set(wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content, 'value', '<h1>TEST2<h1>');
+        wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content.value = '<h1>TEST2<h1>';
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('update:slot-overrides')).toHaveLength(1);
-        expect(wrapper.emitted('update:slot-overrides')[0]).toEqual([{
-            [mockSlotId]: {
-                content: {
-                    value: '<h1>TEST</h1>',
-                    source: 'static',
+        expect(wrapper.emitted('update:slot-overrides')[0]).toEqual([
+            {
+                [mockSlotId]: {
+                    content: {
+                        value: '<h1>TEST</h1>',
+                        source: 'static',
+                    },
                 },
             },
-        }]);
+        ]);
     });
 });

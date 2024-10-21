@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
@@ -31,9 +31,11 @@ describe('sw-bulk-edit-order-documents-generate-delivery-note', () => {
     });
 
     it('should contain a generateData as a computed property', async () => {
-        expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentComment: null,
-        }));
+        expect(wrapper.vm.generateData).toEqual(
+            expect.objectContaining({
+                documentComment: null,
+            }),
+        );
 
         Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
             type: 'delivery_note',
@@ -43,10 +45,12 @@ describe('sw-bulk-edit-order-documents-generate-delivery-note', () => {
             },
         });
 
-        expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentDate: 'documentDate',
-            documentComment: 'documentComment',
-        }));
+        expect(wrapper.vm.generateData).toEqual(
+            expect.objectContaining({
+                documentDate: 'documentDate',
+                documentComment: 'documentComment',
+            }),
+        );
     });
 
     it('should be able to update generateData', async () => {

@@ -8,7 +8,16 @@ import './sw-first-run-wizard-plugins.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['recommendationsService'],
+
+    emits: [
+        'extension-activated',
+        'frw-set-title',
+        'buttons-update',
+        'loading-finished',
+    ],
 
     data() {
         return {
@@ -23,20 +32,19 @@ export default {
 
     computed: {
         categoryLead() {
-            return this.plugins.filter(plugin => {
+            return this.plugins.filter((plugin) => {
                 return plugin.isCategoryLead;
             });
         },
 
         notCategoryLead() {
-            return this.plugins.filter(plugin => {
+            return this.plugins.filter((plugin) => {
                 return !plugin.isCategoryLead;
             });
         },
 
         showSpacer() {
-            return this.categoryLead.length > 0
-                && this.notCategoryLead.length > 0;
+            return this.categoryLead.length > 0 && this.notCategoryLead.length > 0;
         },
 
         showCategoryLead() {
@@ -46,7 +54,6 @@ export default {
         showNotCategoryLead() {
             return this.notCategoryLead.length > 0;
         },
-
     },
 
     created() {
@@ -88,15 +95,11 @@ export default {
         },
 
         regionVariant({ name }) {
-            return this.selectedRegion && this.selectedRegion.name === name
-                ? 'info'
-                : 'neutral';
+            return this.selectedRegion && this.selectedRegion.name === name ? 'info' : 'neutral';
         },
 
         categoryVariant({ name }) {
-            return this.selectedCategory && this.selectedCategory.name === name
-                ? 'info'
-                : 'neutral';
+            return this.selectedCategory && this.selectedCategory.name === name ? 'info' : 'neutral';
         },
 
         onSelectRegion(region) {
@@ -119,25 +122,31 @@ export default {
 
             this.isLoading = true;
 
-            this.recommendationsService.getRecommendations({
-                region,
-                category,
-            }).then((response) => {
-                this.plugins = response.items;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            this.recommendationsService
+                .getRecommendations({
+                    region,
+                    category,
+                })
+                .then((response) => {
+                    this.plugins = response.items;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         getRecommendationRegions() {
             this.isLoading = true;
 
-            this.recommendationsService.getRecommendationRegions().then((response) => {
-                this.regions = response.items;
-            }).finally(() => {
-                this.isLoading = false;
-                this.$emit('loading-finished');
-            });
+            this.recommendationsService
+                .getRecommendationRegions()
+                .then((response) => {
+                    this.regions = response.items;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.$emit('loading-finished');
+                });
         },
 
         reloadRecommendations() {

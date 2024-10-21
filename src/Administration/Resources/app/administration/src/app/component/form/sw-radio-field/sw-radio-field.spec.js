@@ -34,11 +34,16 @@ const createWrapper = async () => {
     const wrapper = mount(baseComponent, {
         global: {
             stubs: {
-                'sw-radio-field': await wrapTestComponent('sw-radio-field', { sync: true }),
+                'sw-radio-field': await wrapTestComponent('sw-radio-field', {
+                    sync: true,
+                }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
         },
     });
@@ -119,6 +124,9 @@ describe('components/form/sw-radio-field', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         });
@@ -139,6 +147,9 @@ describe('components/form/sw-radio-field', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
             slots: {

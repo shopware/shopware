@@ -4,28 +4,33 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-first-run-wizard-mailer-selection', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-help-text': {
-                    template: '<div class="sw-help-text"></div>',
+    return mount(
+        await wrapTestComponent('sw-first-run-wizard-mailer-selection', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-help-text': {
+                        template: '<div class="sw-help-text"></div>',
+                    },
+                    'sw-icon': {
+                        template: '<div class="sw-icon"></div>',
+                    },
+                    'sw-loader': {
+                        template: '<div class="sw-loader"></div>',
+                    },
                 },
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
-                'sw-loader': {
-                    template: '<div class="sw-loader"></div>',
-                },
-            },
-            provide: {
-                systemConfigApiService: {
-                    saveValues: function saveValues() {
-                        return Promise.resolve();
+                provide: {
+                    systemConfigApiService: {
+                        saveValues: function saveValues() {
+                            return Promise.resolve();
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {

@@ -20,6 +20,8 @@ const { Component } = Shopware;
 Component.register('sw-button-group', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         block: {
             type: Boolean,

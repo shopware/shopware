@@ -6,12 +6,18 @@ Custom styling for bootstrap alert component.
 https://getbootstrap.com/docs/5.2/components/alerts
 */
 
+/**
+ * @deprecated tag:v6.7.0 - Class `alert-has-icon` will be removed. Use helper classes `d-flex align-items-center` directly in the template like documented by Bootstrap.
+ * @see https://getbootstrap.com/docs/5.3/components/alerts/#examples
+ */
 .alert-has-icon {
     display: flex;
     align-items: center;
 
-    .alert-content-container {
-        padding-left: $spacer;
+    @if not feature('ACCESSIBILITY_TWEAKS') {
+        .alert-content-container {
+            padding-left: $spacer;
+        }
     }
 }
 

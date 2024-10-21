@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     final public const TYPE = 'cross-selling';

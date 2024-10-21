@@ -10,6 +10,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -46,8 +48,7 @@ export default {
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('conditions')
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -56,12 +57,10 @@ export default {
             const result = [];
 
             this.packagerKeys.forEach((keyValue) => {
-                result.push(
-                    {
-                        key: keyValue,
-                        name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.packager.${keyValue}`),
-                    },
-                );
+                result.push({
+                    key: keyValue,
+                    name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.packager.${keyValue}`),
+                });
             });
             return result;
         },
@@ -70,19 +69,17 @@ export default {
             const result = [];
 
             this.sorterKeys.forEach((keyValue) => {
-                result.push(
-                    {
-                        key: keyValue,
-                        name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.sorter.${keyValue}`),
-                    },
-                );
+                result.push({
+                    key: keyValue,
+                    name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.sorter.${keyValue}`),
+                });
             });
 
             return result;
         },
 
         isEditingDisabled() {
-            return (this.promotion === null || !this.acl.can('promotion.editor'));
+            return this.promotion === null || !this.acl.can('promotion.editor');
         },
     },
 
@@ -113,9 +110,7 @@ export default {
 
         loadSetGroups() {
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(
-                Criteria.equals('promotionId', this.promotion.id),
-            );
+            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
 
             this.promotionGroupRepository.search(criteria).then((groups) => {
                 this.promotion.setgroups = groups;

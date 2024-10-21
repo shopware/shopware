@@ -21,6 +21,16 @@ if (missingEnvVars.length > 0) {
 process.env['SHOPWARE_ADMIN_USERNAME'] = process.env['SHOPWARE_ADMIN_USERNAME'] || 'admin';
 process.env['SHOPWARE_ADMIN_PASSWORD'] = process.env['SHOPWARE_ADMIN_PASSWORD'] || 'shopware';
 
+if (process.env.DATABASE_URL) {
+    const matches = process.env.DATABASE_URL.match(/mysql:\/\/([^:@]+)(:([^:@]+))?@([^/]+)\/([^?]+)/);
+    if (matches) {
+        process.env.ATS_DATABASE_USERNAME = process.env.ATS_DATABASE_USERNAME || matches[1];
+        process.env.ATS_DATABASE_PASSWORD = process.env.ATS_DATABASE_PASSWORD || matches[3] || '';
+        process.env.ATS_DATABASE_HOST = process.env.ATS_DATABASE_HOST || matches[4];
+        process.env.ATS_DATABASE_NAME = process.env.ATS_DATABASE_NAME || matches[5];
+    }
+}
+
 // make sure APP_URL ends with a slash
 process.env['APP_URL'] = process.env['APP_URL'].replace(/\/+$/, '') + '/';
 if (process.env['ADMIN_URL']) {
@@ -45,11 +55,13 @@ export default defineConfig({
 
     reporter: 'html',
 
+    timeout: 60_000,
+
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env['APP_URL'],
-        trace: 'on',
+        trace: 'on-first-retry',
         video: 'off',
     },
 
@@ -63,18 +75,29 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
         {
-            name: 'Platform',
+            name: 'Setup',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grepInvert: /@install|@update/,
+            grep: /@Setup/,
+        },
+        {
+            name: 'Platform',
+            use: {
+                ...devices['Desktop Chrome'],
+                launchOptions: {
+                    args: ['--remote-debugging-port=9222'],
+                },
+            },
+            dependencies: ['Setup'],
+            grepInvert: /@Install|@Update|@Setup.*/,
         },
         {
             name: 'Install',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: /@install/,
+            grep: /@Install/,
             retries: 0,
         },
         {
@@ -82,7 +105,8 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: /@update/,
+            dependencies: [],
+            grep: /@Update/,
             retries: 0,
         },
     ],

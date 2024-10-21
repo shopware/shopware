@@ -12,10 +12,17 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-config', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'systemConfigApiService',
         'repositoryFactory',
         'feature',
+    ],
+
+    emits: [
+        'update:value',
+        'salesChannelChanged',
     ],
 
     props: {
@@ -84,7 +91,7 @@ Component.register('sw-sales-channel-config', {
     methods: {
         createdComponent() {
             if (!this.salesChannel.length) {
-                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then(res => {
+                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then((res) => {
                     res.add({
                         id: null,
                         translated: {

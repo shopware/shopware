@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import './init/services.init';
 
@@ -7,20 +7,63 @@ import './init/services.init';
 Shopware.Component.register('sw-bulk-edit-product', () => import('./page/sw-bulk-edit-product'));
 Shopware.Component.register('sw-bulk-edit-order', () => import('./page/sw-bulk-edit-order'));
 Shopware.Component.register('sw-bulk-edit-customer', () => import('./page/sw-bulk-edit-customer'));
-Shopware.Component.register('sw-bulk-edit-order-documents', () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents'));
-Shopware.Component.register('sw-bulk-edit-order-documents-generate-invoice', () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice'));
-Shopware.Component.extend('sw-bulk-edit-order-documents-generate-cancellation-invoice', 'sw-bulk-edit-order-documents-generate-invoice', () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-cancellation-invoice'));
-Shopware.Component.extend('sw-bulk-edit-order-documents-generate-delivery-note', 'sw-bulk-edit-order-documents-generate-invoice', () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note'));
-Shopware.Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-edit-order-documents-generate-invoice', () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note'));
-Shopware.Component.register('sw-bulk-edit-order-documents-download-documents', () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents'));
-Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', () => import('./component/sw-bulk-edit-custom-fields'));
+Shopware.Component.register(
+    'sw-bulk-edit-order-documents',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents'),
+);
+Shopware.Component.register(
+    'sw-bulk-edit-order-documents-generate-invoice',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice'),
+);
+Shopware.Component.extend(
+    'sw-bulk-edit-order-documents-generate-cancellation-invoice',
+    'sw-bulk-edit-order-documents-generate-invoice',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-cancellation-invoice'),
+);
+Shopware.Component.extend(
+    'sw-bulk-edit-order-documents-generate-delivery-note',
+    'sw-bulk-edit-order-documents-generate-invoice',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note'),
+);
+Shopware.Component.extend(
+    'sw-bulk-edit-order-documents-generate-credit-note',
+    'sw-bulk-edit-order-documents-generate-invoice',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note'),
+);
+Shopware.Component.register(
+    'sw-bulk-edit-order-documents-download-documents',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents'),
+);
+Shopware.Component.extend(
+    'sw-bulk-edit-custom-fields',
+    'sw-custom-field-set-renderer',
+    () => import('./component/sw-bulk-edit-custom-fields'),
+);
 Shopware.Component.register('sw-bulk-edit-change-type', () => import('./component/sw-bulk-edit-change-type'));
-Shopware.Component.register('sw-bulk-edit-change-type-field-renderer', () => import('./component/sw-bulk-edit-change-type-field-renderer'));
-Shopware.Component.extend('sw-bulk-edit-form-field-renderer', 'sw-form-field-renderer', () => import('./component/sw-bulk-edit-form-field-renderer'));
-Shopware.Component.register('sw-bulk-edit-product-visibility', () => import('./component/product/sw-bulk-edit-product-visibility'));
+Shopware.Component.register(
+    'sw-bulk-edit-change-type-field-renderer',
+    () => import('./component/sw-bulk-edit-change-type-field-renderer'),
+);
+Shopware.Component.extend(
+    'sw-bulk-edit-form-field-renderer',
+    'sw-form-field-renderer',
+    () => import('./component/sw-bulk-edit-form-field-renderer'),
+);
+Shopware.Component.register(
+    'sw-bulk-edit-product-visibility',
+    () => import('./component/product/sw-bulk-edit-product-visibility'),
+);
 Shopware.Component.register('sw-bulk-edit-product-media', () => import('./component/product/sw-bulk-edit-product-media'));
-Shopware.Component.extend('sw-bulk-edit-product-media-form', 'sw-product-media-form', () => import('./component/product/sw-bulk-edit-product-media-form'));
-Shopware.Component.extend('sw-bulk-edit-product-description', 'sw-text-editor', () => import('./component/product/sw-bulk-edit-product-description'));
+Shopware.Component.extend(
+    'sw-bulk-edit-product-media-form',
+    'sw-product-media-form',
+    () => import('./component/product/sw-bulk-edit-product-media-form'),
+);
+Shopware.Component.extend(
+    'sw-bulk-edit-product-description',
+    'sw-text-editor',
+    () => import('./component/product/sw-bulk-edit-product-description'),
+);
 Shopware.Component.register('sw-bulk-edit-save-modal', () => import('./component/sw-bulk-edit-save-modal'));
 Shopware.Component.register('sw-bulk-edit-save-modal-confirm', () => import('./component/sw-bulk-edit-save-modal-confirm'));
 Shopware.Component.register('sw-bulk-edit-save-modal-process', () => import('./component/sw-bulk-edit-save-modal-process'));

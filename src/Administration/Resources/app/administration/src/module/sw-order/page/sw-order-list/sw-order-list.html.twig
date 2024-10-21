@@ -52,7 +52,7 @@
                 showOnDisabledElements: true
             }"
             class="sw-order-list__add-order"
-            :disabled="!acl.can('order.creator')"
+            :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
             :router-link="{ name: 'sw.order.create' }"
         >
@@ -157,6 +157,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_billing_address %}
                 <template #column-billingAddressId="{ item }">
+                    <span v-if="item.billingAddress.company">{{ item.billingAddress.company }}<span v-if="item.billingAddress.department"> - {{ item.billingAddress.department }}</span>,&nbsp;</span>
                     {{ item.billingAddress.street }},
                     {{ item.billingAddress.zipcode }}
                     {{ item.billingAddress.city }}
@@ -174,7 +175,9 @@
                                 disabled: item.deliveries.length <= 1,
                                 message: deliveryTooltip(item.deliveries)
                             }"
-                            class="sw-order-list__delivery_address">
+                            class="sw-order-list__delivery_address"
+                        >
+                            <span v-if="item.deliveries[0].shippingOrderAddress.company">{{ item.deliveries[0].shippingOrderAddress.company }}<span v-if="item.deliveries[0].shippingOrderAddress.department"> - {{ item.deliveries[0].shippingOrderAddress.department }}</span>,</span>
                             {{ item.deliveries[0].shippingOrderAddress.street }},
                             {{ item.deliveries[0].shippingOrderAddress.zipcode }}
                             {{ item.deliveries[0].shippingOrderAddress.city }}
@@ -360,6 +363,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_bulk_edit_modal %}
                 <template #bulk-modals="{ selection }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_order_list_bulk_edit_modal_inner %}
                     <sw-bulk-edit-modal
                         v-if="showBulkEditModal"
                         ref="bulkEditModal"
@@ -472,6 +477,7 @@
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
+                    {% endblock %}
                 </template>
                 {% endblock %}
             </sw-data-grid>

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class MediaAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
@@ -64,6 +64,7 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
             '
             SELECT LOWER(HEX(media.id)) as id,
                    media.file_name,
+                   media.path,
                    GROUP_CONCAT(DISTINCT media_translation.alt SEPARATOR " ") as alt,
                    GROUP_CONCAT(DISTINCT media_translation.title SEPARATOR " ") as title,
                    media_folder.name,

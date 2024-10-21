@@ -18,6 +18,11 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
 
     inheritAttrs: false,
 
+    emits: [
+        'inheritance-remove',
+        'inheritance-restore',
+    ],
+
     props: {
         noMarginTop: {
             type: Boolean,
@@ -29,9 +34,17 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['small', 'medium', 'default'],
+            validValues: [
+                'small',
+                'medium',
+                'default',
+            ],
             validator(val) {
-                return ['small', 'medium', 'default'].includes(val);
+                return [
+                    'small',
+                    'medium',
+                    'default',
+                ].includes(val);
             },
         },
     },
@@ -44,6 +57,7 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
                     'sw-field--switch-padded': this.padded,
                     'sw-field--switch-no-margin-top': this.noMarginTop,
                     ...this.swCheckboxFieldClasses,
+                    [this.$attrs.class]: !!this.$attrs.class,
                 },
                 `sw-field--${this.size}`,
             ];

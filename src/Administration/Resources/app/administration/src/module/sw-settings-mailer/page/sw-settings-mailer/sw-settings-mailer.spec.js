@@ -1,39 +1,52 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     const CreateSettingsMailer = async function CreateSettingsMailer(emailAgent = null) {
-        return mount(await wrapTestComponent('sw-settings-mailer', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-page': {
-                        template: '<div />',
+        return mount(
+            await wrapTestComponent('sw-settings-mailer', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    stubs: {
+                        'sw-page': {
+                            template: '<div />',
+                        },
+                        'sw-icon': true,
+                        'sw-button-process': true,
+                        'sw-skeleton': true,
+                        'sw-select-field': true,
+                        'sw-radio-field': true,
+                        'sw-switch-field': true,
+                        'sw-card': true,
+                        'sw-settings-mailer-smtp': true,
+                        'sw-card-view': true,
                     },
-                },
-                provide: {
-                    systemConfigApiService: {
-                        getValues: () => Promise.resolve({
-                            'core.mailerSettings.emailAgent': emailAgent,
-                            'core.mailerSettings.host': null,
-                            'core.mailerSettings.port': null,
-                            'core.mailerSettings.username': null,
-                            'core.mailerSettings.password': null,
-                            'core.mailerSettings.encryption': 'null',
-                            'core.mailerSettings.authenticationMethod': 'null',
-                            'core.mailerSettings.senderAddress': null,
-                            'core.mailerSettings.deliveryAddress': null,
-                            'core.mailerSettings.disableDelivery': false,
-                        }),
-                        saveValues: () => Promise.resolve(),
+                    provide: {
+                        systemConfigApiService: {
+                            getValues: () =>
+                                Promise.resolve({
+                                    'core.mailerSettings.emailAgent': emailAgent,
+                                    'core.mailerSettings.host': null,
+                                    'core.mailerSettings.port': null,
+                                    'core.mailerSettings.username': null,
+                                    'core.mailerSettings.password': null,
+                                    'core.mailerSettings.encryption': 'null',
+                                    'core.mailerSettings.authenticationMethod': 'null',
+                                    'core.mailerSettings.senderAddress': null,
+                                    'core.mailerSettings.deliveryAddress': null,
+                                    'core.mailerSettings.disableDelivery': false,
+                                }),
+                            saveValues: () => Promise.resolve(),
+                        },
                     },
                 },
             },
-        });
+        );
     };
 
     it('should be a vue js component', async () => {

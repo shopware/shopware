@@ -31,6 +31,8 @@
 
         <service id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" public="true">
             <argument type="service" id="sales_channel.shipping_method.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-1000" public="true">

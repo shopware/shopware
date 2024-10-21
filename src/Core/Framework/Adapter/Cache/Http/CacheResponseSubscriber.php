@@ -4,18 +4,22 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
-use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -30,26 +34,29 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     final public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
 
     final public const CURRENCY_COOKIE = 'sw-currency';
-    final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    final public const CONTEXT_CACHE_COOKIE = HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE;
 
     final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
-    private const CORE_HTTP_CACHED_ROUTES = [
-        'api.acl.privileges.get',
-    ];
-
     /**
+     * @param array<string> $cookies
+     *
      * @internal
      */
     public function __construct(
+        private readonly array $cookies,
         private readonly CartService $cartService,
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
-        private readonly bool $reverseProxyEnabled,
+        private readonly RequestStack $requestStack,
         private readonly ?string $staleWhileRevalidate,
-        private readonly ?string $staleIfError
+        private readonly ?string $staleIfError,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -59,23 +66,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
             ],
-            BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
+            CustomerLoginEvent::class => 'onCustomerLogin',
+            CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
-    }
-
-    public function addHttpCacheToCoreRoutes(RequestEvent $event): void
-    {
-        $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
-
-        if (\in_array($route, self::CORE_HTTP_CACHED_ROUTES, true)) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
-        }
     }
 
     public function setResponseCache(ResponseEvent $event): void
@@ -98,6 +95,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            // 404 pages should not be cached by reverse proxy, as the cache hit rate would be super low,
+            // and there is no way to invalidate once the url becomes available
+            // To still be able to serve 404 pages fast, we don't load the full context and cache the rendered html on application side
+            // as we don't have the full context the state handling is broken as no customer or cart is available, even if the customer is logged in
+            // @see \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber::onError
+            return;
+        }
+
         $route = $request->attributes->get('_route');
         if ($route === 'frontend.checkout.configure') {
             $this->setCurrencyCookie($request, $response);
@@ -113,7 +119,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
-            $newValue = $this->buildCacheHash($context);
+            $newValue = $this->buildCacheHash($request, $context);
 
             if ($request->cookies->get(self::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
                 $cookie = Cookie::create(self::CONTEXT_CACHE_COOKIE, $newValue);
@@ -176,30 +182,27 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
     }
 
-    /**
-     * In the default HttpCache implementation the reverse proxy cache is implemented too in PHP and triggered before the response is send to the client. We don't need to send the "real" cache-control headers to the end client (browser/cloudflare).
-     * If a external reverse proxy cache is used we still need to provide the actual cache-control, so the external system can cache the system correctly and set the cache-control again to
-     */
-    public function updateCacheControlForBrowser(BeforeSendResponseEvent $event): void
+    public function onCustomerLogin(CustomerLoginEvent $event): void
     {
-        if ($this->reverseProxyEnabled) {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
             return;
         }
 
-        $response = $event->getResponse();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
+    }
 
-        $noStore = $response->headers->getCacheControlDirective('no-store');
-
-        // We don't want that the client will cache the website, if no reverse proxy is configured
-        $response->headers->remove('cache-control');
-        $response->headers->remove(self::INVALIDATION_STATES_HEADER);
-        $response->setPrivate();
-
-        if ($noStore) {
-            $response->headers->addCacheControlDirective('no-store');
-        } else {
-            $response->headers->addCacheControlDirective('no-cache');
+    public function onCustomerLogout(CustomerLogoutEvent $event): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
         }
+
+        $context = clone $event->getSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     /**
@@ -217,15 +220,28 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function buildCacheHash(SalesChannelContext $context): string
+    private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
-        return md5(json_encode([
-            $context->getRuleIds(),
-            $context->getContext()->getVersionId(),
-            $context->getCurrency()->getId(),
-            $context->getTaxState(),
-            $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ], \JSON_THROW_ON_ERROR));
+        $parts = [
+            HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
+            HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
+            HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
+            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
+            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+        ];
+
+        foreach ($this->cookies as $cookie) {
+            if (!$request->cookies->has($cookie)) {
+                continue;
+            }
+
+            $parts[$cookie] = $request->cookies->get($cookie);
+        }
+
+        $event = new HttpCacheCookieEvent($request, $context, $parts);
+        $this->dispatcher->dispatch($event);
+
+        return Hasher::hash($event->getParts());
     }
 
     /**

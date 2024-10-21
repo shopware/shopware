@@ -77,7 +77,7 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
         static::expectException(
             Feature::isActive('v6.7.0.0') ? DataAbstractionLayerException::class : DecodeByHydratorException::class
         );
-        static::expectExceptionMessage(sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class));
+        static::expectExceptionMessage(\sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class));
 
         $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
         $serializer->decode(

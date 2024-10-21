@@ -15,28 +15,32 @@ interface scopeInterface {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $set(target: object, key: string, value: any): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    $watch(path: string, callback: (value: any) => void, options: { deep: boolean, immediate: boolean }): () => void;
+    $watch(path: string, callback: (value: any) => void, options: { deep: boolean; immediate: boolean }): () => void;
     $once(event: string, callback: () => void): void;
 }
 interface publishOptions {
-    id: string,
-    path: string,
-    scope: scopeInterface
+    id: string;
+    path: string;
+    scope: scopeInterface;
+    deprecated?: boolean;
+    deprecationMessage?: string;
 }
 
 type dataset = {
-    id: string,
-    scope: number,
-    data: unknown
-}
+    id: string;
+    scope: number;
+    data: unknown;
+    deprecated?: boolean;
+    deprecationMessage?: string;
+};
 
 type transferObject = {
-    [key: string|symbol]: unknown
-}
+    [key: string | symbol]: unknown;
+};
 
 type ParsedPath = {
-    pathToLastSegment: string,
-    lastSegment: string,
+    pathToLastSegment: string;
+    lastSegment: string;
 };
 
 type vueWithUid = Partial<App<Element>> & { _uid: number };
@@ -55,62 +59,61 @@ let unregisterPublishDataIds: string[] = [];
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function deepCloneWithEntity(data: any): any {
-    return cloneDeepWith(data, (value: {
-        __identifier__?: () => string;
-        source?: string;
-        entity?: keyof EntitySchema.Entities;
-        criteria?: Criteria;
-        total?: number;
-        aggregations?: unknown;
-        id?: string;
-        _entityName?: keyof EntitySchema.Entities;
-        _draft?: unknown;
-        _origin?: unknown;
-        _isDirty?: boolean;
-        _isNew?: boolean;
-    }) => {
-        // If value is a entity collection, we need to clone it custom
-        if (
-            value?.__identifier__ &&
-            typeof value.__identifier__ === 'function' &&
-            value.__identifier__() === 'EntityCollection'
-        ) {
-            return new EntityCollection(
-                value.source!,
-                value.entity!,
-                // @ts-expect-error - we don't want to provide a context
-                {},
-                value.criteria === null ? value.criteria : Criteria.fromCriteria(value.criteria!),
-                // @ts-expect-error - value is an array inside a entity collection
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                deepCloneWithEntity(Array.from(value)),
-                value.total,
-                value.aggregations,
-            );
-        }
+    return cloneDeepWith(
+        data,
+        (value: {
+            __identifier__?: () => string;
+            source?: string;
+            entity?: keyof EntitySchema.Entities;
+            criteria?: Criteria;
+            total?: number;
+            aggregations?: unknown;
+            id?: string;
+            _entityName?: keyof EntitySchema.Entities;
+            _draft?: unknown;
+            _origin?: unknown;
+            _isDirty?: boolean;
+            _isNew?: boolean;
+        }) => {
+            // If value is a entity collection, we need to clone it custom
+            if (
+                value?.__identifier__ &&
+                typeof value.__identifier__ === 'function' &&
+                value.__identifier__() === 'EntityCollection'
+            ) {
+                return new EntityCollection(
+                    value.source!,
+                    value.entity!,
+                    // @ts-expect-error - we don't want to provide a context
+                    {},
+                    value.criteria === null ? value.criteria : Criteria.fromCriteria(value.criteria!),
+                    // @ts-expect-error - value is an array inside a entity collection
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                    deepCloneWithEntity(Array.from(value)),
+                    value.total,
+                    value.aggregations,
+                );
+            }
 
-        // If value is a entity, we need to clone it custom
-        if (
-            value?.__identifier__ &&
-            typeof value.__identifier__ === 'function' &&
-            value.__identifier__() === 'Entity'
-        ) {
-            return new Entity(
-                value.id!,
-                value._entityName!,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                deepCloneWithEntity(value._draft),
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    originData: deepCloneWithEntity(value._origin),
-                    isDirty: value._isDirty,
-                    isNew: value._isNew,
-                },
-            );
-        }
+            // If value is a entity, we need to clone it custom
+            if (value?.__identifier__ && typeof value.__identifier__ === 'function' && value.__identifier__() === 'Entity') {
+                return new Entity(
+                    value.id!,
+                    value._entityName!,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                    deepCloneWithEntity(value._draft),
+                    {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        originData: deepCloneWithEntity(value._origin),
+                        isDirty: value._isDirty,
+                        isNew: value._isNew,
+                    },
+                );
+            }
 
-        return undefined;
-    });
+            return undefined;
+        },
+    );
 }
 
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -118,10 +121,32 @@ export function deepCloneWithEntity(data: any): any {
 handleGet((data, additionalOptions) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const origin = additionalOptions?._event_?.origin;
-    const registeredDataSet = publishedDataSets.find(s => s.id === data.id);
+    const registeredDataSet = publishedDataSets.find((s) => s.id === data.id);
 
     if (!registeredDataSet) {
         return null;
+    }
+
+    if (registeredDataSet.deprecated) {
+        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+            ext.baseUrl.startsWith(additionalOptions._event_.origin),
+        );
+
+        if (!extension) {
+            throw new Error(`Extension with the origin "${additionalOptions._event_.origin}" not found.`);
+        }
+
+        const debugArgs = [
+            'CORE',
+            // eslint-disable-next-line max-len
+            `The extension "${extension.name}" uses a deprecated data set "${data.id}". ${registeredDataSet.deprecationMessage}`,
+        ];
+        // @ts-expect-error
+        if (process.env !== 'prod') {
+            Shopware.Utils.debug.error(...debugArgs);
+        } else {
+            Shopware.Utils.debug.warn(...debugArgs);
+        }
     }
 
     const selectors = data.selectors;
@@ -146,7 +171,7 @@ handleGet((data, additionalOptions) => {
 /**
  * Splits an object path like "foo.bar.buz" to "{ pathToLastSegment: 'foo.bar', lastSegment: 'buz' }".
  */
-function parsePath(path :string): ParsedPath | null {
+function parsePath(path: string): ParsedPath | null {
     if (!path.includes('.')) {
         return null;
     }
@@ -166,11 +191,11 @@ function parsePath(path :string): ParsedPath | null {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({ id, path, scope }: publishOptions): () => void {
+export function publishData({ id, path, scope, deprecated, deprecationMessage }: publishOptions): () => void {
     if (unregisterPublishDataIds.includes(id)) {
-        unregisterPublishDataIds = unregisterPublishDataIds.filter(value => value !== id);
+        unregisterPublishDataIds = unregisterPublishDataIds.filter((value) => value !== id);
     }
-    const registeredDataSet = publishedDataSets.find(s => s.id === id);
+    const registeredDataSet = publishedDataSets.find((s) => s.id === id);
 
     // @ts-expect-error
     // Dataset registered from different scope? Prevent update.
@@ -196,13 +221,13 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
             return;
         }
 
-        function setObject(transferObject: transferObject, prePath: string|null = null): void {
+        function setObject(transferObject: transferObject, prePath: string | null = null): void {
             if (typeof transferObject?.getIsDirty === 'function' && !transferObject.getIsDirty()) {
                 return;
             }
 
             Object.keys(transferObject).forEach((property) => {
-                let realPath : string;
+                let realPath: string;
                 if (prePath) {
                     realPath = `${prePath}.${property}`;
                 } else {
@@ -214,10 +239,18 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
                     return;
                 }
 
-                // @ts-expect-error
-                // eslint-disable-next-line max-len
-                if (Shopware.Utils.hasOwnProperty(transferObject[property], 'getDraft', this) && typeof transferObject[property].getDraft === 'function') {
-                    setObject({ [property]: Shopware.Utils.object.cloneDeep(transferObject[property]) }, realPath);
+                if (
+                    // @ts-expect-error
+                    Shopware.Utils.hasOwnProperty(transferObject[property], 'getDraft', this) &&
+                    // @ts-expect-error
+                    typeof transferObject[property].getDraft === 'function'
+                ) {
+                    setObject(
+                        {
+                            [property]: Shopware.Utils.object.cloneDeep(transferObject[property]),
+                        },
+                        realPath,
+                    );
 
                     return;
                 }
@@ -230,12 +263,20 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
                     return;
                 }
 
-                scope.$set(
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
-                    parsedPath.lastSegment,
-                    transferObject[property],
-                );
+                // @ts-expect-error - This is added in the vue.adapter.ts
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (scope.isCompatEnabled('INSTANCE_SET')) {
+                    scope.$set(
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
+                        parsedPath.lastSegment,
+                        transferObject[property],
+                    );
+                } else {
+                    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] =
+                        transferObject[property];
+                }
             });
         }
 
@@ -269,51 +310,72 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
+            // @ts-expect-error - This is added in the vue.adapter.ts
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (scope.isCompatEnabled('INSTANCE_SET')) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                Shopware.Utils.object.get(scope, newPath)[lastPath] = value.data;
+            }
 
             return;
         }
 
-        scope.$set(scope, path, value.data);
+        // @ts-expect-error - This is added in the vue.adapter.ts
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        if (scope.isCompatEnabled('INSTANCE_SET')) {
+            scope.$set(scope, path, value.data);
+        } else {
+            // @ts-expect-error
+            scope[path] = value.data;
+        }
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
-    const unwatch = scope.$watch(path, debounce((value: App<Element>) => {
-        if (unregisterPublishDataIds.includes(id)) {
-            unregisterPublishDataIds = unregisterPublishDataIds.filter(v => v !== id);
-            unwatch();
+    const unwatch = scope.$watch(
+        path,
+        debounce((value: App<Element>) => {
+            if (unregisterPublishDataIds.includes(id)) {
+                unregisterPublishDataIds = unregisterPublishDataIds.filter((v) => v !== id);
+                unwatch();
 
-            return;
-        }
+                return;
+            }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const clonedValue = deepCloneWithEntity(value);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const clonedValue = deepCloneWithEntity(value);
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        register({ id: id, data: clonedValue }).catch(() => {});
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            register({ id: id, data: clonedValue }).catch(() => {});
 
-        const dataSet = publishedDataSets.find(set => set.id === id);
-        if (dataSet) {
-            dataSet.data = value;
+            const dataSet = publishedDataSets.find((set) => set.id === id);
+            if (dataSet) {
+                dataSet.data = value;
 
-            return;
-        }
+                return;
+            }
 
-        publishedDataSets.push({
-            id,
-            data: clonedValue,
-            // @ts-expect-error
-            scope: (scope as vueWithUid)._uid,
-        });
-    }, 750), {
-        deep: true,
-        immediate: true,
-    });
+            publishedDataSets.push({
+                id,
+                data: clonedValue,
+                // @ts-expect-error
+                scope: (scope as vueWithUid)._uid,
+                deprecated,
+                deprecationMessage,
+            });
+        }, 750),
+        {
+            deep: true,
+            immediate: true,
+        },
+    );
 
-    // Before the registering component gets destroyed, destroy the watcher and deregister the dataset
-    scope.$once('hook:beforeDestroy', () => {
-        publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+    // @ts-expect-error - Defined in meteor-sdk-data.plugin.ts
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    scope.dataSetUnwatchers.push(() => {
+        publishedDataSets = publishedDataSets.filter((value) => value.id !== id);
         unregisterPublishDataIds.push(id);
 
         unwatch();
@@ -324,7 +386,7 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
 
     // Return method to manually deregister the dataset
     return function unregisterPublishData() {
-        publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+        publishedDataSets = publishedDataSets.filter((value) => value.id !== id);
         unregisterPublishDataIds.push(id);
 
         unwatch();

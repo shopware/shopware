@@ -3,11 +3,12 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -30,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InstallAppCommand extends Command
 {
     public function __construct(
-        private readonly AbstractAppLoader $appLoader,
+        private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AppPrinter $appPrinter,
         private readonly ManifestValidator $manifestValidator
@@ -75,7 +76,7 @@ class InstallAppCommand extends Command
                 try {
                     $this->manifestValidator->validate($manifest, $context);
                 } catch (AppValidationException $e) {
-                    $io->error(sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
+                    $io->error(\sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
 
                     $success = self::FAILURE;
 
@@ -86,12 +87,12 @@ class InstallAppCommand extends Command
             try {
                 $this->appLifecycle->install($manifest, $input->getOption('activate'), $context);
             } catch (AppAlreadyInstalledException) {
-                $io->info(sprintf('App %s is already installed', $name));
+                $io->info(\sprintf('App %s is already installed', $name));
 
                 continue;
             }
 
-            $io->success(sprintf('App %s has been successfully installed.', $name));
+            $io->success(\sprintf('App %s has been successfully installed.', $name));
         }
 
         return (int) $success;
@@ -147,10 +148,10 @@ class InstallAppCommand extends Command
             $this->appPrinter->printPermissions($manifest, $io, true);
 
             if (!$io->confirm(
-                sprintf('Do you want to grant these permissions for app "%s"?', $manifest->getMetadata()->getName()),
+                \sprintf('Do you want to grant these permissions for app "%s"?', $manifest->getMetadata()->getName()),
                 false
             )) {
-                throw new UserAbortedCommandException();
+                throw AppException::userAborted();
             }
         }
     }

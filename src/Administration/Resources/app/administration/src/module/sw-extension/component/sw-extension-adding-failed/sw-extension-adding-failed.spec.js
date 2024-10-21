@@ -11,8 +11,15 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                i18n: true,
+                'sw-icon': true,
+                'sw-label': true,
+                'router-link': true,
+                'sw-loader': true,
             },
             provide: {
                 shopwareExtensionService,
@@ -58,39 +65,41 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('renders all information if extension is rent', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', [{
-            name: 'test-app',
-            storeLicense: {
-                variant: 'rent',
+        Shopware.State.commit('shopwareExtensions/myExtensions', [
+            {
+                name: 'test-app',
+                storeLicense: {
+                    variant: 'rent',
+                },
             },
-        }]);
+        ]);
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-extension-adding-failed__text-licence-cancellation').text()).toBe('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense');
+        expect(wrapper.get('.sw-extension-adding-failed__text-licence-cancellation').text()).toBe(
+            'sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense',
+        );
     });
 
     it('does not render additional information if the license is not a subscription', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', [{
-            name: 'test-app',
-            storeLicense: {
-                variant: 'buy',
+        Shopware.State.commit('shopwareExtensions/myExtensions', [
+            {
+                name: 'test-app',
+                storeLicense: {
+                    variant: 'buy',
+                },
             },
-        }]);
+        ]);
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
-            .exists())
-            .toBe(false);
-        expect(wrapper.find('h3').text())
-            .toBe(
-                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure',
-            );
-        expect(wrapper.find('p').text())
-            .toBe(
-                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem',
-            );
+        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation').exists()).toBe(false);
+        expect(wrapper.find('h3').text()).toBe(
+            'sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure',
+        );
+        expect(wrapper.find('p').text()).toBe(
+            'sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem',
+        );
     });
 
     // eslint-disable-next-line max-len
@@ -99,11 +108,8 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
-            .exists()).toBe(false);
-        expect(wrapper.find('h3')
-            .text()).toBe('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
-        expect(wrapper.find('p')
-            .text()).toBe('sw-extension-store.component.sw-extension-adding-failed.textProblem');
+        expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation').exists()).toBe(false);
+        expect(wrapper.find('h3').text()).toBe('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
+        expect(wrapper.find('p').text()).toBe('sw-extension-store.component.sw-extension-adding-failed.textProblem');
     });
 });

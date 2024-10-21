@@ -1,24 +1,26 @@
 import { mount } from '@vue/test-utils';
-import swFlowIndex from 'src/module/sw-flow/page/sw-flow-index';
 
-Shopware.Component.register('sw-flow-index', swFlowIndex);
-
+/**
+ * @package services-settings
+ */
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-flow-index', {
-        sync: true,
-    }), {
-        global: {
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
+    return mount(
+        await wrapTestComponent('sw-flow-index', {
+            sync: true,
+        }),
+        {
+            global: {
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                 <div class="sw-page">
                     <slot name="search-bar"></slot>
                     <slot name="smart-bar-back"></slot>
@@ -31,47 +33,51 @@ async function createWrapper(privileges = []) {
                     <slot></slot>
                 </div>
             `,
-                },
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-search-bar': true,
-                'sw-card-view': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '44de136acf314e7184401d36406c1e90',
-                                    eventName: 'checkout.order.placed',
-                                },
-                            ]);
-                        },
-
-                        searchIds: () => Promise.resolve({
-                            total: 20,
-                        }),
-                    }),
-
-                },
-
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
                     },
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-search-bar': true,
+                    'sw-card-view': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'sw-skeleton': true,
+                    'router-view': true,
+                    'sw-extension-teaser-popover': true,
                 },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve([
+                                    {
+                                        id: '44de136acf314e7184401d36406c1e90',
+                                        eventName: 'checkout.order.placed',
+                                    },
+                                ]);
+                            },
 
-                searchRankingService: {},
+                            searchIds: () =>
+                                Promise.resolve({
+                                    total: 20,
+                                }),
+                        }),
+                    },
+
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+
+                    searchRankingService: {},
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/page/sw-flow-index', () => {

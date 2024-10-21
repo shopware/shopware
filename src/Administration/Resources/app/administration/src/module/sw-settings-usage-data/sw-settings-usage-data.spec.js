@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ */
+
 import 'src/module/sw-settings-usage-data';
 
 const { Module, Component } = Shopware;

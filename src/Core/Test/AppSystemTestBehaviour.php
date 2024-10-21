@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App;
+namespace Shopware\Core\Test;
 
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppService;

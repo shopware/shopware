@@ -73,7 +73,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_content_tab_products %}
                 <sw-tabs-item
-                    v-if="isHeadless || isStoreFront"
+                    v-if="isHeadless || isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }"
                     :title="$tc('sw-sales-channel.detail.tabProducts')"
                 >
@@ -96,7 +96,7 @@
 
                 {%  block sw_sales_channel_detail_content_tab_analytics %}
                 <sw-tabs-item
-                    v-if="isStoreFront"
+                    v-if="isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
                     :title="$tc('sw-sales-channel.detail.tabAnalytics')"
                 >

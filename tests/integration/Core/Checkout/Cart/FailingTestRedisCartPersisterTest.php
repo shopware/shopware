@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
+use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -29,7 +30,8 @@ class FailingTestRedisCartPersisterTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowser $browser;
+    private KernelBrowser $browser1;
+    private KernelBrowser $browser2;
 
     private string $salesChannelId;
 
@@ -46,11 +48,15 @@ class FailingTestRedisCartPersisterTest extends TestCase
         parent::setUp();
 
         $this->salesChannelId = TestDefaults::SALES_CHANNEL;
-        $this->browser = $this->createCustomSalesChannelBrowser([
+        $this->browser1 = $this->createCustomSalesChannelBrowser([
+            'id' => $this->salesChannelId,
+        ]);
+        $this->browser2 = $this->createCustomSalesChannelBrowser([
             'id' => $this->salesChannelId,
         ]);
         $addressId = Uuid::randomHex();
-        $this->createCustomer(
+
+        $customerId = $this->createCustomer(
             'customer@example.com',
             false,
             [
@@ -70,6 +76,9 @@ class FailingTestRedisCartPersisterTest extends TestCase
             ]
         );
 
+        // utente loggato
+        $this->createEmployee($customerId, 'marco.caco@example.it');
+
         $factory = new RedisConnectionFactory();
 
         $client = $factory->create('redis://127.0.0.1:6379/3?persistent=1');
@@ -79,32 +88,35 @@ class FailingTestRedisCartPersisterTest extends TestCase
         $this->persister = new RedisCartPersister($this->redis, new CollectingEventDispatcher(), $this->createMock(CartSerializationCleaner::class), new CartCompressor(false, 'gzip'), 30);
     }
 
+    #[ActiveFeatureToggles(toggles: [
+        'EMPLOYEE_MANAGEMENT-4838834' => 1,
+        'SUBSCRIPTIONS-3156213' => 1,
+    ])]
     public function testRedisCartPersister(): void
     {
-        $this->browser
+        $this->browser1
             ->request(
                 'POST',
                 '/account/login',
                 [
-                    'email' => 'customer@example.com',
+                    'email' => 'marco.caco@example.it',
                     'password' => 'shopware',
                 ]
             );
 
-        $session = $this->getSession();
-        $contextToken = $session->get('sw-context-token');
-        $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $contextToken);
+        $firstContextToken = $this->browser1->getServerParameter('HTTP_sw-context-token');
+        $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $firstContextToken);
 
         $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);
 
         $cartService = $this->getContainer()->get(CartService::class);
-        $cart = $cartService->getCart($contextToken, $salesChannelContext);
+        $cart = $cartService->getCart($firstContextToken, $salesChannelContext);
 
         $productId = $this->createProduct($salesChannelContext, 'PRODUCT-0');
 
         $this->addProductToCart($productId, 10, $cart, $cartService, $salesChannelContext);
 
-        $this->browser->request(
+        $this->browser1->request(
             'POST',
             '/checkout/product/add-by-number',
             [
@@ -112,32 +124,27 @@ class FailingTestRedisCartPersisterTest extends TestCase
             ]
         );
 
-        $this->persister->save($cart, $salesChannelContext);
-
-        $cart = $this->persister->load($cart->getToken(), $salesChannelContext);
-
-        $this->browser
+        $this->browser1
             ->request(
                 'GET',
                 '/account/logout',
             );
 
-        $this->browser
+        $this->browser2
             ->request(
                 'POST',
                 '/account/login',
                 [
-                    'email' => 'customer@example.com',
+                    'email' => 'marco.caco@example.it',
                     'password' => 'shopware',
                 ]
             );
 
-        $session = $this->getSession();
-        $contextToken = $session->get('sw-context-token');
-        $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $contextToken);
-        $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);
+        $secondContextToken = $this->browser2->getServerParameter('HTTP_sw-context-token');
+        $params = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $secondContextToken);
 
-        $loaded = $this->persister->load($contextToken, $salesChannelContext);
+        $salesChannelContext = self::getContainer()->get(SalesChannelContextService::class)->get($params);
+        $loaded = $cartService->getCart($secondContextToken, $salesChannelContext);
 
         static::assertEquals($cart->getToken(), $loaded->getToken());
         static::assertEquals($cart->getLineItems(), $loaded->getLineItems());
@@ -168,5 +175,33 @@ class FailingTestRedisCartPersisterTest extends TestCase
         $cartService->recalculate($cart, $context);
 
         return $cart;
+    }
+
+    private function createEmployee(
+        string $partnerId,
+        ?string $emailForLogin = null
+    ): void {
+        $faker = Factory::create();
+
+        $permissions = [
+            'role.read',
+            'employee.read',
+            'employee.create',
+            'employee.edit',
+        ];
+
+        self::getContainer()->get('b2b_employee.repository')->upsert([[
+            'id' => Uuid::randomHex(),
+            'firstName' => $faker->firstName(),
+            'lastName' => $faker->lastName(),
+            'email' => $emailForLogin ?? $faker->email(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'businessPartnerCustomerId' => $partnerId,
+            'role' => [
+                'businessPartnerCustomerId' => $partnerId,
+                'name' => 'Default role',
+                'permissions' => $permissions,
+            ]
+        ]], Context::createDefaultContext());
     }
 }

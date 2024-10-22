@@ -1346,6 +1346,38 @@
                         "cert_key_path": {
                             "type": ["boolean", "string"],
                             "default": false
+                        },
+                        "sigV4": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "region": {
+                                    "type": ["boolean", "string"],
+                                    "default": false
+                                },
+                                "service": {
+                                    "type": ["boolean", "string"],
+                                    "default": false
+                                },
+                                "credentials_provider": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "key_id": {
+                                            "type": ["boolean", "string"],
+                                            "default": false
+                                        },
+                                        "secret_key": {
+                                            "type": ["boolean", "string"],
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },

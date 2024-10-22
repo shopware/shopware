@@ -21,6 +21,8 @@ class ElasticsearchException extends HttpException
 
     public const EMPTY_QUERY = 'ELASTICSEARCH__EMPTY_QUERY';
 
+    public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+
     public static function definitionNotFound(string $definition): self
     {
         return new self(
@@ -126,6 +128,15 @@ class ElasticsearchException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::EMPTY_QUERY,
             'Empty query provided'
+        );
+    }
+
+    public static function awsCredentialsNotFound(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::AWS_CREDENTIALS_NOT_FOUND,
+            'Could not get AWS credentials'
         );
     }
 }

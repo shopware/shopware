@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\DefinitionValidatorFilterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\DefinitionValidatorViolationsFilterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -169,15 +168,12 @@ class DefinitionValidator
     {
         $violations = [];
 
-        $definitionValidatorFilterEvent = new DefinitionValidatorFilterEvent($this->registry->getDefinitions());
+        $entityDefinitions = $this->registry->getDefinitions();
 
         // filter out definitions that should not be validated
-        $definitionValidatorFilterEvent->filterDefinitions($this->definitionRequiresValidation(...));
+        $entityDefinitions = array_filter($entityDefinitions,$this->definitionRequiresValidation(...));
 
-        // dispatches an event for filtering Plugins to be able to filter definitions
-        $this->eventDispatcher->dispatch($definitionValidatorFilterEvent);
-
-        foreach ($definitionValidatorFilterEvent->entityDefinitions as $definition) {
+        foreach ($entityDefinitions as $definition) {
             $definitionClass = $definition->getClass();
 
             $violations[$definitionClass] = [];
@@ -235,11 +231,10 @@ class DefinitionValidator
         }
 
         // dispatches an event for filtering violations
-        $this->eventDispatcher->dispatch(
-            new DefinitionValidatorViolationsFilterEvent($violations)
-        );
+        $violationsFilterEvent = new DefinitionValidatorViolationsFilterEvent($violations);
+        $this->eventDispatcher->dispatch($violationsFilterEvent);
 
-        return array_filter($violations);
+        return array_filter($violationsFilterEvent->violations);
     }
 
     /**
@@ -1190,10 +1185,10 @@ class DefinitionValidator
 
         return [
             $definition->getClass() => [\sprintf(
-                'Entity "%s" defines parent entity "%s", but does not have a FK to that parent entity configured.',
-                $definition->getEntityName(),
-                $parentDefinition->getEntityName(),
-            )],
+                                            'Entity "%s" defines parent entity "%s", but does not have a FK to that parent entity configured.',
+                                            $definition->getEntityName(),
+                                            $parentDefinition->getEntityName(),
+                                        )],
         ];
     }
 

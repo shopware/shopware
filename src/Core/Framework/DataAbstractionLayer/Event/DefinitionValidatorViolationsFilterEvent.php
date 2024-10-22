@@ -18,8 +18,8 @@ class DefinitionValidatorViolationsFilterEvent
     {
     }
 
-    public function filterDefinitions(callable $filter): void
+    public function filterByDefinitionClass(callable $filter): void
     {
-        $this->violations = array_filter($this->violations, $filter);
+        $this->violations = array_filter($this->violations, $filter,ARRAY_FILTER_USE_KEY);
     }
 }

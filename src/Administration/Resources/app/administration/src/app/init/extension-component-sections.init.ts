@@ -8,7 +8,7 @@ import '../store/extension-component-sections.store';
 export default function initializeExtensionComponentSections(): void {
     // Handle incoming ExtensionComponentRenderer requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('uiComponentSectionRenderer', (componentConfig, additionalInformation) => {
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 

@@ -12,7 +12,6 @@ import error from './error.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
 import marketing from './marketing.store';
-import extensions from './extensions.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import extensionMainModules from './main-module.store';
@@ -34,7 +33,6 @@ export default {
     settingsItems,
     shopwareApps,
     marketing,
-    extensions,
     tabs,
     menuItem,
     modals,

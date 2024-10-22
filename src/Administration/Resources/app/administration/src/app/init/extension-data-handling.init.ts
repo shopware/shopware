@@ -8,19 +8,19 @@ function getRepository(
     entityName: keyof EntitySchema.Entities,
     additionalInformation: { _event_: MessageEvent<string> },
 ): Repository<keyof EntitySchema.Entities> | null {
-    const extensionName = Object.keys(Shopware.State.get('extensions')).find((key) =>
-        Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin),
+    const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
+        Shopware.Store.get('extensions').extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
     );
 
     if (!extensionName) {
         throw new Error(`Could not find a extension with the given event origin "${additionalInformation._event_.origin}"`);
     }
 
-    const extension = Shopware.State.get('extensions')?.[extensionName];
+    const extension = Shopware.Store.get('extensions').extensionsState?.[extensionName];
     if (!extension) {
         throw new Error(
             // eslint-disable-next-line max-len
-            `Could not find an extension with the given name "${extensionName}" in the extension store (Shopware.State.get('extensions'))`,
+            `Could not find an extension with the given name "${extensionName}" in the extension store (Shopware.Store.get('extensions').extensionsState)`,
         );
     }
 

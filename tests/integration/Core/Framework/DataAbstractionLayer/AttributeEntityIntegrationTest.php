@@ -175,6 +175,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'serialized' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
             ],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
+            ],
             'differentName' => 'string',
             'transString' => 'string',
             'transText' => 'text',
@@ -217,6 +220,10 @@ class AttributeEntityIntegrationTest extends TestCase
             new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
             $record->serialized
         );
+        static::assertEquals(
+            new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
+            $record->price
+        );
 
         static::assertEquals('string', $record->transString);
         static::assertEquals('text', $record->transText);
@@ -252,6 +259,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'dateInterval' => new DateInterval('P1D'),
             'timeZone' => 'Europe/Berlin',
             'serialized' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
+            'price' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
             'transString' => 'string',
             'transText' => 'text',
             'transInt' => 1,

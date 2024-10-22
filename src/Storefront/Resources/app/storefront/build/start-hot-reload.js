@@ -124,9 +124,7 @@ server.then(() => {
     }
 
     if (appUrlEnv.protocol === 'https:' && sslFilesFound) {
-        if (appUrlEnv.protocol === 'https:' && sslFilesFound) {
-            console.log('Proxy uses the https schema, with ssl certificate files.');
-        }
+        console.log('Proxy uses the https schema, with ssl certificate files.');
         proxy.listen(proxyServerOptions.proxyPort);
     }
 

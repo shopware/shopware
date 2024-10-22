@@ -168,13 +168,7 @@ class ThemeDumpCommand extends Command
                 continue;
             }
 
-            $domains = $salesChannel->getDomains();
-
-            if (!$domains?->count()) {
-                continue;
-            }
-
-            foreach ($domains as $domain) {
+            foreach ($salesChannel->getDomains() as $domain) {
                 $domainUrls[] = $domain->getUrl();
             }
         }

@@ -2,6 +2,7 @@ import Store from 'src/app/store';
 import '../store/admin-menu.store';
 import 'src/app/store/extension-entry-routes.store';
 import 'src/app/store/extension-sdk-module.store';
+import 'src/app/store/extensions.store';
 
 /**
  * @package admin

@@ -128,7 +128,7 @@ handleGet((data, additionalOptions) => {
     }
 
     if (registeredDataSet.deprecated) {
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalOptions._event_.origin),
         );
 

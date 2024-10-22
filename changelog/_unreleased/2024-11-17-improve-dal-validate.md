@@ -8,4 +8,4 @@ author_github: raphael-homann
 ---
 # Core
 * Added an option `check-unregistered-tables` to `dal:validate` command
-* added an event `DefinitionValidatorFilterEvent` to be able to reduce validated classes
+* added an event `DefinitionValidatorViolationsFilterEvent` to be able to reduce violations after check

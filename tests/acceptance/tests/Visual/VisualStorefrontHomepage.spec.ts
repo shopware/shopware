@@ -17,7 +17,6 @@ test('Visual: Homepage in the Storefront.', { tag: '@Visual' }, async ({
         await expect(StorefrontHome.page).toHaveScreenshot({
             maxDiffPixelRatio: 0.2,
             fullPage: true,
-            stylePath: path.resolve('./tests/Visual/screenshot.css'),
 
         });
     });

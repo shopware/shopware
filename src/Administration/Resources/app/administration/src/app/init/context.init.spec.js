@@ -12,7 +12,6 @@ import {
     getUserInformation,
     getUserTimezone,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
-import extensionsStore from '../state/extensions.store';
 
 describe('src/app/init/context.init.ts', () => {
     beforeAll(() => {
@@ -20,15 +19,7 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     beforeEach(() => {
-        if (Shopware.State.get('extensions')) {
-            Shopware.State.unregisterModule('extensions');
-        }
-
-        Shopware.State.registerModule('extensions', extensionsStore);
-    });
-
-    afterEach(() => {
-        Shopware.State.unregisterModule('extensions');
+        Shopware.Store.get('extensions').extensionsState = {};
     });
 
     it('should handle currency', async () => {
@@ -104,7 +95,7 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should return app information', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
             permissions: [],
@@ -126,7 +117,7 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should return user information', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
             permissions: {
@@ -174,7 +165,7 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should not return user information when permissions arent existing', async () => {
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
             permissions: [],

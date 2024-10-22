@@ -610,7 +610,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             Shopware.Utils.debug.error = mock;
         }
 
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'JestApp',
             baseUrl: '', // This only works because it's a startsWith check
         });

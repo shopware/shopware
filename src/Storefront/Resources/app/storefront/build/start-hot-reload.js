@@ -2,15 +2,25 @@
 const httpProxy = require('http-proxy');
 const nodeServer = require('node:http');
 const fs = require('node:fs');
+const path = require('node:path');
 const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
 
 const proxyPort = Number(process.env.STOREFRONT_PROXY_PORT) || 9998;
 const assetPort = Number(process.env.STOREFRONT_ASSETS_PORT) || 9999;
-const appUrlEnv = new URL(process.env.APP_URL);
+
+const projectRootPath = process.env.PROJECT_ROOT
+    ? path.resolve(process.env.PROJECT_ROOT)
+    : path.resolve('../../../../..');
+const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
+const themeFiles = require(themeFilesConfigPath);
+const domainUrl = new URL(themeFiles.domainUrl);
+const themeUrl = domainUrl.port ? new URL(`${domainUrl.protocol}//${domainUrl.hostname}:${domainUrl.port}`) : new URL(`${domainUrl.protocol}//${domainUrl.hostname}`);
+
+const appUrlEnv = themeUrl ? themeUrl : new URL(process.env.APP_URL);
 const proxyUrlEnv = new URL(process.env.PROXY_URL || `${appUrlEnv.protocol}//${appUrlEnv.hostname}:${proxyPort}`);
-const keyPath = process.env.STOREFRONT_HTTPS_KEY_FILE || `${process.env.CAROOT}/localhost-key.pem`;
-const certPath = process.env.STOREFRONT_HTTPS_CERTIFICATE_FILE || `${process.env.CAROOT}/localhost.pem`;
+const keyPath = process.env.STOREFRONT_HTTPS_KEY_FILE || `${process.env.CAROOT}/${themeUrl.hostname}-key.pem`;
+const certPath = process.env.STOREFRONT_HTTPS_CERTIFICATE_FILE || `${process.env.CAROOT}/${themeUrl.hostname}.pem`;
 const sslFilesFound = (fs.existsSync(keyPath) && fs.existsSync(certPath));
 
 const proxyOptions = {
@@ -43,6 +53,12 @@ proxy.on('error', (err, req, res) => {
     if (err.code === 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY') {
         console.error('Make sure that node.js trusts the provided certificate. Set NODE_EXTRA_CA_CERTS for this.');
         console.error(`Try to start again with NODE_EXTRA_CA_CERTS="${certPath}" set.`);
+        process.exit(1);
+    }
+
+    if (err.code === 'ENOTFOUND') {
+        console.error('The domain could not be resolved. Make sure that the domain is correct in DEVENV/DDEV.');
+        console.error('And if this is a custom domain, make sure that the domain is set in your /etc/hosts file.');
         process.exit(1);
     }
 
@@ -94,20 +110,22 @@ server.then(() => {
     console.log(`Proxy server hot reload: ${proxyUrlEnv.origin}`);
     console.log('############');
 
-    if (appUrlEnv.protocol === 'https:' && !sslFilesFound) {
-        console.log('Proxy uses the https schema, without ssl certificate files.');
-        console.log('Content is bypassed via an node http server (Case: TLS proxy in front).');
+    if (appUrlEnv.protocol === 'https:' && !sslFilesFound || appUrlEnv.protocol === 'http:') {
+        if (appUrlEnv.protocol === 'http:') {
+            console.log('Proxy uses the http schema.');
+        }
+        if (appUrlEnv.protocol === 'https:' && !sslFilesFound) {
+            console.log('Proxy uses the https schema, without ssl certificate files.');
+            console.log('Content is bypassed via an node http server (Case: TLS proxy in front).');
+        }
         nodeServer.createServer((req, res) => {
             proxy.web(req, res);
         }).listen(proxyPort);
     }
 
-    if (appUrlEnv.protocol === 'https:' && sslFilesFound || appUrlEnv.protocol === 'http:') {
+    if (appUrlEnv.protocol === 'https:' && sslFilesFound) {
         if (appUrlEnv.protocol === 'https:' && sslFilesFound) {
             console.log('Proxy uses the https schema, with ssl certificate files.');
-        }
-        if (appUrlEnv.protocol === 'http:') {
-            console.log('Proxy uses the http schema.');
         }
         proxy.listen(proxyServerOptions.proxyPort);
     }

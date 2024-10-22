@@ -32,7 +32,6 @@ import type { Slots } from '@vue/runtime-core';
 import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
-import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import type { MenuItemState } from './app/state/menu-item.store';
@@ -97,6 +96,7 @@ import type { CmsService } from './module/sw-cms/service/cms.service';
 import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
 import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';
 import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store';
+import type { Extensions } from './app/store/extensions.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -320,7 +320,6 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         context: ContextState;
-        extensions: ExtensionsState;
         tabs: TabsState;
         paymentOverviewCardState: PaymentOverviewCardState;
         swOrder: SwOrderState;
@@ -351,6 +350,7 @@ declare global {
         extensionComponentSections: ExtensionComponentSectionsStore;
         extensionEntryRoutes: ExtensionEntryRoutes;
         extensionSdkModules: ExtensionSdkModules;
+        extensions: Extensions;
     }
 
     /**

@@ -20,8 +20,8 @@ describe('src/app/init/main-module.init.ts', () => {
         });
         Shopware.Store.get('extensionSdkModules').modules = [];
 
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
             permissions: [],
@@ -53,7 +53,7 @@ describe('src/app/init/main-module.init.ts', () => {
     });
 
     it('should not handle requests when extension is not valid', async () => {
-        Shopware.State._store.state.extensions = {};
+        Shopware.Store.get('extensions').extensionsState = {};
 
         await expect(async () => {
             await ui.mainModule.addMainModule({

@@ -5,15 +5,15 @@
  */
 export default function initMainModules(): void {
     Shopware.ExtensionAPI.handle('mainModuleAdd', async (mainModuleConfig, additionalInformation) => {
-        const extensionName = Object.keys(Shopware.State.get('extensions')).find((key) =>
-            Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin),
+        const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
+            Shopware.Store.get('extensions').extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
         if (!extensionName) {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
-        const extension = Shopware.State.get('extensions')?.[extensionName];
+        const extension = Shopware.Store.get('extensions').extensionsState?.[extensionName];
 
         await Shopware.Store.get('extensionSdkModules')
             .addModule({

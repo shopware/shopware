@@ -145,7 +145,6 @@ class ThemeDumpCommand extends Command
     {
         $choices = [];
 
-        /** @var ThemeCollection $themes */
         $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
 
         foreach ($themes as $theme) {

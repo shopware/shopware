@@ -110,7 +110,7 @@ server.then(() => {
     console.log(`Proxy server hot reload: ${proxyUrlEnv.origin}`);
     console.log('############');
 
-    if (appUrlEnv.protocol === 'https:' && !sslFilesFound || appUrlEnv.protocol === 'http:') {
+    if (appUrlEnv.protocol === 'http:' || appUrlEnv.protocol === 'https:' && !sslFilesFound) {
         if (appUrlEnv.protocol === 'http:') {
             console.log('Proxy uses the http schema.');
         }

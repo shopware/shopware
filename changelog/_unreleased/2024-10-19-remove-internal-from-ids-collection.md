@@ -1,6 +1,7 @@
+
 ---
 title: Remove internal from ids collection
-issue: 
+issue: NEXT-39183
 author: Oliver Skroblin
 author_email: oliver@goblin-coders.de
 author_github: OliverSkroblin

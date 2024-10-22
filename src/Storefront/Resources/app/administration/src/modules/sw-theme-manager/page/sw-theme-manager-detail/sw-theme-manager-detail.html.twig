@@ -3,10 +3,11 @@
 
         {% block sw_theme_manager_detail_search_bar %}
             <template #search-bar>
-                <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
-                               :entityService="themeRepository"
-                               @search="onSearch">
-                </sw-search-bar>
+                <sw-search-bar
+                    :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
+                    :entityService="themeRepository"
+                    @search="onSearch"
+                ></sw-search-bar>
             </template>
         {% endblock %}
 

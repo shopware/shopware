@@ -12,7 +12,8 @@
                                {% if page.isPaymentChangeable is defined and not page.isPaymentChangeable %}
                                    disabled="disabled"
                                {% endif %}
-                               class="form-check-input payment-method-input">
+                               class="form-check-input payment-method-input"
+                               data-focus-id="{{ payment.id }}">
                     {% endblock %}
 
                     {% block component_payment_method_label %}
@@ -37,6 +38,7 @@
                             {% block component_payment_method_description %}
                                 <div class="payment-method-description">
                                     {% set paymentName = payment.translated.name %}
+
                                     {% block component_payment_method_name %}
                                         <strong>{{ paymentName }}</strong>
                                     {% endblock %}
@@ -50,7 +52,7 @@
                                         {% endif %}
 
                                         {% block component_payment_method_description_text %}
-                                            <p title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>
+                                            <p class="mb-0" title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>
                                         {% endblock %}
                                     {% endif %}
                                 </div>

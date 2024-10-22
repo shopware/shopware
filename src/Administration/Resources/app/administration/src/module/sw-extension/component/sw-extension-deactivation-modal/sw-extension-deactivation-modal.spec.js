@@ -1,28 +1,33 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
-    return mount(await wrapTestComponent('sw-extension-deactivation-modal', { sync: true }), {
-        global: {
-            mocks: {
-                $tc: (path, choice, values) => {
-                    if (values) {
-                        return path + Object.values(values);
-                    }
+    return mount(
+        await wrapTestComponent('sw-extension-deactivation-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                mocks: {
+                    $tc: (path, choice, values) => {
+                        if (values) {
+                            return path + Object.values(values);
+                        }
 
-                    return path;
+                        return path;
+                    },
+                },
+                stubs: {
+                    'sw-button': true,
                 },
             },
-            stubs: {
-                'sw-button': true,
+            props: {
+                extensionName: 'Sample extension',
+                isLicensed: true,
+                isLoading: false,
+                ...propsData,
             },
         },
-        props: {
-            extensionName: 'Sample extension',
-            isLicensed: true,
-            isLoading: false,
-            ...propsData,
-        },
-    });
+    );
 }
 
 /**
@@ -33,7 +38,9 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
         const wrapper = await createWrapper();
 
         // eslint-disable-next-line max-len
-        expect(wrapper.vm.removeHint).toBe('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel');
+        expect(wrapper.vm.removeHint).toBe(
+            'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel',
+        );
     });
 
     it('should show the correct remove hint (is not licensed)', async () => {
@@ -43,7 +50,9 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
             isLicensed: false,
         });
         // eslint-disable-next-line max-len
-        expect(wrapper.vm.removeHint).toBe('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel');
+        expect(wrapper.vm.removeHint).toBe(
+            'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel',
+        );
     });
 
     it('should emit the close event', async () => {

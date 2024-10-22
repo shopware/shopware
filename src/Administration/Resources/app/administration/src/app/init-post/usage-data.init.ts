@@ -16,12 +16,16 @@ export default function initUsageData(): Promise<void> {
             return;
         }
 
-        usageDataApiService.getConsent().then((usageData) => {
-            Shopware.State.commit('usageData/updateConsent', usageData);
-        }).catch(() => {
-            Shopware.State.commit('usageData/resetConsent');
-        }).finally(() => {
-            resolve();
-        });
+        usageDataApiService
+            .getConsent()
+            .then((usageData) => {
+                Shopware.State.commit('usageData/updateConsent', usageData);
+            })
+            .catch(() => {
+                Shopware.State.commit('usageData/resetConsent');
+            })
+            .finally(() => {
+                resolve();
+            });
     });
 }

@@ -44,52 +44,55 @@ async function createWrapper({
 
     await router.push(routeFirstPush);
 
-    return mount({
-        template: `
+    return mount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('listing'),
-        ],
-        data() {
-            return {
-                ...defaultData,
-            };
-        },
-        computed: {
-            filters() {
-                return [
-                    {
-                        name: 'term',
-                        property: 'name',
-                        label: 'sw-product.list.columnName',
-                        active: false,
-                    },
-                ];
-            },
-        },
-        methods: {
-            ...methods,
-        },
-    }, {
-        global: {
-            plugins: [
-                router,
+            mixins: [
+                Shopware.Mixin.getByName('listing'),
             ],
-            provide: {
-                searchRankingService: {},
+            data() {
+                return {
+                    ...defaultData,
+                };
             },
-            mocks: {
-                ...mocks,
+            computed: {
+                filters() {
+                    return [
+                        {
+                            name: 'term',
+                            property: 'name',
+                            label: 'sw-product.list.columnName',
+                            active: false,
+                        },
+                    ];
+                },
+            },
+            methods: {
+                ...methods,
             },
         },
-        props: {
-            ...propData,
+        {
+            global: {
+                plugins: [
+                    router,
+                ],
+                provide: {
+                    searchRankingService: {},
+                },
+                mocks: {
+                    ...mocks,
+                },
+            },
+            props: {
+                ...propData,
+            },
+            attachTo: document.body,
         },
-        attachTo: document.body,
-    });
+    );
 }
 
 describe('src/app/mixin/listing.mixin.ts', () => {
@@ -444,10 +447,12 @@ describe('src/app/mixin/listing.mixin.ts', () => {
 
         await flushPromises();
 
-        expect(router.currentRoute.value.query).toEqual(expect.objectContaining({
-            sortBy: 'name',
-            sortDirection: 'DESC',
-        }));
+        expect(router.currentRoute.value.query).toEqual(
+            expect.objectContaining({
+                sortBy: 'name',
+                sortDirection: 'DESC',
+            }),
+        );
     });
 
     it('should update the data correctly on onSortColumn (disableRouteParams true)', async () => {
@@ -505,10 +510,12 @@ describe('src/app/mixin/listing.mixin.ts', () => {
 
         await flushPromises();
 
-        expect(router.currentRoute.value.query).toEqual(expect.objectContaining({
-            sortBy: 'date',
-            sortDirection: 'ASC',
-        }));
+        expect(router.currentRoute.value.query).toEqual(
+            expect.objectContaining({
+                sortBy: 'date',
+                sortDirection: 'ASC',
+            }),
+        );
 
         await flushPromises();
 
@@ -520,10 +527,12 @@ describe('src/app/mixin/listing.mixin.ts', () => {
 
         await flushPromises();
 
-        expect(router.currentRoute.value.query).toEqual(expect.objectContaining({
-            sortBy: 'date',
-            sortDirection: 'DESC',
-        }));
+        expect(router.currentRoute.value.query).toEqual(
+            expect.objectContaining({
+                sortBy: 'date',
+                sortDirection: 'DESC',
+            }),
+        );
     });
 
     it('should call getList on onRefresh', async () => {
@@ -598,10 +607,12 @@ describe('src/app/mixin/listing.mixin.ts', () => {
             },
         };
 
-        expect(JSON.stringify(wrapper.vm.selectionArray)).toBe(JSON.stringify([
-            { id: 1 },
-            { id: 2 },
-        ]));
+        expect(JSON.stringify(wrapper.vm.selectionArray)).toBe(
+            JSON.stringify([
+                { id: 1 },
+                { id: 2 },
+            ]),
+        );
     });
 
     it('should have the correct selectionCount computed value', async () => {

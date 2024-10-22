@@ -38,7 +38,6 @@
           touch install.lock
       else
           composer run setup
-          composer run e2e:sdk-plugin:fixture-to-plugin
       fi
     - bin/console assets:install
     - bin/console e2e:dump-db
@@ -71,7 +70,7 @@ E2E:
       - BROWSER: "chrome"
         FEATURE_ALL: "false"
         TEST_DIRECTORY:
-          - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
+          - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*"
           - "cypress/e2e/administration/settings/sw-settings-*/*"
           - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
           - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"
@@ -87,30 +86,6 @@ E2E:
       --config retries=1
       --browser "$BROWSER"
       --spec "$TEST_DIRECTORY"
-      --headless
-
-Changed E2E:
-  extends: E2E
-  parallel:
-    matrix:
-      - _DUMMY_VAR: ["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"]
-  rules:
-    - !reference [.rules, skip]
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
-      changes:
-        - "tests/e2e/cypress/e2e/administration/**/*.cy.js"
-        - "tests/e2e/cypress/e2e/storefront/**/*.cy.js"
-  script:
-    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/(administration|storefront)")'
-    - 'echo "Changed files: $CHANGED_FILES"'
-    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
-    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
-    - 'echo "Test spec: $TEST_SPEC"'
-    - composer run e2e:cypress-repeat -- run
-      -n 10
-      --config retries=0
-      --browser chrome
-      --spec "$TEST_SPEC"
       --headless
 
 acceptance:
@@ -209,55 +184,3 @@ install test:
     DATABASE_URL: mysql://root:app@database:3306/install_test
     TEST_WEB_INSTALLER: 1 # skip automatic setup
     SHOPWARE_SKIP_WEBINSTALLER: 0 # we want to test the web installer/updater
-
-update test:
-  extends: acceptance
-  needs: [build image tagged, tested_update_tags]
-  dependencies: [build image tagged, tested_update_tags]
-  rules:
-    - if: "$SHOPWARE_CORE_VERSION == ''"
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - src/WebInstaller/**/*
-        - tests/acceptance/tests/Update/**/*
-    - !reference [.rules, long-running]
-  parallel:
-    matrix:
-      - SHOPWARE_CORE_VERSION: [
-            # these variables are filled by the dotenv report tested_update_tags.env
-            "${PREV_MAJOR_MIN_TAG}",
-            "${PREV_MAJOR_MAX_TAG}",
-            "${CUR_MAJOR_MIN_TAG}",
-            "${CUR_MAJOR_MAX_TAG}",
-          ]
-  services:
-    - name: mysql:8.3
-      alias: database
-      pull_policy: always
-      entrypoint:
-        [
-          "sh",
-          "-c",
-          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON",
-        ]
-    - name: redis:7.0
-      alias: redis
-    - name: "${CI_REGISTRY_IMAGE}/ci-e2e:${SHOPWARE_CORE_VERSION}_${CI_PIPELINE_ID}"
-      alias: shopware.test
-  variables:
-    ACCEPTANCE_PROJECT: Update
-    APP_ENV: dev
-    SHOPWARE_HTTP_CACHE_ENABLED: 0
-    PROJECT_ROOT: /var/www/html
-    APP_URL: http://shopware.test:8000
-    DATABASE_URL: mysql://root:app@database:3306/root
-    SHOPWARE_SKIP_WEBINSTALLER: 0 # we want to test the web installer/updater
-    SHOPWARE_DISABLE_UPDATE_CHECK: "0"
-    SW_RECOVERY_NEXT_VERSION: 6.6.9999999.9999999
-    SW_RECOVERY_NEXT_BRANCH: dev-trunk
-    SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
-  before_script:
-    - echo "Testing update from version $SHOPWARE_CORE_VERSION"
-    - cd tests/acceptance
-    - npm ci

@@ -145,15 +145,14 @@ describe('src/app/component/tree/sw-tree', () => {
         await flushPromises();
 
         // find "Automotive" item
-        const automotiveItem = healthGamesFolder
-            .find('.sw-tree-item__children')
-            .findAll('.sw-tree-item')
-            .at(3);
+        const automotiveItem = healthGamesFolder.find('.sw-tree-item__children').findAll('.sw-tree-item').at(3);
 
         expect(automotiveItem.text()).toContain('Automotive');
 
         // check checkbox of automotive
-        const automotiveCheckbox = automotiveItem.getComponent({ name: 'sw-checkbox-field-deprecated__wrapped' });
+        const automotiveCheckbox = automotiveItem.getComponent({
+            name: 'sw-checkbox-field-deprecated__wrapped',
+        });
         expect(automotiveCheckbox.props('value')).toBe(false);
         await automotiveCheckbox.get('input').setValue(true);
         expect(automotiveCheckbox.props('value')).toBe(true);
@@ -214,10 +213,13 @@ describe('src/app/component/tree/sw-tree', () => {
         const treeItems = wrapper.props('items');
 
         const rootCategoryId = 'a1d1da1e6d434902a2e5ffed7784c951';
-        const testCategoryIds = ['d3aabfa637cf435e8ad3c9bf1d2de565', '8da86665f27740dd8160c92e27b1c4c8'];
-        const rootCategory = treeItems.find(element => element.id === rootCategoryId);
+        const testCategoryIds = [
+            'd3aabfa637cf435e8ad3c9bf1d2de565',
+            '8da86665f27740dd8160c92e27b1c4c8',
+        ];
+        const rootCategory = treeItems.find((element) => element.id === rootCategoryId);
         const testCategories = testCategoryIds.map((id) => {
-            return treeItems.find(element => element.id === id);
+            return treeItems.find((element) => element.id === id);
         });
         let expectedRootChildCount = 2;
 

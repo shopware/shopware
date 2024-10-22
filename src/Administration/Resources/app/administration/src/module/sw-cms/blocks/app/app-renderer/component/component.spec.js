@@ -91,7 +91,9 @@ describe('src/module/sw-cms/blocks/app/app-renderer/component/index.ts', () => {
             },
         });
 
-        expect(wrapper.find('.sw-cms-block-app-renderer').attributes('style')).toBe('display: grid; grid: auto / auto auto;');
+        expect(wrapper.find('.sw-cms-block-app-renderer').attributes('style')).toBe(
+            'display: grid; grid: auto / auto auto;',
+        );
     });
 
     it('should render the fallback slotLayout', async () => {

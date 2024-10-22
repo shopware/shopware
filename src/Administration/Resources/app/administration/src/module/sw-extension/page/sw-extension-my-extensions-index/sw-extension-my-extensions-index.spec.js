@@ -1,33 +1,38 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const wrapper = mount(await wrapTestComponent('sw-extension-my-extensions-index', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),
-                'sw-search-bar': true,
-                'sw-tabs-item': true,
-                'sw-extension-file-upload': {
-                    template: '<div class="sw-extension-file-upload"></div>',
+    const wrapper = mount(
+        await wrapTestComponent('sw-extension-my-extensions-index', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),
+                    'sw-search-bar': true,
+                    'sw-tabs-item': true,
+                    'sw-extension-file-upload': {
+                        template: '<div class="sw-extension-file-upload"></div>',
+                    },
+                    'router-view': true,
+                    'sw-notification-center': true,
+                    'sw-help-center-v2': true,
+                    'sw-meteor-navigation': true,
+                    'sw-icon': true,
+                    'sw-tabs': true,
                 },
-                'router-view': true,
-                'sw-notification-center': true,
-                'sw-help-center-v2': true,
-                'sw-meteor-navigation': true,
-                'sw-icon': true,
-                'sw-tabs': true,
-            },
-            mocks: {
-                $route: {
-                    query: {
-                        term: '',
-                        limit: 5,
+                mocks: {
+                    $route: {
+                        query: {
+                            term: '',
+                            limit: 5,
+                        },
                     },
                 },
             },
+            attachTo: document.body,
         },
-        attachTo: document.body,
-    });
+    );
 
     await flushPromises();
 

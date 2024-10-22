@@ -51,7 +51,11 @@ export default {
             }
 
             this.page = this.pageRepository.create();
-            this.page.sections = [];
+            this.page.sections = new Shopware.Data.EntityCollection(
+                `/cms-page/${this.page.id}/sections`,
+                'cms_section',
+                Shopware.Context.api,
+            );
         },
 
         async onSave() {
@@ -71,20 +75,26 @@ export default {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
+            return this.pageRepository
+                .save(this.page)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
-            }).catch((exception) => {
-                this.isLoading = false;
+                    this.$router.push({
+                        name: 'sw.cms.detail',
+                        params: { id: this.page.id },
+                    });
+                })
+                .catch((exception) => {
+                    this.isLoading = false;
 
-                this.createNotificationError({
-                    message: exception.message,
+                    this.createNotificationError({
+                        message: exception.message,
+                    });
+
+                    return Promise.reject(exception);
                 });
-
-                return Promise.reject(exception);
-            });
         },
 
         async assignToEntity(page) {

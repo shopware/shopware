@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Telemetry\Metrics;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Exception\MetricNotSupportedException;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\MetricInterface;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 
 /**
  * @internal
@@ -15,5 +15,5 @@ interface MetricTransportInterface
     /**
      * @throws MetricNotSupportedException
      */
-    public function emit(MetricInterface $metric): void;
+    public function emit(Metric $metric): void;
 }

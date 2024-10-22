@@ -204,10 +204,11 @@ export default {
             if (this.defaultTab === this.tabNames.generalTab) {
                 criteria.addFilter(Criteria.equals('customFieldId', null));
             } else {
-                criteria.addFilter(Criteria.not(
-                    'AND',
-                    [Criteria.equals('customFieldId', null)],
-                ));
+                criteria.addFilter(
+                    Criteria.not('AND', [
+                        Criteria.equals('customFieldId', null),
+                    ]),
+                );
             }
 
             return criteria;
@@ -218,31 +219,36 @@ export default {
         },
 
         getProductSearchFieldColumns() {
-            return [{
-                property: 'field',
-                label: 'sw-settings-search.generalTab.list.columnContent',
-                inlineEdit: 'string',
-                sortable: true,
-                width: '250px',
-            }, {
-                property: 'searchable',
-                label: 'sw-settings-search.generalTab.list.columnSearchable',
-                align: 'center',
-                inlineEdit: 'string',
-                sortable: true,
-            }, {
-                property: 'ranking',
-                inlineEdit: 'number',
-                label: 'sw-settings-search.generalTab.list.columnRankingPoints',
-                align: 'center',
-                sortable: true,
-            }, {
-                property: 'tokenize',
-                inlineEdit: 'string',
-                label: 'sw-settings-search.generalTab.list.columnSplitKeywords',
-                align: 'center',
-                sortable: true,
-            }];
+            return [
+                {
+                    property: 'field',
+                    label: 'sw-settings-search.generalTab.list.columnContent',
+                    inlineEdit: 'string',
+                    sortable: true,
+                    width: '250px',
+                },
+                {
+                    property: 'searchable',
+                    label: 'sw-settings-search.generalTab.list.columnSearchable',
+                    align: 'center',
+                    inlineEdit: 'string',
+                    sortable: true,
+                },
+                {
+                    property: 'ranking',
+                    inlineEdit: 'number',
+                    label: 'sw-settings-search.generalTab.list.columnRankingPoints',
+                    align: 'center',
+                    sortable: true,
+                },
+                {
+                    property: 'tokenize',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-search.generalTab.list.columnSplitKeywords',
+                    align: 'center',
+                    sortable: true,
+                },
+            ];
         },
 
         storefrontEsEnable() {
@@ -288,7 +294,7 @@ export default {
         },
 
         getConfigFieldDefault(fieldName) {
-            const configFieldMatching = this.fieldConfigs.find(fieldConfig => fieldConfig.value === fieldName);
+            const configFieldMatching = this.fieldConfigs.find((fieldConfig) => fieldConfig.value === fieldName);
 
             if (configFieldMatching) {
                 return { ...configFieldMatching.defaultConfigs };
@@ -305,12 +311,13 @@ export default {
             const isGeneralTab = this.defaultTab === this.tabNames.generalTab;
 
             this.searchConfigFields.forEach((searchConfigField) => {
-                searchConfigField.ranking =
-                    isGeneralTab ? this.getConfigFieldDefault(searchConfigField.field).ranking : 0;
-                searchConfigField.searchable =
-                    isGeneralTab ? this.getConfigFieldDefault(searchConfigField.field).searchable : false;
-                searchConfigField.tokenize =
-                    isGeneralTab ? this.getConfigFieldDefault(searchConfigField.field).tokenize : false;
+                searchConfigField.ranking = isGeneralTab ? this.getConfigFieldDefault(searchConfigField.field).ranking : 0;
+                searchConfigField.searchable = isGeneralTab
+                    ? this.getConfigFieldDefault(searchConfigField.field).searchable
+                    : false;
+                searchConfigField.tokenize = isGeneralTab
+                    ? this.getConfigFieldDefault(searchConfigField.field).tokenize
+                    : false;
 
                 return searchConfigField;
             });
@@ -331,16 +338,19 @@ export default {
             this.isLoading = true;
             const criteria = this.productSearchFieldCriteria;
 
-            this.productSearchFieldRepository.search(criteria)
+            this.productSearchFieldRepository
+                .search(criteria)
                 .then((items) => {
                     this.total = items.total;
                     this.isEnabledReset = !items.total;
                     this.searchConfigFields = items;
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-search.notification.loadError'),
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -354,11 +364,13 @@ export default {
                         message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
                     this.$emit('edit-change', false);
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-search.notification.saveError'),
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                     this.loadData();
                 });
@@ -370,16 +382,19 @@ export default {
             }
 
             this.isLoading = true;
-            this.productSearchFieldRepository.delete(configFieldId)
+            this.productSearchFieldRepository
+                .delete(configFieldId)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-search.notification.saveError'),
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                     this.loadData();
                 });

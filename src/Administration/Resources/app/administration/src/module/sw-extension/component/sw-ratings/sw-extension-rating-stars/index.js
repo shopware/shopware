@@ -107,9 +107,11 @@ export default {
         },
 
         showPartialStar(key) {
-            return this.ratingValue % 1 !== 0
+            return (
+                this.ratingValue % 1 !== 0 &&
                 // subtract because rtl direction is used
-                && (this.maxRating - Math.ceil(this.ratingValue)) === key;
+                this.maxRating - Math.ceil(this.ratingValue) === key
+            );
         },
     },
 };

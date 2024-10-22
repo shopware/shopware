@@ -8,7 +8,8 @@ export default {
         saveFinish() {
             this.isSaveSuccessful = false;
             this.$router.push({
-                name: 'sw.settings.delivery.time.detail', params: { id: this.deliveryTime.id },
+                name: 'sw.settings.delivery.time.detail',
+                params: { id: this.deliveryTime.id },
             });
         },
 

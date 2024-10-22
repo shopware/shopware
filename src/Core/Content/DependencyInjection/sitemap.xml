@@ -33,6 +33,11 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute" public="true">
+            <argument type="service" id="shopware.filesystem.sitemap"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+        </service>
+
         <service id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute" decorates="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner"/>
             <argument type="service" id="cache.object"/>
@@ -71,6 +76,14 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="router"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

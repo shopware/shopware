@@ -21,4 +21,3 @@ Shopware.Filter.register('asset', (value: string) => {
  * @private
  */
 export {};
-

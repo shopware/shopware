@@ -67,6 +67,7 @@ module.exports = {
     transform: {
         // stringify svg imports
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
+        '^.+\\.vue$': "@vue/vue3-jest",
     },
 
     transformIgnorePatterns: [
@@ -101,6 +102,7 @@ module.exports = {
 
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
+        '<rootDir>/src/**/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
     ],

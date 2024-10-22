@@ -63,7 +63,8 @@ test('Shop customer should be able to see the product image in the Storefront.',
 
     await test.step('Logged-In shop customer should be able to see the cover image within the account order page.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
-        await StorefrontAccountOrder.orderExpandButton.click();
+        // TODO: Migrate to StorefrontAccountOrder.orderExpandButton.click(); when https://github.com/shopware/acceptance-test-suite/pull/126 is released.
+        await StorefrontAccountOrder.page.locator('.order-hide-btn').first().click();
         await ShopCustomer.expects(StorefrontAccountOrder.cartLineItemImages.getByAltText(media.alt)).toBeVisible();
     });
 

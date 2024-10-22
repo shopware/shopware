@@ -69,6 +69,7 @@
         "ext-zip": "*",
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",
+        "async-aws/core": "^1.22",
         "cocur/slugify": "^4.3.0",
         "composer/composer": "^2.7",
         "composer/semver": "^3.2",
@@ -145,8 +146,8 @@
         "symfony/security-csrf": "~7.1.1",
         "symfony/serializer": "~7.1.1",
         "symfony/service-contracts": "~3.5.0",
-        "symfony/string": "~7.1.1",
         "symfony/stopwatch": "~7.1.1",
+        "symfony/string": "~7.1.1",
         "symfony/translation": "~7.1.1",
         "symfony/translation-contracts": "~3.5.0",
         "symfony/twig-bridge": "~7.1.1",
@@ -167,9 +168,10 @@
         "brianium/paratest": "^7.3",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
+        "friendsofphp/php-cs-fixer": "3.64.0",
         "jdorn/sql-formatter": "^1.2.17",
         "league/construct-finder": "^1.1",
-        "league/flysystem-async-aws-s3": "^3.10.3",
+        "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^4.16.0",
         "opis/json-schema": "^2.3.0",
@@ -178,13 +180,14 @@
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.1",
-        "phpstan/phpstan": "1.11.11",
-        "phpstan/phpstan-deprecation-rules": "1.2.0",
+        "phpstan/phpdoc-parser": "1.32.0",
+        "phpstan/phpstan": "1.12.5",
+        "phpstan/phpstan-deprecation-rules": "1.2.1",
         "phpstan/phpstan-phpunit": "1.4.0",
-        "phpstan/phpstan-symfony": "1.4.8",
+        "phpstan/phpstan-symfony": "1.4.10",
         "phpunit/phpunit": "^10.5",
         "predis/predis": "^2.2",
-        "rector/type-perfect": "0.1.8",
+        "rector/type-perfect": "0.2.0",
         "shopware/dev-tools": "^1.3",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.1.1",
@@ -193,9 +196,7 @@
         "symfony/expression-language": "~7.1.1",
         "symfony/phpunit-bridge": "~7.1.1",
         "symfony/var-dumper": "~7.1.1",
-        "symplify/phpstan-rules": "13.0.0",
-        "tomasvotruba/type-coverage": "0.3.1",
-        "friendsofphp/php-cs-fixer": "3.63.2"
+        "symplify/phpstan-rules": "13.0.0"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -231,9 +232,6 @@
         "e2e:cypress-repeat": " ",
         "e2e:open": "Launches the Cypress E2E test-suite UI",
         "e2e:prepare": "Installs the Admin Extension SDK test plugin with fixtures and dumps the database",
-        "e2e:sdk-plugin:fixture-to-plugin": " ",
-        "e2e:sdk-plugin:plugin-to-fixture": " ",
-        "e2e:sdk-plugin:prepare-plugin": " ",
         "e2e:setup": "Installs a clean shopware instance for E2E environment and launches 'e2e:prepare'",
         "e2e:vue3": "Launches the Cypress E2E test-suite UI with the Vue3 feature flag enabled",
         "e2e:web-update:open": " ",
@@ -244,6 +242,8 @@
         "eslint": "Codestyle checks all (Administration/Storefront/E2E) JS/TS files",
         "eslint:admin": "Codestyle checks Administration JS/TS files",
         "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
+        "format:admin": "Dry run Prettier for the Administration",
+        "format:admin:fix": "Format the Administration with Prettier",
         "eslint:e2e": "Codestyle checks all E2E JS/TS files",
         "eslint:e2e:fix": "Codestyle checks all E2E JS/TS files and fixes them if possible",
         "eslint:storefront": "Codestyle checks all Storefront JS/TS files",
@@ -331,7 +331,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
+            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | head -n 1)"
         ],
         "build:js": [
             "@build:js:admin",
@@ -352,7 +352,8 @@
             "@php bin/console feature:dump",
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
-            "@php bin/console theme:compile --sync"
+            "@php bin/console theme:compile --sync",
+            "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
         "e2e:cypress": [
@@ -368,23 +369,7 @@
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
-            "@e2e:sdk-plugin:fixture-to-plugin",
-            "@e2e:sdk-plugin:prepare-plugin",
             "@php bin/console e2e:dump-db"
-        ],
-        "e2e:sdk-plugin:fixture-to-plugin": [
-            "rm -rf $PWD/custom/plugins/TestPlugin;",
-            "cp -a $PWD/tests/e2e/cypress/fixtures/TestPlugin/. $PWD/custom/plugins/TestPlugin/"
-        ],
-        "e2e:sdk-plugin:plugin-to-fixture": [
-            "rm -rf $PWD/tests/e2e/cypress/fixtures/TestPlugin;",
-            "cp -a $PWD/custom/plugins/TestPlugin/. $PWD/tests/e2e/cypress/fixtures/TestPlugin/"
-        ],
-        "e2e:sdk-plugin:prepare-plugin": [
-            "cd $PWD/custom/plugins/TestPlugin/src/Resources/app/administration/; npm install --no-audit --prefer-offline;",
-            "bin/console plugin:refresh;",
-            "bin/console plugin:install --activate TestPlugin;",
-            "@build:js:admin"
         ],
         "e2e:setup": [
             "@putenv APP_ENV=e2e",
@@ -437,6 +422,8 @@
         ],
         "eslint:admin": "@npm:admin run lint:all",
         "eslint:admin:fix": "@npm:admin run lint:fix",
+        "format:admin": "@npm:admin run format",
+        "format:admin:fix": "@npm:admin run format:fix",
         "eslint:e2e": "@npm:e2e run lint",
         "eslint:e2e:fix": "@npm:e2e run lint:fix",
         "eslint:storefront": "@npm:storefront run lint:js",
@@ -497,7 +484,7 @@
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
-            "phpstan analyze --memory-limit=2G"
+            "phpstan analyze --memory-limit=2G -v"
         ],
         "phpstan-errors-by-area": [
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
@@ -510,12 +497,10 @@
         ],
         "post-install-cmd": [
             "@composer bin all install --ansi",
-            "ln -sf ./../../vendor-bin/cs-fixer/vendor/bin/ecs vendor/bin/ecs",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
         ],
         "post-update-cmd": [
             "@composer bin all update --ansi",
-            "ln -sf ./../../vendor-bin/cs-fixer/vendor/bin/ecs vendor/bin/ecs",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
         ],
         "reset": [

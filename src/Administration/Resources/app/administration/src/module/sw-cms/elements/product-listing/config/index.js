@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -52,7 +55,11 @@ export default {
         productSortingsCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.equalsAny('id', [...Object.keys(this.productSortingsConfigValue)]));
+            criteria.addFilter(
+                Criteria.equalsAny('id', [
+                    ...Object.keys(this.productSortingsConfigValue),
+                ]),
+            );
             criteria.addSorting(Criteria.sort('priority', 'desc'));
 
             return criteria;
@@ -81,10 +88,11 @@ export default {
             const criteria = new Criteria(1, 25);
 
             if (this.defaultSorting.id) {
-                criteria.addFilter(Criteria.not(
-                    'AND',
-                    [Criteria.equals('id', this.defaultSorting.id)],
-                ));
+                criteria.addFilter(
+                    Criteria.not('AND', [
+                        Criteria.equals('id', this.defaultSorting.id),
+                    ]),
+                );
             }
 
             criteria.addFilter(Criteria.equals('locked', false));
@@ -197,7 +205,7 @@ export default {
         createdComponent() {
             this.initElementConfig('product-listing');
 
-            if (Shopware.Utils.types.isEmpty(this.productSortingsConfigValue)) {
+            if (Object.keys(this.productSortingsConfigValue).length === 0) {
                 this.productSortings = new EntityCollection(
                     this.productSortingRepository.route,
                     this.productSortingRepository.schema.entity,
@@ -205,7 +213,7 @@ export default {
                     this.productSortingsCriteria,
                 );
             } else {
-                this.fetchProductSortings().then(productSortings => {
+                this.fetchProductSortings().then((productSortings) => {
                     this.productSortings = productSortings;
                 });
             }
@@ -216,20 +224,26 @@ export default {
         },
 
         fetchProductSortings() {
-            return this.productSortingRepository.search(this.productSortingsCriteria)
-                .then(productSortings => this.updateValuesFromConfig(productSortings));
+            return this.productSortingRepository
+                .search(this.productSortingsCriteria)
+                .then((productSortings) => this.updateValuesFromConfig(productSortings));
         },
 
         updateValuesFromConfig(productSortings) {
-            Object.entries(this.productSortingsConfigValue).forEach(([id, value]) => {
-                const matchingProductSorting = productSortings.find(productSorting => productSorting.id === id);
+            Object.entries(this.productSortingsConfigValue).forEach(
+                ([
+                    id,
+                    value,
+                ]) => {
+                    const matchingProductSorting = productSortings.find((productSorting) => productSorting.id === id);
 
-                if (!matchingProductSorting) {
-                    return;
-                }
+                    if (!matchingProductSorting) {
+                        return;
+                    }
 
-                matchingProductSorting.priority = value;
-            });
+                    matchingProductSorting.priority = value;
+                },
+            );
 
             return productSortings;
         },
@@ -245,7 +259,7 @@ export default {
 
             const object = {};
 
-            this.productSortings.forEach(currentProductSorting => {
+            this.productSortings.forEach((currentProductSorting) => {
                 object[currentProductSorting.id] = currentProductSorting.priority;
             });
 
@@ -259,24 +273,22 @@ export default {
 
                 criteria.addFilter(Criteria.equals('id', defaultSortingId));
 
-                this.productSortingRepository.search(criteria)
-                    .then(response => {
-                        this.defaultSorting = response.first() || {};
-                    });
+                this.productSortingRepository.search(criteria).then((response) => {
+                    this.defaultSorting = response.first() || {};
+                });
             }
         },
 
         loadFilterableProperties() {
-            return this.propertyRepository.search(this.propertyCriteria)
-                .then(properties => {
-                    this.propertiesTotal = properties.total;
+            return this.propertyRepository.search(this.propertyCriteria).then((properties) => {
+                this.propertiesTotal = properties.total;
 
-                    this.properties = this.sortProperties(properties);
-                });
+                this.properties = this.sortProperties(properties);
+            });
         },
 
         sortProperties(properties) {
-            properties.forEach(property => {
+            properties.forEach((property) => {
                 if (!this.filterByProperties) {
                     property.active = true;
 
@@ -326,16 +338,21 @@ export default {
 
         updateFilters(item, active) {
             if (active) {
-                this.filters = [...this.filters, item];
+                this.filters = [
+                    ...this.filters,
+                    item,
+                ];
             } else {
-                this.filters = this.filters
-                    .reduce((acc, current) => {
-                        if (current === item) {
-                            return acc;
-                        }
+                this.filters = this.filters.reduce((acc, current) => {
+                    if (current === item) {
+                        return acc;
+                    }
 
-                        return [...acc, current];
-                    }, []);
+                    return [
+                        ...acc,
+                        current,
+                    ];
+                }, []);
             }
 
             this.element.config.filters.value = this.filters.join();
@@ -368,26 +385,31 @@ export default {
             return this.loadFilterableProperties();
         },
 
-        propertyStatusChanged(id) {
+        propertyStatusChanged(enable, id) {
             // eslint-disable-next-line inclusive-language/use-inclusive-words
             const allowlist = this.element.config.propertyWhitelist.value;
 
-            if (!allowlist.includes(id)) {
+            if (enable) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
-                this.element.config.propertyWhitelist.value = [...allowlist, id];
+                this.element.config.propertyWhitelist.value = [
+                    ...allowlist,
+                    id,
+                ];
 
                 return;
             }
 
             // eslint-disable-next-line inclusive-language/use-inclusive-words
-            this.element.config.propertyWhitelist.value = allowlist
-                .reduce((acc, current) => {
-                    if (current === id) {
-                        return acc;
-                    }
+            this.element.config.propertyWhitelist.value = allowlist.reduce((acc, current) => {
+                if (current === id) {
+                    return acc;
+                }
 
-                    return [...acc, current];
-                }, []);
+                return [
+                    ...acc,
+                    current,
+                ];
+            }, []);
         },
     },
 };

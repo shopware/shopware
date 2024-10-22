@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -53,7 +56,10 @@ export default {
             ];
         },
 
-        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
+        ...mapState('swFlowState', [
+            'triggerEvent',
+            'triggerActions',
+        ]),
     },
 
     watch: {

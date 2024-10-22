@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -98,7 +98,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
             return null;
         }
 
-        return self::buildName($navigationId) . '-' . md5(Json::encode($event->getParts()));
+        return self::buildName($navigationId) . '-' . Hasher::hash($event->getParts());
     }
 
     /**

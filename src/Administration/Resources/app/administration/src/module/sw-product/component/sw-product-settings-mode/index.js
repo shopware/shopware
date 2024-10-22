@@ -11,7 +11,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['settings-change', 'settings-item-change'],
+    emits: [
+        'settings-change',
+        'settings-item-change',
+    ],
 
     props: {
         modeSettings: {

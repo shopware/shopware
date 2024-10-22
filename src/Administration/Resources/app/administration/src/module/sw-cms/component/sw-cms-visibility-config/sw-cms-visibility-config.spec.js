@@ -5,26 +5,26 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-visibility-config', {
-        sync: true,
-    }), {
-        propsData: {
-            visibility: {
-                mobile: true,
-                tablet: true,
-                desktop: true,
+    return mount(
+        await wrapTestComponent('sw-cms-visibility-config', {
+            sync: true,
+        }),
+        {
+            propsData: {
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-icon': await wrapTestComponent('sw-icon'),
+                    'sw-icon-deprecated': true,
+                },
             },
         },
-        provide: {
-            cmsService: {},
-        },
-        global: {
-            stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': true,
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-visibility-config', () => {
@@ -75,6 +75,19 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         await wrapper.get('#sw-cms-visibility-config-tablet').setChecked(true);
         await wrapper.get('#sw-cms-visibility-config-desktop').setChecked(true);
 
-        expect(wrapper.emitted()['visibility-change']).toStrictEqual([['mobile', false], ['tablet', false], ['desktop', false]]);
+        expect(wrapper.emitted()['visibility-change']).toStrictEqual([
+            [
+                'mobile',
+                false,
+            ],
+            [
+                'tablet',
+                false,
+            ],
+            [
+                'desktop',
+                false,
+            ],
+        ]);
     });
 });

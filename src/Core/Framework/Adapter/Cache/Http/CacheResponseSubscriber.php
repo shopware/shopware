@@ -8,9 +8,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -182,21 +182,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
     }
 
-    /**
-     * @param list<string> $cacheStates
-     * @param list<string> $states
-     */
-    private function hasInvalidationState(array $cacheStates, array $states): bool
-    {
-        foreach ($states as $state) {
-            if (\in_array($state, $cacheStates, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function onCustomerLogin(CustomerLoginEvent $event): void
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -220,38 +205,43 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
-    private function buildCacheHash(Request $request, SalesChannelContext $context): string
+    /**
+     * @param list<string> $cacheStates
+     * @param list<string> $states
+     */
+    private function hasInvalidationState(array $cacheStates, array $states): bool
     {
-        if (Feature::isActive('cache_rework')) {
-            $parts = [
-                HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
-                HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
-                HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-                HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-                HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-            ];
-
-            foreach ($this->cookies as $cookie) {
-                if (!$request->cookies->has($cookie)) {
-                    continue;
-                }
-
-                $parts[$cookie] = $request->cookies->get($cookie);
+        foreach ($states as $state) {
+            if (\in_array($state, $cacheStates, true)) {
+                return true;
             }
-
-            $event = new HttpCacheCookieEvent($request, $context, $parts);
-            $this->dispatcher->dispatch($event);
-
-            return md5(json_encode($event->getParts(), \JSON_THROW_ON_ERROR));
         }
 
-        return md5(json_encode([
-            $context->getRuleIds(),
-            $context->getContext()->getVersionId(),
-            $context->getCurrency()->getId(),
-            $context->getTaxState(),
-            $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ], \JSON_THROW_ON_ERROR));
+        return false;
+    }
+
+    private function buildCacheHash(Request $request, SalesChannelContext $context): string
+    {
+        $parts = [
+            HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
+            HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
+            HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
+            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
+            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+        ];
+
+        foreach ($this->cookies as $cookie) {
+            if (!$request->cookies->has($cookie)) {
+                continue;
+            }
+
+            $parts[$cookie] = $request->cookies->get($cookie);
+        }
+
+        $event = new HttpCacheCookieEvent($request, $context, $parts);
+        $this->dispatcher->dispatch($event);
+
+        return Hasher::hash($event->getParts());
     }
 
     /**

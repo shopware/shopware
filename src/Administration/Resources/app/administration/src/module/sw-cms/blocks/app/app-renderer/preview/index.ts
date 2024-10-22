@@ -26,7 +26,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        previewImage(): string|undefined {
+        previewImage(): string | undefined {
             return this.block.previewImage;
         },
 

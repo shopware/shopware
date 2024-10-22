@@ -6,6 +6,7 @@ use Ramsey\Uuid\BinaryUtils;
 use Ramsey\Uuid\Generator\RandomGeneratorFactory;
 use Ramsey\Uuid\Generator\UnixTimeGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
@@ -127,7 +128,7 @@ class Uuid
      */
     public static function fromStringToHex(string $string): string
     {
-        return self::fromBytesToHex(md5($string, true));
+        return self::fromBytesToHex(Hasher::hashBinary($string, 'md5'));
     }
 
     public static function isValid(string $id): bool

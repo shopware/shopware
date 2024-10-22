@@ -11,146 +11,153 @@ Shopware.Utils.debounce = function debounce(fn) {
 };
 
 async function createWrapper() {
-    return mount(
-        await wrapTestComponent('sw-property-search', { sync: true }),
-        {
-            props: {
-                options: [
-                    {},
-                ],
-            },
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': {
-                        template: '<div></div>',
-                    },
-                    'sw-container': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-grid': await wrapTestComponent('sw-grid', { sync: true }),
-                    'sw-pagination': await wrapTestComponent('sw-pagination'),
-                    'sw-grid-row': await wrapTestComponent('sw-grid-row'),
-                    'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
-                    'sw-checkbox-field': {
-                        template: '<div class="checkbox"></div>',
-                    },
-                    'sw-empty-state': true,
-                    'mt-text-field': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                    'mt-button': true,
-                    'router-link': true,
-                    'sw-loader': true,
-                    'sw-select-field': true,
+    return mount(await wrapTestComponent('sw-property-search', { sync: true }), {
+        props: {
+            options: [
+                {},
+            ],
+        },
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': {
+                    template: '<div></div>',
                 },
-                provide: {
-                    validationService: {},
-                    repositoryFactory: {
-                        create: (entity) => ({
-                            search: () => {
-                                if (entity === 'property_group') {
-                                    const response = [];
-                                    const count = 12;
+                'sw-container': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-grid': await wrapTestComponent('sw-grid', {
+                    sync: true,
+                }),
+                'sw-pagination': await wrapTestComponent('sw-pagination'),
+                'sw-grid-row': await wrapTestComponent('sw-grid-row'),
+                'sw-grid-column': await wrapTestComponent('sw-grid-column'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'sw-icon': {
+                    template: '<div></div>',
+                },
+                'sw-checkbox-field': {
+                    template: '<div class="checkbox"></div>',
+                },
+                'sw-empty-state': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'mt-button': true,
+                'router-link': true,
+                'sw-loader': true,
+                'sw-select-field': true,
+            },
+            provide: {
+                validationService: {},
+                repositoryFactory: {
+                    create: (entity) => ({
+                        search: () => {
+                            if (entity === 'property_group') {
+                                const response = [];
+                                const count = 12;
 
-                                    for (let i = 0; i < count; i += 1) {
-                                        const group = {
-                                            isDeleted: false,
-                                            isLoading: false,
-                                            errors: [],
+                                for (let i = 0; i < count; i += 1) {
+                                    const group = {
+                                        isDeleted: false,
+                                        isLoading: false,
+                                        errors: [],
+                                        versionId: '__vue_devtool_undefined__',
+                                        id: `${i}c909198131346e299b93aa60dd40eeb`,
+                                        name: 'length',
+                                        description: null,
+                                        displayType: 'text',
+                                        sortingType: 'alphanumeric',
+                                        filterable: true,
+                                        position: 1,
+                                        customFields: null,
+                                        createdAt: '2020-06-02T13:03:33+00:00',
+                                        updatedAt: null,
+                                        translated: {
+                                            name: 'Länge',
+                                            description: null,
+                                            position: 1,
+                                            customFields: [],
+                                        },
+                                        relationships: null,
+                                        options: [],
+                                        type: 'property_group',
+                                        meta: {},
+                                        translations: [],
+                                        optionCount: 3,
+                                    };
+
+                                    group.options.entity = 'property_group_option';
+
+                                    response.push(group);
+                                }
+
+                                response.total = count;
+
+                                return Promise.resolve(response);
+                            }
+
+                            if (entity === 'property_group_option') {
+                                const response = [];
+                                const count = 12;
+
+                                for (let i = 0; i < count; i += 1) {
+                                    response.push({
+                                        groupId: '1c909198131346e299b93aa60dd40eeb',
+                                        name: 'darkgreen',
+                                        position: i + 1,
+                                        colorHexCode: null,
+                                        mediaId: null,
+                                        customFields: null,
+                                        createdAt: '2020-06-02T13:03:33+00:00',
+                                        updatedAt: null,
+                                        translated: {
+                                            name: 'Dunkelgrün',
+                                            position: 1,
+                                            customFields: [],
+                                        },
+                                        id: `${i}66e8d9b5ce24916896d29e27a9e1763`,
+                                        translations: [],
+                                        group: {
                                             versionId: '__vue_devtool_undefined__',
                                             id: `${i}c909198131346e299b93aa60dd40eeb`,
                                             name: 'length',
                                             description: null,
                                             displayType: 'text',
                                             sortingType: 'alphanumeric',
-                                            filterable: true,
-                                            position: 1,
-                                            customFields: null,
-                                            createdAt: '2020-06-02T13:03:33+00:00',
-                                            updatedAt: null,
                                             translated: {
-                                                name: 'Länge',
-                                                description: null,
+                                                name: 'Dunkelgrün',
                                                 position: 1,
                                                 customFields: [],
                                             },
-                                            relationships: null,
-                                            options: [],
-                                            type: 'property_group',
-                                            meta: {},
-                                            translations: [],
-                                            optionCount: 3,
-                                        };
-
-                                        group.options.entity = 'property_group_option';
-
-                                        response.push(group);
-                                    }
-
-                                    response.total = count;
-
-                                    return Promise.resolve(response);
+                                        },
+                                        productConfiguratorSettings: [],
+                                        productProperties: [],
+                                        productOptions: [],
+                                    });
                                 }
 
-                                if (entity === 'property_group_option') {
-                                    const response = [];
-                                    const count = 12;
-
-                                    for (let i = 0; i < count; i += 1) {
-                                        response.push({
-                                            groupId: '1c909198131346e299b93aa60dd40eeb',
-                                            name: 'darkgreen',
-                                            position: i + 1,
-                                            colorHexCode: null,
-                                            mediaId: null,
-                                            customFields: null,
-                                            createdAt: '2020-06-02T13:03:33+00:00',
-                                            updatedAt: null,
-                                            translated: { name: 'Dunkelgrün', position: 1, customFields: [] },
-                                            id: `${i}66e8d9b5ce24916896d29e27a9e1763`,
-                                            translations: [],
-                                            group: {
-                                                versionId: '__vue_devtool_undefined__',
-                                                id: `${i}c909198131346e299b93aa60dd40eeb`,
-                                                name: 'length',
-                                                description: null,
-                                                displayType: 'text',
-                                                sortingType: 'alphanumeric',
-                                                translated: { name: 'Dunkelgrün', position: 1, customFields: [] },
-                                            },
-                                            productConfiguratorSettings: [],
-                                            productProperties: [],
-                                            productOptions: [],
-                                        });
-                                    }
-
-                                    response.total = count;
-                                    return Promise.resolve(response);
-                                }
-
-                                const response = [];
-                                response.total = 0;
+                                response.total = count;
                                 return Promise.resolve(response);
-                            },
-                        }),
-                    },
+                            }
+
+                            const response = [];
+                            response.total = 0;
+                            return Promise.resolve(response);
+                        },
+                    }),
                 },
             },
         },
-    );
+    });
 }
 
 describe('components/base/sw-property-search', () => {
@@ -270,7 +277,9 @@ describe('components/base/sw-property-search', () => {
         expect(wrapper.vm.optionPage).toBe(1);
 
         // eslint-disable-next-line max-len
-        const nextPageButton = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)');
+        const nextPageButton = wrapper.find(
+            '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
+        );
         await nextPageButton.trigger('click');
 
         expect(wrapper.vm.optionPage).toBe(2);
@@ -310,7 +319,9 @@ describe('components/base/sw-property-search', () => {
         expect(groupOptions).toBe(12);
 
         // eslint-disable-next-line max-len
-        const nextPageButton = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)');
+        const nextPageButton = wrapper.find(
+            '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
+        );
         await nextPageButton.trigger('click');
 
         await wrapper.vm.$nextTick();
@@ -354,5 +365,34 @@ describe('components/base/sw-property-search', () => {
         const groupOptions = wrapper.findAll('div[class*="sw-grid__row"]').length;
 
         expect(groupOptions).toBe(12);
+    });
+
+    it('should add option count when change the isAddOnly', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setProps({
+            isAddOnly: true,
+        });
+
+        const addOptionCount = jest.spyOn(wrapper.vm, 'addOptionCount');
+        await wrapper.setProps({
+            isAddOnly: false,
+        });
+
+        expect(addOptionCount).toHaveBeenCalled();
+    });
+
+    it('should be able to set search term with property name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.useFakeTimers();
+
+        const searchInput = wrapper.find('.sw-block-field__block input');
+        await searchInput.setValue('property-A');
+        await searchInput.trigger('input');
+
+        expect(wrapper.vm.searchTerm).toBe('property-A');
     });
 });

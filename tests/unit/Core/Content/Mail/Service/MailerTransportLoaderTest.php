@@ -20,6 +20,7 @@ use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransport;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
+use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 
@@ -238,6 +239,7 @@ class MailerTransportLoaderTest extends TestCase
         return [
             'smtp' => new EsmtpTransportFactory(),
             'null' => new NullTransportFactory(),
+            'sendmail' => new SendmailTransportFactory(),
         ];
     }
 

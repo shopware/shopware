@@ -48,39 +48,45 @@ const defaultProps = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-manufacturer-logo', {
-        sync: true,
-    }), {
-        props: {
-            ...defaultProps,
-        },
-        global: {
-            stubs: {
-                'sw-switch-field': true,
-                'sw-select-field': {
-                    template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                    props: ['value', 'options'],
-                },
-                'sw-text-field': true,
-                'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
-                'sw-media-upload-v2': true,
-                'sw-upload-listener': true,
-                'sw-dynamic-url-field': true,
-                'sw-alert': true,
-                'sw-media-modal-v2': true,
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-icon': true,
-
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-manufacturer-logo', {
+            sync: true,
+        }),
+        {
+            props: {
+                ...defaultProps,
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {},
+            global: {
+                stubs: {
+                    'sw-switch-field': true,
+                    'sw-select-field': {
+                        template:
+                            '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
+                        props: [
+                            'value',
+                            'options',
+                        ],
+                    },
+                    'sw-text-field': true,
+                    'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
+                    'sw-media-upload-v2': true,
+                    'sw-upload-listener': true,
+                    'sw-dynamic-url-field': true,
+                    'sw-alert': true,
+                    'sw-media-modal-v2': true,
+                    'sw-context-button': true,
+                    'sw-context-menu-item': true,
+                    'sw-icon': true,
                 },
-                cmsService: Shopware.Service('cmsService'),
+                provide: {
+                    repositoryFactory: {
+                        create: () => {},
+                    },
+                    cmsService: Shopware.Service('cmsService'),
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/manufacturer-logo/config', () => {
@@ -88,7 +94,7 @@ describe('module/sw-cms/elements/manufacturer-logo/config', () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/manufacturer-logo');
 
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
     });

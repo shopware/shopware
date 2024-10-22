@@ -149,7 +149,6 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         await wrapper.getComponent('.sw-category-link-settings__type').vm.$emit('update:value', 'external');
 
-
         expect(wrapper.vm.category.internalLink).toBeNull();
     });
 
@@ -178,7 +177,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         wrapper.find('sw-category-tree-field-stub');
         const criteria = wrapper.vm.categoryCriteria;
-        const expectedFilters = [{ type: 'equals', field: 'type', value: 'page' }];
+        const expectedFilters = [
+            { type: 'equals', field: 'type', value: 'page' },
+        ];
 
         expect(criteria.filters).toEqual(expect.arrayContaining(expectedFilters));
     });

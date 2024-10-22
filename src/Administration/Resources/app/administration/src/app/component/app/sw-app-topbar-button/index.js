@@ -9,13 +9,14 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @description Apply for upselling service only, no public usage
  */
 Component.register('sw-app-topbar-button', {
     template,
 
     computed: {
         topBarButtons() {
-            return Shopware.Store.get('topBarButtonState').buttons;
+            return Shopware.Store.get('topBarButton').buttons;
         },
     },
 
@@ -29,4 +30,3 @@ Component.register('sw-app-topbar-button', {
         },
     },
 });
-

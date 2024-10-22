@@ -10,8 +10,9 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -36,8 +38,8 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
-use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
@@ -79,15 +81,15 @@ class ThemeCompilerTest extends TestCase
         $this->themeCompiler = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
+            new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
             $this->eventDispatcher,
-            $this->getContainer()->get(ThemeFileImporter::class),
+            $this->getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->getContainer()->get(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
@@ -97,20 +99,26 @@ class ThemeCompilerTest extends TestCase
         $this->themeCompilerAutoPrefix = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
+            new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
             $this->eventDispatcher,
-            $this->getContainer()->get(ThemeFileImporter::class),
+            $this->getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->getContainer()->get(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
             true
         );
+    }
+
+    protected function tearDown(): void
+    {
+        $this->getContainer()->get(SourceResolver::class)->reset();
+        $this->getContainer()->get(ActiveAppsLoader::class)->reset();
     }
 
     public function testVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
@@ -420,8 +428,8 @@ PHP_EOL;
         $resolver = $this->createMock(ThemeFileResolver::class);
         $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
-        $importer = $this->createMock(ThemeFileImporter::class);
-        $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['bla']);
 
         $fs = new Filesystem(new MemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
@@ -429,23 +437,20 @@ PHP_EOL;
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
+            new CopyBatchInputFactory(),
             $resolver,
             true,
             $this->getContainer()->get('event_dispatcher'),
-            $importer,
+            $this->createMock(ThemeFilesystemResolver::class),
             [],
             $this->createMock(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
             false
         );
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['bla']);
 
         try {
             $compiler->compileTheme(
@@ -699,7 +704,7 @@ PHP_EOL;
         return new ConfigurationService(
             $plugins,
             new ConfigReader(),
-            $this->getContainer()->get(AppLoader::class),
+            $this->getContainer()->get(AppConfigReader::class),
             $this->getContainer()->get('app.repository'),
             $this->getContainer()->get(SystemConfigService::class)
         );
@@ -713,7 +718,7 @@ PHP_EOL;
         return new ConfigurationServiceException(
             $plugins,
             new ConfigReader(),
-            $this->getContainer()->get(AppLoader::class),
+            $this->getContainer()->get(AppConfigReader::class),
             $this->getContainer()->get('app.repository'),
             $this->getContainer()->get(SystemConfigService::class)
         );

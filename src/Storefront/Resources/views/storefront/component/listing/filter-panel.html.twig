@@ -3,9 +3,8 @@
         <div class="filter-panel-offcanvas-header">
             <div class="filter-panel-offcanvas-only filter-panel-offcanvas-title">{{ "listing.filterTitleText"|trans }}</div>
 
-            <div class="filter-panel-offcanvas-only filter-panel-offcanvas-close js-offcanvas-close">
-                {% sw_icon 'x' style { 'size': 'md' } %}
-            </div>
+            <button type="button" class="btn-close filter-panel-offcanvas-only filter-panel-offcanvas-close js-offcanvas-close" aria-label="{{ 'listing.filterClose'|trans|striptags }}">
+            </button>
         </div>
     {% endblock %}
 

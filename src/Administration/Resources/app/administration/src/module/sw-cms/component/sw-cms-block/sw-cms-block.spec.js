@@ -6,31 +6,34 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper(blockConfig = {}) {
-    return mount(await wrapTestComponent('sw-cms-block', {
-        sync: true,
-    }), {
-        props: {
-            block: {
-                visibility: {
-                    desktop: true,
-                    tablet: true,
-                    mobile: true,
-                },
-                ...blockConfig,
-            },
-        },
-        global: {
-            provide: {
-                cmsService: Shopware.Service().get('cmsService'),
-            },
-            stubs: {
-                'sw-icon': true,
-                'sw-cms-visibility-toggle': {
-                    template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
+    return mount(
+        await wrapTestComponent('sw-cms-block', {
+            sync: true,
+        }),
+        {
+            props: {
+                block: {
+                    visibility: {
+                        desktop: true,
+                        tablet: true,
+                        mobile: true,
+                    },
+                    ...blockConfig,
                 },
             },
+            global: {
+                provide: {
+                    cmsService: Shopware.Service().get('cmsService'),
+                },
+                stubs: {
+                    'sw-icon': true,
+                    'sw-cms-visibility-toggle': {
+                        template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
+                    },
+                },
+            },
         },
-    });
+    );
 }
 describe('module/sw-cms/component/sw-cms-block', () => {
     beforeAll(async () => {
@@ -105,38 +108,84 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         { hasWarnings: true, hasErrors: false },
         { hasWarnings: true, hasErrors: true },
     ];
-    it.each(errorClassCases)('should merge custom CSS classes with error classes, when set in the block. [%s]', async ({ hasWarnings, hasErrors }) => {
-        const wrapper = await createWrapper({
-            cssClass: 'my-custom css-class in-the cms-block',
-        });
-        await wrapper.setProps({
-            hasWarnings,
-            hasErrors,
-        });
+    it.each(errorClassCases)(
+        'should merge custom CSS classes with error classes, when set in the block. [%s]',
+        async ({ hasWarnings, hasErrors }) => {
+            const wrapper = await createWrapper({
+                cssClass: 'my-custom css-class in-the cms-block',
+            });
+            await wrapper.setProps({
+                hasWarnings,
+                hasErrors,
+            });
 
-        expect(wrapper.vm.customBlockClass).toStrictEqual({
-            'has--warning': hasWarnings && !hasErrors,
-            'has--error': hasErrors,
-            'my-custom': true,
-            'css-class': true,
-            'in-the': true,
-            'cms-block': true,
-        });
-    });
+            expect(wrapper.vm.customBlockClass).toStrictEqual({
+                'has--warning': hasWarnings && !hasErrors,
+                'has--error': hasErrors,
+                'my-custom': true,
+                'css-class': true,
+                'in-the': true,
+                'cms-block': true,
+            });
+        },
+    );
 
     const exampleBackgroundMedia = { id: 'myMedia', url: 'example-image.png' };
-    const exampleBackgroundMediaWithoutId = { id: undefined, url: 'example-image.png' };
+    const exampleBackgroundMediaWithoutId = {
+        id: undefined,
+        url: 'example-image.png',
+    };
     const blockStylesCases = [
-        { backgroundColor: undefined, backgroundMedia: null, backgroundMediaMode: 'cover' },
-        { backgroundColor: undefined, backgroundMedia: null, backgroundMediaMode: 'auto' },
-        { backgroundColor: 'red', backgroundMedia: null, backgroundMediaMode: 'cover' },
-        { backgroundColor: 'green', backgroundMedia: null, backgroundMediaMode: 'auto' },
-        { backgroundColor: undefined, backgroundMedia: exampleBackgroundMedia, backgroundMediaMode: 'auto' },
-        { backgroundColor: 'red', backgroundMedia: exampleBackgroundMedia, backgroundMediaMode: 'auto' },
-        { backgroundColor: 'green', backgroundMedia: exampleBackgroundMedia, backgroundMediaMode: 'cover' },
-        { backgroundColor: undefined, backgroundMedia: exampleBackgroundMediaWithoutId, backgroundMediaMode: 'cover' },
-        { backgroundColor: 'red', backgroundMedia: exampleBackgroundMediaWithoutId, backgroundMediaMode: 'cover' },
-        { backgroundColor: 'green', backgroundMedia: exampleBackgroundMediaWithoutId, backgroundMediaMode: 'auto' },
+        {
+            backgroundColor: undefined,
+            backgroundMedia: null,
+            backgroundMediaMode: 'cover',
+        },
+        {
+            backgroundColor: undefined,
+            backgroundMedia: null,
+            backgroundMediaMode: 'auto',
+        },
+        {
+            backgroundColor: 'red',
+            backgroundMedia: null,
+            backgroundMediaMode: 'cover',
+        },
+        {
+            backgroundColor: 'green',
+            backgroundMedia: null,
+            backgroundMediaMode: 'auto',
+        },
+        {
+            backgroundColor: undefined,
+            backgroundMedia: exampleBackgroundMedia,
+            backgroundMediaMode: 'auto',
+        },
+        {
+            backgroundColor: 'red',
+            backgroundMedia: exampleBackgroundMedia,
+            backgroundMediaMode: 'auto',
+        },
+        {
+            backgroundColor: 'green',
+            backgroundMedia: exampleBackgroundMedia,
+            backgroundMediaMode: 'cover',
+        },
+        {
+            backgroundColor: undefined,
+            backgroundMedia: exampleBackgroundMediaWithoutId,
+            backgroundMediaMode: 'cover',
+        },
+        {
+            backgroundColor: 'red',
+            backgroundMedia: exampleBackgroundMediaWithoutId,
+            backgroundMediaMode: 'cover',
+        },
+        {
+            backgroundColor: 'green',
+            backgroundMedia: exampleBackgroundMediaWithoutId,
+            backgroundMediaMode: 'auto',
+        },
     ];
     it.each(blockStylesCases)('should apply backgroundMedia correctly to blockStyles. [%s]', async (expected) => {
         const wrapper = await createWrapper({

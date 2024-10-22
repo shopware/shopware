@@ -15,9 +15,18 @@ Component.register('sw-login-login', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['loginService', 'userService', 'licenseViolationService'],
+    inject: [
+        'loginService',
+        'userService',
+        'licenseViolationService',
+    ],
 
-    emits: ['is-loading', 'is-not-loading', 'login-success', 'login-error'],
+    emits: [
+        'is-loading',
+        'is-not-loading',
+        'login-success',
+        'login-error',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -50,7 +59,8 @@ Component.register('sw-login-login', {
 
             this.loginService.setRememberMe(this.rememberMe);
 
-            return this.loginService.loginByUsername(this.username, this.password)
+            return this.loginService
+                .loginByUsername(this.username, this.password)
                 .then(() => {
                     this.handleLoginSuccess();
                     this.$emit('is-not-loading');

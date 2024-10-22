@@ -5,13 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\Histogram;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
-use Symfony\Component\Messenger\Stamp\SerializedMessageStamp;
+use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
 /**
  * @internal
@@ -21,32 +21,57 @@ class MessageQueueStatsSubscriberTest extends TestCase
 {
     private MessageQueueStatsSubscriber $subscriber;
 
-    private Meter&MockObject $meter;
+    private MockObject&IncrementGatewayRegistry $gatewayRegistry;
+
+    private MockObject&AbstractIncrementer $incrementer;
 
     protected function setUp(): void
     {
-        $this->meter = $this->createMock(Meter::class);
-        $this->subscriber = new MessageQueueStatsSubscriber($this->createMock(IncrementGatewayRegistry::class), $this->meter);
+        $this->gatewayRegistry = $this->createMock(IncrementGatewayRegistry::class);
+        $this->incrementer = $this->createMock(AbstractIncrementer::class);
+        $this->subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry);
     }
 
-    public function testOnMessageReceived(): void
+    public function testOnMessageFailed(): void
     {
-        $serializedMessage = 'test message';
-        $stamp = new SerializedMessageStamp($serializedMessage);
+        $envelope = new Envelope(new \stdClass());
+        $event = new WorkerMessageFailedEvent($envelope, 'receiver', new \Exception());
 
-        $envelope = new WorkerMessageReceivedEvent(
-            new Envelope(new \stdClass(), [$stamp]),
-            'test'
-        );
+        $this->handleCommonExpectations($envelope, false);
 
-        $this->meter->expects(static::once())
-            ->method('emit')
-            ->with(static::callback(function (Histogram $histogram) use ($serializedMessage) {
-                return $histogram->name === 'messenger.message.size'
-                    && $histogram->value === \strlen($serializedMessage)
-                    && $histogram->description === 'Size of the message in bytes';
-            }));
+        $this->subscriber->onMessageFailed($event);
+    }
 
-        $this->subscriber->onMessageReceived($envelope);
+    public function testOnMessageHandled(): void
+    {
+        $envelope = new Envelope(new \stdClass());
+        $event = new WorkerMessageHandledEvent($envelope, 'receiver');
+
+        $this->handleCommonExpectations($envelope, false);
+
+        $this->subscriber->onMessageHandled($event);
+    }
+
+    public function testOnMessageSent(): void
+    {
+        $envelope = new Envelope(new \stdClass());
+        $event = new SendMessageToTransportsEvent($envelope, []);
+
+        $this->handleCommonExpectations($envelope, true);
+
+        $this->subscriber->onMessageSent($event);
+    }
+
+    protected function handleCommonExpectations(Envelope $envelope, bool $increment): void
+    {
+        $this->gatewayRegistry->expects(static::once())
+            ->method('get')
+            ->with(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL)
+            ->willReturn($this->incrementer);
+
+        $method = $increment ? 'increment' : 'decrement';
+        $this->incrementer->expects(static::once())
+            ->method($method)
+            ->with('message_queue_stats', $envelope->getMessage()::class);
     }
 }

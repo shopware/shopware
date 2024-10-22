@@ -31,6 +31,7 @@
     },
     "card": {
       "buttonImitateCustomer": "Als Kunde anmelden",
+      "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
@@ -53,6 +54,7 @@
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
       "buttonAddCustomer": "Kunden anlegen",
+      "columnCompany": "Firma",
       "columnCustomerNumber": "Kundennummer",
       "columnName": "Name",
       "columnGroup": "Kundengruppe",

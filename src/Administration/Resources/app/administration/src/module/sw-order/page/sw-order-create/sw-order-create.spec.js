@@ -10,7 +10,12 @@ const remindPaymentMock = jest.fn(() => {
 
 const contextState = {
     namespaced: true,
-    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    state: {
+        api: {
+            languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        },
+    },
     mutations: {
         setLanguageId: jest.fn(),
         resetLanguageToDefault: jest.fn(),
@@ -28,13 +33,12 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            get: () => Promise.resolve(
-                                {
+                            get: () =>
+                                Promise.resolve({
                                     translated: {
                                         distinguishableName: 'Cash on Delivery',
                                     },
-                                },
-                            ),
+                                }),
                         }),
                     },
                     shortcutService: {
@@ -72,13 +76,17 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-help-center': true,
             'sw-search-bar': true,
             'sw-language-switch': true,
-            'sw-card-view': await wrapTestComponent('sw-card-view', { sync: true }),
+            'sw-card-view': await wrapTestComponent('sw-card-view', {
+                sync: true,
+            }),
             'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
             'sw-tabs-item': true,
             'sw-page': await wrapTestComponent('sw-page', { sync: true }),
             'sw-button': await wrapTestComponent('sw-button', { sync: true }),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-            'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+            'sw-button-process': await wrapTestComponent('sw-button-process', {
+                sync: true,
+            }),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -203,6 +211,9 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         await wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess');
         await flushPromises();
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '2fbb5fe2e29a4d70aa5854ce7ce3e20b');
+        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(
+            expect.anything(),
+            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        );
     });
 });

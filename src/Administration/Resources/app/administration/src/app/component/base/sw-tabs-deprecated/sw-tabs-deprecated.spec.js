@@ -61,7 +61,7 @@ async function mountSwTabs(routes) {
 
 describe('sw-tabs-deprecated', () => {
     beforeEach(() => {
-        jest.spyOn(global, 'requestAnimationFrame').mockImplementation(cb => cb());
+        jest.spyOn(global, 'requestAnimationFrame').mockImplementation((cb) => cb());
     });
 
     it('renders active tab correctly with sub routes', async () => {
@@ -70,7 +70,8 @@ describe('sw-tabs-deprecated', () => {
                 name: 'first.route',
                 path: '/starts',
                 component: {},
-            }, {
+            },
+            {
                 name: 'second.route',
                 path: '/starts/with',
                 component: {},
@@ -114,7 +115,10 @@ describe('sw-tabs-deprecated', () => {
         const activeTabs = wrapper.findAll('.sw-tabs-item--active');
         expect(activeTabs).toHaveLength(0);
 
-        wrapper.vm.$router.push({ name: 'first.route', query: { a: 'a', c: 'c' } });
+        wrapper.vm.$router.push({
+            name: 'first.route',
+            query: { a: 'a', c: 'c' },
+        });
         await flushPromises();
 
         const activeTab = wrapper.find('.sw-tabs-item--active');
@@ -122,13 +126,15 @@ describe('sw-tabs-deprecated', () => {
     });
 
     it('should have a slider with warning state', async () => {
-        const routes = [{
-            name: 'warning.route',
-            path: '/route/warning',
-            hasError: false,
-            hasWarning: true,
-            component: {},
-        }];
+        const routes = [
+            {
+                name: 'warning.route',
+                path: '/route/warning',
+                hasError: false,
+                hasWarning: true,
+                component: {},
+            },
+        ];
 
         const wrapper = await mountSwTabs(routes);
         await flushPromises();
@@ -141,19 +147,22 @@ describe('sw-tabs-deprecated', () => {
     });
 
     it('should have a slider with error state', async () => {
-        const routes = [{
-            name: 'error.route',
-            path: '/route/error',
-            hasError: true,
-            hasWarning: false,
-            component: {},
-        }, {
-            name: 'errorAndWarning.route',
-            path: '/route/errorAndWarning',
-            hasError: true,
-            hasWarning: true,
-            component: {},
-        }];
+        const routes = [
+            {
+                name: 'error.route',
+                path: '/route/error',
+                hasError: true,
+                hasWarning: false,
+                component: {},
+            },
+            {
+                name: 'errorAndWarning.route',
+                path: '/route/errorAndWarning',
+                hasError: true,
+                hasWarning: true,
+                component: {},
+            },
+        ];
 
         const wrapper = await mountSwTabs(routes);
         await flushPromises();
@@ -172,11 +181,13 @@ describe('sw-tabs-deprecated', () => {
     });
 
     it('should register the scrollEventHandler and mutationObserver at mounted', async () => {
-        const routes = [{
-            name: 'first.route',
-            path: '/route/first',
-            component: {},
-        }];
+        const routes = [
+            {
+                name: 'first.route',
+                path: '/route/first',
+                component: {},
+            },
+        ];
 
         const wrapper = await mountSwTabs(routes);
         await flushPromises();
@@ -189,11 +200,13 @@ describe('sw-tabs-deprecated', () => {
     });
 
     it('should call the requestAnimationFrame method on mutation change (directly at start)', async () => {
-        const routes = [{
-            name: 'first.route',
-            path: '/route/first',
-            component: {},
-        }];
+        const routes = [
+            {
+                name: 'first.route',
+                path: '/route/first',
+                component: {},
+            },
+        ];
 
         await mountSwTabs(routes);
         await flushPromises();

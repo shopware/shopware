@@ -14,29 +14,25 @@ class ProductExportApiService extends ApiService {
     validateProductExportTemplate(productExport) {
         const apiRoute = `/_action/${this.getApiBasePath()}/validate`;
 
-        return this.httpClient.post(
-            apiRoute,
-            productExport,
-            {
+        return this.httpClient
+            .post(apiRoute, productExport, {
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     previewProductExport(productExport) {
         const apiRoute = `/_action/${this.getApiBasePath()}/preview`;
 
-        return this.httpClient.post(
-            apiRoute,
-            productExport,
-            {
+        return this.httpClient
+            .post(apiRoute, productExport, {
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     /**

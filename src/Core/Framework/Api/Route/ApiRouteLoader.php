@@ -14,13 +14,13 @@ use Symfony\Component\Routing\RouteCollection;
 #[Package('core')]
 class ApiRouteLoader extends Loader
 {
-    private bool $isLoaded = false;
-
     /**
      * The dynamic API allows traverse associations over the route path. This key for an option
      * holds the root path for each entity definition without further associations in the path.
      */
     public const DYNAMIC_RESOURCE_ROOT_PATH = 'resourceRootPath';
+
+    private bool $isLoaded = false;
 
     /**
      * @internal

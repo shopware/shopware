@@ -10,15 +10,18 @@ const sanitizedInput = 'User input cleared';
 let serviceShouldWork = true;
 
 const userInputSanitizeService = {
-    sanitizeInput: jest.fn(() => new Promise((resolve, reject) => {
-        if (serviceShouldWork) {
-            resolve({
-                preview: sanitizedInput,
-            });
-        } else {
-            reject(new Error(`this serviceShouldWork is ${serviceShouldWork ? 'true' : 'false'}`));
-        }
-    })),
+    sanitizeInput: jest.fn(
+        () =>
+            new Promise((resolve, reject) => {
+                if (serviceShouldWork) {
+                    resolve({
+                        preview: sanitizedInput,
+                    });
+                } else {
+                    reject(new Error(`this serviceShouldWork is ${serviceShouldWork ? 'true' : 'false'}`));
+                }
+            }),
+    ),
 };
 
 async function createWrapper(options = {}) {

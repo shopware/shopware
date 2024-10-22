@@ -45,7 +45,6 @@ const promotionData = {
     hasOrders: false,
 };
 
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-promotion-v2-detail', { sync: true }), {
         global: {

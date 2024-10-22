@@ -35,10 +35,10 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-            isLoading: boolean,
-            isSaveSuccessful: boolean,
-            taxProvider?: Entity<'tax_provider'> | undefined,
-            } {
+        isLoading: boolean;
+        isSaveSuccessful: boolean;
+        taxProvider?: Entity<'tax_provider'> | undefined;
+    } {
         return {
             taxProvider: undefined,
             isLoading: false,
@@ -68,13 +68,12 @@ export default Component.wrapComponentConfig({
         ruleFilter(): CriteriaType {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.multi(
-                'OR',
-                [
+            criteria.addFilter(
+                Criteria.multi('OR', [
                     Criteria.contains('rule.moduleTypes.types', 'tax_provider'),
                     Criteria.equals('rule.moduleTypes', null),
-                ],
-            ));
+                ]),
+            );
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
@@ -128,18 +127,21 @@ export default Component.wrapComponentConfig({
                 return Promise.resolve();
             }
 
-            return this.taxProviderRepository.save(this.taxProvider).then(() => {
-                this.isSaveSuccessful = true;
+            return this.taxProviderRepository
+                .save(this.taxProvider)
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                return this.loadTaxProvider();
-            }).catch(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                    return this.loadTaxProvider();
+                })
+                .catch(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                    });
+
+                    this.isLoading = false;
                 });
-
-                this.isLoading = false;
-            });
         },
 
         onCancel(): void {

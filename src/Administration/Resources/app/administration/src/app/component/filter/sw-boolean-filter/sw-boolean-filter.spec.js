@@ -6,11 +6,19 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-boolean-filter', { sync: true }), {
         global: {
             stubs: {
-                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', {
+                    sync: true,
+                }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
+                'sw-select-field': await wrapTestComponent('sw-select-field', {
+                    sync: true,
+                }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', {
+                    sync: true,
+                }),
                 'sw-icon': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
@@ -67,7 +75,9 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-reset` event when user clicks Reset button from `Active` option', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'true' } });
+        await wrapper.setProps({
+            filter: { ...wrapper.vm.filter, value: 'true' },
+        });
 
         // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -78,7 +88,9 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-reset` event when user clicks Reset button from `Inactive` option', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'false' } });
+        await wrapper.setProps({
+            filter: { ...wrapper.vm.filter, value: 'false' },
+        });
 
         // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');

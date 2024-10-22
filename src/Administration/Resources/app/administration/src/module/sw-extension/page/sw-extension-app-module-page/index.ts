@@ -31,7 +31,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    data(): { appLoaded: boolean, timedOut: boolean, timedOutTimeout: null|number, signedIframeSrc: undefined|string } {
+    data(): {
+        appLoaded: boolean;
+        timedOut: boolean;
+        timedOutTimeout: null | number;
+        signedIframeSrc: undefined | string;
+    } {
         return {
             appLoaded: false,
             timedOut: false,
@@ -41,21 +46,26 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        currentLocale(): string|null {
+        currentLocale(): string | null {
             return State.get('session').currentLocale;
         },
 
-        fallbackLocale(): string|null {
+        fallbackLocale(): string | null {
             return Context.app.fallbackLocale;
         },
 
-        appDefinition(): AppModuleDefinition|null {
-            return State.get('shopwareApps').apps.find((app) => {
-                return app.name === this.appName;
-            }) ?? null;
+        appDefinition(): AppModuleDefinition | null {
+            return (
+                State.get('shopwareApps').apps.find((app) => {
+                    return app.name === this.appName;
+                }) ?? null
+            );
         },
 
-        moduleDefinition(): Partial<{ source: string, label: {[key: string]: string} }>|null {
+        moduleDefinition(): Partial<{
+            source: string;
+            label: { [key: string]: string };
+        }> | null {
             if (!this.appDefinition) {
                 return null;
             }
@@ -64,16 +74,30 @@ export default Shopware.Component.wrapComponentConfig({
                 return this.appDefinition.mainModule ?? null;
             }
 
-            return this.appDefinition.modules.find((module) => {
-                return module.name === this.moduleName;
-            }) ?? null;
+            return (
+                this.appDefinition.modules.find((module) => {
+                    return module.name === this.moduleName;
+                }) ?? null
+            );
+        },
+
+        showSmartBar(): boolean {
+            const { hiddenSmartBars } = State.get('extensionSdkModules');
+
+            // The moduleName is null if the module is navigated from the extension listing page!
+            if (!this.moduleName) {
+                const modules = this.appDefinition?.modules ?? [];
+                return modules.some((mod) => !hiddenSmartBars.includes(mod.name));
+            }
+
+            return !hiddenSmartBars.includes(this.moduleName);
         },
 
         suspend(): boolean {
             return !this.appDefinition || !this.moduleDefinition;
         },
 
-        heading(): string|null {
+        heading(): string | null {
             if (!this.appDefinition) {
                 return null;
             }
@@ -86,12 +110,15 @@ export default Shopware.Component.wrapComponentConfig({
 
             const moduleLabel = this.translate(this.moduleDefinition.label);
 
-            return [appLabel, moduleLabel]
+            return [
+                appLabel,
+                moduleLabel,
+            ]
                 .filter((part) => !!part)
                 .join(' - ');
         },
 
-        entryPoint(): string|null {
+        entryPoint(): string | null {
             if (this.suspend) {
                 return null;
             }
@@ -99,7 +126,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.moduleDefinition?.source ?? null;
         },
 
-        origin(): string|null {
+        origin(): string | null {
             if (!this.entryPoint) {
                 return null;
             }
@@ -155,15 +182,18 @@ export default Shopware.Component.wrapComponentConfig({
                 const source = new URL(sourceString);
                 const sourceWithoutParams = source.origin + source.pathname;
 
-                this.extensionSdkService.signIframeSrc(this.appName, sourceWithoutParams).then((response) => {
-                    const uri = (response as { uri?: string})?.uri;
+                this.extensionSdkService
+                    .signIframeSrc(this.appName, sourceWithoutParams)
+                    .then((response) => {
+                        const uri = (response as { uri?: string })?.uri;
 
-                    if (!uri) {
-                        return;
-                    }
+                        if (!uri) {
+                            return;
+                        }
 
-                    this.signedIframeSrc = uri;
-                }).catch(() => {});
+                        this.signedIframeSrc = uri;
+                    })
+                    .catch(() => {});
             },
         },
     },
@@ -190,7 +220,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        translate(labels : {[key:string]: string}): string|null {
+        translate(labels: { [key: string]: string }): string | null {
             if (this.currentLocale && labels[this.currentLocale]) {
                 return labels[this.currentLocale];
             }

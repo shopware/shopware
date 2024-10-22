@@ -65,7 +65,6 @@ class ProductPageSeoUrlRouteTest extends TestCase
         static::assertSame(['productId' => 'test'], $data->getInfoPathContext());
 
         $context = $data->getSeoPathInfoContext();
-        static::assertIsArray($context);
         static::assertArrayHasKey('product', $context);
         static::assertSame($product->jsonSerialize(), $context['product']);
     }

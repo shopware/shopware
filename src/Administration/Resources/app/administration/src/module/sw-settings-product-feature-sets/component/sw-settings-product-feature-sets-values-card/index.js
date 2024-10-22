@@ -193,17 +193,21 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
-                primary: true,
-            }, {
-                property: 'type',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelType',
-            }, {
-                property: 'position',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
+                    primary: true,
+                },
+                {
+                    property: 'type',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelType',
+                },
+                {
+                    property: 'position',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
+                },
+            ];
         },
     },
 };

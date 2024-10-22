@@ -59,7 +59,7 @@ export default {
         },
 
         defaultCurrency(state) {
-            return state.currencies.find(currency => currency.isSystemDefault);
+            return state.currencies.find((currency) => currency.isSystemDefault);
         },
 
         usedRules(state, getters) {
@@ -67,7 +67,7 @@ export default {
         },
 
         unrestrictedPriceMatrixExists(state) {
-            return state.shippingMethod.prices.some(shippingPrice => {
+            return state.shippingMethod.prices.some((shippingPrice) => {
                 return shippingPrice.ruleId === null;
             });
         },

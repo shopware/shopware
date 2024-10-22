@@ -1,7 +1,13 @@
 import template from './sw-chart-card.html.twig';
 import './sw-chart-card.scss';
 
-const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
+const defaultRanges = [
+    '30Days',
+    '14Days',
+    '7Days',
+    '24Hours',
+    'yesterday',
+];
 
 /**
  * @package admin
@@ -54,7 +60,10 @@ Shopware.Component.register('sw-chart-card', {
             default: '',
         },
         helpText: {
-            type: [String, Object],
+            type: [
+                String,
+                Object,
+            ],
             required: false,
             default: () => {
                 return '';

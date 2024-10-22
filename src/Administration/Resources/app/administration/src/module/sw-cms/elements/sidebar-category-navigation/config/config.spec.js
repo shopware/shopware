@@ -4,15 +4,18 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-category-navigation', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-alert': await wrapTestComponent('sw-alert'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-category-navigation', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-alert': await wrapTestComponent('sw-alert'),
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/sidebar-category-navigation/config', () => {
@@ -21,4 +24,3 @@ describe('src/module/sw-cms/elements/sidebar-category-navigation/config', () => 
         expect(wrapper.vm).toBeTruthy();
     });
 });
-

@@ -257,34 +257,6 @@ class EntityReaderTest extends TestCase
         static::assertEquals('Parent: Deutscher Name', $translatedFields['name']);
     }
 
-    private function createProduct(
-        ?string $deDeTranslation,
-        ?string $defaultTranslation,
-        string $productNumber = 'product-1',
-        ?string $parentProductNumber = null,
-        ?IdsCollection $ids = null
-    ): string {
-        $ids ??= new IdsCollection();
-        $productBuilder = new ProductBuilder($ids, $productNumber);
-        $productBuilder->price(100);
-        if ($deDeTranslation !== null) {
-            $productBuilder->translation($this->getDeDeLanguageId(), 'name', $deDeTranslation);
-        }
-        if ($defaultTranslation !== null) {
-            $productBuilder->translation(Defaults::LANGUAGE_SYSTEM, 'name', $defaultTranslation);
-        }
-        if ($parentProductNumber !== null) {
-            $productBuilder->parent($parentProductNumber);
-        }
-
-        $this->getContainer()->get('product.repository')->create(
-            [$productBuilder->build()],
-            Context::createDefaultContext()
-        );
-
-        return $ids->get($productNumber);
-    }
-
     public function testAssociationWithOrderBy(): void
     {
         $ids = new IdsCollection();
@@ -319,6 +291,34 @@ class EntityReaderTest extends TestCase
         $result = $entityRepository->search($criteria, $context);
 
         static::assertEquals($ids->get('test'), $result->getEntities()->first()?->getId());
+    }
+
+    private function createProduct(
+        ?string $deDeTranslation,
+        ?string $defaultTranslation,
+        string $productNumber = 'product-1',
+        ?string $parentProductNumber = null,
+        ?IdsCollection $ids = null
+    ): string {
+        $ids ??= new IdsCollection();
+        $productBuilder = new ProductBuilder($ids, $productNumber);
+        $productBuilder->price(100);
+        if ($deDeTranslation !== null) {
+            $productBuilder->translation($this->getDeDeLanguageId(), 'name', $deDeTranslation);
+        }
+        if ($defaultTranslation !== null) {
+            $productBuilder->translation(Defaults::LANGUAGE_SYSTEM, 'name', $defaultTranslation);
+        }
+        if ($parentProductNumber !== null) {
+            $productBuilder->parent($parentProductNumber);
+        }
+
+        $this->getContainer()->get('product.repository')->create(
+            [$productBuilder->build()],
+            Context::createDefaultContext()
+        );
+
+        return $ids->get($productNumber);
     }
 
     /**

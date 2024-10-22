@@ -8,7 +8,10 @@ export type CamelCasePath<T extends string> = T extends `${infer A}.${infer B}${
     : Lowercase<T>;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
-export function mapPropertyErrors<T extends string, K extends string>(entityName: T, properties: K[] = []): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
+export function mapPropertyErrors<T extends string, K extends string>(
+    entityName: T,
+    properties: K[] = [],
+): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
     const computedValues: Record<string, () => unknown> = {};
 
     properties.forEach((property) => {
@@ -37,7 +40,10 @@ export function mapSystemConfigErrors(entityName: string, saleChannelId: string 
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
-export function mapCollectionPropertyErrors<T extends string, K extends string>(entityCollectionName: T, properties: K[] = []): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
+export function mapCollectionPropertyErrors<T extends string, K extends string>(
+    entityCollectionName: T,
+    properties: K[] = [],
+): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
     const computedValues: Record<string, () => unknown> = {};
 
     properties.forEach((property) => {
@@ -60,7 +66,9 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
-export function mapPageErrors<T extends string>(errorConfig: Record<T, Record<string, string[]>>): Record<`${CamelCasePath<T>}Error`, () => boolean> {
+export function mapPageErrors<T extends string>(
+    errorConfig: Record<T, Record<string, string[]>>,
+): Record<`${CamelCasePath<T>}Error`, () => boolean> {
     const map: Record<string, () => boolean> = {};
     Object.keys(errorConfig).forEach((routeName) => {
         const subjects = errorConfig[routeName as T];

@@ -23,6 +23,11 @@ class ChangelogProcessor
     private ?string $platformRoot = null;
 
     /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $users = null;
+
+    /**
      * @param array<string, FeatureFlagConfig> $featureFlags
      */
     public function __construct(
@@ -30,7 +35,7 @@ class ChangelogProcessor
         protected ValidatorInterface $validator,
         protected Filesystem $filesystem,
         private readonly string $projectDir,
-        protected array $featureFlags
+        protected array $featureFlags,
     ) {
     }
 
@@ -50,6 +55,58 @@ class ChangelogProcessor
     public function setActiveFlags(array $flags): void
     {
         $this->featureFlags = $flags;
+    }
+
+    public function findLastestTag(): ?string
+    {
+        $result = shell_exec('gh release list -R shopware/shopware --exclude-drafts --exclude-pre-releases --json tagName,isLatest');
+        if (!$result) {
+            return null;
+        }
+
+        $releases = json_decode($result, true) ?: [];
+        foreach ($releases as $release) {
+            if ($release['isLatest']) {
+                return $release['tagName'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<array{headline: string, fixes: list<non-falsy-string>, author?: array{login: string}}>
+     */
+    public function getFixCommits(string $fromRef): array
+    {
+        $cmd = \sprintf(
+            'git log --no-merges @ %s --pretty=format:%s -i -E --grep=%s',
+            escapeshellarg('^' . $fromRef),
+            escapeshellarg('%h'),
+            escapeshellarg(ChangelogParser::FIXES_REGEX)
+        );
+
+        $fixes = [];
+
+        exec($cmd, $refs);
+        foreach ($refs as $ref) {
+            $body = shell_exec('git log -n1 --pretty=format:%B ' . escapeshellarg($ref));
+
+            if ($body && preg_match_all('/' . ChangelogParser::FIXES_REGEX . '/i', $body, $matches)) {
+                $fix = [
+                    'headline' => strtok($body, "\n") ?: '',
+                    'fixes' => $matches[3],
+                ];
+                $author = $this->findAuthor($matches[3][0]);
+                if ($author && !$this->isShopwareOrgMember($author['login'])) {
+                    $fix['author'] = $author;
+                }
+
+                $fixes[] = $fix;
+            }
+        }
+
+        return $fixes;
     }
 
     protected function getUnreleasedDir(): string
@@ -124,15 +181,18 @@ class ChangelogProcessor
     {
         $entries = new ChangelogFileCollection();
 
+        $issueKeys = [];
+
         $finder = new Finder();
-        $finder->in($version ? $this->getTargetReleaseDir($version) : $this->getUnreleasedDir())->files()->sortByName()->depth('0')->name('*.md');
+        $rootDir = $version ? $this->getTargetReleaseDir($version) : $this->getUnreleasedDir();
+        $finder->in($rootDir)->files()->sortByName()->depth('0')->name('*.md');
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
-                $definition = $this->parser->parse($file->getContents());
+                $definition = $this->parser->parse($file, $rootDir);
 
-                $issues = $this->validator->validate($definition);
-                if ($issues->count()) {
-                    $messages = \array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), \iterator_to_array($issues));
+                $violations = $this->validator->validate($definition);
+                if ($violations->count()) {
+                    $messages = \array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), \iterator_to_array($violations));
 
                     throw new \InvalidArgumentException(\sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), \implode(', ', $messages)));
                 }
@@ -153,10 +213,44 @@ class ChangelogProcessor
                     ->setDefinition($definition);
 
                 $entries->add($changelog);
+
+                $issueKeys[$definition->getIssue()] = $definition->getIssue();
             }
         }
 
         return $entries;
+    }
+
+    /**
+     * @return array{login: string}
+     */
+    private function findAuthor(string $issueId): ?array
+    {
+        $result = shell_exec(\sprintf('gh pr view https://github.com/shopware/shopware/pull/%s --json author', escapeshellarg(ltrim($issueId, '#'))));
+
+        if ($result) {
+            return json_decode($result, true)['author'] ?? null;
+        }
+
+        return null;
+    }
+
+    private function isShopwareOrgMember(string $login): bool
+    {
+        if ($this->users === null) {
+            $this->users = [];
+            $result = shell_exec('gh api --paginate -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /orgs/shopware/members');
+            if ($result) {
+                /** @var array<array{login: string}> */
+                $data = json_decode($result, true);
+
+                foreach ($data as $member) {
+                    $this->users[$member['login']] = $member;
+                }
+            }
+        }
+
+        return isset($this->users[$login]);
     }
 
     private function getPlatformRoot(): string

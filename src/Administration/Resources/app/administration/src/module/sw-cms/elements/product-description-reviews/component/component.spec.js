@@ -10,39 +10,42 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-product-description-reviews', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
+    return mount(
+        await wrapTestComponent('sw-cms-el-product-description-reviews', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return { 'product-description-reviews': {} };
+                        },
                     },
-                    getCmsElementRegistry: () => {
-                        return { 'product-description-reviews': {} };
+                },
+            },
+            props: {
+                element: {
+                    config: {},
+                    data: {},
+                },
+                defaultConfig: {
+                    alignment: {
+                        value: null,
                     },
                 },
             },
         },
-        props: {
-            element: {
-                config: {},
-                data: {},
-            },
-            defaultConfig: {
-                alignment: {
-                    value: null,
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/product-description-reviews/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state() {
                 return {
                     currentPage: {
@@ -56,7 +59,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').$reset();
+        Shopware.Store.get('cmsPage').$reset();
     });
 
     it('should display placeholder when page type is not product page and no product is selected', async () => {
@@ -67,7 +70,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     it('should display skeleton when page type is product page and no product is selected', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        Shopware.Store.get('cmsPage').currentPage.type = 'product_detail';
         await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__placeholder').exists()).toBeTruthy();
@@ -93,7 +96,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     it('should show current demo data if mapping entity is product', async () => {
         const wrapper = await createWrapper();
 
-        const cmsPageState = Shopware.Store.get('cmsPageState');
+        const cmsPageState = Shopware.Store.get('cmsPage');
         cmsPageState.currentPage.type = 'product_detail';
         cmsPageState.currentMappingEntity = 'product';
         cmsPageState.currentDemoEntity = productMock;

@@ -117,10 +117,12 @@ Component.register('sw-language-switch', {
         checkAbort() {
             // Check if abort function exists und reset the select field if the change should be aborted
             if (typeof this.abortChangeFunction === 'function' && this.savePermission) {
-                if (this.abortChangeFunction({
-                    oldLanguageId: this.lastLanguageId,
-                    newLanguageId: this.languageId,
-                })) {
+                if (
+                    this.abortChangeFunction({
+                        oldLanguageId: this.lastLanguageId,
+                        newLanguageId: this.languageId,
+                    })
+                ) {
                     this.showUnsavedChangesModal = true;
                     this.languageId = this.lastLanguageId;
 
@@ -137,12 +139,13 @@ Component.register('sw-language-switch', {
             if (this.changeGlobalLanguage) {
                 Shopware.State.commit('context/setApiLanguageId', this.languageId);
                 if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('on-change-application-language', { languageId: this.languageId });
+                    this.$root.$emit('on-change-application-language', {
+                        languageId: this.languageId,
+                    });
                 } else {
-                    Shopware.Utils.EventBus.emit(
-                        'sw-language-switch-change-application-language',
-                        { languageId: this.languageId },
-                    );
+                    Shopware.Utils.EventBus.emit('sw-language-switch-change-application-language', {
+                        languageId: this.languageId,
+                    });
                 }
             }
 

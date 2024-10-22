@@ -10,7 +10,7 @@
                 {% endblock %}
 
                 {% block page_account_order_item_detail_table_header %}
-                    <div class="order-detail-content-header">
+                    <div class="order-detail-content-header" aria-hidden="true">
                         <div class="row">
                             {% block page_account_order_item_detail_table_header_name %}
                                 <div class="col-6 order-detail-content-header-cell order-header-name">
@@ -69,14 +69,14 @@
                             <div class="order-item-detail-footer">
                                 <div class="row g-0">
                                     <div class="col-12 col-md-7 col-xl-6">
-                                        <dl class="row g-0 order-item-detail-labels">
+                                        <dl class="row g-0 order-item-detail-labels" aria-label="{{ 'account.orderInfoAriaLabel'|trans|striptags }}">
                                             {% block page_account_order_item_detail_date %}
                                                 {% block page_account_order_item_detail_date_label %}
                                                     <dt class="col-6 col-md-5">{{ 'account.orderItemDate'|trans|sw_sanitize }}</dt>
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_date_value %}
-                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</dd>
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderDateTime|format_date('medium', locale=app.request.locale) }}</dd>
                                                 {% endblock %}
                                             {% endblock %}
 
@@ -133,21 +133,25 @@
                                                                     {% set trackingCodes = delivery.trackingCodes %}
                                                                     {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
 
-                                                                    {% for trackingCode in trackingCodes %}
-                                                                        {% if trackingUrl %}
-                                                                            {% set output %}
-                                                                                <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
-                                                                            {% endset %}
-                                                                        {% else %}
-                                                                            {% set output %}
-                                                                                <span>{{ trackingCode }}</span>
-                                                                            {% endset %}
-                                                                        {% endif %}
+                                                                    {% if trackingCodes|length > 0 %}
+                                                                        {% for trackingCode in trackingCodes %}
+                                                                            {% if trackingUrl %}
+                                                                                {% set output %}
+                                                                                    <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
+                                                                                {% endset %}
+                                                                            {% else %}
+                                                                                {% set output %}
+                                                                                    <span>{{ trackingCode }}</span>
+                                                                                {% endset %}
+                                                                            {% endif %}
 
-                                                                        {% set totalOutput = totalOutput + 1 %}
+                                                                            {% set totalOutput = totalOutput + 1 %}
 
-                                                                        {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
-                                                                    {% endfor %}
+                                                                            {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
+                                                                        {% endfor %}
+                                                                    {% else %}
+                                                                        {{ 'account.orderTrackingNotAvailable'|trans|sw_sanitize }}
+                                                                    {% endif %}
                                                                 {% endfor %}
                                                             </dd>
                                                         {% endapply %}
@@ -159,7 +163,7 @@
 
                                     <div class="col-12 col-md-5 col-xl-6">
                                         {% block page_account_order_item_detail_summary %}
-                                            <dl class="row g-0 order-item-detail-summary">
+                                            <dl class="row g-0 order-item-detail-summary" aria-label="{{ 'account.orderSummaryAriaLabel'|trans|striptags }}">
                                                 {% block page_account_order_item_detail_shipping_costs %}
                                                     {% if order.deliveries|length > 0 %}
                                                         {% block page_account_order_item_detail_shipping_costs_label %}

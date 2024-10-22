@@ -256,7 +256,6 @@ class EntityRepositoryTest extends TestCase
         $criteria->addFields(['foo']);
         $repo->search($criteria, Context::createDefaultContext());
 
-        static::assertTrue(true);
         static::assertInstanceOf(EntityLoadedContainerEvent::class, $event);
 
         $events = $event->getEvents();

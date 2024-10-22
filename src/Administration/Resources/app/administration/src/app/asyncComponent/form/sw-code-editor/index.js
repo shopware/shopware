@@ -29,7 +29,11 @@ export default {
         'userInputSanitizeService',
     ],
 
-    emits: ['mounted', 'update:value', 'blur'],
+    emits: [
+        'mounted',
+        'update:value',
+        'blur',
+    ],
 
     props: {
         value: {
@@ -62,12 +66,18 @@ export default {
             type: String,
             required: false,
             default: 'text',
-            validValues: ['entity', 'text'],
+            validValues: [
+                'entity',
+                'text',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['entity', 'text'].includes(value);
+                return [
+                    'entity',
+                    'text',
+                ].includes(value);
             },
         },
 
@@ -75,12 +85,18 @@ export default {
             type: String,
             required: false,
             default: 'twig',
-            validValues: ['twig', 'text'],
+            validValues: [
+                'twig',
+                'text',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['twig', 'text'].includes(value);
+                return [
+                    'twig',
+                    'text',
+                ].includes(value);
             },
         },
 
@@ -260,7 +276,9 @@ export default {
                             this.editor.setValue(sanitizedValue?.preview ?? value, 1);
                             return this.editor.getValue();
                         }
-                    } catch (ignore) { /* api endpoint did not work, keep user entry */ }
+                    } catch (ignore) {
+                        /* api endpoint did not work, keep user entry */
+                    }
                 }
             }
             return value;
@@ -280,24 +298,30 @@ export default {
                 const textCompleterCloned = JSON.parse(JSON.stringify(textCompleter));
 
                 if (this.completionMode === 'entity') {
-                    textCompleterCloned.identifierRegexps = [/[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
+                    textCompleterCloned.identifierRegexps = [
+                        /[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/,
+                    ];
 
                     textCompleterCloned.getCompletions = function getComps(editor, session, pos, prefix, callback) {
-                        this.identifierRegexps = [/[\[\][a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
+                        this.identifierRegexps = [
+                            /[\[\][a-zA-Z_0-9\$\-\u00A2-\uFFFF]/,
+                        ];
                         callback(null, completerFunction(prefix));
-                        this.identifierRegexps = [/[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
+                        this.identifierRegexps = [
+                            /[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/,
+                        ];
                     };
 
                     textCompleterCloned.completerFunction = completerFunction;
                     this.editor.completers = [textCompleterCloned];
 
-                    const startCallback = (function startCall(e) {
+                    const startCallback = function startCall(e) {
                         if (e.command.name === 'insertstring') {
                             if (e.args !== '\n' && e.args !== ' ') {
                                 e.editor.execCommand('startAutocomplete', null);
                             }
                         }
-                    });
+                    };
 
                     this.editor.commands.on('afterExec', startCallback);
                 } else {

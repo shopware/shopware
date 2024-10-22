@@ -6,19 +6,19 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 interface Selection {
-    id: string,
-    name: string,
-    parentId?: string | null,
+    id: string;
+    name: string;
+    parentId?: string | null;
 }
 
 interface TreeItem {
-    id: string,
-    name: string,
-    parentId?: string | null,
-    childCount?: number,
+    id: string;
+    name: string;
+    parentId?: string | null;
+    childCount?: number;
     children: {
-        [key: string]: TreeItem
-    }
+        [key: string]: TreeItem;
+    };
 }
 
 /**
@@ -62,11 +62,11 @@ Component.register('sw-settings-country-new-snippet-modal', {
     },
 
     data(): {
-        searchTerm: string,
-        isLoading: boolean,
-        searchResults: TreeItem[] | null,
-        activeFocusId: string | null,
-        } {
+        searchTerm: string;
+        isLoading: boolean;
+        searchResults: TreeItem[] | null;
+        activeFocusId: string | null;
+    } {
         return {
             searchTerm: '',
             isLoading: false,
@@ -135,14 +135,14 @@ Component.register('sw-settings-country-new-snippet-modal', {
         search(): void {
             this.activeFocusId = null;
 
-            const keyWords = this.searchTerm.split(/[\W_]+/ig);
+            const keyWords = this.searchTerm.split(/[\W_]+/gi);
 
             if (!keyWords) {
                 return;
             }
 
-            const results = this.selections.filter(
-                item => keyWords.every(key => item.name.toLowerCase().includes(key.toLowerCase())),
+            const results = this.selections.filter((item) =>
+                keyWords.every((key) => item.name.toLowerCase().includes(key.toLowerCase())),
             );
 
             if (results.length === 0) {
@@ -158,7 +158,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
 
             const generate = (
                 currentIndex: number,
-                argument: { keyWords: string[], name: string },
+                argument: { keyWords: string[]; name: string },
                 result: { [key: string]: TreeItem },
             ) => {
                 const { keyWords, name } = argument;
@@ -197,7 +197,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
                     return !Object.values(children).length ? name : eventName.replace(/_|-/g, ' ');
                 };
 
-                nodes.forEach(node => {
+                nodes.forEach((node) => {
                     const children = node.children ? Object.values(node.children) : [];
                     output.push({
                         id: node.id,
@@ -215,7 +215,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
                 return output;
             };
 
-            selections.forEach(snippet => {
+            selections.forEach((snippet) => {
                 const keyWords = snippet.id.split('/');
                 if (keyWords.length === 0) {
                     return;

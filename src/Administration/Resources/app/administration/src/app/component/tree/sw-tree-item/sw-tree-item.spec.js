@@ -23,7 +23,9 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-checkbox-field': true,
                 'sw-confirm-field': true,
-                'sw-tree-item': await wrapTestComponent('sw-tree-item', { sync: true }),
+                'sw-tree-item': await wrapTestComponent('sw-tree-item', {
+                    sync: true,
+                }),
                 'sw-vnode-renderer': true,
                 'sw-skeleton': true,
             },

@@ -11,7 +11,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['page-leave', 'page-leave-confirm'],
+    emits: [
+        'page-leave',
+        'page-leave-confirm',
+    ],
 
     props: {
         order: {

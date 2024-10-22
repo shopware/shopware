@@ -3,11 +3,12 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -30,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InstallAppCommand extends Command
 {
     public function __construct(
-        private readonly AbstractAppLoader $appLoader,
+        private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AppPrinter $appPrinter,
         private readonly ManifestValidator $manifestValidator
@@ -150,7 +151,7 @@ class InstallAppCommand extends Command
                 \sprintf('Do you want to grant these permissions for app "%s"?', $manifest->getMetadata()->getName()),
                 false
             )) {
-                throw new UserAbortedCommandException();
+                throw AppException::userAborted();
             }
         }
     }

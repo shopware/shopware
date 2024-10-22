@@ -42,8 +42,7 @@ async function createWrapper() {
             isLoading: false,
         },
         global: {
-            provide: {
-            },
+            provide: {},
             stubs: {
                 'sw-order-state-select-v2': true,
                 'sw-entity-tag-select': true,

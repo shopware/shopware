@@ -5,7 +5,6 @@
 // Needed because we build the files for traditional backend: https://vitejs.dev/guide/backend-integration.html
 // eslint-disable-next-line import/no-unresolved
 import 'vite/modulepreload-polyfill';
-// @ts-expect-error - we use an alias for compat mode
 import { configureCompat } from 'vue';
 import './app/assets/scss/all.scss';
 
@@ -15,7 +14,12 @@ void import('src/core/shopware').then(async ({ ShopwareInstance }) => {
     window.Shopware = ShopwareInstance;
 
     // Take all keys out of Shopware.compatConfig but set them to true
-    const compatConfig = Object.fromEntries(Object.keys(ShopwareInstance.compatConfig).map(key => [key, true]));
+    const compatConfig = Object.fromEntries(
+        Object.keys(ShopwareInstance.compatConfig).map((key) => [
+            key,
+            true,
+        ]),
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     configureCompat(compatConfig);

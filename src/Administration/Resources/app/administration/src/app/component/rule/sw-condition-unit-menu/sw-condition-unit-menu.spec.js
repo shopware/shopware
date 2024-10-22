@@ -1,10 +1,6 @@
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({
-    type,
-    value,
-    visibleValue,
-}) {
+async function createWrapper({ type, value, visibleValue }) {
     return mount(await wrapTestComponent('sw-condition-unit-menu', { sync: true }), {
         props: {
             type,
@@ -101,10 +97,12 @@ describe('components/rule/sw-condition-unit-menu', () => {
 
         // should only be thrown once
         expect(changeUnitEvents).toHaveLength(1);
-        expect(changeUnitEvents[0]).toStrictEqual([{
-            unit: 'g',
-            value: 1000,
-        }]);
+        expect(changeUnitEvents[0]).toStrictEqual([
+            {
+                unit: 'g',
+                value: 1000,
+            },
+        ]);
     });
 
     it('should convert the converted value back to the base value: g -> kg', async () => {
@@ -126,10 +124,12 @@ describe('components/rule/sw-condition-unit-menu', () => {
 
         // should only be thrown once
         expect(changeUnitEvents).toHaveLength(2);
-        expect(changeUnitEvents[1]).toStrictEqual([{
-            unit: 'kg',
-            value: 1,
-        }]);
+        expect(changeUnitEvents[1]).toStrictEqual([
+            {
+                unit: 'kg',
+                value: 1,
+            },
+        ]);
     });
 
     it('should render "weight" unit options', async () => {
@@ -200,9 +200,11 @@ describe('components/rule/sw-condition-unit-menu', () => {
         const changeUnitEvents = wrapper.emitted('change-unit');
 
         expect(changeUnitEvents).toHaveLength(1);
-        expect(changeUnitEvents[0]).toStrictEqual([{
-            unit: 'min',
-            value: undefined,
-        }]);
+        expect(changeUnitEvents[0]).toStrictEqual([
+            {
+                unit: 'min',
+                value: undefined,
+            },
+        ]);
     });
 });

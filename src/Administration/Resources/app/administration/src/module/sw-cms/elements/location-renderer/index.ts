@@ -7,15 +7,15 @@ import './preview';
  * @package buyers-experience
  */
 export interface ElementDataProp {
-    name: string,
-    label: string
-    component: string,
-    previewComponent: string,
-    configComponent: string,
+    name: string;
+    label: string;
+    component: string;
+    previewComponent: string;
+    configComponent: string;
     defaultConfig: {
-        [key: string]: unknown,
-    },
+        [key: string]: unknown;
+    };
     appData: {
-        baseUrl: string
-    },
+        baseUrl: string;
+    };
 }

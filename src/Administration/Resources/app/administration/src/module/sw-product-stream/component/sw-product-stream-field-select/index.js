@@ -52,23 +52,25 @@ export default {
 
     computed: {
         options() {
-            const entityFields = Object.keys(this.definition.properties).map((property) => {
-                if (!this.conditionDataProviderService.isPropertyInAllowList(this.definition.entity, property)) {
-                    return null;
-                }
+            const entityFields = Object.keys(this.definition.properties)
+                .map((property) => {
+                    if (!this.conditionDataProviderService.isPropertyInAllowList(this.definition.entity, property)) {
+                        return null;
+                    }
 
-                if (property === 'id') {
+                    if (property === 'id') {
+                        return {
+                            label: this.getPropertyTranslation(this.definition.entity),
+                            value: property,
+                        };
+                    }
+
                     return {
-                        label: this.getPropertyTranslation(this.definition.entity),
+                        label: this.getPropertyTranslation(property),
                         value: property,
                     };
-                }
-
-                return {
-                    label: this.getPropertyTranslation(property),
-                    value: property,
-                };
-            }).filter((option) => option !== null);
+                })
+                .filter((option) => option !== null);
 
             if (this.definition.entity === 'product') {
                 Object.values(this.conditionDataProviderService.allowedJsonAccessors).forEach((field) => {

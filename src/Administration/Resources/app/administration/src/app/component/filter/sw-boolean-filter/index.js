@@ -40,7 +40,9 @@ Component.register('sw-boolean-filter', {
                 return;
             }
 
-            const filterCriteria = [Criteria.equals(this.filter.property, newValue === 'true')];
+            const filterCriteria = [
+                Criteria.equals(this.filter.property, newValue === 'true'),
+            ];
 
             this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },

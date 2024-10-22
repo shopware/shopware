@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -52,12 +53,15 @@ class CartException extends HttpException
     public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
     public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
     public const CART_LINE_ITEM_INVALID = 'CHECKOUT__CART_LINE_ITEM_INVALID';
-    private const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const CART_HASH_MISMATCH = 'CHECKOUT__CART_HASH_MISMATCH';
     public const CART_WRONG_DATA_TYPE = 'CHECKOUT__CART_WRONG_DATA_TYPE';
     public const SHIPPING_METHOD_NOT_FOUND = 'CHECKOUT__SHIPPING_METHOD_NOT_FOUND';
     public const CHECKOUT_CURRENCY_NOT_FOUND = 'CHECKOUT__CURRENCY_NOT_FOUND';
+    public const CART_PRODUCT_NOT_FOUND = 'CHECKOUT__CART_PRODUCT_NOT_FOUND';
+    public const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
+    public const CART_MIGRATION_INVALID_SOURCE = 'CHECKOUT_CART_MIGRATION_INVALID_SOURCE';
+    public const CART_MIGRATION_MISSING_REDIS_CONNECTION = 'CHECKOUT__CART_MIGRATION_MISSING_REDIS_CONNECTION';
 
     /**
      * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
@@ -471,6 +475,45 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CHECKOUT_CURRENCY_NOT_FOUND,
             'Currency cannot be found.'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function productNotFound(string $productId): self|ShopwareHttpException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new ProductNotFoundException($productId);
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_PRODUCT_NOT_FOUND,
+            'Product for id {{ productId }} not found.',
+            ['productId' => $productId]
+        );
+    }
+
+    /**
+     * @param list<string> $validSourceStorages
+     */
+    public static function cartMigrationInvalidSource(string $from, array $validSourceStorages): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_MIGRATION_INVALID_SOURCE,
+            'Invalid source storage: {{ from }}. Valid values are: {{ }}.',
+            ['from' => $from, 'validSourceStorages' => implode(', ', $validSourceStorages)]
+        );
+    }
+
+    public static function cartMigrationMissingRedisConnection(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_MIGRATION_MISSING_REDIS_CONNECTION,
+            'Redis connection is missing. Please check if "%shopware.cart.storage.config.dsn%" container parameter is correctly configured'
         );
     }
 }

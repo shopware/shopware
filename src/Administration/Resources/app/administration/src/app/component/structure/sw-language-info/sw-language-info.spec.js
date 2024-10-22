@@ -7,7 +7,6 @@ import { mount } from '@vue/test-utils';
 describe('src/app/component/structure/sw-language-info', () => {
     let wrapper = null;
 
-
     beforeEach(async () => {
         Shopware.State.commit('context/setApiLanguageId', '123456789');
         Shopware.State.commit('context/setApiSystemLanguageId', '123456789');
@@ -55,7 +54,7 @@ describe('src/app/component/structure/sw-language-info', () => {
     it('should not render the infoText when no language is set', async () => {
         const typeError = {
             method: 'warn',
-            msg: '[TypeError: Cannot read properties of null (reading \'id\')]',
+            msg: "[TypeError: Cannot read properties of null (reading 'id')]",
         };
         global.allowedErrors.push(typeError);
 
@@ -88,7 +87,9 @@ describe('src/app/component/structure/sw-language-info', () => {
             isNewEntity: true,
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextNewEntity|0|entityDescription:|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextNewEntity|0|entityDescription:|',
+        );
     });
 
     it('should render the infoText for a child language', async () => {
@@ -97,7 +98,9 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: '123',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextChildLanguage|0|entityDescription:|language:undefined|',
+        );
     });
 
     it('should render the infoText for a root language', async () => {
@@ -109,7 +112,9 @@ describe('src/app/component/structure/sw-language-info', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextRootLanguage|0|entityDescription:|language:undefined|',
+        );
     });
 
     it('should render the infoText with entityDescription for a new entity', async () => {
@@ -118,7 +123,9 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextNewEntity|0|entityDescription:My entity description|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextNewEntity|0|entityDescription:My entity description|',
+        );
     });
 
     it('should render the infoText with entityDescription for a child language', async () => {
@@ -131,7 +138,9 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:undefined|',
+        );
     });
 
     it('should render the infoText with entityDescription for a root language', async () => {
@@ -145,7 +154,9 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:undefined|',
+        );
     });
 
     it('should render the infoText with language name for a child language', async () => {
@@ -159,7 +170,9 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:demoLanguage|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:demoLanguage|',
+        );
     });
 
     it('should render the infoText with language name for a root language', async () => {
@@ -174,6 +187,8 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:demoLanguage|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:demoLanguage|',
+        );
     });
 });

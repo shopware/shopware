@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -165,7 +166,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             return new NoContentResponse();
         }
 
-        $hashedEmail = hash('sha1', $data['email']);
+        $hashedEmail = Hasher::hash($data['email'], 'sha1');
         $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());

@@ -33,7 +33,7 @@ class CustomFieldRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $attribute = [
             'id' => $id,
-            'name' => 'foo.size',
+            'name' => 'foo_size',
             'type' => 'int',
         ];
         $result = $this->repo->create([$attribute], Context::createDefaultContext());
@@ -56,13 +56,13 @@ class CustomFieldRepositoryTest extends TestCase
         $attributes = [
             [
                 'id' => $sizeId,
-                'name' => 'foo.size',
+                'name' => 'foo_size',
                 'type' => 'int',
                 'config' => ['fieldType' => 'color-picker'],
             ],
             [
                 'id' => $descriptionId,
-                'name' => 'foo.description',
+                'name' => 'foo_description',
                 'type' => 'string',
                 'config' => ['fieldType' => 'date-picker'],
             ],
@@ -85,12 +85,12 @@ class CustomFieldRepositoryTest extends TestCase
         $attributes = [
             [
                 'id' => $sizeId,
-                'name' => 'foo.size',
+                'name' => 'foo_size',
                 'type' => 'int',
             ],
             [
                 'id' => $descriptionId,
-                'name' => 'foo.description',
+                'name' => 'foo_description',
                 'type' => 'string',
             ],
         ];
@@ -111,12 +111,12 @@ class CustomFieldRepositoryTest extends TestCase
         $attributes = [
             [
                 'id' => $sizeId,
-                'name' => 'foo.size',
+                'name' => 'foo_size',
                 'type' => 'int',
             ],
             [
                 'id' => $descriptionId,
-                'name' => 'foo.description',
+                'name' => 'foo_description',
                 'type' => 'string',
             ],
         ];
@@ -124,7 +124,7 @@ class CustomFieldRepositoryTest extends TestCase
 
         $update = [
             'id' => $descriptionId,
-            'name' => 'Updated name',
+            'name' => 'updated_name',
         ];
         $result = $this->repo->update([$update], Context::createDefaultContext());
 
@@ -140,13 +140,13 @@ class CustomFieldRepositoryTest extends TestCase
         $attributes = [
             [
                 'id' => $sizeId,
-                'name' => 'foo.size',
+                'name' => 'foo_size',
                 'type' => 'int',
                 'label' => 'The size of foo products',
             ],
             [
                 'id' => $descriptionId,
-                'name' => 'foo.description',
+                'name' => 'foo_description',
                 'type' => 'string',
                 'label' => 'Foo description',
             ],

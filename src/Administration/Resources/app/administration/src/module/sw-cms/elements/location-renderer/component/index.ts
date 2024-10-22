@@ -64,7 +64,7 @@ Component.register('sw-cms-el-location-renderer', {
     data(): {
         unpublishData: null | (() => void);
         unpublishDataWithElementId: null | (() => void);
-        } {
+    } {
         return {
             unpublishData: null,
             unpublishDataWithElementId: null,

@@ -119,9 +119,7 @@ describe('components/form/sw-colorpicker', () => {
             value: '#123123',
         });
 
-        const previewColorStyleAttribute = wrapper
-            .find('.sw-colorpicker__previewColor')
-            .attributes('style');
+        const previewColorStyleAttribute = wrapper.find('.sw-colorpicker__previewColor').attributes('style');
 
         expect(previewColorStyleAttribute).toBe('background: rgb(18, 49, 35);');
     });
@@ -471,12 +469,7 @@ describe('components/form/sw-colorpicker', () => {
         const luminance = 51;
         const alpha = 0.27;
 
-        const rgbValue = wrapper.vm.convertHSLtoRGB(
-            hue,
-            saturation,
-            luminance,
-            alpha,
-        );
+        const rgbValue = wrapper.vm.convertHSLtoRGB(hue, saturation, luminance, alpha);
 
         expect(rgbValue.red).toBe(73);
         expect(rgbValue.green).toBe(147);
@@ -642,53 +635,112 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     const moveSelectorDataSet = [
-        [150.55, 150.7, 150.4, 150.2, 0.08, 99.5],
-        [153, 300, 151.5, 150, 0.75, 0],
-        [154, -400, 152, -150, 1, 100],
-        [400, 154, 150, 150, 100, 96],
-        [400, 300, 150, 150, 100, 0],
-        [400, -400, 150, -150, 100, 100],
-        [-150, 156.3, 150, 151.5, 0, 95.2],
-        [-150, 300, 150, 150, 0, 0],
-        [-150, -400, 150, -150, 0, 100],
+        [
+            150.55,
+            150.7,
+            150.4,
+            150.2,
+            0.08,
+            99.5,
+        ],
+        [
+            153,
+            300,
+            151.5,
+            150,
+            0.75,
+            0,
+        ],
+        [
+            154,
+            -400,
+            152,
+            -150,
+            1,
+            100,
+        ],
+        [
+            400,
+            154,
+            150,
+            150,
+            100,
+            96,
+        ],
+        [
+            400,
+            300,
+            150,
+            150,
+            100,
+            0,
+        ],
+        [
+            400,
+            -400,
+            150,
+            -150,
+            100,
+            100,
+        ],
+        [
+            -150,
+            156.3,
+            150,
+            151.5,
+            0,
+            95.2,
+        ],
+        [
+            -150,
+            300,
+            150,
+            150,
+            0,
+            0,
+        ],
+        [
+            -150,
+            -400,
+            150,
+            -150,
+            0,
+            100,
+        ],
     ];
 
-    it.each(moveSelectorDataSet)('should calculate luminanceValue and saturationValue correctly when moveSelector', async (
-        clientX,
-        clientY,
-        left,
-        top,
-        expectedSaturationValue,
-        expectedLuminanceValue,
-    ) => {
-        wrapper = await createWrapper();
+    it.each(moveSelectorDataSet)(
+        'should calculate luminanceValue and saturationValue correctly when moveSelector',
+        async (clientX, clientY, left, top, expectedSaturationValue, expectedLuminanceValue) => {
+            wrapper = await createWrapper();
 
-        await wrapper.setData({
-            visible: true,
-            isDragging: true,
-        });
-        await flushPromises();
+            await wrapper.setData({
+                visible: true,
+                isDragging: true,
+            });
+            await flushPromises();
 
-        const event = {
-            clientX,
-            clientY,
-            preventDefault: jest.fn(),
-        };
-
-        jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
-            return {
-                left,
-                top,
-                width: 200,
-                height: 100,
+            const event = {
+                clientX,
+                clientY,
+                preventDefault: jest.fn(),
             };
-        });
 
-        wrapper.vm.moveSelector(event);
+            jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
+                return {
+                    left,
+                    top,
+                    width: 200,
+                    height: 100,
+                };
+            });
 
-        expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
-        expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
-    });
+            wrapper.vm.moveSelector(event);
+
+            expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
+            expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
+        },
+    );
 
     it('should prevent default behavior on moveSelector event argument', async () => {
         wrapper = await createWrapper();

@@ -84,7 +84,7 @@ async function createWrapper(privileges = []) {
             },
             provide: {
                 acl: {
-                    can: key => (key ? privileges.includes(key) : true),
+                    can: (key) => (key ? privileges.includes(key) : true),
                 },
                 stateStyleDataProviderService: {},
                 repositoryFactory: {
@@ -141,7 +141,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(addButton.attributes().disabled).toBeTruthy();
     });
 
-
     it('should be able to edit the manufacturer', async () => {
         const wrapper = await createWrapper([
             'product_manufacturer.editor',
@@ -154,8 +153,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         const elements = wrapper.findAll('.sw-field');
         expect(elements).toHaveLength(2);
-        elements.forEach(el => expect(el.attributes().disabled).toBeUndefined());
-
+        elements.forEach((el) => expect(el.attributes().disabled).toBeUndefined());
 
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
@@ -172,7 +170,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         const elements = wrapper.findAll('.sw-field');
         expect(elements).toHaveLength(2);
-        elements.forEach(el => expect(el.attributes().disabled).toBe('true'));
+        elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
 
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
@@ -198,7 +196,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
             message: 'global.notification.notificationLoadingDataErrorMessage',
         });
 
-        expect(wrapper.vm.customFieldSets).toEqual([{ id: 'MOCK_CUSTOM_FIELD_SET_ID' }]);
+        expect(wrapper.vm.customFieldSets).toEqual([
+            { id: 'MOCK_CUSTOM_FIELD_SET_ID' },
+        ]);
     });
 
     it('should set loading to false if only the custom field set request fails', async () => {

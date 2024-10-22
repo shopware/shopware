@@ -55,6 +55,11 @@ abstract class XmlElement extends Struct
         return $array;
     }
 
+    public static function kebabCaseToCamelCase(string $string): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -92,11 +97,6 @@ abstract class XmlElement extends Struct
                 throw new InvalidArgumentException($field . ' must not be empty');
             }
         }
-    }
-
-    public static function kebabCaseToCamelCase(string $string): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 
     /**

@@ -159,7 +159,7 @@ Component.register('sw-grid', {
         },
 
         columnFlex() {
-            let flex = (this.selectable === true) ? '50px ' : '';
+            let flex = this.selectable === true ? '50px ' : '';
 
             this.columns.forEach((column) => {
                 if (`${parseInt(column.flex, 10)}` === column.flex) {
@@ -278,6 +278,9 @@ Component.register('sw-grid', {
             return typeof this.selection[itemId] !== 'undefined';
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - isGridDisabled function will be removed.
+         */
         isGridDisabled(itemId) {
             return this.isSelected(itemId) && this.selection[itemId].gridDisabled;
         },

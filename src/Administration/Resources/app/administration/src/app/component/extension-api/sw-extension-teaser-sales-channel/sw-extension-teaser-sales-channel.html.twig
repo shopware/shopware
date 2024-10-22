@@ -1,0 +1,40 @@
+<div>
+    <template
+        v-for="teaserSalesChannel in teaserSalesChannels"
+        :key="teaserSalesChannel.salesChannel.title"
+    >
+        <div class="sw-extension-teaser-sales-channel">
+            <div class="sw-extension-teaser-sales-channel__info">
+                <span
+                    class="sw-extension-teaser-sales-channel__icon"
+                    role="button"
+                    tabindex="0"
+                >
+                    <mt-icon
+                        v-if="teaserSalesChannel.salesChannel.iconName"
+                        :name="teaserSalesChannel.salesChannel.iconName"
+                        size="24px"
+                    />
+                </span>
+
+                <div class="sw-extension-teaser-sales-channel__item-content">
+                    <h3
+                        class="sw-extension-teaser-sales-channel__item-name"
+                        role="button"
+                        tabindex="0"
+                    >{{ $tc(teaserSalesChannel.salesChannel.title) }}</h3>
+                    <div
+                        class="sw-extension-teaser-sales-channel__item-description"
+                        role="button"
+                        tabindex="0"
+                    >{{ $tc(teaserSalesChannel.salesChannel.description) }}</div>
+                </div>
+            </div>
+
+            <sw-extension-teaser-popover
+                :component="teaserSalesChannel.popoverComponent"
+            />
+        </div>
+    </template>
+</div>
+

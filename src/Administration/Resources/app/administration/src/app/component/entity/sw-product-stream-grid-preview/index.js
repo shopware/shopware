@@ -1,7 +1,7 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context } = Shopware;
+const { Component, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -12,7 +12,10 @@ Component.register('sw-product-stream-grid-preview', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'productStreamPreviewService',
+    ],
 
     emits: ['selection-change'],
 
@@ -66,29 +69,48 @@ Component.register('sw-product-stream-grid-preview', {
             return this.repositoryFactory.create('currency');
         },
 
-        defaultColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-product-stream.filter.values.product'),
-                type: 'text',
-                routerLink: 'sw.product.detail',
-            }, {
-                property: 'manufacturer.name',
-                label: this.$tc('sw-product-stream.filter.values.manufacturer'),
-            }, {
-                property: 'active',
-                label: this.$tc('sw-product-stream.filter.values.active'),
-                align: 'center',
-                type: 'bool',
-            }, {
-                property: 'price',
-                label: this.$tc('sw-product-stream.filter.values.price'),
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
 
-            }, {
-                property: 'stock',
-                label: this.$tc('sw-product-stream.filter.values.stock'),
-                align: 'right',
-            }];
+        salesChannelCriteria() {
+            return new Criteria(1, 1)
+                .addFilter(
+                    Criteria.not('OR', [
+                        Criteria.equals('typeId', Defaults.productComparisonTypeId),
+                    ]),
+                )
+                .addSorting(Criteria.sort('type.iconName', 'ASC'));
+        },
+
+        defaultColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    type: 'text',
+                    routerLink: 'sw.product.detail',
+                },
+                {
+                    property: 'manufacturer.name',
+                    label: this.$tc('sw-product-stream.filter.values.manufacturer'),
+                },
+                {
+                    property: 'active',
+                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    align: 'center',
+                    type: 'bool',
+                },
+                {
+                    property: 'price',
+                    label: this.$tc('sw-product-stream.filter.values.price'),
+                },
+                {
+                    property: 'stock',
+                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    align: 'right',
+                },
+            ];
         },
 
         productColumns() {
@@ -175,23 +197,24 @@ Component.register('sw-product-stream-grid-preview', {
             this.criteria.addAssociation('options.group');
             this.criteria.addGroupField('displayGroup');
             this.criteria.addFilter(
-                Criteria.not(
-                    'AND',
-                    [
-                        Criteria.equals('displayGroup', null),
-                    ],
-                ),
+                Criteria.not('AND', [
+                    Criteria.equals('displayGroup', null),
+                ]),
             );
 
-            return this.productRepository.search(this.criteria, {
-                ...Context.api,
-                inheritance: true,
-            }).then((products) => {
-                this.products = products;
-                this.total = products.total;
-
-                this.isLoading = false;
-            });
+            return this.salesChannelRepository
+                .searchIds(this.salesChannelCriteria)
+                .then(({ data }) => {
+                    return this.productStreamPreviewService.preview(data.at(0), this.criteria, [], {
+                        'sw-currency-id': Context.app.systemCurrencyId,
+                        'sw-inheritance': true,
+                    });
+                })
+                .then((result) => {
+                    this.products = Object.values(result.elements);
+                    this.total = result.total;
+                    this.isLoading = false;
+                });
         },
 
         onPageChange({ page = 1, limit = 25 }) {

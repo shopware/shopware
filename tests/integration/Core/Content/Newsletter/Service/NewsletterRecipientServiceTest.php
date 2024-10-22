@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -186,7 +187,7 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $email = 'unit@test.foo';
         $dataBag = new RequestDataBag([
-            'em' => hash('sha1', $email),
+            'em' => Hasher::hash($email, 'sha1'),
             'hash' => 'b4b45f58088d41289490db956ca19af7',
         ]);
 

@@ -7,8 +7,8 @@
     <services>
         <!-- Theme -->
         <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory">
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
@@ -24,23 +24,19 @@
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="shopware.filesystem.temp"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver" />
             <argument type="tagged" tag="shopware.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
             <argument>%storefront.theme.auto_prefix_css%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Theme\ThemeFileImporter">
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">
@@ -51,7 +47,7 @@
             <argument type="service" id="theme_media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="theme_child.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -59,7 +55,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeScripts">
@@ -249,6 +245,7 @@
             <argument type="service" id="theme.repository"/>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
 
             <tag name="console.command"/>
         </service>
@@ -347,5 +344,9 @@
             <tag name="shopware.dal.exception_handler"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\ThemeFilesystemResolver" public="true">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="kernel"></argument>
+        </service>
     </services>
 </container>

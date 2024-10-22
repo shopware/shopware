@@ -33,7 +33,7 @@
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=../../deprecation.ignore" />
     </php>
     <testsuites>
-        <testsuite name="migration-tests">
+        <testsuite name="migration">
             <directory>.</directory>
         </testsuite>
     </testsuites>

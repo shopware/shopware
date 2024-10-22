@@ -18,8 +18,6 @@ use Shopware\Core\Migration\V6_6\Migration1723193659UpdateVatPatternForCountry;
 #[CoversClass(Migration1723193659UpdateVatPatternForCountry::class)]
 class Migration1723193659UpdateVatPatternForCountryTest extends TestCase
 {
-    private Connection $connection;
-
     private const OLD_PATTERNS = [
         'AT' => '(AT)?U[0-9]{8}',
         'BE' => '(BE)?0[0-9]{9}',
@@ -49,6 +47,8 @@ class Migration1723193659UpdateVatPatternForCountryTest extends TestCase
         'SI' => '(SI)?[0-9]{8}',
         'SK' => '(SK)?[0-9]{10}',
     ];
+
+    private Connection $connection;
 
     protected function setUp(): void
     {

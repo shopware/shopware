@@ -52,7 +52,12 @@
 
             {% if isCartNotEmpty %}
                 {% block component_offcanvas_cart_items %}
-                    <div class="offcanvas-cart-items">
+                    {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+                    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                        <ul class="offcanvas-cart-items list-unstyled">
+                    {%- else -%}
+                        <div class="offcanvas-cart-items" role="list">
+                    {%- endif -%}
                         {% for lineItem in page.cart.lineItems %}
                             {% block component_offcanvas_cart_item %}
                                 {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
@@ -61,7 +66,12 @@
                                 } %}
                             {% endblock %}
                         {% endfor %}
-                    </div>
+                    {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+                    {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                        </div>
+                    {%- else -%}
+                        </ul>
+                    {%- endif -%}
                 {% endblock %}
             {% else %}
                 {% block component_offcanvas_cart_empty %}

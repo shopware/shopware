@@ -26,6 +26,9 @@ export default {
             type: Object,
             required: true,
         },
+        /**
+         * @deprecated tag:v6.7.0 - The disabled props will be removed.
+         */
         disabled: {
             type: Boolean,
             required: false,
@@ -90,7 +93,7 @@ export default {
                 return;
             }
 
-            const exists = this.options.find(i => i.optionId === item.id);
+            const exists = this.options.find((i) => i.optionId === item.id);
 
             if (exists) {
                 this.options.remove(exists.id);

@@ -16,7 +16,10 @@ Component.register('sw-sales-channel-product-assignment-categories', {
 
     inject: ['repositoryFactory'],
 
-    emits: ['selection-change', 'product-loading'],
+    emits: [
+        'selection-change',
+        'product-loading',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -65,7 +68,10 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [...acc, ...pathIds];
+                return [
+                    ...acc,
+                    ...pathIds,
+                ];
             }, []);
         },
     },
@@ -86,7 +92,9 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                         this.$emit('selection-change', products, 'categoryProducts');
                     })
                     .catch((error) => {
-                        this.createNotificationError({ message: error.message });
+                        this.createNotificationError({
+                            message: error.message,
+                        });
                     })
                     .finally(() => {
                         this.$emit('product-loading', false);
@@ -128,19 +136,13 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             const categoryCriteria = new Criteria(1, 500);
 
             categoryCriteria.addFilter(
-                Criteria.multi(
-                    'AND',
-                    [
-                        Criteria.equals('parentId', parentId),
-                        Criteria.multi(
-                            'OR',
-                            [
-                                Criteria.equals('type', 'page'),
-                                Criteria.equals('type', 'folder'),
-                            ],
-                        ),
-                    ],
-                ),
+                Criteria.multi('AND', [
+                    Criteria.equals('parentId', parentId),
+                    Criteria.multi('OR', [
+                        Criteria.equals('type', 'page'),
+                        Criteria.equals('type', 'folder'),
+                    ]),
+                ]),
             );
 
             return categoryCriteria;
@@ -158,26 +160,30 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             this.isFetching = true;
 
             // search for categories
-            return this.categoryRepository.search(this.categoryCriteria(parentId), Context.api).then((searchResult) => {
-                // when requesting root categories, replace the data
-                if (parentId === null) {
-                    this.categories = searchResult;
+            return this.categoryRepository
+                .search(this.categoryCriteria(parentId), Context.api)
+                .then((searchResult) => {
+                    // when requesting root categories, replace the data
+                    if (parentId === null) {
+                        this.categories = searchResult;
+                        return Promise.resolve();
+                    }
+
+                    // add new categories
+                    searchResult.forEach((category) => {
+                        this.categories.add(category);
+                    });
+
                     return Promise.resolve();
-                }
-
-                // add new categories
-                searchResult.forEach((category) => {
-                    this.categories.add(category);
+                })
+                .catch((err) => {
+                    this.createNotificationError({
+                        message: err.message,
+                    });
+                })
+                .finally(() => {
+                    this.isFetching = false;
                 });
-
-                return Promise.resolve();
-            }).catch(err => {
-                this.createNotificationError({
-                    message: err.message,
-                });
-            }).finally(() => {
-                this.isFetching = false;
-            });
         },
 
         onChangeSearchTerm(searchTerm) {
@@ -236,16 +242,13 @@ Component.register('sw-sales-channel-product-assignment-categories', {
         productCriteria(categories) {
             const productCriteria = new Criteria(1, 500);
             productCriteria.addFilter(
-                Criteria.multi(
-                    'AND',
-                    [
-                        Criteria.equalsAny('categoryIds', categories),
-                        Criteria.equals('parentId', null),
-                        Criteria.not('and', [
-                            Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                        ]),
-                    ],
-                ),
+                Criteria.multi('AND', [
+                    Criteria.equalsAny('categoryIds', categories),
+                    Criteria.equals('parentId', null),
+                    Criteria.not('and', [
+                        Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
+                    ]),
+                ]),
             );
 
             return productCriteria;

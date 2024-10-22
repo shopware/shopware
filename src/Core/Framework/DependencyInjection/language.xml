@@ -22,6 +22,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\System\Language\SalesChannelLanguageLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\System\Language\CachedLanguageLoader" decorates="Shopware\Core\System\Language\LanguageLoader">
             <argument type="service" id="Shopware\Core\System\Language\CachedLanguageLoader.inner"/>
             <argument type="service" id="cache.object"/>

@@ -10,64 +10,67 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-product-description-reviews', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-tabs': {
-                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-product-description-reviews', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-tabs': {
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-entity-single-select': true,
+                    'sw-alert': true,
+                    'sw-product-variant-info': true,
+                    'sw-select-result': true,
+                    'sw-select-field': true,
                 },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return { 'product-description-reviews': {} };
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(productMock),
+                                search: () => Promise.resolve(productMock),
+                            };
+                        },
+                    },
                 },
-                'sw-tabs-item': true,
-                'sw-entity-single-select': true,
-                'sw-alert': true,
-                'sw-product-variant-info': true,
-                'sw-select-result': true,
-                'sw-select-field': true,
             },
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
-                    },
-                    getCmsElementRegistry: () => {
-                        return { 'product-description-reviews': {} };
-                    },
+            props: {
+                element: {
+                    config: {},
+                    data: {},
                 },
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(productMock),
-                            search: () => Promise.resolve(productMock),
-                        };
+                defaultConfig: {
+                    product: {
+                        value: null,
+                    },
+                    alignment: {
+                        value: null,
                     },
                 },
             },
         },
-        props: {
-            element: {
-                config: {},
-                data: {},
-            },
-            defaultConfig: {
-                product: {
-                    value: null,
-                },
-                alignment: {
-                    value: null,
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/product-description-reviews/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state() {
                 return {
                     currentPage: {
@@ -81,7 +84,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').$reset();
+        Shopware.Store.get('cmsPage').$reset();
     });
 
     it('should show product selector if page type is not product detail', async () => {
@@ -97,7 +100,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
     it('should show alert information if page type is product detail', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        Shopware.Store.get('cmsPage').currentPage.type = 'product_detail';
         await flushPromises();
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');

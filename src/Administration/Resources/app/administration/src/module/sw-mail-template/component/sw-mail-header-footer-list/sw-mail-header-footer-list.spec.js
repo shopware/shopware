@@ -19,7 +19,6 @@ const mailHeaderFooterMock = [
         description: 'Shopware Default Template',
         name: 'Order Header',
         salesChannels: [],
-
     },
 ];
 
@@ -34,7 +33,7 @@ const createWrapper = async (privileges = []) => {
                         },
 
                         delete: (id) => {
-                            const hasSalesChannel = mailHeaderFooterMock.find(item => item.id === id).salesChannels.length;
+                            const hasSalesChannel = mailHeaderFooterMock.find((item) => item.id === id).salesChannels.length;
 
                             if (hasSalesChannel) {
                                 return Promise.reject();
@@ -46,7 +45,9 @@ const createWrapper = async (privileges = []) => {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -66,7 +67,13 @@ const createWrapper = async (privileges = []) => {
                     template: '<div><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
-                    props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
+                    props: [
+                        'items',
+                        'allowEdit',
+                        'allowView',
+                        'allowDelete',
+                        'detailRoute',
+                    ],
                     template: `
                     <div>
                         <template v-for="item in items">

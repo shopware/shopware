@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -46,7 +47,10 @@ class EntityCompilerPass implements CompilerPassInterface
 
             /** @var string $class */
             $class = $service->getClass();
-            /** @var EntityDefinition $instance */
+
+            if (!\is_subclass_of($class, EntityDefinition::class)) {
+                throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'shopware.entity.definition', EntityDefinition::class);
+            }
             $instance = new $class();
 
             $entityNameMap[$instance->getEntityName()] = $serviceId;

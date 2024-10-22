@@ -9,8 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -144,11 +144,10 @@ class SyncService implements SyncServiceInterface
     {
         $definition = $this->registry->getByEntityName($operation->getEntity());
 
-        if (!$definition instanceof MappingEntityDefinition) {
-            throw ApiException::invalidSyncCriteriaException($operation->getKey());
-        }
+        $filters = $this->criteriaBuilder->fromArray(['filter' => $operation->getCriteria()], new Criteria(), $definition, $context);
 
-        $criteria = $this->criteriaBuilder->fromArray(['filter' => $operation->getCriteria()], new Criteria(), $definition, $context);
+        $criteria = new Criteria();
+        $criteria->addFilter(...$filters->getFilters());
 
         if (empty($criteria->getFilters())) {
             throw ApiException::invalidSyncCriteriaException($operation->getKey());
@@ -156,6 +155,15 @@ class SyncService implements SyncServiceInterface
 
         $ids = $this->searcher->search($definition, $criteria, $context);
 
-        $operation->replacePayload(\array_values($ids->getIds()));
+        $values = \array_values($ids->getIds());
+
+        $primaries = $definition->getPrimaryKeys()->filterInstance(IdField::class);
+        if (\count($primaries) === 1) {
+            $first = $primaries->first();
+            \assert($first instanceof IdField); // we already checked with the count
+            $values = \array_map(static fn ($id) => [$first->getPropertyName() => $id], $values);
+        }
+
+        $operation->replacePayload($values);
     }
 }

@@ -13,13 +13,15 @@
                       The phpunit file traversal is really inefficient for our test structure. A naive definition results in
                       more than 70000 files being traversed, which has to be done for each thread/process.
                   -->
-            <directory suffix=".php">src/Core/Framework</directory>
-            <directory suffix=".php">src/Core/Content</directory>
             <directory suffix=".php">src/Core/Checkout</directory>
+            <directory suffix=".php">src/Core/Content</directory>
+            <directory suffix=".php">src/Core/Framework</directory>
             <directory suffix=".php">src/Core/DevOps</directory>
-            <directory suffix=".php">src/Core/Maintenance</directory>
-            <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Core/Installer</directory>
+            <directory suffix=".php">src/Core/Maintenance</directory>
+            <directory suffix=".php">src/Core/Profiling</directory>
+            <directory suffix=".php">src/Core/System</directory>
+            <directory suffix=".php">src/Core/Service</directory>
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
@@ -141,11 +143,6 @@
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
-        <!-- Legacy -->
-        <testsuite name="migration">
-            <directory>src/Core/Migration/Test</directory>
-        </testsuite>
-        <!-- new Structure -->
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
@@ -155,7 +152,7 @@
         <testsuite name="devops">
             <directory>tests/devops</directory>
         </testsuite>
-        <testsuite name="migration-tests">
+        <testsuite name="migration">
             <directory>tests/migration</directory>
         </testsuite>
         <!-- Paratest -->
@@ -163,7 +160,6 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit</directory>
-            <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>
     <extensions>

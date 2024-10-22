@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Event\CartContextHashEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -42,6 +43,6 @@ class CartContextHasher
             ->eventDispatcher
             ->dispatch(new CartContextHashEvent($context, $cart, $struct));
 
-        return \hash('sha256', \json_encode($event->getHashStruct(), \JSON_THROW_ON_ERROR) ?: '');
+        return Hasher::hash($event->getHashStruct(), 'sha256');
     }
 }

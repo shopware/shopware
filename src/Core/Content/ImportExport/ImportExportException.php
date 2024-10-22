@@ -44,6 +44,8 @@ class ImportExportException extends HttpException
     final public const DUPLICATE_TECHNICAL_NAME = 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME';
     final public const DESERIALIZE_FAILED = 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED';
 
+    final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
+
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
         return new InvalidFileAccessTokenException();
@@ -310,6 +312,23 @@ class ImportExportException extends HttpException
             self::DESERIALIZE_FAILED,
             'Deserialization failed for field "{{ field }}" with value "{{ value }}" to type "{{ type }}"',
             ['field' => $field, 'value' => $value, 'type' => $type]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function invalidInstanceType(string $argument, string $expected): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \InvalidArgumentException('Expected "' . $argument . '" to be an instance of "' . $expected . '".');
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_INSTANCE_TYPE,
+            'Expected "{{ argument }}" to be an instance of "{{ expected }}".',
+            ['argument' => $argument, 'expected' => $expected],
         );
     }
 }

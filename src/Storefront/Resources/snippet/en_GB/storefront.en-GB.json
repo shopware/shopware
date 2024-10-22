@@ -34,6 +34,8 @@
     "mainMenu": "Show all categories",
     "closeMenu": "Close menu",
     "back": "Back",
+    "expand": "Expand",
+    "collapse": "Collapse",
     "categories": "Categories",
     "showCategory": "Show %category%",
     "required": "*",
@@ -125,6 +127,7 @@
       "basic-captcha-invalid": "Incorrect input. Please try again."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
+    "CHECKOUT__ORDER_ORDER_CANCELLED": "The order with the order number \"%orderNumber%\" was canceled and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
     "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
     "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
@@ -343,12 +346,12 @@
     "orderItemInfoContent": "Content:",
     "orderItemInfoCurrentPrice": "Current unit price",
     "orderItemInfoNotAvailable": "Product no longer available for a follow-up order",
-    "orderActionView": "Expand",
-    "orderActionHide": "Collapse",
+    "orderActionView": "Show details",
+    "orderActionHide": "Hide details",
     "orderInfoNoDispatch": "No stated",
     "orderLinkRepeat": "Repeat order",
     "documentItemColumnTitle": "Document",
-    "documentItemColumnDate": "Date",
+    "documentItemColumnDate": "Creation date",
     "documentItemViewFileButton": "View file",
     "downloadFileButton": "Download",
     "downloadItemColumnTitle": "File",
@@ -361,7 +364,13 @@
     "colonCharacter": ":",
     "orderGuestLoginTitle": "Authentication",
     "orderGuestLoginDescription": "To view your order, please enter your mail address and the postal code given with your billing address.",
-    "orderGuestLoginWrongCredentials": "The given data could not be associated with an order."
+    "orderGuestLoginWrongCredentials": "The given data could not be associated with an order.",
+    "orderLineItemsListAriaLabel": "Order line items",
+    "orderItemAriaLabel": "Order number %order_number%",
+    "orderDocumentsAriaLabel": "Documents of this order",
+    "orderSummaryAriaLabel": "Summary of this order",
+    "orderInfoAriaLabel": "Information about this order",
+    "orderTrackingNotAvailable": "Not available"
   },
   "address": {
     "streetLabel": "Street address",
@@ -553,6 +562,7 @@
     "filterByManufacturerAriaLabel": "Filter by manufacturer",
     "filterByPriceAriaLabel": "Filter by price",
     "filterByRatingAriaLabel": "Filter by minimum rating",
+    "filterClose": "Close filters",
     "defaultProductSortingLabel": "Name, ascending",
     "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters.",
     "beforeListPrice": "",
@@ -684,7 +694,8 @@
     "wishlistEmptyHeader": "Your wishlist is empty",
     "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist.",
     "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|]1,Inf[ Available in %restockTime% days, delivery time %name%",
-    "deliveryShipping": "This product will be released on"
+    "deliveryShipping": "This product will be released on",
+    "remove": "Remove %product_name% from wishlist"
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

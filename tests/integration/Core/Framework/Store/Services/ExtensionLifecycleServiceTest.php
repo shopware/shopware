@@ -43,6 +43,8 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     /**
      * @var EntityRepository<ThemeCollection>|null
+     *
+     * @phpstan-ignore property.unusedType (can be null in a test, where the storefront is not installed)
      */
     private ?EntityRepository $themeRepository;
 

@@ -7,98 +7,99 @@ import {
     GENERAL_GROUP,
     TAG_GROUP,
     CUSTOMER_GROUP,
-    ORDER_GROUP, ACTION_TYPE,
+    ORDER_GROUP,
+    ACTION_TYPE,
 } from '../constant/flow.constant';
 
 const { Utils, EntityDefinition } = Shopware;
 const { capitalizeString, camelCase, snakeCase } = Shopware.Utils.string;
 
 type Node = {
-    id: string,
-    parentId: string,
-    children: Node[]
-}
+    id: string;
+    parentId: string;
+    children: Node[];
+};
 
 type Primitive = string | number | boolean | null;
 type SequenceConfigValues = {
-    [key: string]: Primitive | Primitive[] | { [key: string]: Primitive | Primitive[] }
+    [key: string]: Primitive | Primitive[] | { [key: string]: Primitive | Primitive[] };
 };
 
 type AppAction = Entity<'app_flow_action'> & {
     config: Array<{
-        name: string,
-        type: string,
-        label: { [key: string]: string },
+        name: string;
+        type: string;
+        label: { [key: string]: string };
         options: Array<{
-            value: string | number,
-            label: { [key: string]: string },
-        }>,
-    }>,
-}
+            value: string | number;
+            label: { [key: string]: string };
+        }>;
+    }>;
+};
 
 type Action = {
-    name: string,
-    delayable: boolean,
-    requirements: string[],
-    extensions: never[],
-    config: { [key: string]: string },
-}
+    name: string;
+    delayable: boolean;
+    requirements: string[];
+    extensions: never[];
+    config: { [key: string]: string };
+};
 
 type ActionData = {
-    appActions: AppAction[],
-    customerGroups: EntityCollection<'customer_group'>
-    customFields: EntityCollection<'custom_field'>
-    customFieldSets: EntityCollection<'custom_field_set'>
-    stateMachineState: EntityCollection<'state_machine_state'>
-    documentTypes: EntityCollection<'document_type'>
-    mailTemplates: EntityCollection<'mail_template'>
-}
+    appActions: AppAction[];
+    customerGroups: EntityCollection<'customer_group'>;
+    customFields: EntityCollection<'custom_field'>;
+    customFieldSets: EntityCollection<'custom_field_set'>;
+    stateMachineState: EntityCollection<'state_machine_state'>;
+    documentTypes: EntityCollection<'document_type'>;
+    mailTemplates: EntityCollection<'mail_template'>;
+};
 
 type ActionTranslator = {
     // eslint-disable-next-line @typescript-eslint/ban-types
-    $tc: I18n<{}, {}, {}, string, true>['global']['tc'],
-    currentLocale: string,
-    getInlineSnippet(value: { [key: string]: string }): string,
-}
+    $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
+    currentLocale: string;
+    getInlineSnippet(value: { [key: string]: string }): string;
+};
 
 type ActionSequence = Entity<'flow_sequence'> & {
     config: SequenceConfigValues & {
-        value?: boolean,
-        entity?: string,
-        active?: boolean,
-        order?: string,
-        mailTemplateId?: string,
-        order_delivery?: string
-        optionLabel?: string,
-        customFieldId?: string,
-        customFieldSetId?: string,
-        customerGroupId?: string,
-        order_transaction?: string,
-        force_transition?: boolean,
-        documentType?: string,
+        value?: boolean;
+        entity?: string;
+        active?: boolean;
+        order?: string;
+        mailTemplateId?: string;
+        order_delivery?: string;
+        optionLabel?: string;
+        customFieldId?: string;
+        customFieldSetId?: string;
+        customerGroupId?: string;
+        order_transaction?: string;
+        force_transition?: boolean;
+        documentType?: string;
         affiliateCode?: {
-            upsert?: boolean,
-            value?: string,
-        },
+            upsert?: boolean;
+            value?: string;
+        };
         campaignCode?: {
-            upsert?: boolean,
-            value?: string,
-        },
+            upsert?: boolean;
+            value?: string;
+        };
         documentTypes?: Array<{
-            documentType: string,
-        }>,
-    },
-}
+            documentType: string;
+        }>;
+    };
+};
 
 /**
  * @private
  * @package services-settings
  */
 export type ActionContext = {
-    data: ActionData,
-    sequence: ActionSequence,
-    translator: ActionTranslator
-}
+    data: ActionData;
+    sequence: ActionSequence;
+    translator: ActionTranslator;
+};
 
 /**
  * @private
@@ -138,26 +139,18 @@ export default class FlowBuilderService {
     };
 
     private $descriptionCallbacks = {
-        [this.$actionNames.MAIL_SEND]:
-            (context: ActionContext) => this.getMailSendDescription(context),
-        [this.$actionNames.STOP_FLOW]:
-            (context: ActionContext) => this.getStopFlowActionDescription(context),
-        [this.$actionNames.SET_ORDER_STATE]:
-            (context: ActionContext) => this.getSetOrderStateDescription(context),
-        [this.$actionNames.GENERATE_DOCUMENT]:
-            (context: ActionContext) => this.getGenerateDocumentDescription(context),
-        [this.$actionNames.CHANGE_CUSTOMER_GROUP]:
-            (context: ActionContext) => this.getCustomerGroupDescription(context),
-        [this.$actionNames.GRANT_DOWNLOAD_ACCESS]:
-            (context: ActionContext) => this.getDownloadAccessDescription(context),
-        [this.$actionNames.SET_CUSTOMER_CUSTOM_FIELD]:
-            (context: ActionContext) => this.getCustomFieldDescription(context),
-        [this.$actionNames.CHANGE_CUSTOMER_STATUS]:
-            (context: ActionContext) => this.getCustomerStatusDescription(context),
-        [this.$actionNames.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]:
-            (context: ActionContext) => this.getAffiliateAndCampaignCodeDescription(context),
-        [this.$actionNames.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]:
-            (context: ActionContext) => this.getAffiliateAndCampaignCodeDescription(context),
+        [this.$actionNames.MAIL_SEND]: (context: ActionContext) => this.getMailSendDescription(context),
+        [this.$actionNames.STOP_FLOW]: (context: ActionContext) => this.getStopFlowActionDescription(context),
+        [this.$actionNames.SET_ORDER_STATE]: (context: ActionContext) => this.getSetOrderStateDescription(context),
+        [this.$actionNames.GENERATE_DOCUMENT]: (context: ActionContext) => this.getGenerateDocumentDescription(context),
+        [this.$actionNames.CHANGE_CUSTOMER_GROUP]: (context: ActionContext) => this.getCustomerGroupDescription(context),
+        [this.$actionNames.GRANT_DOWNLOAD_ACCESS]: (context: ActionContext) => this.getDownloadAccessDescription(context),
+        [this.$actionNames.SET_CUSTOMER_CUSTOM_FIELD]: (context: ActionContext) => this.getCustomFieldDescription(context),
+        [this.$actionNames.CHANGE_CUSTOMER_STATUS]: (context: ActionContext) => this.getCustomerStatusDescription(context),
+        [this.$actionNames.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]: (context: ActionContext) =>
+            this.getAffiliateAndCampaignCodeDescription(context),
+        [this.$actionNames.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]: (context: ActionContext) =>
+            this.getAffiliateAndCampaignCodeDescription(context),
     };
 
     private $entityAction = {
@@ -282,16 +275,21 @@ export default class FlowBuilderService {
     public getDescription(format: { [key: string]: string }) {
         const description: string[] = [];
 
-        Object.entries(format).forEach(([key, value]) => {
-            let label = value;
+        Object.entries(format).forEach(
+            ([
+                key,
+                value,
+            ]) => {
+                let label = value;
 
-            if (Utils.types.isPlainObject(value)) {
-                label = Object.values(value).join(', ');
-            }
+                if (Utils.types.isPlainObject(value)) {
+                    label = Object.values(value).join(', ');
+                }
 
-            const text = `<span>${key}:</span> <span>${label}</span></br>`;
-            description.push(`<p class="${key.toLowerCase().replace(/ /g, '_')}">${text}</p>`);
-        });
+                const text = `<span>${key}:</span> <span>${label}</span></br>`;
+                description.push(`<p class="${key.toLowerCase().replace(/ /g, '_')}">${text}</p>`);
+            },
+        );
 
         return description.join('');
     }
@@ -300,21 +298,26 @@ export default class FlowBuilderService {
         const description = {};
         const entries = Object.entries(config);
 
-        entries.forEach(([key, value]) => {
-            if (!this.isKeyOfActionLabel(key)) {
-                return;
-            }
+        entries.forEach(
+            ([
+                key,
+                value,
+            ]) => {
+                if (!this.isKeyOfActionLabel(key)) {
+                    return;
+                }
 
-            const snippet = translator.$tc(this.$labelSnippet[key]);
+                const snippet = translator.$tc(this.$labelSnippet[key]);
 
-            if (!snippet) {
-                return;
-            }
+                if (!snippet) {
+                    return;
+                }
 
-            Object.assign(description, {
-                [snippet]: value,
-            });
-        });
+                Object.assign(description, {
+                    [snippet]: value,
+                });
+            },
+        );
 
         return description;
     }
@@ -326,14 +329,16 @@ export default class FlowBuilderService {
             return '';
         }
 
-        const selectedAppAction = data.appActions?.find(item => item.name === sequence.actionName);
+        const selectedAppAction = data.appActions?.find((item) => item.name === sequence.actionName);
 
         if (selectedAppAction) {
             return this.getAppFlowActionDescription(context);
         }
 
-        if (this.isKeyOfActionDescription(sequence.actionName)
-            && typeof this.$descriptionCallbacks[sequence.actionName] === 'function') {
+        if (
+            this.isKeyOfActionDescription(sequence.actionName) &&
+            typeof this.$descriptionCallbacks[sequence.actionName] === 'function'
+        ) {
             return this.$descriptionCallbacks[sequence.actionName](context);
         }
 
@@ -343,27 +348,34 @@ export default class FlowBuilderService {
     }
 
     public getAppFlowActionDescription(context: ActionContext) {
-        const { sequence: { config } } = context;
+        const {
+            sequence: { config },
+        } = context;
 
         const cloneConfig = { ...config } as SequenceConfigValues;
         let descriptions = '';
 
-        Object.entries(cloneConfig).forEach(([fieldName, fieldValue]) => {
-            if (Array.isArray(fieldValue) && fieldValue.length > 1) {
-                let html = '';
+        Object.entries(cloneConfig).forEach(
+            ([
+                fieldName,
+                fieldValue,
+            ]) => {
+                if (Array.isArray(fieldValue) && fieldValue.length > 1) {
+                    let html = '';
 
-                fieldValue.forEach((val) => {
-                    const valPreview = this.formatValuePreview(context, fieldName, val);
-                    html = `${html}- ${valPreview.toString()}<br/>`;
-                });
+                    fieldValue.forEach((val) => {
+                        const valPreview = this.formatValuePreview(context, fieldName, val);
+                        html = `${html}- ${valPreview.toString()}<br/>`;
+                    });
 
-                descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}:<br/> ${html}`;
-            } else {
-                const valPreview = this.formatValuePreview(context, fieldName, fieldValue);
-                descriptions =
-                    `${descriptions}${this.convertLabelPreview(context, fieldName)}: ${valPreview.toString()}<br/>`;
-            }
-        });
+                    descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}:<br/> ${html}`;
+                } else {
+                    const valPreview = this.formatValuePreview(context, fieldName, fieldValue);
+                    // eslint-disable-next-line max-len
+                    descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}: ${valPreview.toString()}<br/>`;
+                }
+            },
+        );
 
         return descriptions;
     }
@@ -373,10 +385,13 @@ export default class FlowBuilderService {
         fieldName: string,
         val: SequenceConfigValues[keyof SequenceConfigValues],
     ) {
-        const { data: { appActions }, sequence: { actionName } } = context;
+        const {
+            data: { appActions },
+            sequence: { actionName },
+        } = context;
 
         const value: string = this.configValuesToString(val);
-        const selectedAppAction = appActions.find(item => item.name === actionName);
+        const selectedAppAction = appActions.find((item) => item.name === actionName);
 
         if (selectedAppAction === undefined) {
             return value;
@@ -391,7 +406,12 @@ export default class FlowBuilderService {
             return value?.replace(/([^;])/g, '*');
         }
 
-        if (['single-select', 'multi-select'].includes(config.type)) {
+        if (
+            [
+                'single-select',
+                'multi-select',
+            ].includes(config.type)
+        ) {
             const option = config.options.find((opt) => opt.value === value);
 
             if (option === undefined) {
@@ -401,7 +421,13 @@ export default class FlowBuilderService {
             return option.label[context.translator.currentLocale] ?? config.label['en-GB'] ?? value;
         }
 
-        if (['datetime', 'date', 'time'].includes(config.type)) {
+        if (
+            [
+                'datetime',
+                'date',
+                'time',
+            ].includes(config.type)
+        ) {
             return new Date(value);
         }
 
@@ -413,9 +439,12 @@ export default class FlowBuilderService {
     }
 
     public convertLabelPreview(context: ActionContext, fieldName: string) {
-        const { data: { appActions }, sequence: { actionName } } = context;
+        const {
+            data: { appActions },
+            sequence: { actionName },
+        } = context;
 
-        const selectedAppAction = appActions.find(item => item.name === actionName);
+        const selectedAppAction = appActions.find((item) => item.name === actionName);
 
         if (selectedAppAction === undefined) {
             return fieldName;
@@ -434,8 +463,10 @@ export default class FlowBuilderService {
             return '';
         }
 
-        if (this.mapActionType(actionName) === ACTION_TYPE.ADD_TAG
-            || this.mapActionType(actionName) === ACTION_TYPE.REMOVE_TAG) {
+        if (
+            this.mapActionType(actionName) === ACTION_TYPE.ADD_TAG ||
+            this.mapActionType(actionName) === ACTION_TYPE.REMOVE_TAG
+        ) {
             return 'sw-flow-tag-modal';
         }
 
@@ -459,7 +490,10 @@ export default class FlowBuilderService {
     }
 
     public getCustomerStatusDescription(context: ActionContext) {
-        const { sequence: { config }, translator } = context;
+        const {
+            sequence: { config },
+            translator,
+        } = context;
 
         return config.active
             ? translator.$tc('sw-flow.modals.customerStatus.active')
@@ -467,7 +501,10 @@ export default class FlowBuilderService {
     }
 
     public getAffiliateAndCampaignCodeDescription(context: ActionContext) {
-        const { translator, sequence: { config } } = context;
+        const {
+            translator,
+            sequence: { config },
+        } = context;
 
         let description = translator.$tc('sw-flow.actions.labelTo', 0, {
             entity: capitalizeString(config?.entity),
@@ -489,19 +526,26 @@ export default class FlowBuilderService {
     }
 
     public getCustomerGroupDescription(context: ActionContext) {
-        const { data, sequence: { config } } = context;
+        const {
+            data,
+            sequence: { config },
+        } = context;
 
-        const customerGroup = data.customerGroups.find(item => item.id === config.customerGroupId);
+        const customerGroup = data.customerGroups.find((item) => item.id === config.customerGroupId);
         return customerGroup?.translated?.name;
     }
 
     public getCustomFieldDescription(context: ActionContext) {
-        const { data: { customFieldSets, customFields }, sequence: { config }, translator } = context;
+        const {
+            data: { customFieldSets, customFields },
+            sequence: { config },
+            translator,
+        } = context;
 
-        const customFieldSet = customFieldSets.find(item => item.id === config.customFieldSetId);
-        const customField = customFields
-            .find(item => item.id === config.customFieldId) as Entity<'custom_field'> &
-            { config?: { label?: { [key: string]: string } } };
+        const customFieldSet = customFieldSets.find((item) => item.id === config.customFieldSetId);
+        const customField = customFields.find((item) => item.id === config.customFieldId) as Entity<'custom_field'> & {
+            config?: { label?: { [key: string]: string } };
+        };
 
         if (!customFieldSet || !customField) {
             return '';
@@ -529,20 +573,26 @@ export default class FlowBuilderService {
     }
 
     public getSetOrderStateDescription(context: ActionContext) {
-        const { data: { stateMachineState }, sequence: { config }, translator } = context;
+        const {
+            data: { stateMachineState },
+            sequence: { config },
+            translator,
+        } = context;
 
         const description = [];
         if (config.order) {
-            const orderStatus = stateMachineState.find(item => item.technicalName === config.order
-                && item.stateMachine?.technicalName === 'order.state');
+            const orderStatus = stateMachineState.find(
+                (item) => item.technicalName === config.order && item.stateMachine?.technicalName === 'order.state',
+            );
             const orderStatusName = orderStatus?.translated?.name || '';
             description.push(`${translator.$tc('sw-flow.modals.status.labelOrderStatus')}: ${orderStatusName}`);
         }
 
         if (config.order_delivery) {
             const deliveryStatus = stateMachineState.find(
-                item => item.technicalName === config.order_delivery
-                    && item.stateMachine?.technicalName === 'order_delivery.state',
+                (item) =>
+                    item.technicalName === config.order_delivery &&
+                    item.stateMachine?.technicalName === 'order_delivery.state',
             );
             const deliveryStatusName = deliveryStatus?.translated?.name || '';
             description.push(`
@@ -552,8 +602,9 @@ export default class FlowBuilderService {
 
         if (config.order_transaction) {
             const paymentStatus = stateMachineState.find(
-                item => item.technicalName === config.order_transaction
-                    && item.stateMachine?.technicalName === 'order_transaction.state',
+                (item) =>
+                    item.technicalName === config.order_transaction &&
+                    item.stateMachine?.technicalName === 'order_transaction.state',
             );
             const paymentStatusName = paymentStatus?.translated?.name || '';
             description.push(`${translator.$tc('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
@@ -569,7 +620,10 @@ export default class FlowBuilderService {
     }
 
     public getGenerateDocumentDescription(context: ActionContext) {
-        const { sequence: { config }, data } = context;
+        const {
+            sequence: { config },
+            data,
+        } = context;
 
         if (config.documentType) {
             Object.assign(config, {
@@ -578,9 +632,7 @@ export default class FlowBuilderService {
         }
 
         const documentType = config.documentTypes?.map((type) => {
-            return data.documentTypes.find(
-                item => item.technicalName === type.documentType,
-            )?.translated?.name || '';
+            return data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
         });
 
         if (!documentType) {
@@ -595,9 +647,13 @@ export default class FlowBuilderService {
     }
 
     public getMailSendDescription(context: ActionContext) {
-        const { data, sequence: { config }, translator } = context;
+        const {
+            data,
+            sequence: { config },
+            translator,
+        } = context;
 
-        const mailTemplateData = data.mailTemplates.find(item => item.id === config.mailTemplateId);
+        const mailTemplateData = data.mailTemplates.find((item) => item.id === config.mailTemplateId);
 
         let mailSendDescription = translator.$tc('sw-flow.actions.labelTemplate', 0, {
             template: mailTemplateData?.mailTemplateType?.name,
@@ -607,9 +663,7 @@ export default class FlowBuilderService {
 
         if (mailDescription) {
             // Truncate description string
-            mailDescription = mailDescription.length > 60
-                ? `${mailDescription.substring(0, 60)}...`
-                : mailDescription;
+            mailDescription = mailDescription.length > 60 ? `${mailDescription.substring(0, 60)}...` : mailDescription;
 
             mailSendDescription = `${mailSendDescription}<br>${translator.$tc('sw-flow.actions.labelDescription', 0, {
                 description: mailDescription,
@@ -620,7 +674,10 @@ export default class FlowBuilderService {
     }
 
     public getDownloadAccessDescription(context: ActionContext) {
-        const { sequence: { config }, translator } = context;
+        const {
+            sequence: { config },
+            translator,
+        } = context;
 
         return config.value
             ? translator.$tc('sw-flow.actions.downloadAccessLabel.granted')
@@ -633,7 +690,7 @@ export default class FlowBuilderService {
         allowedAware: string[],
         entityProperties: string[] = [],
     ) {
-        const availableEntities: { label: string, value: string }[] = [];
+        const availableEntities: { label: string; value: string }[] = [];
         const entities = this.getEntities(selectedAction, actions, allowedAware);
 
         entities.forEach((entityName) => {
@@ -644,7 +701,7 @@ export default class FlowBuilderService {
             const properties = EntityDefinition.get(snakeCase(entityName)).properties;
 
             // Check if the entity has the needed properties
-            const hasProperties = entityProperties.every(entityProperty => properties.hasOwnProperty(entityProperty));
+            const hasProperties = entityProperties.every((entityProperty) => properties.hasOwnProperty(entityProperty));
 
             if (!hasProperties) {
                 return;
@@ -678,13 +735,14 @@ export default class FlowBuilderService {
             }
 
             // Excluding actions which do have different action type with selected action
-            if (this.mapActionType(action.name) === null
-                || this.mapActionType(action.name)
-                !== this.mapActionType(selectedAction)) {
+            if (
+                this.mapActionType(action.name) === null ||
+                this.mapActionType(action.name) !== this.mapActionType(selectedAction)
+            ) {
                 return;
             }
 
-            const isValid = action.requirements.some(aware => allowedAware.includes(aware));
+            const isValid = action.requirements.some((aware) => allowedAware.includes(aware));
             if (isValid) {
                 entities.push(this.$entityAction[action.name]);
             }
@@ -700,7 +758,7 @@ export default class FlowBuilderService {
             return;
         }
 
-        parent.children.forEach(child => {
+        parent.children.forEach((child) => {
             this.flattenNodeList(child, arrayResult);
         });
     }
@@ -715,23 +773,28 @@ export default class FlowBuilderService {
         }
 
         if (Array.isArray(val)) {
-            return `[${val.map(item => this.configValuesToString(item)).join(', ')}]`;
+            return `[${val.map((item) => this.configValuesToString(item)).join(', ')}]`;
         }
 
         if (typeof val === 'object') {
-            return `{${Object.keys(val).map(key => `${key}: ${this.configValuesToString(val[key])}`).join(', ')}}`;
+            return `{${Object.keys(val)
+                .map((key) => `${key}: ${this.configValuesToString(val[key])}`)
+                .join(', ')}}`;
         }
 
         return '';
     }
 
     public rearrangeArrayObjects(items: Node[]) {
-        const itemsKeyMapping = items.reduce((map, item) => {
-            map[item.id] = item;
-            map[item.id].children = [];
+        const itemsKeyMapping = items.reduce(
+            (map, item) => {
+                map[item.id] = item;
+                map[item.id].children = [];
 
-            return map;
-        }, {} as { [key: string]: Node });
+                return map;
+            },
+            {} as { [key: string]: Node },
+        );
 
         const itemsNodeList: Node[] = [];
 
@@ -745,11 +808,11 @@ export default class FlowBuilderService {
         });
 
         const arrayResult: Node[] = [];
-        itemsNodeList.forEach(node => {
+        itemsNodeList.forEach((node) => {
             this.flattenNodeList(node, arrayResult);
         });
 
-        arrayResult.forEach(item => {
+        arrayResult.forEach((item) => {
             item.children = [];
             return item;
         });

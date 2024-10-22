@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['systemConfigApiService', 'repositoryFactory'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+    ],
 
     props: {
         pluginId: {
@@ -18,7 +21,6 @@ export default {
             required: true,
         },
     },
-
 
     data() {
         return {
@@ -51,18 +53,20 @@ export default {
 
     methods: {
         createdComponent() {
-            this.pluginRepository.get(this.pluginId)
-                .then((plugin) => {
-                    this.plugin = plugin;
-                });
+            this.pluginRepository.get(this.pluginId).then((plugin) => {
+                this.plugin = plugin;
+            });
         },
 
         checkPluginConfig() {
-            this.systemConfigApiService.checkConfig(`${this.plugin.name}.config`).then((response) => {
-                this.hasPluginConfig = response;
-            }).catch(() => {
-                this.hasPluginConfig = false;
-            });
+            this.systemConfigApiService
+                .checkConfig(`${this.plugin.name}.config`)
+                .then((response) => {
+                    this.hasPluginConfig = response;
+                })
+                .catch(() => {
+                    this.hasPluginConfig = false;
+                });
         },
     },
 };

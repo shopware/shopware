@@ -27,10 +27,10 @@ async function createWrapper(customProps = {}, customOptions = {}) {
                 'sw-select-result-list': true,
             },
             provide: {
-                removeNodeFromTree: () => {
-                },
+                removeNodeFromTree: () => {},
                 conditionDataProviderService: {},
                 restrictedConditions: {},
+                childAssociationField: 'children',
             },
             ...customOptions,
         },
@@ -58,21 +58,24 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     });
 
     it('should have the right tooltip according to the restriction', async () => {
-        const wrapper = await createWrapper({}, {
-            provide: {
-                removeNodeFromTree: () => {
-                },
-                conditionDataProviderService: {},
-                restrictedConditions: {
-                    customerBillingCountry: [
-                        {
-                            associationName: 'customerBillingCountry',
-                            snippet: 'sw-customer-billing-country',
-                        },
-                    ],
+        const wrapper = await createWrapper(
+            {},
+            {
+                provide: {
+                    removeNodeFromTree: () => {},
+                    conditionDataProviderService: {},
+                    restrictedConditions: {
+                        customerBillingCountry: [
+                            {
+                                associationName: 'customerBillingCountry',
+                                snippet: 'sw-customer-billing-country',
+                            },
+                        ],
+                    },
+                    childAssociationField: 'children',
                 },
             },
-        });
+        );
 
         let tooltipConfig = wrapper.vm.getTooltipConfig({
             component: 'sw-condition-billing-country',
@@ -94,70 +97,83 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     });
 
     it('should remove node from tree if condition has an child association field', async () => {
-        const wrapper = await createWrapper({}, {
-            provide: {
-                removeNodeFromTree: jest.fn(),
-                conditionDataProviderService: {},
-                restrictedConditions: {},
+        const wrapper = await createWrapper(
+            {},
+            {
+                provide: {
+                    removeNodeFromTree: jest.fn(),
+                    conditionDataProviderService: {},
+                    restrictedConditions: {},
+                    childAssociationField: 'promotionAssociation',
+                },
             },
-        });
+        );
 
-        // mocking childAssociationField
-        wrapper.vm.childAssociationField = 'promotionAssociation';
-
-        await wrapper.vm.changeType('customer');
+        wrapper.vm.changeType('customer');
 
         expect(wrapper.vm.removeNodeFromTree).toHaveBeenCalledTimes(1);
     });
 
     it('should get groupAssignments with flow triggers', async () => {
-        const wrapper = await createWrapper({}, {
-            provide: {
-                removeNodeFromTree: () => {
-                },
-                conditionDataProviderService: {},
-                restrictedConditions: {
-                    someRestriction: [
-                        {
-                            associationName: 'flowTrigger.testingFlow',
-                        },
-                    ],
+        const wrapper = await createWrapper(
+            {},
+            {
+                provide: {
+                    removeNodeFromTree: () => {},
+                    conditionDataProviderService: {},
+                    restrictedConditions: {
+                        someRestriction: [
+                            {
+                                associationName: 'flowTrigger.testingFlow',
+                            },
+                        ],
+                    },
+                    childAssociationField: 'children',
                 },
             },
-        });
+        );
 
-        expect(wrapper.vm.groupAssignments({
-            type: 'someRestriction',
-        })).toBe(' sw-restricted-rules.restrictedConditions.relation.flowTrigger');
+        expect(
+            wrapper.vm.groupAssignments({
+                type: 'someRestriction',
+            }),
+        ).toBe(' sw-restricted-rules.restrictedConditions.relation.flowTrigger');
     });
 
     it('should get groupAssignments with promotions', async () => {
-        const wrapper = await createWrapper({}, {
-            provide: {
-                removeNodeFromTree: () => {
-                },
-                conditionDataProviderService: {},
-                restrictedConditions: {
-                    someRestriction: [
-                        {
-                            associationName: 'promotion',
-                        },
-                        {
-                            associationName: 'flowTrigger.someFlow',
-                        },
-                        {
-                            associationName: 'flowTrigger.anotherFlow',
-                        },
-                        {
-                            associationName: 'flowTrigger.moreFlows',
-                        },
-                    ],
+        const wrapper = await createWrapper(
+            {},
+            {
+                provide: {
+                    removeNodeFromTree: () => {},
+                    conditionDataProviderService: {},
+                    restrictedConditions: {
+                        someRestriction: [
+                            {
+                                associationName: 'promotion',
+                            },
+                            {
+                                associationName: 'flowTrigger.someFlow',
+                            },
+                            {
+                                associationName: 'flowTrigger.anotherFlow',
+                            },
+                            {
+                                associationName: 'flowTrigger.moreFlows',
+                            },
+                        ],
+                    },
+                    childAssociationField: 'children',
                 },
             },
-        });
+        );
 
-        expect(wrapper.vm.groupAssignments({
-            type: 'someRestriction',
-        })).toBe(' sw-restricted-rules.restrictedConditions.relation.promotion </br> sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger');
+        expect(
+            wrapper.vm.groupAssignments({
+                type: 'someRestriction',
+            }),
+        ).toBe(
+            ' sw-restricted-rules.restrictedConditions.relation.promotion </br> sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger',
+        );
     });
 });

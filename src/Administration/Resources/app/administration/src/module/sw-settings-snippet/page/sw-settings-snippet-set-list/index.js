@@ -4,7 +4,10 @@
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -53,9 +56,7 @@ export default {
         snippetSetCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addSorting(
-                Criteria.sort('name', 'ASC'),
-            );
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -65,9 +66,7 @@ export default {
         },
 
         contextMenuEditSnippet() {
-            return this.acl.can('snippet.editor') ?
-                this.$tc('global.default.edit') :
-                this.$tc('global.default.view');
+            return this.acl.can('snippet.editor') ? this.$tc('global.default.edit') : this.$tc('global.default.view');
         },
 
         dateFilter() {
@@ -90,13 +89,14 @@ export default {
 
         loadBaseFiles() {
             return this.snippetSetService.getBaseFiles().then((response) => {
-                this.baseFiles = response.items;
+                this.baseFiles = Object.values(response.items ?? {});
+                this.baseFiles.sort((a, b) => a.name.localeCompare(b.name));
             });
         },
 
         onAddSnippetSet() {
             const newSnippetSet = this.snippetSetRepository.create();
-            newSnippetSet.baseFile = Object.values(this.baseFiles)[0].name;
+            newSnippetSet.baseFile = this.baseFiles[0].name;
 
             const result = this.snippetSets.splice(0, 0, newSnippetSet);
 
@@ -130,14 +130,15 @@ export default {
         onInlineEditSave(item) {
             this.isLoading = true;
 
-            const match = Object.values(this.baseFiles).find((element) => {
+            const match = this.baseFiles.find((element) => {
                 return element.name === item.baseFile;
             });
 
             if (match && match.iso !== null) {
                 item.iso = match.iso;
 
-                this.snippetSetRepository.save(item)
+                this.snippetSetRepository
+                    .save(item)
                     .then(() => {
                         this.createInlineSuccessNote(item.name);
                     })
@@ -186,11 +187,13 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.snippetSetRepository.delete(id)
+            return this.snippetSetRepository
+                .delete(id)
                 .then(() => {
                     this.getList();
                     this.createDeleteSuccessNote();
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.onCloseDeleteModal();
                     this.createDeleteErrorNote();
                 });
@@ -218,7 +221,7 @@ export default {
                 set.name = `${set.name} ${this.$tc('sw-settings-snippet.general.copyName')}`;
 
                 const baseName = set.name;
-                const checkUsedNames = item => item.name === set.name;
+                const checkUsedNames = (item) => item.name === set.name;
                 let copyCounter = 1;
 
                 while (this.snippetSets.some(checkUsedNames)) {

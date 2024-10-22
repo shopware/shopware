@@ -36,13 +36,16 @@ const headlessSalesChannel = {
 const storeFrontWithStandardDomain = {
     id: '8106c8da-4528-406e-8b47-dcae65965f6b',
     active: true,
-    domains: [{
-        languageId: 'ab3e5a76-9e6a-493c-bc6c-117563976bcc',
-        url: 'http://shop/custom-language',
-    }, {
-        languageId: Shopware.Defaults.systemLanguageId,
-        url: 'http://shop/default-language',
-    }],
+    domains: [
+        {
+            languageId: 'ab3e5a76-9e6a-493c-bc6c-117563976bcc',
+            url: 'http://shop/custom-language',
+        },
+        {
+            languageId: Shopware.Defaults.systemLanguageId,
+            url: 'http://shop/default-language',
+        },
+    ],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
         iconName: 'default-building-shop',
@@ -55,13 +58,16 @@ const storeFrontWithStandardDomain = {
 const storefrontWithoutDefaultDomain = {
     id: '0a660a4e-c1c8-4de7-a1cf-bd7a9c9886fa',
     active: true,
-    domains: [{
-        languageId: 'f084d9e0-cba4-4c42-bf99-3994e8fce125',
-        url: 'http://shop/custom-language',
-    }, {
-        languageId: defaultAdminLanguageId,
-        url: 'http://shop/admin-language',
-    }],
+    domains: [
+        {
+            languageId: 'f084d9e0-cba4-4c42-bf99-3994e8fce125',
+            url: 'http://shop/custom-language',
+        },
+        {
+            languageId: defaultAdminLanguageId,
+            url: 'http://shop/admin-language',
+        },
+    ],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
         iconName: 'default-building-shop',
@@ -87,13 +93,16 @@ const storefrontWithoutDomains = {
 const inactiveStorefront = {
     id: 'a9237944-c347-4583-88b9-6d00719baff6',
     active: false,
-    domains: [{
-        languageId: '14383ce0-d2b6-4c44-94a7-cf71b42fa35a',
-        url: 'http://shop/custom-language',
-    }, {
-        languageId: defaultAdminLanguageId,
-        url: 'http://shop/admin-language',
-    }],
+    domains: [
+        {
+            languageId: '14383ce0-d2b6-4c44-94a7-cf71b42fa35a',
+            url: 'http://shop/custom-language',
+        },
+        {
+            languageId: defaultAdminLanguageId,
+            url: 'http://shop/admin-language',
+        },
+    ],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
         iconName: 'default-building-shop',
@@ -106,17 +115,23 @@ const inactiveStorefront = {
 async function createWrapper(salesChannels = []) {
     const router = createRouter({
         history: createWebHistory(),
-        routes: [{
-            name: 'sw.sales.channel.detail',
-            path: '/sw/sales/channel/detail/:id',
-            component: await wrapTestComponent('sw-sales-channel-detail', { sync: true }),
-        }, {
-            name: 'sw.sales.channel.list',
-            path: '/sw/sales/channel/list',
-            component: await wrapTestComponent('sw-sales-channel-list', { sync: true }),
-        }],
+        routes: [
+            {
+                name: 'sw.sales.channel.detail',
+                path: '/sw/sales/channel/detail/:id',
+                component: await wrapTestComponent('sw-sales-channel-detail', {
+                    sync: true,
+                }),
+            },
+            {
+                name: 'sw.sales.channel.list',
+                path: '/sw/sales/channel/list',
+                component: await wrapTestComponent('sw-sales-channel-list', {
+                    sync: true,
+                }),
+            },
+        ],
     });
-
 
     router.push({
         name: 'sw.sales.channel.detail',
@@ -135,7 +150,8 @@ async function createWrapper(salesChannels = []) {
                     props: ['name'],
                 },
                 'sw-admin-menu-item': {
-                    template: '<div class="sw-admin-menu-item" :class="$attrs.class"><div>{{ entry.label }}</div><slot name="additional-text"></slot></div>',
+                    template:
+                        '<div class="sw-admin-menu-item" :class="$attrs.class"><div>{{ entry.label }}</div><slot name="additional-text"></slot></div>',
                     props: ['entry'],
                 },
                 'sw-context-button': true,
@@ -154,15 +170,17 @@ async function createWrapper(salesChannels = []) {
                         search: jest.fn((criteria, context) => {
                             const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
 
-                            return Promise.resolve(new EntityCollection(
-                                'sales-channel',
-                                'sales_channel',
-                                context,
-                                criteria,
-                                salesChannelsWithLimit,
-                                salesChannels.length,
-                                null,
-                            ));
+                            return Promise.resolve(
+                                new EntityCollection(
+                                    'sales-channel',
+                                    'sales_channel',
+                                    context,
+                                    criteria,
+                                    salesChannelsWithLimit,
+                                    salesChannels.length,
+                                    null,
+                                ),
+                            );
                         }),
                     }),
                 },
@@ -228,12 +246,14 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const parsedCriteria = wrapper.vm.salesChannelCriteria.parse();
 
-        expect(parsedCriteria).toEqual(expect.objectContaining({
-            associations: expect.objectContaining({
-                type: expect.any(Object),
-                domains: expect.any(Object),
+        expect(parsedCriteria).toEqual(
+            expect.objectContaining({
+                associations: expect.objectContaining({
+                    type: expect.any(Object),
+                    domains: expect.any(Object),
+                }),
             }),
-        }));
+        );
     });
 
     it('should show an entry for every sales channel returned from api', async () => {

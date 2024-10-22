@@ -4,60 +4,67 @@ import { mount } from '@vue/test-utils';
  * @package customer-order
  */
 async function createWrapper(customPropsData = {}) {
-    return mount(await wrapTestComponent('sw-multi-snippet-drag-and-drop', {
-        sync: true,
-    }), {
-        global: {
-            directives: {
-                tooltip: {},
-                droppable: {},
-                draggable: {},
-            },
-            stubs: {
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-label': await wrapTestComponent('sw-label'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-multi-snippet-drag-and-drop', {
+            sync: true,
+        }),
+        {
+            global: {
+                directives: {
+                    tooltip: {},
+                    droppable: {},
+                    draggable: {},
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-context-menu-item': {
-                    template: `
+                stubs: {
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-label': await wrapTestComponent('sw-label'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-context-menu-item': {
+                        template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
                     </div>`,
+                    },
+                    'sw-icon': true,
+                    'sw-inheritance-switch': true,
+                    'sw-color-badge': true,
+                    'sw-loader': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
-                'sw-icon': true,
-                'sw-inheritance-switch': true,
-                'sw-color-badge': true,
-                'sw-loader': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-            },
-            mocks: {
-                $tc: key => key,
-                $route: {
-                    params: {
-                        id: 'id',
+                mocks: {
+                    $tc: (key) => key,
+                    $route: {
+                        params: {
+                            id: 'id',
+                        },
+                    },
+                    $device: {
+                        getSystemKey: () => {},
+                        onResize: () => {},
                     },
                 },
-                $device: {
-                    getSystemKey: () => {},
-                    onResize: () => {},
-                },
+            },
+
+            props: {
+                value: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+                totalLines: 3,
+                linePosition: 0,
+                ...customPropsData,
             },
         },
-
-        props: {
-            value: ['address/company', 'symbol/dash', 'address/department'],
-            totalLines: 3,
-            linePosition: 0,
-            ...customPropsData,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop', () => {
@@ -85,7 +92,10 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['add-new-line']).toBeTruthy();
-        expect(wrapper.emitted()['add-new-line'][0]).toEqual([0, 'above']);
+        expect(wrapper.emitted()['add-new-line'][0]).toEqual([
+            0,
+            'above',
+        ]);
     });
 
     it('should emit `add new line` when adding a new row below', async () => {
@@ -96,7 +106,10 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['add-new-line']).toBeTruthy();
-        expect(wrapper.emitted()['add-new-line'][0]).toEqual([0, 'below']);
+        expect(wrapper.emitted()['add-new-line'][0]).toEqual([
+            0,
+            'below',
+        ]);
     });
 
     it('should emit `location move` when move row to top', async () => {
@@ -107,7 +120,10 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['position-move']).toBeTruthy();
-        expect(wrapper.emitted()['position-move'][0]).toEqual([0, 0]);
+        expect(wrapper.emitted()['position-move'][0]).toEqual([
+            0,
+            0,
+        ]);
     });
 
     it('should emit `location move` when move row to bottom', async () => {
@@ -118,7 +134,10 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['position-move']).toBeTruthy();
-        expect(wrapper.emitted()['position-move'][0]).toEqual([0, null]);
+        expect(wrapper.emitted()['position-move'][0]).toEqual([
+            0,
+            null,
+        ]);
     });
 
     it('should emit `change` when delete current line', async () => {
@@ -138,13 +157,15 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
 
         const button = wrapper.find('.sw-select-selection-list__item-holder--0 > span');
 
-        await button.find('.sw-label__dismiss')
-            .trigger('click');
+        await button.find('.sw-label__dismiss').trigger('click');
 
         expect(wrapper.emitted('update:value')).toBeTruthy();
         expect(wrapper.emitted('update:value')[0]).toEqual([
             0,
-            ['symbol/dash', 'address/department'],
+            [
+                'symbol/dash',
+                'address/department',
+            ],
         ]);
     });
 
@@ -155,21 +176,28 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.vm.value[1]).toBe('symbol/dash');
         expect(wrapper.vm.value[0]).toBe('address/company');
 
-        await wrapper.vm.onDrop({
-            index: 0,
-            linePosition: 0,
-            snippet: 'address/company',
-        }, {
-            index: 1,
-            linePosition: 0,
-            snippet: 'symbol/dash',
-        });
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+        );
         await flushPromises();
 
         expect(wrapper.emitted('update:value')).toBeTruthy();
         expect(wrapper.emitted('update:value')[0]).toEqual([
             0,
-            ['symbol/dash', 'address/company', 'address/department'],
+            [
+                'symbol/dash',
+                'address/company',
+                'address/department',
+            ],
         ]);
     });
 
@@ -215,15 +243,18 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await wrapper.vm.onDragEnter(null, null);
         expect(wrapper.emitted()['drag-enter']).toBeFalsy();
 
-        await wrapper.vm.onDrop({
-            index: 0,
-            linePosition: 1,
-            snippet: 'address/company',
-        }, {
-            index: 1,
-            linePosition: 0,
-            snippet: 'symbol/dash',
-        });
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 1,
+                snippet: 'address/company',
+            },
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+        );
 
         expect(wrapper.emitted()['drop-end']).toBeTruthy();
     });

@@ -6,13 +6,14 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -31,7 +32,7 @@ class AssetService
         private readonly KernelInterface $kernel,
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly SourceResolver $sourceResolver,
         private readonly ParameterBagInterface $parameterBag
     ) {
     }
@@ -63,11 +64,13 @@ class AssetService
 
     public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
-        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
+        $fs = $this->sourceResolver->filesystemForAppName($appName);
 
-        if ($publicDirectory === null) {
+        if (!$fs->has('Resources/public')) {
             return;
         }
+
+        $publicDirectory = $fs->path('Resources/public');
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,
@@ -170,7 +173,7 @@ class AssetService
     {
         $localManifest = array_combine(
             array_map(fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
-            array_map(fn (SplFileInfo $file) => (string) hash_file('sha256', $file->getPathname()), $files)
+            array_map(fn (SplFileInfo $file) => Hasher::hashFile($file->getPathname()), $files)
         );
 
         ksort($localManifest);

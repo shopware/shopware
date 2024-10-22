@@ -73,7 +73,7 @@ TWIG;
         $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
 
         $this->expectException(AdapterException::class);
-        $this->expectExceptionMessage('Failed rendering Twig string template due syntax error: "Unexpected "}" in "04e92a9efc07ae62e1ec342418711bbd" at line 1."');
+        $this->expectExceptionMessageMatches('/Failed rendering Twig string template due syntax error: "Unexpected "}" in "[^"]+" at line 1."/');
         $renderer->render($template, [], $context);
     }
 }

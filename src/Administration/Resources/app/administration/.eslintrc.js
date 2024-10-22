@@ -103,6 +103,7 @@ module.exports = {
             extends: [
                 'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
+                'prettier',
             ],
             files: ['**/*.js'],
             excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
@@ -145,6 +146,7 @@ module.exports = {
                 'vue/no-deprecated-props-default-this': 'error',
                 'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+                'sw-deprecation-rules/no-vue-options-api': 'off',
             },
         }, {
             extends: [
@@ -155,7 +157,10 @@ module.exports = {
                 'plugin:vuejs-accessibility/recommended',
             ],
             processor: 'twig-vue/twig-vue',
-            files: ['src/**/*.html.twig', 'test/eslint/**/*.html.twig'],
+            files: [
+                'src/**/*.html.twig',
+                'test/eslint/**/*.html.twig',
+            ],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
@@ -212,7 +217,7 @@ module.exports = {
                 'vue/no-deprecated-v-on-native-modifier': 'error',
             },
         }, {
-            files: ['**/*.spec.js', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+            files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
                 'max-len': 0,
@@ -234,7 +239,10 @@ module.exports = {
                     },
                 ],
             },
-            extends: ['plugin:jest/recommended'],
+            extends: [
+                'plugin:jest/recommended',
+                'prettier',
+            ],
         }, {
             files: ['**/snippet/*.json'],
             rules: {
@@ -247,6 +255,7 @@ module.exports = {
                 'plugin:@typescript-eslint/eslint-recommended',
                 'plugin:@typescript-eslint/recommended',
                 'plugin:@typescript-eslint/recommended-requiring-type-checking',
+                'prettier',
             ],
             parser: '@typescript-eslint/parser',
             parserOptions: {
@@ -282,6 +291,7 @@ module.exports = {
                 '@typescript-eslint/no-unused-vars': 'error',
                 'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
+                'sw-deprecation-rules/no-vue-options-api': 'off',
             },
         },
     ],

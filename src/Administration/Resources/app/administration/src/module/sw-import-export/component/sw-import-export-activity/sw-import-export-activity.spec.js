@@ -763,7 +763,9 @@ const createWrapper = async (options = {}) => {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-import-export-activity-result-modal': await wrapTestComponent('sw-import-export-activity-result-modal', { sync: true }),
+                'sw-import-export-activity-result-modal': await wrapTestComponent('sw-import-export-activity-result-modal', {
+                    sync: true,
+                }),
                 'sw-import-export-edit-profile-modal': {
                     template: `
                         <div
@@ -781,7 +783,10 @@ const createWrapper = async (options = {}) => {
                         },
                     },
                 },
-                'sw-import-export-activity-log-info-modal': await wrapTestComponent('sw-import-export-activity-log-info-modal', { sync: true }),
+                'sw-import-export-activity-log-info-modal': await wrapTestComponent(
+                    'sw-import-export-activity-log-info-modal',
+                    { sync: true },
+                ),
                 'sw-grid': await wrapTestComponent('sw-grid'),
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
@@ -912,7 +917,10 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             state: 'succeeded',
         };
 
-        await wrapper.setData({ selectedLog: logEntity, showDetailModal: true });
+        await wrapper.setData({
+            selectedLog: logEntity,
+            showDetailModal: true,
+        });
         await flushPromises();
 
         const detailModal = wrapper.getComponent('.sw-import-export-activity-log-info-modal');
@@ -1005,17 +1013,19 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             updateSkip: 6,
             otherError: 1,
         });
-        expect(resultModal.vm.result).toEqual([{
-            id: 'tax',
-            entityName: 'tax',
-            insert: 7,
-            update: 8,
-            insertError: 9,
-            updateError: 10,
-            insertSkip: 11,
-            updateSkip: 12,
-            otherError: 0,
-        }]);
+        expect(resultModal.vm.result).toEqual([
+            {
+                id: 'tax',
+                entityName: 'tax',
+                insert: 7,
+                update: 8,
+                insertError: 9,
+                updateError: 10,
+                insertSkip: 11,
+                updateSkip: 12,
+                otherError: 0,
+            },
+        ]);
 
         const mainActivityPrefix = '.sw-import-export-activity-result-modal__main-activity';
         expect(resultModal.find(`${mainActivityPrefix}-insert dd`).text()).toBe('1');
@@ -1080,8 +1090,12 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-import-export-activity > sw-empty-state')).toBeDefined();
-        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe('sw-import-export.activity.emptyState.titleExport');
-        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe('sw-import-export.activity.emptyState.subLineExport');
+        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe(
+            'sw-import-export.activity.emptyState.titleExport',
+        );
+        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe(
+            'sw-import-export.activity.emptyState.subLineExport',
+        );
     });
 
     it('should show an export in progress', async () => {
@@ -1182,10 +1196,14 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             },
         });
 
-        await wrapper.find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
+        await wrapper
+            .find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button')
+            .trigger('click');
         await flushPromises();
 
-        expect(wrapper.findAll('.sw-data-grid__body .sw-import-export-activity__download-action:nth-of-type(2)')).toHaveLength(0);
+        expect(
+            wrapper.findAll('.sw-data-grid__body .sw-import-export-activity__download-action:nth-of-type(2)'),
+        ).toHaveLength(0);
 
         jest.clearAllTimers();
     });
@@ -1218,7 +1236,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             },
         });
 
-        await wrapper.find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
+        await wrapper
+            .find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-data-grid__body .sw-import-export-activity__download-action:nth-of-type(2)')).toBeDefined();
@@ -1240,7 +1260,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('sw-empty-state')).toBeTruthy();
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
     });
 
     it('should handle errors when initially loading export activities', async () => {
@@ -1257,7 +1279,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('sw-empty-state')).toBeTruthy();
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
     });
 
     it('should handle errors when loading export activities and the result is not an entity collection', async () => {
@@ -1281,7 +1305,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.advanceTimersByTime(10000);
         await flushPromises();
 
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
 
         jest.clearAllTimers();
     });
@@ -1307,7 +1333,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.advanceTimersByTime(10000);
         await flushPromises();
 
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
 
         jest.clearAllTimers();
     });
@@ -1325,8 +1353,12 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-import-export-activity > sw-empty-state')).toBeDefined();
-        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe('sw-import-export.activity.emptyState.titleImport');
-        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe('sw-import-export.activity.emptyState.subLineImport');
+        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe(
+            'sw-import-export.activity.emptyState.titleImport',
+        );
+        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe(
+            'sw-import-export.activity.emptyState.subLineImport',
+        );
     });
 
     it('should show an import in progress', async () => {
@@ -1476,10 +1508,14 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             },
         });
 
-        await wrapper.find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
+        await wrapper
+            .find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button')
+            .trigger('click');
         await flushPromises();
 
-        expect(wrapper.findAll('.sw-data-grid__body .sw-import-export-activity__download-action:nth-of-type(2)')).toHaveLength(0);
+        expect(
+            wrapper.findAll('.sw-data-grid__body .sw-import-export-activity__download-action:nth-of-type(2)'),
+        ).toHaveLength(0);
 
         jest.clearAllTimers();
     });
@@ -1516,7 +1552,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             },
         });
 
-        await wrapper.find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
+        await wrapper
+            .find('.sw-data-grid__body > .sw-data-grid__row--0 > .sw-data-grid__cell--actions .sw-context-button__button')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-data-grid__body .sw-import-export-activity__download-action:nth-of-type(2)')).toBeDefined();
@@ -1538,7 +1576,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('sw-empty-state')).toBeTruthy();
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
     });
 
     it('should handle errors when initially loading import activities', async () => {
@@ -1555,7 +1595,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('sw-empty-state')).toBeTruthy();
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
     });
 
     it('should handle errors when loading import activities and the result is not an entity collection', async () => {
@@ -1579,7 +1621,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.advanceTimersByTime(10000);
         await flushPromises();
 
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
 
         jest.clearAllTimers();
     });
@@ -1605,7 +1649,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.advanceTimersByTime(10000);
         await flushPromises();
 
-        expect(createNotificationError).toHaveBeenCalledWith({ message: 'global.notification.notificationLoadingDataErrorMessage' });
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
 
         jest.clearAllTimers();
     });

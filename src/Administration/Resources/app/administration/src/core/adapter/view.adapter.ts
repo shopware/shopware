@@ -45,7 +45,6 @@ export default abstract class ViewAdapter {
         this.root = null;
     }
 
-
     /**
      * Creates the main instance for the view layer.
      * Is used on startup process of the main application.
@@ -55,51 +54,51 @@ export default abstract class ViewAdapter {
     /**
      * Initializes all core components as Vue components.
      */
-    abstract initComponents(renderElement: string, router: Router, providers: unknown[]): void
+    abstract initComponents(renderElement: string, router: Router, providers: unknown[]): void;
 
-    abstract initDependencies(): void
+    abstract initDependencies(): void;
 
     /**
      * Returns the component as a Vue component.
      * Includes the full rendered template with all overrides.
      */
-    abstract createComponent(componentName: string): Promise<App<Element>>
+    abstract createComponent(componentName: string): Promise<App<Element>>;
 
     /**
      * Returns a final Vue component by its name.
      */
-    abstract getComponent(componentName: string): App<Element> | null
+    abstract getComponent(componentName: string): App<Element> | null;
 
     /**
      * Returns a final Vue component by its name without defineAsyncComponent
      * which cannot be used in the router.
      */
-    abstract getComponentForRoute(componentName: string): () => (
-        Promise<boolean | ComponentConfig> | App<Element> | undefined
-    )
+    abstract getComponentForRoute(
+        componentName: string,
+    ): () => Promise<boolean | ComponentConfig> | App<Element> | undefined;
 
     /**
      * Returns the complete set of available Vue components.
      */
-    abstract getComponents(): { [componentName: string]: App<Element> }
+    abstract getComponents(): { [componentName: string]: App<Element> };
 
     /**
      * Returns the adapter wrapper
      */
-    abstract getWrapper(): App<Element> | undefined
+    abstract getWrapper(): App<Element> | undefined;
 
     /**
      * Returns the name of the adapter
      */
-    abstract getName(): string
+    abstract getName(): string;
 
     /**
      * Returns the Vue.set function
      */
-    abstract setReactive(target: unknown, propertyName: string, value: unknown): unknown
+    abstract setReactive(target: unknown, propertyName: string, value: unknown): unknown;
 
     /**
      * Returns the Vue.delete function
      */
-    abstract deleteReactive(target: unknown, propertyName: string): void
+    abstract deleteReactive(target: unknown, propertyName: string): void;
 }

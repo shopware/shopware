@@ -722,7 +722,7 @@
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Subscriber\EntityStatsSubscriber">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityTelemetrySubscriber">
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
 
             <tag name="kernel.event_subscriber"/>

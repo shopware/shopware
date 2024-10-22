@@ -1,11 +1,6 @@
 name: Admin checks and tests
 
 on:
-  push:
-    branches:
-      - trunk
-    paths:
-      - src/Administration/Resources/app/administration/**/*
   pull_request:
     paths:
       - src/Administration/Resources/app/administration/**/*
@@ -14,7 +9,7 @@ on:
 
 env:
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.6.9999999-dev
 
 jobs:
   lint:

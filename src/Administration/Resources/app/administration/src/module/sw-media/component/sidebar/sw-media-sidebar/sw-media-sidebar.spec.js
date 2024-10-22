@@ -50,7 +50,11 @@ async function createWrapper(items, mediaRepositoryFunctions = {}) {
     });
 }
 
-const defaultNames = ['t-shirt.png', 'flask.jpg', 'router.glb'];
+const defaultNames = [
+    't-shirt.png',
+    'flask.jpg',
+    'router.glb',
+];
 const createItems = (itemNames = defaultNames) => {
     return itemNames.map((name) => {
         return {
@@ -70,7 +74,6 @@ const createItems = (itemNames = defaultNames) => {
         };
     });
 };
-
 
 describe('module/sw-media/component/sidebar/sw-media-sidebar', () => {
     it('should save item data when receiving item:update event', async () => {

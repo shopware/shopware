@@ -24,7 +24,7 @@ async function createWrapper(privileges = []) {
             },
             provide: {
                 acl: {
-                    can: key => (key ? privileges.includes(key) : true),
+                    can: (key) => (key ? privileges.includes(key) : true),
                 },
                 stateStyleDataProviderService: {},
                 repositoryFactory: {

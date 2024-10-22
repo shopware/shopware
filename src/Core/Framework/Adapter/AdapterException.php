@@ -15,6 +15,14 @@ class AdapterException extends HttpException
     public const TEMPLATE_SCOPE_DEFINITION_ERROR = 'FRAMEWORK__TEMPLATE_SCOPE_DEFINITION_ERROR';
     public const MISSING_DEPENDENCY_ERROR_CODE = 'FRAMEWORK__FILESYSTEM_ADAPTER_DEPENDENCY_MISSING';
     public const INVALID_TEMPLATE_SYNTAX = 'FRAMEWORK__INVALID_TEMPLATE_SYNTAX';
+    public const REDIS_UNKNOWN_CONNECTION = 'FRAMEWORK__REDIS_UNKNOWN_CONNECTION';
+    public const REDIS_INVALID_DSN = 'FRAMEWORK__REDIS_INVALID_DSN';
+    /**
+     * @deprecated tag:v6.7.0 - REDIS_MISSING_CONNECTION_PARAMETER will be removed with no replacement
+     *
+     * @internal
+     */
+    public const REDIS_MISSING_CONNECTION_PARAMETER = 'FRAMEWORK__REDIS_MISSING_CONNECTION_PARAMETER';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -71,6 +79,48 @@ class AdapterException extends HttpException
             self::INVALID_TEMPLATE_SYNTAX,
             'Failed rendering Twig string template due syntax error: "{{ message }}"',
             ['message' => $message]
+        );
+    }
+
+    public static function unknownRedisConnection(string $connectionName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REDIS_UNKNOWN_CONNECTION,
+            'Can\'t provide connection "{{ connectionName }}", check if it\'s configured under framework.redis.connections.',
+            [
+                'connectionName' => $connectionName,
+            ],
+        );
+    }
+
+    public static function invalidRedisConnectionDsn(string $connectionName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REDIS_UNKNOWN_CONNECTION,
+            'shopware.redis.connections dsn of "%s" connection must be a string.',
+            [
+                'connectionName' => $connectionName,
+            ],
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @deprecated tag:v6.7.0 reason:factory-for-deprecation - Will be removed with no replacement as using method getOrCreateFromDsn will be removed
+     */
+    public static function missingRedisConnectionParameter(?string $connectionName, ?string $dsn): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REDIS_MISSING_CONNECTION_PARAMETER,
+            'Missing required $connectionName or $dsn parameters ({{ connectionName }}, {{ dsn }} provided).',
+            [
+                'connectionName' => json_encode($connectionName),
+                'dsn' => json_encode($dsn),
+            ],
         );
     }
 }

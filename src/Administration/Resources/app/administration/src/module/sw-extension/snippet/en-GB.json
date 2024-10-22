@@ -637,7 +637,9 @@
     "additional_privileges": {
       "title": "Additional permissions",
       "entities": {
-        "api_feature_flag_toggle": "API feature flag toggle"
+        "api_feature_flag_toggle": "Feature flags toggling API",
+        "api_service_toggle": "Service toggling API",
+        "api_service_list": "Services listing API"
       }
     }
   },

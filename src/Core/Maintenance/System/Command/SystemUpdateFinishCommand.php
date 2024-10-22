@@ -61,7 +61,7 @@ class SystemUpdateFinishCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 \sprintf(
                     'Define upto which version destructive migrations are executed. Possible values: "%s".',
-                    implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES)
+                    implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_VALUES)
                 ),
                 MigrationCollectionLoader::VERSION_SELECTION_SAFE
             );
@@ -125,7 +125,7 @@ class SystemUpdateFinishCommand extends Command
         }
 
         $mode = (string) $input->getOption('version-selection-mode');
-        if (!\in_array($mode, MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES, true)) {
+        if (!\in_array($mode, MigrationCollectionLoader::VALID_VERSION_SELECTION_VALUES, true)) {
             throw MaintenanceException::invalidVersionSelectionMode($mode);
         }
         $command = $application->find('database:migrate-destructive');

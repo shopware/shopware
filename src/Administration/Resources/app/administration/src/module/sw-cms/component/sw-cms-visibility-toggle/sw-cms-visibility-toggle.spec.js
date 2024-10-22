@@ -6,26 +6,26 @@ import 'src/app/component/base/sw-icon';
  */
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-visibility-toggle', {
-        sync: true,
-    }), {
-        props: {
-            text: 'Toggle Text Button',
-            isCollapsed: true,
-        },
-        global: {
-            provide: {
-                cmsService: {},
+    return mount(
+        await wrapTestComponent('sw-cms-visibility-toggle', {
+            sync: true,
+        }),
+        {
+            props: {
+                text: 'Toggle Text Button',
+                isCollapsed: true,
             },
-            stubs: {
-                'sw-icon': await Shopware.Component.build('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
-                'icons-regular-eye-slash': true,
-                'icons-regular-chevron-down-xs': true,
-                'icons-regular-chevron-up-xs': true,
+            global: {
+                stubs: {
+                    'sw-icon': await Shopware.Component.build('sw-icon'),
+                    'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
+                    'icons-regular-eye-slash': true,
+                    'icons-regular-chevron-down-xs': true,
+                    'icons-regular-chevron-up-xs': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-visibility-toggle', () => {

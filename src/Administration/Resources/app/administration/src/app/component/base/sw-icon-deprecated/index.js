@@ -135,7 +135,10 @@ Component.register('sw-icon-deprecated', {
                     return;
                 }
 
-                const [variant, ...iconName] = newName.split('-');
+                const [
+                    variant,
+                    ...iconName
+                ] = newName.split('-');
                 this.loadIconSvgData(variant, iconName.join('-'), newName);
             },
             immediate: true,
@@ -162,7 +165,9 @@ Component.register('sw-icon-deprecated', {
         loadIconSvgData(variant, iconName, iconFullName) {
             if (this.feature.isActive('ADMIN_VITE')) {
                 // eslint-disable-next-line max-len
-                return import(`./../../../../../node_modules/@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg?raw`).then((iconSvgData) => {
+                return import(
+                    `./../../../../../node_modules/@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg?raw`
+                ).then((iconSvgData) => {
                     if (iconSvgData.default) {
                         this.iconSvgData = iconSvgData.default;
                     } else {

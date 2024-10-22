@@ -7,9 +7,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-product-slider', { sync: true }), {
         props: {
-            element: {
-
-            },
+            element: {},
         },
         global: {
             provide: {

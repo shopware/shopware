@@ -238,7 +238,7 @@ class DefinitionValidator
         $this->eventDispatcher->dispatch(
             new DefinitionValidatorViolationsFilterEvent($violations)
         );
-        
+
         return array_filter($violations);
     }
 

@@ -139,9 +139,7 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
      * @returns {string}
      */
     getSystemKey() {
-        return this.getPlatform().indexOf('Mac') > -1
-            ? 'CTRL'
-            : 'ALT';
+        return this.getPlatform().indexOf('Mac') > -1 ? 'CTRL' : 'ALT';
     },
 });
 

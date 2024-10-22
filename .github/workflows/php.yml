@@ -1,12 +1,9 @@
 name: PHP checks
 
 on:
-  push:
-    branches:
-      - trunk
   pull_request:
     paths:
-      - '**/composer.json'
+      - "**/composer.json"
       - changelog/**/*.md
       - src/**/*.php
       - src/Core/**/*
@@ -17,13 +14,33 @@ on:
   workflow_call:
 
 env:
-  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     name: "PHP lint"
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: ""
+          tools: symfony-cli
+
+      - name: Debug
+        run: |
+          cat composer.json
+          composer validate --no-check-publish --no-check-lock
+
+      - uses: "ramsey/composer-install@v3"
+        with:
+          custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
+          working-directory: ""
+
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
@@ -34,7 +51,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./var/cache/cs_fixer
-          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('vendor-bin/cs-fixer/composer.json') }}
+          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
           restore-keys: |
             ${{ runner.os }}-cs-fixer-
 
@@ -61,7 +78,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: PHPStan
-        run: composer run phpstan -- --error-format=github --no-progress | tee phpstan-report.json
+        run: composer run phpstan -- --error-format=github --no-progress
 
   bc-checker:
     runs-on: ubuntu-latest
@@ -70,13 +87,13 @@ jobs:
       - name: Clone shopware
         uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
-          fetch-tags: '1'
+          fetch-depth: "0"
+          fetch-tags: "1"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
 
       - name: Install Dependencies
         run: |
@@ -110,7 +127,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Start Webserver
-        run: symfony server:start -d --no-tls
+        run: symfony server:start -d --no-tls --allow-all-ip
 
       - name: Prepare schema lint
         run: |
@@ -140,7 +157,7 @@ jobs:
       matrix:
         suite:
           - unit
-          - migration-tests
+          - migration
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -148,14 +165,14 @@ jobs:
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     services:
       elasticsearch:
         image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
         env:
           discovery.type: single-node
-          plugins.security.disabled: 'true'
+          plugins.security.disabled: "true"
         ports:
           - "9200:9200"
 
@@ -197,4 +214,3 @@ jobs:
       - name: Check license
         if: steps.changed-composer-json.outputs.any_changed == 'true'
         run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
-  

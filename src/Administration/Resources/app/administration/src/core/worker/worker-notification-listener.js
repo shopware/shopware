@@ -103,16 +103,10 @@ class WorkerNotificationListener {
             $root: appRoot,
             notification: {
                 create: (notification) => {
-                    return Shopware.State.dispatch(
-                        'notification/createNotification',
-                        notification,
-                    );
+                    return Shopware.State.dispatch('notification/createNotification', notification);
                 },
                 update: (notification) => {
-                    return Shopware.State.dispatch(
-                        'notification/updateNotification',
-                        notification,
-                    );
+                    return Shopware.State.dispatch('notification/updateNotification', notification);
                 },
             },
             queue,

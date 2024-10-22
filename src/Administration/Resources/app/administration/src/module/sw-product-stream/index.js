@@ -13,7 +13,11 @@ Shopware.Component.register('sw-product-stream-detail', () => import('./page/sw-
 Shopware.Component.register('sw-product-stream-field-select', () => import('./component/sw-product-stream-field-select'));
 Shopware.Component.register('sw-product-stream-value', () => import('./component/sw-product-stream-value'));
 Shopware.Component.register('sw-product-stream-modal-preview', () => import('./component/sw-product-stream-modal-preview'));
-Shopware.Component.extend('sw-product-stream-filter', 'sw-condition-base', () => import('./component/sw-product-stream-filter'));
+Shopware.Component.extend(
+    'sw-product-stream-filter',
+    'sw-condition-base',
+    () => import('./component/sw-product-stream-filter'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
@@ -64,15 +68,17 @@ Module.register('sw-product-stream', {
         },
     },
 
-    navigation: [{
-        path: 'sw.product.stream.index',
-        label: 'sw-product-stream.general.mainMenuItemGeneral',
-        id: 'sw-product-stream',
-        privilege: 'product_stream.viewer',
-        parent: 'sw-catalogue',
-        color: '#57D9A3',
-        position: 30,
-    }],
+    navigation: [
+        {
+            path: 'sw.product.stream.index',
+            label: 'sw-product-stream.general.mainMenuItemGeneral',
+            id: 'sw-product-stream',
+            privilege: 'product_stream.viewer',
+            parent: 'sw-catalogue',
+            color: '#57D9A3',
+            position: 30,
+        },
+    ],
 
     defaultSearchConfiguration,
 });

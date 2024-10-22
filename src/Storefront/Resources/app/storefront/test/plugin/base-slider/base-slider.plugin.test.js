@@ -20,7 +20,7 @@ describe('BaseSliderPlugin tests', () => {
             sm: 576,
             xl: 1200,
             xs: 0,
-        }
+        };
 
         window.PluginManager = {
             getPluginInstancesFromElement: () => {
@@ -76,7 +76,7 @@ describe('BaseSliderPlugin tests', () => {
             autoplay: true,
             speed: 300,
             autoplayTimeout: 5000,
-        }
+        };
 
         sliderInstance._getSettings('md');
 
@@ -118,19 +118,25 @@ describe('BaseSliderPlugin tests', () => {
         const sliderInfo = {
             controlsContainer: sliderControls,
             slideItems: sliderItems,
-        }
+        };
+
+        sliderInstance._sliderSettings = {
+            autoplay: true,
+        };
 
         sliderInstance._slider = {
             goTo: jest.fn(),
+            pause: jest.fn(),
             getInfo: () => {
                 return {
                     index: 0,
                     cloneCount: 1,
-                }
+                };
             },
-        }
+        };
 
         const spyGoTo = jest.spyOn(sliderInstance._slider, 'goTo');
+        const spyPause = jest.spyOn(sliderInstance._slider, 'pause');
         const spyGetInfo = jest.spyOn(sliderInstance._slider, 'getInfo');
 
         sliderInstance._initAccessibilityTweaks(sliderInfo, sliderElement);
@@ -141,10 +147,20 @@ describe('BaseSliderPlugin tests', () => {
         focusElementImg.focus();
         expect(document.activeElement).toBe(focusElementImg);
 
-        const focusinEvent = new Event('focusin');
-        focusElement.dispatchEvent(focusinEvent);
+        const focusEvent = new Event('keyup');
+        focusEvent.key = 'Tab';
+        focusElement.dispatchEvent(focusEvent);
 
         expect(spyGetInfo).toBeCalled();
+        expect(spyPause).toBeCalled();
         expect(spyGoTo).toBeCalled();
+
+        const scrollEvent = new Event('scroll');
+        const scrollEventSpy = jest.spyOn(scrollEvent, 'preventDefault');
+
+        sliderElement.dispatchEvent(scrollEvent);
+
+        expect(sliderElement.scrollLeft).toBe(0);
+        expect(scrollEventSpy).toBeCalled();
     });
 });

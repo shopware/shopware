@@ -16,7 +16,13 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
+    inject: [
+        'mailService',
+        'entityMappingService',
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -109,7 +115,7 @@ export default {
                     return properties;
                 }
                 return completerFunction;
-            }(this.entityMappingService, this.mailTemplateType));
+            })(this.entityMappingService, this.mailTemplateType);
         },
 
         mailTemplateTypeRepository() {
@@ -117,11 +123,13 @@ export default {
         },
 
         testMailRequirementsMet() {
-            return this.testerMail &&
+            return (
+                this.testerMail &&
                 (this.mailTemplate.subject || this.mailTemplate.translated?.subject) &&
                 (this.mailTemplate.contentPlain || this.mailTemplate.translated?.contentPlain) &&
                 (this.mailTemplate.contentHtml || this.mailTemplate.translated?.contentHtml) &&
-                (this.mailTemplate.senderName || this.mailTemplate.translated?.senderName);
+                (this.mailTemplate.senderName || this.mailTemplate.translated?.senderName)
+            );
         },
 
         mediaColumns() {
@@ -302,28 +310,31 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            updatePromises.push(this.mailTemplateRepository.save(this.mailTemplate).then(() => {
-                Promise.all(updatePromises).then(() => {
-                    this.loadEntityData();
-                    this.saveFinish();
-                });
-            }).catch((error) => {
-                let errormsg = '';
-                this.isLoading = false;
+            updatePromises.push(
+                this.mailTemplateRepository
+                    .save(this.mailTemplate)
+                    .then(() => {
+                        Promise.all(updatePromises).then(() => {
+                            this.loadEntityData();
+                            this.saveFinish();
+                        });
+                    })
+                    .catch((error) => {
+                        let errormsg = '';
+                        this.isLoading = false;
 
-                if (error.response.data.errors.length > 0) {
-                    const errorDetailMsg = error.response.data.errors[0].detail;
-                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
-                }
+                        if (error.response.data.errors.length > 0) {
+                            const errorDetailMsg = error.response.data.errors[0].detail;
+                            errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                        }
 
-                this.createNotificationError({
-                    message: this.$tc(
-                        'sw-mail-template.detail.messageSaveError',
-                        0,
-                        { subject: mailTemplateSubject },
-                    ) + errormsg,
-                });
-            }));
+                        this.createNotificationError({
+                            message:
+                                this.$tc('sw-mail-template.detail.messageSaveError', 0, { subject: mailTemplateSubject }) +
+                                errormsg,
+                        });
+                    }),
+            );
 
             return Promise.all(updatePromises);
         },
@@ -346,54 +357,58 @@ export default {
                 return;
             }
 
-            this.mailService.testMailTemplate(
-                this.testerMail,
-                this.mailPreviewContent(),
-                this.mailTemplateMedia,
-                this.testMailSalesChannelId,
-            ).then((response) => {
-                // Size is the length of the mail message, if the size is zero then no mail was sent
-                const isMailSent = response?.size !== 0;
-                if (!isMailSent) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-                    });
-                    return;
-                }
+            this.mailService
+                .testMailTemplate(
+                    this.testerMail,
+                    this.mailPreviewContent(),
+                    this.mailTemplateMedia,
+                    this.testMailSalesChannelId,
+                    this.mailTemplate.mailTemplateTypeId,
+                    this.mailTemplate.id,
+                )
+                .then((response) => {
+                    // Size is the length of the mail message, if the size is zero then no mail was sent
+                    const isMailSent = response?.size !== 0;
+                    if (!isMailSent) {
+                        this.createNotificationError({
+                            message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                        });
+                        return;
+                    }
 
-                this.createNotificationSuccess(notificationTestMailSuccess);
-            }).catch((exception) => {
-                this.createNotificationError(notificationTestMailError);
-                warn(this._name, exception.message, exception.response);
-            });
+                    this.createNotificationSuccess(notificationTestMailSuccess);
+                })
+                .catch((exception) => {
+                    this.createNotificationError(notificationTestMailError);
+                    warn(this._name, exception.message, exception.response);
+                });
         },
 
         onClickShowPreview() {
             this.isLoading = true;
 
-            this.mailPreview = this.mailService.buildRenderPreview(
-                this.mailTemplateType,
-                this.mailPreviewContent(),
-            ).then((response) => {
-                this.mailPreview = response;
-            }).catch((error) => {
-                this.mailPreview = null;
-                if (!error.response?.data?.errors?.[0]?.detail) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-                    });
-                } else {
-                    this.createNotificationError({
-                        message: this.$tc(
-                            'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
-                            0,
-                            { errorMsg: error.response?.data?.errors?.[0]?.detail },
-                        ),
-                    });
-                }
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            this.mailPreview = this.mailService
+                .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
+                .then((response) => {
+                    this.mailPreview = response;
+                })
+                .catch((error) => {
+                    this.mailPreview = null;
+                    if (!error.response?.data?.errors?.[0]?.detail) {
+                        this.createNotificationError({
+                            message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                        });
+                    } else {
+                        this.createNotificationError({
+                            message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
+                                errorMsg: error.response?.data?.errors?.[0]?.detail,
+                            }),
+                        });
+                    }
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         mailPreviewContent() {
@@ -420,10 +435,12 @@ export default {
 
         replaceContent(string) {
             // Replace .at([index]), first -> `.[index]` to suitable with mail template data
-            return string.replace(/\.at\(([0-9]*)\)\./g, (matchs) => {
-                const index = parseInt(matchs.match(/[0-9]/g).join(''), 10);
-                return `.${index}.`;
-            }).replace(/\.first\./g, '.0.');
+            return string
+                .replace(/\.at\(([0-9]*)\)\./g, (matchs) => {
+                    const index = parseInt(matchs.match(/[0-9]/g).join(''), 10);
+                    return `.${index}.`;
+                })
+                .replace(/\.first\./g, '.0.');
         },
 
         onCancelShowPreview() {
@@ -474,10 +491,12 @@ export default {
         },
 
         getMediaColumns() {
-            return [{
-                property: 'fileName',
-                label: 'sw-mail-template.list.columnFilename',
-            }];
+            return [
+                {
+                    property: 'fileName',
+                    label: 'sw-mail-template.list.columnFilename',
+                },
+            ];
         },
 
         successfulUpload({ targetId }) {
@@ -513,8 +532,9 @@ export default {
         },
 
         onDeleteMedia(mailTemplateMediaId) {
-            const foundItem = this.mailTemplate.media
-                .find((mailTemplateMedia) => mailTemplateMedia.mediaId === mailTemplateMediaId);
+            const foundItem = this.mailTemplate.media.find(
+                (mailTemplateMedia) => mailTemplateMedia.mediaId === mailTemplateMediaId,
+            );
             if (foundItem) {
                 this.mailTemplate.media.remove(foundItem.id);
                 this.getMailTemplateMedia();
@@ -533,8 +553,9 @@ export default {
 
         _checkIfMediaIsAlreadyUsed(mediaId) {
             return this.mailTemplate.media.some((mailTemplateMedia) => {
-                return mailTemplateMedia.mediaId === mediaId &&
-                    mailTemplateMedia.languageId === Shopware.Context.api.languageId;
+                return (
+                    mailTemplateMedia.mediaId === mediaId && mailTemplateMedia.languageId === Shopware.Context.api.languageId
+                );
             });
         },
 
@@ -566,9 +587,9 @@ export default {
                 const length = isObject ? Object.values(availableVariable).length : 0;
 
                 // the pattern for schema is `.at(0)` or `.at(1)` instead of `.0` or `.1`
-                const schema = this.isToManyAssociationVariable(variable) ?
-                    `${variableEntitySchemaPath}at(${parseInt(val, 10)})` :
-                    variableEntitySchemaPath + val;
+                const schema = this.isToManyAssociationVariable(variable)
+                    ? `${variableEntitySchemaPath}at(${parseInt(val, 10)})`
+                    : variableEntitySchemaPath + val;
 
                 return {
                     id: variablePath + val,
@@ -579,7 +600,6 @@ export default {
                     afterId: null,
                 };
             });
-
 
             this.addVariables(keys);
 
@@ -595,7 +615,14 @@ export default {
             variables.splice(1, 0, 'properties');
             const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
 
-            return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
+            return (
+                field &&
+                field.type === 'association' &&
+                [
+                    'one_to_many',
+                    'many_to_many',
+                ].includes(field.relation)
+            );
         },
 
         onGetTreeItems(parent, schema) {
@@ -619,21 +646,23 @@ export default {
                 return;
             }
 
-            Object.keys(this.mailTemplateType.templateData).forEach(variable => {
+            Object.keys(this.mailTemplateType.templateData).forEach((variable) => {
                 const availableVariable = Shopware.Utils.get(this.mailTemplateType.templateData, variable);
                 let length = 0;
                 if (typeof availableVariable === 'object' && availableVariable !== null) {
                     length = Object.values(availableVariable).length;
                 }
 
-                this.addVariables([{
-                    id: variable,
-                    schema: variable,
-                    name: variable,
-                    childCount: length,
-                    parentId: null,
-                    afterId: null,
-                }]);
+                this.addVariables([
+                    {
+                        id: variable,
+                        schema: variable,
+                        name: variable,
+                        childCount: length,
+                        parentId: null,
+                        afterId: null,
+                    },
+                ]);
             });
         },
     },

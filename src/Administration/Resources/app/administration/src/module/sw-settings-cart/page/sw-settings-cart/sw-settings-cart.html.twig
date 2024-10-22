@@ -76,6 +76,11 @@
                 domain="core.cart"
                 @loading-changed="onLoadingChanged"
             />
+
+            <sw-extension-component-section
+                v-show="!isLoading"
+                position-identifier="sw-settings-cart__after-content"
+            />
         </sw-card-view>
     </template>
     {% endblock %}

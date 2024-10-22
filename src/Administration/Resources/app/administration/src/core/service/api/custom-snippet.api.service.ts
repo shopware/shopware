@@ -3,41 +3,41 @@ import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
 interface Country {
-    name: string,
+    name: string;
     translated?: {
-        name: string
-    }
+        name: string;
+    };
 }
 
 interface CountryState {
-    name: string,
+    name: string;
     translated?: {
-        name: string
-    }
+        name: string;
+    };
 }
 
 interface Salutation {
-    displayName: string,
+    displayName: string;
     translated?: {
-        displayName: string
-    }
+        displayName: string;
+    };
 }
 
 interface Address {
-    salutation?: Salutation,
-    title?: string,
-    firstName: string,
-    lastName: string,
-    street: string,
-    zipcode?: string,
-    city: string,
-    country: Country,
-    countryState?: CountryState,
-    company?: string,
-    phoneNumber?: string,
-    department?: string,
-    additionalAddressLine1?: string,
-    additionalAddressLine2?: string,
+    salutation?: Salutation;
+    title?: string;
+    firstName: string;
+    lastName: string;
+    street: string;
+    zipcode?: string;
+    city: string;
+    country: Country;
+    countryState?: CountryState;
+    company?: string;
+    phoneNumber?: string;
+    department?: string;
+    additionalAddressLine1?: string;
+    additionalAddressLine2?: string;
 }
 
 /**
@@ -55,7 +55,8 @@ export default class CustomSnippetApiService extends ApiService {
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}`, {
                 headers: this.getBasicHeaders(),
-            }).then((response: AxiosResponse<Array<string[]>>) => {
+            })
+            .then((response: AxiosResponse<Array<string[]>>) => {
                 return ApiService.handleResponse(response);
             });
     }
@@ -66,7 +67,8 @@ export default class CustomSnippetApiService extends ApiService {
         return this.httpClient
             .post(`/_action/${this.getApiBasePath()}/render`, params, {
                 headers: this.getBasicHeaders(),
-            }).then((response: AxiosResponse<string>) => {
+            })
+            .then((response: AxiosResponse<string>) => {
                 return ApiService.handleResponse(response);
             });
     }

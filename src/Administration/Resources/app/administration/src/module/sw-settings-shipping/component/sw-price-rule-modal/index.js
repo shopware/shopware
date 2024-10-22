@@ -19,6 +19,5 @@ export default {
         createdComponent() {
             this.$super('createdComponent');
         },
-
     },
 };

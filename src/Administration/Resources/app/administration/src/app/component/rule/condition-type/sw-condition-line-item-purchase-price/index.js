@@ -40,12 +40,14 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-lin
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.isNet', 'value.amount']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.isNet',
+            'value.amount',
+        ]),
 
         currentError() {
-            return this.conditionValueIsNetError
-                || this.conditionValueOperatorError
-                || this.conditionValueAmountError;
+            return this.conditionValueIsNetError || this.conditionValueOperatorError || this.conditionValueAmountError;
         },
     },
 

@@ -31,24 +31,27 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 async function createWrapper(responsiveBindings = {}) {
-    return mount({
-        name: 'placeholder-component',
-        template: `
+    return mount(
+        {
+            name: 'placeholder-component',
+            template: `
 <div class="placeholder-component" v-responsive="responsiveBindings">
     <h1>Placeholder component</h1>
 </div>
 `,
-        props: {
-            responsiveBindings: {
-                required: true,
+            props: {
+                responsiveBindings: {
+                    required: true,
+                },
             },
         },
-    }, {
-        props: {
-            responsiveBindings,
+        {
+            props: {
+                responsiveBindings,
+            },
+            attachTo: document.body,
         },
-        attachTo: document.body,
-    });
+    );
 }
 
 describe('src/app/directive/responsive.directive.ts', () => {
@@ -57,7 +60,7 @@ describe('src/app/directive/responsive.directive.ts', () => {
     beforeEach(async () => {
         resizeObserverList = [];
         wrapper = await createWrapper({
-            'is--compact': el => el.width <= 1620,
+            'is--compact': (el) => el.width <= 1620,
             timeout: 200,
         });
 
@@ -69,7 +72,7 @@ describe('src/app/directive/responsive.directive.ts', () => {
     });
 
     it('should execute all observer and show the "is--compact" css class', () => {
-        resizeObserverList.at(0).observerList.forEach(el => {
+        resizeObserverList.at(0).observerList.forEach((el) => {
             el.contentRect = {
                 width: 500,
             };
@@ -80,7 +83,7 @@ describe('src/app/directive/responsive.directive.ts', () => {
     });
 
     it('should execute all observer and not show the "is--compact" css class', () => {
-        resizeObserverList.at(0).observerList.forEach(el => {
+        resizeObserverList.at(0).observerList.forEach((el) => {
             el.contentRect = {
                 width: 1920,
             };
@@ -95,7 +98,7 @@ describe('src/app/directive/responsive.directive.ts', () => {
         wrapper = await createWrapper(null);
         await flushPromises();
 
-        resizeObserverList.at(0).observerList.forEach(el => {
+        resizeObserverList.at(0).observerList.forEach((el) => {
             el.contentRect = {
                 width: 500,
             };

@@ -1,0 +1,19 @@
+services:
+  editor:
+    image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.2@sha256:1c67f419cd08700a8bf8d58439fc06a7087a7879489d0b20f676f7899b554aeb
+  db:
+    image: chainguard/mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: shopware
+    volumes:
+      - db-data:/var/lib/mysql
+  smtp:
+    image: axllent/mailpit
+    ports:
+      - 8025:8025
+  redis:
+    image: chainguard/valkey
+
+volumes:
+  db-data:

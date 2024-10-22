@@ -418,73 +418,6 @@ class EntityRepositoryTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<string, string> $properties
-     *
-     * @return array<string, mixed>
-     */
-    private static function product(IdsCollection $ids, string $key, array $properties): array
-    {
-        $builder = new ProductBuilder($ids, $key);
-        $builder->price(100);
-        foreach ($properties as $value => $group) {
-            $builder->property($value, $group);
-        }
-        $builder->active(false);
-
-        return $builder->build();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function order(string $id): array
-    {
-        return [
-            'id' => Uuid::fromHexToBytes($id),
-            'currency_factor' => 1.0,
-            'order_date_time' => '2020-01-01 00:00:00.000000',
-            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'price' => json_encode([
-                'netPrice' => 100,
-                'taxStatus' => 'gross',
-                'totalPrice' => 100,
-                'positionPrice' => 1,
-            ]),
-            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
-            'state_id' => Uuid::randomBytes(),
-            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'billing_address_id' => Uuid::randomBytes(),
-            'billing_address_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'shipping_costs' => '{}',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function transaction(string $orderId, string $payment, string $state): array
-    {
-        $machineId = $this->getContainer()->get(Connection::class)
-            ->fetchOne('SELECT id FROM state_machine WHERE technical_name = :state', ['state' => 'order_transaction.state']);
-
-        $stateId = $this->getContainer()->get(Connection::class)
-            ->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :state AND state_machine_id = :machineId', ['state' => $state, 'machineId' => $machineId]);
-
-        return [
-            'id' => Uuid::randomBytes(),
-            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'order_id' => Uuid::fromHexToBytes($orderId),
-            'payment_method_id' => Uuid::fromHexToBytes($payment),
-            'state_id' => $stateId,
-            'amount' => json_encode(['unitPrice' => 100]),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ];
-    }
-
     public function testWrite(): void
     {
         $repository = $this->createRepository(LocaleDefinition::class);
@@ -1661,6 +1594,73 @@ class EntityRepositoryTest extends TestCase
                 'author' => 'test',
             ],
         ], Context::createDefaultContext());
+    }
+
+    /**
+     * @param array<string, string> $properties
+     *
+     * @return array<string, mixed>
+     */
+    private static function product(IdsCollection $ids, string $key, array $properties): array
+    {
+        $builder = new ProductBuilder($ids, $key);
+        $builder->price(100);
+        foreach ($properties as $value => $group) {
+            $builder->property($value, $group);
+        }
+        $builder->active(false);
+
+        return $builder->build();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function order(string $id): array
+    {
+        return [
+            'id' => Uuid::fromHexToBytes($id),
+            'currency_factor' => 1.0,
+            'order_date_time' => '2020-01-01 00:00:00.000000',
+            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'price' => json_encode([
+                'netPrice' => 100,
+                'taxStatus' => 'gross',
+                'totalPrice' => 100,
+                'positionPrice' => 1,
+            ]),
+            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
+            'state_id' => Uuid::randomBytes(),
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+            'billing_address_id' => Uuid::randomBytes(),
+            'billing_address_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'shipping_costs' => '{}',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function transaction(string $orderId, string $payment, string $state): array
+    {
+        $machineId = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT id FROM state_machine WHERE technical_name = :state', ['state' => 'order_transaction.state']);
+
+        $stateId = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :state AND state_machine_id = :machineId', ['state' => $state, 'machineId' => $machineId]);
+
+        return [
+            'id' => Uuid::randomBytes(),
+            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'order_id' => Uuid::fromHexToBytes($orderId),
+            'payment_method_id' => Uuid::fromHexToBytes($payment),
+            'state_id' => $stateId,
+            'amount' => json_encode(['unitPrice' => 100]),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
     }
 
     /**

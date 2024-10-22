@@ -17,44 +17,47 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-buy-box', {
-        sync: true,
-    }), {
-        sync: false,
-        props: {
-            element: {
-                data: {},
-                config: {},
-            },
-            defaultConfig: {
-                alignment: {
-                    value: null,
+    return mount(
+        await wrapTestComponent('sw-cms-el-buy-box', {
+            sync: true,
+        }),
+        {
+            sync: false,
+            props: {
+                element: {
+                    data: {},
+                    config: {},
                 },
-            },
-        },
-        global: {
-            stubs: {
-                'sw-block-field': true,
-                'sw-icon': true,
-            },
-            provide: {
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {};
-                    },
-                    getCmsElementRegistry: () => {
-                        return { 'buy-box': {} };
+                defaultConfig: {
+                    alignment: {
+                        value: null,
                     },
                 },
             },
+            global: {
+                stubs: {
+                    'sw-block-field': true,
+                    'sw-icon': true,
+                },
+                provide: {
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {};
+                        },
+                        getCmsElementRegistry: () => {
+                            return { 'buy-box': {} };
+                        },
+                    },
+                },
+            },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/buy-box/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
 
             state() {
                 return {
@@ -69,13 +72,13 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').$reset();
+        Shopware.Store.get('cmsPage').$reset();
     });
 
     it('should show skeleton if page type is product page', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        Shopware.Store.get('cmsPage').currentPage.type = 'product_detail';
         await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-buy-box__skeleton').exists()).toBeTruthy();
@@ -107,7 +110,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     it('should show current demo data if mapping entity is product', async () => {
         const wrapper = await createWrapper();
 
-        const cmsPageState = Shopware.Store.get('cmsPageState');
+        const cmsPageState = Shopware.Store.get('cmsPage');
         cmsPageState.currentPage.type = 'product_detail';
         cmsPageState.currentMappingEntity = 'product';
         cmsPageState.currentDemoEntity = productMock;
@@ -121,7 +124,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     it('should show dummy data initially if mapping entity is not product', async () => {
         const wrapper = await createWrapper();
 
-        const cmsPageState = Shopware.Store.get('cmsPageState');
+        const cmsPageState = Shopware.Store.get('cmsPage');
         cmsPageState.currentPage.type = 'landingpage';
         cmsPageState.currentMappingEntity = null;
         cmsPageState.currentDemoEntity = productMock;

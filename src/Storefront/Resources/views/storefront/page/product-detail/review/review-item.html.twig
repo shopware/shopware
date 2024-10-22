@@ -15,9 +15,7 @@
 
         {% block page_product_detail_review_item_meta_title %}
             <meta itemprop="name" content="{{ review.title }}">
-        {% endblock %}
 
-        {% block page_product_detail_review_item_meta_title %}
             {% if review.language %}
                 <meta itemprop="language" content="{{ review.language.translationCode.code }}">
             {% endif %}

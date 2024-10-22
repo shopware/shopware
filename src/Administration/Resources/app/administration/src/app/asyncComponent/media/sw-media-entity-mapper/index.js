@@ -18,11 +18,7 @@ export default {
 
         Object.assign(context.data, context.props);
 
-        return createElement(
-            mapEntity(),
-            context.data,
-            context.slots().default,
-        );
+        return createElement(mapEntity(), context.data, context.slots().default);
     },
 
     props: {

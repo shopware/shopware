@@ -35,17 +35,17 @@ class CustomFieldSetRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $attributeSet = [
             'id' => $id,
-            'name' => 'test set',
+            'name' => 'test_set',
             'config' => ['description' => 'test set'],
             'customFields' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'foo.size',
+                    'name' => 'foo_size',
                     'type' => 'int',
                 ],
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'foo.description',
+                    'name' => 'foo_description',
                     'type' => 'string',
                 ],
             ],
@@ -80,12 +80,12 @@ class CustomFieldSetRepositoryTest extends TestCase
         $attributeSets = [
             [
                 'id' => $id1,
-                'name' => 'test set 1',
+                'name' => 'test_set_1',
                 'config' => ['description' => 'test 1'],
                 'customFields' => [
                     [
                         'id' => Uuid::randomHex(),
-                        'name' => 'foo.size',
+                        'name' => 'foo_size',
                         'type' => 'int',
                     ],
                 ],
@@ -100,7 +100,7 @@ class CustomFieldSetRepositoryTest extends TestCase
             ],
             [
                 'id' => $id2,
-                'name' => 'test set 2',
+                'name' => 'test_set_2',
                 'config' => ['description' => 'test 2'],
                 'customFields' => [
                     [
@@ -149,17 +149,17 @@ class CustomFieldSetRepositoryTest extends TestCase
 
         $attributeSet = [
             'id' => $id,
-            'name' => 'test set',
+            'name' => 'test_set',
             'config' => ['description' => 'test'],
             'customFields' => [
                 [
                     'id' => $attrId1,
-                    'name' => 'foo.size',
+                    'name' => 'foo_size',
                     'type' => 'int',
                 ],
                 [
                     'id' => $attrId2,
-                    'name' => 'foo.description',
+                    'name' => 'foo_description',
                     'type' => 'string',
                 ],
             ],
@@ -199,17 +199,17 @@ class CustomFieldSetRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $attributeSet = [
             'id' => $id,
-            'name' => 'test set',
+            'name' => 'test_set',
             'config' => ['description' => 'test', 'foo' => 'bar'],
             'customFields' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'foo.size',
+                    'name' => 'foo_size',
                     'type' => 'int',
                 ],
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => 'foo.description',
+                    'name' => 'foo_description',
                     'type' => 'string',
                 ],
             ],
@@ -226,7 +226,7 @@ class CustomFieldSetRepositoryTest extends TestCase
 
         $update = [
             'id' => $id,
-            'name' => 'test set update',
+            'name' => 'test_set_update',
             'config' => ['description' => 'update', 'translatable' => true],
         ];
         $result = $this->repo->update([$update], Context::createDefaultContext());
@@ -247,12 +247,12 @@ class CustomFieldSetRepositoryTest extends TestCase
         $attributeSets = [
             [
                 'id' => $id,
-                'name' => 'test set',
+                'name' => 'test_set',
                 'config' => ['description' => 'test 1'],
                 'customFields' => [
                     [
                         'id' => Uuid::randomHex(),
-                        'name' => 'foo.size',
+                        'name' => 'foo_size',
                         'type' => 'int',
                     ],
                 ],
@@ -267,7 +267,7 @@ class CustomFieldSetRepositoryTest extends TestCase
             ],
             [
                 'id' => $nullId,
-                'name' => 'test set null',
+                'name' => 'test_set_null',
                 'config' => ['description' => 'test 1'],
             ],
         ];

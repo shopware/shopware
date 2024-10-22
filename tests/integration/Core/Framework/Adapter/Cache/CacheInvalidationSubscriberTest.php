@@ -282,36 +282,6 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
-    private function insertDefaultPropertyGroup(): void
-    {
-        $groupRepository = $this->getContainer()->get('property_group.repository');
-
-        $data = [
-            'id' => $this->ids->get('group1'),
-            'name' => 'group1',
-            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
-            'displayType' => PropertyGroupDefinition::DISPLAY_TYPE_TEXT,
-            'options' => [
-                [
-                    'id' => $this->ids->get('property-assigned'),
-                    'name' => 'assigned',
-                ],
-                [
-                    'id' => $this->ids->get('property-unassigned'),
-                    'name' => 'unassigned',
-                ],
-            ],
-        ];
-
-        $groupRepository->create([$data], Context::createDefaultContext());
-
-        $builder = new ProductBuilder($this->ids, 'product1');
-        $builder->price(10)
-            ->property('property-assigned', '');
-
-        $this->getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
-    }
-
     public function testInvalidateDetailRouteLoadsParentProductIds(): void
     {
         Feature::skipTestIfActive('cache_rework', $this);
@@ -379,6 +349,36 @@ class CacheInvalidationSubscriberTest extends TestCase
                 $listener->tags
             );
         }
+    }
+
+    private function insertDefaultPropertyGroup(): void
+    {
+        $groupRepository = $this->getContainer()->get('property_group.repository');
+
+        $data = [
+            'id' => $this->ids->get('group1'),
+            'name' => 'group1',
+            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
+            'displayType' => PropertyGroupDefinition::DISPLAY_TYPE_TEXT,
+            'options' => [
+                [
+                    'id' => $this->ids->get('property-assigned'),
+                    'name' => 'assigned',
+                ],
+                [
+                    'id' => $this->ids->get('property-unassigned'),
+                    'name' => 'unassigned',
+                ],
+            ],
+        ];
+
+        $groupRepository->create([$data], Context::createDefaultContext());
+
+        $builder = new ProductBuilder($this->ids, 'product1');
+        $builder->price(10)
+            ->property('property-assigned', '');
+
+        $this->getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
     }
 
     private function createProduct(string $id, ?string $parentId = null): void

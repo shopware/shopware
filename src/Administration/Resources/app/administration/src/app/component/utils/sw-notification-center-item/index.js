@@ -38,9 +38,11 @@ Component.register('sw-notification-center-item', {
         isNotificationFromSameDay() {
             const timestamp = this.notification.timestamp;
             const now = new Date();
-            return timestamp.getDate() === now.getDate() &&
+            return (
+                timestamp.getDate() === now.getDate() &&
                 timestamp.getMonth() === now.getMonth() &&
-                timestamp.getFullYear() === now.getFullYear();
+                timestamp.getFullYear() === now.getFullYear()
+            );
         },
 
         onDelete() {

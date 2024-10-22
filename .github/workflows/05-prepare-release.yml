@@ -10,7 +10,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     services:
       database:
         image: mysql:8.0
@@ -41,6 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: context
+          include-hidden-files: true
           path: |
             .
             .github/
@@ -122,6 +123,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,9 +13,19 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService'],
+    inject: [
+        'mediaService',
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'systemConfigApiService',
+    ],
 
-    emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
+    emits: [
+        'media-item-rename-success',
+        'media-item-replaced',
+        'update:item',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -107,16 +117,13 @@ export default {
          * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
          */
         fetchSpatialItemConfig() {
-            this.systemConfigApiService.getValues('core.media')
-                .then((values) => {
-                    this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
-                });
+            this.systemConfigApiService.getValues('core.media').then((values) => {
+                this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
+            });
 
-            this.mediaRepository
-                .get(this.item.id, Shopware.Context.api)
-                .then(entity => {
-                    this.arReady = entity?.config?.spatial?.arReady;
-                });
+            this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
+                this.arReady = entity?.config?.spatial?.arReady;
+            });
         },
 
         /**
@@ -196,7 +203,10 @@ export default {
 
             try {
                 await this.mediaService.renameMedia(item.id, value).catch((error) => {
-                    const fileNameErrorCodes = ['CONTENT__MEDIA_EMPTY_FILE', 'CONTENT__MEDIA_ILLEGAL_FILE_NAME'];
+                    const fileNameErrorCodes = [
+                        'CONTENT__MEDIA_EMPTY_FILE',
+                        'CONTENT__MEDIA_ILLEGAL_FILE_NAME',
+                    ];
 
                     error.response.data.errors.forEach((e) => {
                         if (this.fileNameError || !fileNameErrorCodes.includes(e.code)) {
@@ -262,9 +272,12 @@ export default {
         },
 
         quickActionClasses(disabled) {
-            return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled,
-            }];
+            return [
+                'sw-media-sidebar__quickaction',
+                {
+                    'sw-media-sidebar__quickaction--disabled': disabled,
+                },
+            ];
         },
 
         onRemoveFileNameError() {

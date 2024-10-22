@@ -66,68 +66,73 @@ function mockCustomFieldRepository() {
 async function createWrapper(privileges = []) {
     customFields = mockCustomFieldData();
 
-    return mount(await wrapTestComponent('sw-custom-field-list', {
-        sync: true,
-    }), {
-        props: {
-            set: set,
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create() {
-                        return mockCustomFieldRepository();
+    return mount(
+        await wrapTestComponent('sw-custom-field-list', {
+            sync: true,
+        }),
+        {
+            props: {
+                set: set,
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create() {
+                            return mockCustomFieldRepository();
+                        },
                     },
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-button': true,
-                'sw-card': true,
-                'sw-empty-state': {
-                    template: '<div></div>',
+                stubs: {
+                    'sw-button': true,
+                    'sw-card': true,
+                    'sw-empty-state': {
+                        template: '<div></div>',
+                    },
+                    'sw-simple-search-field': {
+                        template: '<div></div>',
+                    },
+                    'sw-container': true,
+                    'sw-grid': await wrapTestComponent('sw-grid'),
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-context-menu-item': {
+                        template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                    },
+                    'sw-context-menu': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-grid-column': {
+                        template: '<div class="sw-grid-column"><slot></slot></div>',
+                    },
+                    'sw-grid-row': {
+                        template: '<div class="sw-grid-row"><slot></slot></div>',
+                    },
+                    'sw-checkbox-field': {
+                        template: '<div></div>',
+                    },
+                    'sw-pagination': await wrapTestComponent('sw-pagination'),
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'sw-modal': true,
+                    'sw-text-field': true,
+                    'sw-number-field': true,
+                    'sw-custom-field-detail': true,
+                    'sw-select-field': true,
                 },
-                'sw-simple-search-field': {
-                    template: '<div></div>',
-                },
-                'sw-container': true,
-                'sw-grid': await wrapTestComponent('sw-grid'),
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-context-menu-item': {
-                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
-                },
-                'sw-context-menu': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-grid-column': {
-                    template: '<div class="sw-grid-column"><slot></slot></div>',
-                },
-                'sw-grid-row': {
-                    template: '<div class="sw-grid-row"><slot></slot></div>',
-                },
-                'sw-checkbox-field': {
-                    template: '<div></div>',
-                },
-                'sw-pagination': await wrapTestComponent('sw-pagination'),
-                'sw-icon': true,
-                'sw-loader': true,
-                'sw-modal': true,
-                'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-custom-field-detail': true,
-                'sw-select-field': true,
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-custom-field-list', () => {
@@ -214,7 +219,12 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         await flushPromises();
 
         const customFieldPositionCells = wrapper.findAll('.sw-grid-column[data-index="position"]');
-        const [first, second, third, fourth] = customFieldPositionCells;
+        const [
+            first,
+            second,
+            third,
+            fourth,
+        ] = customFieldPositionCells;
 
         expect(first.text()).toBe('1');
         expect(second.text()).toBe('2');

@@ -4,7 +4,6 @@
 
 import { mount } from '@vue/test-utils';
 
-
 let productData = [];
 
 function mockCriteria() {
@@ -42,15 +41,23 @@ async function createWrapper() {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-field-error': true,
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
+                'sw-button': await wrapTestComponent('sw-button', {
+                    sync: true,
+                }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
-                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', {
+                    sync: true,
+                }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),

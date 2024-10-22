@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 #[Package('storefront')]
@@ -26,7 +27,7 @@ class SeedingThemePathBuilder extends AbstractThemePathBuilder
 
     public function generateNewPath(string $salesChannelId, string $themeId, string $seed): string
     {
-        return md5($themeId . $salesChannelId . $seed);
+        return Hasher::hash($themeId . $salesChannelId . $seed);
     }
 
     public function saveSeed(string $salesChannelId, string $themeId, string $seed): void

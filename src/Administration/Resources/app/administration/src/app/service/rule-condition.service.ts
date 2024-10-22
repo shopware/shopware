@@ -3,64 +3,64 @@ import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/d
 const { Criteria } = Shopware.Data;
 
 type appScriptCondition = {
-    id: string,
-    config: unknown
-}
+    id: string;
+    config: unknown;
+};
 
 type condition = {
-    type: string,
-    component: string,
-    label: string,
-    scopes: string[],
-    group: string,
-    scriptId: string,
-    appScriptCondition: appScriptCondition,
-}
+    type: string;
+    component: string;
+    label: string;
+    scopes: string[];
+    group: string;
+    scriptId: string;
+    appScriptCondition: appScriptCondition;
+};
 
 type script = {
-    id: string,
-    name?: string,
+    id: string;
+    name?: string;
     translated?: {
-        name?: string,
-    },
-    group: string,
-    config: unknown,
-}
+        name?: string;
+    };
+    group: string;
+    config: unknown;
+};
 
 type operatorSetIdentifier =
-    'defaultSet' |
-    'singleStore' |
-    'multiStore' |
-    'string' |
-    'bool' |
-    'number' |
-    'date' |
-    'isNet' |
-    'empty' |
-    'zipCode';
+    | 'defaultSet'
+    | 'singleStore'
+    | 'multiStore'
+    | 'string'
+    | 'bool'
+    | 'number'
+    | 'date'
+    | 'isNet'
+    | 'empty'
+    | 'zipCode';
 
 type component = {
-    type: string,
+    type: string;
     config: {
-        componentName: string,
-    },
-}
+        componentName: string;
+    };
+};
 
 type moduleType = {
-    id: string,
-    name: string,
-}
+    id: string;
+    name: string;
+};
 
 type group = {
-    id: string,
-    name: string,
-}
+    id: string;
+    name: string;
+};
 
 type awarenessConfiguration = {
-    notEquals?: Array<string>,
-    equalsAny?: Array<string>,
-    snippet?: string,
-}
+    notEquals?: Array<string>;
+    equalsAny?: Array<string>;
+    snippet?: string;
+};
 
 /**
  * @module app/service/rule-condition
@@ -75,9 +75,9 @@ type awarenessConfiguration = {
  * @returns {Object}
  */
 export default class RuleConditionService {
-    $store: { [key: string]: condition} = {};
+    $store: { [key: string]: condition } = {};
 
-    awarenessConfiguration: { [key: string]: awarenessConfiguration} = {};
+    awarenessConfiguration: { [key: string]: awarenessConfiguration } = {};
 
     operators = {
         lowerThanEquals: {
@@ -198,7 +198,7 @@ export default class RuleConditionService {
         },
     };
 
-    groups: { [key: string]: group} = {
+    groups: { [key: string]: group } = {
         general: {
             id: 'general',
             name: 'sw-settings-rule.detail.groups.general',
@@ -239,9 +239,11 @@ export default class RuleConditionService {
         }
 
         if (type === 'scriptRule') {
-            const scriptRule = this.getConditions().filter((condition) => {
-                return condition.type === 'scriptRule';
-            }).shift();
+            const scriptRule = this.getConditions()
+                .filter((condition) => {
+                    return condition.type === 'scriptRule';
+                })
+                .shift();
 
             if (scriptRule) {
                 return scriptRule;
@@ -262,7 +264,13 @@ export default class RuleConditionService {
             this.addCondition('scriptRule', {
                 component: 'sw-condition-script',
                 label: (script?.translated?.name || script.name) ?? '',
-                scopes: script.group === 'item' ? ['global', 'lineItem'] : ['global'],
+                scopes:
+                    script.group === 'item'
+                        ? [
+                              'global',
+                              'lineItem',
+                          ]
+                        : ['global'],
                 group: script.group,
                 scriptId: script.id,
                 appScriptCondition: {
@@ -306,16 +314,33 @@ export default class RuleConditionService {
 
     getOperatorOptionsByIdentifiers(identifiers: Array<string>, isMatchAny = false) {
         return identifiers.map((identifier) => {
-            const option = Object.entries(this.operators).find(([name, operator]) => {
-                if (isMatchAny && ['equals', 'notEquals'].includes(name)) {
-                    return false;
-                }
-                if (!isMatchAny && ['isOneOf', 'isNoneOf'].includes(name)) {
-                    return false;
-                }
+            const option = Object.entries(this.operators).find(
+                ([
+                    name,
+                    operator,
+                ]) => {
+                    if (
+                        isMatchAny &&
+                        [
+                            'equals',
+                            'notEquals',
+                        ].includes(name)
+                    ) {
+                        return false;
+                    }
+                    if (
+                        !isMatchAny &&
+                        [
+                            'isOneOf',
+                            'isNoneOf',
+                        ].includes(name)
+                    ) {
+                        return false;
+                    }
 
-                return identifier === operator.identifier;
-            });
+                    return identifier === operator.identifier;
+                },
+            );
 
             if (option) {
                 return option.pop();
@@ -340,7 +365,7 @@ export default class RuleConditionService {
         const values = Object.values(this.$store);
         const conditions: Array<condition> = [];
 
-        values.forEach(condition => {
+        values.forEach((condition) => {
             if (condition.group === group) {
                 conditions.push(condition);
             }
@@ -361,12 +386,12 @@ export default class RuleConditionService {
         delete this.groups[groupName];
     }
 
-    getConditions(allowedScopes: Array<string>|null = null): condition[] {
+    getConditions(allowedScopes: Array<string> | null = null): condition[] {
         let values = Object.values(this.$store);
 
         if (allowedScopes !== null) {
-            values = values.filter(condition => {
-                return allowedScopes.some(scope => condition.scopes.indexOf(scope) !== -1);
+            values = values.filter((condition) => {
+                return allowedScopes.some((scope) => condition.scopes.indexOf(scope) !== -1);
             });
         }
 
@@ -425,7 +450,7 @@ export default class RuleConditionService {
 
     addAwarenessConfiguration(assignmentName: string, configuration: awarenessConfiguration) {
         this.awarenessConfiguration[assignmentName] = configuration;
-        configuration.equalsAny = configuration.equalsAny?.filter(value => !configuration.notEquals?.includes(value));
+        configuration.equalsAny = configuration.equalsAny?.filter((value) => !configuration.notEquals?.includes(value));
     }
 
     getAwarenessConfigurationByAssignmentName(assignmentName: string) {
@@ -436,11 +461,16 @@ export default class RuleConditionService {
 
     getAwarenessKeysWithEqualsAnyConfig() {
         const equalsAnyConfigurations: Array<string> = [];
-        Object.entries(this.awarenessConfiguration).forEach(([key, value]) => {
-            if (value?.equalsAny?.length && value?.equalsAny?.length > 0) {
-                equalsAnyConfigurations.push(key);
-            }
-        });
+        Object.entries(this.awarenessConfiguration).forEach(
+            ([
+                key,
+                value,
+            ]) => {
+                if (value?.equalsAny?.length && value?.equalsAny?.length > 0) {
+                    equalsAnyConfigurations.push(key);
+                }
+            },
+        );
 
         return equalsAnyConfigurations;
     }
@@ -463,12 +493,12 @@ export default class RuleConditionService {
         const keys = Object.keys(this.awarenessConfiguration);
 
         const conditions: { [key: string]: Array<unknown> } = {};
-        keys.forEach(key => {
+        keys.forEach((key) => {
             const association = r[key as keyof EntitySchema.rule] as Array<unknown>;
             const currentEntry = this.awarenessConfiguration[key];
 
             if (association && association.length > 0 && currentEntry.notEquals) {
-                currentEntry.notEquals.forEach(condition => {
+                currentEntry.notEquals.forEach((condition) => {
                     if (!conditions[condition]) {
                         conditions[condition] = [];
                     }
@@ -484,7 +514,7 @@ export default class RuleConditionService {
             return conditions;
         }
 
-        (r.flowSequences as EntityCollection<'flow_sequence'>).forEach(sequence => {
+        (r.flowSequences as EntityCollection<'flow_sequence'>).forEach((sequence) => {
             const eventName = `flowTrigger.${sequence.flow?.eventName ?? ''}`;
             const currentEntry = this.awarenessConfiguration[eventName];
 
@@ -492,7 +522,7 @@ export default class RuleConditionService {
                 return;
             }
 
-            currentEntry.notEquals.forEach(condition => {
+            currentEntry.notEquals.forEach((condition) => {
                 if (!conditions[condition]) {
                     conditions[condition] = [];
                 }
@@ -521,7 +551,11 @@ export default class RuleConditionService {
         }
 
         if (equalsAny) {
-            restrictions.push(Criteria.not('AND', [Criteria.equalsAny('conditions.type', equalsAny)]));
+            restrictions.push(
+                Criteria.not('AND', [
+                    Criteria.equalsAny('conditions.type', equalsAny),
+                ]),
+            );
         }
 
         if (restrictions.length === 0) {
@@ -530,12 +564,9 @@ export default class RuleConditionService {
 
         const ruleRepository = Shopware.Service('repositoryFactory').create('rule');
         const criteria = new Criteria(1, 25);
-        criteria.addFilter(Criteria.multi(
-            'OR',
-            restrictions,
-        ));
+        criteria.addFilter(Criteria.multi('OR', restrictions));
 
-        return ruleRepository.searchIds(criteria).then(result => result.data);
+        return ruleRepository.searchIds(criteria).then((result) => result.data);
     }
 
     /**
@@ -555,12 +586,12 @@ export default class RuleConditionService {
     getRestrictionsByAssociation(conditions: EntityCollection<'rule_condition'>, assignmentName: string) {
         const awarenessEntry = this.getAwarenessConfigurationByAssignmentName(assignmentName);
         const restrictionConfig: {
-            notEqualsViolations: Array<{ label: string }>,
-            equalsAnyNotMatched: Array<{ label: string }>,
-            isRestricted: boolean,
-            assignmentName: string,
-            equalsAnyMatched: condition[],
-            assignmentSnippet?: string,
+            notEqualsViolations: Array<{ label: string }>;
+            equalsAnyNotMatched: Array<{ label: string }>;
+            isRestricted: boolean;
+            assignmentName: string;
+            equalsAnyMatched: condition[];
+            assignmentSnippet?: string;
         } = {
             assignmentName: assignmentName,
             notEqualsViolations: [],
@@ -575,7 +606,7 @@ export default class RuleConditionService {
         restrictionConfig.assignmentSnippet = awarenessEntry.snippet;
 
         if (awarenessEntry.notEquals) {
-            conditions.forEach(condition => {
+            conditions.forEach((condition) => {
                 if (awarenessEntry.notEquals?.includes(condition.type)) {
                     restrictionConfig.notEqualsViolations.push(this.getByType(condition.type));
                     restrictionConfig.isRestricted = true;
@@ -584,8 +615,8 @@ export default class RuleConditionService {
         }
 
         if (awarenessEntry.equalsAny) {
-            awarenessEntry.equalsAny.forEach(type => {
-                const matchedCondition = conditions.find(condition => {
+            awarenessEntry.equalsAny.forEach((type) => {
+                const matchedCondition = conditions.find((condition) => {
                     return condition.type === type;
                 });
                 if (matchedCondition) {
@@ -630,9 +661,9 @@ export default class RuleConditionService {
             return {};
         }
         const keys = Object.keys(this.awarenessConfiguration);
-        const restrictedAssociations: { [key: string]: unknown} = {};
+        const restrictedAssociations: { [key: string]: unknown } = {};
 
-        keys.forEach(key => {
+        keys.forEach((key) => {
             restrictedAssociations[key] = this.getRestrictionsByAssociation(conditions, key);
         });
 
@@ -670,7 +701,7 @@ export default class RuleConditionService {
      * @param {string|null} ruleAwareGroupKey
      * @returns {object}
      */
-    getRestrictedRuleTooltipConfig(ruleConditions: EntityCollection<'rule_condition'>, ruleAwareGroupKey: string|null) {
+    getRestrictedRuleTooltipConfig(ruleConditions: EntityCollection<'rule_condition'>, ruleAwareGroupKey: string | null) {
         const app = Shopware.Application.getApplicationRoot();
 
         if (!app || !ruleAwareGroupKey) {
@@ -710,17 +741,13 @@ export default class RuleConditionService {
             showOnDisabledElements: true,
             disabled: false,
             width: 400,
-            message: app.$tc(
-                'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                0,
-                {
-                    conditions: this.getTranslatedConditionViolationList(
-                        restrictionConfig.equalsAnyNotMatched,
-                        'sw-restricted-rules.or',
-                    ),
-                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
-                },
-            ),
+            message: app.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', 0, {
+                conditions: this.getTranslatedConditionViolationList(
+                    restrictionConfig.equalsAnyNotMatched,
+                    'sw-restricted-rules.or',
+                ),
+                entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
+            }),
         };
     }
 
@@ -730,15 +757,12 @@ export default class RuleConditionService {
      * @param {string|null} ruleAwareGroupKey
      * @returns {boolean}
      */
-    isRuleRestricted(ruleConditions: EntityCollection<'rule_condition'>, ruleAwareGroupKey: string|null) {
+    isRuleRestricted(ruleConditions: EntityCollection<'rule_condition'>, ruleAwareGroupKey: string | null) {
         if (!ruleAwareGroupKey) {
             return false;
         }
 
-        const restrictionConfig = this.getRestrictionsByAssociation(
-            ruleConditions,
-            ruleAwareGroupKey,
-        );
+        const restrictionConfig = this.getRestrictionsByAssociation(ruleConditions, ruleAwareGroupKey);
 
         return restrictionConfig.isRestricted;
     }
@@ -746,10 +770,24 @@ export default class RuleConditionService {
     getRestrictionsByGroup(...wantedGroups: Array<string>) {
         const entries = Object.entries(this.$store);
 
-        return entries.reduce((acc, [restrictionName, condition]) => {
-            const inGroup = wantedGroups.includes(condition.group);
+        return entries.reduce(
+            (
+                acc,
+                [
+                    restrictionName,
+                    condition,
+                ],
+            ) => {
+                const inGroup = wantedGroups.includes(condition.group);
 
-            return inGroup ? [...acc, restrictionName] : acc;
-        }, [] as Array<string>);
+                return inGroup
+                    ? [
+                          ...acc,
+                          restrictionName,
+                      ]
+                    : acc;
+            },
+            [] as Array<string>,
+        );
     }
 }

@@ -11,7 +11,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'mediaService'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+    ],
 
     props: {
         product: {
@@ -39,11 +42,13 @@ export default {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.variantListingConfig.configuratorGroupConfig
-                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
+            if (
+                this.product.variantListingConfig.configuratorGroupConfig &&
+                this.product.variantListingConfig.configuratorGroupConfig.length > 0
+            ) {
                 // add server sorting to the sortedGroups
                 sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
-                    const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
+                    const relatedGroup = selectedGroupsCopy.find((group) => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
@@ -57,7 +62,10 @@ export default {
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
+            sortedGroups = [
+                ...sortedGroups,
+                ...selectedGroupsCopy,
+            ];
 
             return sortedGroups;
         },
@@ -128,8 +136,9 @@ export default {
         },
 
         onChangeGroupListing(value) {
-            const existingIndex = this.product.variantListingConfig.configuratorGroupConfig
-                .findIndex((group) => group.id === this.activeGroup.id);
+            const existingIndex = this.product.variantListingConfig.configuratorGroupConfig.findIndex(
+                (group) => group.id === this.activeGroup.id,
+            );
 
             if (existingIndex >= 0) {
                 const existingConfig = this.product.variantListingConfig.configuratorGroupConfig[existingIndex];
@@ -141,11 +150,13 @@ export default {
                 };
             } else {
                 this.product.variantListingConfig.configuratorGroupConfig = [
-                    ...this.product.variantListingConfig.configuratorGroupConfig, {
+                    ...this.product.variantListingConfig.configuratorGroupConfig,
+                    {
                         id: this.activeGroup.id,
                         expressionForListings: value,
                         representation: 'box',
-                    }];
+                    },
+                ];
             }
         },
     },

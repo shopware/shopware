@@ -14,9 +14,15 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'mediaService'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+    ],
 
-    emits: ['modal-close', 'media-modal-selection-change'],
+    emits: [
+        'modal-close',
+        'media-modal-selection-change',
+    ],
 
     props: {
         initialFolderId: {
@@ -34,10 +40,16 @@ export default {
         defaultTab: {
             type: String,
             required: false,
-            validValues: ['upload', 'library'],
+            validValues: [
+                'upload',
+                'library',
+            ],
             default: 'library',
             validator(value) {
-                return ['upload', 'library'].includes(value);
+                return [
+                    'upload',
+                    'library',
+                ].includes(value);
             },
         },
 
@@ -209,9 +221,11 @@ export default {
                 return;
             }
 
-            if (folderIds.some((dissolvedId) => {
-                return dissolvedId === this.currentFolder.id;
-            })) {
+            if (
+                folderIds.some((dissolvedId) => {
+                    return dissolvedId === this.currentFolder.id;
+                })
+            ) {
                 this.folderId = this.currentFolder.parentId;
             }
 
@@ -221,26 +235,19 @@ export default {
         /*
          * Media uploads
          */
-        async onUploadsAdded({ data }) {
+        async onUploadsAdded() {
             await this.mediaService.runUploads(this.uploadTag);
-
-            await Promise.all(data.map(({ targetId }) => {
-                return new Promise((resolve) => {
-                    this.mediaRepository.get(targetId, Context.api).then((media) => {
-                        this.uploads.push(media);
-                        resolve();
-                    });
-                });
-            }));
         },
 
         async onUploadFinished({ targetId }) {
             const updatedMedia = await this.mediaRepository.get(targetId, Context.api);
             this.selectedMediaItem = updatedMedia;
 
-            if (!this.uploads.some((upload) => {
-                return updatedMedia.id === upload.id;
-            })) {
+            if (
+                !this.uploads.some((upload) => {
+                    return updatedMedia.id === upload.id;
+                })
+            ) {
                 this.uploads.push(updatedMedia);
             }
 

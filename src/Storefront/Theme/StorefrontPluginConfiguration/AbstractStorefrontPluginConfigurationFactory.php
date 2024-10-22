@@ -17,5 +17,5 @@ abstract class AbstractStorefrontPluginConfigurationFactory
     /**
      * @param array<string, mixed> $data
      */
-    abstract public function createFromThemeJson(string $name, array $data, string $path, bool $isFullpath = true): StorefrontPluginConfiguration;
+    abstract public function createFromThemeJson(string $name, array $data, string $path): StorefrontPluginConfiguration;
 }

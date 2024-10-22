@@ -18,19 +18,23 @@ export default function initializeUserContext() {
             return;
         }
 
-        userService.getUser().then((response) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-            const data = response?.data;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            delete data.password;
+        userService
+            .getUser()
+            .then((response) => {
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                const data = response?.data;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                delete data.password;
 
-            Shopware.State.commit('setCurrentUser', data);
-            initializeUserNotifications();
-            resolve();
-        }).catch(() => {
-            // An error occurred which means the user isn't logged in so get rid of the information in local storage
-            loginService.logout();
-            resolve();
-        });
+                Shopware.State.commit('setCurrentUser', data);
+                initializeUserNotifications();
+                resolve();
+            })
+            .catch(() => {
+                // An error occurred which means the user isn't logged in so get rid of the information in local storage
+                loginService.logout();
+                resolve();
+            });
     });
 }

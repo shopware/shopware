@@ -4,27 +4,30 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-snippet-filter-switch', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-settings-snippet-filter-switch', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-icon': true,
+                },
+            },
+            props: {
+                name: 'Shopware',
             },
         },
-        props: {
-            name: 'Shopware',
-        },
-    });
+    );
 }
 
 describe('sw-settings-snippet-filter-switch', () => {

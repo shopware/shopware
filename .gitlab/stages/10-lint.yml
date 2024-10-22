@@ -15,6 +15,21 @@ Danger:
     script:
         - danger ci
 
+Prettier (Administration):
+  extends: .base-with-node
+  stage: lint
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - changes:
+        - 'src/Administration/Resources/app/administration/**/*'
+  before_script:
+    - !reference [ .scripts, init, composer ]
+    - !reference [ .scripts, init, npm, admin ]
+  script:
+    - cd src/Administration/Resources/app/administration
+    - npm run format
+
 ESLint (Administration):
     extends: .base-with-node
     stage: lint

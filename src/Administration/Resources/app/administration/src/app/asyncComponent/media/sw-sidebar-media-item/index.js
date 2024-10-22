@@ -189,9 +189,7 @@ export default {
                 criteria.term = this.term;
             }
 
-            criteria.addSorting(
-                Criteria.sort('uploadedAt', 'DESC'),
-            );
+            criteria.addSorting(Criteria.sort('uploadedAt', 'DESC'));
 
             return criteria;
         },

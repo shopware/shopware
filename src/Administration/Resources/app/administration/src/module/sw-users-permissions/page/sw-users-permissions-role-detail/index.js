@@ -24,7 +24,6 @@ export default {
         Mixin.getByName('notification'),
     ],
 
-
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
         ESCAPE: 'onCancel',
@@ -122,14 +121,15 @@ export default {
             this.isLoading = true;
 
             this.appAclService.addAppPermissions().then(() => {
-                this.roleRepository.get(this.roleId)
+                this.roleRepository
+                    .get(this.roleId)
                     .then((role) => {
                         this.role = role;
 
                         const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
                         const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
 
-                        this.detailedPrivileges = this.role.privileges.filter(privilege => {
+                        this.detailedPrivileges = this.role.privileges.filter((privilege) => {
                             return !allGeneralPrivileges.includes(privilege);
                         });
                         this.role.privileges = filteredPrivileges;
@@ -155,12 +155,17 @@ export default {
 
             this.confirmPasswordModal = false;
 
-            return this.roleRepository.save(this.role, context)
+            return this.roleRepository
+                .save(this.role, context)
                 .then(() => {
                     return this.updateCurrentUser();
-                }).then(() => {
+                })
+                .then(() => {
                     if (this.role.isNew()) {
-                        this.$router.push({ name: 'sw.users.permissions.role.detail', params: { id: this.role.id } });
+                        this.$router.push({
+                            name: 'sw.users.permissions.role.detail',
+                            params: { id: this.role.id },
+                        });
                     }
 
                     this.getRole();
@@ -168,11 +173,9 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc(
-                            'global.notification.notificationSaveErrorMessage',
-                            0,
-                            { entityName: this.role.name },
-                        ),
+                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
+                            entityName: this.role.name,
+                        }),
                     });
 
                     this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);

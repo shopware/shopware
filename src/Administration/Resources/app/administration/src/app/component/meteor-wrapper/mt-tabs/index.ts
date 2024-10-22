@@ -4,10 +4,14 @@ import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/com
 import template from './mt-tabs.html.twig';
 import type { TabItemEntry } from '../../../state/tabs.store';
 
-
 // Use the compatConfig from the Shopware object and disable all compatibilities
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-MtTabs.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
+MtTabs.compatConfig = Object.fromEntries(
+    Object.keys(Shopware.compatConfig).map((key) => [
+        key,
+        false,
+    ]),
+);
 
 /**
  * @package admin
@@ -53,7 +57,9 @@ Shopware.Component.register('mt-tabs', {
                     name: extension.componentSectionId,
                     onClick: () => {
                         // Push route to extension.componentSectionId path
-                        void this.$router.push({ path: extension.componentSectionId });
+                        void this.$router.push({
+                            path: extension.componentSectionId,
+                        });
                     },
                 })),
             ];

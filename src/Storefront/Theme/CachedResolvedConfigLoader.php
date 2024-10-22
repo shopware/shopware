@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -29,7 +30,7 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
     {
         $name = self::buildName($themeId);
 
-        $key = md5(implode('-', [$name, $context->getSalesChannelId(), $context->getDomainId()]));
+        $key = Hasher::hash($name . $context->getSalesChannelId() . $context->getDomainId());
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $themeId, $context) {
             $config = $this->getDecorated()->load($themeId, $context);

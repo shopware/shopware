@@ -36,7 +36,11 @@ export default {
     inject: ['mediaService'],
 
     emits: [
-        'media-item-rename-success', 'media-item-play', 'media-item-delete', 'media-folder-move', 'media-item-replaced',
+        'media-item-rename-success',
+        'media-item-play',
+        'media-item-delete',
+        'media-folder-move',
+        'media-item-replaced',
     ],
 
     mixins: [

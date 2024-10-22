@@ -66,17 +66,6 @@ class DynamicEntityDefinition extends EntityDefinition
         return $this->flags;
     }
 
-    protected function defineFields(): FieldCollection
-    {
-        $collection = DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);
-
-        $collection->add(
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
-        );
-
-        return $collection;
-    }
-
     public function getDefaults(): array
     {
         $values = [];
@@ -89,5 +78,16 @@ class DynamicEntityDefinition extends EntityDefinition
         }
 
         return $values;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        $collection = DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);
+
+        $collection->add(
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+        );
+
+        return $collection;
     }
 }

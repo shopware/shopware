@@ -13,7 +13,8 @@ async function createWrapper(privileges = []) {
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'sw-password-field': {
-                    template: '<input class="sw-password-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
+                    template:
+                        '<input class="sw-password-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                     props: {
                         value: '',
                     },
@@ -28,7 +29,10 @@ async function createWrapper(privileges = []) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-upload-listener': {
-                    emits: ['click', 'media-upload-finish'],
+                    emits: [
+                        'click',
+                        'media-upload-finish',
+                    ],
                     template: `<div
                         class="sw-upload-listener"
                         @click="$emit('click', $event)"
@@ -36,7 +40,11 @@ async function createWrapper(privileges = []) {
                     ></div>`,
                 },
                 'sw-media-upload-v2': {
-                    emits: ['media-drop', 'media-upload-remove-image', 'media-upload-sidebar-open'],
+                    emits: [
+                        'media-drop',
+                        'media-upload-remove-image',
+                        'media-upload-sidebar-open',
+                    ],
                     template: `<div
                         class="sw-media-upload-v2"
                         @media-drop="$emit('media-drop', $event)"
@@ -121,8 +129,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['media.creator']);
         await flushPromises();
 
-        await wrapper.find('.sw-upload-listener')
-            .trigger('media-upload-finish', { targetId: 'targetId' });
+        await wrapper.find('.sw-upload-listener').trigger('media-upload-finish', { targetId: 'targetId' });
 
         expect(wrapper.emitted('media-upload')[0][0].targetId).toBe('targetId');
     });
@@ -162,7 +169,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         await flushPromises();
 
         const results = wrapper.findAll('.sw-select-result');
-        const resultNames = results.map(result => result.text());
+        const resultNames = results.map((result) => result.text());
 
         expect(resultNames).toContain('UTC');
     });

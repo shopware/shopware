@@ -20,7 +20,10 @@ Component.register('sw-discard-changes-modal', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['keep-editing', 'discard-changes'],
+    emits: [
+        'keep-editing',
+        'discard-changes',
+    ],
 
     methods: {
         keepEditing() {

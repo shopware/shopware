@@ -36,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -784,6 +785,38 @@ class ProductCartProcessorTest extends TestCase
         static::assertNull($lineItem);
     }
 
+    public function testTaxIsRecalculatedOnCountryChange(): void
+    {
+        $deCountryId = $this->getContainer()->get('country.repository')->searchIds((new Criteria())->addFilter(new EqualsFilter('iso', 'DE')), Context::createDefaultContext())->firstId();
+        $customerId = $this->createCustomer($deCountryId ?? $this->getValidCountryId());
+        $parameters = new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $this->ids->create('token'), customerId: $customerId);
+        $context = $this->getContainer()->get(SalesChannelContextService::class)->get($parameters);
+
+        $this->createProduct([
+            'taxId' => $this->getContainer()->get(SystemConfigService::class)->get('core.tax.defaultTaxRate'),
+        ]);
+
+        $cart = $this->cartService->add(
+            $this->cartService->getCart($context->getToken(), $context),
+            $this->getContainer()->get(ProductLineItemFactory::class)->create(['id' => $this->ids->get('product')], $context),
+            $context
+        );
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertSame(19.0, $lineItem?->getPrice()?->getTaxRules()?->first()?->getTaxRate());
+
+        $upsert = [
+            'id' => $context->getCustomer()?->getDefaultShippingAddress()?->getId(),
+            'countryId' => $this->getContainer()->get('country.repository')->searchIds((new Criteria())->addFilter(new EqualsFilter('iso', 'NL')), $context->getContext())->firstId(),
+        ];
+        $this->getContainer()->get('customer_address.repository')->upsert([$upsert], $context->getContext());
+
+        $context = $this->getContainer()->get(SalesChannelContextService::class)->get($parameters);
+        $cart = $this->cartService->getCart($context->getToken(), $context, false);
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertSame(21.0, $lineItem?->getPrice()?->getTaxRules()?->first()?->getTaxRate());
+    }
+
     public function testProducePriceChangeAfterContextRuleChange(): void
     {
         $countryIds = $this->getCountryIds();
@@ -934,14 +967,10 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>|null $additionalData
+     * @param array<string, mixed> $additionalData
      */
-    private function createProduct(?array $additionalData = []): void
+    private function createProduct(array $additionalData = []): void
     {
-        if ($additionalData === null) {
-            $additionalData = [];
-        }
-
         $data = [
             'id' => $this->ids->create('product'),
             'name' => 'test',
@@ -955,7 +984,7 @@ class ProductCartProcessorTest extends TestCase
                 ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],
             ],
             'active' => true,
-            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'taxId' => $this->getValidTaxId(),
             'weight' => 100,
             'height' => 101,
             'width' => 102,

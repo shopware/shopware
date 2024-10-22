@@ -12,6 +12,7 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,7 +39,8 @@ class ThemeDumpCommand extends Command
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly EntityRepository $themeRepository,
         private readonly string $projectDir,
-        private readonly StaticFileConfigDumper $staticFileConfigDumper
+        private readonly StaticFileConfigDumper $staticFileConfigDumper,
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver
     ) {
         parent::__construct();
         $this->context = Context::createCLIContext();
@@ -91,7 +93,8 @@ class ThemeDumpCommand extends Command
             true
         );
 
-        $dump['basePath'] = $themeConfig->getBasePath();
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
+        $dump['basePath'] = $this->stripProjectDir($fs->location);
 
         file_put_contents(
             $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'theme-files.json',
@@ -101,6 +104,15 @@ class ThemeDumpCommand extends Command
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
         return self::SUCCESS;
+    }
+
+    private function stripProjectDir(string $path): string
+    {
+        if (str_starts_with($path, $this->projectDir)) {
+            return substr($path, \strlen($this->projectDir) + 1);
+        }
+
+        return $path;
     }
 
     private function getTechnicalName(string $themeId): ?string

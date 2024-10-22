@@ -24,12 +24,10 @@ export default class ProductStreamPreviewService extends ApiService {
             filter,
         });
 
-        return this.httpClient.post(
-            `_admin/product-stream-preview/${salesChannelId}`,
-            body,
-            {
+        return this.httpClient
+            .post(`_admin/product-stream-preview/${salesChannelId}`, body, {
                 headers: this.getBasicHeaders(additionalHeaders),
-            },
-        ).then(response => ApiService.handleResponse(response));
+            })
+            .then((response) => ApiService.handleResponse(response));
     }
 }

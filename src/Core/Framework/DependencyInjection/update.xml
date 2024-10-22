@@ -32,6 +32,7 @@
         <service id="Shopware\Core\Framework\Update\Services\ExtensionCompatibility">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\Filesystem"/>

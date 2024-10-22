@@ -5,45 +5,48 @@ import { mount } from '@vue/test-utils';
  */
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return {
-                                isNew: () => true,
-                            };
-                        },
+    return mount(
+        await wrapTestComponent('sw-settings-tag-detail-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return {
+                                    isNew: () => true,
+                                };
+                            },
 
-                        save: jest.fn(() => Promise.resolve()),
-                    }),
-                },
-                syncService: {
-                    sync: jest.fn(),
-                },
-                acl: {
-                    can: () => {
-                        return true;
+                            save: jest.fn(() => Promise.resolve()),
+                        }),
+                    },
+                    syncService: {
+                        sync: jest.fn(),
+                    },
+                    acl: {
+                        can: () => {
+                            return true;
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-modal': true,
-                'sw-tabs': await wrapTestComponent('sw-tabs', {
-                    sync: true,
-                }),
-                'sw-tabs-item': true,
-                'sw-text-field': true,
-                'sw-settings-tag-detail-assignments': true,
-                'sw-button': true,
-                'sw-tabs-deprecated': true,
+                stubs: {
+                    'sw-modal': true,
+                    'sw-tabs': await wrapTestComponent('sw-tabs', {
+                        sync: true,
+                    }),
+                    'sw-tabs-item': true,
+                    'sw-text-field': true,
+                    'sw-settings-tag-detail-assignments': true,
+                    'sw-button': true,
+                    'sw-tabs-deprecated': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
@@ -147,7 +150,13 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         wrapper.vm.removeAssignment('products', 'd', { id: 'd' });
         wrapper.vm.removeAssignment('products', 'f', { id: 'f' });
 
-        expect(wrapper.vm.assignmentsToBeDeleted.products).toEqual({ a: { id: 'a' }, f: { id: 'f' } });
-        expect(wrapper.vm.assignmentsToBeAdded.products).toEqual({ c: { id: 'c' }, e: { id: 'e' } });
+        expect(wrapper.vm.assignmentsToBeDeleted.products).toEqual({
+            a: { id: 'a' },
+            f: { id: 'f' },
+        });
+        expect(wrapper.vm.assignmentsToBeAdded.products).toEqual({
+            c: { id: 'c' },
+            e: { id: 'e' },
+        });
     });
 });

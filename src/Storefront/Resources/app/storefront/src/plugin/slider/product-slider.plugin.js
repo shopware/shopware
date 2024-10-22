@@ -59,9 +59,4 @@ export default class ProductSliderPlugin extends BaseSliderPlugin {
 
         return width;
     }
-
-    _initAccessibilityTweaks(sliderInfo) {
-        // Remove controls div container from tab index for better accessibility.
-        sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
-    }
 }

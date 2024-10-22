@@ -241,7 +241,7 @@ class AttributeEntityCompiler
             $field instanceof AutoIncrement, $field instanceof Version => [],
             $field instanceof ReferenceVersion => [$field->entity, $column],
             $field instanceof Serialized => [$column, $property->getName(), $field->serializer],
-            default => [$column, $property->getName()]
+            default => [$column, $property->getName()],
         };
     }
 
@@ -316,7 +316,7 @@ class AttributeEntityCompiler
                 OnDelete::CASCADE => ['class' => CascadeDelete::class],
                 OnDelete::SET_NULL => ['class' => SetNullOnDelete::class],
                 OnDelete::RESTRICT => ['class' => RestrictDelete::class],
-                default => null
+                default => null,
             };
 
             if ($flags['cascade'] === null) {

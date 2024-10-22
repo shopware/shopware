@@ -55,7 +55,12 @@
             {% endblock %}
 
             {% block page_checkout_address_products_list %}
-                <div class="checkout-aside-product-list">
+                {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+                {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                    <ul class="checkout-aside-product-list list-unstyled">
+                {%- else -%}
+                    <div class="checkout-aside-product-list" role="list">
+                {%- endif -%}
                     {% block page_checkout_address_product_list_container %}
                         {% for lineItem in page.cart.lineItems %}
                             {% block page_checkout_address_product_summary_item %}
@@ -66,7 +71,12 @@
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}
-                </div>
+                {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+                {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                    </div>
+                {%- else -%}
+                    </ul>
+                {%- endif -%}
             {% endblock %}
         </div>
     {% endblock %}

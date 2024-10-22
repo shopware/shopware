@@ -290,7 +290,7 @@ trait OrderActionTrait
             ],
             'customFieldSet' => [
                 'id' => $customFieldSetId,
-                'name' => 'Custom Field Set',
+                'name' => 'Custom_Field_Set',
                 'relations' => [[
                     'id' => Uuid::randomHex(),
                     'customFieldSetId' => $customFieldSetId,

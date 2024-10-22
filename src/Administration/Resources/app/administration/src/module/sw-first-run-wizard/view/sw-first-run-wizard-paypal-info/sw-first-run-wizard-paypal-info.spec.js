@@ -13,19 +13,24 @@ const extensionStoreActionService = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-first-run-wizard-paypal-info', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-icon': true,
-                'sw-alert': true,
-                'sw-loader': true,
-            },
-            provide: {
-                extensionStoreActionService,
+    return mount(
+        await wrapTestComponent('sw-first-run-wizard-paypal-info', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-icon': true,
+                    'sw-alert': true,
+                    'sw-loader': true,
+                },
+                provide: {
+                    extensionStoreActionService,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-first-run-wizard-paypal-info', () => {
@@ -39,7 +44,10 @@ describe('src/module/sw-first-run-wizard-paypal-info', () => {
     });
 
     afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalWindowLocation });
+        Object.defineProperty(window, 'location', {
+            configurable: true,
+            value: originalWindowLocation,
+        });
     });
 
     it('should download and install the PayPal plugin', async () => {

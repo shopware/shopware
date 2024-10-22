@@ -12,18 +12,15 @@ const createComponent = ({ customComponent, customOptions, customGlobalOptions }
         ...customComponent,
     };
 
-    return mount(
-        baseComponent,
-        {
-            ...{
-                global: {
-                    plugins: [deprecationPlugin],
-                    ...customGlobalOptions,
-                },
+    return mount(baseComponent, {
+        ...{
+            global: {
+                plugins: [deprecationPlugin],
+                ...customGlobalOptions,
             },
-            ...customOptions,
         },
-    );
+        ...customOptions,
+    });
 };
 
 describe('app/plugins/deprecated.plugin', () => {
@@ -336,10 +333,7 @@ describe('app/plugins/deprecated.plugin', () => {
             expect(call).toContain('[deprecated-component]');
             expect(call[1]).toEqual(expect.stringContaining('--> deprecated-component'));
             expect(call[1]).toEqual(expect.stringContaining('base-component'));
-            expect(call[1]).toMatch(
-                ' --> deprecated-component \n' +
-                '      base-component ',
-            );
+            expect(call[1]).toMatch(' --> deprecated-component \n      base-component ');
         });
 
         expect(wasFound).toBeTruthy();

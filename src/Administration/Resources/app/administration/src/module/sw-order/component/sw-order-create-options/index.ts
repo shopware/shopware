@@ -5,11 +5,7 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-create-options.html.twig';
 import './sw-order-create-options.scss';
 
-import type {
-    ContextSwitchParameters,
-    Cart,
-    CartDelivery,
-} from '../../order.types';
+import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
 
 /**
  * @package checkout
@@ -42,10 +38,10 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        shippingCost: number,
-        promotionCodeTags: string[],
-        isSameAsBillingAddress: boolean,
-        } {
+        shippingCost: number;
+        promotionCodeTags: string[];
+        isSameAsBillingAddress: boolean;
+    } {
         return {
             shippingCost: 0,
             isSameAsBillingAddress: false,

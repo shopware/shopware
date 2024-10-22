@@ -155,6 +155,14 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver->addSeoInformation($event);
     }
 
+    public function createProductEntity(): SalesChannelProductEntity
+    {
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setUniqueIdentifier('random');
+
+        return $productEntity;
+    }
+
     private function createStoreApiSeoResolver(): StoreApiSeoResolver
     {
         $productDefinition = $this->createMock(ProductDefinition::class);
@@ -195,13 +203,5 @@ class StoreApiSeoResolverTest extends TestCase
             $salesChannelDefinitionInstanceRegistry,
             new SeoUrlRouteRegistry([new TestProductSeoUrlRoute($productDefinition)]),
         );
-    }
-
-    public function createProductEntity(): SalesChannelProductEntity
-    {
-        $productEntity = new SalesChannelProductEntity();
-        $productEntity->setUniqueIdentifier('random');
-
-        return $productEntity;
     }
 }

@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+# requires /.gitlab/base.yml
+# requires /.gitlab/lib/rules.yml
+
+# blue-green stage - This files contains all jobs belonging to the blue-green stage
+
+PHP blue green 6.6->6.7->6.6:
+  extends: .base-no-setup
+  stage: unit
+  needs: [ ]
+  timeout: 30m
+  tags:
+    - shopware-amd64
+  services:
+    - name: mariadb:10.11
+      alias: database
+      entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command:
+        [
+          "bin/opensearch",
+          "-Ediscovery.type=single-node",
+          "-Eplugins.security.disabled=true",
+        ]
+  variables:
+    APP_ENV: "test"
+    FEATURE_ALL: "false"
+    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+    COMPOSER_ROOT_VERSION: ''
+    TEST_DB_URL: "mysql://root:app@database:3306/root_test"
+  rules:
+    - !reference [ .rules, scheduled ]
+  before_script:
+    - mkdir -p config/jwt || true
+    - "rm -Rf /var/www/html/public || true"
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  script:
+    - rm -rf vendor-bin
+    - !reference [ .scripts, init, composer_update ]
+    - composer init:testdb
+    - DATABASE_URL="$TEST_DB_URL" bin/console database:migrate --all core.V6_7
+    - php vendor/bin/phpunit
+      --testsuite integration
+      --exclude-group=needsWebserver,skip-paratest,not-deterministic
+      --stop-on-error
+      --stop-on-failure

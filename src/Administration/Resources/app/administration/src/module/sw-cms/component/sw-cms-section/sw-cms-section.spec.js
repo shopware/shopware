@@ -5,79 +5,82 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-section', {
-        sync: true,
-    }), {
-        props: {
-            page: {},
-            section: {
-                visibility: {
-                    mobile: true,
-                    tablet: true,
-                    desktop: true,
+    return mount(
+        await wrapTestComponent('sw-cms-section', {
+            sync: true,
+        }),
+        {
+            props: {
+                page: {},
+                section: {
+                    visibility: {
+                        mobile: true,
+                        tablet: true,
+                        desktop: true,
+                    },
+                    type: 'sidebar',
+                    blocks: [
+                        {
+                            id: '1a2b',
+                            sectionPosition: 'main',
+                            type: 'foo-bar',
+                        },
+                        {
+                            id: '3cd4',
+                            sectionPosition: 'sidebar',
+                            type: 'foo-bar',
+                        },
+                        {
+                            id: '5ef6',
+                            sectionPosition: 'sidebar',
+                            type: 'foo-bar-removed',
+                        },
+                        {
+                            id: '7gh8',
+                            sectionPosition: 'main',
+                            type: 'foo-bar-removed',
+                        },
+                    ],
                 },
-                type: 'sidebar',
-                blocks: [
-                    {
-                        id: '1a2b',
-                        sectionPosition: 'main',
-                        type: 'foo-bar',
+            },
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                    'sw-cms-section-actions': true,
+                    'sw-cms-block': {
+                        template: '<div class="sw-cms-block"><slot /></div>',
                     },
-                    {
-                        id: '3cd4',
-                        sectionPosition: 'sidebar',
-                        type: 'foo-bar',
+                    'sw-cms-stage-add-block': {
+                        template: '<div class="sw-cms-stage-add-block"><slot /></div>',
                     },
-                    {
-                        id: '5ef6',
-                        sectionPosition: 'sidebar',
-                        type: 'foo-bar-removed',
+                    'sw-cms-visibility-toggle': await wrapTestComponent('sw-cms-visibility-toggle'),
+                    'sw-cms-block-foo-bar': {
+                        props: ['block'],
+                        template: '<div class="sw-cms-block-foo-bar"></div>',
                     },
-                    {
-                        id: '7gh8',
-                        sectionPosition: 'main',
-                        type: 'foo-bar-removed',
+                    'sw-cms-slot': true,
+                },
+                provide: {
+                    repositoryFactory: {},
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {
+                                'foo-bar': {},
+                            };
+                        },
                     },
-                ],
+                },
             },
         },
-        global: {
-            stubs: {
-                'sw-icon': true,
-                'sw-cms-section-actions': true,
-                'sw-cms-block': {
-                    template: '<div class="sw-cms-block"><slot /></div>',
-                },
-                'sw-cms-stage-add-block': {
-                    template: '<div class="sw-cms-stage-add-block"><slot /></div>',
-                },
-                'sw-cms-visibility-toggle': await wrapTestComponent('sw-cms-visibility-toggle'),
-                'sw-cms-block-foo-bar': {
-                    props: ['block'],
-                    template: '<div class="sw-cms-block-foo-bar"></div>',
-                },
-                'sw-cms-slot': true,
-            },
-            provide: {
-                repositoryFactory: {},
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {
-                            'foo-bar': {},
-                        };
-                    },
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-section', () => {
     beforeEach(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
 
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 selectedBlock: {
                     id: '1a2b',
@@ -108,7 +111,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const cmsStageAddBlocks = wrapper.findAll('.sw-cms-stage-add-block');
         expect(cmsStageAddBlocks).toHaveLength(4);
 
-        cmsStageAddBlocks.forEach(cmsStageAddBlock => {
+        cmsStageAddBlocks.forEach((cmsStageAddBlock) => {
             expect(cmsStageAddBlock.exists()).toBeTruthy();
         });
     });
@@ -128,7 +131,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
         expect(cmsStageAddBlocks).toHaveLength(0);
 
-        cmsStageAddBlocks.forEach(cmsStageAddBlock => {
+        cmsStageAddBlocks.forEach((cmsStageAddBlock) => {
             expect(cmsStageAddBlock.exists()).toBeFalsy();
         });
     });
@@ -182,7 +185,11 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     it('the `visibility` property should not be empty', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.props().section.visibility).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        expect(wrapper.props().section.visibility).toStrictEqual({
+            desktop: true,
+            mobile: true,
+            tablet: true,
+        });
     });
 
     it('should have the block value as attribute in the rendered blocks', async () => {

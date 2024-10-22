@@ -122,6 +122,79 @@ class InvoiceRendererTest extends TestCase
         }
     }
 
+    public function testLanguageIdChainAssignedCorrectly(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $order = $this->createOrder([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'isCountryCompanyTaxFree' => true,
+            'setOrderDelivery' => true,
+            'setShippingCountry' => true,
+            'setEuCountry' => true,
+        ]);
+
+        $orderId = $order->getId();
+        $orderCollection = new OrderCollection([$order]);
+        $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
+
+        $DELanguageId = Uuid::randomHex();
+
+        $ordersLanguageId = [
+            [
+                'language_id' => $DELanguageId,
+                'ids' => $orderId,
+            ],
+            [
+                'language_id' => Defaults::LANGUAGE_SYSTEM,
+                'ids' => $orderId,
+            ],
+        ];
+
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock->method('fetchAllAssociative')->willReturn($ordersLanguageId);
+
+        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
+            ++$userCallCount;
+
+            switch ($userCallCount) {
+                case 1:
+                    static::assertCount(2, $context->getLanguageIdChain());
+                    static::assertContains(Defaults::LANGUAGE_SYSTEM, $context->getLanguageIdChain());
+                    static::assertContains($DELanguageId, $context->getLanguageIdChain());
+
+                    break;
+                case 2:
+                    static::assertCount(1, $context->getLanguageIdChain());
+                    static::assertContains(Defaults::LANGUAGE_SYSTEM, $context->getLanguageIdChain());
+            }
+
+            return $orderSearchResult;
+        });
+
+        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
+        $documentTemplateRenderer->method('render')->willReturn('HTML');
+
+        $invoiceRenderer = new InvoiceRenderer(
+            $orderRepositoryMock,
+            new DocumentConfigLoader($this->createMock(EntityRepository::class)),
+            $this->createMock(EventDispatcherInterface::class),
+            $documentTemplateRenderer,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            '',
+            $connectionMock,
+        );
+
+        $operations = [
+            $orderId => new DocumentGenerateOperation(
+                $orderId
+            ),
+        ];
+
+        $invoiceRenderer->render($operations, $context, new DocumentRendererConfig());
+    }
+
     public static function configDataProvider(): \Generator
     {
         yield 'will return true because all necessary configs are made' => [

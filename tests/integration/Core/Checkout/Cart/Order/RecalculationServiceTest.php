@@ -8,6 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -22,6 +26,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -48,6 +53,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -584,6 +590,37 @@ class RecalculationServiceTest extends TestCase
         $promotionId = $this->createPromotion($discountValue);
 
         $this->toggleAutomaticPromotions($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
+    }
+
+    public function testToggleAutomaticPromotionsForDelivery(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+
+        $shippingMethod = $this->getContainer()->get('shipping_method.repository')
+            ->search(new Criteria(), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+
+        $cart->setDeliveries(new DeliveryCollection([
+            new Delivery(
+                new DeliveryPositionCollection(),
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                $shippingMethod,
+                new ShippingLocation(new CountryEntity(), null, $this->getCustomerAddress(Uuid::randomHex())),
+                new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+            ),
+        ]));
+
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $promotionId = $this->createShippingDiscount(100);
+
+        $this->toggleAutomaticPromotionsForDelivery($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
     }
 
     public function testCreatedVersionedOrderAndMerge(): void
@@ -1237,6 +1274,40 @@ class RecalculationServiceTest extends TestCase
         return $promotionId;
     }
 
+    private function createShippingDiscount(float $discountValue, ?string $code = null): string
+    {
+        $promotionId = Uuid::randomHex();
+
+        $data = [
+            'id' => $promotionId,
+            'name' => 'delivery promotion',
+            'active' => true,
+            'useCodes' => false,
+            'useSetGroups' => false,
+            'salesChannels' => [
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
+            ],
+            'discounts' => [
+                [
+                    'scope' => PromotionDiscountEntity::SCOPE_DELIVERY,
+                    'type' => PromotionDiscountEntity::TYPE_PERCENTAGE,
+                    'value' => $discountValue,
+                    'considerAdvancedRules' => false,
+                ],
+            ],
+        ];
+
+        if ($code) {
+            $data['name'] = $code;
+            $data['useCodes'] = true;
+            $data['code'] = $code;
+        }
+
+        $this->getContainer()->get('promotion.repository')->create([$data], $this->context);
+
+        return $promotionId;
+    }
+
     private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();
@@ -1277,6 +1348,20 @@ class RecalculationServiceTest extends TestCase
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
         return $customerId;
+    }
+
+    private function getCustomerAddress(string $id): CustomerAddressEntity
+    {
+        $address = new CustomerAddressEntity();
+        $address->setId($id);
+        $address->setCountryId($this->getValidCountryId());
+        $address->setFirstName('Max');
+        $address->setLastName('Mustermann');
+        $address->setStreet('Musterstraße 1');
+        $address->setZipcode('12345');
+        $address->setCity('Musterstadt');
+
+        return $address;
     }
 
     private function generateDemoCart(?string $productId1 = null, ?string $productId2 = null): Cart
@@ -1689,6 +1774,52 @@ class RecalculationServiceTest extends TestCase
         $errors = array_values($content['errors']);
         static::assertEquals($errors[0]['message'], 'Discount auto promotion has been added');
         static::assertSame($stateId, $order->getStateId());
+    }
+
+    private function toggleAutomaticPromotionsForDelivery(string $orderId, string $versionId, string $promotionId, \DateTimeInterface $orderDateTime, string $stateId): void
+    {
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $data = [
+            'skipAutomaticPromotions' => false,
+        ];
+
+        // add promotion item to order
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/toggleAutomaticPromotions',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ],
+            (string) json_encode($data)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        // read versioned order
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('deliveries');
+        /** @var OrderEntity $order */
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertNotNull($order->getDeliveries());
+        static::assertCount(2, $order->getDeliveries());
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
+
+        $firstDelivery = $order->getDeliveries()->first();
+        $secondDelivery = $order->getDeliveries()->last();
+
+        static::assertInstanceOf(OrderDeliveryEntity::class, $firstDelivery);
+        static::assertInstanceOf(OrderDeliveryEntity::class, $secondDelivery);
+
+        static::assertEquals($firstDelivery->getShippingCosts()->getTotalPrice(), 5);
+        static::assertEquals($secondDelivery->getShippingCosts()->getTotalPrice(), -5);
     }
 
     /**

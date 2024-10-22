@@ -155,6 +155,69 @@ class DeliveryProcessorTest extends TestCase
         static::assertSame(10.0, $originalCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
     }
 
+    public function testDeliveriesContainDiscountButSkipRecalculation(): void
+    {
+        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+
+        $cartDataCollection = new CartDataCollection();
+        $cartDataCollection->set(
+            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
+            $this->salesChannelContext->getShippingMethod()
+        );
+
+        $originalCart = new Cart('original');
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('1');
+        $shippingMethod->setName('Express');
+        $shippingMethod->addTranslated('name', 'Express');
+        $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $deliveryDiscount = new Delivery(
+            new DeliveryPositionCollection(),
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $originalCart->setDeliveries(new DeliveryCollection([$delivery, $deliveryDiscount]));
+
+        $calculatedCart = new Cart('calculated');
+
+        $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
+        $lineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
+            new CalculatedTax(5, 19, 5),
+        ]), new TaxRuleCollection()));
+
+        $calculatedCart->setLineItems(new LineItemCollection([$lineItem]));
+        $cartBehavior = new CartBehavior([DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true]);
+
+        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
+        $originalCart = $calculatedCart;
+        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
+
+        // Price was recalculated
+        static::assertNotNull($originalCart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS));
+        static::assertNotNull($originalCart->getDeliveries()->first());
+        static::assertCount(1, $originalCart->getDeliveries());
+        static::assertInstanceOf(Delivery::class, $originalCart->getDeliveries()->first());
+        static::assertSame(10.0, $originalCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
+    }
+
     private function generateDeliveryTimeDummy(): DeliveryTimeEntity
     {
         $deliveryTime = new DeliveryTimeEntity();

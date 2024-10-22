@@ -47,8 +47,12 @@ const advancedModeSettings = {
 
 const defaultSalesChannelData = {
     'core.defaultSalesChannel.active': false,
-    'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
-    'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 },
+    'core.defaultSalesChannel.salesChannel': [
+        '98432def39fc4624b33213a56b8c944d',
+    ],
+    'core.defaultSalesChannel.visibility': {
+        '98432def39fc4624b33213a56b8c944d': 10,
+    },
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
@@ -94,9 +98,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         }),
                     },
                     systemConfigApiService: {
-                        getConfig: () => Promise.resolve({
-                            'core.tax.defaultTaxRate': '',
-                        }),
+                        getConfig: () =>
+                            Promise.resolve({
+                                'core.tax.defaultTaxRate': '',
+                            }),
                         getValues: () => Promise.resolve(defaultSalesChannelData),
                     },
                     entityValidationService: {
@@ -112,8 +117,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 },
                 stubs: {
                     'sw-page': {
-                        template:
-                            `<div class="sw-page">
+                        template: `<div class="sw-page">
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content">
                                 <div class="sw-tabs"></div>
@@ -144,7 +148,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                     'sw-tabs-item': {
                         template: '<div class="sw-tabs-item"><slot /></div>',
-                        props: ['route', 'title'],
+                        props: [
+                            'route',
+                            'title',
+                        ],
                     },
                     'sw-inheritance-warning': true,
                     'router-link': true,
@@ -162,9 +169,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             actions: {
                 resetCmsPageState: () => {},
             },
@@ -200,7 +207,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-reviews',
         ];
 
-        tabItemClassName.forEach(item => {
+        tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
     });
@@ -231,7 +238,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-reviews',
         ];
 
-        tabItemClassName.forEach(item => {
+        tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).attributes().style).toBe('display: none;');
         });
     });
@@ -255,17 +262,21 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-cross-selling',
         ];
 
-        visibleTabItem.forEach(item => {
+        visibleTabItem.forEach((item) => {
             expect(wrapper.find(item).attributes().style).toBeFalsy();
         });
 
-        invisibleTabItem.forEach(item => {
+        invisibleTabItem.forEach((item) => {
             expect(wrapper.find(item).attributes().style).toBe('display: none;');
         });
     });
 
     it('should always show the correct menu, even with the defaults not matching the userConfig', async () => {
-        const keys = ['general_information', 'prices', 'deliverability'];
+        const keys = [
+            'general_information',
+            'prices',
+            'deliverability',
+        ];
         const mockKey = 'mock_key_without_result';
         const settings = [...keys].map((key) => {
             return {
@@ -282,10 +293,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
 
         keys.forEach((key) => {
-            expect(settings.some(entry => entry.key === key)).toBe(true);
+            expect(settings.some((entry) => entry.key === key)).toBe(true);
         });
 
-        expect(settings.some(entry => entry.key === mockKey)).toBeFalsy();
+        expect(settings.some((entry) => entry.key === mockKey)).toBeFalsy();
     });
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
@@ -313,27 +324,33 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should validate and clear listPrices/regulationPrices on save', async () => {
-        wrapper.vm.getCmsPageOverrides = jest.fn(() => { return null; });
-        wrapper.vm.product.isNew = jest.fn(() => { return false; });
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => {
+            return null;
+        });
+        wrapper.vm.product.isNew = jest.fn(() => {
+            return false;
+        });
         wrapper.vm.product.prices = [];
-        wrapper.vm.product.price = [{
-            currencyId: undefined,
-            linked: true,
-            gross: 100,
-            net: 84.034,
-            listPrice: {
+        wrapper.vm.product.price = [
+            {
                 currencyId: undefined,
                 linked: true,
-                gross: 0,
-                net: 0,
+                gross: 100,
+                net: 84.034,
+                listPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+                regulationPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
             },
-            regulationPrice: {
-                currencyId: undefined,
-                linked: true,
-                gross: 0,
-                net: 0,
-            },
-        }];
+        ];
 
         wrapper.vm.onSave();
 
@@ -365,34 +382,40 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should run custom validation service and handle errors', async () => {
-        wrapper.vm.getCmsPageOverrides = jest.fn(() => { return null; });
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => {
+            return null;
+        });
         await Shopware.State.commit('swProductDetail/setProduct', {
             isNew: jest.fn(() => true),
             prices: [],
-            price: [{
-                currencyId: undefined,
-                linked: true,
-                gross: 100,
-                net: 84.034,
-                listPrice: {
+            price: [
+                {
                     currencyId: undefined,
                     linked: true,
-                    gross: 0,
-                    net: 0,
+                    gross: 100,
+                    net: 84.034,
+                    listPrice: {
+                        currencyId: undefined,
+                        linked: true,
+                        gross: 0,
+                        net: 0,
+                    },
+                    regulationPrice: {
+                        currencyId: undefined,
+                        linked: true,
+                        gross: 0,
+                        net: 0,
+                    },
                 },
-                regulationPrice: {
-                    currencyId: undefined,
-                    linked: true,
-                    gross: 0,
-                    net: 0,
-                },
-            }],
+            ],
         });
 
         // make it a download product which requires downloads
         Shopware.State.commit('swProductDetail/setCreationStates', 'is-download');
 
-        wrapper.vm.saveProduct = jest.fn(() => { return Promise.resolve(); });
+        wrapper.vm.saveProduct = jest.fn(() => {
+            return Promise.resolve();
+        });
         wrapper.vm.onSave();
 
         // save shouldn't finish successfully (nothing should be sent to the server - no saveProduct call)

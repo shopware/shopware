@@ -32,6 +32,8 @@ class SitemapHandle implements SitemapHandleInterface
 
     private ?string $domainName = null;
 
+    private ?string $domainId;
+
     /**
      * @internal
      */
@@ -39,8 +41,11 @@ class SitemapHandle implements SitemapHandleInterface
         private readonly FilesystemOperator $filesystem,
         private readonly SalesChannelContext $context,
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?string $domain = null
+        ?string $domain = null,
+        ?string $domainId = null
     ) {
+        $this->domainId = $domainId;
+
         $this->setDomainName($domain);
 
         $filePath = $this->getTmpFilePath($context);
@@ -88,7 +93,14 @@ class SitemapHandle implements SitemapHandleInterface
                 $this->filesystem->delete($sitemapPath);
             }
 
-            $this->filesystem->write($sitemapPath, (string) file_get_contents($tmpFile));
+            $fileContents = file_get_contents($tmpFile);
+
+            if ($fileContents === false) {
+                throw SitemapException::fileNotReadable($tmpFile);
+            }
+
+            $this->filesystem->write($sitemapPath, $fileContents);
+
             @unlink($tmpFile);
         }
     }
@@ -114,7 +126,11 @@ class SitemapHandle implements SitemapHandleInterface
             return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, null, $index ?? $this->index);
         }
 
-        return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
+        if ($this->domainId === null) {
+            return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
+        }
+
+        return \sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . $this->domainId . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
     }
 
     private function printHeader(): void

@@ -14,6 +14,8 @@ use Twig\Node\Node;
 #[Package('core')]
 class TwigEnvironment extends Environment
 {
+    private ?Compiler $compiler = null;
+
     /**
      * @param array<mixed> $options
      */
@@ -24,8 +26,6 @@ class TwigEnvironment extends Environment
 
         parent::__construct($loader, $options);
     }
-
-    private ?Compiler $compiler = null;
 
     public function compile(Node $node): string
     {

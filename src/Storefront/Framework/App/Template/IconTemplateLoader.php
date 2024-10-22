@@ -2,13 +2,14 @@
 
 namespace Shopware\Storefront\Framework\App\Template;
 
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
@@ -22,8 +23,7 @@ class IconTemplateLoader extends AbstractTemplateLoader
     public function __construct(
         private readonly AbstractTemplateLoader $inner,
         private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
-        private readonly AbstractAppLoader $appLoader,
-        private readonly string $projectDir
+        private readonly SourceResolver $sourceResolver,
     ) {
     }
 
@@ -31,32 +31,28 @@ class IconTemplateLoader extends AbstractTemplateLoader
     {
         $viewPaths = $this->inner->getTemplatePathsForApp($app);
 
-        $resourceDirectory = $this->appLoader->locatePath($app->getPath(), 'Resources');
+        $fs = $this->sourceResolver->filesystemForManifest($app);
 
-        if ($resourceDirectory === null) {
+        if (!$fs->has('Resources')) {
             return $viewPaths;
         }
 
-        $relativeAppPath = str_replace($this->projectDir . '/', '', $app->getPath());
-        $storefrontConfig = $this->storefrontPluginConfigurationFactory->createFromApp($app->getMetadata()->getName(), $relativeAppPath);
+        $storefrontConfig = $this->storefrontPluginConfigurationFactory->createFromApp($app->getMetadata()->getName(), '');
 
-        if (!is_dir($resourceDirectory) || !$storefrontConfig->getIconSets()) {
+        if (!$storefrontConfig->getIconSets()) {
             return $viewPaths;
         }
 
         $finder = new Finder();
         $finder->files()
-            ->in($resourceDirectory)
+            ->in($fs->path('Resources'))
             ->name(['*.html.twig', '*.svg'])
             ->path(array_values($storefrontConfig->getIconSets()))
             ->ignoreUnreadableDirs();
 
         // return file paths relative to Resources/views directory
-        $iconPaths = array_values(array_map(static function (\SplFileInfo $file) use ($resourceDirectory): string {
-            // remove resource + any leading slashes from pathname
-            $resourcePath = ltrim(mb_substr($file->getPathname(), mb_strlen($resourceDirectory)), '/');
-
-            return $resourcePath;
+        $iconPaths = array_values(array_map(static function (SplFileInfo $file): string {
+            return $file->getRelativePathname();
         }, iterator_to_array($finder)));
 
         return [
@@ -71,12 +67,12 @@ class IconTemplateLoader extends AbstractTemplateLoader
             return $this->inner->getTemplateContent($path, $app);
         }
 
-        $content = $this->appLoader->loadFile($app->getPath(), 'Resources/' . $path);
+        $fs = $this->sourceResolver->filesystemForManifest($app);
 
-        if ($content === null) {
-            throw StorefrontFrameworkException::appTemplateFileNotReadable($app->getPath() . '/Resources/' . $path);
+        if (!$fs->has('Resources', $path)) {
+            throw StorefrontFrameworkException::appTemplateFileNotReadable($fs->path('Resources', $path));
         }
 
-        return $content;
+        return $fs->read('Resources', $path);
     }
 }

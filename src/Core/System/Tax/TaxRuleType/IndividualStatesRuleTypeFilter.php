@@ -21,7 +21,7 @@ class IndividualStatesRuleTypeFilter extends AbstractTaxRuleTypeFilter
         }
 
         $stateId = $this->getStateId($shippingLocation);
-        $states = $taxRuleEntity->getData()['states'];
+        $states = $taxRuleEntity->getData()['states'] ?? [];
 
         if (!\in_array($stateId, $states, true)) {
             return false;
@@ -45,6 +45,6 @@ class IndividualStatesRuleTypeFilter extends AbstractTaxRuleTypeFilter
 
     private function getStateId(ShippingLocation $shippingLocation): ?string
     {
-        return $shippingLocation->getState() !== null ? $shippingLocation->getState()->getId() : null;
+        return $shippingLocation->getState()?->getId();
     }
 }

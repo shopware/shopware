@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['change', 'paginate'],
+    emits: [
+        'change',
+        'paginate',
+    ],
 
     data() {
         return {
@@ -98,7 +101,6 @@ export default {
 
             return Promise.resolve();
         },
-
 
         onSelectCollapsed() {
             this.resultCollection = null;

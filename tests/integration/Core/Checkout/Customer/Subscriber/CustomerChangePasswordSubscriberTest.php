@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
@@ -153,7 +154,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => $email,
             'password' => null,
-            'legacyPassword' => md5($password),
+            'legacyPassword' => Hasher::hash($password, 'md5'),
             'legacyEncoder' => 'Md5',
             'firstName' => 'encryption',
             'lastName' => 'Mustermann',

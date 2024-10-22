@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -48,15 +49,6 @@ class CmsSlotsDataResolver
         }
     }
 
-    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
-    {
-        return $this->extensions->publish(
-            name: CmsSlotsDataResolveExtension::NAME,
-            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
-            function: $this->__resolve(...),
-        );
-    }
-
     private function __resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
         $criteriaList = $this->extensions->publish(
@@ -82,6 +74,15 @@ class CmsSlotsDataResolver
                 resolverContext: $resolverContext,
             ),
             function: $this->enrichCmsSlots(...),
+        );
+    }
+
+    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    {
+        return $this->extensions->publish(
+            name: CmsSlotsDataResolveExtension::NAME,
+            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
+            function: $this->__resolve(...),
         );
     }
 
@@ -369,6 +370,6 @@ class CmsSlotsDataResolver
 
     private function hash(Criteria $criteria): string
     {
-        return md5(serialize($criteria));
+        return Hasher::hash($criteria);
     }
 }

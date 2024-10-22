@@ -104,7 +104,9 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Utils.createId(),
+        ]);
     });
 
     afterEach(() => {
@@ -121,9 +123,11 @@ describe('sw-app-actions', () => {
 
         expect(wrapper.vm).toBeTruthy();
 
-        expect(wrapper.classes()).toEqual(expect.arrayContaining([
-            'sw-app-actions',
-        ]));
+        expect(wrapper.classes()).toEqual(
+            expect.arrayContaining([
+                'sw-app-actions',
+            ]),
+        );
     });
 
     it('creates an sw-app-action-button per action', async () => {

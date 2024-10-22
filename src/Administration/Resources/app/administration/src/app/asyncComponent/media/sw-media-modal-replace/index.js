@@ -19,9 +19,15 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['mediaService', 'repositoryFactory'],
+    inject: [
+        'mediaService',
+        'repositoryFactory',
+    ],
 
-    emits: ['media-replace-modal-close', 'media-replace-modal-item-replaced'],
+    emits: [
+        'media-replace-modal-close',
+        'media-replace-modal-item-replaced',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

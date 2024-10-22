@@ -28,8 +28,6 @@ class CardTest extends TestCase
         $card = Card::fromXml($cardElement);
 
         $cardFields = $card->getFields();
-        static::assertInstanceOf(Card::class, $card);
-        static::assertIsArray($cardFields);
         static::assertInstanceOf(CardField::class, \array_pop($cardFields));
     }
 }

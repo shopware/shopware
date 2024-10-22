@@ -7,15 +7,13 @@ import { createStore } from 'vuex';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity = productEntityOverride ||
-            {
-                metaTitle: 'test',
-            };
+        const productEntity = productEntityOverride || {
+            metaTitle: 'test',
+        };
 
-        const parentProduct = parentProductOverride ||
-            {
-                id: null,
-            };
+        const parentProduct = parentProductOverride || {
+            id: null,
+        };
 
         const productVariants = [
             {
@@ -146,7 +144,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         wrapper = await createWrapper(productEntity);
         await flushPromises();
 
-        const switchComponent = wrapper.getComponent({ name: 'sw-switch-field-deprecated__wrapped' });
+        const switchComponent = wrapper.getComponent({
+            name: 'sw-switch-field-deprecated__wrapped',
+        });
         const singleSelectComponent = wrapper.find('.sw-single-select');
 
         // check if switch is off
@@ -167,7 +167,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         wrapper = await createWrapper(productEntity);
         await flushPromises();
 
-        const switchComponent = wrapper.getComponent({ name: 'sw-switch-field-deprecated__wrapped' });
+        const switchComponent = wrapper.getComponent({
+            name: 'sw-switch-field-deprecated__wrapped',
+        });
         const singleSelectComponent = wrapper.get('.sw-single-select');
 
         // check if switch is turned on

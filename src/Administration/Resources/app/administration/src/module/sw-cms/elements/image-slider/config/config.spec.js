@@ -6,144 +6,154 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper(activeTab = 'content', sliderItems = []) {
-    return mount(await wrapTestComponent('sw-cms-el-config-image-slider', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve({
-                                get: (mediaId) => {
-                                    /* if media is not found, return null, otherwise return a valid mediaItem */
-                                    return (mediaId === 'deletedId') ? null : {
-                                        id: '0',
-                                        position: 0,
-                                    };
-                                },
-                            }),
-                        };
-                    },
-                },
-                mediaService: {},
-            },
-            stubs: {
-                'sw-tabs': {
-                    props: ['defaultItem'],
-                    data() {
-                        return { active: activeTab };
-                    },
-                    template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
-                },
-                'sw-tabs-item': true,
-                'sw-select-field': {
-                    template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                    props: ['value', 'options'],
-                },
-                'sw-container': true,
-                'sw-field': true,
-                'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
-                'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-help-text': true,
-                'sw-field-error': true,
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-media-list-selection-item-v2': {
-                    template: '<div class="sw-media-item">{{item.id}}</div>',
-                    props: ['item'],
-                },
-                'sw-media-modal-v2': true,
-                'sw-url-field': true,
-                'sw-loader': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-            },
-        },
-        props: {
-            element: {
-                config: {
-                    sliderItems: {
-                        source: 'static',
-                        value: sliderItems,
-                        required: true,
-                        entity: {
-                            name: 'media',
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-image-slider', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () =>
+                                    Promise.resolve({
+                                        get: (mediaId) => {
+                                            /* if media is not found, return null, otherwise return a valid mediaItem */
+                                            return mediaId === 'deletedId'
+                                                ? null
+                                                : {
+                                                      id: '0',
+                                                      position: 0,
+                                                  };
+                                        },
+                                    }),
+                            };
                         },
                     },
-                    navigationArrows: {
-                        source: 'static',
-                        value: 'outside',
-                    },
-                    navigationDots: {
-                        source: 'static',
-                        value: null,
-                    },
-                    displayMode: {
-                        source: 'static',
-                        value: 'standard',
-                    },
-                    minHeight: {
-                        source: 'static',
-                        value: '300px',
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null,
-                    },
-                    autoSlide: {
-                        source: 'static',
-                        value: false,
-                    },
-                    speed: {
-                        source: 'static',
-                        value: 300,
-                    },
-                    autoplayTimeout: {
-                        source: 'static',
-                        value: 5000,
-                    },
+                    mediaService: {},
                 },
-                data: {},
+                stubs: {
+                    'sw-tabs': {
+                        props: ['defaultItem'],
+                        data() {
+                            return { active: activeTab };
+                        },
+                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-select-field': {
+                        template:
+                            '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
+                        props: [
+                            'value',
+                            'options',
+                        ],
+                    },
+                    'sw-container': true,
+                    'sw-field': true,
+                    'sw-text-field': true,
+                    'sw-number-field': true,
+                    'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
+                    'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-help-text': true,
+                    'sw-field-error': true,
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': true,
+                    'sw-media-list-selection-item-v2': {
+                        template: '<div class="sw-media-item">{{item.id}}</div>',
+                        props: ['item'],
+                    },
+                    'sw-media-modal-v2': true,
+                    'sw-url-field': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                },
             },
-            defaultConfig: {},
+            props: {
+                element: {
+                    config: {
+                        sliderItems: {
+                            source: 'static',
+                            value: sliderItems,
+                            required: true,
+                            entity: {
+                                name: 'media',
+                            },
+                        },
+                        navigationArrows: {
+                            source: 'static',
+                            value: 'outside',
+                        },
+                        navigationDots: {
+                            source: 'static',
+                            value: null,
+                        },
+                        displayMode: {
+                            source: 'static',
+                            value: 'standard',
+                        },
+                        minHeight: {
+                            source: 'static',
+                            value: '300px',
+                        },
+                        verticalAlign: {
+                            source: 'static',
+                            value: null,
+                        },
+                        autoSlide: {
+                            source: 'static',
+                            value: false,
+                        },
+                        speed: {
+                            source: 'static',
+                            value: 300,
+                        },
+                        autoplayTimeout: {
+                            source: 'static',
+                            value: 5000,
+                        },
+                    },
+                    data: {},
+                },
+                defaultConfig: {},
+            },
+            data() {
+                return {
+                    mediaItems: [
+                        {
+                            id: '0',
+                            position: 0,
+                        },
+                        {
+                            id: '1',
+                            position: 1,
+                        },
+                        {
+                            id: '2',
+                            position: 2,
+                        },
+                        {
+                            id: '3',
+                            position: 3,
+                        },
+                        {
+                            id: 'deletedId',
+                            position: 4,
+                        },
+                    ],
+                };
+            },
         },
-        data() {
-            return {
-                mediaItems: [
-                    {
-                        id: '0',
-                        position: 0,
-                    },
-                    {
-                        id: '1',
-                        position: 1,
-                    },
-                    {
-                        id: '2',
-                        position: 2,
-                    },
-                    {
-                        id: '3',
-                        position: 3,
-                    },
-                    {
-                        id: 'deletedId',
-                        position: 4,
-                    },
-                ],
-            };
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/image-slider/config', () => {
@@ -206,7 +216,12 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await flushPromises();
 
         const mediaListSelectionV2Vm = wrapper.findComponent('.sw-media-list-selection-v2').vm;
-        mediaListSelectionV2Vm.$emit('item-sort', mediaListSelectionV2Vm.mediaItems[1], mediaListSelectionV2Vm.mediaItems[2], true);
+        mediaListSelectionV2Vm.$emit(
+            'item-sort',
+            mediaListSelectionV2Vm.mediaItems[1],
+            mediaListSelectionV2Vm.mediaItems[2],
+            true,
+        );
         await wrapper.vm.$nextTick();
 
         const items = wrapper.findAll('.sw-media-item');

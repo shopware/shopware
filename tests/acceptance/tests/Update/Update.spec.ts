@@ -2,7 +2,7 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 // eslint-disable-next-line playwright/no-skipped-test
-test.skip('Update an existing Shopware instance.', { tag: '@Update' }, async ({
+test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`, { tag: '@Update' }, async ({
     page,
     AdminApiContext,
 }) => {
@@ -45,7 +45,7 @@ test.skip('Update an existing Shopware instance.', { tag: '@Update' }, async ({
 
     await page.getByRole('button', { name: 'Open Administration' }).click();
 
-    await expect(page.getByText('6.6.9999999.9999999 Developer Version')).toBeVisible({
+    await expect(page.getByText(/6\.6\.9999999\.9999999/)).toBeVisible({
         timeout: 60000,
     });
 

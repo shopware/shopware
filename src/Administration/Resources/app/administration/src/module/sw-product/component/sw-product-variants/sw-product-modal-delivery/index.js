@@ -11,9 +11,15 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
-    emits: ['modal-close', 'configuration-close'],
+    emits: [
+        'modal-close',
+        'configuration-close',
+    ],
 
     props: {
         product: {
@@ -48,13 +54,16 @@ export default {
         createdComponent() {
             if (!this.product.variantListingConfig) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(
-                        this.product,
-                        'variantListingConfig',
-                        { displayParent: null, configuratorGroupConfig: [], mainVariantId: null },
-                    );
+                    this.$set(this.product, 'variantListingConfig', {
+                        displayParent: null,
+                        configuratorGroupConfig: [],
+                        mainVariantId: null,
+                    });
                 } else {
-                    this.product.variantListingConfig = { displayParent: null, configuratorGroupConfig: [] };
+                    this.product.variantListingConfig = {
+                        displayParent: null,
+                        configuratorGroupConfig: [],
+                    };
                 }
             }
         },

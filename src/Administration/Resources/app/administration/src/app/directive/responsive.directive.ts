@@ -3,7 +3,7 @@ import type { ObjectDirective } from 'vue';
 interface ResponsiveDirectiveBinding extends ObjectDirective {
     value?: {
         [key: string]: ((elementSizeValues: DOMRectReadOnly) => boolean) | number;
-    }
+    };
 }
 
 /**
@@ -24,21 +24,26 @@ Shopware.Directive.register('responsive', {
         const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
 
         const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {
-            entries.forEach(entry => {
+            entries.forEach((entry) => {
                 const elementSizeValues = entry.contentRect;
 
-                Object.entries(binding.value ?? {}).forEach(([breakpointClass, breakpointCallback]) => {
-                    if (typeof breakpointCallback !== 'function') {
-                        return;
-                    }
+                Object.entries(binding.value ?? {}).forEach(
+                    ([
+                        breakpointClass,
+                        breakpointCallback,
+                    ]) => {
+                        if (typeof breakpointCallback !== 'function') {
+                            return;
+                        }
 
-                    if (breakpointCallback(elementSizeValues)) {
-                        el.classList.add(breakpointClass);
-                        return;
-                    }
+                        if (breakpointCallback(elementSizeValues)) {
+                            el.classList.add(breakpointClass);
+                            return;
+                        }
 
-                    el.classList.remove(breakpointClass);
-                });
+                        el.classList.remove(breakpointClass);
+                    },
+                );
             });
         }, timeout);
 
@@ -46,4 +51,3 @@ Shopware.Directive.register('responsive', {
         observer.observe(el);
     },
 });
-

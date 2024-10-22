@@ -102,7 +102,7 @@ export default {
     },
 
     watch: {
-        '$route'(newValue) {
+        $route(newValue) {
             if (!newValue || newValue.name === 'sw.profile.index.searchPreferences') {
                 return;
             }
@@ -169,11 +169,13 @@ export default {
                     });
             }
 
-            Promise.all(promises).then(() => {
-                this.loadLanguages();
-            }).then(() => {
-                this.isUserLoading = false;
-            });
+            Promise.all(promises)
+                .then(() => {
+                    this.loadLanguages();
+                })
+                .then(() => {
+                    this.isUserLoading = false;
+                });
         },
 
         beforeMountComponent() {
@@ -294,57 +296,69 @@ export default {
 
         saveUser(context) {
             if (!this.acl.can('user:editor')) {
-                const changes = this.userRepository.getSyncChangeset([this.user]);
+                const changes = this.userRepository.getSyncChangeset([
+                    this.user,
+                ]);
                 delete changes.changeset[0].changes.id;
 
-                this.userService.updateUser(changes.changeset[0].changes).then(async () => {
-                    await this.updateCurrentUser();
+                this.userService
+                    .updateUser(changes.changeset[0].changes)
+                    .then(async () => {
+                        await this.updateCurrentUser();
 
-                    this.isLoading = false;
-                    this.isSaveSuccessful = true;
+                        this.isLoading = false;
+                        this.isSaveSuccessful = true;
 
-                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-                }).catch((error) => {
-                    State.dispatch('error/addApiError', {
-                        expression: `user.${this.user?.id}.password`,
-                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                        Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                    })
+                    .catch((error) => {
+                        State.dispatch('error/addApiError', {
+                            expression: `user.${this.user?.id}.password`,
+                            error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                        });
+                        this.createNotificationError({
+                            message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                        });
+                        this.isLoading = false;
+                        this.isSaveSuccessful = false;
                     });
-                    this.createNotificationError({
-                        message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
-                    });
-                    this.isLoading = false;
-                    this.isSaveSuccessful = false;
-                });
 
                 return;
             }
 
-            this.userRepository.save(this.user, context).then(async () => {
-                await this.updateCurrentUser();
-                Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+            this.userRepository
+                .save(this.user, context)
+                .then(async () => {
+                    await this.updateCurrentUser();
+                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
-                if (this.newPassword) {
-                    // re-issue a valid jwt token, as all user tokens were invalidated on password change
-                    this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
-                        this.isSaveSuccessful = true;
-                    }).catch(() => {
-                        this.handleUserSaveError();
-                    }).finally(() => {
+                    if (this.newPassword) {
+                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
+                        this.loginService
+                            .loginByUsername(this.user.username, this.newPassword)
+                            .then(() => {
+                                this.isSaveSuccessful = true;
+                            })
+                            .catch(() => {
+                                this.handleUserSaveError();
+                            })
+                            .finally(() => {
+                                this.isLoading = false;
+                            });
+                    } else {
                         this.isLoading = false;
-                    });
-                } else {
-                    this.isLoading = false;
-                    this.isSaveSuccessful = true;
-                }
+                        this.isSaveSuccessful = true;
+                    }
 
-                this.confirmPassword = '';
-                this.newPassword = '';
-                this.newPasswordConfirm = '';
-            }).catch(() => {
-                this.handleUserSaveError();
-                this.isLoading = false;
-                this.isSaveSuccessful = false;
-            });
+                    this.confirmPassword = '';
+                    this.newPassword = '';
+                    this.newPasswordConfirm = '';
+                })
+                .catch(() => {
+                    this.handleUserSaveError();
+                    this.isLoading = false;
+                    this.isSaveSuccessful = false;
+                });
         },
 
         updateCurrentUser() {
@@ -413,7 +427,8 @@ export default {
 
         saveUserSearchPreferences() {
             // eslint-disable-next-line max-len
-            this.userSearchPreferences = this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
+            this.userSearchPreferences =
+                this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
             this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
                 return {
                     [entityName]: {
@@ -427,7 +442,10 @@ export default {
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return this.userConfigService.upsert({ [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value })
+            return this.userConfigService
+                .upsert({
+                    [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
+                })
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

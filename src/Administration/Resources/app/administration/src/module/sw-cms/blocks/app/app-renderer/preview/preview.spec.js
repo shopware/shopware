@@ -5,9 +5,20 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(props = undefined) {
-    return mount(await wrapTestComponent('sw-cms-block-app-preview-renderer', { sync: true }), {
-        props,
-    });
+    return mount(
+        await wrapTestComponent('sw-cms-block-app-preview-renderer', {
+            sync: true,
+        }),
+        {
+            props,
+
+            global: {
+                stubs: {
+                    'sw-extension-teaser-popover': true,
+                },
+            },
+        },
+    );
 }
 
 describe('src/module/sw-cms/blocks/app/app-renderer/preview/sw-cms-block-app-preview-renderer', () => {

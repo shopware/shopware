@@ -18,7 +18,7 @@ export default {
 
     computed: {
         currentDemoProducts() {
-            return Shopware.Store.get('cmsPageState').currentDemoProducts;
+            return Shopware.Store.get('cmsPage').currentDemoProducts;
         },
 
         demoProductCount() {

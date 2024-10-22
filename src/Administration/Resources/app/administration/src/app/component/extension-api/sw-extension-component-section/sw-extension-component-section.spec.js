@@ -9,15 +9,20 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     let stubs;
 
     async function createWrapper(props = {}) {
-        return mount(await wrapTestComponent('sw-extension-component-section', { sync: true }), {
-            props: {
-                positionIdentifier: 'test-position',
-                ...props,
+        return mount(
+            await wrapTestComponent('sw-extension-component-section', {
+                sync: true,
+            }),
+            {
+                props: {
+                    positionIdentifier: 'test-position',
+                    ...props,
+                },
+                global: {
+                    stubs,
+                },
             },
-            global: {
-                stubs,
-            },
-        });
+        );
     }
 
     beforeAll(async () => {
@@ -139,7 +144,10 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });
 
-    it.each(['dev', 'prod'])('should be deprecated in %s env', async (env) => {
+    it.each([
+        'dev',
+        'prod',
+    ])('should be deprecated in %s env', async (env) => {
         Shopware.State.commit('extensionComponentSections/addSection', {
             component: 'card',
             positionId: 'test-position',
@@ -170,7 +178,10 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         });
         await flushPromises();
 
-        expect(mock).toHaveBeenCalledWith('CORE', 'The extension "TestExtension" uses a deprecated position identifier "test-position". Use position identifier XYZ instead.');
+        expect(mock).toHaveBeenCalledWith(
+            'CORE',
+            'The extension "TestExtension" uses a deprecated position identifier "test-position". Use position identifier XYZ instead.',
+        );
 
         if (restoreEnv) {
             process.env = restoreEnv;

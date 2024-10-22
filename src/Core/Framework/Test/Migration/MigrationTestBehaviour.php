@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -71,9 +72,25 @@ trait MigrationTestBehaviour
         );
     }
 
+    #[After]
+    public function removeMigrationSources(): void
+    {
+        $loader = $this->getContainer()->get(MigrationCollectionLoader::class);
+        $prop = ReflectionHelper::getProperty(MigrationCollectionLoader::class, 'migrationSources');
+        $migrationSources = $prop->getValue($loader);
+        unset($migrationSources['_test_migrations_invalid_namespace']);
+        unset($migrationSources['_test_migrations_valid']);
+        unset($migrationSources['_test_migrations_valid_run_time']);
+        unset($migrationSources['_test_migrations_valid_run_time_exceptions']);
+        unset($migrationSources['_test_trigger_with_trigger_']);
+        unset($migrationSources[self::INTEGRATION_IDENTIFIER()]);
+        unset($migrationSources[self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]);
+        $prop->setValue($loader, $migrationSources);
+    }
+
     protected static function INTEGRATION_IDENTIFIER(): string
     {
-        return 'intergration';
+        return 'integration';
     }
 
     protected static function INTEGRATION_WITH_EXCEPTION_IDENTIFIER(): string

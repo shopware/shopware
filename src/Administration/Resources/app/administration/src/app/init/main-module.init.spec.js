@@ -76,4 +76,10 @@ describe('src/app/init/main-module.init.ts', () => {
 
         expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(0);
     });
+
+    it('should be able to update the hidden smart bars', async () => {
+        await ui.mainModule.hideSmartBar({ locationId: 'my-awesome-module' });
+
+        expect(Shopware.State.get('extensionSdkModules').hiddenSmartBars).toEqual(['my-awesome-module']);
+    });
 });

@@ -53,6 +53,23 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         }
     }
 
+    /**
+     * @param array<string, mixed> $meta
+     */
+    public function definition(array $meta, ContainerBuilder $container, string $entity): void
+    {
+        $definition = new Definition(AttributeEntityDefinition::class);
+        $definition->addArgument($meta);
+        $definition->setPublic(true);
+        $container->setDefinition($entity . '.definition', $definition);
+
+        $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
+        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
+
+        $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
+        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '.definition'), 'sales_channel_definition.' . $entity . '.definition']);
+    }
+
     private function repository(ContainerBuilder $container, string $entity): void
     {
         $repository = new Definition(
@@ -70,23 +87,6 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $repository->setPublic(true);
 
         $container->setDefinition($entity . '.repository', $repository);
-    }
-
-    /**
-     * @param array<string, mixed> $meta
-     */
-    public function definition(array $meta, ContainerBuilder $container, string $entity): void
-    {
-        $definition = new Definition(AttributeEntityDefinition::class);
-        $definition->addArgument($meta);
-        $definition->setPublic(true);
-        $container->setDefinition($entity . '.definition', $definition);
-
-        $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
-        $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '.definition'), 'sales_channel_definition.' . $entity . '.definition']);
     }
 
     /**

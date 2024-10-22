@@ -44,6 +44,12 @@ trait StorefrontControllerMockTrait
      */
     public array $flashBag = [];
 
+    public function reset(): void
+    {
+        $this->flashBag = [];
+        $this->redirected = [];
+    }
+
     /**
      * @param array<string, mixed> $parameters
      */
@@ -110,11 +116,5 @@ trait StorefrontControllerMockTrait
     protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
         return 'url:' . $route;
-    }
-
-    public function reset(): void
-    {
-        $this->flashBag = [];
-        $this->redirected = [];
     }
 }

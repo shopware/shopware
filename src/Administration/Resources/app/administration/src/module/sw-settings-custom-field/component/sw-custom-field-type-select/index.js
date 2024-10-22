@@ -49,7 +49,7 @@ export default {
                 this.currentCustomField.config.componentName = 'sw-single-select';
             }
 
-            const options = this.currentCustomField.config.options.map(option => {
+            const options = this.currentCustomField.config.options.map((option) => {
                 if (Array.isArray(option.label)) {
                     option.label = {};
                 }
@@ -67,7 +67,10 @@ export default {
         },
 
         addOption() {
-            this.currentCustomField.config.options.push({ value: '', label: {} });
+            this.currentCustomField.config.options.push({
+                value: '',
+                label: {},
+            });
         },
 
         onClickAddOption() {

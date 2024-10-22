@@ -38,29 +38,33 @@ describe('documentService', () => {
         const orderId = '4a4a687257644d52bf481b4c20e59213';
         let createRequestSent = false;
 
-        clientMock.onPost('/_action/order/document/invoice/create', [
-            {
-                orderId,
-                config: {
-                    custom: { invoiceNumber: '1000' },
-                    documentNumber: '1000',
-                    documentComment: '',
-                    documentDate: '2021-02-22T04:34:56.441Z',
-                },
-                referencedDocumentId: null,
-            },
-        ]).reply(() => {
-            createRequestSent = true;
-            return [
-                200,
+        clientMock
+            .onPost('/_action/order/document/invoice/create', [
                 {
-                    data: [{
-                        documentId: '4d03324edcd0490b9180df8161c9167f',
-                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-                    }],
+                    orderId,
+                    config: {
+                        custom: { invoiceNumber: '1000' },
+                        documentNumber: '1000',
+                        documentComment: '',
+                        documentDate: '2021-02-22T04:34:56.441Z',
+                    },
+                    referencedDocumentId: null,
                 },
-            ];
-        });
+            ])
+            .reply(() => {
+                createRequestSent = true;
+                return [
+                    200,
+                    {
+                        data: [
+                            {
+                                documentId: '4d03324edcd0490b9180df8161c9167f',
+                                documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+                            },
+                        ],
+                    },
+                ];
+            });
 
         const params = {
             custom: {
@@ -71,14 +75,7 @@ describe('documentService', () => {
             documentDate: '2021-02-22T04:34:56.441Z',
         };
 
-        await documentApiService.createDocument(
-            orderId,
-            'invoice',
-            params,
-            null,
-            {},
-            {},
-        );
+        await documentApiService.createDocument(orderId, 'invoice', params, null, {}, {});
 
         await flushPromises();
         expect(createRequestSent).toBeTruthy();
@@ -104,54 +101,54 @@ describe('documentService', () => {
         let createRequestSent = false;
         let uploadRequestSent = false;
 
-        clientMock.onPost('/_action/order/document/invoice/create', [
-            {
-                orderId,
-                config: {
-                    custom: { invoiceNumber: '1000' },
-                    documentNumber: '1000',
-                    documentComment: '',
-                    documentDate: '2021-02-22T04:34:56.441Z',
-                },
-                referencedDocumentId: null,
-                static: true,
-            },
-        ]).reply(() => {
-            createRequestSent = true;
-            return [
-                200,
+        clientMock
+            .onPost('/_action/order/document/invoice/create', [
                 {
-                    data: [{
-                        documentId,
+                    orderId,
+                    config: {
+                        custom: { invoiceNumber: '1000' },
+                        documentNumber: '1000',
+                        documentComment: '',
+                        documentDate: '2021-02-22T04:34:56.441Z',
+                    },
+                    referencedDocumentId: null,
+                    static: true,
+                },
+            ])
+            .reply(() => {
+                createRequestSent = true;
+                return [
+                    200,
+                    {
+                        data: [
+                            {
+                                documentId,
+                                documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+                            },
+                        ],
+                    },
+                ];
+            });
+
+        const file = new File(['test document'], 'upload_file.pdf', {
+            type: 'application/pdf',
+        });
+
+        clientMock
+            .onPost(`/_action/document/${documentId}/upload?fileName=${config.documentNumber}_upload_file&extension=pdf`)
+            .reply(() => {
+                uploadRequestSent = true;
+
+                return [
+                    200,
+                    {
+                        documentId: '4d03324edcd0490b9180df8161c9167f',
                         documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-                    }],
-                },
-            ];
-        });
+                    },
+                ];
+            });
 
-        const file = new File(['test document'], 'upload_file.pdf', { type: 'application/pdf' });
-
-        clientMock.onPost(`/_action/document/${documentId}/upload?fileName=${config.documentNumber}_upload_file&extension=pdf`).reply(() => {
-            uploadRequestSent = true;
-
-            return [
-                200,
-                {
-                    documentId: '4d03324edcd0490b9180df8161c9167f',
-                    documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-                },
-            ];
-        });
-
-        await documentApiService.createDocument(
-            orderId,
-            'invoice',
-            config,
-            null,
-            null,
-            {},
-            file,
-        );
+        await documentApiService.createDocument(orderId, 'invoice', config, null, null, {}, file);
 
         await flushPromises();
 
@@ -175,14 +172,14 @@ describe('documentService', () => {
         const orderId = '4a4a687257644d52bf481b4c20e59213';
         let requestSentCount = 0;
 
-        clientMock.onPost('/_action/order/document/invoice/create')
-            .reply(() => {
-                requestSentCount += 1;
+        clientMock.onPost('/_action/order/document/invoice/create').reply(() => {
+            requestSentCount += 1;
 
-                return [
-                    400,
-                    {
-                        errors: [{
+            return [
+                400,
+                {
+                    errors: [
+                        {
                             status: '400',
                             code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
                             title: 'Bad Request',
@@ -192,10 +189,11 @@ describe('documentService', () => {
                                     number: '1000',
                                 },
                             },
-                        }],
-                    },
-                ];
-            });
+                        },
+                    ],
+                },
+            ];
+        });
 
         const config = {
             custom: {
@@ -206,41 +204,32 @@ describe('documentService', () => {
             documentDate: '2021-02-22T04:34:56.441Z',
         };
 
-        await documentApiService.createDocument(
-            orderId,
-            'invoice',
-            config,
-        );
+        await documentApiService.createDocument(orderId, 'invoice', config);
 
-        clientMock.onPost('/_action/order/document/invoice/create')
-            .reply(() => {
-                requestSentCount += 1;
+        clientMock.onPost('/_action/order/document/invoice/create').reply(() => {
+            requestSentCount += 1;
 
-                return [
-                    200,
-                    {
-                        errors: {
-                            [orderId]: {
-                                status: '400',
-                                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                                title: 'Bad Request',
-                                detail: 'Document number 1000 has already been allocated.',
-                                meta: {
-                                    parameters: {
-                                        number: '1000',
-                                    },
+            return [
+                200,
+                {
+                    errors: {
+                        [orderId]: {
+                            status: '400',
+                            code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                            title: 'Bad Request',
+                            detail: 'Document number 1000 has already been allocated.',
+                            meta: {
+                                parameters: {
+                                    number: '1000',
                                 },
                             },
                         },
                     },
-                ];
-            });
+                },
+            ];
+        });
 
-        await documentApiService.createDocument(
-            orderId,
-            'invoice',
-            config,
-        );
+        await documentApiService.createDocument(orderId, 'invoice', config);
 
         await flushPromises();
 
@@ -255,18 +244,17 @@ describe('documentService', () => {
         const orderDeepLink = 'DEEP_LINK';
         const type = 'invoice';
 
-        clientMock.onGet(`/_action/order/${orderId}/${orderDeepLink}/document/${type}/preview`)
-            .reply(() => {
-                didRequest = true;
+        clientMock.onGet(`/_action/order/${orderId}/${orderDeepLink}/document/${type}/preview`).reply(() => {
+            didRequest = true;
 
-                return [
-                    200,
-                    {
-                        documentId: '4d03324edcd0490b9180df8161c9167f',
-                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-                    },
-                ];
-            });
+            return [
+                200,
+                {
+                    documentId: '4d03324edcd0490b9180df8161c9167f',
+                    documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+                },
+            ];
+        });
 
         documentApiService.getDocumentPreview(orderId, orderDeepLink, type, {});
         expect(didRequest).toBeTruthy();
@@ -289,17 +277,16 @@ describe('documentService', () => {
             ],
         };
 
-        clientMock.onGet(`/_action/order/${orderId}/${orderDeepLink}/document/${type}/preview`)
-            .reply(() => {
-                didRequest = true;
+        clientMock.onGet(`/_action/order/${orderId}/${orderDeepLink}/document/${type}/preview`).reply(() => {
+            didRequest = true;
 
-                return [
-                    500,
-                    new Blob([JSON.stringify(errorBody)], {
-                        type: 'application/json',
-                    }),
-                ];
-            });
+            return [
+                500,
+                new Blob([JSON.stringify(errorBody)], {
+                    type: 'application/json',
+                }),
+            ];
+        });
 
         documentApiService.getDocumentPreview(orderId, orderDeepLink, type, {});
         expect(didRequest).toBeTruthy();
@@ -312,12 +299,14 @@ describe('documentService', () => {
         const documentId = '4a4a687257644d52bf481b4c20e59213';
         const deepLink = 'DEEP_LINK';
 
-        clientMock.onGet(`/_action/document/${documentId}/${deepLink}`)
-            .reply(() => {
-                didRequest = true;
+        clientMock.onGet(`/_action/document/${documentId}/${deepLink}`).reply(() => {
+            didRequest = true;
 
-                return [200, ''];
-            });
+            return [
+                200,
+                '',
+            ];
+        });
 
         documentApiService.getDocument(documentId, deepLink, {});
         expect(didRequest).toBeTruthy();

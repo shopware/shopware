@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Asset;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
@@ -38,7 +39,7 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
             return '';
         }
 
-        $cacheKey = 'metaDataFlysystem-' . md5($path);
+        $cacheKey = 'metaDataFlysystem-' . Hasher::hash($path);
 
         $item = $this->cacheAdapter->getItem($cacheKey);
 

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -71,6 +72,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -213,6 +215,27 @@ class OrderConverterTest extends TestCase
         static::assertEmpty($result['deliveries']);
     }
 
+    public function testConvertToOrderShouldNotContainDeliveriesWithNoAddressButHaveOriginalAddressId(): void
+    {
+        $cart = $this->getCart();
+
+        $cart->setDeliveries(
+            $this->getDeliveryCollection(true)
+        );
+
+        foreach ($cart->getDeliveries() as $delivery) {
+            $delivery->addExtension(OrderConverter::ORIGINAL_ADDRESS_ID, new IdStruct('original-address-id'));
+            $delivery->addExtension(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, new IdStruct('original-address-version-id'));
+        }
+
+        $orderConversionContext = new OrderConversionContext();
+        $orderConversionContext->setIncludeDeliveries(true);
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
+
+        static::assertNotEmpty($result['deliveries']);
+    }
+
     public function testConvertToOrderWithDeliveries(): void
     {
         $cart = $this->getCart();
@@ -257,8 +280,9 @@ class OrderConverterTest extends TestCase
     /**
      * @psalm-param class-string<\Throwable> $exceptionClass
      */
-    #[DataProvider('convertToOrderExceptionsData')]
-    public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
+    #[DisabledFeatures(['v6.7.0.0'])]
+    #[DataProvider('convertToOrderExceptionsDataWithDisabledFeatures')]
+    public function testConvertToOrderExceptionsWithDisabledFeatures(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
         if ($exceptionClass !== '') {
             $this->expectException($exceptionClass);
@@ -316,6 +340,91 @@ class OrderConverterTest extends TestCase
     }
 
     /**
+     * @psalm-param class-string<\Throwable> $exceptionClass
+     */
+    #[DataProvider('convertToOrderExceptionsData')]
+    public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
+    {
+        if ($exceptionClass !== '') {
+            $this->expectException($exceptionClass);
+        }
+
+        $cart = $this->getCart();
+        $cart->setDeliveries(
+            $this->getDeliveryCollection(
+                $exceptionClass === OrderException::class
+            )
+        );
+
+        $conversionContext = new OrderConversionContext();
+        $conversionContext->setIncludeCustomer($conversionIncludeCustomer);
+
+        $salesChannelContext = $this->getSalesChannelContext(
+            $loginCustomer,
+            $exceptionClass === AddressNotFoundException::class
+        );
+
+        $result = $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
+
+        // unset uncheckable ids
+        unset(
+            $result['id'],
+            $result['billingAddressId'],
+            $result['deepLinkCode'],
+            $result['orderDateTime'],
+            $result['stateId'],
+            $result['languageId'],
+        );
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
+            unset($result['lineItems'][$i]['id']);
+        }
+
+        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
+            unset(
+                $result['deliveries'][$i]['shippingOrderAddress']['id'],
+                $result['deliveries'][$i]['shippingDateEarliest'],
+                $result['deliveries'][$i]['shippingDateLatest'],
+            );
+        }
+
+        $expected = $this->getExpectedConvertToOrder();
+        unset($expected['addresses']);
+        $expected['shippingCosts']['unitPrice'] = 1;
+        $expected['shippingCosts']['totalPrice'] = 1;
+
+        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
+        static::assertIsString($expectedJson);
+        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
+        static::assertIsString($actual);
+        // As json to avoid classes
+        static::assertJsonStringEqualsJsonString($expectedJson, $actual);
+    }
+
+    /**
+     * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
+     */
+    public static function convertToOrderExceptionsDataWithDisabledFeatures(): array
+    {
+        return [
+            [
+                AddressNotFoundException::class,
+            ],
+            [
+                DeliveryWithoutAddressException::class,
+            ],
+            [
+                CartException::class,
+                false,
+            ],
+            [
+                CartException::class,
+                false,
+                false,
+            ],
+        ];
+    }
+
+    /**
      * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
      */
     public static function convertToOrderExceptionsData(): array
@@ -325,7 +434,7 @@ class OrderConverterTest extends TestCase
                 AddressNotFoundException::class,
             ],
             [
-                DeliveryWithoutAddressException::class,
+                OrderException::class,
             ],
             [
                 CartException::class,
@@ -669,7 +778,11 @@ class OrderConverterTest extends TestCase
         $orderDelivery->setShippingDateEarliest(new \DateTimeImmutable());
         $orderDelivery->setShippingDateLatest(new \DateTimeImmutable());
         $orderDelivery->setShippingMethodId('order-delivery-shipping-method-id');
-        $orderDelivery->setShippingOrderAddress($this->getOrderAddress());
+        $orderAddress = $this->getOrderAddress();
+        $orderDelivery->setShippingOrderAddress($orderAddress);
+        $orderDelivery->setShippingOrderAddressId($orderAddress->getId());
+        static::assertIsString($orderAddress->getVersionId());
+        $orderDelivery->setShippingOrderAddressVersionId($orderAddress->getVersionId());
         $orderDelivery->setShippingCosts(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         if ($toManipulate !== 'order-delivery-no-shipping-method') {
             $orderDelivery->setShippingMethod(new ShippingMethodEntity());
@@ -897,6 +1010,7 @@ class OrderConverterTest extends TestCase
 
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
+        $address->setVersionId('order-address-version-id');
         $address->setSalutationId('order-address-salutation-id');
         $address->setFirstName('order-address-first-name');
         $address->setLastName('order-address-last-name');
@@ -1152,6 +1266,14 @@ class OrderConverterTest extends TestCase
                             'id' => 'order-delivery-id',
                             'extensions' => [],
                         ],
+                        'originalAddressId' => [
+                            'id' => 'order-address-id',
+                            'extensions' => [],
+                        ],
+                        'originalAddressVersionId' => [
+                            'id' => 'order-address-version-id',
+                            'extensions' => [],
+                        ],
                     ],
                 ],
             ],
@@ -1162,6 +1284,7 @@ class OrderConverterTest extends TestCase
             'campaignCode' => null,
             'source' => null,
             'hash' => null,
+            'states' => [],
         ];
     }
 

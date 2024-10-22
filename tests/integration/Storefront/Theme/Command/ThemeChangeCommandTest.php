@@ -246,13 +246,11 @@ class ThemeChangeCommandTest extends TestCase
         $storePluginConfiguration1->setThemeConfig([
             'any' => 'expectedConfig',
         ]);
-        $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
             'any' => 'unexpectedConfig',
         ]);
-        $storePluginConfiguration2->setBasePath('');
 
         $mock = $this->getMockBuilder(StorefrontPluginRegistry::class)
             ->disableOriginalConstructor()

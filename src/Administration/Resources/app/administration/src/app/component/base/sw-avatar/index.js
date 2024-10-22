@@ -89,7 +89,10 @@ Component.register('sw-avatar', {
             required: false,
             default: 'circle',
             validator: (value) => {
-                return ['circle', 'square'].includes(value);
+                return [
+                    'circle',
+                    'square',
+                ].includes(value);
             },
         },
     },

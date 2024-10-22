@@ -80,26 +80,21 @@ export default {
         },
 
         isNewLanguage() {
-            return this.language && typeof this.language.isNew === 'function'
-                ? this.language.isNew()
-                : false;
+            return this.language && typeof this.language.isNew === 'function' ? this.language.isNew() : false;
         },
 
         usedLocaleCriteria() {
-            return (new Criteria(1, null))
-                .addFilter(Criteria.not(
-                    'and',
-                    [Criteria.equals('id', this.languageId)],
-                ))
-                .addAggregation(
-                    Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null),
-                );
+            return new Criteria(1, null)
+                .addFilter(
+                    Criteria.not('and', [
+                        Criteria.equals('id', this.languageId),
+                    ]),
+                )
+                .addAggregation(Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null));
         },
 
         allowSave() {
-            return this.isNewLanguage
-                ? this.acl.can('language.creator')
-                : this.acl.can('language.editor');
+            return this.isNewLanguage ? this.acl.can('language.creator') : this.acl.can('language.editor');
         },
 
         tooltipSave() {
@@ -148,7 +143,10 @@ export default {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        ...mapPropertyErrors('language', ['localeId', 'name']),
+        ...mapPropertyErrors('language', [
+            'localeId',
+            'name',
+        ]),
     },
 
     watch: {
@@ -173,27 +171,32 @@ export default {
                 return;
             }
 
-            this.loadEntityData().then(() => {
-                return this.loadCustomFieldSets();
-            }).then(() => {
-                this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
-                    this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
+            this.loadEntityData()
+                .then(() => {
+                    return this.loadCustomFieldSets();
+                })
+                .then(() => {
+                    this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
+                        this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
+                    });
                 });
-            });
         },
 
         loadEntityData() {
             this.isLoading = true;
-            return this.languageRepository.get(this.languageId).then((language) => {
-                this.isLoading = false;
-                this.language = language;
+            return this.languageRepository
+                .get(this.languageId)
+                .then((language) => {
+                    this.isLoading = false;
+                    this.language = language;
 
-                if (language.parentId) {
-                    this.setParentTranslationCodeId(language.parentId);
-                }
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    if (language.parentId) {
+                        this.setParentTranslationCodeId(language.parentId);
+                    }
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         loadCustomFieldSets() {
@@ -234,15 +237,21 @@ export default {
         onSave() {
             this.isLoading = true;
 
-            this.languageRepository.save(this.language).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-                if (!this.languageId) {
-                    this.$router.push({ name: 'sw.settings.language.detail', params: { id: this.language.id } });
-                }
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            this.languageRepository
+                .save(this.language)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                    if (!this.languageId) {
+                        this.$router.push({
+                            name: 'sw.settings.language.detail',
+                            params: { id: this.language.id },
+                        });
+                    }
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onCancel() {

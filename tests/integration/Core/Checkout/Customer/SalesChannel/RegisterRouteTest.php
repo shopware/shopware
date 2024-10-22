@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -399,7 +400,7 @@ class RegisterRouteTest extends TestCase
                 ['CONTENT_TYPE' => 'application/json'],
                 json_encode([
                     'hash' => $customer->getHash(),
-                    'em' => sha1('teg-reg@example.com'),
+                    'em' => Hasher::hash('teg-reg@example.com', 'sha1'),
                 ], \JSON_THROW_ON_ERROR)
             );
 
@@ -461,7 +462,7 @@ class RegisterRouteTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => sha1('teg-reg@example.com')], \JSON_THROW_ON_ERROR));
+        $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => Hasher::hash('teg-reg@example.com', 'sha1')], \JSON_THROW_ON_ERROR));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
@@ -592,7 +593,7 @@ class RegisterRouteTest extends TestCase
                 ['CONTENT_TYPE' => 'application/json'],
                 json_encode([
                     'hash' => $customer->getHash(),
-                    'em' => sha1('teg-reg@example.com'),
+                    'em' => Hasher::hash('teg-reg@example.com', 'sha1'),
                 ], \JSON_THROW_ON_ERROR)
             );
 

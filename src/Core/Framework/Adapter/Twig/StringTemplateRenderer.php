@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
@@ -63,7 +64,7 @@ class StringTemplateRenderer
      */
     public function render(string $templateSource, array $data, Context $context, bool $htmlEscape = true): string
     {
-        $name = md5($templateSource . !$htmlEscape);
+        $name = Hasher::hash($templateSource . !$htmlEscape);
         $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
 
         $this->twig->addGlobal('context', $context);

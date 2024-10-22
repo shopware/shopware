@@ -82,30 +82,39 @@ export default {
                 company: this.customer.company,
             };
 
-            return Object.values(name).filter(item => item !== null).join(' - ').trim();
+            return Object.values(name)
+                .filter((item) => item !== null)
+                .join(' - ')
+                .trim();
         },
 
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.not('or', [
-                Criteria.equals('id', Defaults.defaultSalutationId),
-            ]));
+            criteria.addFilter(
+                Criteria.not('or', [
+                    Criteria.equals('id', Defaults.defaultSalutationId),
+                ]),
+            );
 
             return criteria;
         },
 
-        ...mapPropertyErrors(
-            'customer',
-            [...errorConfig['sw.customer.detail.base'].customer],
-        ),
+        ...mapPropertyErrors('customer', [
+            ...errorConfig['sw.customer.detail.base'].customer,
+        ]),
 
         accountTypeOptions() {
-            return [{
-                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
-            }, {
-                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
-            }];
+            return [
+                {
+                    value: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
+                    label: this.$tc('sw-customer.customerType.labelPrivate'),
+                },
+                {
+                    value: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
+                    label: this.$tc('sw-customer.customerType.labelBusiness'),
+                },
+            ];
         },
 
         isBusinessAccountType() {
@@ -113,6 +122,10 @@ export default {
         },
 
         canUseCustomerImitation() {
+            if (this.customer.guest) {
+                return false;
+            }
+
             if (this.customer.boundSalesChannel) {
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return false;
@@ -145,12 +158,9 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                {
-                    expression: `customer.${this.customer.id}.company`,
-                },
-            );
+            Shopware.State.dispatch('error/removeApiError', {
+                expression: `customer.${this.customer.id}.company`,
+            });
         },
     },
 
@@ -161,23 +171,23 @@ export default {
 
         async onImitateCustomer() {
             if (this.hasSingleBoundSalesChannelUrl) {
-                this.contextStoreService.generateImitateCustomerToken(
-                    this.customer.id,
-                    this.customer.boundSalesChannel.id,
-                ).then((response) => {
-                    const handledResponse = ApiService.handleResponse(response);
+                this.contextStoreService
+                    .generateImitateCustomerToken(this.customer.id, this.customer.boundSalesChannel.id)
+                    .then((response) => {
+                        const handledResponse = ApiService.handleResponse(response);
 
-                    this.contextStoreService.redirectToSalesChannelUrl(
-                        this.customer.boundSalesChannel.domains.first().url,
-                        handledResponse.token,
-                        this.customer.id,
-                        this.currentUser?.id,
-                    );
-                }).catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                        this.contextStoreService.redirectToSalesChannelUrl(
+                            this.customer.boundSalesChannel.domains.first().url,
+                            handledResponse.token,
+                            this.customer.id,
+                            this.currentUser?.id,
+                        );
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                        });
                     });
-                });
                 return;
             }
 

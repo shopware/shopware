@@ -18,7 +18,10 @@ export default {
         'repositoryFactory',
     ],
 
-    emits: ['modal-close', 'process-finish'],
+    emits: [
+        'modal-close',
+        'process-finish',
+    ],
 
     props: {
         sequence: {

@@ -36,13 +36,9 @@ class SitemapRouteTest extends TestCase
 
     public function testEmpty(): void
     {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/sitemap',
-                [
-                ]
-            );
+        $this->browser->request('POST', '/store-api/sitemap');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
 
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -58,13 +54,9 @@ class SitemapRouteTest extends TestCase
         $fs = $this->getContainer()->get('shopware.filesystem.sitemap');
         $fs->write('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/test.xml', 'some content');
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/sitemap',
-                [
-                ]
-            );
+        $this->browser->request('POST', '/store-api/sitemap');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
 
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

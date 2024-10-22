@@ -30,7 +30,11 @@ class CartRedisCompilerPassTest extends TestCase
             CartPersister::class => new Definition(),
         ]);
 
+        // @deprecated tag:v6.7.0 - remove next line
         $this->container->setParameter('shopware.cart.storage.config.dsn', 'redis://localhost:6379');
+
+        // equal to default in config
+        $this->container->setParameter('shopware.cart.storage.config.connection', null);
     }
 
     public function testCompilerPassMysqlStorage(): void
@@ -45,7 +49,22 @@ class CartRedisCompilerPassTest extends TestCase
         static::assertFalse($this->container->hasDefinition(RedisCartPersister::class));
     }
 
-    public function testCompilerPassRedisStorage(): void
+    /**
+     * @deprecated tag:v6.7.0 - Remove in 6.7
+     */
+    public function testCompilerPassRedisStorageDsn(): void
+    {
+        $this->container->setParameter('shopware.cart.storage.type', 'redis');
+        $this->container->setParameter('shopware.cart.storage.config.connection', 'default');
+
+        $compilerPass = new CartRedisCompilerPass();
+        $compilerPass->process($this->container);
+
+        static::assertTrue($this->container->hasDefinition(RedisCartPersister::class));
+        static::assertFalse($this->container->hasDefinition(CartPersister::class));
+    }
+
+    public function testCompilerPassRedisStorageConnectionName(): void
     {
         $this->container->setParameter('shopware.cart.storage.type', 'redis');
 
@@ -63,7 +82,8 @@ class CartRedisCompilerPassTest extends TestCase
 
         $compilerPass = new CartRedisCompilerPass();
 
-        $this->expectExceptionMessage('Parameter "shopware.cart.storage.config.dsn" is required for redis storage');
+        // @deprecated tag:v6.7.0 - update exception message to reflect removed shopware.cart.storage.config.dsn parameter
+        $this->expectExceptionMessage('Parameter "shopware.cart.storage.config.dsn" or "shopware.cart.storage.config.connection" is required for redis storage');
         $this->expectException(DependencyInjectionException::class);
 
         $compilerPass->process($this->container);

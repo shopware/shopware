@@ -11,22 +11,32 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
 interface TreeItem {
-    id: string,
-    name: string,
-    parentId?: string | null,
+    id: string;
+    name: string;
+    parentId?: string | null;
 }
 
 interface DragItem {
-    index: number,
-    linePosition?: number | null,
-    snippet: string[]
+    index: number;
+    linePosition?: number | null;
+    snippet: string[];
 }
 
 const DefaultAddressFormat = [
-    ['address/company', 'symbol/dash', 'address/department'],
-    ['address/first_name', 'address/last_name'],
+    [
+        'address/company',
+        'symbol/dash',
+        'address/department',
+    ],
+    [
+        'address/first_name',
+        'address/last_name',
+    ],
     ['address/street'],
-    ['address/zipcode', 'address/city'],
+    [
+        'address/zipcode',
+        'address/city',
+    ],
     ['address/country'],
 ] as string[][];
 
@@ -40,7 +50,10 @@ Component.register('sw-settings-country-address-handling', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl', 'customSnippetApiService'],
+    inject: [
+        'acl',
+        'customSnippetApiService',
+    ],
 
     props: {
         country: {
@@ -55,16 +68,16 @@ Component.register('sw-settings-country-address-handling', {
     },
 
     data(): {
-        advancedPostalCodePattern: string | null,
-        draggedItem: DragItem | null,
-        droppedItem: DragItem | null,
-        snippets: TreeItem[] | [],
-        customerId: string | null,
-        customer: Entity<'customer'> | null,
-        isOpenModal: boolean,
-        currentPosition: number | null,
-        formattingAddress: string,
-        } {
+        advancedPostalCodePattern: string | null;
+        draggedItem: DragItem | null;
+        droppedItem: DragItem | null;
+        snippets: TreeItem[] | [];
+        customerId: string | null;
+        customer: Entity<'customer'> | null;
+        isOpenModal: boolean;
+        currentPosition: number | null;
+        formattingAddress: string;
+    } {
         return {
             advancedPostalCodePattern: null,
             draggedItem: null,
@@ -188,7 +201,7 @@ Component.register('sw-settings-country-address-handling', {
 
     methods: {
         createdComponent(): void {
-            this.advancedPostalCodePattern = cloneDeep(this.country.advancedPostalCodePattern) as string|null;
+            this.advancedPostalCodePattern = cloneDeep(this.country.advancedPostalCodePattern) as string | null;
 
             void this.getSnippets();
         },
@@ -216,30 +229,29 @@ Component.register('sw-settings-country-address-handling', {
                 return;
             }
 
-            if (![this.draggedItem?.index, this.droppedItem?.index]
-                .every(position => typeof position === 'number')
+            if (
+                ![
+                    this.draggedItem?.index,
+                    this.droppedItem?.index,
+                ].every((position) => typeof position === 'number')
             ) {
                 return;
             }
 
-            this.country.addressFormat = Object.assign(
-                [],
-                this.country.addressFormat,
-                {
-                    // @ts-expect-error - value exists
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    [this.draggedItem.index]: this.country.addressFormat[this.droppedItem.index],
-                    // @ts-expect-error - value exists
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    [this.droppedItem.index]: this.country.addressFormat[this.draggedItem.index],
-                },
-            );
+            this.country.addressFormat = Object.assign([], this.country.addressFormat, {
+                // @ts-expect-error - value exists
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                [this.draggedItem.index]: this.country.addressFormat[this.droppedItem.index],
+                // @ts-expect-error - value exists
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                [this.droppedItem.index]: this.country.addressFormat[this.draggedItem.index],
+            });
 
             this.draggedItem = null;
             this.droppedItem = null;
         },
 
-        onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem, dropData: DragItem }): void {
+        onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {
             // swap positions in different lines
             if (
                 typeof dropData?.linePosition === 'number' &&
@@ -278,18 +290,20 @@ Component.register('sw-settings-country-address-handling', {
                     // @ts-expect-error - value exists
                     this.country.addressFormat,
                     `${dropData.index}`,
-                    // @ts-expect-error - value exists
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    [...this.country.addressFormat[dropData.index], dragData.snippet],
+                    [
+                        // @ts-expect-error - value exists
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        ...this.country.addressFormat[dropData.index],
+                        dragData.snippet,
+                    ],
                 );
             } else {
-                this.$emit(
-                    'update:country',
-                    `addressFormat[${dropData.index}]`,
+                this.$emit('update:country', `addressFormat[${dropData.index}]`, [
                     // @ts-expect-error - value exists
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    [...this.country.addressFormat[dropData.index], dragData.snippet],
-                );
+                    ...this.country.addressFormat[dropData.index],
+                    dragData.snippet,
+                ]);
             }
 
             if (this.isCompatEnabled('INSTANCE_SET')) {
@@ -338,7 +352,16 @@ Component.register('sw-settings-country-address-handling', {
             }
 
             const snippet = this.addressFormat[source];
-            const swag = dest === 'above' ? [[], snippet] : [snippet, []];
+            const swag =
+                dest === 'above'
+                    ? [
+                          [],
+                          snippet,
+                      ]
+                    : [
+                          snippet,
+                          [],
+                      ];
 
             if (this.isCompatEnabled('INSTANCE_SET')) {
                 this.$set(this.country, 'addressFormat', this.swapPosition(source, source, swag) ?? []);
@@ -347,7 +370,7 @@ Component.register('sw-settings-country-address-handling', {
             }
         },
 
-        swapPosition(source: number, dest: number, swag: Array<string[]>): Array<string[]>|null {
+        swapPosition(source: number, dest: number, swag: Array<string[]>): Array<string[]> | null {
             if (!this.addressFormat?.length) {
                 return null;
             }
@@ -367,9 +390,16 @@ Component.register('sw-settings-country-address-handling', {
         change(index: number, newSnippet?: string): void {
             if (!newSnippet) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.country, 'addressFormat', this.addressFormat.filter((_, key) => index !== key));
+                    this.$set(
+                        this.country,
+                        'addressFormat',
+                        this.addressFormat.filter((_, key) => index !== key),
+                    );
                 } else {
-                    this.updateCountry('addressFormat', this.addressFormat.filter((_, key) => index !== key));
+                    this.updateCountry(
+                        'addressFormat',
+                        this.addressFormat.filter((_, key) => index !== key),
+                    );
                 }
 
                 return;
@@ -421,17 +451,20 @@ Component.register('sw-settings-country-address-handling', {
         },
 
         getSnippets(): Promise<unknown> {
-            return this.customSnippetApiService.snippets().then((response) => {
-                const snippets = (response as { data: string[] }).data;
+            return this.customSnippetApiService
+                .snippets()
+                .then((response) => {
+                    const snippets = (response as { data: string[] }).data;
 
-                this.snippets = snippets?.map((snippet: string) => {
-                    return {
-                        id: snippet,
-                        name: this.getLabelProperty(snippet),
-                    };
-                });
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-            }).catch(() => {});
+                    this.snippets = snippets?.map((snippet: string) => {
+                        return {
+                            id: snippet,
+                            name: this.getLabelProperty(snippet),
+                        };
+                    });
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                })
+                .catch(() => {});
         },
 
         renderFormattingAddress(address?: EntitySchema.Entities['customer_address']): Promise<unknown> {
@@ -440,18 +473,23 @@ Component.register('sw-settings-country-address-handling', {
                 return Promise.resolve();
             }
 
-            return this.customSnippetApiService
-                // @ts-expect-error - value exists
-                .render(address, this.country.addressFormat)
-                .then((res) => {
-                    const { rendered } = (res as { rendered: string});
+            return (
+                this.customSnippetApiService
+                    // @ts-expect-error - value exists
+                    .render(address, this.country.addressFormat)
+                    .then((res) => {
+                        const { rendered } = res as { rendered: string };
 
-                    this.formattingAddress = rendered;
-                });
+                        this.formattingAddress = rendered;
+                    })
+            );
         },
 
         getLabelProperty(value: string): string {
-            const string = value.split('/').map((item: string) => camelCase(item)).join('.');
+            const string = value
+                .split('/')
+                .map((item: string) => camelCase(item))
+                .join('.');
 
             return this.$te(`sw-custom-snippet.${string}`) ? this.$tc(`sw-custom-snippet.${string}`) : value;
         },

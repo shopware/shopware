@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['cancel', 'confirm'],
+    emits: [
+        'cancel',
+        'confirm',
+    ],
 
     props: {
         salesChannels: {

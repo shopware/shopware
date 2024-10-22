@@ -41,11 +41,6 @@ parameters:
 			path: src/Administration/Service/AdminSearcher.php
 
 		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 4
-			path: src/Core/Checkout/Cart/Command/CartMigrateCommand.php
-
-		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException, got Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingException$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
@@ -113,17 +108,7 @@ parameters:
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
-			path: src/Core/Checkout/Cart/Order/OrderConverter.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
 			path: src/Core/Checkout/Cart/Order/OrderPersister.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/RecalculationService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\AddressTransformer\\:\\:transform\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -526,26 +511,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Api/PromotionController.php
 
 		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Calculator/DiscountAbsoluteCalculator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Calculator/DiscountFixedPriceCalculator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Calculator/DiscountFixedUnitPriceCalculator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/Calculator/DiscountPercentageCalculator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\Composition\\\\DiscountCompositionBuilder\\:\\:adjustCompositionItemValues\\(\\) has parameter \\$targetItems with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/Discount/Composition/DiscountCompositionBuilder.php
@@ -621,21 +586,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Cart/PromotionCartDeletedInformationError.php
 
 		-
-			message: "#^Mixed variable in a `\\$discountLineItem\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 5
-			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
-
-		-
-			message: "#^Parameter \\#1 \\$elements of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection constructor expects iterable\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\>, array\\<int, Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 5
-			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
-
-		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/PromotionItemBuilder.php
@@ -684,26 +634,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlotTranslation\\\\CmsSlotTranslationEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/Aggregate/CmsSlotTranslation/CmsSlotTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:getElementsOfType\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/CmsPageEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\FieldConfig\\:\\:__construct\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
@@ -908,17 +838,7 @@ parameters:
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 2
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/CustomFieldsSerializer.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/TranslationsSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\PrimaryKeyResolver\\:\\:getValueFromPath\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -1885,8 +1805,6 @@ parameters:
 			count: 3
 			path: src/Core/Content/Test/Category/Service/CountingEntitySearcher.php
 
-
-
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 2
@@ -2324,23 +2242,8 @@ parameters:
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/App/Command/AppPrinter.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 3
 			path: src/Core/Framework/App/Command/CreateAppCommand.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/App/Command/InstallAppCommand.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/Framework/App/Command/RefreshAppCommand.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -2356,11 +2259,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 4
 			path: src/Core/Framework/App/Hmac/Guzzle/AuthMiddleware.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/ScriptFileReader.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -2386,11 +2284,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Framework/App/TaxProvider/Payload/TaxProviderPayloadService.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/App/Template/TemplateLoader.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -3190,11 +3083,6 @@ parameters:
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 3
-			path: src/Core/Framework/Increment/IncrementerGatewayCompilerPass.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
 
@@ -3372,11 +3260,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 3
-			path: src/Core/Framework/Migration/MigrationCollectionLoader.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -3749,11 +3632,6 @@ parameters:
 			path: src/Core/Framework/Store/Struct/CartStruct.php
 
 		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 3
-			path: src/Core/Framework/Store/Struct/ExtensionStruct.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRegionStruct\\:\\:__construct\\(\\) has parameter \\$categories with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/PluginRegionStruct.php
@@ -3977,66 +3855,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 2
 			path: src/Core/Installer/Requirements/Struct/RequirementCheck.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getLogoId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1610523204AddInheritanceForProductCmsPageTest.php
-
-		-
-			message: "#^Cannot call method getModules\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1614765170UpdateAppModulesWithNavigationInformationTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1618989442AddProductConfigurationSettingsUniqKeyTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1618989442AddProductConfigurationSettingsUniqKeyTest.php
-
-		-
-			message: "#^Cannot call method getConfiguratorSetting\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1618989442AddProductConfigurationSettingsUniqKeyTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1618989442AddProductConfigurationSettingsUniqKeyTest.php
-
-		-
-			message: "#^Cannot call method getOptions\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Migration/Test/Migration1618989442AddProductConfigurationSettingsUniqKeyTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$product of method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductConfiguratorLoader\\:\\:load\\(\\) expects Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1618989442AddProductConfigurationSettingsUniqKeyTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\RestrictDeleteViolationException and 'Expected that…' will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest.php
-
-		-
-			message: "#^Cannot call method getCoverId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1642757286FixProductMediaForeignKeyTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true and 'Annotation …' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/MigrationExecuteQueryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Traits\\\\StateMachineMigration\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
@@ -4589,11 +4407,6 @@ parameters:
 			path: src/Core/System/SystemConfig/MemoizedSystemConfigLoader.php
 
 		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/System/SystemConfig/Service/ConfigurationService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Store\\\\MemoizedSystemConfigStore\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Store/MemoizedSystemConfigStore.php
@@ -4692,26 +4505,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Tax\\\\Aggregate\\\\TaxRule\\\\TaxRuleEntity\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Tax/Aggregate/TaxRule/TaxRuleEntity.php
-
-		-
-			message: "#^Offset 'states' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/IndividualStatesRuleTypeFilter.php
-
-		-
-			message: "#^Offset 'fromZipCode' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/ZipCodeRangeRuleTypeFilter.php
-
-		-
-			message: "#^Offset 'toZipCode' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/ZipCodeRangeRuleTypeFilter.php
-
-		-
-			message: "#^Offset 'zipCode' might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Tax/TaxRuleType/ZipCodeRuleTypeFilter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Unit\\\\Aggregate\\\\UnitTranslation\\\\UnitTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -4887,11 +4680,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php
 
 		-
 			message: "#^Mixed variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
@@ -5181,11 +4969,6 @@ parameters:
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
-			path: src/Storefront/Theme/ThemeFileImporter.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
 			path: src/Storefront/Theme/ThemeFileResolver.php
 
 		-
@@ -5207,333 +4990,3 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'confirmUrl', 'confirmUrl' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'contactFormData', 'contactFormData' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'contents', 'contents' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'contextToken', 'contextToken' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'data', 'data' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'email', 'email' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'mediaId', 'mediaId' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'name', 'name' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'recipients', 'recipients' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'resetUrl', 'resetUrl' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'reviewFormData', 'reviewFormData' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'shopName', 'shopName' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'subject', 'subject' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'templateData', 'templateData' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'url', 'url' and 'The variable value…' will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationList will always evaluate to true\\.$#"
-			count: 2
-			path: tests/integration/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Mail/Service/MailTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Event\\\\\\\\EventData\\\\\\\\EventDataCollection' and Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EventDataCollection will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Media/Event/MediaUploadedEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\FindVariant\\\\\\\\FoundCombination' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteResponseTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 2
-			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 2
-			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>method\\('invalidate'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 2
-			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Adapter\\\\\\\\Twig\\\\\\\\TwigVariableParser' and Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TwigVariableParser will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Adapter/Twig/TwigVariableParserFactoryTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
-			count: 3
-			path: tests/unit/Core/Framework/Api/Controller/CustomSnippetFormatControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Demodata/Command/DemodataCommandTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\DependencyInjection\\\\Alias will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPassTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Event\\\\\\\\PluginLifecycleEvent' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Event\\\\PluginPostDeactivationFailedEvent will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Plugin/Event/PluginPostDeactivationFailedEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Update\\\\\\\\Steps\\\\\\\\ValidResult' and Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\ValidResult will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Update/Steps/DeactivateExtensionsStepTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Util\\\\TestEntity\\|null\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Util/AfterSortTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\CardField' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\CardField will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardFieldTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Card' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Card will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Column' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Column will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Columns' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Columns will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnsTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnsTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Detail' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Detail will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/DetailTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tabs' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tabs will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/DetailTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/EntityTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/EntityTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Columns' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Columns will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ListingTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Listing' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Listing will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ListingTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tab' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tab will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tabs' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tabs will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareField\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_categories'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_cms_page'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_content'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_og_image'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_description'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_title'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_slot_config'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_title'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/SystemConfig/Api/SystemConfigControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\Builder\\\\\\\\TreeBuilder' and Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\TreeBuilder will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Elasticsearch/DependencyInjection/ConfigurationTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\ConfigurationInterface' and Symfony\\\\Component\\\\Config\\\\Definition\\\\ConfigurationInterface will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Elasticsearch/DependencyInjection/ElasticsearchExtensionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Context' and Shopware\\\\Core\\\\Framework\\\\Context will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexConfigEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Elasticsearch\\\\\\\\Framework\\\\\\\\AbstractElasticsearchDefinition' and Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexConfigEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Elasticsearch\\\\\\\\Framework\\\\\\\\AbstractElasticsearchDefinition' and Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexCreatedEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Storefront/Controller/DownloadControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRouteTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"
-			count: 5
-			path: tests/unit/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php

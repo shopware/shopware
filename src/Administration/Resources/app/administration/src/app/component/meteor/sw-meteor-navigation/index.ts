@@ -17,7 +17,7 @@ Component.register('sw-meteor-navigation', {
 
     props: {
         fromLink: {
-            type: Object as PropType<RouteLocationNamedRaw|null>,
+            type: Object as PropType<RouteLocationNamedRaw | null>,
             required: false,
             default: null,
         },
@@ -28,7 +28,7 @@ Component.register('sw-meteor-navigation', {
             return this.parentRoute !== null;
         },
 
-        parentRoute(): RouteLocationNamedRaw|null {
+        parentRoute(): RouteLocationNamedRaw | null {
             if (this.fromLink && this.fromLink.name !== null) {
                 return this.fromLink;
             }

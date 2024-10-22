@@ -71,7 +71,7 @@ export default {
             this.optionLoading = false;
         },
 
-        'selectedOptions'() {
+        selectedOptions() {
             const selectedOptionArray = this.selectedOptions !== null ? this.selectedOptions : [];
 
             this.restriction.options = selectedOptionArray;

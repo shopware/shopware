@@ -12,9 +12,14 @@ const entityFactory = new EntityFactory();
 
 describe('src/core/data/changeset-generator.data.js', () => {
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
-            Shopware.EntityDefinition.add(entityName, entityDefinition);
-        });
+        Object.entries(entitySchemaMock).forEach(
+            ([
+                entityName,
+                entityDefinition,
+            ]) => {
+                Shopware.EntityDefinition.add(entityName, entityDefinition);
+            },
+        );
     });
 
     it('should generate no changes', async () => {
@@ -88,7 +93,8 @@ describe('src/core/data/changeset-generator.data.js', () => {
             expected: null,
         },
         {
-            description: 'should not return an changeset when origin and draft are identical except the key order in objects',
+            description:
+                'should not return an changeset when origin and draft are identical except the key order in objects',
             entityName: 'cms_page',
             originChanges: {
                 config: {
@@ -119,22 +125,35 @@ describe('src/core/data/changeset-generator.data.js', () => {
             entityName: 'cms_page',
             originChanges: {
                 config: {
-                    numbers: [1, 2, 3],
+                    numbers: [
+                        1,
+                        2,
+                        3,
+                    ],
                 },
             },
             entityChanges: {
                 config: {
-                    numbers: [2, 1, 3],
+                    numbers: [
+                        2,
+                        1,
+                        3,
+                    ],
                 },
             },
             expected: {
                 config: {
-                    numbers: [2, 1, 3],
+                    numbers: [
+                        2,
+                        1,
+                        3,
+                    ],
                 },
             },
         },
         {
-            description: 'Should create a changeset when the order in arrays are changing. In combination with object key order changes.',
+            description:
+                'Should create a changeset when the order in arrays are changing. In combination with object key order changes.',
             entityName: 'cms_page',
             originChanges: {
                 config: {
@@ -162,7 +181,11 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: ['Second', 'First', 'Third'],
+                    test: [
+                        'Second',
+                        'First',
+                        'Third',
+                    ],
                 },
             },
         },
@@ -171,7 +194,11 @@ describe('src/core/data/changeset-generator.data.js', () => {
             entityName: 'cms_page',
             originChanges: {
                 config: {
-                    numbers: [1, 2, 3],
+                    numbers: [
+                        1,
+                        2,
+                        3,
+                    ],
                 },
             },
             entityChanges: {
@@ -291,13 +318,25 @@ describe('src/core/data/changeset-generator.data.js', () => {
             description: 'Should create a changeset when the json root is an array and the order changes',
             entityName: 'cms_page',
             originChanges: {
-                config: [1, 2, 3],
+                config: [
+                    1,
+                    2,
+                    3,
+                ],
             },
             entityChanges: {
-                config: [2, 1, 3],
+                config: [
+                    2,
+                    1,
+                    3,
+                ],
             },
             expected: {
-                config: [2, 1, 3],
+                config: [
+                    2,
+                    1,
+                    3,
+                ],
             },
         },
         {
@@ -323,14 +362,24 @@ describe('src/core/data/changeset-generator.data.js', () => {
         it(`${description}`, async () => {
             const testEntity = entityFactory.create(entityName);
 
-            Object.entries(originChanges).forEach(([key, value]) => {
-                testEntity.getDraft()[key] = value;
-                testEntity.getOrigin()[key] = value;
-            });
+            Object.entries(originChanges).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    testEntity.getDraft()[key] = value;
+                    testEntity.getOrigin()[key] = value;
+                },
+            );
 
-            Object.entries(entityChanges).forEach(([key, value]) => {
-                testEntity[key] = value;
-            });
+            Object.entries(entityChanges).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    testEntity[key] = value;
+                },
+            );
 
             const { changes } = changesetGenerator.generate(testEntity);
 

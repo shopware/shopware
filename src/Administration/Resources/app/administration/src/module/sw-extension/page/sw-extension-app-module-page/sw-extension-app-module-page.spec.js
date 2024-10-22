@@ -11,8 +11,12 @@ async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-app-module-page', { sync: true }), {
         global: {
             stubs: {
-                'sw-extension-app-module-error-page': await wrapTestComponent('sw-extension-app-module-error-page', { sync: true }),
-                'sw-page': await wrapTestComponent('sw-page', { sync: true }),
+                'sw-extension-app-module-error-page': await wrapTestComponent('sw-extension-app-module-error-page', {
+                    sync: true,
+                }),
+                'sw-page': await wrapTestComponent('sw-page', {
+                    sync: true,
+                }),
                 'sw-notification-center': true,
                 'sw-help-center': true,
                 'sw-search-bar': true,
@@ -36,7 +40,9 @@ async function createWrapper(props) {
             provide: {
                 extensionSdkService: {
                     signIframeSrc(_, source) {
-                        return Promise.resolve({ uri: `${source}?timestamp=signed` });
+                        return Promise.resolve({
+                            uri: `${source}?timestamp=signed`,
+                        });
                     },
                 },
             },
@@ -124,5 +130,18 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
 
         expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+    });
+
+    it('should be able to toggle the page smart bar', async () => {
+        const wrapper = await createWrapper({
+            appName: 'testAppA',
+            moduleName: 'standardModule',
+        });
+        expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
+
+        Shopware.State.commit('extensionSdkModules/addHiddenSmartBar', 'standardModule');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();
     });
 });

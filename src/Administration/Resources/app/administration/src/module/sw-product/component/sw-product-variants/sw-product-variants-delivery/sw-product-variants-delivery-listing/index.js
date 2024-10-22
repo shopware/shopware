@@ -46,8 +46,7 @@ export default {
         },
 
         listingMode() {
-            return this.mainVariant || this.product.variantListingConfig.displayParent === true
-                ? 'single' : 'expanded';
+            return this.mainVariant || this.product.variantListingConfig.displayParent === true ? 'single' : 'expanded';
         },
 
         mainVariantModeOptions() {
@@ -91,26 +90,30 @@ export default {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.variantListingConfig.configuratorGroupConfig
-                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
+            if (
+                this.product.variantListingConfig.configuratorGroupConfig &&
+                this.product.variantListingConfig.configuratorGroupConfig.length > 0
+            ) {
                 // add server sorting to the sortedGroups
-                sortedGroups = this.product.variantListingConfig.configuratorGroupConfig
-                    .reduce((acc, configGroup) => {
-                        const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
+                sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
+                    const relatedGroup = selectedGroupsCopy.find((group) => group.id === configGroup.id);
 
-                        if (relatedGroup) {
-                            acc.push(relatedGroup);
+                    if (relatedGroup) {
+                        acc.push(relatedGroup);
 
-                            // remove from original array
-                            selectedGroupsCopy.splice(selectedGroupsCopy.indexOf(relatedGroup), 1);
-                        }
+                        // remove from original array
+                        selectedGroupsCopy.splice(selectedGroupsCopy.indexOf(relatedGroup), 1);
+                    }
 
-                        return acc;
-                    }, []);
+                    return acc;
+                }, []);
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
+            sortedGroups = [
+                ...sortedGroups,
+                ...selectedGroupsCopy,
+            ];
 
             return sortedGroups;
         },

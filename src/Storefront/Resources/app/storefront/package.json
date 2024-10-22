@@ -75,6 +75,7 @@
     "eslint": "8.56.0",
     "eslint-plugin-jest": "26.6.0",
     "html-loader-jest": "0.2.1",
+    "http-proxy": "^1.18.1",
     "jest": "24.8.0",
     "jest-junit": "6.3.0",
     "jest-plugin-clock": "2.9.0",

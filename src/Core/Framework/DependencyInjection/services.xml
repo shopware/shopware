@@ -233,7 +233,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
             <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <!-- Translation -->
@@ -653,6 +653,12 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory">
             <argument>%shopware.cache.redis_prefix%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider">
+            <argument />  <!-- $serviceLocator will be set in the compiler pass -->
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
+        </service>
+
 
         <service id="Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory" public="true">
             <argument type="service" id="request_stack"/>

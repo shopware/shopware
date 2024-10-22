@@ -8,7 +8,7 @@ Shopware.Filter.register('thumbnailSize', (value: Entity<'media_thumbnail_size'>
         return '';
     }
 
-    if ((!value.width) || (!value.height)) {
+    if (!value.width || !value.height) {
         return '';
     }
 

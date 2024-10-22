@@ -99,6 +99,7 @@ import type { ErrorStore } from './app/store/error.store';
 import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
 import type { ActionButtonsStore } from './app/store/action-buttons.store';
 import type { ContextStore } from './app/store/context.store';
+import type { LicenseViolationStore } from './app/store/license-violation.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -358,6 +359,7 @@ declare global {
         context: ContextStore;
         adminHelpCenter: AdminHelpCenterStore;
         actionButtons: ActionButtonsStore;
+        licenseViolation: LicenseViolationStore;
     }
 
     /**

@@ -3,10 +3,11 @@
 
         {% block sw_theme_manager_detail_search_bar %}
             <template #search-bar>
-                <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
-                               :entityService="themeRepository"
-                               @search="onSearch">
-                </sw-search-bar>
+                <sw-search-bar
+                    :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
+                    :entityService="themeRepository"
+                    @search="onSearch"
+                ></sw-search-bar>
             </template>
         {% endblock %}
 
@@ -356,6 +357,7 @@
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue"
+                                                                                    zIndex="100"
                                                                                     @update:value="updateCurrentValue"
                                                                                 />
 

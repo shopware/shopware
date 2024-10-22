@@ -3,6 +3,7 @@ import '../store/admin-menu.store';
 import '../store/block-override.store';
 import 'src/app/store/extension-entry-routes.store';
 import 'src/app/store/extension-sdk-module.store';
+import 'src/app/store/extensions.store';
 
 /**
  * @sw-package framework

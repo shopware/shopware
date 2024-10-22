@@ -28,7 +28,7 @@ export default function initializeSettingItems(): void {
             ];
         }
 
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 

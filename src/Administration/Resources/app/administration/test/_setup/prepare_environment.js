@@ -58,6 +58,7 @@ import '../../src/app/store/admin-menu.store';
 import '../../src/app/store/extension-component-sections.store';
 import '../../src/app/store/extension-entry-routes.store';
 import '../../src/app/store/extension-sdk-module.store';
+import '../../src/app/store/extensions.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

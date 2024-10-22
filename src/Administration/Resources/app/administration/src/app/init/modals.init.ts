@@ -6,7 +6,7 @@
 export default function initializeModal(): void {
     // eslint-disable-next-line @typescript-eslint/require-await
     Shopware.ExtensionAPI.handle('uiModalOpen', async (modalConfig, { _event_ }) => {
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(_event_.origin),
         );
 

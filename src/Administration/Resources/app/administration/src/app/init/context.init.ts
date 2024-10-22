@@ -42,7 +42,7 @@ export default function initializeContext(): void {
     });
 
     Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -69,7 +69,7 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
-        const extension = Object.entries(Shopware.State.get('extensions')).find((ext) => {
+        const extension = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
             return ext[1].baseUrl.startsWith(appOrigin);
         });
 
@@ -107,7 +107,7 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
-        const extension = Object.entries(Shopware.State.get('extensions')).find((ext) => {
+        const extension = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
             return ext[1].baseUrl.startsWith(appOrigin);
         });
 

@@ -10,7 +10,7 @@ describe('src/app/init/extension-component-sections.init.ts', () => {
         initializeExtensionComponentSections();
 
         // Add dummy extension
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: 'JestApp',
             baseUrl: '', // This works because the additionalInformation._event_.origin is empty
             permissions: {},

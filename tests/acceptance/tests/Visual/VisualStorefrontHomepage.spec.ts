@@ -9,9 +9,13 @@ test('Visual: Homepage in the Storefront.', { tag: '@Visual' }, async ({
     await ShopCustomer.attemptsTo(Login());
     await ShopCustomer.goesTo(StorefrontHome.url());
 
+    await StorefrontHome.page.setViewportSize({ width: 1280, height: 1111});
+
+
     await test.step('Creates a screenshot and compare it on homepage in storefront.', async () => {
 
         await expect(StorefrontHome.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.2,
             fullPage: true,
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
 

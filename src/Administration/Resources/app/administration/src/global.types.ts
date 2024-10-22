@@ -99,6 +99,7 @@ import type { ActionButtonsStore } from './app/store/action-buttons.store';
 import type { ContextStore } from './app/store/context.store';
 import type { LicenseViolationStore } from './app/store/license-violation.store';
 import type { ExtensionMainModules } from './app/store/main-module.store';
+import type { MarketingStore } from './app/store/marketing.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -355,6 +356,7 @@ declare global {
         actionButtons: ActionButtonsStore;
         licenseViolation: LicenseViolationStore;
         extensionMainModules: ExtensionMainModules;
+        marketing: MarketingStore;
     }
 
     /**

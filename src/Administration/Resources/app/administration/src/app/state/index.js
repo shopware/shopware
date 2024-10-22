@@ -7,7 +7,6 @@ import session from './session.store';
 import system from './system.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
-import marketing from './marketing.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import modals from './modals.store';
@@ -22,7 +21,6 @@ export default {
     system,
     settingsItems,
     shopwareApps,
-    marketing,
     tabs,
     menuItem,
     modals,

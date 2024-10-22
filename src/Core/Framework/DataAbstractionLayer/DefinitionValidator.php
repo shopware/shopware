@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\DefinitionValidatorFilterEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\DefinitionValidatorViolationsFilterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -173,10 +174,10 @@ class DefinitionValidator
         // filter out definitions that should not be validated
         $definitionValidatorFilterEvent->filterDefinitions($this->definitionRequiresValidation(...));
 
-        // dispatches an avent for filtering Plugins to be able to filter definitions
+        // dispatches an event for filtering Plugins to be able to filter definitions
         $this->eventDispatcher->dispatch($definitionValidatorFilterEvent);
 
-        foreach ($definitionValidatorFilterEvent->getEntityDefinitions() as $definition) {
+        foreach ($definitionValidatorFilterEvent->entityDefinitions as $definition) {
             $definitionClass = $definition->getClass();
 
             $violations[$definitionClass] = [];
@@ -233,6 +234,11 @@ class DefinitionValidator
             $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
         }
 
+        // dispatches an event for filtering violations
+        $this->eventDispatcher->dispatch(
+            new DefinitionValidatorViolationsFilterEvent($violations)
+        );
+        
         return array_filter($violations);
     }
 

@@ -317,7 +317,7 @@ export default {
                 path: 'page',
                 scope: this,
             });
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            Shopware.Store.get('adminMenu').collapseSidebar();
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);

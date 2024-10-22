@@ -21,12 +21,11 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should initialized all state modules', () => {
-        expect(Shopware.State.list()).toHaveLength(23);
+        expect(Shopware.State.list()).toHaveLength(22);
 
         expect(Shopware.State.get('notification')).toBeDefined();
         expect(Shopware.State.get('session')).toBeDefined();
         expect(Shopware.State.get('system')).toBeDefined();
-        expect(Shopware.State.get('adminMenu')).toBeDefined();
         expect(Shopware.State.get('licenseViolation')).toBeDefined();
         expect(Shopware.State.get('context')).toBeDefined();
         expect(Shopware.State.get('error')).toBeDefined();

@@ -69,7 +69,7 @@ Component.register('sw-admin-menu', {
         },
 
         isExpanded() {
-            return Shopware.State.get('adminMenu').isExpanded;
+            return this.adminMenuStore.isExpanded;
         },
 
         userTitle() {
@@ -97,11 +97,11 @@ Component.register('sw-admin-menu', {
         },
 
         currentExpandedMenuEntries() {
-            return Shopware.State.get('adminMenu').expandedEntries;
+            return this.adminMenuStore.expandedEntries;
         },
 
         adminModuleNavigation() {
-            const adminModuleNavigationEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
+            const adminModuleNavigationEntries = this.adminMenuStore.adminModuleNavigation;
 
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
@@ -131,7 +131,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         appModuleNavigation() {
-            return Shopware.State.getters['adminMenu/appModuleNavigation'];
+            return this.adminMenuStore.appModuleNavigation;
         },
 
         navigationEntries() {
@@ -217,6 +217,10 @@ The admin menu only supports up to three levels of nesting.`,
                 };
             });
         },
+
+        adminMenuStore() {
+            return Shopware.Store.get('adminMenu');
+        },
     },
 
     watch: {
@@ -260,7 +264,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         initNavigation() {
-            Shopware.State.commit('adminMenu/setAdminModuleNavigation', this.menuService.getNavigationFromAdminModules());
+            this.adminMenuStore.adminModuleNavigation = this.menuService.getNavigationFromAdminModules();
 
             this.refreshApps();
         },
@@ -272,11 +276,11 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         collapseAdminMenu() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            this.adminMenuStore.collapseSidebar();
         },
 
         expandAdminMenu() {
-            Shopware.State.commit('adminMenu/expandSidebar');
+            this.adminMenuStore.expandSidebar();
         },
 
         mountedComponent() {
@@ -393,7 +397,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         onLogoutUser() {
             this.loginService.logout();
-            Shopware.State.commit('adminMenu/clearExpandedMenuEntries');
+            this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.State.commit('removeCurrentUser');
             Shopware.State.commit('notification/setNotifications', {});
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
@@ -461,12 +465,12 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             if (isEntryExpanded) {
-                Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
+                this.adminMenuStore.collapseMenuEntry(entry);
 
                 firstChild.classList.remove('router-link-active');
                 firstChild.classList.remove('is--entry-expanded');
             } else {
-                Shopware.State.commit('adminMenu/expandMenuEntry', entry);
+                this.adminMenuStore.expandMenuEntry(entry);
 
                 firstChild.classList.add('router-link-active');
                 target.classList.add('is--entry-expanded');

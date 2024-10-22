@@ -54,6 +54,7 @@ import { sendTimeoutExpired } from '../_helper_/allowedErrors';
 import '../../src/module/sw-cms/store/cms-page.store';
 import '../../src/app/store/teaser-popover.store';
 import '../../src/app/store/topbar-button.store';
+import '../../src/app/store/admin-menu.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

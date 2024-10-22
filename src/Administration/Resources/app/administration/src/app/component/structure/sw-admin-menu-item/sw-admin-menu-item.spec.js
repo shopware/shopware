@@ -619,7 +619,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             level: 1,
         });
 
-        Shopware.State.commit('adminMenu/setAdminModuleNavigation', entries);
+        Shopware.Store.get('adminMenu').adminModuleNavigation = entries;
 
         const wrapper = await createWrapper({
             privileges: [],

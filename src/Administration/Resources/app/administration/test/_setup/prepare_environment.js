@@ -65,6 +65,7 @@ import '../../src/app/store/action-buttons.store';
 import '../../src/app/store/context.store';
 import '../../src/app/store/license-violation.store';
 import '../../src/app/store/main-module.store';
+import '../../src/app/store/marketing.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

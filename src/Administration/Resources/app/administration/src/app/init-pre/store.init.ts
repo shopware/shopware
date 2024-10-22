@@ -7,6 +7,7 @@ import 'src/app/store/error.store';
 import 'src/app/store/admin-help-center.store';
 import 'src/app/store/license-violation.store';
 import 'src/app/store/main-module.store';
+import 'src/app/store/marketing.store';
 
 /**
  * @package admin

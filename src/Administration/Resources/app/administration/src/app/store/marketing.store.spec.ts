@@ -1,64 +1,70 @@
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
-import marketingStore from 'src/app/state/marketing.store';
 
-jest.useFakeTimers('modern');
+jest.useFakeTimers();
 
-describe('src/app/state/marketing.store', () => {
+describe('marketing.store', () => {
+    let store = Shopware.Store.get('marketing');
+
     beforeAll(() => {
+        // @ts-expect-error
+        // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
         Shopware.Service().register('shopwareDiscountCampaignService', () => {
             return new ShopwareDiscountCampaignService();
         });
     });
 
     beforeEach(() => {
-        if (Shopware.State.get('marketing')) {
-            Shopware.State.unregisterModule('marketing');
-        }
-        Shopware.State.registerModule('marketing', marketingStore);
+        store = Shopware.Store.get('marketing');
+        store.campaign = {};
 
-        Shopware.State.get('marketing').campaign = marketingStore.state().campaign;
         jest.setSystemTime(new Date('2000-01-31').getTime());
     });
 
-    it('should set a new campaign', async () => {
-        Shopware.State.commit('marketing/setCampaign', {
+    it('has initial state', () => {
+        expect(store.campaign).toStrictEqual({});
+    });
+
+    it('should set a new campaign', () => {
+        Shopware.Store.get('marketing').setCampaign({
             name: 'Example campaign',
+            components: {},
         });
 
-        expect(Shopware.State.get('marketing').campaign).toEqual({
+        expect(Shopware.Store.get('marketing').campaign).toEqual({
             name: 'Example campaign',
+            components: {},
         });
     });
 
-    it('should return the active campaign when times match', async () => {
+    it('should return the active campaign when times match', () => {
         // set date in active campaign time
         jest.setSystemTime(new Date('2005-08-17').getTime());
 
-        Shopware.State.commit('marketing/setCampaign', {
+        Shopware.Store.get('marketing').setCampaign({
             name: 'Active campaign',
             startDate: '2005-08-15T15:52:01',
             endDate: '2005-08-20T15:52:01',
         });
 
-        const activeCampaign = Shopware.State.getters['marketing/getActiveCampaign'];
+        const activeCampaign = Shopware.Store.get('marketing').getActiveCampaign;
         expect(activeCampaign?.name).toBe('Active campaign');
     });
 
-    it('should return null when times does not match', async () => {
+    it('should return null when times does not match', () => {
         // set date outside the active campaign time
         jest.setSystemTime(new Date('2005-08-21').getTime());
 
-        Shopware.State.commit('marketing/setCampaign', {
+        Shopware.Store.get('marketing').setCampaign({
             name: 'Inactive campaign',
             startDate: '2005-08-15T15:52:01',
             endDate: '2005-08-20T15:52:01',
         });
 
-        const activeCampaign = Shopware.State.getters['marketing/getActiveCampaign'];
+        const activeCampaign = Shopware.Store.get('marketing').getActiveCampaign;
         expect(activeCampaign).toBeNull();
     });
 
-    it('should return the correct component for the store banner when time match', async () => {
+    it('should return the correct component for the store banner when time match', () => {
         // set date in active campaign time
         jest.setSystemTime(new Date('2005-08-17').getTime());
 
@@ -86,21 +92,21 @@ describe('src/app/state/marketing.store', () => {
             },
         };
 
-        Shopware.State.commit('marketing/setCampaign', {
+        Shopware.Store.get('marketing').setCampaign({
             name: 'Active campaign',
             startDate: '2005-08-15T15:52:01',
             endDate: '2005-08-20T15:52:01',
             components: { storeBanner: storeBanner },
         });
 
-        const storeComponent = Shopware.State.getters['marketing/getActiveCampaignDataForComponent']('storeBanner');
+        const storeComponent = Shopware.Store.get('marketing').getActiveCampaignDataForComponent('storeBanner');
         expect(storeComponent).toEqual({
             campaignName: 'Active campaign',
             component: storeBanner,
         });
     });
 
-    it('should return null for the store banner when time does not match', async () => {
+    it('should return null for the store banner when time does not match', () => {
         // set date in active campaign time
         jest.setSystemTime(new Date('2005-08-21').getTime());
 
@@ -128,7 +134,7 @@ describe('src/app/state/marketing.store', () => {
             },
         };
 
-        Shopware.State.commit('marketing/setCampaign', {
+        Shopware.Store.get('marketing').setCampaign({
             name: 'Active campaign',
             startDate: '2005-08-15T15:52:01',
             endDate: '2005-08-20T15:52:01',
@@ -137,7 +143,7 @@ describe('src/app/state/marketing.store', () => {
             },
         });
 
-        const storeComponent = Shopware.State.getters['marketing/getActiveCampaignDataForComponent']('storeBanner');
+        const storeComponent = Shopware.Store.get('marketing').getActiveCampaignDataForComponent('storeBanner');
         expect(storeComponent).toEqual({
             campaignName: undefined,
             component: null,

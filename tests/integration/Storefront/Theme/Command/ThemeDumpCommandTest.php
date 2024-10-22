@@ -107,7 +107,7 @@ class ThemeDumpCommandTest extends TestCase
     }
 
     /**
-     * @return array<array<string, string|null>>
+     * @return list<array{themeId: string|null, domainUrl: string|null}>
      */
     public static function getArguments(): array
     {

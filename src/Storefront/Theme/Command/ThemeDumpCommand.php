@@ -35,6 +35,8 @@ class ThemeDumpCommand extends Command
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $pluginRegistry,
@@ -201,7 +203,6 @@ class ThemeDumpCommand extends Command
         $technicalName = null;
 
         do {
-            /** @var ThemeEntity|null $theme */
             $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->first();
 
             if (!$theme instanceof ThemeEntity) {
@@ -209,8 +210,8 @@ class ThemeDumpCommand extends Command
             }
 
             $technicalName = $theme->getTechnicalName();
-            $themeId = $theme->getParentThemeId();
-        } while ($technicalName === null && $themeId !== null);
+            $parentThemeId = $theme->getParentThemeId();
+        } while ($technicalName === null && $parentThemeId !== null);
 
         return $technicalName;
     }

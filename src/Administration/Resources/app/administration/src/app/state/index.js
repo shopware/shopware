@@ -5,7 +5,6 @@
 import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';
-import adminMenu from './admin-menu.store';
 import adminHelpCenter from './admin-help-center.store';
 import context from './context.store';
 import licenseViolation from './license-violation.store';
@@ -31,7 +30,6 @@ export default {
     notification,
     session,
     system,
-    adminMenu,
     adminHelpCenter,
     licenseViolation,
     context,

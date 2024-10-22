@@ -159,7 +159,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            Shopware.Store.get('adminMenu').collapseSidebar();
 
             if (this.acl.can('user_config:read')) {
                 this.loadGridUserSettings();

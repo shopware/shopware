@@ -42,7 +42,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            Shopware.Store.get('adminMenu').collapseSidebar();
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
             if (!isSystemDefaultLanguage) {

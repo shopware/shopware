@@ -152,7 +152,7 @@ Component.register('sw-admin-menu-item', {
             }
 
             const meta = this.$route.meta;
-            const adminMenuEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
+            const adminMenuEntries = Shopware.Store.get('adminMenu').adminModuleNavigation;
             let compareTo;
 
             function findRootEntry(currentPath, foundPaths = []) {

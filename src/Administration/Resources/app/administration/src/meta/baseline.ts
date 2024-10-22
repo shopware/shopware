@@ -134,7 +134,6 @@ const missingTests = [
     'src/app/service/search-type.service.js',
     'src/app/service/shortcut.service.js',
     'src/app/state/action-button.store.ts',
-    'src/app/state/admin-menu.store.js',
     'src/app/state/context.store.ts',
     'src/app/state/extension-component-sections.store.ts',
     'src/app/state/extension-entry-routes.js',

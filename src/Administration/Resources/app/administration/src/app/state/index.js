@@ -5,7 +5,6 @@
 import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';
-import licenseViolation from './license-violation.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
 import marketing from './marketing.store';
@@ -22,7 +21,6 @@ export default {
     notification,
     session,
     system,
-    licenseViolation,
     settingsItems,
     shopwareApps,
     marketing,

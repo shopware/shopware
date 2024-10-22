@@ -33,6 +33,11 @@ class AttributeEntityDefinition extends EntityDefinition
         return $this->meta['entity_name'];
     }
 
+    public function getCollectionClass(): string
+    {
+        return $this->meta['collection_class'];
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return $this->meta['parent'] ?? null;

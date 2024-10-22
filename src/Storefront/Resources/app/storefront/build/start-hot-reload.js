@@ -15,13 +15,15 @@ const projectRootPath = process.env.PROJECT_ROOT
 const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
 const themeFiles = require(themeFilesConfigPath);
 const domainUrl = new URL(themeFiles.domainUrl);
-const themeUrl = domainUrl.port ? new URL(`${domainUrl.protocol}//${domainUrl.hostname}:${domainUrl.port}`) : new URL(`${domainUrl.protocol}//${domainUrl.hostname}`);
+const themeUrl = new URL(`${domainUrl.protocol}//${domainUrl.host}`);
 
 const appUrlEnv = themeUrl ? themeUrl : new URL(process.env.APP_URL);
-const proxyUrlEnv = new URL(process.env.PROXY_URL || `${appUrlEnv.protocol}//${appUrlEnv.hostname}:${proxyPort}`);
 const keyPath = process.env.STOREFRONT_HTTPS_KEY_FILE || `${process.env.CAROOT}/${themeUrl.hostname}-key.pem`;
 const certPath = process.env.STOREFRONT_HTTPS_CERTIFICATE_FILE || `${process.env.CAROOT}/${themeUrl.hostname}.pem`;
 const sslFilesFound = (fs.existsSync(keyPath) && fs.existsSync(certPath));
+
+const proxyProtocol = appUrlEnv.protocol === 'https:' && sslFilesFound ? 'https:' : 'http:';
+const proxyUrlEnv = new URL(process.env.PROXY_URL || `${proxyProtocol}//${appUrlEnv.hostname}:${proxyPort}`);
 
 const proxyOptions = {
     appPort: Number(appUrlEnv.port) || undefined,

@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**

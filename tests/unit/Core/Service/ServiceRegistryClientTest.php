@@ -65,7 +65,7 @@ class ServiceRegistryClientTest extends TestCase
     {
         $service = [
             ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
-            ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+            ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint', 'license-sync-endpoint' => '/license-sync-endpoint'],
         ];
 
         $client = new MockHttpClient([
@@ -75,17 +75,20 @@ class ServiceRegistryClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
 
         $entries = $registryClient->getAll();
+
         static::assertCount(2, $entries);
         static::assertContainsOnlyInstancesOf(ServiceRegistryEntry::class, $entries);
         static::assertEquals('MyCoolService1', $entries[0]->name);
         static::assertEquals('My Cool Service 1', $entries[0]->description);
         static::assertEquals('https://coolservice1.com', $entries[0]->host);
         static::assertEquals('/app-endpoint', $entries[0]->appEndpoint);
+        static::assertNull($entries[0]->licenseSyncEndPoint);
         static::assertEquals('MyCoolService2', $entries[1]->name);
         static::assertEquals('My Cool Service 2', $entries[1]->description);
         static::assertEquals('https://coolservice2.com', $entries[1]->host);
         static::assertEquals('/app-endpoint', $entries[1]->appEndpoint);
         static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertEquals('/license-sync-endpoint', $entries[1]->licenseSyncEndPoint);
     }
 
     public function testServicesAreFetchedAndCached(): void

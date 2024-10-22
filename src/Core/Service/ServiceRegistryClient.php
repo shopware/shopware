@@ -70,6 +70,7 @@ class ServiceRegistryClient implements ResetInterface
                     $service['host'],
                     $service['app-endpoint'],
                     (bool) ($service['activate-on-install'] ?? true),
+                    $service['license-sync-endpoint'] ?? null
                 ),
                 $response->toArray()
             );

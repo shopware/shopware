@@ -6,6 +6,7 @@ use AsyncAws\Core\Configuration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
 
@@ -15,6 +16,8 @@ use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
 #[CoversClass(AsyncAwsSigner::class)]
 class AsyncAwsSignerTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testInvokeSignsRequestSuccessfully(): void
     {
         $configuration = Configuration::create([
@@ -41,6 +44,8 @@ class AsyncAwsSignerTest extends TestCase
 
     public function testInvokeLogsErrorOnFailure(): void
     {
+        $this->setEnvVars(['AWS_ACCESS_KEY' => null]);
+        $this->setEnvVars(['AWS_SECRET_KEY' => null]);
         $configuration = Configuration::create([
             'region' => 'us-east-1',
         ]);

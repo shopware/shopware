@@ -118,7 +118,7 @@ server.then(() => {
         }
         if (appUrlEnv.protocol === 'https:' && !sslFilesFound) {
             console.log('Proxy uses the https schema, without ssl certificate files.');
-            console.log('Content is bypassed via an node http server (Case: TLS proxy in front).');
+            console.log('Content is bypassed via a node http server (Case: TLS proxy in front).');
         }
         nodeServer.createServer((req, res) => {
             proxy.web(req, res);

@@ -7,8 +7,8 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal

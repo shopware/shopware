@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App;
+namespace Shopware\Core\Test;
 
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppService;
@@ -13,9 +13,6 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
- */
 trait AppSystemTestBehaviour
 {
     abstract protected static function getContainer(): ContainerInterface;

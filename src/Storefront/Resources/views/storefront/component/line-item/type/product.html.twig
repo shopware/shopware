@@ -27,12 +27,14 @@
         <div class="{{ lineItemClasses }}" role="listitem">
     {%- endif -%}
         {% block component_line_item_type_product_inner %}
-            <div class="row line-item-row">
-                {% block component_line_item_type_product_col_info %}
-                    <div class="line-item-info">
-                        {% block component_line_item_type_product_info %}
-                            <div class="row line-item-row">
-                                {% set showLineItemModal = controllerAction is same as('confirmPage') %}
+            {% block component_line_item_type_product_row %}
+                <div class="row line-item-row">
+                    {% block component_line_item_type_product_row_inner %}
+                        {% block component_line_item_type_product_col_info %}
+                            <div class="line-item-info">
+                                {% block component_line_item_type_product_info_row %}
+                                    <div class="row line-item-row">
+                                        {% set showLineItemModal = controllerAction is same as('confirmPage') %}
 
                                 {% if nestingLevel < 1 %}
                                     {% block component_line_item_type_product_image %}

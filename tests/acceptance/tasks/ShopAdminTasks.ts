@@ -15,8 +15,14 @@ import { GenerateVariants } from './ShopAdmin/Product/GenerateVariants';
  */
 import { FRWSalesChannelSelectionPossibility } from '@tasks/ShopAdmin/FRW/FRWSalesChannelSelectionPossibility';
 
+/**
+ * Add Landing Page From Category
+ */
+import { CreateLandingPage } from '@tasks/ShopAdmin/Category/CreateLandingPage';
+
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,
     FRWSalesChannelSelectionPossibility,
+    CreateLandingPage,
 );

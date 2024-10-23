@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -25,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -38,7 +38,7 @@ class CustomerValueResolverTest extends TestCase
     use CustomerTestTrait;
     use IntegrationTestBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     /**
      * @var EntityRepository<CurrencyCollection>
@@ -51,7 +51,7 @@ class CustomerValueResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
 
         $this->createTestSalesChannel();

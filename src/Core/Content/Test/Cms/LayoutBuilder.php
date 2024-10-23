@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Test\Cms;
 
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal

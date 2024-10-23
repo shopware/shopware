@@ -27,13 +27,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -51,7 +50,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     private SeoUrlRouteRegistry $seoUrlRouteRegistry;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private string $deLanguageId;
 
@@ -60,7 +59,7 @@ class SeoUrlGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->deLanguageId = $this->getDeDeLanguageId();
 
         $this->createBreadcrumbData();

@@ -11,12 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\EmptyEntityExistence;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**

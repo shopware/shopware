@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -37,7 +37,7 @@ class InheritanceIndexerTest extends TestCase
 
     public function testManyToOneInheritanceUpdates(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $products = [
             [
@@ -114,7 +114,7 @@ class InheritanceIndexerTest extends TestCase
 
     public function testToManyInheritance(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $products = [
             [
@@ -219,7 +219,7 @@ class InheritanceIndexerTest extends TestCase
 
     public function testManyToManyInheritance(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $products = [
             [

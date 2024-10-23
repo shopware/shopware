@@ -21,11 +21,10 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOneProductExtension;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -51,7 +50,7 @@ class VersionManagerTest extends TestCase
 
     private Context $context;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
@@ -61,7 +60,7 @@ class VersionManagerTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->registerEntityDefinitionAndInitDatabase();
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
     }
 
     protected function tearDown(): void

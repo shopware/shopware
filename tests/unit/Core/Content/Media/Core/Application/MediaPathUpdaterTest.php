@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal

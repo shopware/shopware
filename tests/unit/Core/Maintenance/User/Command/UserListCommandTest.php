@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\User\Command\UserListCommand;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**

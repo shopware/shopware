@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -44,7 +44,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
     private Context $context;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private string $enSearchConfigId;
 
@@ -56,7 +56,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->createDataTest();
     }
 

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Kernel;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -93,7 +93,7 @@ class SaleChannelsReadinessCheckTest extends TestCase
     private function createSalesChannels(): void
     {
         $this->connection->executeStatement('DELETE FROM `sales_channel_domain`');
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createSalesChannel([
             'id' => $ids->create('sales-channel-1'),
             'domains' => [

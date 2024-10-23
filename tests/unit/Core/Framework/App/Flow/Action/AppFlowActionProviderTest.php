@@ -14,8 +14,8 @@ use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -48,7 +48,7 @@ class AppFlowActionProviderTest extends TestCase
                 ['parameters' => json_encode($params), 'headers' => json_encode($headers)]
             );
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 

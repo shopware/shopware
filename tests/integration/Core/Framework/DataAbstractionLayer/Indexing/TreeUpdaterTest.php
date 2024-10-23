@@ -20,8 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -81,7 +81,7 @@ class TreeUpdaterTest extends TestCase
     public function testTreeUpdate(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $data = [
             ['id' => $ids->getBytes('r')],
             ['id' => $ids->getBytes('a'), 'parent_id' => $ids->getBytes('r')],
@@ -138,7 +138,7 @@ class TreeUpdaterTest extends TestCase
     public function testTreeUpdateWithoutVersion(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $data = [
             ['id' => $ids->getBytes('r')],
             ['id' => $ids->getBytes('a'), 'parent_id' => $ids->getBytes('r')],

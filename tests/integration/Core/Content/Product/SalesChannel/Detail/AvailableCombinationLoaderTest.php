@@ -13,9 +13,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -30,13 +30,13 @@ class AvailableCombinationLoaderTest extends TestCase
 
     private EntityRepository $productRepository;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->loader = $this->getContainer()->get(AvailableCombinationLoader::class);
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->createSalesChannel([
             'id' => $this->ids->get('sales-channel'),

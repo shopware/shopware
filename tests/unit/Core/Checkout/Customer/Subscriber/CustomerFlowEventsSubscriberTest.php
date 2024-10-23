@@ -19,12 +19,12 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -40,7 +40,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     private MockObject&CustomerIndexer $customerIndexer;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private CustomerFlowEventsSubscriber $customerFlowEventsSubscriber;
 
@@ -48,7 +48,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->restorer = $this->createMock(SalesChannelContextRestorer::class);
         $this->customerIndexer = $this->createMock(CustomerIndexer::class);

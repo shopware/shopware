@@ -38,11 +38,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -66,7 +66,7 @@ class FlowExecutorTest extends TestCase
     #[DataProvider('actionsProvider')]
     public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
         $ruleLoader = $this->createMock(AbstractRuleLoader::class);
@@ -260,7 +260,7 @@ class FlowExecutorTest extends TestCase
 
     public function testActionExecutedInTransactionWhenItImplementsTransactional(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
         $ruleLoader = $this->createMock(AbstractRuleLoader::class);
@@ -309,7 +309,7 @@ class FlowExecutorTest extends TestCase
 
     public function testTransactionCommitFailureExceptionIsWrapped(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
         $ruleLoader = $this->createMock(AbstractRuleLoader::class);
@@ -369,7 +369,7 @@ class FlowExecutorTest extends TestCase
 
     public function testTransactionAbortExceptionIsWrapped(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
         $ruleLoader = $this->createMock(AbstractRuleLoader::class);
@@ -421,7 +421,7 @@ class FlowExecutorTest extends TestCase
 
     public function testTransactionWithUncaughtExceptionIsWrapped(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
         $ruleLoader = $this->createMock(AbstractRuleLoader::class);

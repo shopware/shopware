@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -25,7 +25,7 @@ class CustomerSalutationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private EntityRepository $customerRepository;
 
@@ -33,7 +33,7 @@ class CustomerSalutationSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->connection = KernelLifecycleManager::getConnection();
 

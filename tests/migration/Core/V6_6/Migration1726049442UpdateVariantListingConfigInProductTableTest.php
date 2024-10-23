@@ -7,11 +7,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1726049442UpdateVariantListingConfigInProductTable;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -28,7 +27,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         try {
             $this->connection->executeStatement(

@@ -5,8 +5,11 @@ namespace Shopware\Core\Test\Stub\Framework;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @final
+ */
 #[Package('core')]
-final class IdsCollection
+class IdsCollection
 {
     /**
      * @var array<string, string>

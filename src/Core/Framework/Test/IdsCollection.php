@@ -1,16 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test\Stub\Framework;
+namespace Shopware\Core\Framework\Test;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection as IdsCollectionLegacy;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @final
+ * @deprecated tag:v6.7.0 - Will be replaced by public Shopware\Core\Test\Stub\Framework\IdsCollection in v6.7.0
+ *
+ * @internal
  */
 #[Package('core')]
-class IdsCollection extends IdsCollectionLegacy
+class IdsCollection
 {
     /**
      * @var array<string, string>

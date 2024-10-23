@@ -67,6 +67,9 @@ class SitemapFileRouteTest extends TestCase
         $matches = [];
         preg_match($regex, $url, $matches);
 
-        return $matches[1];
+        $filePath = $matches[1] ?? null;
+        static::assertIsString($filePath);
+
+        return $filePath;
     }
 }

@@ -65,9 +65,8 @@ return [
 
         'Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity#setWishlists\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerWishlist\\\\CustomerWishlistCollection',
 
-        // Will be typed in Symfony 7
-        'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#add\(\) changed from no type to void',
-        'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#set\(\) changed from no type to void',
+        // Will be typed in Symfony 8 (maybe)
+        'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
 
         'Shopware\\\\Storefront\\\\Theme\\\\ThemeScripts was marked "@internal"',
 
@@ -84,8 +83,9 @@ return [
 
         'The return type of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator#invalidateExpired\(\) changed from void',
 
-        // Criteria is @final so changing from void should be fine
+        // Classes are @final so changing them is okay
         'The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria#setTitle\(\) changed from void',
+        'Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionValidator#getNotices\(\) was removed',
 
         // Added new optional parameter to event
         'Parameter session was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextCreatedEvent',

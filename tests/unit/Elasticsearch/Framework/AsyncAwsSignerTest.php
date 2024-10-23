@@ -46,6 +46,8 @@ class AsyncAwsSignerTest extends TestCase
     {
         $this->setEnvVars(['AWS_ACCESS_KEY' => null]);
         $this->setEnvVars(['AWS_SECRET_KEY' => null]);
+        $this->setEnvVars(['AWS_SECRET_ACCESS_KEY' => null]);
+        $this->setEnvVars(['AWS_ACCESS_KEY_ID' => null]);
         $configuration = Configuration::create([
             'region' => 'us-east-1',
         ]);

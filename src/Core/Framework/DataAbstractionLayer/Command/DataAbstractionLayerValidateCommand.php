@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -26,50 +29,45 @@ class DataAbstractionLayerValidateCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addOption(
+            'json',
+            null,
+            InputOption::VALUE_NONE,
+            'Output as JSON'
+        );
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $asJson = $input->getOption('json');
         $io = new ShopwareStyle($input, $output);
-        $io->title('Data Abstraction Layer Validation');
-
-        $errors = 0;
-        if ($io->isVerbose()) {
-            $io->title('Checking for notices in entity definitions');
-            $errors += $this->runNotices($io);
+        if (!$asJson) {
+            $io->title('Data Abstraction Layer Validation');
         }
 
-        $io->title('Checking for errors in entity definitions');
-        $errors += $this->runErrors($io);
-
-        return $errors;
-    }
-
-    private function runNotices(SymfonyStyle $io): int
-    {
-        $notices = $this->validator->getNotices();
-
-        $count = 0;
-        foreach ($notices as $definition => $matches) {
-            $count += is_countable($matches) ? \count($matches) : 0;
-            $io->section($definition);
-            $io->listing($matches);
-            $io->newLine();
-        }
-
-        if ($count <= 0) {
-            $io->success('No notices found');
+        $errors = $this->validator->validate();
+        $hasErrors = \count($errors) > 0;
+        if ($asJson) {
+            if ($hasErrors) {
+                $io->write(json_encode($errors, \JSON_THROW_ON_ERROR));
+            }
         } else {
-            $io->note(\sprintf('Found %d notices in %d entities', $count, \count($notices)));
+            $io->title('Checking for errors in entity definitions');
+            $this->printErrors($io, $errors);
         }
 
-        return $count;
+        return $hasErrors ? Command::FAILURE : Command::SUCCESS;
     }
 
-    private function runErrors(SymfonyStyle $io): int
+    /**
+     * @param array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>> $errors
+     */
+    private function printErrors(SymfonyStyle $io, array $errors): void
     {
-        $violations = $this->validator->validate();
-
         $count = 0;
-        foreach ($violations as $definition => $matches) {
+        foreach ($errors as $definition => $matches) {
             $count += is_countable($matches) ? \count($matches) : 0;
             $io->section($definition);
             $io->listing($matches);
@@ -79,9 +77,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if ($count <= 0) {
             $io->success('No errors found');
         } else {
-            $io->error(\sprintf('Found %d errors in %d entities', $count, \count($violations)));
+            $io->error(\sprintf('Found %d errors in %d entities', $count, \count($errors)));
         }
-
-        return $count;
     }
 }

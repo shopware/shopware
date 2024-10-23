@@ -3,14 +3,10 @@
 namespace Shopware\Core\Test\Stub\Framework;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection as IdsCollectionLegacy;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @final
- */
 #[Package('core')]
-class IdsCollection extends IdsCollectionLegacy
+final class IdsCollection
 {
     /**
      * @var array<string, string>

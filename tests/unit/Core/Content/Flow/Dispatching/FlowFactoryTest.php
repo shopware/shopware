@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -27,7 +27,7 @@ class FlowFactoryTest extends TestCase
 {
     public function testCreate(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
@@ -43,7 +43,7 @@ class FlowFactoryTest extends TestCase
 
     public function testRestore(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 

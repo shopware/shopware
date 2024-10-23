@@ -9,11 +9,10 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -52,7 +51,7 @@ class AdminSearchControllerTest extends TestCase
         $this->clearElasticsearch();
         $this->indexElasticSearch(['--only' => ['promotion']]);
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createData($ids);
 
         $this->refreshIndex();
@@ -172,7 +171,7 @@ class AdminSearchControllerTest extends TestCase
         return $this->getContainer();
     }
 
-    private function createData(TestDataCollection $ids): void
+    private function createData(IdsCollection $ids): void
     {
         $promotions = [
             [

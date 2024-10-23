@@ -1,11 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Test;
+namespace Shopware\Tests\Unit\Core\Test\Stub\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
+/**
+ * @internal
+ */
+#[Package('core')]
+#[CoversClass(IdsCollection::class)]
 class IdsCollectionTest extends TestCase
 {
     public function testIdsCollection(): void
@@ -16,7 +23,6 @@ class IdsCollectionTest extends TestCase
         $ids->set('foo', $id);
 
         static::assertEquals($id, $ids->get('foo'));
-        static::assertIsString($id);
         static::assertEquals($id, $ids->get('test'));
         static::assertEquals([$id], array_values($ids->getList(['test'])));
         static::assertEquals([['id' => $id]], $ids->getIdArray(['test']));

@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal

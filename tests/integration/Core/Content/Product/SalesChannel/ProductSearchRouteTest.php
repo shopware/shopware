@@ -21,10 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -37,7 +37,7 @@ class ProductSearchRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private SearchKeywordUpdater $searchKeywordUpdater;
 
@@ -47,7 +47,7 @@ class ProductSearchRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
         $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
         $this->productSearchConfigId = $this->getProductSearchConfigId();
@@ -74,7 +74,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @return array{0:KernelBrowser, 1:TestDataCollection}
+     * @return array{0:KernelBrowser, 1:IdsCollection}
      */
     public function testIndexing(): array
     {
@@ -94,7 +94,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testFindingProductsByTerm(array $services): void
@@ -121,7 +121,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testNotFindingProducts(array $services): void
@@ -147,7 +147,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testMissingSearchTerm(array $services): void
@@ -179,7 +179,7 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @param array<string> $expected
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     #[DataProvider('searchOrCases')]
@@ -196,7 +196,7 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @param array<string> $expected
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     #[DataProvider('searchAndCases')]
@@ -212,7 +212,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(array $services): void
@@ -253,7 +253,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testFindingProductWhenAddedVariantsAfterSettingCustomSearchKeywords(array $services): void
@@ -294,7 +294,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testFindingProductAlreadySetCustomSearchKeywordsWhenRemovedVariants(array $services): void
@@ -323,7 +323,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     public function testFindingProductWithVariantsHaveDifferentKeyword(array $services): void
@@ -365,7 +365,7 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @param array<string, bool> $searchTerms
-     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     * @param array{0:KernelBrowser, 1:IdsCollection} $services
      */
     #[Depends('testIndexing')]
     #[DataProvider('searchTestCases')]

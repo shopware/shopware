@@ -25,11 +25,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -42,7 +42,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testTriggerTransactionEvents(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->createCustomer($ids);
         $this->createOrder($ids);
@@ -65,7 +65,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testTriggerOrderEvent(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->createCustomer($ids);
         $this->createOrder($ids);
@@ -87,7 +87,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testOrderDeliveryEvent(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->createCustomer($ids);
         $this->createOrder($ids);
@@ -117,7 +117,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->addListener($event, $listener);
     }
 
-    private function createOrder(TestDataCollection $ids): void
+    private function createOrder(IdsCollection $ids): void
     {
         $data = [
             'id' => $ids->create('order'),
@@ -208,7 +208,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
-    private function createCustomer(TestDataCollection $ids): string
+    private function createCustomer(IdsCollection $ids): string
     {
         $addressId = Uuid::randomHex();
 

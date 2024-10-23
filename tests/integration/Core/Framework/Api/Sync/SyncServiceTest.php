@@ -13,12 +13,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -117,7 +116,7 @@ class SyncServiceTest extends TestCase
 
     public function testSingleOperationWithDeletesAndWrites(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $currency = [
             'name' => 'test',
@@ -229,7 +228,7 @@ class SyncServiceTest extends TestCase
 
     public function testSingleOperationParameter(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 

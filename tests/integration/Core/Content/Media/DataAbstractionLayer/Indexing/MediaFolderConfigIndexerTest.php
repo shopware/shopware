@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -42,7 +42,7 @@ class MediaFolderConfigIndexerTest extends TestCase
 
     public function testOnRefreshItUpdatesChildConfig(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->folderRepository->create([
             [

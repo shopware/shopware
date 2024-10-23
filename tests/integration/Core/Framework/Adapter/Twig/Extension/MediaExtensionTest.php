@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -17,7 +17,7 @@ class MediaExtensionTest extends TestCase
 
     public function testSingleSearch(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->create('media'),
@@ -37,7 +37,7 @@ class MediaExtensionTest extends TestCase
 
     public function testMultiSearch(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             ['id' => $ids->create('media-1'), 'fileName' => 'image-1'],

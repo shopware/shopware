@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -32,6 +31,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -311,7 +311,7 @@ class RegisterControllerTest extends TestCase
 
     public function testCustomerGroupRegistrationPageLoadedHookScriptsAreExecuted(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createCustomerGroup($ids);
 
         $response = $this->request('GET', 'customer-group-registration/' . $ids->get('group'), []);
@@ -395,7 +395,7 @@ class RegisterControllerTest extends TestCase
         return new RequestDataBag($data);
     }
 
-    private function createCustomerGroup(TestDataCollection $ids): void
+    private function createCustomerGroup(IdsCollection $ids): void
     {
         $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
             (new Criteria())->addFilter(

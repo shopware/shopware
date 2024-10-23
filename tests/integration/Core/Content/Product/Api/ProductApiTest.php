@@ -13,8 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -210,7 +210,7 @@ class ProductApiTest extends TestCase
 
     public function testIncludesWithJsonApi(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $productId = $ids->create('product');
         $data = [
@@ -254,7 +254,7 @@ class ProductApiTest extends TestCase
 
     public function testIncludesWithRelationships(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $productId = $ids->create('product');
 
         $data = [

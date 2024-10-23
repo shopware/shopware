@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test;
+namespace Shopware\Core\Test\Stub\Framework;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('core')]
-class IdsCollection
+final class IdsCollection
 {
     /**
      * @var array<string, string>

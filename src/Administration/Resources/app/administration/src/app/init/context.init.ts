@@ -1,9 +1,10 @@
 /**
  * @package admin
  */
-
+import { watch } from 'vue';
 /* Is covered by E2E tests */
 import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import '../store/context.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -130,11 +131,13 @@ export default function initializeContext(): void {
         };
     });
 
-    Shopware.State.watch(
-        (state) => {
+    const contextStore = Shopware.Store.get('context');
+
+    watch(
+        () => {
             return {
-                languageId: state.context.api.languageId,
-                systemLanguageId: state.context.api.systemLanguageId,
+                languageId: contextStore.api.languageId,
+                systemLanguageId: contextStore.api.systemLanguageId,
             };
         },
         ({ languageId, systemLanguageId }, { languageId: oldLanguageId, systemLanguageId: oldSystemLanguageId }) => {
@@ -149,21 +152,40 @@ export default function initializeContext(): void {
         },
     );
 
+    watch(
+        () => {
+            return {
+                fallbackLocale: contextStore.app.fallbackLocale,
+            };
+        },
+        ({ fallbackLocale }, { fallbackLocale: oldFallbackLocale }) => {
+            if (fallbackLocale === oldFallbackLocale) {
+                return;
+            }
+
+            void publish('contextLocale', {
+                locale: Shopware.State.get('session').currentLocale ?? '',
+                fallbackLocale: fallbackLocale ?? '',
+            });
+        },
+    );
+
+    // eslint-disable-next-line no-warning-comments
+    // TODO: Remove this watch when the session store is moved to Pinia
     Shopware.State.watch(
         (state) => {
             return {
-                fallbackLocale: state.context.app.fallbackLocale,
                 locale: state.session.currentLocale,
             };
         },
-        ({ fallbackLocale, locale }, { fallbackLocale: oldFallbackLocale, locale: oldLocale }) => {
-            if (fallbackLocale === oldFallbackLocale && locale === oldLocale) {
+        ({ locale }, { locale: oldLocale }) => {
+            if (locale === oldLocale) {
                 return;
             }
 
             void publish('contextLocale', {
                 locale: locale ?? '',
-                fallbackLocale: fallbackLocale ?? '',
+                fallbackLocale: contextStore.app.fallbackLocale ?? '',
             });
         },
     );

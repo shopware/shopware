@@ -47,13 +47,13 @@ async function createWrapper(propsData = {}, provide = {}) {
  */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -67,7 +67,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

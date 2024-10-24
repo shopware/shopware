@@ -190,7 +190,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
 
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();

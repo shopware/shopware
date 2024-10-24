@@ -64,7 +64,7 @@ export default {
         },
 
         isTitleRequired() {
-            return Shopware.State.getters['context/isSystemDefaultLanguage'];
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 
         productNumberRangeLink() {

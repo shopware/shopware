@@ -165,7 +165,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
                 this.language = this.languageRepository.create();
 
                 return;

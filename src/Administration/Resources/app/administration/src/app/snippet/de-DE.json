@@ -661,6 +661,7 @@
         "billingStateRule": "Rechnungsadresse: Bundesland",
         "billingZipCodeRule": "Rechnungsadresse: Postleitzahl",
         "customerGroupRule": "Kundengruppe",
+        "customerRequestedGroupRule": "Angefragte Kundengruppe",
         "customerTagRule": "Kunde mit Tag",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Kunde mit abweichender Lieferadresse",

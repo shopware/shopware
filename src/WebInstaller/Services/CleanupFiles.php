@@ -59,9 +59,6 @@ class CleanupFiles
         'config/packages/elasticsearch.yaml' => [
             '010db5eacf726060c6b8ada556ac1296',
         ],
-        'config/packages/nyholm_psr7.yaml' => [
-            'cd291da95bc34b7750a9725a8cf8b1dc',
-        ],
         // From old production template
         'src/TestBootstrap.php' => [
             '1b384f143cd085e2204182e5b92f3ae4',

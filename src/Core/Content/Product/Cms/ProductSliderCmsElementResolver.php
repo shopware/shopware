@@ -59,7 +59,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         if ($products->isStatic() && $products->getValue()) {
             $criteria = new Criteria($products->getArrayValue());
-            $criteria->addAssociation('cover');
             $criteria->addAssociation('options.group');
             $criteria->addAssociation('manufacturer');
             $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
@@ -164,7 +163,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             return null;
         }
 
-        $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('manufacturer');
 
@@ -280,6 +278,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria = new Criteria($finalProductIds);
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         /** @var ProductCollection $products */
         $products = $this->productRepository->search($criteria, $context)->getEntities();

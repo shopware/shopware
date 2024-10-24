@@ -210,7 +210,10 @@ class ThemeDumpCommand extends Command
 
             $technicalName = $theme->getTechnicalName();
             $parentThemeId = $theme->getParentThemeId();
-        } while ($technicalName === null && $parentThemeId !== null);
+            if ($parentThemeId !== null) {
+                $themeId = $parentThemeId;
+            }
+        } while ($technicalName === null && $themeId !== '');
 
         return $technicalName;
     }

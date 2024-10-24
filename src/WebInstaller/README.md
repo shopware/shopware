@@ -90,3 +90,14 @@ you have to use that version for the next version variable.
 
 Then run the updater regularly with `php shopware-installer.phar.php`,
 it will use the forced version and don't try to determine a version anymore.
+
+### Configurable Installer Timeout
+
+The installer timeout can be configured using the `SHOPWARE_INSTALLER_TIMEOUT` environment variable (in seconds). 
+Default is 900 seconds (15 minutes). Invalid values fall back to default.
+
+Example:
+```bash
+export SHOPWARE_INSTALLER_TIMEOUT=1200  # 20 minutes
+```
+

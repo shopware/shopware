@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
@@ -22,7 +23,8 @@ class OrderPersister implements OrderPersisterInterface
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
-        private readonly OrderConverter $converter
+        private readonly OrderConverter $converter,
+        private readonly CartSerializationCleaner $cartSerializationCleaner,
     ) {
     }
 
@@ -42,9 +44,13 @@ class OrderPersister implements OrderPersisterInterface
         if (!$context->getCustomer()) {
             throw CartException::customerNotLoggedIn();
         }
+
         if ($cart->getLineItems()->count() <= 0) {
             throw new EmptyCartException();
         }
+
+        // cleanup cart before converting it to an order
+        $this->cartSerializationCleaner->cleanupCart($cart);
 
         $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
 

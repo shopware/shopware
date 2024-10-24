@@ -178,13 +178,13 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
     }
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -198,7 +198,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

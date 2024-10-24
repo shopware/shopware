@@ -129,7 +129,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                 },
             },
         });
-        State.commit('context/setApiLanguageId', '123456789');
+        Shopware.Store.get('context').setApiLanguageId('123456789');
     });
 
     afterAll(() => {
@@ -302,7 +302,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
         const handleGetCmsPageMock = jest.spyOn(wrapper.vm, 'handleGetCmsPage');
 
-        State.commit('context/setApiLanguageId', '123');
+        Shopware.Store.get('context').setApiLanguageId('123');
 
         await flushPromises();
 

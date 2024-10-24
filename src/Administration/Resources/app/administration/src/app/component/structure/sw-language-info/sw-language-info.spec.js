@@ -8,12 +8,12 @@ describe('src/app/component/structure/sw-language-info', () => {
     let wrapper = null;
 
     beforeEach(async () => {
-        Shopware.State.commit('context/setApiLanguageId', '123456789');
-        Shopware.State.commit('context/setApiSystemLanguageId', '123456789');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.languageId = '123456789';
+        Shopware.Store.get('context').api.systemLanguageId = 123456789;
+        Shopware.Store.get('context').api.language = {
             id: '123',
             parentId: '456',
-        });
+        };
 
         wrapper = mount(await wrapTestComponent('sw-language-info', { sync: true }), {
             global: {
@@ -58,7 +58,7 @@ describe('src/app/component/structure/sw-language-info', () => {
         };
         global.allowedErrors.push(typeError);
 
-        Shopware.State.commit('context/setApiLanguage', null);
+        Shopware.Store.get('context').api.language = null;
 
         await wrapper.vm.$nextTick();
 
@@ -70,12 +70,12 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should not render the infoText when user is in default language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: null,
-        });
-        Shopware.State.commit('context/setApiLanguageId', '123');
-        Shopware.State.commit('context/setApiSystemLanguageId', '123');
+        };
+        Shopware.Store.get('context').api.languageId = '123';
+        Shopware.Store.get('context').api.systemLanguageId = '123';
 
         await wrapper.vm.$nextTick();
 
@@ -93,10 +93,10 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText for a child language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: '123',
-        });
+        };
 
         expect(wrapper.find('.sw_language-info__info').text()).toBe(
             '|sw-language-info.infoTextChildLanguage|0|entityDescription:|language:undefined|',
@@ -104,11 +104,11 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText for a root language', async () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.systemLanguageId = '987654312';
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: null,
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
@@ -129,10 +129,10 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText with entityDescription for a child language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: '123',
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
@@ -144,11 +144,11 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText with entityDescription for a root language', async () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.systemLanguageId = '987654312';
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: null,
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
@@ -160,11 +160,11 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText with language name for a child language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             name: 'demoLanguage',
             parentId: '123',
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
@@ -176,12 +176,12 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText with language name for a root language', async () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.systemLanguageId = '987654312';
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             name: 'demoLanguage',
             parentId: null,
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',

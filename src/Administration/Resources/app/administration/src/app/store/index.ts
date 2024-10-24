@@ -61,20 +61,34 @@ export default class Store {
     /**
      * Register a new Pinia store. Works similar like Vuex's registerModule.
      */
-    public register: typeof defineStore = <
+    public register = (<
         Id extends keyof PiniaRootState,
         S extends StateTree = NonNullable<unknown>,
         G extends _GettersTree<S> = NonNullable<unknown>,
         A = NonNullable<unknown>,
     >(
-        storeDefinition: DefineStoreOptions<Id, S, G, A>,
+        idOrStoreDefinition: string | DefineStoreOptions<Id, S, G, A>,
+        storeDefinition?: () => DefineStoreOptions<Id, S, G, A>,
     ) => {
-        const store = defineStore(storeDefinition.id, storeDefinition);
+        let id: Id;
+        let definition: DefineStoreOptions<Id, S, G, A> | (() => DefineStoreOptions<Id, S, G, A>);
+
+        if (typeof idOrStoreDefinition === 'string' && storeDefinition !== undefined) {
+            id = idOrStoreDefinition as Id;
+            definition = storeDefinition;
+        } else if (typeof idOrStoreDefinition !== 'string' && typeof idOrStoreDefinition.id === 'string') {
+            id = idOrStoreDefinition.id;
+            definition = idOrStoreDefinition;
+        } else {
+            throw new Error('Invalid arguments registering a Store');
+        }
+
+        const store = defineStore(id, definition as DefineStoreOptions<Id, S, G, A>);
         // Cache the store in internal map
         // @ts-expect-error - Pinia type includes internals, which we don't want to mirror here because of stability
-        Store.#stores.set(storeDefinition.id, store);
+        Store.#stores.set(id, store);
         return store;
-    };
+    }) as typeof defineStore;
 
     /**
      * Unregister a Pinia store. Works similar like Vuex's unregisterModule.

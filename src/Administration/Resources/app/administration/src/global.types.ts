@@ -10,7 +10,6 @@ import type { Router } from 'vue-router';
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { ContextState } from 'src/app/state/context.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
@@ -98,6 +97,7 @@ import type { Extensions } from './app/store/extensions.store';
 import type { ErrorStore } from './app/store/error.store';
 import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
 import type { ActionButtonsStore } from './app/store/action-buttons.store';
+import type { ContextStore } from './app/store/context.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -320,7 +320,6 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
-        context: ContextState;
         tabs: TabsState;
         paymentOverviewCardState: PaymentOverviewCardState;
         swOrder: SwOrderState;
@@ -351,6 +350,7 @@ declare global {
         extensionSdkModules: ExtensionSdkModules;
         extensions: Extensions;
         error: ErrorStore;
+        context: ContextStore;
         adminHelpCenter: AdminHelpCenterStore;
         actionButtons: ActionButtonsStore;
     }
@@ -360,9 +360,9 @@ declare global {
      */
     type VueComponent = ComponentConfig;
 
-    type apiContext = ContextState['api'];
+    type apiContext = ContextStore['api'];
 
-    type appContext = ContextState['app'];
+    type appContext = ContextStore['app'];
 
     /**
      * @see Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory

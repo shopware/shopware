@@ -6,6 +6,7 @@ import { CookieStorage } from 'cookie-storage';
 import type { CookieOptions } from 'cookie-storage/lib/cookie-options';
 import html2canvas from 'html2canvas';
 import type { Router } from 'vue-router';
+import type { ContextStore } from '../../app/store/context.store';
 
 /** @private */
 export interface AuthObject {
@@ -47,7 +48,7 @@ export interface LoginService {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLoginService(
     httpClient: InitContainer['httpClient'],
-    context: VuexRootState['context']['api'],
+    context: ContextStore['api'],
     bearerAuth: AuthObject | null = null,
 ): LoginService {
     /** @var {String} storageKey token */

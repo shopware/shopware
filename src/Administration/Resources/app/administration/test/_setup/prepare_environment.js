@@ -62,6 +62,7 @@ import '../../src/app/store/extensions.store';
 import '../../src/app/store/error.store';
 import '../../src/app/store/admin-help-center.store';
 import '../../src/app/store/action-buttons.store';
+import '../../src/app/store/context.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -149,14 +150,14 @@ Shopware.Application.view = {
 };
 
 // Prepare Context
-Shopware.State.commit('context/setApiInstallationPath', 'installationPath');
-Shopware.State.commit('context/setApiApiPath', '/api');
-Shopware.State.commit('context/setApiApiResourcePath', '/api/v3');
-Shopware.State.commit('context/setApiAssetsPath', '');
-Shopware.State.commit('context/setApiLanguageId', '2fbb5fe2e29a4d70aa5854ce7ce3e20b');
-Shopware.State.commit('context/setApiInheritance', false);
-Shopware.State.commit('context/setApiSystemLanguageId', '2fbb5fe2e29a4d70aa5854ce7ce3e20b');
-Shopware.State.commit('context/setApiLiveVersionId', '0fa91ce3e96a4bc2be4bd9ce752c3425');
+Shopware.Store.get('context').api.installationPath = 'installationPath';
+Shopware.Store.get('context').api.apiPath = '/api';
+Shopware.Store.get('context').api.apiResourcePath = '/api/v3';
+Shopware.Store.get('context').api.assetsPath = '';
+Shopware.Store.get('context').api.languageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+Shopware.Store.get('context').api.inheritance = false;
+Shopware.Store.get('context').api.systemLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+Shopware.Store.get('context').api.liveVersionId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 Shopware.Context.api.authToken = {
     // eslint-disable-next-line max-len
     access: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5IiwiaWF0IjoxNjAyODM5OTgxLCJuYmYiOjE2MDI4Mzk5ODEsImV4cCI6MTYwMjg0MDU4MSwic3ViIjoiNzk5Y2NmNzY3MzZjNDkxYTgzNTA5MzA0Mjc3YzI3MTkiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.Df0EnZyZ-eY1iNCB-0x-0Ir8a8XW_HOdhq9HEcx7AbCEogHIFtU_0UPxTLX9_Wo3r-5C4FmbQrN31ReBWxkbEldMb3EU-UL4FIJA2gYhFWAXV2ZhaEJ5hRQ04n4gra0Os48vzYIEOq87_0lPPQqqVZLi68aHLVSF962VE1SkbofKqS2l2mDh9JJjnyhZavpkmpLhLkoWBBUWJS7G-EHo_-DttxPpA8W0Kgyg8Ch4Z2xqZ1r0zaB6hIS97-m8qLFHtjPhrbLW8NIMURIU3_brkkO2wFXrLKc0Y6MLJac8BVEe8VTEoEo8x8Ft2dCQU5aF2Aht3Y_55m1VjUMXBSb77A',

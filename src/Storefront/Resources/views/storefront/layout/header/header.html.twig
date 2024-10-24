@@ -1,4 +1,6 @@
 {% block layout_header %}
+    {{ profiler_start('header') }}
+
     {% block layout_top_bar %}
         {% sw_include '@Storefront/storefront/layout/header/top-bar.html.twig' %}
     {% endblock %}
@@ -121,4 +123,6 @@
             {% endblock %}
         </div>
     {% endblock %}
+
+    {{ profiler_end('header') }}
 {% endblock %}

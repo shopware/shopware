@@ -1,3 +1,4 @@
+{{ profiler_start('product-listing') }}
 {# @deprecated tag:v6.7.0 - variable `currentPage` will be removed #}
 {% if not feature('v6.7.0.0') %}
     {% set currentPage = searchResult.page %}
@@ -88,6 +89,7 @@
                     <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{ ariaLiveText }}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
+                                {{ profiler_start('product-boxes') }}
                                 {% for product in searchResult %}
                                     <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
@@ -98,6 +100,8 @@
                                         {% endblock %}
                                     </div>
                                 {% endfor %}
+                                {{ profiler_start('product-boxes') }}
+                                
                             {% endblock %}
                         {% else %}
                             {% block element_product_listing_col_empty %}
@@ -135,3 +139,5 @@
         {% endblock %}
     </div>
 {% endblock %}
+
+{{ profiler_start('product-listing') }}

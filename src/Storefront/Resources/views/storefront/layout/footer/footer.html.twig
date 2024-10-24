@@ -1,4 +1,6 @@
 {% block layout_footer_inner_container %}
+    {{ profiler_start('footer') }}
+
     <div class="container">
         {% block layout_footer_navigation %}
             <div
@@ -234,4 +236,7 @@
             {% endblock %}
         </div>
     {% endblock %}
+
+    {{ profiler_end('footer') }}
+
 {% endblock %}

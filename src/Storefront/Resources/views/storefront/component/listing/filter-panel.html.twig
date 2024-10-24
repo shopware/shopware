@@ -1,4 +1,6 @@
 {% block component_filter_panel %}
+    {{ profiler_start('filter_panel') }}
+
     {% block component_filter_panel_header %}
         <div class="filter-panel-offcanvas-header">
             <div class="filter-panel-offcanvas-only filter-panel-offcanvas-title">{{ "listing.filterTitleText"|trans }}</div>
@@ -32,6 +34,8 @@
                         {% endblock %}
 
                         {% block component_filter_panel_item_properties %}
+                            {{ profiler_start('property_filter') }}
+
                             {# @var properties \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
                             {% set properties = listing.aggregations.get('properties') %}
 
@@ -49,6 +53,9 @@
                                     } %}
                                 {% endfor %}
                             {% endif %}
+
+                            {{ profiler_end('property_filter') }}
+
                         {% endblock %}
 
                         {% block component_filter_panel_item_price %}
@@ -115,4 +122,7 @@
             {% endblock %}
         </div>
      {% endblock %}
+
+    {{ profiler_end('filter_panel') }}
+
 {% endblock %}

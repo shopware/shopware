@@ -27,7 +27,7 @@ export default function initMainModules(): void {
                     return;
                 }
 
-                Shopware.State.commit('extensionMainModules/addMainModule', {
+                Shopware.Store.get('extensionMainModules').addMainModule({
                     extensionName,
                     moduleId,
                 });

@@ -63,10 +63,10 @@ class ThemeDumpCommandTest extends TestCase
 
     public function testExecutesSuccessfullyWithValidThemeId(): void
     {
-        $themeEntity = $this->createMock(ThemeEntity::class);
-        $themeEntity->method('getId')->willReturn('theme-id');
-        $themeEntity->method('getTechnicalName')->willReturn('technical-name');
-        $themeEntity->method('getName')->willReturn('Theme Name');
+        $themeEntity = new ThemeEntity();
+        $themeEntity->setId('theme-id');
+        $themeEntity->setTechnicalName('technical-name');
+        $themeEntity->setName('Theme Name');
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
@@ -123,10 +123,10 @@ class ThemeDumpCommandTest extends TestCase
 
     public function testFailsWhenNoDomainUrlProvided(): void
     {
-        $themeEntity = $this->createMock(ThemeEntity::class);
-        $themeEntity->method('getId')->willReturn('theme-id');
-        $themeEntity->method('getTechnicalName')->willReturn('technical-name');
-        $themeEntity->method('getName')->willReturn('Theme Name');
+        $themeEntity = new ThemeEntity();
+        $themeEntity->setId('theme-id');
+        $themeEntity->setTechnicalName('technical-name');
+        $themeEntity->setName('Theme Name');
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);

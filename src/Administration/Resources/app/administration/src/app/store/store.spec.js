@@ -2,6 +2,7 @@
  * @package admin
  */
 import Store from 'src/app/store/index';
+import { reactive } from 'vue';
 
 describe('src/app/store/index.ts', () => {
     beforeAll(() => {
@@ -109,5 +110,35 @@ describe('src/app/store/index.ts', () => {
 
         root.clear();
         expect(root.list()).toStrictEqual([]);
+    });
+
+    it('should register a store using setup function', () => {
+        const root = Store.instance;
+        const state = reactive({
+            id: 'test',
+        });
+        root.register('foo', () => state);
+
+        const store = root.get('foo');
+        expect(store).toBeDefined();
+        expect(store.id).toBe('test');
+    });
+
+    it('should throw an error when registering with invalid params', () => {
+        const root = Store.instance;
+
+        expect(() => {
+            root.register('foo');
+        }).toThrow('Invalid arguments registering a Store');
+
+        expect(() => {
+            root.register({ state: { foo: 'bar' } });
+        }).toThrow('Invalid arguments registering a Store');
+
+        expect(() => {
+            root.register(() => ({
+                state: { foo: 'bar' },
+            }));
+        }).toThrow('Invalid arguments registering a Store');
     });
 });

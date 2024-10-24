@@ -61,13 +61,13 @@ describe('sw-app-wrong-app-url-modal', () => {
     }
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -79,7 +79,7 @@ describe('sw-app-wrong-app-url-modal', () => {
                 api: {
                     assetPath: 'http://localhost:8000/bundles/administration/',
                 },
-            },
+            }),
         });
         Shopware.State.unregisterModule('notification');
 
@@ -101,8 +101,8 @@ describe('sw-app-wrong-app-url-modal', () => {
     });
 
     it('should show modal', async () => {
-        Shopware.State.get('context').app.config.settings.appUrlReachable = false;
-        Shopware.State.get('context').app.config.settings.appsRequireAppUrl = true;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = true;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
         wrapper = await createWrapper();
@@ -113,8 +113,8 @@ describe('sw-app-wrong-app-url-modal', () => {
     });
 
     it('should not show modal if APP_URL is reachable', async () => {
-        Shopware.State.get('context').app.config.settings.appUrlReachable = true;
-        Shopware.State.get('context').app.config.settings.appsRequireAppUrl = true;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = true;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = true;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
         wrapper = await createWrapper();
@@ -125,8 +125,8 @@ describe('sw-app-wrong-app-url-modal', () => {
     });
 
     it('should not show modal if no apps are require app url, but it should show notification', async () => {
-        Shopware.State.get('context').app.config.settings.appUrlReachable = false;
-        Shopware.State.get('context').app.config.settings.appsRequireAppUrl = false;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = false;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
         wrapper = await createWrapper();
@@ -137,8 +137,8 @@ describe('sw-app-wrong-app-url-modal', () => {
     });
 
     it('should not show modal if it was shown, but it should show notification', async () => {
-        Shopware.State.get('context').app.config.settings.appUrlReachable = false;
-        Shopware.State.get('context').app.config.settings.appsRequireAppUrl = false;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = false;
         localStorage.setItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN, true);
 
         wrapper = await createWrapper();
@@ -149,8 +149,8 @@ describe('sw-app-wrong-app-url-modal', () => {
     });
 
     it('should create notification and set localstorage on close', async () => {
-        Shopware.State.get('context').app.config.settings.appUrlReachable = false;
-        Shopware.State.get('context').app.config.settings.appsRequireAppUrl = true;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appsRequireAppUrl = true;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
         wrapper = await createWrapper();

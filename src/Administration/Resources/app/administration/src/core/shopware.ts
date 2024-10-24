@@ -51,6 +51,7 @@ import type { DefineComponent, Ref } from 'vue';
 import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';
 import { LineItemType } from '../module/sw-order/order.types';
+import useContext from '../app/composables/use-context';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -348,8 +349,8 @@ class ShopwareClass implements CustomShopwareProperties {
         COMPILER_FILTERS: !window._features_.DISABLE_VUE_COMPAT,
     };
 
-    public get Context(): VuexRootState['context'] {
-        return this.State.get('context');
+    public get Context() {
+        return useContext();
     }
 
     public _private = {

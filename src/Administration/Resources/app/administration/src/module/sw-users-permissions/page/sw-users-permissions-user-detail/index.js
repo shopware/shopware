@@ -232,7 +232,7 @@ export default {
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
-                Shopware.State.commit('context/setApiLanguageId', this.languageId);
+                Shopware.Store.get('context').api.languageId = this.languageId;
                 resolve(this.languageId);
             });
 

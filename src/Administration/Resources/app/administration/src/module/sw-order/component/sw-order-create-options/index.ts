@@ -11,7 +11,7 @@ import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.ty
  * @package checkout
  */
 
-const { Component, State } = Shopware;
+const { Component, State, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -143,7 +143,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            State.commit('context/setLanguageId', languageId);
+            Store.get('context').api.languageId = languageId;
         },
 
         isSameAsBillingAddress(value): void {

@@ -43,9 +43,9 @@ export default {
             'variants',
         ]),
 
-        ...mapState('context', {
-            contextLanguageId: (state) => state.api.languageId,
-        }),
+        contextLanguageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
 
         ...mapGetters('swProductDetail', {
             isStoreLoading: 'isLoading',

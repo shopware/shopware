@@ -123,13 +123,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             },
         });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -140,7 +140,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 api: {
                     assetsPath: '/',
                 },
-            },
+            }),
         });
     });
 
@@ -154,7 +154,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('runtime management disabled should be there', async () => {
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
         const wrapper = await createWrapper();
 
         const runtimeManagement = wrapper.find('.sw-extension-my-extensions-listing__runtime-extension-warning');
@@ -500,7 +500,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should show a warning if the APP_URL is not setup correctly', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.get('context').app.config.settings.appUrlReachable = false;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
 
         await wrapper.vm.$nextTick();
 

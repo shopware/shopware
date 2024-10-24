@@ -7,16 +7,13 @@ import orderStore from 'src/module/sw-order/state/order.store';
  */
 
 const contextState = {
-    namespaced: true,
-    state: {
+    id: 'context',
+    state: () => ({
         api: {
             languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         },
-    },
-    mutations: {
-        setLanguageId: jest.fn(),
-    },
+    }),
 };
 
 async function createWrapper() {
@@ -62,11 +59,11 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             lineItems: [],
         });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', contextState);
+        Shopware.Store.register(contextState);
     });
 
     it('should be show successful notification', async () => {
@@ -155,7 +152,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             },
         });
 
-        expect(contextState.mutations.setLanguageId).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('context').api.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
 
         await wrapper.setData({
             context: {
@@ -163,6 +160,6 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             },
         });
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+        expect(Shopware.Store.get('context').api.languageId).toBe('1234');
     });
 });

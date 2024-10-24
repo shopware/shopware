@@ -1,8 +1,6 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
 
-const { mapState } = Shopware.Component.getComponentHelper();
-
 /**
  * @package checkout
  * @private
@@ -22,9 +20,9 @@ export default {
     },
 
     computed: {
-        ...mapState('context', {
-            isAppUrlReachable: (state) => state.app.config.settings.appUrlReachable,
-        }),
+        isAppUrlReachable() {
+            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+        },
 
         isLoading() {
             const state = Shopware.State.get('shopwareExtensions');
@@ -123,7 +121,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
     },
 

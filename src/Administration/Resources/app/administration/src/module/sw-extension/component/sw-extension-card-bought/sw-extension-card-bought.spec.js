@@ -136,13 +136,13 @@ async function createWrapper(extension) {
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -156,7 +156,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
@@ -166,13 +166,13 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         }
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -186,7 +186,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

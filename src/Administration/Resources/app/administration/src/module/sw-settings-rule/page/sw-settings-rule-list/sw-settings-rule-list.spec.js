@@ -337,6 +337,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
 
         await wrapper.vm.onChangeLanguage('foo');
-        expect(Shopware.State.get('context').api.languageId).toBe('foo');
+        expect(Shopware.Store.get('context').api.languageId).toBe('foo');
     });
 });

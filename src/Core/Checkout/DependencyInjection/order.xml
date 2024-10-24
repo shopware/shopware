@@ -71,6 +71,7 @@
         <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader">

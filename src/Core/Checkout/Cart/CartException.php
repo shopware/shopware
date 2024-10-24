@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
@@ -62,6 +63,7 @@ class CartException extends HttpException
     public const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
     public const CART_MIGRATION_INVALID_SOURCE = 'CHECKOUT_CART_MIGRATION_INVALID_SOURCE';
     public const CART_MIGRATION_MISSING_REDIS_CONNECTION = 'CHECKOUT__CART_MIGRATION_MISSING_REDIS_CONNECTION';
+    public const CART_EMPTY = 'CHECKOUT__CART_EMPTY';
 
     /**
      * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
@@ -514,6 +516,19 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CART_MIGRATION_MISSING_REDIS_CONNECTION,
             'Redis connection is missing. Please check if "%shopware.cart.storage.config.dsn%" container parameter is correctly configured'
+        );
+    }
+
+    public static function cartEmpty(): self|EmptyCartException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new EmptyCartException();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_EMPTY,
+            'Cart is empty'
         );
     }
 }

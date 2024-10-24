@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.7.1
+*  [NEXT-00000 - Fix WriteCommandQueue command order](./changelog/release-6-6-7-1/2024-10-17-fix-write-command-queue-command-order.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+
 ## 6.6.7.0
 *  [#3575 - Use order currency if defined to display line items, default to context currency](./changelog/release-6-6-7-0/2024-09-17-fix-currency-display-for-old-orders.md) ([Melvin Achterhuis & Fabian Blechschmidt](https://github.com/Schrank))
 *  [#3738 - NEXT-38052 - Fix include of address actions](https://github.com/shopware/shopware/issues/3738) ([@iNaD](https://github.com/iNaD))

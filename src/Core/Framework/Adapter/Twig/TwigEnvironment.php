@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Profiling\Profiler;
 use Twig\Compiler;
 use Twig\Environment;
 use Twig\Loader\LoaderInterface;
 use Twig\Node\Node;
+use Twig\Template;
 
 /**
  * @internal
@@ -25,6 +27,13 @@ class TwigEnvironment extends Environment
         $options['use_yield'] = true;
 
         parent::__construct($loader, $options);
+    }
+
+    public function loadTemplate(string $cls, string $name, ?int $index = null): Template
+    {
+        return Profiler::trace($name, function () use ($cls, $name, $index) {
+            return parent::loadTemplate($cls, $name, $index);
+        }, 'sw-template');
     }
 
     public function compile(Node $node): string

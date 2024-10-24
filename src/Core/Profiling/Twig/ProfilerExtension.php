@@ -18,7 +18,7 @@ class ProfilerExtension extends AbstractExtension
         ];
     }
 
-    public function start(string $title, string $category = 'shopware-template'): void
+    public function start(string $title, string $category = 'sw-template'): void
     {
         Profiler::start(title: $title, category: $category, tags: []);
     }

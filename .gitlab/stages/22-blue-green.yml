@@ -28,9 +28,7 @@ PHP blue green 6.6->6.7->6.6:
     FEATURE_ALL: "false"
     GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     COMPOSER_ROOT_VERSION: ''
-    TEST_DB_URL: "mysql://root:app@database:3306/root_test"
-  rules:
-    - !reference [ .rules, scheduled ]
+    TEST_DB_URL: "${DATABASE_URL}_test"
   before_script:
     - mkdir -p config/jwt || true
     - "rm -Rf /var/www/html/public || true"
@@ -39,10 +37,13 @@ PHP blue green 6.6->6.7->6.6:
   script:
     - rm -rf vendor-bin
     - !reference [ .scripts, init, composer_update ]
-    - composer init:testdb
-    - DATABASE_URL="$TEST_DB_URL" bin/console database:migrate --all core.V6_7
-    - php vendor/bin/phpunit
-      --testsuite integration
-      --exclude-group=needsWebserver,skip-paratest,not-deterministic
-      --stop-on-error
-      --stop-on-failure
+    - >
+      if [[ $CI_PIPELINE_SOURCE == "schedule" ]]; then
+        composer init:testdb
+        DATABASE_URL="$TEST_DB_URL" bin/console database:migrate --all core.V6_7
+        php vendor/bin/phpunit --testsuite integration --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+      else
+        bin/console system:install --basic-setup --create-database --skip-assets-install
+        bin/console database:migrate --all core.V6_7
+        php .gitlab/bin/blue-green-check.php
+      fi

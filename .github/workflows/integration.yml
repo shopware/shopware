@@ -351,7 +351,6 @@ jobs:
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     runs-on: ubuntu-latest
-    if: ${{ contains(github.workflow_ref, 'nightly') }}
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000
@@ -374,17 +373,32 @@ jobs:
         uses: shopware/setup-shopware@main
         with:
           install: 'false'
-          shopware-version: 'trunk'
+          shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
       - name: Start Webserver
         run: symfony server:start -d
 
-      - name: Install Shopware in previous major version
+      - name: Install Shopware in previous major version on test DB
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
         run: composer init:testdb
 
-      - name: Run next major migrations
+      - name: Run next major migrations on test DB
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_7
 
       - name: Run integration tests
+        if: ${{ contains(github.workflow_ref, 'nightly') }}
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+
+      - name: Install Shopware in previous major version
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        run: bin/console system:install --basic-setup --create-database --skip-assets-install
+
+      - name: Run next major migrations
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        run: bin/console database:migrate --all core.V6_7
+
+      - name: Run blue-green check
+        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        run: php .gitlab/bin/blue-green-check.php # TODO: Move script to .github after migration

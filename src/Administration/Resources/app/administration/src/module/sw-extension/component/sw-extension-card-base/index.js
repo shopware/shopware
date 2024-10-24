@@ -149,7 +149,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.State.get('extensionMainModules').mainModules.find(
+            return Shopware.Store.get('extensionMainModules').mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },

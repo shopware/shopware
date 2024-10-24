@@ -35,7 +35,6 @@ import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import type { MenuItemState } from './app/state/menu-item.store';
 import type { ModalsState } from './app/state/modals.store';
-import type { MainModuleState } from './app/state/main-module.store';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
@@ -99,6 +98,7 @@ import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
 import type { ActionButtonsStore } from './app/store/action-buttons.store';
 import type { ContextStore } from './app/store/context.store';
 import type { LicenseViolationStore } from './app/store/license-violation.store';
+import type { ExtensionMainModules } from './app/store/main-module.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -332,7 +332,6 @@ declare global {
         };
         swCategoryDetail: $TSFixMe;
         menuItem: MenuItemState;
-        extensionMainModules: MainModuleState;
         modals: ModalsState;
         shopwareExtensions: ShopwareExtensionsState;
         shopwareApps: ShopwareAppsState;
@@ -355,6 +354,7 @@ declare global {
         adminHelpCenter: AdminHelpCenterStore;
         actionButtons: ActionButtonsStore;
         licenseViolation: LicenseViolationStore;
+        extensionMainModules: ExtensionMainModules;
     }
 
     /**

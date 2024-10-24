@@ -112,7 +112,7 @@ export default {
         async createdComponent() {
             const defaultSalutationId = await this.getDefaultSalutation();
 
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.customer = this.customerRepository.create();
 
             const addressRepository = this.repositoryFactory.create(

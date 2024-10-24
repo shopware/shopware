@@ -38,13 +38,13 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -58,7 +58,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

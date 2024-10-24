@@ -100,28 +100,7 @@ async function createWrapper() {
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
     beforeAll(() => {
-        if (Shopware.State.get('shopwareExtensions')) {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-
-        Shopware.State.registerModule('shopwareExtensions', {
-            namespaced: true,
-            state: {
-                myExtensions: {
-                    data: [
-                        {
-                            name: 'Test',
-                            installedAt: null,
-                        },
-                    ],
-                },
-            },
-            mutations: {
-                setExtensions(state, extensions) {
-                    state.myExtensions.data = extensions;
-                },
-            },
-        });
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([{ name: 'Test', installedAt: null }]);
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');
@@ -145,7 +124,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     beforeEach(async () => {
-        Shopware.State.commit('shopwareExtensions/setExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'Test',
                 installedAt: null,
@@ -218,7 +197,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$router.push(routes[1]);
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'Test',
                 installedAt: 'some date',
@@ -262,7 +241,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 };
             });
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', extensions);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
         await wrapper.vm.$nextTick();
 
@@ -301,7 +280,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 };
             });
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', extensions);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
         await wrapper.vm.$nextTick();
 
@@ -353,7 +332,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 };
             });
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             ...activeExtensions,
             ...inactiveExtensions,
         ]);
@@ -388,7 +367,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             };
         });
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', extensions);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
         await wrapper.vm.$nextTick();
 
@@ -428,7 +407,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             };
         });
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', extensions);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
         await wrapper.vm.$nextTick();
 
@@ -470,7 +449,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             };
         });
 
-        Shopware.State.commit('shopwareExtensions/setExtensions', extensions);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
         await wrapper.vm.$nextTick();
 

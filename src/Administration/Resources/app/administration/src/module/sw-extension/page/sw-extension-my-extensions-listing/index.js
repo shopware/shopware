@@ -25,13 +25,13 @@ export default {
         },
 
         isLoading() {
-            const state = Shopware.State.get('shopwareExtensions');
+            const state = Shopware.Store.get('shopwareExtensions');
 
             return state.myExtensions.loading;
         },
 
         myExtensions() {
-            return Shopware.State.get('shopwareExtensions').myExtensions.data;
+            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
         },
 
         extensionList() {

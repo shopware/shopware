@@ -19,16 +19,18 @@ function setCustomerData(customers) {
 const customers = generateCustomers();
 
 const contextState = {
-    namespaced: true,
-    state: {
+    id: 'context',
+    state: () => ({
         api: {
             languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         },
-    },
-    mutations: {
+    }),
+    actions: {
         resetLanguageToDefault: jest.fn(),
-        setLanguageId: jest.fn(),
+        setApiLanguageId: jest.fn(function (newLanguageId) {
+            this.api.languageId = newLanguageId;
+        }),
     },
     getters: {
         isSystemDefaultLanguage: () => false,
@@ -233,11 +235,11 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
             },
         });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', contextState);
+        Shopware.Store.register(contextState);
     });
 
     it('should show empty state view when there is no customer', async () => {
@@ -405,7 +407,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+        expect(Shopware.Store.get('context').api.languageId).toBe('1234');
     });
 
     it('should reset language to default if system language exists in customer sales channel languages', async () => {
@@ -418,6 +420,8 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         Shopware.State.commit('swOrder/setCartToken', 'token');
 
+        const resetLanguageToDefaultSpy = jest.spyOn(Shopware.Store.get('context'), 'resetLanguageToDefault');
+
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -428,7 +432,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         await flushPromises();
 
-        expect(contextState.mutations.resetLanguageToDefault).toHaveBeenCalled();
+        expect(resetLanguageToDefaultSpy).toHaveBeenCalled();
     });
 
     it('should set customer is null when close modal', async () => {

@@ -198,7 +198,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            State.commit('context/setLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
         },
     },
 

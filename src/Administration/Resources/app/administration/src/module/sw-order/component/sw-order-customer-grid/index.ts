@@ -12,7 +12,7 @@ import type { Cart } from '../../order.types';
  * @package checkout
  */
 
-const { Component, State, Mixin, Context } = Shopware;
+const { Component, State, Store, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface GridColumn {
@@ -237,12 +237,12 @@ export default Component.wrapComponentConfig({
             );
 
             if (!isExists && this.customer?.salesChannel?.languageId) {
-                State.commit('context/setLanguageId', this.customer.salesChannel.languageId);
+                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (isExists && !State.getters['context/isSystemDefaultLanguage']) {
-                State.commit('context/resetLanguageToDefault');
+            if (isExists && !Store.get('context').isSystemDefaultLanguage) {
+                Store.get('context').resetLanguageToDefault();
             }
 
             // If the customer belongs to a sales channel not in the allowed list and has no bound sales channel.

@@ -154,7 +154,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.loadPaymentMethods();
         },
 

@@ -100,11 +100,11 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         }
         Shopware.State.registerModule('swProductDetail', productStore);
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
-        Shopware.State.registerModule('context', {
-            namespaced: true,
+        Shopware.Store.register({
+            id: 'context',
 
             getters: {
                 isSystemDefaultLanguage() {
@@ -112,11 +112,11 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 },
             },
 
-            state: {
+            state: () => ({
                 api: {
                     assetsPath: '/',
                 },
-            },
+            }),
         });
     });
 

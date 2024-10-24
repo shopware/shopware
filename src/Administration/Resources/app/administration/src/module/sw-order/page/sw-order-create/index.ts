@@ -9,7 +9,7 @@ import './sw-order-create.scss';
  * @package checkout
  */
 
-const { Context, State, Mixin } = Shopware;
+const { Context, State, Store, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -94,9 +94,8 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent(): void {
             // set language to system language
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (!State.getters['context/isSystemDefaultLanguage']) {
-                State.commit('context/resetLanguageToDefault');
+            if (!Store.get('context').isSystemDefaultLanguage) {
+                Store.get('context').resetLanguageToDefault();
             }
         },
 
@@ -114,10 +113,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
-            State.commit(
-                'context/setLanguageId',
-                localStorage.getItem('sw-admin-current-language') || Shopware.Defaults.systemLanguageId,
-            );
+            Shopware.Store.get('context').api.languageId =
+                localStorage.getItem('sw-admin-current-language') || Shopware.Defaults.systemLanguageId;
             void this.$router.push({
                 name: 'sw.order.detail',
                 params: { id: this.orderId },

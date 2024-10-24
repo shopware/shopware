@@ -139,7 +139,7 @@ export default {
                 return;
             }
 
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.manufacturer = this.manufacturerRepository.create();
         },
 

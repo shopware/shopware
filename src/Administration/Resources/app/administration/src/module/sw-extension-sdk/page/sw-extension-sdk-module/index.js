@@ -93,7 +93,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
         },
     },
 });

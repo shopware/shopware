@@ -94,7 +94,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
 
         isClosable() {
@@ -102,7 +102,7 @@ export default {
         },
 
         stepper() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return {
                     welcome: {
                         name: 'sw.first.run.wizard.index.welcome',

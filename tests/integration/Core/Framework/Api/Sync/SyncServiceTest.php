@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
@@ -393,5 +394,56 @@ class SyncServiceTest extends TestCase
         static::assertCount(2, $existing);
         static::assertContains($ids->get('c1'), $existing);
         static::assertContains($ids->get('c2'), $existing);
+    }
+
+    public function testOrderOfActionsFromDeleteInsertUpdateSameId(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation('delete', 'product', SyncOperation::ACTION_DELETE, [
+                ['id' => $ids->get('p1')],
+            ]),
+            new SyncOperation('create', 'product', SyncOperation::ACTION_UPSERT, [
+                [
+                    'id' => $ids->get('p1'),
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 200, 'net' => 200, 'linked' => true],
+                    ],
+                    'tax' => ['id' => $ids->create('tax'), 'name' => 'test', 'taxRate' => 0],
+                    'productNumber' => 'test',
+                    'stock' => 10,
+                    'name' => 'test',
+                ],
+            ]),
+            new SyncOperation('update', 'product', SyncOperation::ACTION_UPSERT, [
+                [
+                    'id' => $ids->get('p1'),
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 300, 'net' => 300, 'linked' => true],
+                    ],
+                ],
+            ]),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        $productPrice = $this->connection->fetchOne(
+            'SELECT price FROM product WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('p1'))]
+        );
+
+        static::assertIsString($productPrice);
+        $productPrice = json_decode($productPrice, true);
+        $productPrice = array_shift($productPrice);
+        static::assertEquals(300, $productPrice['gross']);
     }
 }

@@ -68,8 +68,8 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
             expect(mockedExtensionStoreActionService.refresh).toHaveBeenCalledTimes(1);
             expect(mockedExtensionStoreActionService.getMyExtensions).toHaveBeenCalledTimes(1);
 
-            expect(Shopware.State.get('shopwareExtensions').myExtensions.data).toEqual(['new extensions']);
-            expect(Shopware.State.get('shopwareExtensions').myExtensions.loading).toBe(false);
+            expect(Shopware.Store.get('shopwareExtensions').myExtensions.data).toEqual(['new extensions']);
+            expect(Shopware.Store.get('shopwareExtensions').myExtensions.loading).toBe(false);
 
             expectUpdateModulesCalled();
         }
@@ -83,7 +83,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         }
 
         beforeEach(() => {
-            Shopware.State.commit('shopwareExtensions/myExtensions', []);
+            Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
             Shopware.Store.get('shopwareApps').apps = [];
         });
 
@@ -152,7 +152,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         const checkLoginSpy = jest.spyOn(Shopware.Service('storeService'), 'checkLogin');
 
         beforeEach(() => {
-            Shopware.State.commit('shopwareExtensions/setUserInfo', true);
+            Shopware.Store.get('shopwareExtensions').userInfo = true;
         });
 
         it.each([
@@ -163,7 +163,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
             await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.State.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
+            expect(Shopware.Store.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
         });
 
         it('sets login status to false if checkLogin request fails', async () => {
@@ -173,8 +173,8 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
             await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.State.get('shopwareExtensions').loginStatus).toBe(false);
-            expect(Shopware.State.get('shopwareExtensions').userInfo).toBeNull();
+            expect(Shopware.Store.get('shopwareExtensions').loginStatus).toBe(false);
+            expect(Shopware.Store.get('shopwareExtensions').userInfo).toBeNull();
         });
     });
 

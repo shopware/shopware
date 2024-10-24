@@ -10,7 +10,6 @@ import shopwareApps from './shopware-apps.store';
 import marketing from './marketing.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
-import extensionMainModules from './main-module.store';
 import modals from './modals.store';
 import ruleConditionsConfig from './rule-conditions-config.store';
 import sdkLocation from './sdk-location.store';
@@ -27,7 +26,6 @@ export default {
     tabs,
     menuItem,
     modals,
-    extensionMainModules,
     ruleConditionsConfig,
     sdkLocation,
     usageData,

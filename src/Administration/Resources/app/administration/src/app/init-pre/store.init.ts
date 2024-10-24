@@ -6,6 +6,7 @@ import 'src/app/store/extensions.store';
 import 'src/app/store/error.store';
 import 'src/app/store/admin-help-center.store';
 import 'src/app/store/license-violation.store';
+import 'src/app/store/main-module.store';
 
 /**
  * @package admin

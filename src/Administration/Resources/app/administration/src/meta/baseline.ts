@@ -132,7 +132,6 @@ const missingTests = [
     'src/app/service/search-type.service.js',
     'src/app/service/shortcut.service.js',
     'src/app/state/index.js',
-    'src/app/state/main-module.store.ts',
     'src/app/state/menu-item.store.ts',
     'src/app/state/modals.store.ts',
     'src/app/state/notification.store.js',

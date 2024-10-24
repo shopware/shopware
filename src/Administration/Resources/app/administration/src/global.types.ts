@@ -42,7 +42,6 @@ import type { ComponentConfig } from './core/factory/async-component.factory';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
-import type { ShopwareExtensionsState } from './module/sw-extension/store/extensions.store';
 import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
 import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
@@ -114,6 +113,7 @@ import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
+import type { ShopwareExtensionsStore } from './module/sw-extension/store/extensions.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -341,7 +341,6 @@ declare global {
         paymentOverviewCardState: PaymentOverviewCardState;
         swOrder: SwOrderState;
         swCategoryDetail: $TSFixMe;
-        shopwareExtensions: ShopwareExtensionsState;
     }
 
     interface PiniaRootState {
@@ -374,6 +373,7 @@ declare global {
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
+        shopwareExtensions: ShopwareExtensionsStore;
     }
 
     /**

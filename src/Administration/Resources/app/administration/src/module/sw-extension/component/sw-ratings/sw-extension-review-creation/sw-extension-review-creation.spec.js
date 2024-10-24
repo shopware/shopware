@@ -5,24 +5,13 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     beforeAll(() => {
-        if (Shopware.State.get('shopwareExtensions')) {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-
-        Shopware.State.registerModule('shopwareExtensions', {
-            namespaced: true,
-            state: {
-                myExtensions: {
-                    data: [
-                        {
-                            name: 'Test',
-                            installedAt: null,
-                            version: '1.0.0',
-                        },
-                    ],
-                },
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
+            {
+                name: 'Test',
+                installedAt: null,
+                version: '1.0.0',
             },
-        });
+        ]);
     });
 
     async function createWrapper() {

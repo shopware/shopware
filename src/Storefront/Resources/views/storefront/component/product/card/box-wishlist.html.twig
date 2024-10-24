@@ -4,9 +4,9 @@
     {{ sw_icon_cache_disable() }}
 
     <div class="card-body card-body-wishlist">
-        {{ block('component_product_box_badges') }}
+        {{ sw_block('component_product_box_badges') }}
 
-        {{ block('component_product_box_image') }}
+        {{ sw_block('component_product_box_image') }}
 
         {% block component_product_box_wishlist_action %}{% endblock %}
 
@@ -36,11 +36,11 @@
 
         {% block component_product_box_info %}
             <div class="product-info product-wishlist-info">
-                {{ block('component_product_box_rating') }}
+                {{ sw_block('component_product_box_rating') }}
 
-                {{ block('component_product_box_name') }}
+                {{ sw_block('component_product_box_name') }}
 
-                {{ block('component_product_box_variant_characteristics') }}
+                {{ sw_block('component_product_box_variant_characteristics') }}
 
                 {% block component_product_box_manufacturer %}
                     <div class="product-wishlist-info-item product-wishlist-info-manufacturer">
@@ -57,9 +57,9 @@
                     </div>
                 {% endblock %}
 
-                {{ block('component_product_box_price') }}
+                {{ sw_block('component_product_box_price') }}
 
-                {{ block('component_product_box_action') }}
+                {{ sw_block('component_product_box_action') }}
             </div>
         {% endblock %}
     </div>

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
@@ -18,7 +18,7 @@ class NodeExtension extends AbstractExtension
      * @internal
      */
     public function __construct(
-        private readonly TemplateFinder $finder,
+        private readonly TemplateFinderInterface $finder,
         private readonly TemplateScopeDetector $templateScopeDetector,
     ) {
     }
@@ -35,7 +35,7 @@ class NodeExtension extends AbstractExtension
         ];
     }
 
-    public function getFinder(): TemplateFinder
+    public function getFinder(): TemplateFinderInterface
     {
         return $this->finder;
     }

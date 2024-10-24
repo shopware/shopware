@@ -87,8 +87,23 @@ class AssetService
             $bundle = $this->getBundle($bundleName);
 
             if ($bundle instanceof Plugin) {
-                foreach ($this->getAdditionalBundles($bundle) as $bundle) {
-                    $this->removeAssets($bundle->getName());
+                $dependencyList = [];
+
+                foreach ($this->kernel->getBundles() as $kernelBundle) {
+                    if ($kernelBundle instanceof Plugin) {
+                        foreach ($this->getAdditionalBundles($kernelBundle) as $additionalBundle) {
+                            $dependencyList[$additionalBundle->getName()][] = $kernelBundle->getName();
+                        }
+                    }
+                }
+
+                foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
+                    // additionalBundle is required by other plugins than just bundle? better skip
+                    if (($dependencyList[$additionalBundle->getName()] ?? []) !== [$bundle->getName()]) {
+                        continue;
+                    }
+
+                    $this->removeAssets($additionalBundle->getName());
                 }
             }
         } catch (PluginNotFoundException) {

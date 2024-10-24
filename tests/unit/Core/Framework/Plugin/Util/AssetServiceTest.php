@@ -21,7 +21,9 @@ use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
+use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\NeedsFeatureBBundle\NeedsFeatureBPlugin;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -134,8 +136,17 @@ class AssetServiceTest extends TestCase
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
             ->method('getBundle')
-            ->with('ExampleBundle')
-            ->willReturn($this->getBundle());
+            ->willReturnCallback(fn (string $bundleName): ?Bundle => match ($bundleName) {
+                'ExampleBundle' => $this->getBundle(),
+                'NeedsFeatureBPlugin' => $this->getNeedsFeatureBPlugin(),
+                default => null
+            });
+        $kernel
+            ->method('getBundles')
+            ->willReturn([
+                $this->getBundle(),
+                $this->getNeedsFeatureBPlugin(),
+            ]);
 
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
@@ -150,12 +161,14 @@ class AssetServiceTest extends TestCase
 
         $filesystem->write('bundles/example/test.txt', 'TEST');
         $filesystem->write('bundles/featurea/test.txt', 'TEST');
+        $filesystem->write('bundles/featureb/test.txt', 'TEST');
 
         $assetService->removeAssetsOfBundle('ExampleBundle');
 
         static::assertFalse($filesystem->has('bundles/example'));
         static::assertFalse($filesystem->has('bundles/example/test.txt'));
         static::assertFalse($filesystem->has('bundles/featurea'));
+        static::assertTrue($filesystem->has('bundles/featureb'), 'Asset has been deleted, although additional bundle is used elsewhere');
     }
 
     public function testCopyAssetsClosesStreamItself(): void
@@ -472,6 +485,11 @@ class AssetServiceTest extends TestCase
     private function getBundle(): ExampleBundle
     {
         return new ExampleBundle(true, __DIR__ . '/_fixtures/ExampleBundle');
+    }
+
+    private function getNeedsFeatureBPlugin(): NeedsFeatureBPlugin
+    {
+        return new NeedsFeatureBPlugin(true, __DIR__ . '/_fixtures/NeedsFeatureBPlugin');
     }
 }
 

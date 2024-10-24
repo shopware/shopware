@@ -1,56 +1,59 @@
-<sw-meteor-page
-    class="sw-extension-config"
-    :from-link="fromLink"
->
-    <template #smart-bar-icon>
-        <sw-extension-icon
-            class="sw-extension-config__extension-icon"
-            :src="image"
-            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', 0, { extensionName: extensionLabel})"
-        />
-    </template>
-
-    <template #smart-bar-header>
-        {{ extensionLabel }}
-    </template>
-
-    <template
-        v-if="extension"
-        #smart-bar-header-meta
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_extension_config %}
+    <sw-meteor-page
+        class="sw-extension-config"
+        :from-link="fromLink"
     >
-        <span v-if="extension.producerWebsite && extension.producerName">
-            {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }}
+        <template #smart-bar-icon>
+            <sw-extension-icon
+                class="sw-extension-config__extension-icon"
+                :src="image"
+                :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', 0, { extensionName: extensionLabel})"
+            />
+        </template>
 
-            <sw-external-link
-                small
-                :href="extension.producerWebsite"
-                class="sw-extension-config__producer-link"
-            >
-                {{ extension.producerName }}
-            </sw-external-link>
-        </span>
+        <template #smart-bar-header>
+            {{ extensionLabel }}
+        </template>
 
-        <span v-else-if="extension.producerName">
-            {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }} {{ extension.producerName }}
-        </span>
-    </template>
-
-    <template #smart-bar-actions>
-        <sw-button
-            variant="primary"
-            class="sw-extension-config__save-action"
-            @click.prevent="onSave"
+        <template
+            v-if="extension"
+            #smart-bar-header-meta
         >
-            {{ $tc('global.default.save') }}
-        </sw-button>
-    </template>
+            <span v-if="extension.producerWebsite && extension.producerName">
+                {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }}
 
-    <template #default>
-        <sw-system-config
-            ref="systemConfig"
-            :domain="domain"
-            sales-channel-switchable
-            :sales-channel-id="salesChannelId"
-        />
-    </template>
-</sw-meteor-page>
+                <sw-external-link
+                    small
+                    :href="extension.producerWebsite"
+                    class="sw-extension-config__producer-link"
+                >
+                    {{ extension.producerName }}
+                </sw-external-link>
+            </span>
+
+            <span v-else-if="extension.producerName">
+                {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }} {{ extension.producerName }}
+            </span>
+        </template>
+
+        <template #smart-bar-actions>
+            <sw-button
+                variant="primary"
+                class="sw-extension-config__save-action"
+                @click.prevent="onSave"
+            >
+                {{ $tc('global.default.save') }}
+            </sw-button>
+        </template>
+
+        <template #default>
+            <sw-system-config
+                ref="systemConfig"
+                :domain="domain"
+                sales-channel-switchable
+                :sales-channel-id="salesChannelId"
+            />
+        </template>
+    </sw-meteor-page>
+{% endblock %}

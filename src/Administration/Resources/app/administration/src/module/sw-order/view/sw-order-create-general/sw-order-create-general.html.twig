@@ -1,135 +1,138 @@
-<div class="sw-order-create-general">
-    <sw-card
-        class="sw-order-create-general__general-info"
-        position-identifier="sw-order-create-general-info"
-        :title="$tc('sw-order.createBase.generalTab.labelGeneralInfoCard')"
-    >
-        <sw-order-create-general-info
-            :cart="cart"
-            :context="context"
-            :is-loading="isLoading"
-        />
-    </sw-card>
-
-    <sw-extension-component-section
-        position-identifier="sw-order-create-base-line-items__before"
-    />
-
-    <sw-card
-        class="sw-order-create-general__line-items"
-        position-identifier="sw-order-create-line-items"
-        :is-loading="isLoading"
-        :title="$tc('sw-order.createBase.generalTab.labelLineItemsCard')"
-    >
-        <template #grid>
-            <sw-order-line-items-grid-sales-channel
-                editable
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_order_create_general %}
+    <div class="sw-order-create-general">
+        <sw-card
+            class="sw-order-create-general__general-info"
+            position-identifier="sw-order-create-general-info"
+            :title="$tc('sw-order.createBase.generalTab.labelGeneralInfoCard')"
+        >
+            <sw-order-create-general-info
                 :cart="cart"
-                :currency="currency"
-                :sales-channel-id="context.salesChannel.id"
+                :context="context"
                 :is-loading="isLoading"
-                :is-customer-active="isCustomerActive"
-                @on-save-item="onSaveItem"
-                @on-remove-items="onRemoveItems"
             />
+        </sw-card>
 
-            <sw-card-section
-                v-show="cart.lineItems.length"
-                divider="top"
-                slim
-            >
+        <sw-extension-component-section
+            position-identifier="sw-order-create-base-line-items__before"
+        />
 
-                <sw-container
-                    class="sw-order-create-summary"
-                    columns="1fr 1fr"
+        <sw-card
+            class="sw-order-create-general__line-items"
+            position-identifier="sw-order-create-line-items"
+            :is-loading="isLoading"
+            :title="$tc('sw-order.createBase.generalTab.labelLineItemsCard')"
+        >
+            <template #grid>
+                <sw-order-line-items-grid-sales-channel
+                    editable
+                    :cart="cart"
+                    :currency="currency"
+                    :sales-channel-id="context.salesChannel.id"
+                    :is-loading="isLoading"
+                    :is-customer-active="isCustomerActive"
+                    @on-save-item="onSaveItem"
+                    @on-remove-items="onRemoveItems"
+                />
+
+                <sw-card-section
+                    v-show="cart.lineItems.length"
+                    divider="top"
+                    slim
                 >
-                    <sw-description-list
-                        class="sw-order-create-summary__data"
-                        grid="1fr 1fr"
+
+                    <sw-container
+                        class="sw-order-create-summary"
+                        columns="1fr 1fr"
                     >
-                        <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
-                        <dd>{{ currencyFilter(cart.price ? cart.price.positionPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</dd>
-
-                        <template v-if="cartDelivery">
-                            <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
-                            <dd>
-                                <sw-order-saveable-field
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: shippingCostsDetail,
-                                        disabled: taxStatus === 'tax-free'
-                                    }"
-                                    type="number"
-                                    editable
-                                    :value="cartDelivery.shippingCosts.totalPrice"
-                                    @value-change="onShippingChargeEdited"
-                                    @update:value="onShippingChargeUpdated"
-                                >
-                                    {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
-                                </sw-order-saveable-field>
-                            </dd>
-                        </template>
-
-                        <template
-                            v-for="(delivery, index) in cartDeliveryDiscounts"
-                            :key="index"
+                        <sw-description-list
+                            class="sw-order-create-summary__data"
+                            grid="1fr 1fr"
                         >
-                            <dt>
-                                {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
-                            </dt>
-                            <dd>
-                                {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
-                            </dd>
-                        </template>
+                            <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
+                            <dd>{{ currencyFilter(cart.price ? cart.price.positionPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</dd>
 
-                        <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                            <dd>
-                                <strong>{{ currencyFilter(cart.price ? cart.price.netPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
-                            </dd>
-                        </template>
+                            <template v-if="cartDelivery">
+                                <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
+                                <dd>
+                                    <sw-order-saveable-field
+                                        v-tooltip="{
+                                            showDelay: 300,
+                                            message: shippingCostsDetail,
+                                            disabled: taxStatus === 'tax-free'
+                                        }"
+                                        type="number"
+                                        editable
+                                        :value="cartDelivery.shippingCosts.totalPrice"
+                                        @value-change="onShippingChargeEdited"
+                                        @update:value="onShippingChargeUpdated"
+                                    >
+                                        {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
+                                    </sw-order-saveable-field>
+                                </dd>
+                            </template>
 
-                        <template v-if="taxStatus !== 'tax-free'">
                             <template
-                                v-for="(calculatedTax, index) in filteredCalculatedTaxes"
+                                v-for="(delivery, index) in cartDeliveryDiscounts"
                                 :key="index"
                             >
                                 <dt>
-                                    {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                    {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                                 </dt>
                                 <dd>
-                                    {{ currencyFilter(calculatedTax.tax, currency.isoCode, currency.totalRounding.decimals) }}
+                                    {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
                                 </dd>
                             </template>
-                        </template>
 
-                        <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
-                            <dd>
-                                <strong>{{ currencyFilter(orderTotal, currency.isoCode, currency.totalRounding.decimals) }}</strong>
-                            </dd>
-                            <template v-if="displayRounded">
-                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong>
-                                </dt>
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                <dd>
+                                    <strong>{{ currencyFilter(cart.price ? cart.price.netPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
+                                </dd>
+                            </template>
+
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <template
+                                    v-for="(calculatedTax, index) in filteredCalculatedTaxes"
+                                    :key="index"
+                                >
+                                    <dt>
+                                        {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                    </dt>
+                                    <dd>
+                                        {{ currencyFilter(calculatedTax.tax, currency.isoCode, currency.totalRounding.decimals) }}
+                                    </dd>
+                                </template>
+                            </template>
+
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
+                                <dd>
+                                    <strong>{{ currencyFilter(orderTotal, currency.isoCode, currency.totalRounding.decimals) }}</strong>
+                                </dd>
+                                <template v-if="displayRounded">
+                                    <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong>
+                                    </dt>
+                                    <dd>
+                                        <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
+                                    </dd>
+                                </template>
+                            </template>
+
+                            <template v-if="taxStatus === 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
                                 <dd>
                                     <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
                                 </dd>
                             </template>
-                        </template>
+                        </sw-description-list>
+                    </sw-container>
+                </sw-card-section>
+            </template>
+        </sw-card>
 
-                        <template v-if="taxStatus === 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                            <dd>
-                                <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
-                            </dd>
-                        </template>
-                    </sw-description-list>
-                </sw-container>
-            </sw-card-section>
-        </template>
-    </sw-card>
-
-    <sw-extension-component-section
-        position-identifier="sw-order-create-base-line-items__after"
-    />
-</div>
+        <sw-extension-component-section
+            position-identifier="sw-order-create-base-line-items__after"
+        />
+    </div>
+{% endblock %}

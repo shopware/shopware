@@ -1,38 +1,44 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-url-field component #}
-<mt-url-field
-    v-if="useMeteorComponent"
-    v-bind="$attrs"
-    v-model="realValue"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_url_field %}
+    <mt-url-field
+        v-if="useMeteorComponent"
+        v-bind="$attrs"
+        v-model="realValue"
     >
-        <slot
-            :name="name"
-            v-bind="data || {}"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-</mt-url-field>
+            <slot
+                :name="name"
+                v-bind="data || {}"
+            >
+            </slot>
+        </template>
+    </mt-url-field>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<sw-url-field-deprecated
-    v-else
-    v-bind="$attrs"
-    v-model:value="realValue"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_url_field_deprecated %}
+    <sw-url-field-deprecated
+        v-else
+        v-bind="$attrs"
+        v-model:value="realValue"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data || {}"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-</sw-url-field-deprecated>
+            <slot
+                :name="name"
+                v-bind="data || {}"
+            >
+            </slot>
+        </template>
+    </sw-url-field-deprecated>
+{% endblock %}

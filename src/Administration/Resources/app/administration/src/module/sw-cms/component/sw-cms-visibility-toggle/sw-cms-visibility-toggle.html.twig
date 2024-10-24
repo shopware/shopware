@@ -1,19 +1,22 @@
-<div class="sw-cms-visibility-toggle-wrapper">
-    <div class="sw-cms-visibility-toggle">
-        <sw-icon
-            name="regular-eye-slash"
-            size="24"
-        />
-        <span class="sw-cms-visibility-toggle__text">{{ $tc('sw-cms.detail.label.visibilityParagraph') }}</span>
-        <button
-            class="sw-cms-visibility-toggle__button"
-            @click="$emit('toggle')"
-        >
-            <span>{{ text }}</span>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_visibility_toggle %}
+    <div class="sw-cms-visibility-toggle-wrapper">
+        <div class="sw-cms-visibility-toggle">
             <sw-icon
-                :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
-                size="10"
+                name="regular-eye-slash"
+                size="24"
             />
-        </button>
+            <span class="sw-cms-visibility-toggle__text">{{ $tc('sw-cms.detail.label.visibilityParagraph') }}</span>
+            <button
+                class="sw-cms-visibility-toggle__button"
+                @click="$emit('toggle')"
+            >
+                <span>{{ text }}</span>
+                <sw-icon
+                    :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
+                    size="10"
+                />
+            </button>
+        </div>
     </div>
-</div>
+{% endblock %}

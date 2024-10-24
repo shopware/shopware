@@ -1,7 +1,10 @@
-<div class="sw-cms-preview-html">
-    <sw-code-editor
-        v-model:value="demoValue"
-        :disabled="true"
-        :editor-config="editorConfig"
-    />
-</div>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_preview_html %}
+    <div class="sw-cms-preview-html">
+        <sw-code-editor
+            v-model:value="demoValue"
+            :disabled="true"
+            :editor-config="editorConfig"
+        />
+    </div>
+{% endblock %}

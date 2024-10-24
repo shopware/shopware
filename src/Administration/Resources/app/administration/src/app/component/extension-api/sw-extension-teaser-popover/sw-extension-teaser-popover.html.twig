@@ -1,56 +1,59 @@
-<mt-popover
-    v-if="popoverComponent.props?.locationId"
-    width="large"
-    class="sw-extension-teaser-popover"
-    :is-opened="isInsideComponent"
->
-    <template #trigger>
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-        <div
-            class="sw-extension-teaser-popover__trigger"
-            @mouseenter="onMouseEnterTrigger"
-            @mouseleave="onMouseLeaveTrigger"
-        >
-            <mt-button
-                v-if="popoverComponent.component === 'button'"
-                :variant="popoverComponent.props?.variant || 'secondary'"
-                size="small"
-                disabled
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_extension_teaser_popover %}
+    <mt-popover
+        v-if="popoverComponent.props?.locationId"
+        width="large"
+        class="sw-extension-teaser-popover"
+        :is-opened="isInsideComponent"
+    >
+        <template #trigger>
+            <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+            <div
+                class="sw-extension-teaser-popover__trigger"
+                @mouseenter="onMouseEnterTrigger"
+                @mouseleave="onMouseLeaveTrigger"
             >
-                <mt-icon
-                    v-if="popoverComponent.props?.icon"
-                    :name="popoverComponent.props?.icon"
-                    size="12px"
+                <mt-button
+                    v-if="popoverComponent.component === 'button'"
+                    :variant="popoverComponent.props?.variant || 'secondary'"
+                    size="small"
+                    disabled
+                >
+                    <mt-icon
+                        v-if="popoverComponent.props?.icon"
+                        :name="popoverComponent.props?.icon"
+                        size="12px"
+                    />
+
+                    {{ $tc(popoverComponent.props?.label) }}
+                </mt-button>
+
+                <mt-switch
+                    v-else-if="popoverComponent.component === 'switch-field'"
+                    :label="$tc(popoverComponent.props?.label)"
+                    disabled
                 />
 
-                {{ $tc(popoverComponent.props?.label) }}
-            </mt-button>
+                <sw-iframe-renderer
+                    v-else-if="popoverComponent.component === 'custom'"
+                    :src="popoverComponent.src"
+                    :location-id="popoverComponent.props?.locationTriggerId"
+                />
+            </div>
+        </template>
 
-            <mt-switch
-                v-else-if="popoverComponent.component === 'switch-field'"
-                :label="$tc(popoverComponent.props?.label)"
-                disabled
-            />
-
-            <sw-iframe-renderer
-                v-else-if="popoverComponent.component === 'custom'"
-                :src="popoverComponent.src"
-                :location-id="popoverComponent.props?.locationTriggerId"
-            />
-        </div>
-    </template>
-
-    <template #popover-items__base>
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-        <div
-            class="sw-extension-teaser-popover__content"
-            @mouseenter="onMouseEnterContent"
-            @mouseleave="onMouseLeaveContent"
-        >
-            <sw-iframe-renderer
-                :src="popoverComponent.src"
-                :location-id="popoverComponent.props?.locationId"
-            />
-        </div>
-    </template>
-</mt-popover>
+        <template #popover-items__base>
+            <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+            <div
+                class="sw-extension-teaser-popover__content"
+                @mouseenter="onMouseEnterContent"
+                @mouseleave="onMouseLeaveContent"
+            >
+                <sw-iframe-renderer
+                    :src="popoverComponent.src"
+                    :location-id="popoverComponent.props?.locationId"
+                />
+            </div>
+        </template>
+    </mt-popover>
+{% endblock %}

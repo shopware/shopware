@@ -1,75 +1,78 @@
-<sw-container class="product-deliverability-downloadable-form">
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_product_deliverability_downloadable_form %}
+    <sw-container class="product-deliverability-downloadable-form">
 
-    <sw-inherit-wrapper
-        v-model:value="product.isCloseout"
-        :has-parent="!!parentProduct.id"
-        :inherited-value="parentProduct.isCloseout"
-        @update:value="onSwitchInput"
-    >
-        <template #content="props">
+        <sw-inherit-wrapper
+            v-model:value="product.isCloseout"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.isCloseout"
+            @update:value="onSwitchInput"
+        >
+            <template #content="props">
 
-            <sw-switch-field
-                class="product-deliverability-downloadable-form__manage-stock-switch"
-                name="sw-field--product-is-closeout"
-                :error="productIsCloseoutError"
-                :map-inheritance="props"
-                :label="$tc('sw-product.detailBase.manageStockLabel')"
-                :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
-                :disabled="props.isInherited || disabled"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                <sw-switch-field
+                    class="product-deliverability-downloadable-form__manage-stock-switch"
+                    name="sw-field--product-is-closeout"
+                    :error="productIsCloseoutError"
+                    :map-inheritance="props"
+                    :label="$tc('sw-product.detailBase.manageStockLabel')"
+                    :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
+                    :disabled="props.isInherited || disabled"
+                    :value="props.currentValue"
+                    @update:value="props.updateCurrentValue"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+
+        <sw-container
+            v-show="product.isCloseout"
+            columns="1fr 1fr"
+            gap="0px 30px"
+        >
+
+            <sw-number-field
+                v-model:value="product.stock"
+                name="sw-field--product-stock"
+                number-type="int"
+                :disabled="disabled"
+                :label="$tc('sw-product.settingsForm.labelStock')"
+                :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                :error="productStockError"
             />
 
-        </template>
-    </sw-inherit-wrapper>
+            <sw-number-field
+                v-model:value="product.availableStock"
+                name="sw-field--product-available-stock"
+                number-type="int"
+                :disabled="true"
+                :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+            />
 
-    <sw-container
-        v-show="product.isCloseout"
-        columns="1fr 1fr"
-        gap="0px 30px"
-    >
+        </sw-container>
 
-        <sw-number-field
-            v-model:value="product.stock"
-            name="sw-field--product-stock"
-            number-type="int"
-            :disabled="disabled"
-            :label="$tc('sw-product.settingsForm.labelStock')"
-            :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
-            :error="productStockError"
-        />
+        <sw-inherit-wrapper
+            v-if="showModeSetting"
+            v-model:value="product.deliveryTimeId"
+            :inherited-value="parentProduct.deliveryTimeId"
+            :has-parent="!!parentProduct.id"
+            :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+        >
+            <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
-        <sw-number-field
-            v-model:value="product.availableStock"
-            name="sw-field--product-available-stock"
-            number-type="int"
-            :disabled="true"
-            :label="$tc('sw-product.settingsForm.labelAvailableStock')"
-        />
-
+                <sw-entity-single-select
+                    id="deliveryTimeId"
+                    :key="isInherited"
+                    :value="currentValue"
+                    entity="delivery_time"
+                    :disabled="isInherited || disabled"
+                    class="product-deliverability-downloadable-form__delivery-time"
+                    :error="productDeliveryTimeIdError"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
+                    show-clearable-button
+                    @update:value="updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
     </sw-container>
-
-    <sw-inherit-wrapper
-        v-if="showModeSetting"
-        v-model:value="product.deliveryTimeId"
-        :inherited-value="parentProduct.deliveryTimeId"
-        :has-parent="!!parentProduct.id"
-        :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
-    >
-        <template #content="{ currentValue, updateCurrentValue, isInherited }">
-
-            <sw-entity-single-select
-                id="deliveryTimeId"
-                :key="isInherited"
-                :value="currentValue"
-                entity="delivery_time"
-                :disabled="isInherited || disabled"
-                class="product-deliverability-downloadable-form__delivery-time"
-                :error="productDeliveryTimeIdError"
-                :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
-                show-clearable-button
-                @update:value="updateCurrentValue"
-            />
-        </template>
-    </sw-inherit-wrapper>
-</sw-container>
+{% endblock %}

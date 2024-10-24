@@ -1,30 +1,36 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-popover component #}
-<mt-floating-ui
-    v-if="useMeteorComponent"
-    v-bind="$attrs"
-    :is-opened="isOpened"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_popover %}
+    <mt-floating-ui
+        v-if="useMeteorComponent"
+        v-bind="$attrs"
+        :is-opened="isOpened"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-    <slot></slot>
-</mt-floating-ui>
+            <slot
+                :name="name"
+                v-bind="data"
+            >
+            </slot>
+        </template>
+        <slot></slot>
+    </mt-floating-ui>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<sw-popover-deprecated
-    v-else
-    v-bind="$attrs"
-    v-on="listeners"
->
-    <slot></slot>
-</sw-popover-deprecated>
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_popover_deprecated %}
+    <sw-popover-deprecated
+        v-else
+        v-bind="$attrs"
+        v-on="listeners"
+    >
+        <slot></slot>
+    </sw-popover-deprecated>
+{% endblock %}

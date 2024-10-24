@@ -1,41 +1,47 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-text-field component #}
-<mt-email-field
-    v-if="useMeteorComponent"
-    v-bind="$attrs"
-    :model-value="compatValue"
-    v-on="listeners"
-    @update:modelValue="handleUpdateModelValue"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_email_field %}
+    <mt-email-field
+        v-if="useMeteorComponent"
+        v-bind="$attrs"
+        :model-value="compatValue"
+        v-on="listeners"
+        @update:modelValue="handleUpdateModelValue"
     >
-        <slot
-            :name="name"
-            v-bind="data"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-    <slot></slot>
-</mt-email-field>
+            <slot
+                :name="name"
+                v-bind="data"
+            >
+            </slot>
+        </template>
+        <slot></slot>
+    </mt-email-field>
+{% endblock %}
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<sw-email-field-deprecated
-    v-else
-    v-bind="$attrs"
-    :value="value"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_email_field_deprecated %}
+    <sw-email-field-deprecated
+        v-else
+        v-bind="$attrs"
+        :value="value"
+        v-on="listeners"
     >
-        <slot
-            :name="name"
-            v-bind="data || {}"
+        <template
+            v-for="(index, name) in getSlots()"
+            #[name]="data"
         >
-        </slot>
-    </template>
-</sw-email-field-deprecated>
+            <slot
+                :name="name"
+                v-bind="data || {}"
+            >
+            </slot>
+        </template>
+    </sw-email-field-deprecated>
+{% endblock %}

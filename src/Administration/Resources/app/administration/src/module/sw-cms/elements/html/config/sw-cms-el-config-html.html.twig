@@ -1,12 +1,15 @@
-<div class="sw-cms-el-config-html">
-    <sw-code-editor
-        :value="element.config.content.value"
-        :set-focus="true"
-        @update:value="onInput"
-        @blur="onBlur"
-    />
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_el_config_html %}
+    <div class="sw-cms-el-config-html">
+        <sw-code-editor
+            :value="element.config.content.value"
+            :set-focus="true"
+            @update:value="onInput"
+            @blur="onBlur"
+        />
 
-    <sw-alert variant="warning">
-        {{ $tc('sw-cms.elements.html.config.warning') }}
-    </sw-alert>
-</div>
+        <sw-alert variant="warning">
+            {{ $tc('sw-cms.elements.html.config.warning') }}
+        </sw-alert>
+    </div>
+{% endblock %}

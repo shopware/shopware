@@ -56,7 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         myExtensions(): Extension[] {
-            return Shopware.State.get('shopwareExtensions').myExtensions.data;
+            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
         },
 
         defaultThemeAsset(): string {

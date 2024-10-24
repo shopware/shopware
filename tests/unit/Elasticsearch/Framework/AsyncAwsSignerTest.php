@@ -44,15 +44,18 @@ class AsyncAwsSignerTest extends TestCase
 
     public function testInvokeLogsErrorOnFailure(): void
     {
-        $this->setEnvVars(['AWS_ACCESS_KEY' => null]);
-        $this->setEnvVars(['AWS_SECRET_KEY' => null]);
-        $this->setEnvVars(['AWS_SECRET_ACCESS_KEY' => null]);
-        $this->setEnvVars(['AWS_ACCESS_KEY_ID' => null]);
+        $this->setEnvVars([
+            'AWS_ACCESS_KEY' => null,
+            'AWS_SECRET_KEY' => null,
+            'AWS_SECRET_ACCESS_KEY' => null,
+            'AWS_ACCESS_KEY_ID' => null,
+        ]);
+
         $configuration = Configuration::create([
-            'region' => 'us-east-1',
+            'region' => 'test',
         ]);
         $logger = $this->createMock(LoggerInterface::class);
-        $signer = new AsyncAwsSigner($configuration, $logger, 'es', 'us-east-1');
+        $signer = new AsyncAwsSigner($configuration, $logger, 'es', 'test');
 
         $logger->expects(static::once())
             ->method('error')

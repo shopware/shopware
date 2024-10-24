@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\DefinitionValidatorViolationsFilterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
@@ -147,12 +149,15 @@ class DefinitionValidator
         'app_payment_method',
     ];
 
+    private bool $checkNotRegisteredTables = true;
+
     /**
      * @internal
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -163,15 +168,13 @@ class DefinitionValidator
     {
         $violations = [];
 
-        foreach ($this->registry->getDefinitions() as $definition) {
+        $entityDefinitions = $this->registry->getDefinitions();
+
+        // filter out definitions that should not be validated
+        $entityDefinitions = array_filter($entityDefinitions,$this->definitionRequiresValidation(...));
+
+        foreach ($entityDefinitions as $definition) {
             $definitionClass = $definition->getClass();
-            // ignore definitions from a test namespace https://regex101.com/r/hpxAVN/1
-            if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
-                continue;
-            }
-            if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
-                continue;
-            }
 
             $violations[$definitionClass] = [];
 
@@ -223,9 +226,15 @@ class DefinitionValidator
         }
 
         $tableSchemas = $this->connection->createSchemaManager()->listTables();
-        $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
+        if ($this->checkNotRegisteredTables) {
+            $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
+        }
 
-        return array_filter($violations);
+        // dispatches an event for filtering violations
+        $violationsFilterEvent = new DefinitionValidatorViolationsFilterEvent($violations);
+        $this->eventDispatcher->dispatch($violationsFilterEvent);
+
+        return array_filter($violationsFilterEvent->violations);
     }
 
     /**
@@ -1176,10 +1185,30 @@ class DefinitionValidator
 
         return [
             $definition->getClass() => [\sprintf(
-                'Entity "%s" defines parent entity "%s", but does not have a FK to that parent entity configured.',
-                $definition->getEntityName(),
-                $parentDefinition->getEntityName(),
-            )],
+                                            'Entity "%s" defines parent entity "%s", but does not have a FK to that parent entity configured.',
+                                            $definition->getEntityName(),
+                                            $parentDefinition->getEntityName(),
+                                        )],
         ];
+    }
+
+    private function definitionRequiresValidation(EntityDefinition $definition): bool
+    {
+        $definitionClass = $definition->getClass();
+        // ignore definitions from a test namespace
+        if (preg_match('/.*\\\\Test|s\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
+            return false;
+        }
+
+        if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function setCheckNotRegisteredTables(bool $checkNotRegisteredTables): void
+    {
+        $this->checkNotRegisteredTables = $checkNotRegisteredTables;
     }
 }

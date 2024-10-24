@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -26,10 +27,20 @@ class DataAbstractionLayerValidateCommand extends Command
         parent::__construct();
     }
 
+    protected function configure()
+    {
+        $this->addOption('check-unregistered-tables', null, InputOption::VALUE_NONE | InputOption::VALUE_NEGATABLE, 'enables or disables the check for unregistered tables (enabled by default)');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('Data Abstraction Layer Validation');
+
+        // configure validator
+        if ($input->getOption('check-unregistered-tables') !== null) {
+            $this->validator->setCheckNotRegisteredTables($input->getOption('check-unregistered-tables'));
+        }
 
         $errors = 0;
         if ($io->isVerbose()) {

@@ -412,6 +412,8 @@ const missingTests = [
     'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/index.js',
     'src/module/sw-settings/component/sw-settings-item/index.js',
     'src/module/sw-settings/mixin/sw-settings-list.mixin.js',
+    'src/module/sw-settings-address/index.js',
+    'src/module/sw-settings-address/page/sw-settings-address/index.js',
     'src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js',
     'src/module/sw-settings-basic-information/index.js',
     'src/module/sw-settings-basic-information/page/sw-settings-basic-information/index.js',

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Address</title>
+        <title lang="de-DE">Adressen</title>
+
+        <input-field type="bool">
+            <name>showZipcodeInFrontOfCity</name>
+            <label>Show ZIP code before city</label>
+            <label lang="de-DE">Zeige PLZ vor Stadt</label>
+        </input-field>
+    </card>
+</config>

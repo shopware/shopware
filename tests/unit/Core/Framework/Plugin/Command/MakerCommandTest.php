@@ -45,7 +45,7 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -63,7 +63,7 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -85,7 +85,7 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);

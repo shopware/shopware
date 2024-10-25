@@ -11,7 +11,10 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('core')]
 class ScaffoldingWriter
 {
-    public function __construct(private readonly Filesystem $filesystem)
+    public function __construct(
+        private readonly Filesystem $filesystem,
+        private readonly XmlScaffoldConfigManipulator $xmlConfigManipulator
+    )
     {
     }
 
@@ -23,7 +26,26 @@ class ScaffoldingWriter
                 continue;
             }
 
-            $this->filesystem->dumpFile($configuration->directory . '/' . $stub->getPath(), $stub->getContent());
+            $configPath = $configuration->directory . '/' . $stub->getPath();
+            $isXml = $this->isXml($stub->getPath());
+            $stubContent = $stub->getContent();
+
+            if($isXml && $this->filesystem->exists($configPath)) {
+                $stubContent = $this->xmlConfigManipulator->addConfig(
+                    $configPath,
+                    $configuration->directory,
+                    $stubContent
+                );
+            }
+
+            $this->filesystem->dumpFile($configPath, $stubContent);
         }
+    }
+
+    private function isXml(string $getPath): bool
+    {
+        $extension = pathinfo($getPath, PATHINFO_EXTENSION);
+
+        return $extension === 'xml';
     }
 }

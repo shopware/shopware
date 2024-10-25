@@ -28,8 +28,17 @@ trait AddScaffoldConfigDefaultBehaviour
             return;
         }
 
-        if ($this->shouldAskCliQuestion && $io->confirm(self::CLI_QUESTION)) {
-            $config->addOption(self::OPTION_NAME, true);
+        $proceed = true;
+
+        if ($this->shouldAskCliQuestion) {
+            $proceed = $io->confirm(self::CLI_QUESTION);
         }
+
+        $config->addOption(self::OPTION_NAME, $proceed);
+    }
+
+    public function disableAskConfirmQuestion(): void
+    {
+        $this->shouldAskCliQuestion = false;
     }
 }

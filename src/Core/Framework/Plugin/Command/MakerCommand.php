@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,7 +21,6 @@ class MakerCommand extends Command
 {
     public function __construct(
         private readonly ScaffoldingGenerator $generator,
-        private readonly ScaffoldingCollector $scaffoldingCollector,
         private readonly ScaffoldingWriter $scaffoldingWriter,
         private readonly PluginService $pluginService,
     ) {
@@ -54,7 +53,7 @@ class MakerCommand extends Command
                 continue;
             }
 
-            $value = $io->ask($argument->getDescription(), null, function ($value) {
+            $value = $io->ask($argument->getDescription(), null, function (mixed $value) {
                 if ($value === null || $value === '') {
                     // @phpstan-ignore-next-line RuntimeException is fine in console IO validators
                     throw new \RuntimeException('This value should not be blank');
@@ -100,9 +99,14 @@ class MakerCommand extends Command
                 $directory
             );
 
+            if(\method_exists($this->generator, 'disableAskConfirmQuestion')) {
+                $this->generator->disableAskConfirmQuestion();
+            }
+
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
-            $stubCollection = $this->scaffoldingCollector->collect($configuration);
+            $stubCollection = new StubCollection();
+            $this->generator->generateStubs($configuration, $stubCollection);
 
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 

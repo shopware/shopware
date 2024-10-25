@@ -361,18 +361,29 @@ class ApplicationBootstrapper {
     /**
      * Boot the application depending on login status
      */
-    startBootProcess(): Promise<void | ApplicationBootstrapper> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    async startBootProcess(): Promise<void | ApplicationBootstrapper> {
         const loginService = this.getContainer('service').loginService;
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-        const isUserLoggedIn = loginService.isLoggedIn();
 
         // if user is not logged in
-        if (!isUserLoggedIn) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        if (!loginService.isLoggedIn()) {
             loginService.logout(false, false);
             return this.bootLogin();
+        }
+
+        const expiry = loginService.getBearerAuthentication('expiry');
+        // if the access token has expired or will within the next 5 seconds, but still exists:
+        if (expiry < Date.now() + 5000) {
+            try {
+                // directly refresh it, this will also start the auto refresh of the token
+                await loginService.refreshToken();
+            } catch(e) {
+                console.warn('Error while refreshing token', e);
+                loginService.logout(false, false);
+                return this.bootLogin();
+            }
+        } else {
+            // else just start the auto refresh of the token
+            loginService.restartAutoTokenRefresh(expiry);
         }
 
         if (window._features_.ADMIN_VITE) {

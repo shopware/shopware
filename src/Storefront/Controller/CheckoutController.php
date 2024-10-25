@@ -98,13 +98,9 @@ class CheckoutController extends StorefrontController
         return $this->cartLoadRoute->load($request, $context);
     }
 
-    #[Route(path: '/checkout/confirm', name: 'frontend.checkout.confirm.page', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/checkout/confirm', name: 'frontend.checkout.confirm.page', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true], methods: ['GET'])]
     public function confirmPage(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
-        }
-
         if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
@@ -130,13 +126,9 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/checkout/finish', name: 'frontend.checkout.finish.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/checkout/finish', name: 'frontend.checkout.finish.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true], methods: ['GET'])]
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
-        if ($context->getCustomer() === null) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
-        }
-
         try {
             $page = $this->finishPageLoader->load($request, $context);
         } catch (OrderException $exception) {
@@ -157,20 +149,17 @@ class CheckoutController extends StorefrontController
             );
         }
 
-        if ($context->getCustomer()->getGuest() && $this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
+        // Customer is always present, due to `_loginRequired/_loginRequiredAllowGuest` route params
+        if ($context->getCustomer()?->getGuest() && $this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
             $this->logoutRoute->logout($context, $dataBag);
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/checkout/order', name: 'frontend.checkout.finish.order', options: ['seo' => false], methods: ['POST'])]
+    #[Route(path: '/checkout/order', name: 'frontend.checkout.finish.order', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
-        }
-
         try {
             $this->addAffiliateTracking($data, $request->getSession());
 

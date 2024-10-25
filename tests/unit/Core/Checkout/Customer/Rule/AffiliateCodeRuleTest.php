@@ -12,9 +12,9 @@ use Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -31,7 +31,7 @@ class AffiliateCodeRuleTest extends TestCase
         static::assertArrayHasKey('affiliateCode', $constraints, 'Constraint affiliateCode not found in Rule');
         static::assertEquals($constraints['affiliateCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new ArrayOfType('string'),
         ]);
     }
 
@@ -48,13 +48,13 @@ class AffiliateCodeRuleTest extends TestCase
             'fields' => [
                 'affiliateCode' => [
                     'name' => 'affiliateCode',
-                    'type' => 'string',
+                    'type' => 'tagged',
                     'config' => [],
                 ],
             ],
             'operatorSet' => [
                 'operators' => [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY],
-                'isMatchAny' => false,
+                'isMatchAny' => true,
             ],
         ], $config->getData());
     }
@@ -83,8 +83,11 @@ class AffiliateCodeRuleTest extends TestCase
         $rule->match($scope);
     }
 
+    /**
+     * @param ?array<string> $ruleCode
+     */
     #[DataProvider('getCaseTestMatchValues')]
-    public function testMatch(string $operator, ?string $ruleCode, ?string $customerCode, bool $hasCustomer, bool $isMatching): void
+    public function testMatch(string $operator, ?array $ruleCode, ?string $customerCode, bool $hasCustomer, bool $isMatching): void
     {
         $rule = new AffiliateCodeRule($operator, $ruleCode);
         $customer = new CustomerEntity();
@@ -100,80 +103,120 @@ class AffiliateCodeRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<list<mixed>>
+     * @return \Traversable<array<mixed>>
      */
     public static function getCaseTestMatchValues(): \Traversable
     {
         yield 'Equals Operator is matching' => [
-            Rule::OPERATOR_EQ,
-            'testingCode',
-            'testingCode',
-            true,
-            true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => 'testingCode',
+            'hasCustomer' => true,
+            'isMatching' => true,
+        ];
+
+        yield 'Equals Operator is matching with multiple values' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['foobar', 'testingCode'],
+            'customerCode' => 'testingCode',
+            'hasCustomer' => true,
+            'isMatching' => true,
         ];
 
         yield 'Equals Operator is not matching' => [
-            Rule::OPERATOR_EQ,
-            'testingCode',
-            'otherCode',
-            true,
-            false,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => 'otherCode',
+            'hasCustomer' => true,
+            'isMatching' => false,
+        ];
+
+        yield 'Equals Operator is not matching with multiple values' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleCode' => ['foobar', 'testingCode'],
+            'customerCode' => 'otherCode',
+            'hasCustomer' => true,
+            'isMatching' => false,
         ];
 
         yield 'Not Equals Operator is matching' => [
-            Rule::OPERATOR_NEQ,
-            'testingCode',
-            'otherCode',
-            true,
-            true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => 'otherCode',
+            'hasCustomer' => true,
+            'isMatching' => true,
+        ];
+
+        yield 'Not Equals Operator is matching with multiple values' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleCode' => ['foobar', 'testingCode'],
+            'customerCode' => 'otherCode',
+            'hasCustomer' => true,
+            'isMatching' => true,
         ];
 
         yield 'Not Equals Operator is not matching' => [
-            Rule::OPERATOR_NEQ,
-            'testingCode',
-            'testingCode',
-            true,
-            false,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => 'testingCode',
+            'hasCustomer' => true,
+            'isMatching' => false,
+        ];
+
+        yield 'Not Equals Operator is not matching with multiple values' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleCode' => ['foobar', 'testingCode'],
+            'customerCode' => 'testingCode',
+            'hasCustomer' => true,
+            'isMatching' => false,
         ];
 
         yield 'Empty Operator is matching, because both codes not exists' => [
-            Rule::OPERATOR_EMPTY,
-            null,
-            null,
-            true,
-            true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleCode' => null,
+            'customerCode' => null,
+            'hasCustomer' => true,
+            'isMatching' => true,
         ];
 
         yield 'Empty Operator is matching, because customer code not exists' => [
-            Rule::OPERATOR_EMPTY,
-            'testingCode',
-            null,
-            true,
-            true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => null,
+            'hasCustomer' => true,
+            'isMatching' => true,
+        ];
+
+        yield 'Empty Operator is matching, because customer code not exists with multiple values' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleCode' => ['foobar', 'testingCode'],
+            'customerCode' => null,
+            'hasCustomer' => true,
+            'isMatching' => true,
         ];
 
         yield 'Empty Operator is matching, because customer not exists' => [
-            Rule::OPERATOR_EMPTY,
-            'testingCode',
-            null,
-            false,
-            true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => null,
+            'hasCustomer' => false,
+            'isMatching' => true,
         ];
 
         yield 'Empty Operator is not matching, because both codes are filled' => [
-            Rule::OPERATOR_EMPTY,
-            'testingCode',
-            'testingCode',
-            true,
-            false,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleCode' => ['testingCode'],
+            'customerCode' => 'testingCode',
+            'hasCustomer' => true,
+            'isMatching' => false,
         ];
 
         yield 'Empty Operator is not matching, because customer code is filled' => [
-            Rule::OPERATOR_EMPTY,
-            null,
-            'testingCode',
-            true,
-            false,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleCode' => null,
+            'customerCode' => 'testingCode',
+            'hasCustomer' => true,
+            'isMatching' => false,
         ];
     }
 }

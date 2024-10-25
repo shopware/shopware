@@ -9,11 +9,12 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
-use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,15 +30,18 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $productReviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
-        $productReviewRouteMock->method('load')->willReturn(
-            new ProductReviewRouteResponse(
-                new EntitySearchResult('product', 0, new ProductReviewCollection(), null, new Criteria(), Context::createDefaultContext())
+        $productReviewLoaderMock = $this->createMock(ProductReviewLoader::class);
+        $productReviewLoaderMock->method('load')->willReturn(
+            ProductReviewResult::createFrom(
+                new EntitySearchResult('product_review', 0, new ProductReviewCollection(), null, new Criteria(), Context::createDefaultContext())
             )
         );
 
+        $scriptExecutorMock = $this->createMock(ScriptExecutor::class);
+
         $this->productDescriptionReviewResolver = new ProductDescriptionReviewsCmsElementResolver(
-            $productReviewRouteMock
+            $productReviewLoaderMock,
+            $scriptExecutorMock
         );
     }
 

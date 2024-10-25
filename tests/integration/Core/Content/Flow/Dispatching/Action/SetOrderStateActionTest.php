@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -42,6 +43,8 @@ class SetOrderStateActionTest extends TestCase
 
     private EntityRepository $orderRepository;
 
+    private EntityRepository $orderDeliveryRepository;
+
     private EntityRepository $flowRepository;
 
     private Connection $connection;
@@ -53,6 +56,7 @@ class SetOrderStateActionTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
 
         $this->ids = new IdsCollection();
 
@@ -140,6 +144,80 @@ class SetOrderStateActionTest extends TestCase
         static::assertNotSame($orderTransactionState, $orderTransactionStateAfterAction);
     }
 
+    public function testSetStateOnOrderDeliveryWithDiscountOnDelivery(): void
+    {
+        $context = Context::createDefaultContext();
+        $flowCreatePayload = [
+            'id' => Uuid::randomHex(),
+            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
+            'name' => 'Test Flow',
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'actionName' => SetOrderStateAction::getName(),
+                    'config' => [
+                        'order_delivery' => 'shipped',
+                        'force_transition' => false,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->flowRepository->create([$flowCreatePayload], Context::createDefaultContext());
+        $this->createCustomerAndLogin();
+
+        $customerId = $this->ids->get('customer');
+        $orderId = $this->ids->get('order');
+        $IdForShippingCosts = Uuid::randomHex();
+        $orderDeliveries = [
+            $this->generateOrderDeliveryPayload([
+                'id' => $IdForShippingCosts,
+                'orderId' => $orderId,
+                'shippingCosts' => new CalculatedPrice(
+                    10.00,
+                    10.00,
+                    new CalculatedTaxCollection([]),
+                    new TaxRuleCollection([]),
+                ),
+            ]),
+            $this->generateOrderDeliveryPayload([
+                'orderId' => $orderId,
+                'shippingCosts' => new CalculatedPrice(
+                    -10.00,
+                    -10.00,
+                    new CalculatedTaxCollection([]),
+                    new TaxRuleCollection([]),
+                ),
+            ]),
+        ];
+
+        $this->createOrder($customerId, ['deliveries' => $orderDeliveries, 'id' => $orderId]);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $subscriber = new SetOrderStateAction(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(OrderService::class),
+        );
+
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig(['order_delivery' => 'shipped']);
+
+        $subscriber->handleFlow($flow);
+
+        $criteria = new Criteria([$IdForShippingCosts]);
+        $criteria->addAssociation('stateMachineState');
+        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context)->first();
+
+        static::assertInstanceOf(OrderDeliveryEntity::class, $oderDeliveryForShippingCosts);
+        static::assertEquals('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
+    }
+
     public function testThrowsWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
     {
         $this->connection->executeStatement('DELETE FROM `sales_channel` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('sales-channel'))]);
@@ -179,6 +257,36 @@ class SetOrderStateActionTest extends TestCase
         $this->connection->transactional(function () use ($subscriber, $flow): void {
             $subscriber->handleFlow($flow);
         });
+    }
+
+    /**
+     * @param array<int|string, mixed> $payload
+     * @return array<int|string, mixed>
+     */
+    public function generateOrderDeliveryPayload(array $payload = []): array
+    {
+        $payload = array_merge(
+            [
+                'id' => $this->ids->create('delivery'),
+                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                'shippingMethodId' => $this->getValidShippingMethodId(),
+                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'shippingDateEarliest' => date(\DATE_ATOM),
+                'shippingDateLatest' => date(\DATE_ATOM),
+                'shippingOrderAddressId' => $this->ids->get('shipping-address'),
+                'trackingCodes' => [],
+                'positions' => [
+                    [
+                        'id' => $this->ids->create('position'),
+                        'orderLineItemId' => $this->ids->create('line-item'),
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    ],
+                ],
+            ],
+            $payload,
+        );
+
+        return $payload;
     }
 
     private function prepareFlowSequences(string $orderState, string $orderDeliveryState, string $orderTransactionState): void

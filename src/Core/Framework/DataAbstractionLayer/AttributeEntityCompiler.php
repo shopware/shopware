@@ -190,6 +190,10 @@ class AttributeEntityCompiler
      */
     private function getFieldClass(Field $field): string
     {
+        if (is_a($field->type, DalField::class, true)) {
+            return $field->type;
+        }
+
         return match ($field->type) {
             FieldType::INT => IntField::class,
             FieldType::TEXT => LongTextField::class,

@@ -311,8 +311,10 @@ export default {
                 ['customFields'],
             );
 
+            const entityName = Service('flowBuilderService').getEntityNameByAction(this.action);
+
             if (options.length) {
-                this.entity = options[0].value;
+                this.entity = options.find((option) => option.value === entityName)?.value || options[0].value;
             }
 
             this.entityOptions = options;

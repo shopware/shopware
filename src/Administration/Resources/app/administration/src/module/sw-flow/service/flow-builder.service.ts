@@ -4,11 +4,11 @@ import type { I18n } from 'vue-i18n';
 import {
     ACTION,
     ACTION_GROUP,
-    GENERAL_GROUP,
-    TAG_GROUP,
-    CUSTOMER_GROUP,
-    ORDER_GROUP,
     ACTION_TYPE,
+    CUSTOMER_GROUP,
+    GENERAL_GROUP,
+    ORDER_GROUP,
+    TAG_GROUP,
 } from '../constant/flow.constant';
 
 const { Utils, EntityDefinition } = Shopware;
@@ -270,6 +270,10 @@ export default class FlowBuilderService {
         entity = entity.replace('_', '.');
 
         return actionName.replace(entity, 'entity');
+    }
+
+    public getEntityNameByAction(actionName: keyof typeof this.$entityAction) {
+        return this.$entityAction[actionName];
     }
 
     public getDescription(format: { [key: string]: string }) {

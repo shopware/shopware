@@ -81,14 +81,13 @@
                                        value="frontend.checkout.cart.page">
                             {% endblock %}
 
+                            {% block page_checkout_cart_add_product_label %}
+                                <label class="visually-hidden" for="addProductInput">
+                                    {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
+                                </label>
+                            {% endblock %}
                             {% block page_checkout_cart_add_product_input_group %}
                                 <div class="input-group">
-                                    {% block page_checkout_cart_add_product_label %}
-                                        <label class="visually-hidden" for="addProductInput">
-                                            {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
-                                        </label>
-                                    {% endblock %}
-
                                     {% block page_checkout_cart_add_product_input %}
                                         <input type="text"
                                                name="number"
@@ -221,14 +220,13 @@
                            value="frontend.checkout.cart.page">
                 {% endblock %}
 
+                {% block page_checkout_cart_add_promotion_label %}
+                    <label class="visually-hidden" for="addPromotionInput">
+                        {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
                 {% block page_checkout_cart_add_promotion_input_group %}
                     <div class="input-group checkout-aside-add-code mt-3">
-                        {% block page_checkout_cart_add_promotion_label %}
-                            <label class="visually-hidden" for="addPromotionInput">
-                                {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
-                            </label>
-                        {% endblock %}
-
                         {% block page_checkout_cart_add_promotion_input %}
                             <input type="text"
                                    name="code"

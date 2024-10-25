@@ -103,14 +103,13 @@
                                                    value="frontend.cart.offcanvas">
                                         {% endblock %}
 
+                                        {% block component_offcanvas_cart_actions_promotion_label %}
+                                            <label class="visually-hidden" for="addPromotionOffcanvasCartInput">
+                                                {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
+                                            </label>
+                                        {% endblock %}
                                         {% block component_offcanvas_cart_actions_promotion_input_group %}
                                             <div class="input-group">
-                                                {% block component_offcanvas_cart_actions_promotion_label %}
-                                                    <label class="visually-hidden" for="addPromotionOffcanvasCartInput">
-                                                        {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
-                                                    </label>
-                                                {% endblock %}
-
                                                 {% block component_offcanvas_cart_actions_promotion_input %}
                                                     <input type="text"
                                                            name="code"

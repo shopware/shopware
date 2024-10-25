@@ -66,4 +66,18 @@ describe('components/sw-select-base', () => {
         // expect clear event thrown
         expect(wrapper.emitted('clear')).toHaveLength(1);
     });
+
+    it('should show the correct chevron based on the expanded state', async () => {
+        const wrapper = await createWrapper();
+
+        const chevronButton = wrapper.find('.sw-select__select-indicator');
+
+        await chevronButton.trigger('click');
+
+        expect(wrapper.find('div[name="regular-chevron-up-xs"]').exists()).toBe(true);
+
+        await chevronButton.trigger('click');
+
+        expect(wrapper.find('div[name="regular-chevron-down-xs"]').exists()).toBe(true);
+    });
 });

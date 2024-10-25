@@ -136,6 +136,7 @@ class AttributeEntityCompiler
             'parent' => $instance->parent,
             'entity_class' => $class,
             'entity_name' => $instance->name,
+            'collection_class' => $instance->collectionClass,
             'fields' => $fields,
         ];
 

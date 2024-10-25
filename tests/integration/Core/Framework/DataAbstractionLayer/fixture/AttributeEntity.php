@@ -31,7 +31,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 /**
  * @internal
  */
-#[Entity('attribute_entity', since: '6.6.3.0')]
+#[Entity('attribute_entity', since: '6.6.3.0', collectionClass: AttributeEntityCollection::class)]
 class AttributeEntity extends EntityStruct
 {
     use EntityCustomFieldsTrait;

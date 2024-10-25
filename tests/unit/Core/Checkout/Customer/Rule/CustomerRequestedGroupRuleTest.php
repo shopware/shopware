@@ -136,8 +136,8 @@ class CustomerRequestedGroupRuleTest extends TestCase
         yield 'operator_none_of / empty' => [true, true, null, [$id, Uuid::randomHex()], Rule::OPERATOR_NEQ];
         yield 'operator_none_of / not logged in' => [true, false, null, [$id], Rule::OPERATOR_NEQ];
 
-        yield 'operator_empty / empty' => [true, true, null, null, Rule::OPERATOR_EMPTY];
-        yield 'operator_empty / not empty' => [false, true, $id, null, Rule::OPERATOR_EMPTY];
-        yield 'operator_empty / not logged in' => [true, false, null, null, Rule::OPERATOR_EMPTY];
+        yield 'operator_empty / empty' => [true, true, null, [], Rule::OPERATOR_EMPTY];
+        yield 'operator_empty / not empty' => [false, true, $id, [], Rule::OPERATOR_EMPTY];
+        yield 'operator_empty / not logged in' => [true, false, null, [], Rule::OPERATOR_EMPTY];
     }
 }

@@ -30,16 +30,18 @@ const productStreamsMock = [
 ];
 productStreamsMock.total = 3;
 
-const productsMock = [
-    {
-        id: 1,
-        name: 'Gaming chair',
-    },
-    {
-        id: 2,
-        name: 'Gaming desk',
-    },
-];
+const productsMock = {
+    elements: [
+        {
+            id: 1,
+            name: 'Gaming chair',
+        },
+        {
+            id: 2,
+            name: 'Gaming desk',
+        },
+    ]
+};
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-products-assignment-dynamic-product-groups', { sync: true }), {
@@ -68,6 +70,11 @@ async function createWrapper() {
                         };
                     },
                 },
+                productStreamPreviewService: {
+                    preview: () => {
+                        return Promise.resolve();
+                    }
+                }
             },
         },
         props: {
@@ -327,12 +334,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     it('should get products successful', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.productRepository.search = jest.fn(() => {
+        wrapper.vm.productStreamPreviewService.preview = jest.fn(() => {
             return Promise.resolve(productsMock);
         });
 
         await wrapper.vm.getProducts().then((products) => {
-            expect(products).toEqual(
+            expect(products.elements).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({ name: 'Gaming chair' }),
                     expect.objectContaining({ name: 'Gaming desk' }),
@@ -340,18 +347,18 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             );
         });
 
-        wrapper.vm.productRepository.search.mockRestore();
+        wrapper.vm.productStreamPreviewService.preview.mockRestore();
     });
 
     it('should get products failed', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.productRepository.search = jest.fn(() => {
+        wrapper.vm.productStreamPreviewService.preview = jest.fn(() => {
             throw new Error('Whoops!');
         });
 
         expect((await getError(wrapper.vm.getProducts)).message).toBe('Whoops!');
 
-        wrapper.vm.productRepository.search.mockRestore();
+        wrapper.vm.productStreamPreviewService.preview.mockRestore();
     });
 });

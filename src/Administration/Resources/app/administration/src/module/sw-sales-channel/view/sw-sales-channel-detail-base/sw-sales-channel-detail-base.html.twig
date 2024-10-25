@@ -157,6 +157,23 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_sales_channel_detail_base_general_input_custom_entrypoint %}
+        <template v-for="entrypoint in customEntrypoints" v-bind:key="entrypoint">
+            <sw-category-tree-field
+                v-if="!isProductComparison && customEntrypointCategoriesCollection[entrypoint]"
+                :categories-collection="customEntrypointCategoriesCollection[entrypoint]"
+                :placeholder="serviceCategoryPlaceholder"
+                :single-select="true"
+                :label="$tc('sw-sales-channel.detail.customEntrypoint.'+entrypoint)"
+                :disabled="!acl.can('sales_channel.editor') || undefined"
+                class="sw-sales-channel-detail__select-custom-entrypoint"
+                @selection-add="(item) => onCustomEntrypointSelectionAdd(entrypoint, item)"
+                @selection-remove="onCustomEntrypointSelectionRemove(entrypoint)"
+            />
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_customer_group %}
         <sw-entity-single-select
             v-if="!isProductComparison"

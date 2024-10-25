@@ -24,6 +24,7 @@ export default {
         'productExportService',
         'repositoryFactory',
         'knownIpsService',
+        'entryPointService',
         'acl',
     ],
 
@@ -106,6 +107,8 @@ export default {
             mainCategoriesCollection: null,
             footerCategoriesCollection: null,
             serviceCategoriesCollection: null,
+            customEntrypoints: null,
+            customEntrypointCategoriesCollection: [],
         };
     },
 
@@ -515,6 +518,12 @@ export default {
             this.knownIps = ips;
         });
 
+        this.entryPointService.list(this.salesChannel.id).then((customEntrypoints) => {
+            this.customEntrypoints = customEntrypoints;
+
+            this.createCustomEntrypointCategoryCollections();
+        });
+
         this.createCategoryCollections();
     },
 
@@ -698,8 +707,22 @@ export default {
             this.createCategoriesCollection(this.serviceCategoryCriteria, 'serviceCategoriesCollection');
         },
 
+        createCustomEntrypointCategoryCollections() {
+            this.customEntrypoints.forEach((entrypoint) => {
+                const criteria = new Criteria(1, 25);
+                criteria.addFilter(Criteria.equals('id', this.salesChannel.entrypointIds[entrypoint] || null));
+
+                this.createCustomEntrypointCategoriesCollection(criteria, entrypoint);
+            });
+        },
+
         async createCategoriesCollection(criteria, collectionName) {
             this[collectionName] = await this.categoryRepository.search(criteria, Shopware.Context.api);
+        },
+
+        async createCustomEntrypointCategoriesCollection(criteria, entrypoint) {
+            this.customEntrypointCategoriesCollection[entrypoint] =
+                await this.categoryRepository.search(criteria, Shopware.Context.api);
         },
 
         onMainSelectionAdd(item) {
@@ -724,6 +747,14 @@ export default {
 
         onServiceSelectionRemove() {
             this.salesChannel.serviceCategoryId = null;
+        },
+
+        onCustomEntrypointSelectionAdd(entrypoint, item) {
+            this.salesChannel.entrypointIds[entrypoint] = item.id;
+        },
+
+        onCustomEntrypointSelectionRemove(entrypoint) {
+            this.salesChannel.entrypointIds[entrypoint] = null;
         },
 
         buildDisabledPaymentAlert(snippet, collection, property = 'name') {

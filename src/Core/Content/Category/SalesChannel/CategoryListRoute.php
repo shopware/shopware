@@ -22,8 +22,10 @@ class CategoryListRoute extends AbstractCategoryListRoute
      *
      * @param SalesChannelRepository<CategoryCollection> $categoryRepository
      */
-    public function __construct(private readonly SalesChannelRepository $categoryRepository)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $categoryRepository,
+        private readonly SalesChannelEntrypointService $entrypointService
+    ) {
     }
 
     public function getDecorated(): AbstractCategoryListRoute
@@ -34,11 +36,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
     #[Route(path: '/store-api/category', name: 'store-api.category.search', defaults: ['_entity' => 'category'], methods: ['GET', 'POST'])]
     public function load(Criteria $criteria, SalesChannelContext $context): CategoryListRouteResponse
     {
-        $rootIds = array_filter([
-            $context->getSalesChannel()->getNavigationCategoryId(),
-            $context->getSalesChannel()->getFooterCategoryId(),
-            $context->getSalesChannel()->getServiceCategoryId(),
-        ]);
+        $rootIds = $this->entrypointService->getEntrypointIds($context->getSalesChannel(), $context);
 
         if (!empty($rootIds)) {
             $filter = new OrFilter();

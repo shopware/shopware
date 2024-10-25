@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -58,7 +59,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
 
         $product = $this->getProductEntity($streamIds, $categoryIds);
@@ -79,7 +81,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -94,7 +97,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([], []),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
 
         $product = $this->getProductEntity($streamIds, $categoryIds);
@@ -115,7 +119,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([], [$categoryEntity]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -135,7 +140,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([], [$categoryEntity]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
         $product = $this->getProductEntity($streamIds, []);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -161,7 +167,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext->getContext());
@@ -198,7 +205,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c02', $this->salesChannelContext->getContext());
@@ -235,7 +243,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c03', $this->salesChannelContext->getContext());
@@ -273,7 +282,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([$product], [$product]),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
 
         $result = $categoryBreadcrumbBuilder->getProductBreadcrumbUrls($product->getId(), '', $this->salesChannelContext);
@@ -298,7 +308,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([], []),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getConnectionMock(),
+            $this->getSalesChannelEntrypointServiceMock()
         );
         $result = $categoryBreadcrumbBuilder->getProductSeoCategory($productEntity, $this->salesChannelContext);
 
@@ -383,6 +394,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
 
         return $productRepositoryMock;
+    }
+
+    private function getSalesChannelEntrypointServiceMock(): SalesChannelEntrypointService
+    {
+        return static::createStub(SalesChannelEntrypointService::class);
     }
 
     /**

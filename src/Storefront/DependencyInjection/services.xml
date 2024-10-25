@@ -243,6 +243,7 @@
             <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
             <argument type="service" id="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService" />
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader">

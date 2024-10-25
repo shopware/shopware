@@ -21,6 +21,23 @@
             <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Content\Category\Service\NavigationLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute"/>
@@ -30,6 +47,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
@@ -43,6 +61,7 @@
 
         <service id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute.inner"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute" decorates="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" decoration-priority="-1000" public="true">
@@ -63,6 +82,7 @@
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryListRoute" public="true">
             <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer">
@@ -92,6 +112,7 @@
             <argument type="service" id="category.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelEntrypointService"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">

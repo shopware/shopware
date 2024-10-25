@@ -148,4 +148,39 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
         expect(wrapper.vm.smtpPortError).toBeNull();
     });
+
+    it('should reset mailer settings when submitting as emailAgent local', async () => {
+        const wrapper = await new CreateSettingsMailer();
+
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'local',
+                'core.mailerSettings.host': 'smtp.shopware.com',
+                'core.mailerSettings.port': 465,
+                'core.mailerSettings.username': 'smtp',
+                'core.mailerSettings.password': 'smtp',
+                'core.mailerSettings.encryption': 'ssl',
+                'core.mailerSettings.authenticationMethod': 'login',
+                'core.mailerSettings.senderAddress': 'test@example.com',
+                'core.mailerSettings.deliveryAddress': 'info@test.de',
+            }
+        });
+
+        const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
+
+        wrapper.vm.saveMailerSettings();
+
+        expect(spySaveValues).toHaveBeenCalledWith({
+            'core.mailerSettings.emailAgent': 'local',
+            'core.mailerSettings.host': null,
+            'core.mailerSettings.port': null,
+            'core.mailerSettings.username': null,
+            'core.mailerSettings.password': null,
+            'core.mailerSettings.encryption': null,
+            'core.mailerSettings.authenticationMethod': 'login',
+            'core.mailerSettings.senderAddress': null,
+            'core.mailerSettings.deliveryAddress': null,
+            'core.mailerSettings.disableDelivery': false
+        });
+    })
 });

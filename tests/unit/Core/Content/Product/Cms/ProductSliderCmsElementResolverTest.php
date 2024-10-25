@@ -308,7 +308,6 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.categories.id', $category->getUniqueIdentifier()));
-        $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('manufacturer');
 
@@ -348,7 +347,6 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parent.id', $product->getUniqueIdentifier()));
-        $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('manufacturer');
 
@@ -454,7 +452,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $entitySearchResult->method('getEntities')->willReturn($streamResult);
 
         $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'streamId'));
+        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, $this->productStreamId));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('product_id');
@@ -476,6 +474,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
         if ($products === null) {
             static::fail('Products of productSlider are null.');
         }
+
+        static::assertSame($this->productStreamId, $productSlider->getStreamId());
 
         static::assertCount(\count($expectedProductIds), $products);
         foreach ($expectedProductIds as $expectedProductId) {
@@ -549,6 +549,12 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->productRepository->method('search')
             ->willReturnCallback(function (Criteria $criteria) use ($productCollection) {
+                $compareCriteria = new Criteria($criteria->getIds());
+                $compareCriteria->addAssociation('options.group');
+                $compareCriteria->addAssociation('manufacturer');
+
+                static::assertEquals($criteria, $compareCriteria);
+
                 $filteredProducts = array_filter($productCollection->getElements(), function ($product) use ($criteria) {
                     return \in_array($product->getId(), $criteria->getIds(), true);
                 });

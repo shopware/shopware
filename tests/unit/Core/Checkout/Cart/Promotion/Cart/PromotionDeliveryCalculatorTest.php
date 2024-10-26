@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -43,11 +45,14 @@ class PromotionDeliveryCalculatorTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
+        $builderMock = $this->createMock(PromotionItemBuilder::class);
+        $builderMock->method('buildDeliveryPlaceholderLineItem')
+            ->willReturn(new LineItem('whatever', PromotionProcessor::LINE_ITEM_TYPE));
 
         $this->promotionDeliveryCalculator = new PromotionDeliveryCalculator(
             $this->createMock(QuantityPriceCalculator::class),
             $this->createMock(PercentagePriceCalculator::class),
-            $this->createMock(PromotionItemBuilder::class)
+            $builderMock
         );
     }
 
@@ -92,6 +97,58 @@ class PromotionDeliveryCalculatorTest extends TestCase
         $error = $cart->getErrors()->first();
         static::assertInstanceOf(PromotionNotEligibleError::class, $error);
         static::assertEquals('Promotion first-promotion not eligible for cart!', $error->getMessage());
+    }
+
+    public function testAddingExtensionFromOriginalLineItem(): void
+    {
+        $discountItem = $this->getDiscountItem('promotion')
+            ->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_DELIVERY)
+            ->setId('discount-item-id');
+
+        $discountItem->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('original-id'));
+
+        $original = $this->makeCart($discountItem);
+        $toCalculate = $this->makeCart();
+
+        $originalDiscount = new LineItemCollection([$discountItem]);
+
+        $this->promotionDeliveryCalculator->calculate(
+            $originalDiscount,
+            $original,
+            $toCalculate,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertNotNull($promotion = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first());
+        static::assertInstanceOf(IdStruct::class, $idStruct = $promotion->getExtension(OrderConverter::ORIGINAL_ID));
+        static::assertEquals('original-id', $idStruct->getId());
+    }
+
+    private function makeCart(?LineItem $discountItem = null): Cart
+    {
+        $lineItems = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItems->setPriceDefinition(new AbsolutePriceDefinition(50.0));
+        $lineItems->setLabel('Product');
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $lineItemCollection = new LineItemCollection([$lineItems]);
+
+        if ($discountItem !== null) {
+            $lineItemCollection->add($discountItem);
+        }
+
+        $cart->addLineItems($lineItemCollection);
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        return $cart;
     }
 
     private function getDiscountItem(string $promotionId): LineItem

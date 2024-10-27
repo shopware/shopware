@@ -21,17 +21,23 @@ export default Shopware.Component.wrapComponentConfig({
             required: true,
         },
         criteriaFilterType: {
-            type: String as PropType<'contains' | 'equals'>,
+            type: String as PropType<'contains' | 'equals' | 'equalsAny' | 'prefix' | 'suffix'>,
             required: false,
             default: 'contains',
             validValues: [
                 'contains',
                 'equals',
+                'equalsAny',
+                'prefix',
+                'suffix',
             ],
             validator(value: string): boolean {
                 return [
                     'contains',
                     'equals',
+                    'equalsAny',
+                    'prefix',
+                    'suffix',
                 ].includes(value);
             },
         },
@@ -43,6 +49,10 @@ export default Shopware.Component.wrapComponentConfig({
                 this.resetFilter();
 
                 return;
+            }
+
+            if (this.criteriaFilterType === 'equalsAny') {
+                newValue = newValue.split(',').map(e => e.trim());
             }
 
             const filterCriteria = [

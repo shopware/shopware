@@ -147,7 +147,7 @@ export default {
                     placeholder: this.$tc('sw-order.filters.orderNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    criteriaFilterType: 'equals',
+                    criteriaFilterType: 'equalsAny',
                 },
                 'sales-channel-filter': {
                     property: 'salesChannel',

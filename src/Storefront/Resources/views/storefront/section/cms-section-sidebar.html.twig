@@ -13,7 +13,11 @@
 
                 {% for block in sidebarBlocks %}
                     {% block section_sidebar_content_block %}
+                        {{ profiler_start('cms_block_' ~ block.name) }}
+
                         {% sw_include '@Storefront/storefront/section/cms-section-block-container.html.twig' %}
+
+                        {{ profiler_stop('cms_block_' ~ block.name) }}
                     {% endblock %}
                 {% endfor %}
             </div>
@@ -24,7 +28,11 @@
 
                 {% for block in mainContentBlocks %}
                     {% block section_main_content_block %}
+                        {{ profiler_start('cms_block_' ~ block.name) }}
+
                         {% sw_include '@Storefront/storefront/section/cms-section-block-container.html.twig' %}
+
+                        {{ profiler_stop('cms_block_' ~ block.name) }}
                     {% endblock %}
                 {% endfor %}
             </div>

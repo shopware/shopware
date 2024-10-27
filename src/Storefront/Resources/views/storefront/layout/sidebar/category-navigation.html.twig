@@ -42,7 +42,7 @@
                                     <span class="category-navigation-link">{{ item.category.translated.name }}</span>
                                 {% endblock %}
                             {% else %}
-                                {% block layout_navigation_categories_link %}                        
+                                {% block layout_navigation_categories_link %}
                                     <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}"
                                         href="{{ category_url(item.category) }}"
                                         {% if category_linknewtab(item.category) %}target="_blank"{% endif %}>

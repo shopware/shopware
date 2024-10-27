@@ -49,6 +49,11 @@
             />
         </service>
 
+        <service id="Shopware\Core\Profiling\Twig\ProfilerExtension">
+            <tag name="twig.extension"/>
+            <argument type="service" id="slugify"/>
+        </service>
+
         <service id="Shopware\Core\Profiling\Twig\DoctrineExtension" public="false">
             <tag name="twig.extension" />
         </service>

@@ -1,136 +1,148 @@
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
+{% profile base %}
+    {# Set variable to "true" to enable HMR (hot page reloading) mode #}
+    {% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
 
-{% block base_doctype %}
-<!DOCTYPE html>
-{% endblock %}
-
-{% block base_html %}
-<html lang="{{ page.header.activeLanguage.translationCode.code }}"
-      itemscope="itemscope"
-      itemtype="https://schema.org/WebPage">
-{% endblock %}
-
-{% block base_head %}
-    {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
-{% endblock %}
-
-{% block base_body %}
-    <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
-
-    {% block base_body_skip_to_content %}
-        <div class="skip-to-content bg-primary-subtle text-primary-emphasis visually-hidden-focusable overflow-hidden">
-            <div class="container d-flex justify-content-center">
-                <a href="#content-main" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2">
-                    {{ 'general.skipToContentLink'|trans|sw_sanitize }}
-                </a>
-            </div>
-        </div>
+    {% block base_doctype %}
+    <!DOCTYPE html>
     {% endblock %}
 
-    {% block base_body_inner %}
-        {% block base_noscript %}
-            <noscript class="noscript-main">
-                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                    type: 'info',
-                    content: 'general.noscriptNotice'|trans|sw_sanitize,
-                    iconCache: false
-                } %}
-            </noscript>
-        {% endblock %}
+    {% block base_html %}
+    <html lang="{{ page.header.activeLanguage.translationCode.code }}"
+          itemscope="itemscope"
+          itemtype="https://schema.org/WebPage">
+    {% endblock %}
 
-        {% block base_header %}
-            {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
+    {% block base_head %}
+        {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
+    {% endblock %}
 
-            <header class="header-main">
-                {% block base_header_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
-                    </div>
-                {% endblock %}
-            </header>
-        {% endblock %}
+    {% block base_body %}
+        <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
 
-        {% block base_navigation %}
-            {% if feature('v6.7.0.0') %}
-                <div class="nav-main d-none d-lg-block">
-                    {% block base_navbar_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' %}
-                    {% endblock %}
+        {% block base_body_skip_to_content %}
+            <div class="skip-to-content bg-primary-subtle text-primary-emphasis visually-hidden-focusable overflow-hidden">
+                <div class="container d-flex justify-content-center">
+                    <a href="#content-main" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2">
+                        {{ 'general.skipToContentLink'|trans|sw_sanitize }}
+                    </a>
                 </div>
-            {% else %}
-                {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
-                <div class="nav-main">
-                    {% block base_navigation_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
-                    {% endblock %}
-                </div>
-            {% endif %}
+            </div>
         {% endblock %}
 
-        {% block base_offcanvas_navigation %}
-            {% if page.header.navigation %}
-                <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
-                    {% block base_offcanvas_navigation_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
-                    {% endblock %}
-                </div>
-            {% endif %}
-        {% endblock %}
+        {% block base_body_inner %}
+            {% block base_noscript %}
+                <noscript class="noscript-main">
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: 'info',
+                        content: 'general.noscriptNotice'|trans|sw_sanitize,
+                        iconCache: false
+                    } %}
+                </noscript>
+            {% endblock %}
 
-        {% block base_main %}
-            <main class="content-main" id="content-main">
-                {% block base_flashbags %}
-                    <div class="flashbags container">
-                        {% for type, messages in app.flashes %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
-                        {% endfor %}
-                    </div>
-                {% endblock %}
+            {% profile base_header %}
+                {% block base_header %}
+                    {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
 
-                {% block base_main_inner %}
-                    <div class="container">
-                        {% block base_main_container %}
-                            <div class="container-main">
-                                {% block base_breadcrumb %}
-                                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                                        context: context,
-                                        themeIconConfig: themeIconConfig,
-                                        category: page.product.seoCategory
-                                    } only %}
-                                {% endblock %}
-
-                                {% block base_content %}{% endblock %}
+                    <header class="header-main">
+                        {% block base_header_inner %}
+                            <div class="container">
+                                {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
                             </div>
                         {% endblock %}
-                    </div>
+                    </header>
                 {% endblock %}
-            </main>
+            {% endprofile %}
+
+            {% profile base_navigation %}
+                {% block base_navigation %}
+                    {% if feature('v6.7.0.0') %}
+                        <div class="nav-main d-none d-lg-block">
+                            {% block base_navbar_inner %}
+                                {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' %}
+                            {% endblock %}
+                        </div>
+                    {% else %}
+                        {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
+                        <div class="nav-main">
+                            {% block base_navigation_inner %}
+                                {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
+                            {% endblock %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            {% endprofile %}
+
+            {% profile base_offcanvas_navigation %}
+                {% block base_offcanvas_navigation %}
+                    {% if page.header.navigation %}
+                        <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
+                            {% block base_offcanvas_navigation_inner %}
+                                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
+                            {% endblock %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            {% endprofile %}
+
+            {% profile base_main %}
+                {% block base_main %}
+                    <main class="content-main" id="content-main">
+                        {% block base_flashbags %}
+                            <div class="flashbags container">
+                                {% for type, messages in app.flashes %}
+                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+                                {% endfor %}
+                            </div>
+                        {% endblock %}
+
+                        {% block base_main_inner %}
+                            <div class="container">
+                                {% block base_main_container %}
+                                    <div class="container-main">
+                                        {% block base_breadcrumb %}
+                                            {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                                context: context,
+                                                themeIconConfig: themeIconConfig,
+                                                category: page.product.seoCategory
+                                            } only %}
+                                        {% endblock %}
+
+                                        {% block base_content %}{% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </main>
+                {% endblock %}
+            {% endprofile %}
+
+            {% profile base_footer %}
+                {% block base_footer %}
+                    <footer class="footer-main">
+                        {% block base_footer_inner %}
+                            {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
+                        {% endblock %}
+                    </footer>
+                {% endblock %}
+            {% endprofile %}
         {% endblock %}
 
-        {% block base_footer %}
-            <footer class="footer-main">
-                {% block base_footer_inner %}
-                    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                {% endblock %}
-            </footer>
+        {% block base_scroll_up %}
+            {% sw_include '@Storefront/storefront/layout/scroll-up.html.twig' %}
         {% endblock %}
-    {% endblock %}
 
-    {% block base_scroll_up %}
-        {% sw_include '@Storefront/storefront/layout/scroll-up.html.twig' %}
-    {% endblock %}
+        {% block base_cookie_permission %}
+            {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
+        {% endblock %}
 
-    {% block base_cookie_permission %}
-        {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
-    {% endblock %}
+        {% block base_pseudo_modal %}
+            {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}
+        {% endblock %}
 
-    {% block base_pseudo_modal %}
-        {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}
+        {% block base_body_script %}
+        {% endblock %}
+        </body>
     {% endblock %}
-
-    {% block base_body_script %}
-    {% endblock %}
-    </body>
-{% endblock %}
-</html>
+    </html>
+{% endprofile %}

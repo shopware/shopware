@@ -52,5 +52,13 @@
             </helpText>
         </input-field>
 
+        <input-field type="bool">
+            <name>excludeLinkedProducts</name>
+            <label>Exclude hidden products from sitemap</label>
+            <label lang="de-DE">Versteckte Produkte von der Sitemap ausschließen</label>
+            <helpText>Products, that are hidden in listings and search, will be excluded from the sitemap</helpText>
+            <helpText lang="de-DE">Produkte, die in den Listen und in der Suche versteckt sind, werden von der Sitemap ausgeschlossen</helpText>
+        </input-field>
+
     </card>
 </config>

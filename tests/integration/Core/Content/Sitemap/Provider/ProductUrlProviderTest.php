@@ -36,6 +36,8 @@ class ProductUrlProviderTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    private const CONFIG_EXCLUDE_LINKED_PRODUCTS = 'core.sitemap.excludeLinkedProducts';
+
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
     private SalesChannelContext $salesChannelContext;
@@ -212,6 +214,26 @@ class ProductUrlProviderTest extends TestCase
         static::assertCount(1, $urlResult->getUrls());
     }
 
+    public function testContainsHiddenProducts(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, false, $this->salesChannelContext->getSalesChannelId());
+        $this->createHiddenVisibilityProduct();
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 1);
+
+        static::assertCount(1, $urlResult->getUrls());
+    }
+
+    public function testContainsNoHiddenProducts(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, true, $this->salesChannelContext->getSalesChannelId());
+        $this->createHiddenVisibilityProduct();
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 1);
+
+        static::assertCount(0, $urlResult->getUrls());
+    }
+
     private function getProductUrlProvider(): ProductUrlProvider
     {
         return new ProductUrlProvider(
@@ -331,6 +353,24 @@ class ProductUrlProviderTest extends TestCase
                 'name' => 'test 2',
                 'isCloseout' => true,
                 'stock' => 0,
+            ]),
+        ];
+        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+    }
+
+    private function createHiddenVisibilityProduct(): void
+    {
+        $products = [
+            array_merge($this->getBasicProductData(), [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test 1',
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_LINK,
+                    ],
+                ],
             ]),
         ];
         $this->productRepository->create($products, $this->salesChannelContext->getContext());

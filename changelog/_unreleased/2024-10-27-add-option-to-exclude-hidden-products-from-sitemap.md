@@ -1,5 +1,5 @@
 ---
-title: Add criteria filter types to sw-string-filter
+title: Add option to exclude hidden products from sitemap
 issue: NEXT-00000
 author: Marcus Müller
 author_email: 25648755+M-arcus@users.noreply.github.com

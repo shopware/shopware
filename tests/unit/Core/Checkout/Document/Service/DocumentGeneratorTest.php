@@ -16,8 +16,10 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -56,7 +58,7 @@ class DocumentGeneratorTest extends TestCase
         $registry = new DocumentRendererRegistry([$mockRenderer]);
         $generator = new DocumentGenerator(
             $registry,
-            new PdfRenderer([]),
+            new PdfRenderer([], new ExtensionDispatcher(new EventDispatcher())),
             $this->createMock(MediaService::class),
             new StaticEntityRepository([]),
             $this->createMock(Connection::class),

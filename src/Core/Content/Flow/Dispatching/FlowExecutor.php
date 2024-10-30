@@ -12,11 +12,13 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Content\Flow\Extension\FlowExecutorExtension;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -41,12 +43,22 @@ class FlowExecutor
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly FlowRuleScopeBuilder $scopeBuilder,
         private readonly Connection $connection,
+        private readonly ExtensionDispatcher $extensions,
         $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }
 
     public function execute(Flow $flow, StorableFlow $event): void
+    {
+        $this->extensions->publish(
+            name: FlowExecutorExtension::NAME,
+            extension: new FlowExecutorExtension($flow, $event),
+            function: $this->_execute(...)
+        );
+    }
+
+    private function _execute(Flow $flow, StorableFlow $event): void
     {
         $state = new FlowState();
 
@@ -73,6 +85,9 @@ class FlowExecutor
         }
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:becomes-internal - Becomes internal
+     */
     public function executeSequence(?Sequence $sequence, StorableFlow $event): void
     {
         if ($sequence === null) {
@@ -92,6 +107,9 @@ class FlowExecutor
         }
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:becomes-internal - Becomes internal
+     */
     public function executeAction(ActionSequence $sequence, StorableFlow $event): void
     {
         $actionName = $sequence->action;
@@ -120,6 +138,9 @@ class FlowExecutor
         }
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:becomes-internal - Becomes internal
+     */
     public function executeIf(IfSequence $sequence, StorableFlow $event): void
     {
         if ($this->sequenceRuleMatches($event, $sequence->ruleId)) {

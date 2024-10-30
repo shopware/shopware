@@ -25,7 +25,7 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ page }) =
 
     await page.getByLabel('Shop name').fill('Basic install test');
 
-    await page.locator('#shop-configuration div').filter({ hasText: 'Almost done. You just need to make some few basic settings in your shop, Shopwar' }).click();
+    await page.locator('#shop-configuration div').filter({ hasText: 'Almost done. You just need to make some few basic settings in your shop, Shopware' }).click();
 
     await page.getByLabel('Shop email address:').fill('mustermann@example.com');
     await page.locator('label').filter({ hasText: 'Pound sterling (UK)' }).click();

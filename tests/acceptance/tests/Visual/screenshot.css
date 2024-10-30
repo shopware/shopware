@@ -1,0 +1,15 @@
+.sw-data-grid__cell--name a:first-child {
+    display: none !important;
+}
+
+.sw-admin-menu__user-name {
+    display: none !important;
+}
+
+.sw-avatar__initials {
+    display: none !important;
+}
+
+.sw-version__info {
+    display: none !important;
+}

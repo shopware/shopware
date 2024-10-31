@@ -121,11 +121,17 @@
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Store\Services\ExtensionChecksumLoader">
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginFileHashService"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" class="Shopware\Core\Framework\Store\Services\ExtensionDataProvider">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionListingLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionChecksumLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

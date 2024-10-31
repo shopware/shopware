@@ -29,6 +29,7 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         private readonly EntityRepository $appRepository,
         private readonly EntityRepository $pluginRepository,
         private readonly ExtensionListingLoader $extensionListingLoader,
+        private readonly ExtensionChecksumLoader $extensionChecksumLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
@@ -50,6 +51,8 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $pluginCollection = $this->extensionLoader->loadFromPluginCollection($context, $installedPlugins);
 
         $extensions = $this->extensionLoader->loadFromAppCollection($context, $installedApps)->merge($pluginCollection);
+
+        $extensions = $this->extensionChecksumLoader->load($extensions, $context);
 
         if ($loadCloudExtensions) {
             $extensions = $this->extensionListingLoader->load($extensions, $context);

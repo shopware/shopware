@@ -130,6 +130,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry" public="true">
             <argument type="tagged" tag="shopware.entity.extension"/>
+            <argument type="tagged" tag="shopware.bulk.entity.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">

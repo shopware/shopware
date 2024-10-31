@@ -7,8 +7,12 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\RuntimeEntityExtension;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
@@ -186,6 +190,31 @@ class Framework extends Bundle
             // same definition? do not added extension
             if ($salesChannelDefinition !== $definition) {
                 $salesChannelDefinition->addExtension($extension);
+            }
+        }
+
+        foreach ($registry->getBulkExtensions() as $extension) {
+            foreach ($extension->collect() as $entity => $fields) {
+                try {
+                    $definition = $definitionRegistry->getByEntityName($entity);
+                } catch (DefinitionNotFoundException) {
+                    continue;
+                }
+
+                $class = new RuntimeEntityExtension($fields, $definition->getClass());
+
+                $definition->addExtension($class);
+
+                try {
+                    $salesChannelDefinition = $salesChannelRegistry->getByEntityName($entity);
+                } catch (DefinitionNotFoundException) {
+                    continue;
+                }
+
+                // same definition? do not added extension
+                if ($salesChannelDefinition !== $definition) {
+                    $salesChannelDefinition->addExtension($class);
+                }
             }
         }
     }

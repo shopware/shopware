@@ -16,8 +16,10 @@ class ExtensionRegistry
      *
      * @param iterable<EntityExtension> $extensions
      */
-    public function __construct(private readonly iterable $extensions)
-    {
+    public function __construct(
+        private readonly iterable $extensions,
+        private readonly iterable $bulks
+    ) {
     }
 
     /**
@@ -26,5 +28,13 @@ class ExtensionRegistry
     public function getExtensions(): iterable
     {
         return $this->extensions;
+    }
+
+    /**
+     * @return iterable<BulkEntityExtension>
+     */
+    public function getBulkExtensions(): iterable
+    {
+        return $this->bulks;
     }
 }

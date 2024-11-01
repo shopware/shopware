@@ -18,6 +18,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -31,6 +32,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -69,9 +72,21 @@ class EntityRepositoryTest extends TestCase
      */
     private EntityRepository $categoryRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
+    private EntityRepository $productRepository;
+
+    /**
+     * @var EntityRepository<MappingEntityCollection>
+     */
+    private EntityRepository $productCategoryRepository;
+
     protected function setUp(): void
     {
         $this->categoryRepository = $this->createRepository(CategoryDefinition::class);
+        $this->productRepository = $this->createRepository(ProductDefinition::class);
+        $this->productCategoryRepository = $this->createRepository(ProductCategoryDefinition::class);
     }
 
     protected function tearDown(): void
@@ -1585,6 +1600,68 @@ class EntityRepositoryTest extends TestCase
                 'author' => 'test',
             ],
         ], Context::createDefaultContext());
+    }
+
+    public function testManyToManyCanBeCreatedAndLoadedDirectlyOverTheRepository(): void
+    {
+        $context = Context::createDefaultContext();
+        $ids = new IdsCollection();
+
+        $product1 = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->categories(['c1', 'c2'])
+            ->visibility()
+            ->manufacturer('m1');
+
+        $product2 = (new ProductBuilder($ids, 'p2'))
+            ->price(100)
+            ->visibility()
+            ->manufacturer('m1');
+
+        $this->productRepository
+            ->create([
+                $product1->build(),
+                $product2->build(),
+            ], $context);
+
+        $createResult = $this->productCategoryRepository->create([
+            [
+                'productId' => $ids->get('p2'),
+                'categoryId' => $ids->get('c1'),
+            ],
+        ], $context);
+
+        static::assertEqualsCanonicalizing([
+            [
+                'productId' => $ids->get('p2'),
+                'categoryId' => $ids->get('c1'),
+            ],
+        ], $createResult->getPrimaryKeys('product_category'));
+
+        $mappedEntities = $this->productCategoryRepository
+            ->search(new Criteria(), $context)
+            ->getEntities();
+
+        static::assertInstanceOf(MappingEntityCollection::class, $mappedEntities);
+
+        $matches = [];
+
+        foreach ($mappedEntities as $key => $mappedEntity) {
+            static::assertInstanceOf(MappingEntity::class, $mappedEntity);
+            static::assertStringContainsString($mappedEntity->get('productId'), $key);
+            static::assertStringContainsString($mappedEntity->get('categoryId'), $key);
+
+            $matches[] = [
+                $mappedEntity->get('productId'),
+                $mappedEntity->get('categoryId'),
+            ];
+        }
+
+        static::assertEqualsCanonicalizing([
+            [$ids->get('p1'), $ids->get('c1')], // product repository create
+            [$ids->get('p1'), $ids->get('c2')], // product repository create
+            [$ids->get('p2'), $ids->get('c1')], // product category repository create
+        ], $matches);
     }
 
     /**

@@ -2,20 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 abstract class MappingEntityDefinition extends EntityDefinition
 {
+    #[\Override]
     public function getCollectionClass(): string
     {
-        throw new MappingEntityClassesException();
+        return MappingEntityCollection::class;
     }
 
+    #[\Override]
     public function getEntityClass(): string
     {
-        throw new MappingEntityClassesException();
+        return MappingEntity::class;
     }
 
     protected function getBaseFields(): array

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDef
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -23,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
@@ -35,6 +38,14 @@ use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 class EntityDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    public function testMappingDefinitionHasStructs(): void
+    {
+        $definition = static::getContainer()->get(ProductCategoryDefinition::class);
+
+        static::assertSame(MappingEntity::class, $definition->getEntityClass());
+        static::assertSame(MappingEntityCollection::class, $definition->getCollectionClass());
+    }
 
     public function testEntityDefinitionCompilation(): void
     {

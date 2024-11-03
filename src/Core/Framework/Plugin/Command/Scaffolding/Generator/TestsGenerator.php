@@ -47,11 +47,11 @@ class TestsGenerator implements ScaffoldingGenerator
         PluginScaffoldConfiguration $configuration,
         StubCollection $stubCollection
     ): void {
-        if ($this->filesystem->exists($configuration->directory . 'phpunit.xml')) {
+        if (!$this->filesystem->exists($configuration->directory . 'phpunit.xml')) {
             $stubCollection->add($this->createPhpunitXml($configuration));
         }
 
-        if ($this->filesystem->exists($configuration->directory . 'tests/TestBootstrap.php')) {
+        if (!$this->filesystem->exists($configuration->directory . 'tests/TestBootstrap.php')) {
             $stubCollection->add($this->createTestBootstrap($configuration));
         }
     }

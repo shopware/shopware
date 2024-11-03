@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\TestsGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -16,7 +17,10 @@ class TestsGeneratorTest extends TestCase
 {
     public function testCommandOptions(): void
     {
-        $generator = new TestsGenerator();
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(false);
+
+        $generator = new TestsGenerator($filesystem);
 
         static::assertFalse($generator->hasCommandOption());
         static::assertEmpty($generator->getCommandOptionName());
@@ -25,7 +29,11 @@ class TestsGeneratorTest extends TestCase
 
     public function testGenerateStubs(): void
     {
-        $generator = new TestsGenerator();
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(false);
+
+        $generator = new TestsGenerator($filesystem);
+
         $configuration = new PluginScaffoldConfiguration('TestPlugin', 'MyNamespace', '/path/to/directory');
         $stubCollection = new StubCollection();
 

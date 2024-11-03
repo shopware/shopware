@@ -50,6 +50,14 @@ class MakerCommandTest extends TestCase
         $tester = new CommandTester($command);
         $res = $tester->execute(['plugin-name' => 'ExamplePlugin']);
 
+        $display = $tester->getDisplay();
+
+        self::assertStringContainsString(
+            \sprintf("Remember to add this configuration Dummy content to the file                                                 \n           %s",
+                __DIR__ . '/src/Resources/config/services.xml'
+            ),
+            $display
+        );
         static::assertEquals(Command::SUCCESS, $res);
     }
 
@@ -143,6 +151,7 @@ class DummyScaffoldingGenerator implements ScaffoldingGenerator
             return;
         }
 
+        $stubCollection->append('src/Resources/config/services.xml', 'Dummy content');
         $stubCollection->append('src/Example/Service/Service.php', 'Dummy content');
     }
 }

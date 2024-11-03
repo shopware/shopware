@@ -52,8 +52,9 @@ class MakerCommandTest extends TestCase
 
         $display = $tester->getDisplay();
 
-        self::assertStringContainsString(
-            \sprintf("Remember to add this configuration Dummy content to the file                                                 \n           %s",
+        static::assertStringContainsString(
+            \sprintf(
+                "Remember to add this configuration Dummy content to the file                                                 \n           %s",
                 __DIR__ . '/src/Resources/config/services.xml'
             ),
             $display

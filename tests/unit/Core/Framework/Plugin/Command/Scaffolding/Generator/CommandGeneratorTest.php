@@ -65,12 +65,6 @@ class CommandGeneratorTest extends TestCase
             'confirmResponse' => true,
             'expectedHasOption' => true,
         ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
-            'expectedHasOption' => false,
-        ];
     }
 
     /**

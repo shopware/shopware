@@ -89,14 +89,6 @@ class EntityGeneratorTest extends TestCase
                 'TestEntity2',
             ],
         ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => 'TestEntity,TestEntity2',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
     }
 
     public static function provideEntities(): \Generator

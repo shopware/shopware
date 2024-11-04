@@ -29,6 +29,7 @@ export default {
     data() {
         return {
             isLoading: true,
+            isLoadingSnippets: true,
             isCreate: false,
             isAddedSnippet: false,
             isSaveable: true,
@@ -126,6 +127,7 @@ export default {
                 .search(this.snippetSetCriteria)
                 .then((sets) => {
                     this.sets = sets;
+                    this.isLoadingSnippets = true;
                     this.initializeSnippet();
                 })
                 .finally(() => {
@@ -135,14 +137,18 @@ export default {
 
         initializeSnippet() {
             this.snippets = this.createSnippetDummy();
-            this.getCustomList().then((response) => {
-                if (!response.total) {
-                    this.isAddedSnippet = true;
-                    return;
-                }
+            this.getCustomList()
+                .then((response) => {
+                    if (!response.total) {
+                        this.isAddedSnippet = true;
+                        return;
+                    }
 
-                this.applySnippetsToDummies(response.data[this.translationKey]);
-            });
+                    this.applySnippetsToDummies(response.data[this.translationKey]);
+                })
+                .finally(() => {
+                    this.isLoadingSnippets = false;
+                });
         },
 
         applySnippetsToDummies(snippets) {
@@ -241,6 +247,8 @@ export default {
                     responses.push(this.snippetRepository.delete(snippet.id));
                 }
             });
+
+            this.snippets = [];
 
             Promise.all(responses)
                 .then(() => {

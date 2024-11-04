@@ -87,7 +87,7 @@ class AdapterException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REDIS_UNKNOWN_CONNECTION,
-            'Can\'t provide connection "{{ connectionName }}", check if it\'s configured under framework.redis.connections.',
+            'Can\'t provide connection "{{ connectionName }}", check if it\'s configured under shopware.redis.connections.',
             [
                 'connectionName' => $connectionName,
             ],

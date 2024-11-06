@@ -55,4 +55,27 @@ class SystemSetupStagingCommandTest extends TestCase
 
         static::assertInstanceOf(SetupStagingEvent::class, $event);
     }
+
+    public function testRunNoInteraction(): void
+    {
+        $configService = new StaticSystemConfigService();
+        $eventDispatcher = new CollectingEventDispatcher();
+
+        $command = new SystemSetupStagingCommand(
+            $eventDispatcher,
+            $configService
+        );
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['yes']);
+        $tester->execute([], ['interactive' => false]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertTrue($configService->get('core.staging'));
+        static::assertCount(1, $eventDispatcher->getEvents());
+
+        $event = $eventDispatcher->getEvents()[0];
+
+        static::assertInstanceOf(SetupStagingEvent::class, $event);
+    }
 }

@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\UseTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -21,8 +21,8 @@ class UseTokenParserTest extends TestCase
     public function testRenderFromReferencingAnInheritedTemplate(): void
     {
         static::assertSame(
-           'foobar from block',
-           $this->parseTemplate('{% sw_use "foo.html.twig" %}{{ block("foobar") }}')
+            'foobar from block',
+            $this->parseTemplate('{% sw_use "foo.html.twig" %}{{ block("foobar") }}')
         );
     }
 

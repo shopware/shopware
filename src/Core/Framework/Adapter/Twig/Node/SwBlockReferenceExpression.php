@@ -17,7 +17,7 @@ class SwBlockReferenceExpression extends AbstractExpression
     public function __construct(Node $name, ?Node $template, int $lineno)
     {
         $nodes = ['name' => $name];
-        if (null !== $template) {
+        if ($template !== null) {
             $nodes['template'] = $template;
         }
 

@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
+use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -287,7 +288,11 @@ class ProductListingLoader
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
         if (!$hasOptionFilter) {
-            $mapping = $this->loadPreviews($keys, $context);
+            $mapping = $this->extensions->publish(
+                name: LoadPreviewExtension::NAME,
+                extension: new LoadPreviewExtension($keys, $context),
+                function: $this->loadPreviews(...)
+            );
         }
 
         $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);

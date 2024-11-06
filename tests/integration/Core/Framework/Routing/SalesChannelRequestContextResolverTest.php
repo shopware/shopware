@@ -21,11 +21,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
@@ -148,6 +151,58 @@ class SalesChannelRequestContextResolverTest extends TestCase
         } else {
             static::assertInstanceOf(CustomerNotLoggedInException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         }
+    }
+
+    public function testImitatingUserIdWithCustomer(): void
+    {
+        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+
+        $currencyId = $this->getCurrencyId('USD');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->loginCustomer(false));
+
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $imitatingUserId = Uuid::randomHex();
+        $request->getSession()->set(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID, $imitatingUserId);
+
+        $resolver->resolve($request);
+
+        static::assertEquals($imitatingUserId, $request->getSession()->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID));
+
+        /** @var SalesChannelContext */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        static::assertNotNull($context);
+        static::assertEquals($imitatingUserId, $context->getImitatingUserId());
+    }
+
+    public function testImitatingUserIdClearWithoutCustomer(): void
+    {
+        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+
+        $currencyId = $this->getCurrencyId('USD');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
+
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $request->getSession()->set(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID, Uuid::randomHex());
+
+        $resolver->resolve($request);
+
+        static::assertNull($request->getSession()->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID));
+
+        /** @var SalesChannelContext */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        static::assertNotNull($context);
+        static::assertNull($context->getImitatingUserId());
     }
 
     /**

@@ -16,6 +16,7 @@ class NodeExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
      * @deprecated - replace TemplateFinder with TemplateFinderInterface
      */
     public function __construct(

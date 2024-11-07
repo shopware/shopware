@@ -91,6 +91,7 @@ class AdapterException extends HttpException
             ['message' => $message]
         );
     }
+
     public static function swUseSyntaxError(int $line, Source $context): self
     {
         return new self(

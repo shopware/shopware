@@ -161,6 +161,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         if ($this->staleWhileRevalidate !== null) {
             $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
         }
+
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void

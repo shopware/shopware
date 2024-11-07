@@ -11,8 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\RuntimeEntityExtension;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
@@ -170,52 +168,55 @@ class Framework extends Bundle
         ExtensionRegistry $registry
     ): void {
         foreach ($registry->getExtensions() as $extension) {
-            /** @var string $class */
-            $class = $extension->getDefinitionClass();
-
-            try {
-                $definition = $definitionRegistry->get($class);
-            } catch (DefinitionNotFoundException) {
-                continue;
-            }
-
-            $definition->addExtension($extension);
-
-            try {
-                $salesChannelDefinition = $salesChannelRegistry->get($class);
-            } catch (DefinitionNotFoundException) {
-                continue;
-            }
-
-            // same definition? do not added extension
-            if ($salesChannelDefinition !== $definition) {
-                $salesChannelDefinition->addExtension($extension);
-            }
+            $this->addExtension($definitionRegistry, $salesChannelRegistry, $extension);
         }
 
-        foreach ($registry->getBulkExtensions() as $extension) {
-            foreach ($extension->collect() as $entity => $fields) {
-                try {
-                    $definition = $definitionRegistry->getByEntityName($entity);
-                } catch (DefinitionNotFoundException) {
-                    continue;
-                }
-
-                $class = new RuntimeEntityExtension($fields, $definition->getClass());
-
-                $definition->addExtension($class);
-
-                try {
-                    $salesChannelDefinition = $salesChannelRegistry->getByEntityName($entity);
-                } catch (DefinitionNotFoundException) {
-                    continue;
-                }
-
-                // same definition? do not added extension
-                if ($salesChannelDefinition !== $definition) {
-                    $salesChannelDefinition->addExtension($class);
-                }
-            }
+        foreach ($registry->buildBulkExtensions($definitionRegistry) as $extension) {
+            $this->addExtension($definitionRegistry, $salesChannelRegistry, $extension);
         }
+    }
+
+    private function addExtension(
+        DefinitionInstanceRegistry $definitionRegistry,
+        SalesChannelDefinitionInstanceRegistry $salesChannelRegistry,
+        EntityExtension $extension
+    ): void {
+        try {
+            $definition = $this->getInstance($definitionRegistry, $extension);
+        } catch (DefinitionNotFoundException) {
+            return;
+        }
+
+        $definition->addExtension($extension);
+
+        try {
+            $salesChannelDefinition = $this->getInstance($salesChannelRegistry, $extension);
+        } catch (DefinitionNotFoundException) {
+            return;
+        }
+
+        // same definition? do not added extension
+        if ($salesChannelDefinition !== $definition) {
+            $salesChannelDefinition->addExtension($extension);
+        }
+    }
+
+    private function getInstance(DefinitionInstanceRegistry $registry, EntityExtension $extension): EntityDefinition
+    {
+        if (Feature::isActive('v6.7.0.0')) {
+            $entity = $extension->getEntityName();
+
+            return $registry->getByEntityName($entity);
+        }
+
+        if (!empty($extension->getEntityName())) {
+            $entity = $extension->getEntityName();
+
+            return $registry->getByEntityName($entity);
+        }
+
+        $class = $extension->getDefinitionClass();
+
+        return $registry->get($class);
     }
 }

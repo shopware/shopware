@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\TwigFeaturesWithInheritanceExtension;
 use Shopware\Core\Framework\Adapter\Twig\Node\SwBlockReferenceExpression;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -51,7 +51,7 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
 
     public function testGetTag(): void
     {
-        $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinderInterface::class));
+        $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinder::class));
         $functionNames = \array_map(
             fn (TwigFunction $function) => $function->getName(),
             $extension->getFunctions(),
@@ -62,13 +62,10 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
         static::assertContains('sw_include', $functionNames);
     }
 
-    /**
-     * @param string[] $scopes
-     */
     private function parseTemplate(string $template): string
     {
         $templateName = Uuid::randomHex() . '.html.twig';
-        $templateFinder = $this->createMock(TemplateFinderInterface::class);
+        $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder->expects(static::once())
             ->method('find')
             ->with('foo.html.twig', false, null)

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Log\Package;
-use Twig\Error\SyntaxError;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Node;
 use Twig\Token;
@@ -26,7 +26,7 @@ final class UseTokenParser extends AbstractTokenParser
         $stream = $this->parser->getStream();
 
         if (!$template instanceof ConstantExpression) {
-            throw new SyntaxError('The template references in a "sw_use" statement must be a string.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
+            throw AdapterException::swUseSyntaxError($token->getLine(), $stream->getSourceContext());
         }
 
         // sw-fix-start

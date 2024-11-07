@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\ImportTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\UseTokenParser;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
+use Twig\Error\LoaderError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\CoreExtension;
 use Twig\Node\Expression\AbstractExpression;
@@ -24,6 +25,9 @@ use Twig\Util\CallableArgumentsExtractor;
 #[Package('core')]
 class TwigFeaturesWithInheritanceExtension extends AbstractExtension
 {
+    /**
+     * @internal
+     */
     public function __construct(private readonly TemplateFinderInterface $finder)
     {
     }
@@ -53,7 +57,7 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
     /**
      * @see CoreExtension::parseBlockFunction
      */
-    public function parseSwBlockFunction(Parser $parser, Node $fakeNode, $argsNode, int $line): AbstractExpression
+    public function parseSwBlockFunction(Parser $parser, Node $fakeNode, Node $argsNode, int $line): AbstractExpression
     {
         $fakeFunction = new TwigFunction('sw_block', fn ($name, $template = null) => null);
         $args = (new CallableArgumentsExtractor($fakeNode, $fakeFunction))->extractArguments($argsNode);
@@ -69,11 +73,20 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         return new BlockReferenceExpression($args[0], $templateArgument, $line);
     }
 
-    public function source(Environment $env, $name, $ignoreMissing = false): string
+    public function source(Environment $env, string $name, bool $ignoreMissing = false): string
     {
         return CoreExtension::source($env, $this->finder->find($name), $ignoreMissing);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     * @param array<string, string>|string|TemplateWrapper $template
+     * @param array<string, mixed> $variables
+     *
+     * @throws LoaderError
+     *
+     * @see CoreExtension::include
+     */
     public function include(
         Environment $env,
         array $context,

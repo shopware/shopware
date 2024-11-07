@@ -34,9 +34,6 @@ class UseTokenParserTest extends TestCase
         );
     }
 
-    /**
-     * @param string[] $scopes
-     */
     private function parseTemplate(string $template): string
     {
         $templateName = Uuid::randomHex() . '.html.twig';

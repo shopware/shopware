@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\EmbedTokenParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -38,17 +38,14 @@ class EmbedTokenParserTest extends TestCase
     {
         static::assertSame(
             'sw_embed',
-            (new EmbedTokenParser($this->createMock(TemplateFinderInterface::class)))->getTag(),
+            (new EmbedTokenParser($this->createMock(TemplateFinder::class)))->getTag(),
         );
     }
 
-    /**
-     * @param string[] $scopes
-     */
     private function parseTemplate(string $template): string
     {
         $templateName = Uuid::randomHex() . '.html.twig';
-        $templateFinder = $this->createMock(TemplateFinderInterface::class);
+        $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder->expects(static::once())
             ->method('find')
             ->with('foo.html.twig', false, null)

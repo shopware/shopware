@@ -23,7 +23,7 @@ final class EmbedTokenParser extends \Twig\TokenParser\IncludeTokenParser
     public function parse(Token $token): Node
     {
         $stream = $this->parser->getStream();
-
+        /** @var ConstantExpression|NameExpression $parent */
         $parent = $this->parser->getExpressionParser()->parseExpression();
 
         // sw-fix-start

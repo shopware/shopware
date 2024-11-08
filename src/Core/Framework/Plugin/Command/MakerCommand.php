@@ -139,9 +139,4 @@ class MakerCommand extends Command
 
         return $configStubs;
     }
-
-    private function isXml(string $filename): bool
-    {
-        return pathinfo($filename, \PATHINFO_EXTENSION) === XmlEncoder::FORMAT;
-    }
 }

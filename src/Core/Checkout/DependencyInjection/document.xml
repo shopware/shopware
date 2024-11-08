@@ -113,6 +113,28 @@
             <argument type="tagged_iterator" tag="document.renderer"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+
+            <tag name="document.renderer"/>
+        </service>
+        <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer">
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer"/>
+
+            <tag name="document.renderer"/>
+        </service>
+        <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
+            <argument type="service" id="document_base_config.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer">
             <argument>%shopware.dompdf.options%</argument>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>

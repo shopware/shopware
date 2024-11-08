@@ -12,6 +12,7 @@ author_github: @En0Ma1259
 * Deprecated `fileType` property `Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation` and will be removed in 6.7.0.0
 * Deprecated `Shopware\Core\Checkout\Document\Service\PdfRenderer::render()` call in `Shopware\Core\Checkout\Document\Service\DocumentGenerator`. If needed, `PdfRenderer::render()` must be called in each AbstractDocumentRenderer separately for 6.7.0.0
 * Deprecated `finalize` method in `Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` and will be removed in 6.7.0.0
+* Added new document types for e-invoices. `zugferd_invoice` and `zugferd_embedded_invoice`
 ___
 # Upgrade Information
 ## AbstractDocumentRenderer render workflow

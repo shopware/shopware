@@ -180,6 +180,39 @@ export default {
                     },
                 },
                 {
+                    name: 'companyStreet',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.companyStreet'),
+                    },
+                },
+                {
+                    name: 'companyZipcode',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.companyZipcode'),
+                    },
+                },
+                {
+                    name: 'companyCity',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.companyCity'),
+                    },
+                },
+                {
+                    name: 'companyCountryId',
+                    type: 'sw-entity-single-select',
+                    config: {
+                        entity: 'country',
+                        componentName: 'sw-entity-single-select',
+                        label: this.$tc('sw-settings-document.detail.companyCountry'),
+                    },
+                },
+                {
                     name: 'companyName',
                     type: 'text',
                     config: {

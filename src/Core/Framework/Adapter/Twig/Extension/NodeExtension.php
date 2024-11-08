@@ -17,7 +17,7 @@ class NodeExtension extends AbstractExtension
     /**
      * @internal
      *
-     * @deprecated - replace TemplateFinder with TemplateFinderInterface
+     * @deprecated tag:v6.7.0  - replace TemplateFinder with TemplateFinderInterface
      */
     public function __construct(
         private readonly TemplateFinder $finder,

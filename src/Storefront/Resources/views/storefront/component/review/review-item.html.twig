@@ -15,7 +15,7 @@
 
         {% block component_review_item_meta_lang %}
             {% if review.language %}
-                <meta itemprop="language" content="{{ review.language.translationCode.code }}">
+                <meta itemprop="inLanguage" content="{{ review.language.translationCode.code }}">
             {% endif %}
         {% endblock %}
 

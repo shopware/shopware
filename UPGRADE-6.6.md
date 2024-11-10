@@ -1,6 +1,6 @@
 # 6.6.7.0
 ## Shortened filenames with hashes for async JS built files
-When building the Storefront JS-files for production using `composer run build:storefront`, the async bundle filenames no longer contain the filepath.
+When building the Storefront JS-files for production using `composer run build:js:storefront`, the async bundle filenames no longer contain the filepath.
 Instead, only the filename is used with a chunkhash / dynamic version number. This also helps to identify which files have changed after build. Similar to the main entry file like e.g. `cms-extensions.js?1720776107`.
 
 **JS Filename before change in dist:**

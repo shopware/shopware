@@ -11,8 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -24,8 +23,8 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly HreflangLoaderInterface $hreflangLoader,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly StorefrontPluginRegistryInterface $themeRegistry,
         private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly DatabaseRuntimeConfigLoader $runtimeConfigLoader,
     ) {
     }
 
@@ -86,12 +85,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (\method_exists($this->themeRegistry, 'getByTechnicalName')) {
-            /** @var StorefrontPluginConfiguration|null $themeConfig */
-            $themeConfig = $this->themeRegistry->getByTechnicalName($theme);
-        } else {
-            $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($theme);
-        }
+        $themeConfig = $this->runtimeConfigLoader->loadByTechnicalName($theme, $event->getContext());
 
         if (!$themeConfig) {
             return;

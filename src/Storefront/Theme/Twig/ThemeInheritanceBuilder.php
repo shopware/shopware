@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
@@ -12,7 +14,10 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry)
+    public function __construct(
+        private readonly StorefrontPluginRegistryInterface $themeRegistry,
+        private readonly DatabaseRuntimeConfigLoader $runtimeConfigLoader,
+    )
     {
     }
 
@@ -94,9 +99,8 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
         $default = $this->injectPluginWildcard($default);
 
-        $themeConfig = $this->themeRegistry
-            ->getConfigurations()
-            ->getByTechnicalName($theme);
+        // todo: check what happens if bundle is a plugin, not a theme!!!
+        $themeConfig = $this->runtimeConfigLoader->loadByTechnicalName($theme, Context::createDefaultContext());
 
         if (!$themeConfig) {
             return $default;
@@ -142,7 +146,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
     private function isTheme(string $bundle): bool
     {
-        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
+        $themeConfig = $this->runtimeConfigLoader->loadByTechnicalName($bundle, Context::createDefaultContext());
 
         if ($themeConfig === null) {
             return false;

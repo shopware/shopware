@@ -71,6 +71,7 @@ import '../../src/app/store/rule-conditions-config.store';
 import '../../src/app/store/settings-item.store';
 import '../../src/app/store/shopware-apps.store';
 import '../../src/app/store/system.store';
+import '../../src/app/store/modals.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

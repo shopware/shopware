@@ -38,6 +38,7 @@
                     "nameLabel": "Name",
                     "namePlaceholder": "Enter name...",
                     "priorityLabel": "Priority",
+                    "helpTextPriority": "The priority determines the order in which the promotions are applied. Promotions with higher priority are applied before promotions with lower priority.",
                     "validFromLabel": "Valid from",
                     "validFromPlaceholder": "Select start date...",
                     "validUntilLabel": "Valid until",

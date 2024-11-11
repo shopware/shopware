@@ -38,6 +38,7 @@
                     "nameLabel": "Name",
                     "namePlaceholder": "Namen eingeben ...",
                     "priorityLabel": "Priorität",
+                    "helpTextPriority": "Die Priorität bestimmt die Reihenfolge, in der die Aktionen angewendet werden. Aktionen mit höherer Priorität werden vor Aktionen mit niedrigerer Priorität angewendet.",
                     "validFromLabel": "Gültig ab",
                     "validFromPlaceholder": "Wähle ein Startdatum ...",
                     "validUntilLabel": "Gültig bis",

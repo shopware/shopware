@@ -34,7 +34,6 @@ import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import type { MenuItemState } from './app/state/menu-item.store';
-import type { ModalsState } from './app/state/modals.store';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
@@ -103,6 +102,7 @@ import type { RuleConditionsConfig } from './app/store/rule-conditions-config.st
 import type { SettingsItems } from './app/store/settings-item.store';
 import type { ShopwareApps } from './app/store/shopware-apps.store';
 import type { System } from './app/store/system.store';
+import type { ModalsStore } from './app/store/modals.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -336,7 +336,6 @@ declare global {
         };
         swCategoryDetail: $TSFixMe;
         menuItem: MenuItemState;
-        modals: ModalsState;
         shopwareExtensions: ShopwareExtensionsState;
         usageData: UsageDataModuleState;
     }
@@ -363,6 +362,7 @@ declare global {
         settingsItems: SettingsItems;
         shopwareApps: ShopwareApps;
         system: System;
+        modals: ModalsStore;
     }
 
     /**

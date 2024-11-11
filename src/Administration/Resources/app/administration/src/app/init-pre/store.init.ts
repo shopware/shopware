@@ -15,6 +15,7 @@ import 'src/app/store/settings-item.store';
 import 'src/app/store/shopware-apps.store';
 import 'src/app/store/system.store';
 import 'src/app/store/modals.store';
+import 'src/app/store/menu-item.store';
 
 /**
  * @package admin

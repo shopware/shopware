@@ -128,8 +128,8 @@ class ThemeScriptsTest extends TestCase
         $request = new Request();
         // for some reason db themes the theme name is null
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, null);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'ChildId');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'ChildName');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, 'Storefront');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createCLIContext());
 

@@ -26,7 +26,7 @@ export default function initMenuItems(): void {
                     return;
                 }
 
-                Shopware.State.commit('menuItem/addMenuItem', {
+                Shopware.Store.get('menuItem').addMenuItem({
                     ...menuItemConfig,
                     moduleId,
                 });

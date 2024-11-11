@@ -87,9 +87,10 @@ class ThemeScriptsTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createCLIContext());
+
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createCLIContext());
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $requestStack->push($request);

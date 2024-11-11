@@ -53,8 +53,11 @@ readonly class ThemeScripts
         $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         $path = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
-        /** @var SalesChannelContext $salesChannelContext */
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$salesChannelContext instanceof SalesChannelContext) {
+            return [];
+        }
 
         return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeId, $salesChannelContext) {
             $themeConfig = $this->configLoader->load($themeId, $salesChannelContext->getContext());

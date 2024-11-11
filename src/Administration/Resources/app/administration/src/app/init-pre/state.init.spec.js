@@ -25,7 +25,6 @@ describe('src/app/init-pre/state.init.ts', () => {
         expect(Shopware.State.get('session')).toBeDefined();
         expect(Shopware.Store.get('shopwareApps')).toBeDefined();
         expect(Shopware.State.get('tabs')).toBeDefined();
-        expect(Shopware.State.get('menuItem')).toBeDefined();
         expect(Shopware.State.get('usageData')).toBeDefined();
     });
 

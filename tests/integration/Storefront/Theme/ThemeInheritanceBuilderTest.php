@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Storefront;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -18,6 +19,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\InheritanceWithConfig\I
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\PluginWildcardAndExplicit\PluginWildcardAndExplicit;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\StaticRuntimeConfigLoader;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithoutStorefront\ThemeWithoutStorefront;
 
@@ -30,6 +32,8 @@ class ThemeInheritanceBuilderTest extends TestCase
 
     private MockObject&StorefrontPluginRegistry $themeRegistryMock;
 
+    private StaticRuntimeConfigLoader $runtimeConfigLoader;
+
     private ThemeInheritanceBuilderInterface $builder;
 
     private AbstractStorefrontPluginConfigurationFactory $configFactory;
@@ -37,8 +41,9 @@ class ThemeInheritanceBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->themeRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
+        $this->runtimeConfigLoader = new StaticRuntimeConfigLoader();
 
-        $this->builder = new ThemeInheritanceBuilder($this->themeRegistryMock);
+        $this->builder = new ThemeInheritanceBuilder($this->themeRegistryMock, $this->runtimeConfigLoader);
 
         $this->configFactory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }
@@ -49,6 +54,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle(new Storefront()),
             $this->configFactory->createFromBundle(new InheritanceWithConfig()),
         ]);
+        $this->runtimeConfigLoader->setConfiguration($configs->getThemes());
 
         $this->themeRegistryMock->method('getConfigurations')
             ->willReturn($configs);
@@ -71,6 +77,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
         $this->themeRegistryMock->method('getConfigurations')
             ->willReturn($configs);
+        $this->runtimeConfigLoader->setConfiguration($configs->getThemes());
 
         $inheritance = $this->builder->build(
             ['InheritanceWithConfig' => 1, 'Storefront' => 1, 'PayPal' => 1],
@@ -90,6 +97,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
         $this->themeRegistryMock->method('getConfigurations')
             ->willReturn($configs);
+        $this->runtimeConfigLoader->setConfiguration($configs->getThemes());
 
         $inheritance = $this->builder->build(
             ['ConfigWithoutStorefrontDefined' => 1, 'Storefront' => 1, 'PayPal' => 1],
@@ -110,6 +118,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
         $this->themeRegistryMock->method('getConfigurations')
             ->willReturn($configs);
+        $this->runtimeConfigLoader->setConfiguration($configs->getThemes());
 
         $inheritance = $this->builder->build(
             ['PluginWildcardAndExplicit' => 1, 'Storefront' => 1, 'PayPal' => 1, 'CustomProducts' => 1],
@@ -130,6 +139,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
         $this->themeRegistryMock->method('getConfigurations')
             ->willReturn($configs);
+        $this->runtimeConfigLoader->setConfiguration($configs->getThemes());
 
         $inheritance = $this->builder->build(
             ['ThemeWithoutStorefront' => 1, 'Storefront' => 1, 'PayPal' => 1, 'CustomProducts' => 1],
@@ -157,6 +167,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
         $this->themeRegistryMock->method('getConfigurations')
             ->willReturn($configs);
+        $this->runtimeConfigLoader->setConfiguration($configs->getThemes());
 
         $inheritance = $this->builder->build(
             ['ThemeWithMultiInheritance' => 1, 'ThemeA' => 1, 'ThemeB' => 1, 'ThemeC' => 1, 'ThemeD' => 1, 'PayPal' => 1],

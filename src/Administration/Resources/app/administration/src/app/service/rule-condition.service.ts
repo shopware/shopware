@@ -1,5 +1,3 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-
 const { Criteria } = Shopware.Data;
 
 type appScriptCondition = {

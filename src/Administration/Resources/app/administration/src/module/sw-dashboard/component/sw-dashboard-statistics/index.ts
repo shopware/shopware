@@ -1,10 +1,9 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
 const { Criteria } = Shopware.Data;
 
-type OrderEntity = EntitySchema.order;
+type OrderEntity = Entity<'order'>;
 
 type HistoryDateRange = {
     label: string;

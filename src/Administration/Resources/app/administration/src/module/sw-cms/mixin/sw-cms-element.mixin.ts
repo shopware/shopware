@@ -5,13 +5,6 @@ const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 const { cloneDeep, merge } = Shopware.Utils.object;
 
-interface Translation {
-    languageId: string;
-}
-interface Entity {
-    translations: Translation[];
-}
-
 /**
  * @private
  * @package discovery
@@ -49,9 +42,9 @@ export default Mixin.register(
                 return this.cmsService.getCmsElementRegistry();
             },
 
-            category(): EntitySchema.Entities['category'] {
+            category(): Entity<'category'> {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return Shopware.State.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
+                return Shopware.State.get('swCategoryDetail')?.category as Entity<'category'>;
             },
         },
 
@@ -93,7 +86,7 @@ export default Mixin.register(
                 return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
             },
 
-            getDefaultTranslations(entity: Entity) {
+            getDefaultTranslations(entity: Entity<'category'>) {
                 return entity.translations.find((translation) => {
                     return translation.languageId === Shopware.Context.api.systemLanguageId;
                 });

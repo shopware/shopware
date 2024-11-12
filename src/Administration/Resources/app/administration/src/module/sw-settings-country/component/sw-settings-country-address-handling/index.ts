@@ -1,7 +1,6 @@
 import camelCase from 'lodash/camelCase';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
@@ -57,7 +56,7 @@ Component.register('sw-settings-country-address-handling', {
 
     props: {
         country: {
-            type: Object as PropType<EntitySchema.Entities['country']>,
+            type: Object as PropType<Entity<'country'>>,
             required: true,
         },
 
@@ -467,7 +466,7 @@ Component.register('sw-settings-country-address-handling', {
                 .catch(() => {});
         },
 
-        renderFormattingAddress(address?: EntitySchema.Entities['customer_address']): Promise<unknown> {
+        renderFormattingAddress(address?: Entity<'customer_address'>): Promise<unknown> {
             if (!address) {
                 this.formattingAddress = '';
                 return Promise.resolve();

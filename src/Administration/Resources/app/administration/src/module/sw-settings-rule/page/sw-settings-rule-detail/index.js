@@ -451,7 +451,7 @@ export default {
             }
 
             if (!this.validateDateRange()) {
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: `rule_condition.${this.rule.id}.value`,
                     error: new Shopware.Classes.ShopwareError({
                         detail: this.$tc('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),

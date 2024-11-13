@@ -46,7 +46,6 @@ import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
-import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
@@ -100,6 +99,7 @@ import type { ContextStore } from './app/store/context.store';
 import type { LicenseViolationStore } from './app/store/license-violation.store';
 import type { ExtensionMainModules } from './app/store/main-module.store';
 import type { MarketingStore } from './app/store/marketing.store';
+import type { SdkLocation } from './app/store/sdk-location.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -336,7 +336,6 @@ declare global {
         modals: ModalsState;
         shopwareExtensions: ShopwareExtensionsState;
         shopwareApps: ShopwareAppsState;
-        sdkLocation: SdkLocationState;
         usageData: UsageDataModuleState;
     }
 
@@ -357,6 +356,7 @@ declare global {
         licenseViolation: LicenseViolationStore;
         extensionMainModules: ExtensionMainModules;
         marketing: MarketingStore;
+        sdkLocation: SdkLocation;
     }
 
     /**

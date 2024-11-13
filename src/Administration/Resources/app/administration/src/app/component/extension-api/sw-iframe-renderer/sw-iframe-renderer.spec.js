@@ -64,8 +64,8 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         });
 
         // Clear sdkLocation store
-        Object.keys(Shopware.State.get('sdkLocation').locations).forEach((key) => {
-            delete Shopware.State.get('sdkLocation').locations[key];
+        Object.keys(Shopware.Store.get('sdkLocation').locations).forEach((key) => {
+            delete Shopware.Store.get('sdkLocation').locations[key];
         });
 
         // Reset route mock
@@ -175,7 +175,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        Shopware.State.commit('sdkLocation/addLocation', {
+        Shopware.Store.get('sdkLocation').addLocation({
             locationId: 'foo',
             componentName: 'my-replacement-component',
         });

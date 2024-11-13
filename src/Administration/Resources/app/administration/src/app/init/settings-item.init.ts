@@ -39,8 +39,8 @@ export default function initializeSettingItems(): void {
                     return;
                 }
 
-                Shopware.State.commit('settingsItems/addItem', {
-                    group: group,
+                Shopware.Store.get('settingsItems').addItem({
+                    group: group as 'shop' | 'system' | 'plugins',
                     icon: settingsItemConfig.icon,
                     id: settingsItemConfig.locationId,
                     label: settingsItemConfig.label,

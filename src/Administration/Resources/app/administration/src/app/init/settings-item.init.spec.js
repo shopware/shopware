@@ -18,7 +18,7 @@ describe('src/app/init/settings-item.init.ts', () => {
             configurable: true,
         });
         Shopware.Store.get('extensionSdkModules').modules = [];
-        Shopware.State.get('settingsItems').settingsGroups = {
+        Shopware.Store.get('settingsItems').settingsGroups = {
             shop: [],
             system: [],
             plugins: [],
@@ -57,8 +57,8 @@ describe('src/app/init/settings-item.init.ts', () => {
             locationId: 'settings-location-id',
         });
 
-        expect(Shopware.State.get('settingsItems').settingsGroups.system).toHaveLength(1);
-        expect(Shopware.State.get('settingsItems').settingsGroups.system[0]).toEqual({
+        expect(Shopware.Store.get('settingsItems').settingsGroups.system).toHaveLength(1);
+        expect(Shopware.Store.get('settingsItems').settingsGroups.system[0]).toEqual({
             group: 'system',
             icon: 'default-object-books',
             id: 'settings-location-id',
@@ -91,8 +91,8 @@ describe('src/app/init/settings-item.init.ts', () => {
             locationId: 'settings-location-id',
         });
 
-        expect(Shopware.State.get('settingsItems').settingsGroups.plugins).toHaveLength(1);
-        expect(Shopware.State.get('settingsItems').settingsGroups.plugins[0]).toEqual({
+        expect(Shopware.Store.get('settingsItems').settingsGroups.plugins).toHaveLength(1);
+        expect(Shopware.Store.get('settingsItems').settingsGroups.plugins[0]).toEqual({
             group: 'plugins',
             icon: 'default-object-books',
             id: 'settings-location-id',
@@ -126,8 +126,8 @@ describe('src/app/init/settings-item.init.ts', () => {
             locationId: 'settings-location-id',
         });
 
-        expect(Shopware.State.get('settingsItems').settingsGroups.plugins).toHaveLength(1);
-        expect(Shopware.State.get('settingsItems').settingsGroups.plugins[0]).toEqual({
+        expect(Shopware.Store.get('settingsItems').settingsGroups.plugins).toHaveLength(1);
+        expect(Shopware.Store.get('settingsItems').settingsGroups.plugins[0]).toEqual({
             group: 'plugins',
             icon: 'default-object-books',
             id: 'settings-location-id',

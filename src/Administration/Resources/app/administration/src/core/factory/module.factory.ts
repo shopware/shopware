@@ -526,7 +526,7 @@ function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void
                 settingsItem.label = module.title;
             }
 
-            Shopware.State.commit('settingsItems/addItem', settingsItem);
+            Shopware.Store.get('settingsItems').addItem(settingsItem);
         } else {
             warn(
                 'ModuleFactory',

@@ -2,7 +2,14 @@
  * @private
  * @package buyers-experience
  */
+import CMS from '../../../constant/sw-cms.constant';
+
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Component.register('sw-cms-preview-text-on-image', () => import('./preview'));
+
 /**
  * @private
  * @package buyers-experience
@@ -42,6 +49,12 @@ Shopware.Service('cmsService').registerCmsBlock({
                         sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
                         lorem ipsum dolor sit amet.</p>
                         `.trim(),
+                    },
+                },
+                data: {
+                    media: {
+                        value: CMS.MEDIA.previewMountain,
+                        source: 'default',
                     },
                 },
             },

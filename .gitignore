@@ -16,6 +16,10 @@ Thumbs.db
 *.http
 /.run/
 
+# VSCode-Project
+/.vscode/
+!/.vscode/settings.json
+
 # Composer
 /composer.phar
 /auth.json

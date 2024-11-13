@@ -107,20 +107,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
 
-        if (Shopware.State.get('settingsItems')) {
-            Shopware.State.unregisterModule('settingsItems');
-        }
-
-        Shopware.State.registerModule('settingsItems', {
-            namespaced: true,
-            state: {
-                settingsGroups: {
-                    shop: [],
-                    system: [],
-                },
-            },
-        });
-
         Shopware.Module.getModuleRegistry().clear();
         adminModules.forEach((adminModule) => {
             Shopware.Module.register(adminModule.name, adminModule);
@@ -136,8 +122,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
 
         Shopware.State.commit('setCurrentUser', null);
-        Shopware.State.get('settingsItems').settingsGroups.shop = [];
-        Shopware.State.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [];
+        Shopware.Store.get('settingsItems').settingsGroups.system = [];
 
         Shopware.State.commit('shopwareApps/setApps', []);
 

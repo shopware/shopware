@@ -50,7 +50,7 @@ export default class AclService {
     hasActiveSettingModules(): boolean {
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
-        const groups = Object.values(this.state.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
+        const groups = Object.values(Shopware.Store.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
 
         let hasActive = false;
 

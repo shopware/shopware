@@ -5,7 +5,6 @@
 import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';
-import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
@@ -17,7 +16,6 @@ export default {
     notification,
     session,
     system,
-    settingsItems,
     shopwareApps,
     tabs,
     menuItem,

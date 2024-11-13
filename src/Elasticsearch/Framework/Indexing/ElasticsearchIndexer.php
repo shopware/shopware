@@ -289,7 +289,7 @@ class ElasticsearchIndexer
         foreach ($toRemove as $id) {
             $documents[] = ['delete' => ['_id' => $id]];
         }
-        
+
         if ($documents === []) {
             return;
         }

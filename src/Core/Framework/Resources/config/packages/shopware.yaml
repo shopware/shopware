@@ -572,3 +572,7 @@ shopware:
 
     messenger:
         routing_overwrite:
+        # tag:v6.7.0 - delete setting, as it should be always enabled
+        enforce_message_size: false
+        skip_enforce_size_messages:
+            - 'Symfony\Component\Mailer\Messenger\SendEmailMessage'

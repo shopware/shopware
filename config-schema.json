@@ -297,7 +297,16 @@
                 "enforce_message_size": {
                     "type": "boolean",
                     "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
-                    "default": false
+                    "default": false,
+                    "deprecationMessage": "The `enforce_message_size` option is deprecated and will be removed in v6.7.0 as it always be `true`"
+                },
+                "skip_enforce_size_messages": {
+                    "type": "array",
+                    "title": "Skip the message size enforcement for specific messages",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

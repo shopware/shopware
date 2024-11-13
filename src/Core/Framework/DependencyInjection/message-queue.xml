@@ -10,6 +10,7 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.messenger.enforce_message_size%</argument>
+            <argument>%shopware.messenger.skip_enforce_size_messages%</argument>
 
             <tag name="kernel.event_listener" event="Symfony\Component\Messenger\Event\SendMessageToTransportsEvent"/>
         </service>

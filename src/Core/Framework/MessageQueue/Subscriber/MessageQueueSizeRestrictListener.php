@@ -19,12 +19,15 @@ readonly class MessageQueueSizeRestrictListener
     private const MESSAGE_SIZE_LIMIT = 1024 * 256;
 
     /**
+     * @param string[] $skipEnforceSizeMessages
+     *
      * @internal
      */
     public function __construct(
-        private MessageSizeCalculator $calculator,
-        private LoggerInterface $logger,
-        private bool $enforceLimit
+        private readonly MessageSizeCalculator $calculator,
+        private readonly LoggerInterface $logger,
+        private readonly bool $enforceLimit,
+        private readonly array $skipEnforceSizeMessages
     ) {
     }
 
@@ -39,19 +42,24 @@ readonly class MessageQueueSizeRestrictListener
             }
         }
 
+        $message = $event->getEnvelope()->getMessage();
+        foreach ($this->skipEnforceSizeMessages as $skipMessage) {
+            if ($message instanceof $skipMessage) {
+                return;
+            }
+        }
+
         $messageLengthInBytes = $this->calculator->size($event->getEnvelope());
 
         if ($messageLengthInBytes > self::MESSAGE_SIZE_LIMIT) {
-            $messageName = $event->getEnvelope()->getMessage()::class;
-
             if ($this->enforceLimit) {
-                throw MessageQueueException::queueMessageSizeExceeded($messageName);
+                throw MessageQueueException::queueMessageSizeExceeded($message::class);
             }
 
             $this->logger->critical(
                 'The message "{message}" exceeds the 256 kB size limit with its size of {size} kB. With the next major version 6.7 such messages will be rejected.',
                 [
-                    'message' => $messageName,
+                    'message' => $message::class,
                     'size' => $messageLengthInBytes / 1024,
                 ]
             );

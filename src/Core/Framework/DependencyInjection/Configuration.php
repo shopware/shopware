@@ -940,6 +940,9 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 // @deprecated tag:v6.7.0 - Set `enforce_message_size` to default true. Also change the `config-schema.json` accordingly
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->arrayNode('skip_enforce_size_messages')
+                    ->scalarPrototype()->end()
+                ->end()
             ->end();
 
         return $rootNode;

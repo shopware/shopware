@@ -8,10 +8,13 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
 use Symfony\Component\Messenger\Transport\Serialization\Serializer;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
+use Symfony\Component\Mime\RawMessage;
 
 /**
  * @internal
@@ -19,6 +22,8 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 #[CoversClass(MessageQueueSizeRestrictListener::class)]
 class MessageQueueSizeRestrictListenerTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testSyncTransportDoesNothing(): void
     {
         $serializer = new Serializer();
@@ -28,7 +33,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::never())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false, []);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -46,7 +51,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::never())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false, []);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -64,11 +69,11 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::once())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false, []);
 
-        $stdClass = new \stdClass();
-        $stdClass->a = str_repeat('a', 1024 * 256);
-        $envelope = new Envelope($stdClass);
+        $message = new \stdClass();
+        $message->a = str_repeat('a', 1024 * 256);
+        $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
@@ -84,15 +89,37 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
             ->expects(static::never())
             ->method('critical');
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, true);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, true, []);
 
-        $stdClass = new \stdClass();
-        $stdClass->a = str_repeat('a', 1024 * 256);
-        $envelope = new Envelope($stdClass);
+        $message = new \stdClass();
+        $message->a = str_repeat('a', 1024 * 256);
+        $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
         $this->expectExceptionObject(MessageQueueException::queueMessageSizeExceeded(\stdClass::class));
+
+        $listener($event);
+    }
+
+    public function testBigMessageDoesNothingWithSkipMessages(): void
+    {
+        $serializer = new Serializer();
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $logger
+            ->expects(static::never())
+            ->method('critical');
+
+        /** @var string[] $skipEnforceSizeMessages */
+        $skipEnforceSizeMessages = $this->getContainer()->getParameter('shopware.messenger.skip_enforce_size_messages');
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, true, $skipEnforceSizeMessages);
+
+        $message = new SendEmailMessage(new RawMessage(str_repeat('a', 1024 * 256)));
+        $envelope = new Envelope($message);
+
+        $event = new SendMessageToTransportsEvent($envelope, []);
 
         $listener($event);
     }

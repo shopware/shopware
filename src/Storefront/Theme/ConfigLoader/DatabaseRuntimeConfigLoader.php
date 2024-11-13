@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,7 +24,13 @@ class DatabaseRuntimeConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $themeRepository,
+        private readonly Connection $connection,
     ) {
+    }
+
+    // todo: cache in local variable, check if arrays are acceptable/or should introduce a new class
+    public function getThemes() {
+        return $this->connection->fetchAllAssociative('SELECT HEX(id) AS `id`, technical_name FROM theme WHERE active = 1');
     }
 
     // todo: cache or add registry/load all active themes in one run

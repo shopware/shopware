@@ -15,6 +15,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -42,6 +43,7 @@ class SnippetService
         private readonly EntityRepository $snippetRepository,
         private readonly EntityRepository $snippetSetRepository,
         private readonly SnippetFilterFactory $snippetFilterFactory,
+        private readonly DatabaseRuntimeConfigLoader $runtimeConfigLoader,
         /**
          * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
          * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
@@ -231,15 +233,14 @@ class SnippetService
      */
     protected function getUnusedThemes(array $usingThemes = []): array
     {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
-        $unusedThemes = $this->container->get(StorefrontPluginRegistry::class)->getConfigurations()->getThemes()
-            ->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))
-            ->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
-
-        return array_values($unusedThemes);
+        $themes = $this->runtimeConfigLoader->getThemes();
+        return array_values(array_map(
+            fn($theme) => $theme['technical_name'],
+            array_filter(
+                $themes,
+                fn($theme) => !in_array($theme['technical_name'], $usingThemes, true)
+            )
+        ));
     }
 
     /**

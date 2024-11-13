@@ -11,7 +11,6 @@ import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import modals from './modals.store';
 import ruleConditionsConfig from './rule-conditions-config.store';
-import sdkLocation from './sdk-location.store';
 import usageData from './usage-data.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -25,6 +24,5 @@ export default {
     menuItem,
     modals,
     ruleConditionsConfig,
-    sdkLocation,
     usageData,
 };

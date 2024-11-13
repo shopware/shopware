@@ -9,6 +9,7 @@ import 'src/app/store/license-violation.store';
 import 'src/app/store/main-module.store';
 import 'src/app/store/marketing.store';
 import 'src/app/store/sdk-location.store';
+import 'src/app/store/rule-conditions-config.store';
 
 /**
  * @package admin

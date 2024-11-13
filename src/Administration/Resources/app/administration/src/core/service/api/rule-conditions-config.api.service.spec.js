@@ -29,16 +29,16 @@ describe('ruleConditionsConfigApiService', () => {
 
         await ruleConditionsConfigApiService.load();
 
-        expect(Shopware.State.getters['ruleConditionsConfig/getConfig']()).toEqual(ruleConditionsConfig);
+        expect(Shopware.Store.get('ruleConditionsConfig').config).toEqual(ruleConditionsConfig);
     });
 
     it('is request prevented if store has config', async () => {
         const { ruleConditionsConfigApiService } = getRuleConditionsConfigApiService();
 
-        Shopware.State.commit('ruleConditionsConfig/setConfig', { foo: 'bar' });
+        Shopware.Store.get('ruleConditionsConfig').config = { foo: 'bar' };
 
         await ruleConditionsConfigApiService.load();
 
-        expect(Shopware.State.getters['ruleConditionsConfig/getConfig']()).toEqual({ foo: 'bar' });
+        expect(Shopware.Store.get('ruleConditionsConfig').config).toEqual({ foo: 'bar' });
     });
 });

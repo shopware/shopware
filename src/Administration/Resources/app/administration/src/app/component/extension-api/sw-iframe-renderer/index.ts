@@ -114,7 +114,7 @@ Shopware.Component.register('sw-iframe-renderer', {
         },
 
         componentName(): string | undefined {
-            return Shopware.State.get('sdkLocation').locations[this.locationId];
+            return Shopware.Store.get('sdkLocation').locations[this.locationId];
         },
 
         extension(): Extension | undefined {

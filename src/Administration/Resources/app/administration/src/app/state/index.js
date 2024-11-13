@@ -10,7 +10,6 @@ import shopwareApps from './shopware-apps.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import modals from './modals.store';
-import ruleConditionsConfig from './rule-conditions-config.store';
 import usageData from './usage-data.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -23,6 +22,5 @@ export default {
     tabs,
     menuItem,
     modals,
-    ruleConditionsConfig,
     usageData,
 };

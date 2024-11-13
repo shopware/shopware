@@ -135,7 +135,6 @@ const missingTests = [
     'src/app/state/menu-item.store.ts',
     'src/app/state/modals.store.ts',
     'src/app/state/notification.store.js',
-    'src/app/state/settings-item.store.js',
     'src/app/state/shopware-apps.store.ts',
     'src/app/state/system.store.js',
     'src/app/state/tabs.store.ts',

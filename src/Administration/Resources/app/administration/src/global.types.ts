@@ -101,6 +101,7 @@ import type { ExtensionMainModules } from './app/store/main-module.store';
 import type { MarketingStore } from './app/store/marketing.store';
 import type { SdkLocation } from './app/store/sdk-location.store';
 import type { RuleConditionsConfig } from './app/store/rule-conditions-config.store';
+import type { SettingsItems } from './app/store/settings-item.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -359,6 +360,7 @@ declare global {
         marketing: MarketingStore;
         sdkLocation: SdkLocation;
         ruleConditionsConfig: RuleConditionsConfig;
+        settingsItems: SettingsItems;
     }
 
     /**

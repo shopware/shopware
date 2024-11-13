@@ -100,6 +100,7 @@ import type { LicenseViolationStore } from './app/store/license-violation.store'
 import type { ExtensionMainModules } from './app/store/main-module.store';
 import type { MarketingStore } from './app/store/marketing.store';
 import type { SdkLocation } from './app/store/sdk-location.store';
+import type { RuleConditionsConfig } from './app/store/rule-conditions-config.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -357,6 +358,7 @@ declare global {
         extensionMainModules: ExtensionMainModules;
         marketing: MarketingStore;
         sdkLocation: SdkLocation;
+        ruleConditionsConfig: RuleConditionsConfig;
     }
 
     /**

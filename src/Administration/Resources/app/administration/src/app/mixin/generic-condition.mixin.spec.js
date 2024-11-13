@@ -54,7 +54,7 @@ describe('app/mixin/generic-condition', () => {
             },
         });
 
-        Shopware.State.commit('ruleConditionsConfig/setConfig', config);
+        Shopware.Store.get('ruleConditionsConfig').config = config;
     });
 
     it('should update and convert the field value', () => {

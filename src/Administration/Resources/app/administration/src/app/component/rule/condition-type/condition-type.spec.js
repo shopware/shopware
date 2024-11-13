@@ -146,7 +146,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     });
 
     beforeEach(() => {
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+        Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
     it.each(conditionTypes)('The component "%s" should have all fields enabled', async (conditionType) => {

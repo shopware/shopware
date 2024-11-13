@@ -130,7 +130,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
-            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingMethod.tax')
             ->addAssociation('deliveries.positions.orderLineItem')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
@@ -315,6 +315,35 @@ class RecalculationServiceTest extends TestCase
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$orderId]), $versionContext)->get($orderId);
 
         static::assertEquals($this->getDeDeLanguageId(), $order->getLanguageId());
+    }
+
+    public function testFetchOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $service = $this->getContainer()->get(RecalculationService::class);
+
+        /** @var OrderEntity|null $order */
+        $order = (new \ReflectionClass($service))
+            ->getMethod('fetchOrder')
+            ->invoke($service, $orderId, $this->context);
+
+        static::assertNotNull($order);
+
+        static::assertNotNull($order->getLineItems());
+        $lineItem = $order->getLineItems()->first();
+        static::assertNotNull($lineItem);
+        static::assertNotNull($lineItem->getDownloads());
+
+        static::assertNotNull($order->getDeliveries());
+        $delivery = $order->getDeliveries()->first();
+        static::assertNotNull($delivery);
+        static::assertNotNull($delivery->getShippingMethod());
+        static::assertNotNull($delivery->getShippingMethod()->getTax());
+        static::assertNotNull($delivery->getShippingOrderAddress());
+        static::assertNotNull($delivery->getShippingOrderAddress()->getCountry());
     }
 
     public function testRecalculationWithDeletedCustomer(): void
@@ -1721,6 +1750,8 @@ class RecalculationServiceTest extends TestCase
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
+        $taxId = Uuid::randomHex();
+
         $data = [
             'id' => $shippingMethodId,
             'type' => 0,
@@ -1773,6 +1804,12 @@ class RecalculationServiceTest extends TestCase
                         'type' => 'true',
                     ],
                 ],
+            ],
+            'taxId' => $taxId,
+            'tax' => [
+                'id' => $taxId,
+                'taxRate' => 19,
+                'name' => 'test',
             ],
         ];
 

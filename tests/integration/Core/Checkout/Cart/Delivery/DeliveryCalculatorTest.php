@@ -41,7 +41,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tax\TaxEntity;
 
 /**
  * @internal
@@ -1646,12 +1645,9 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
 
         $taxRate = 10;
+        $taxId = Uuid::randomHex();
 
-        $shippingMethod->setTax((new TaxEntity())->assign([
-            'id' => Uuid::randomHex(),
-            'name' => 'Test',
-            'taxRate' => $taxRate,
-        ]));
+        $shippingMethod->setTaxId($taxId);
 
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
@@ -1674,7 +1670,10 @@ class DeliveryCalculatorTest extends TestCase
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
-        $context->expects(static::atLeastOnce())->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule($taxRate)]));
+        $context->expects(static::atLeastOnce())
+            ->method('buildTaxRules')
+            ->with($taxId)
+            ->willReturn(new TaxRuleCollection([new TaxRule($taxRate)]));
 
         $lineItem = $this->createLineItem(
             new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime),

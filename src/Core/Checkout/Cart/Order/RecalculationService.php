@@ -319,7 +319,7 @@ class RecalculationService
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems.downloads')
             ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingMethod.tax')
             ->addAssociation('deliveries.positions.orderLineItem')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');

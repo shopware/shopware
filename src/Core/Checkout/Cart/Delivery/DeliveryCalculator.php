@@ -171,10 +171,10 @@ class DeliveryCalculator
                 break;
 
             case ShippingMethodEntity::TAX_TYPE_FIXED:
-                $tax = $shippingMethod->getTax();
+                $taxId = $shippingMethod->getTaxId();
 
-                if ($tax !== null) {
-                    $rules = $context->buildTaxRules($tax->getId());
+                if ($taxId !== null) {
+                    $rules = $context->buildTaxRules($taxId);
 
                     break;
                 }

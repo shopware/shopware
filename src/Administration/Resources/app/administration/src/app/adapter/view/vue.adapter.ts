@@ -17,6 +17,7 @@ import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
+import useSystem from '../../composables/use-system';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -521,9 +522,10 @@ export default class VueAdapter extends ViewAdapter {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
+        const { registerAdminLocale } = useSystem();
 
         registry.forEach((localeMessages, key) => {
-            store.commit('registerAdminLocale', key);
+            registerAdminLocale(key);
             // @ts-expect-error - key is safe because we iterate through the registry
             messages[key] = localeMessages;
         });

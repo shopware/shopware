@@ -56,7 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         appDefinition(): AppModuleDefinition | null {
             return (
-                State.get('shopwareApps').apps.find((app) => {
+                Shopware.Store.get('shopwareApps').apps.find((app) => {
                     return app.name === this.appName;
                 }) ?? null
             );

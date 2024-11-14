@@ -381,9 +381,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ],
             },
         });
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
     });
 
     it('should be a Vue.js component', async () => {
@@ -481,7 +481,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be show empty state', async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', []);
+        Shopware.Store.get('shopwareApps').selectedIds = [];
         wrapper = await createWrapper();
         await flushPromises();
 

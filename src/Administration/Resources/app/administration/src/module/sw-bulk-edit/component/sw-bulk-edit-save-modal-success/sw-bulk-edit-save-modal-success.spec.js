@@ -43,7 +43,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
     beforeAll(() => {
         Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-        Shopware.State.commit('shopwareApps/setSelectedIds', ['orderId']);
+        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
     });
 
     beforeEach(async () => {

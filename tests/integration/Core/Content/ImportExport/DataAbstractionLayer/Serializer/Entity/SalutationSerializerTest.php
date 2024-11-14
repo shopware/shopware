@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
 /**
@@ -26,9 +27,9 @@ class SalutationSerializerTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SalutationCollection>
      */
-    private $salutationRepository;
+    private EntityRepository $salutationRepository;
 
     private SalutationSerializer $serializer;
 

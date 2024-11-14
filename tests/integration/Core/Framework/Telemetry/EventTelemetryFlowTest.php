@@ -56,7 +56,7 @@ class EventTelemetryFlowTest extends TestCase
         ]);
         static::assertNotEmpty($this->transport->getEmittedMetrics());
         static::assertEquals(
-            new Metric(new ConfiguredMetric('cache.invalidate.count', 1), $metricConfig),
+            Metric::fromConfigured(new ConfiguredMetric('cache.invalidate.count', 1), $metricConfig),
             $this->transport->getEmittedMetrics()[0]
         );
     }
@@ -87,7 +87,7 @@ class EventTelemetryFlowTest extends TestCase
         $userRepository->search($criteria, Context::createDefaultContext())->first();
         static::assertNotEmpty($this->transport->getEmittedMetrics());
         static::assertEquals(
-            new Metric(new ConfiguredMetric('dal.associations.count', 2), $metricConfig),
+            Metric::fromConfigured(new ConfiguredMetric('dal.associations.count', 2), $metricConfig),
             $this->transport->getEmittedMetrics()[0]
         );
     }

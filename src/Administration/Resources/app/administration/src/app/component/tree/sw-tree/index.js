@@ -281,7 +281,10 @@ Component.register('sw-tree', {
                 const pathIds = item?.data?.path?.split('|').filter((pathId) => pathId.length > 0) ?? '';
 
                 // add parent id to accumulator
-                return [...acc, ...pathIds];
+                return [
+                    ...acc,
+                    ...pathIds,
+                ];
             }, []);
         },
 
@@ -338,7 +341,7 @@ Component.register('sw-tree', {
                     return;
                 }
 
-                if (parentId === null && typeof this.items.find(i => i.id === item.parentId) !== 'undefined') {
+                if (parentId === null && typeof this.items.find((i) => i.id === item.parentId) !== 'undefined') {
                     return;
                 }
 
@@ -452,8 +455,8 @@ Component.register('sw-tree', {
             const sourceTree = this.findTreeByParentId(draggedComponent.parentId);
             const targetTree = this.findTreeByParentId(droppedComponent.parentId);
 
-            const dragItemIdx = sourceTree.findIndex(i => i.id === draggedComponent.id);
-            const dropItemIdx = targetTree.findIndex(i => i.id === droppedComponent.id);
+            const dragItemIdx = sourceTree.findIndex((i) => i.id === draggedComponent.id);
+            const dropItemIdx = targetTree.findIndex((i) => i.id === droppedComponent.id);
 
             if (dragItemIdx < 0 || dropItemIdx < 0) {
                 return;
@@ -590,8 +593,8 @@ Component.register('sw-tree', {
 
             const targetTree = this.findTreeByParentId(contextItem.parentId);
 
-            const newItemIdx = this.treeItems.findIndex(i => i.id === newTreeItem.id);
-            const contextItemIdx = targetTree.findIndex(i => i.id === contextItem.id);
+            const newItemIdx = this.treeItems.findIndex((i) => i.id === newTreeItem.id);
+            const contextItemIdx = targetTree.findIndex((i) => i.id === contextItem.id);
 
             if (pos === 'before') {
                 targetTree.splice(contextItemIdx, 1, newTreeItem, contextItem);
@@ -626,7 +629,7 @@ Component.register('sw-tree', {
 
         deleteElement(item) {
             const targetTree = this.findTreeByParentId(item.parentId);
-            const deletedItemIdx = targetTree.findIndex(i => i.id === item.id);
+            const deletedItemIdx = targetTree.findIndex((i) => i.id === item.id);
             if (item.children.length > 0) {
                 item.children.forEach((child) => {
                     child.data.isDeleted = true;

@@ -46,6 +46,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
     };
 
     init() {
+        this.formSubmittedByCaptcha = false;
+
         this._getForm();
 
         if (!this._form) {
@@ -104,6 +106,11 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
             this._form.removeEventListener('change', onChange);
             this._form.addEventListener('change', onChange);
+
+            // // Remove the loading indicator before leaving the page to not cache it in back/forward-cache.
+            window.addEventListener('pagehide', () => {
+                PageLoadingIndicatorUtil.remove();
+            });
         }
     }
 
@@ -160,7 +167,10 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this._saveFocusState(event.target);
-        this.sendAjaxFormSubmit();
+
+        if (!this.formSubmittedByCaptcha) {
+            this.sendAjaxFormSubmit();
+        }
     }
 
     sendAjaxFormSubmit() {

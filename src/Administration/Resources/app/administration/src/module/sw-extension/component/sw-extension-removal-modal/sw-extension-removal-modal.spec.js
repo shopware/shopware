@@ -31,7 +31,7 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         let title = wrapper.vm.title;
 
         // eslint-disable-next-line max-len
-        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel[\"Awesome extension\"]');
+        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel["Awesome extension"]');
 
         await wrapper.setProps({
             isLicensed: false,
@@ -39,7 +39,7 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
 
         title = wrapper.vm.title;
         // eslint-disable-next-line max-len
-        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove[\"Awesome extension\"]');
+        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove["Awesome extension"]');
     });
 
     it('should show the correct alert text', async () => {

@@ -63,10 +63,8 @@ export default {
 
         renderFormattingAddress() {
             this.customSnippetApiService
-                .render(
-                    this.delivery.shippingOrderAddress,
-                    this.delivery.shippingOrderAddress.country.addressFormat,
-                ).then((res) => {
+                .render(this.delivery.shippingOrderAddress, this.delivery.shippingOrderAddress.country.addressFormat)
+                .then((res) => {
                     this.formattingAddress = res.rendered;
                 });
         },

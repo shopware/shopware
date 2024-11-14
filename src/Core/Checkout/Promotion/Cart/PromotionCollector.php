@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromotions;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePromotions;
-use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,10 +36,15 @@ class PromotionCollector implements CartDataCollectorInterface
     final public const SKIP_PROMOTION = 'skipPromotion';
     final public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
 
-    /**
-     * @var string[]
-     */
-    private readonly array $requiredDalAssociations;
+    private const REQUIRED_DAL_ASSOCIATIONS = [
+        'personaRules',
+        'personaCustomers',
+        'cartRules',
+        'orderRules',
+        'discounts.discountRules',
+        'discounts.promotionDiscountPrices',
+        'setgroups.setGroupRules',
+    ];
 
     /**
      * @internal
@@ -51,16 +55,6 @@ class PromotionCollector implements CartDataCollectorInterface
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly Connection $connection
     ) {
-        $this->requiredDalAssociations = [
-            'personaRules',
-            'personaCustomers',
-            'cartRules',
-            'orderRules',
-            'discounts.discountRules',
-            'discounts.promotionDiscountPrices',
-            'setgroups',
-            'setgroups.setGroupRules',
-        ];
     }
 
     /**
@@ -175,14 +169,11 @@ class PromotionCollector implements CartDataCollectorInterface
             return $data->get('promotions-auto');
         }
 
-        $criteria = (new Criteria())->addFilter(new PermittedAutomaticPromotions($context->getSalesChannel()->getId()));
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new PermittedAutomaticPromotions($context->getSalesChannelId()))
+            ->addAssociations(self::REQUIRED_DAL_ASSOCIATIONS);
 
-        /** @var string $association */
-        foreach ($this->requiredDalAssociations as $association) {
-            $criteria->addAssociation($association);
-        }
-
-        /** @var PromotionCollection $automaticPromotions */
         $automaticPromotions = $this->gateway->get($criteria, $context);
 
         $data->set('promotions-auto', $automaticPromotions->getElements());
@@ -258,31 +249,24 @@ class PromotionCollector implements CartDataCollectorInterface
             foreach ($codesToFetch as $currentCode) {
                 // try to find a global code first because
                 // that search has less data involved
-                $globalCriteria = (new Criteria())->addFilter(new PermittedGlobalCodePromotions([$currentCode], $salesChannelId));
+                $globalCriteria = new Criteria();
+                $globalCriteria
+                    ->addFilter(new PermittedGlobalCodePromotions([$currentCode], $salesChannelId))
+                    ->addAssociations(self::REQUIRED_DAL_ASSOCIATIONS);
 
-                /** @var string $association */
-                foreach ($this->requiredDalAssociations as $association) {
-                    $globalCriteria->addAssociation($association);
-                }
-
-                /** @var PromotionCollection $foundPromotions */
                 $foundPromotions = $this->gateway->get($globalCriteria, $context);
-
-                if (\count($foundPromotions->getElements()) <= 0) {
+                if ($foundPromotions->count() === 0) {
                     // no global code, so try with an individual code instead
-                    $individualCriteria = (new Criteria())->addFilter(new PermittedIndividualCodePromotions([$currentCode], $salesChannelId));
+                    $individualCriteria = new Criteria();
+                    $individualCriteria
+                        ->addFilter(new PermittedIndividualCodePromotions([$currentCode], $salesChannelId))
+                        ->addAssociations(self::REQUIRED_DAL_ASSOCIATIONS);
 
-                    /** @var string $association */
-                    foreach ($this->requiredDalAssociations as $association) {
-                        $individualCriteria->addAssociation($association);
-                    }
-
-                    /** @var PromotionCollection $foundPromotions */
                     $foundPromotions = $this->gateway->get($individualCriteria, $context);
                 }
 
                 // if we finally have found promotions add them to our list for the current code
-                if (\count($foundPromotions->getElements()) > 0) {
+                if ($foundPromotions->count() > 0) {
                     $promotionsList->addCodePromotions($currentCode, $foundPromotions->getElements());
                 }
             }

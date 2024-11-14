@@ -22,21 +22,29 @@ class KernelLifecycleManager
 {
     /**
      * @var class-string<Kernel>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected static $class;
 
     /**
      * @var Kernel|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected static $kernel;
 
     /**
      * @var ClassLoader
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected static $classLoader;
 
     /**
      * @var Connection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected static $connection;
 

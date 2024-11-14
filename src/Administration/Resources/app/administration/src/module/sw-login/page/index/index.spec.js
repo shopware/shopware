@@ -12,8 +12,7 @@ async function createWrapper() {
                 'router-view': true,
                 'sw-loader': true,
             },
-            mocks: {
-            },
+            mocks: {},
         },
     });
 }

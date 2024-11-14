@@ -4,16 +4,21 @@
 import CaptchaService from 'src/module/sw-settings-basic-information/service/captcha.service';
 
 describe('src/module/sw-settings-basic-information/service/captcha.service.js', () => {
-    const response = ['technical', 'names'];
+    const response = [
+        'technical',
+        'names',
+    ];
     const token = 'fce2c5c0-518c-4f16-b893-4f0913c07efe';
 
     let captchaService = null;
 
     beforeEach(async () => {
         const httpClient = {
-            get: jest.fn(() => Promise.resolve({
-                data: response,
-            })),
+            get: jest.fn(() =>
+                Promise.resolve({
+                    data: response,
+                }),
+            ),
         };
 
         const loginService = {

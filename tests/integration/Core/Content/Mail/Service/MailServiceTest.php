@@ -235,15 +235,27 @@ class MailServiceTest extends TestCase
             ],
         ];
 
+        $context = Context::createDefaultContext();
+
         $mailSender->expects(static::once())
             ->method('send')
-            ->with(static::callback(function (Email $mail): bool {
+            ->with(static::callback(function (Email $mail) use ($salesChannel, $context): bool {
                 $from = $mail->getFrom();
                 $this->assertCount(1, $from);
 
+                $this->assertNotNull($mail->getHeaders()->get('X-Shopware-Event-Name'));
+                $this->assertNotNull($mail->getHeaders()->get('X-Shopware-Sales-Channel-Id'));
+                $this->assertNotNull($mail->getHeaders()->get('X-Shopware-Language-Id'));
+
+                $salesChannelIdHeader = $mail->getHeaders()->get('X-Shopware-Sales-Channel-Id');
+                $this->assertSame($salesChannel['id'], $salesChannelIdHeader->getBodyAsString());
+
+                $languageIdHeader = $mail->getHeaders()->get('X-Shopware-Language-Id');
+                $this->assertSame($context->getLanguageId(), $languageIdHeader->getBodyAsString());
+
                 return true;
             }));
-        $mailService->send($data, Context::createDefaultContext(), $templateData);
+        $mailService->send($data, $context, $templateData);
     }
 
     public function testHtmlEscaping(): void

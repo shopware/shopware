@@ -17,6 +17,5 @@ class ElasticsearchIndexCreatedEventTest extends TestCase
     {
         $event = new ElasticsearchIndexCreatedEvent('index', $this->createMock(AbstractElasticsearchDefinition::class));
         static::assertSame('index', $event->getIndexName());
-        static::assertInstanceOf(AbstractElasticsearchDefinition::class, $event->getDefinition());
     }
 }

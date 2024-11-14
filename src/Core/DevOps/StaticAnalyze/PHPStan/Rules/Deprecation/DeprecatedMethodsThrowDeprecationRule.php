@@ -7,7 +7,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -40,6 +40,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:becomes-internal',
         // New function parameter will be added
         'reason:new-optional-parameter',
+        // Parameter name is changing, which could break usage of named parameters, but should not trigger a deprecation
+        'reason:parameter-name-change',
         // Classes that will be final, can only be changed with the next major
         'reason:becomes-final',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
@@ -69,15 +71,9 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         return ClassMethod::class;
     }
 
-    /**
-     * @param ClassMethod $node
-     *
-     * @return array<array-key, RuleError|string>
-     */
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$scope->isInClass()) {
-            // skip
             return [];
         }
 
@@ -97,11 +93,13 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $classDeprecation = $class->getDeprecatedDescription();
         if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
-                \sprintf(
+                RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
                     $class->getName(),
                     $method->getName()
-                ),
+                ))
+                    ->identifier('shopware.deprecatedClass')
+                    ->build(),
             ];
         }
 
@@ -113,11 +111,13 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
         if (!$deprecationOfParentMethod && $methodDeprecation && !$this->handlesDeprecationCorrectly($methodDeprecation, $methodContent)) {
             return [
-                \sprintf(
+                RuleErrorBuilder::message(\sprintf(
                     'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
                     $method->getName(),
                     $class->getName()
-                ),
+                ))
+                    ->identifier('shopware.deprecatedMethod')
+                    ->build(),
             ];
         }
 
@@ -126,14 +126,15 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
     private function getMethodContent(Node $node, Scope $scope, ClassReflection $class): string
     {
-        /** @var string $filename */
         $filename = $class->getFileName();
 
         $trait = $scope->getTraitReflection();
-
         if ($trait) {
-            /** @var string $filename */
             $filename = $trait->getFileName();
+        }
+
+        if (!\is_string($filename)) {
+            return '';
         }
 
         $file = new \SplFileObject($filename);
@@ -171,10 +172,12 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             return true;
         }
 
-        if ($class->getParentClass() === null) {
-            return false;
+        foreach ($class->getParents() as $parentClass) {
+            if ($parentClass->getName() === TestCase::class) {
+                return true;
+            }
         }
 
-        return $class->getParentClass()->getName() === TestCase::class;
+        return false;
     }
 }

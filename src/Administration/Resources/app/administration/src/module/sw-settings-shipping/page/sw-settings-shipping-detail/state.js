@@ -10,6 +10,7 @@ export default {
         return {
             shippingMethod: {},
             currencies: [],
+            restrictedRuleIds: [],
         };
     },
 
@@ -19,6 +20,9 @@ export default {
         },
         setCurrencies(state, currencies) {
             state.currencies = currencies;
+        },
+        setRestrictedRuleIds(state, restrictedRuleIds) {
+            state.restrictedRuleIds = restrictedRuleIds;
         },
     },
 
@@ -48,18 +52,11 @@ export default {
                 shippingPriceGroups[key].prices.push(shippingPrice);
             });
 
-            // Sort prices
-            Object.values(shippingPriceGroups).forEach((shippingPrice) => {
-                shippingPrice.prices.sort((a, b) => {
-                    return a.quantityStart - b.quantityStart;
-                });
-            });
-
             return shippingPriceGroups;
         },
 
         defaultCurrency(state) {
-            return state.currencies.find(currency => currency.isSystemDefault);
+            return state.currencies.find((currency) => currency.isSystemDefault);
         },
 
         usedRules(state, getters) {
@@ -67,7 +64,7 @@ export default {
         },
 
         unrestrictedPriceMatrixExists(state) {
-            return state.shippingMethod.prices.some(shippingPrice => {
+            return state.shippingMethod.prices.some((shippingPrice) => {
                 return shippingPrice.ruleId === null;
             });
         },

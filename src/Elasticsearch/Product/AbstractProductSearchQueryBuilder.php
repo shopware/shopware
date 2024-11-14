@@ -12,5 +12,8 @@ abstract class AbstractProductSearchQueryBuilder
 {
     abstract public function getDecorated(): AbstractProductSearchQueryBuilder;
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - will return BuilderInterface in the future
+     */
     abstract public function build(Criteria $criteria, Context $context): BoolQuery;
 }

@@ -15,46 +15,64 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 {
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ids;
 
     /**
      * @var NestedEventCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $events;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $errors;
 
     /**
      * @var Context
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $payloads;
 
     /**
      * @var EntityWriteResult[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $writeResults;
 
     /**
      * @var EntityExistence[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $existences;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entityName;
 

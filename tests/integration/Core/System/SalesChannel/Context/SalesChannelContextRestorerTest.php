@@ -26,13 +26,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -87,7 +87,7 @@ class SalesChannelContextRestorerTest extends TestCase
     public function testRestoreByOrder(): void
     {
         $context = Context::createDefaultContext();
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createOrder($ids);
         $ruleId = Uuid::randomHex();
         $rule = [
@@ -110,7 +110,7 @@ class SalesChannelContextRestorerTest extends TestCase
     public function testRestoreByCustomer(): void
     {
         $context = Context::createDefaultContext();
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createOrder($ids);
         $ruleId = Uuid::randomHex();
         $rule = [
@@ -135,7 +135,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState('foo');
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createOrder($ids);
 
         $saleChanelContext = $this->contextRestorer->restoreByCustomer($this->createCustomer()->getId(), $context);
@@ -145,7 +145,7 @@ class SalesChannelContextRestorerTest extends TestCase
     public function testOrderCriteriaEventIsFired(): void
     {
         $context = Context::createDefaultContext();
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createOrder($ids);
 
         $this->eventDispatcher->addListener(SalesChannelContextRestorerOrderCriteriaEvent::class, $this->callbackFn);
@@ -156,7 +156,7 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertInstanceOf(SalesChannelContextRestorerOrderCriteriaEvent::class, $salesChannelContextRestorerCriteriaEvent);
     }
 
-    private function createOrder(TestDataCollection $ids): void
+    private function createOrder(IdsCollection $ids): void
     {
         $customer = (new CustomerBuilder($ids, '10000'))
             ->add('guest', true)

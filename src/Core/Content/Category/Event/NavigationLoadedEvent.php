@@ -14,11 +14,15 @@ class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelE
 {
     /**
      * @var Tree
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $navigation;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelContext;
 

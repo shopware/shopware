@@ -11,11 +11,15 @@ class ConfigurableFilesystemCache extends FilesystemCache
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configHash = '';
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cacheDirectory;
 

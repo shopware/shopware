@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\WebInstaller\Controller;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\WebInstaller\Services\CleanupFiles;
 use Shopware\WebInstaller\Services\FileBackup;
 use Shopware\WebInstaller\Services\FlexMigrator;
 use Shopware\WebInstaller\Services\PluginCompatibility;
@@ -79,6 +80,9 @@ class UpdateController extends AbstractController
 
         $composerJsonBackup = new FileBackup($composerJsonPath);
         $composerJsonBackup->backup();
+
+        $cleanupFiles = new CleanupFiles();
+        $cleanupFiles->cleanup($shopwarePath);
 
         $pluginCompat = new PluginCompatibility($composerJsonPath, $version);
         $pluginCompat->removeIncompatible();

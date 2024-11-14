@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Schedule
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -15,11 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -146,12 +147,12 @@ class TaskSchedulerTest extends TestCase
         $scheduledTask = new ScheduledTaskEntity();
 
         $nextExecutionTime = new \DateTimeImmutable();
-        $nextExecutionTime = $nextExecutionTime->modify(\sprintf('-%d seconds', InvalidateCacheTask::getDefaultInterval() + 100));
+        $nextExecutionTime = $nextExecutionTime->modify(\sprintf('-%d seconds', TestScheduledTask::getDefaultInterval() + 100));
 
         $scheduledTask->setId('1');
-        $scheduledTask->setRunInterval(InvalidateCacheTask::getDefaultInterval());
+        $scheduledTask->setRunInterval(TestScheduledTask::getDefaultInterval());
         $scheduledTask->setNextExecutionTime($nextExecutionTime);
-        $scheduledTask->setScheduledTaskClass(InvalidateCacheTask::class);
+        $scheduledTask->setScheduledTaskClass(TestScheduledTask::class);
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
         $scheduledTaskRepository->expects(static::once())->method('search')->willReturn($result);
@@ -173,7 +174,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $bus,
             new ParameterBag([
-                'shopware.cache.invalidation.delay' => 0,
+                'shopware.test.active' => false,
             ])
         );
 
@@ -181,13 +182,13 @@ class TaskSchedulerTest extends TestCase
     }
 
     #[DataProvider('providerScheduledTaskQueues')]
-    public function testScheduledTaskQueues(int $delay, bool $expected): void
+    public function testScheduledTaskQueues(bool $shouldSchedule): void
     {
         $scheduledTask = new ScheduledTaskEntity();
         $scheduledTask->setId('1');
-        $scheduledTask->setRunInterval(InvalidateCacheTask::getDefaultInterval());
+        $scheduledTask->setRunInterval(TestScheduledTask::getDefaultInterval());
         $scheduledTask->setNextExecutionTime(new \DateTimeImmutable());
-        $scheduledTask->setScheduledTaskClass(InvalidateCacheTask::class);
+        $scheduledTask->setScheduledTaskClass(TestScheduledTask::class);
 
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
@@ -200,21 +201,21 @@ class TaskSchedulerTest extends TestCase
         $scheduledTaskRepository
             ->expects(static::once())
             ->method('update')
-            ->willReturnCallback(function (array $data, Context $context) use ($expected) {
+            ->willReturnCallback(function (array $data, Context $context) use ($shouldSchedule) {
                 static::assertCount(1, $data);
                 $data = $data[0];
                 static::assertArrayHasKey('status', $data);
                 static::assertArrayHasKey('id', $data);
                 $status = $data['status'];
-                static::assertEquals($expected ? ScheduledTaskDefinition::STATUS_QUEUED : ScheduledTaskDefinition::STATUS_SKIPPED, $status);
+                static::assertEquals($shouldSchedule ? ScheduledTaskDefinition::STATUS_QUEUED : ScheduledTaskDefinition::STATUS_SKIPPED, $status);
                 static::assertEquals('1', $data['id']);
 
                 return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
             });
 
         $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects($expected ? static::once() : static::never())->method('dispatch')->willReturnCallback(function ($message) {
-            static::assertInstanceOf(InvalidateCacheTask::class, $message);
+        $bus->expects($shouldSchedule ? static::once() : static::never())->method('dispatch')->willReturnCallback(function ($message) {
+            static::assertInstanceOf(TestScheduledTask::class, $message);
 
             return new Envelope($message);
         });
@@ -222,19 +223,19 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $bus,
-            new ParameterBag(['shopware.cache.invalidation.delay' => $delay])
+            new ParameterBag(['shopware.test.active' => $shouldSchedule])
         );
 
         $scheduler->queueScheduledTasks();
     }
 
     /**
-     * @return iterable<array<int|bool>>
+     * @return iterable<array{0: bool}>
      */
     public static function providerScheduledTaskQueues(): iterable
     {
-        yield [1, true];
-        yield [0, false];
+        yield [true];
+        yield [false];
     }
 
     public function testScheduleWithInvalidClass(): void
@@ -260,5 +261,26 @@ class TaskSchedulerTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Tried to schedule "foo", but class does not extend ScheduledTask');
         $scheduler->queueScheduledTasks();
+    }
+}
+
+/**
+ * @internal
+ */
+class TestScheduledTask extends ScheduledTask
+{
+    public static function getTaskName(): string
+    {
+        return 'shopware.test';
+    }
+
+    public static function getDefaultInterval(): int
+    {
+        return 20;
+    }
+
+    public static function shouldRun(ParameterBagInterface $bag): bool
+    {
+        return (bool) $bag->get('shopware.test.active');
     }
 }

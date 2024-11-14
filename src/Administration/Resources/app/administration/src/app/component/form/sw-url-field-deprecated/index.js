@@ -32,7 +32,9 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
     inject: ['feature'],
 
     emits: [
-        'update:value', 'inheritance-restore', 'inheritance-remove',
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
     ],
 
     props: {
@@ -144,6 +146,7 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
 
         handleEmptyUrl() {
             this.currentUrlValue = '';
+            this.$emit('update:value', this.url);
         },
 
         validateCurrentValue(value) {

@@ -51,12 +51,15 @@ const createMultiSelect = async (customOptions) => {
         },
     };
 
-    const wrapper = mount(await wrapTestComponent('sw-multi-select', {
-        sync: true,
-    }), {
-        ...options,
-        ...customOptions,
-    });
+    const wrapper = mount(
+        await wrapTestComponent('sw-multi-select', {
+            sync: true,
+        }),
+        {
+            ...options,
+            ...customOptions,
+        },
+    );
 
     await flushPromises();
 
@@ -104,7 +107,9 @@ describe('components/sw-multi-select', () => {
 
         await entryOne.trigger('click');
         await flushPromises();
-        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue']]]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([
+            [['entryOneValue']],
+        ]);
     });
 
     it('should emit the second option', async () => {
@@ -117,7 +122,9 @@ describe('components/sw-multi-select', () => {
 
         await entryTwo.trigger('click');
         await flushPromises();
-        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryTwoValue']]]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([
+            [['entryTwoValue']],
+        ]);
     });
 
     it('should emit two options', async () => {
@@ -138,7 +145,14 @@ describe('components/sw-multi-select', () => {
         await entryTwo.trigger('click');
         await flushPromises();
 
-        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue', 'entryTwoValue']]]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([
+            [
+                [
+                    'entryOneValue',
+                    'entryTwoValue',
+                ],
+            ],
+        ]);
     });
 
     it('should not close the result list after clicking an item', async () => {
@@ -187,7 +201,10 @@ describe('components/sw-multi-select', () => {
     it('should show multiple labels for the selected values properties', async () => {
         const swMultiSelect = await createMultiSelect({
             props: {
-                value: ['entryOneValue', 'entryThreeValue'],
+                value: [
+                    'entryOneValue',
+                    'entryThreeValue',
+                ],
                 options: [
                     {
                         label: 'Entry 1',
@@ -210,7 +227,6 @@ describe('components/sw-multi-select', () => {
         expect(selectedTextOne).toBe('Entry 1');
         expect(selectedTextTwo).toBe('Entry 3');
     });
-
 
     it('should save the filled searchTerm', async () => {
         const swMultiSelect = await createMultiSelect();

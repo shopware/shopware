@@ -12,6 +12,8 @@ class ProductListResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<ProductCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

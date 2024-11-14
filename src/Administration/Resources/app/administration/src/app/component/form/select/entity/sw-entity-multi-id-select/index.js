@@ -69,7 +69,7 @@ Component.register('sw-entity-multi-id-select', {
             if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 const listeners = {};
 
-                Object.keys(this.$listeners).forEach(listener => {
+                Object.keys(this.$listeners).forEach((listener) => {
                     if (listener !== 'change') {
                         listeners[listener] = this.$listeners[listener];
                     }
@@ -103,11 +103,7 @@ Component.register('sw-entity-multi-id-select', {
 
     methods: {
         createdComponent() {
-            const collection = new EntityCollection(
-                this.repository.route,
-                this.repository.entityName,
-                this.context,
-            );
+            const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 
             if (this.collection === null) {
                 this.collection = collection;

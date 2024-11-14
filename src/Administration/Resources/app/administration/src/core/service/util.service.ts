@@ -171,11 +171,7 @@ function createId(): string {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function moveItem(
-    entity: MutationObserver[],
-    oldIndex: number,
-    newIndex: number,
-) {
+export function moveItem(entity: MutationObserver[], oldIndex: number, newIndex: number) {
     if (newIndex === null) {
         newIndex = entity.length;
     }

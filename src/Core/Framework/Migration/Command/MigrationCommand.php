@@ -26,16 +26,22 @@ class MigrationCommand extends Command
 {
     /**
      * @var MigrationCollectionLoader
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $loader;
 
     /**
      * @var SymfonyStyle
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $io;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shopwareVersion;
 

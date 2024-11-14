@@ -42,7 +42,7 @@ class ServiceDefinitionTest extends TestCase
             classLoader: $classLoader,
             pluginLoader: new StaticKernelPluginLoader($classLoader)
         );
-        /** @var TestKernel $separateKernel */
+        static::assertInstanceOf(TestKernel::class, $separateKernel);
         $separateKernel->boot();
 
         $testContainer = $separateKernel->getContainer()->get('test.service_container');
@@ -64,12 +64,13 @@ class ServiceDefinitionTest extends TestCase
 
     public function testServiceDefinitionNaming(): void
     {
-        $basePath = __DIR__ . '/../../../';
+        $basePath = __DIR__ . '/../../../../src';
 
-        $xmlFiles = (new Finder())->in($basePath)->files()->path('~DependencyInjection/[^/]+\.xml$~')->getIterator();
+        $finder = (new Finder())->in($basePath)->files()->path('~DependencyInjection/[^/]+\.xml$~');
+        static::assertTrue($finder->hasResults(), 'No service definition files found. Check the base path.');
 
         $errors = [];
-        foreach ($xmlFiles as $file) {
+        foreach ($finder->getIterator() as $file) {
             $content = $file->getContents();
 
             $parameterErrors = $this->checkServiceParameterOrder($content);
@@ -121,11 +122,11 @@ class ServiceDefinitionTest extends TestCase
         $errors = [];
         foreach ($matches as $match) {
             $fullMatch = $match[0];
-            /** @var positive-int $position */
             $position = $fullMatch[1];
+            static::assertTrue($position > 1);
             $errors[] = \sprintf(
                 '%s:%d - invalid order (type should be first)',
-                (string) ($match['id'][0] ?? $fullMatch[0]),
+                $match['id'][0],
                 $this->getLineNumber($content, $position)
             );
         }
@@ -134,7 +135,7 @@ class ServiceDefinitionTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function checkServiceParameterOrder(string $content): array
     {
@@ -154,11 +155,11 @@ class ServiceDefinitionTest extends TestCase
         $errors = [];
         foreach ($matches as $match) {
             $fullMatch = $match[0];
-            /** @var positive-int $position */
             $position = $fullMatch[1];
+            static::assertTrue($position > 1);
             $errors[] = \sprintf(
                 '%s:%d - parameter class and id are identical. class parameter should be removed',
-                (string) ($match['class'][0] ?? $fullMatch[0]),
+                $match['class'][0],
                 $this->getLineNumber($content, $position)
             );
         }

@@ -10,10 +10,14 @@ async function createWrapper() {
                 'sw-range-filter': await wrapTestComponent('sw-range-filter', { sync: true }),
                 'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', {
+                    sync: true,
+                }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
@@ -75,7 +79,6 @@ describe('components/sw-number-filter', () => {
             { from: null, to: 5 },
         ]);
     });
-
 
     it('should emit `filter-update` event when user input `From` field and `To` field', async () => {
         const wrapper = await createWrapper();

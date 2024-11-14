@@ -26,10 +26,9 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$t(
-                'sw-extension-store.component.sw-extension-domains-modal.modalTitle',
-                { extensionLabel: this.extensionLabel },
-            );
+            return this.$t('sw-extension-store.component.sw-extension-domains-modal.modalTitle', {
+                extensionLabel: this.extensionLabel,
+            });
         },
 
         listeners() {

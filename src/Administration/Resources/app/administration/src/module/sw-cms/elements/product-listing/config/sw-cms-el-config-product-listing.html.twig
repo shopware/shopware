@@ -273,7 +273,7 @@
                                 <sw-switch-field
                                     :disabled="column.disabled"
                                     :value="item.active"
-                                    @update:value="propertyStatusChanged(item.id)"
+                                    @update:value="propertyStatusChanged($event, item.id)"
                                 />
                             {% endblock %}
                             </template>

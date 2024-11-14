@@ -92,6 +92,24 @@ class ThemeApiService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    validateFields(fields) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/validate-fields`;
+
+        const additionalHeaders = {
+            'sw-language-id': Shopware.State.get('session').languageId
+        };
+
+        return this.httpClient.post(
+            apiRoute,
+            {fields: fields},
+            {
+                headers: this.getBasicHeaders(additionalHeaders)
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 export default ThemeApiService;

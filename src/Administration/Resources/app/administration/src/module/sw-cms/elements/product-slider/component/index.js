@@ -117,9 +117,11 @@ export default {
                 return;
             }
 
-            if (!this.element.config.elMinWidth.value ||
+            if (
+                !this.element.config.elMinWidth.value ||
                 this.element.config.elMinWidth.value === 'px' ||
-                this.element.config.elMinWidth.value.indexOf('px') === -1) {
+                this.element.config.elMinWidth.value.indexOf('px') === -1
+            ) {
                 this.sliderBoxLimit = 3;
                 return;
             }

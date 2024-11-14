@@ -8,61 +8,70 @@ const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 async function createWrapper(customProps = {}, domains = []) {
-    return mount(await wrapTestComponent('sw-sales-channel-detail-domains', { sync: true }), {
-        global: {
-
-            stubs: {
-                'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>',
-                },
-                'sw-button': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-context-menu-item': true,
-                'sw-icon': true,
-                'sw-context-button': true,
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
-                'sw-entity-single-select': true,
-                'sw-radio-field': true,
-                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
-                'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
-                'sw-url-field': true,
-                'sw-select-base': true,
-                'sw-select-result-list': true,
-                'sw-checkbox-field': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-inline-edit': true,
-                'router-link': true,
-                'sw-data-grid-skeleton': true,
-                'sw-loader': true,
-                'sw-highlight-text': true,
-                'sw-select-result': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return {
-                                id: '44de136acf314e7184401d36406c1e90',
-                                isNew: () => true,
-                            };
-                        },
+    return mount(
+        await wrapTestComponent('sw-sales-channel-detail-domains', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div><slot></slot><slot name="grid"></slot></div>',
+                    },
+                    'sw-button': true,
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                        sync: true,
                     }),
+                    'sw-context-menu-item': true,
+                    'sw-icon': true,
+                    'sw-context-button': true,
+                    'sw-modal': await wrapTestComponent('sw-modal', {
+                        sync: true,
+                    }),
+                    'sw-entity-single-select': true,
+                    'sw-radio-field': true,
+                    'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-url-field': true,
+                    'sw-select-base': true,
+                    'sw-select-result-list': true,
+                    'sw-checkbox-field': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-loader': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
                 },
-                shortcutService: {
-                    stopEventListener: () => {},
-                    startEventListener: () => {},
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return {
+                                    id: '44de136acf314e7184401d36406c1e90',
+                                    isNew: () => true,
+                                };
+                            },
+                        }),
+                    },
+                    shortcutService: {
+                        stopEventListener: () => {},
+                        startEventListener: () => {},
+                    },
                 },
-
+            },
+            props: {
+                salesChannel: {
+                    domains: domains,
+                },
+                ...customProps,
             },
         },
-        props: {
-            salesChannel: {
-                domains: domains,
-            },
-            ...customProps,
-        },
-    });
+    );
 }
 
 function getExampleDomains() {
@@ -112,7 +121,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(button.attributes().disabled).toBeUndefined();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-        contextMenuItems.forEach(item => {
+        contextMenuItems.forEach((item) => {
             expect(item.attributes().disabled).toBeUndefined();
         });
     });
@@ -126,7 +135,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(button.attributes().disabled).toBe('true');
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-        contextMenuItems.forEach(item => {
+        contextMenuItems.forEach((item) => {
             expect(item.attributes().disabled).toBe('true');
         });
     });
@@ -143,7 +152,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
-        expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe('http://firstExample.com');
+        expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe(
+            'http://firstExample.com',
+        );
     });
 
     it('should sort all domains descending', async () => {
@@ -155,7 +166,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
-        expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe('http://secondExample.com');
+        expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe(
+            'http://secondExample.com',
+        );
     });
 
     it('should properly natural sort', async () => {
@@ -179,61 +192,69 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
-        expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe('http://secondExample.com');
+        expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe(
+            'http://secondExample.com',
+        );
     });
 
     it('should only display available languages', async () => {
-        const languages = new EntityCollection(
-            '/languages',
-            'languages',
-            Context.api,
-            null,
-            [{
+        const languages = new EntityCollection('/languages', 'languages', Context.api, null, [
+            {
                 id: 'test1',
                 name: 'language1',
-            }],
-        );
-
-        const wrapper = await createWrapper({
-            salesChannel: {
-                languages,
-                currencies: [],
-                domains: getExampleDomains(),
             },
-        }, getExampleDomains());
+        ]);
+
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages,
+                    currencies: [],
+                    domains: getExampleDomains(),
+                },
+            },
+            getExampleDomains(),
+        );
 
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(languages.first().id);
-        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toStrictEqual(languages);
+        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(
+            languages.first().id,
+        );
+        expect(
+            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
+        ).toStrictEqual(languages);
     });
 
     it('should only display available currencies', async () => {
-        const currencies = new EntityCollection(
-            '/currencies',
-            'currencies',
-            Context.api,
-            null,
-            [{
+        const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null, [
+            {
                 id: 'test1',
                 name: 'currency1',
-            }],
-        );
-
-        const wrapper = await createWrapper({
-            salesChannel: {
-                languages: [],
-                currencies,
-                domains: getExampleDomains(),
             },
-        }, getExampleDomains());
+        ]);
+
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    currencies,
+                    domains: getExampleDomains(),
+                },
+            },
+            getExampleDomains(),
+        );
 
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(currencies.first().id);
-        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toStrictEqual(currencies);
+        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(
+            currencies.first().id,
+        );
+        expect(
+            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
+        ).toStrictEqual(currencies);
     });
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
@@ -259,7 +280,10 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     it('domainExistsLocal › checks if the given domains url already exists locally', async () => {
         const exampleDomains = getExampleDomains();
         const wrapper = await createWrapper({}, exampleDomains);
-        const testedDomain = { id: '8a243080f92e4c719546314b577cf82b', url: 'http://foo.bar' };
+        const testedDomain = {
+            id: '8a243080f92e4c719546314b577cf82b',
+            url: 'http://foo.bar',
+        };
 
         expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeFalsy();
         expect(wrapper.vm.domainExistsLocal(exampleDomains[0])).toBeFalsy();
@@ -284,17 +308,23 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     it('onClickAddNewDomain › early returns, if a domain is saved with its original "url" value', async () => {
         const exampleDomains = getExampleDomains();
         const testedDomain = exampleDomains[0];
-        const wrapper = await createWrapper({
-            salesChannel: {
-                languages: [],
-                domains: [],
-                currencies: [],
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    domains: [],
+                    currencies: [],
+                },
             },
-        }, exampleDomains);
+            exampleDomains,
+        );
 
         wrapper.vm.isOriginalUrl = jest.fn(() => true);
         wrapper.vm.verifyUrl = jest.fn();
-        await wrapper.setData({ currentDomain: testedDomain, currentDomainBackup: testedDomain });
+        await wrapper.setData({
+            currentDomain: testedDomain,
+            currentDomainBackup: testedDomain,
+        });
 
         await wrapper.vm.onClickAddNewDomain();
 
@@ -302,91 +332,85 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should delete a domain when onConfirmDeleteDomain is called', async () => {
-        const domains = new EntityCollection(
-            '/sales-channel-domain',
-            'sales_channel_domain',
-            Context.api,
-            null,
-            [
-                {
-                    id: 'domain-1',
-                    url: 'http://firstExample.com',
-                    productExports: [],
-                    language: {
-                        name: 'Deutsch',
-                    },
-                    currency: {
-                        name: 'Euro',
-                        translated: {
-                            name: 'Euro',
-                        },
-                    },
-                    snippetSet: {
-                        name: 'BASE de-DE',
-                    },
-                    isNew: () => false,
+        const domains = new EntityCollection('/sales-channel-domain', 'sales_channel_domain', Context.api, null, [
+            {
+                id: 'domain-1',
+                url: 'http://firstExample.com',
+                productExports: [],
+                language: {
+                    name: 'Deutsch',
                 },
-            ],
-        );
-
-        const wrapper = await createWrapper({
-            salesChannel: {
-                languages: [],
-                currencies: [],
-                domains: domains,
+                currency: {
+                    name: 'Euro',
+                    translated: {
+                        name: 'Euro',
+                    },
+                },
+                snippetSet: {
+                    name: 'BASE de-DE',
+                },
+                isNew: () => false,
             },
-        }, []);
+        ]);
+
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    currencies: [],
+                    domains: domains,
+                },
+            },
+            [],
+        );
 
         const domainToDelete = domains.first();
 
         await wrapper.vm.onConfirmDeleteDomain(domainToDelete);
 
-        const domainExists = wrapper.vm.salesChannel.domains.some(domain => domain.id === domainToDelete.id);
+        const domainExists = wrapper.vm.salesChannel.domains.some((domain) => domain.id === domainToDelete.id);
 
         expect(domainExists).toBe(false);
     });
 
     it('should not delete a domain when onConfirmDeleteDomain is called and domain.productExports.length > 0', async () => {
-        const domains = new EntityCollection(
-            '/sales-channel-domain',
-            'sales_channel_domain',
-            Context.api,
-            null,
-            [
-                {
-                    id: 'domain-1',
-                    url: 'http://firstExample.com',
-                    productExports: [{}],
-                    language: {
-                        name: 'Deutsch',
-                    },
-                    currency: {
-                        name: 'Euro',
-                        translated: {
-                            name: 'Euro',
-                        },
-                    },
-                    snippetSet: {
-                        name: 'BASE de-DE',
-                    },
-                    isNew: () => false,
+        const domains = new EntityCollection('/sales-channel-domain', 'sales_channel_domain', Context.api, null, [
+            {
+                id: 'domain-1',
+                url: 'http://firstExample.com',
+                productExports: [{}],
+                language: {
+                    name: 'Deutsch',
                 },
-            ],
-        );
-
-        const wrapper = await createWrapper({
-            salesChannel: {
-                languages: [],
-                currencies: [],
-                domains: domains,
+                currency: {
+                    name: 'Euro',
+                    translated: {
+                        name: 'Euro',
+                    },
+                },
+                snippetSet: {
+                    name: 'BASE de-DE',
+                },
+                isNew: () => false,
             },
-        }, []);
+        ]);
+
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    currencies: [],
+                    domains: domains,
+                },
+            },
+            [],
+        );
 
         const domainToDelete = domains.first();
 
         await wrapper.vm.onConfirmDeleteDomain(domainToDelete);
 
-        const domainExists = wrapper.vm.salesChannel.domains.some(domain => domain.id === domainToDelete.id);
+        const domainExists = wrapper.vm.salesChannel.domains.some((domain) => domain.id === domainToDelete.id);
 
         expect(domainExists).toBe(true);
     });

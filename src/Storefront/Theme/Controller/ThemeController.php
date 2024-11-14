@@ -4,7 +4,9 @@ namespace Shopware\Storefront\Theme\Controller;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,9 +18,14 @@ class ThemeController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param array<int, string> $customAllowedRegex
      */
-    public function __construct(private readonly ThemeService $themeService)
-    {
+    public function __construct(
+        private readonly ThemeService $themeService,
+        private readonly AbstractScssCompiler $scssCompiler,
+        private readonly array $customAllowedRegex = []
+    ) {
     }
 
     #[Route(path: '/api/_action/theme/{themeId}/configuration', name: 'api.action.theme.configuration', methods: ['GET'])]
@@ -66,5 +73,22 @@ class ThemeController extends AbstractController
         $themeConfiguration = $this->themeService->getThemeConfigurationStructuredFields($themeId, true, $context);
 
         return new JsonResponse($themeConfiguration);
+    }
+
+    #[Route(path: '/api/_action/theme/validate-fields', name: 'api.action.theme.validate', methods: ['POST'])]
+    public function validateVariables(Request $request): JsonResponse
+    {
+        $fields = $request->request->all('fields');
+
+        foreach ($fields as $key => $data) {
+            // if no type is set just use the value and continue
+            if (!isset($data['type'])) {
+                continue;
+            }
+
+            $data['value'] = SCSSValidator::validate($this->scssCompiler, $data, $this->customAllowedRegex);
+        }
+
+        return new JsonResponse([]);
     }
 }

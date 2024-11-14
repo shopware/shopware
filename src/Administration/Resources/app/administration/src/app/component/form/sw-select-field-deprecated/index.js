@@ -88,7 +88,9 @@ Component.register('sw-select-field-deprecated', {
     },
 
     watch: {
-        value() { this.currentValue = this.value; },
+        value() {
+            this.currentValue = this.value;
+        },
     },
 
     methods: {

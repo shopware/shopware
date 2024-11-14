@@ -12,9 +12,15 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'orderDocumentApiService'],
+    inject: [
+        'repositoryFactory',
+        'orderDocumentApiService',
+    ],
 
-    emits: ['title-set', 'buttons-update'],
+    emits: [
+        'title-set',
+        'buttons-update',
+    ],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -55,7 +61,12 @@ export default {
 
         latestDocumentsCriteria() {
             const criteria = new Criteria(1, null);
-            criteria.addFilter(Criteria.equalsAny('documentTypeId', this.selectedDocumentTypes.map(item => item.id)));
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'documentTypeId',
+                    this.selectedDocumentTypes.map((item) => item.id),
+                ),
+            );
             criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
@@ -125,17 +136,17 @@ export default {
 
             const documents = await this.documentRepository.search(this.latestDocumentsCriteria);
 
-            this.selectedDocumentTypes.forEach(documentType => {
+            this.selectedDocumentTypes.forEach((documentType) => {
                 latestDocuments[documentType.technicalName] ??= [];
                 const latestDoc = latestDocuments[documentType.technicalName];
 
-                const documentsGrouped = documents.filter(document => {
+                const documentsGrouped = documents.filter((document) => {
                     return document.documentTypeId === documentType.id;
                 });
 
                 const latestDocKeyedByOrderId = {};
 
-                documentsGrouped.forEach(doc => {
+                documentsGrouped.forEach((doc) => {
                     if (Object.values(latestDoc).length === maxDocsPerType) {
                         return;
                     }
@@ -166,7 +177,8 @@ export default {
             } else {
                 this.document[documentType].isDownloading = true;
             }
-            return this.orderDocumentApiService.download(documentIds)
+            return this.orderDocumentApiService
+                .download(documentIds)
                 .then((response) => {
                     if (!response.data) {
                         return;

@@ -16,11 +16,15 @@ class MediaDefaultFolderEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entity;
 
     /**
      * @var MediaFolderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $folder;
 

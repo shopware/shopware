@@ -23,71 +23,99 @@ class CmsPageEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entity;
 
     /**
      * @var CmsSectionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sections;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var CategoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $categories;
 
     /**
      * @var ProductCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $products;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cssClass;
 
     /**
-     * @var array|null
+     * @var array<string, array<string, mixed>>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $previewMediaId;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $previewMedia;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $locked;
 
     /**
      * @var LandingPageCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $landingPages;
 
     /**
      * @var CmsPageCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $homeSalesChannels;
 
@@ -177,11 +205,17 @@ class CmsPageEntity extends Entity
         $this->cssClass = $cssClass;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
@@ -244,6 +278,9 @@ class CmsPageEntity extends Entity
         $this->homeSalesChannels = $homeSalesChannels;
     }
 
+    /**
+     * @return list<CmsSlotEntity>
+     */
     public function getElementsOfType(string $type): array
     {
         $elements = [];
@@ -260,6 +297,29 @@ class CmsPageEntity extends Entity
                 if ($slot->getType() === $type) {
                     $elements[] = $slot;
                 }
+            }
+        }
+
+        return $elements;
+    }
+
+    /**
+     * @return list<CmsSlotEntity>
+     */
+    public function getAllElements(): array
+    {
+        if ($this->getSections() === null) {
+            return [];
+        }
+
+        $elements = [];
+        foreach ($this->getSections()->getBlocks() as $block) {
+            if ($block->getSlots() === null) {
+                continue;
+            }
+
+            foreach ($block->getSlots() as $slot) {
+                $elements[] = $slot;
             }
         }
 

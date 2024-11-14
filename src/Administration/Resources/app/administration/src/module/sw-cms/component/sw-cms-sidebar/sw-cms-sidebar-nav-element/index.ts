@@ -11,7 +11,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['block-duplicate', 'block-delete'],
+    emits: [
+        'block-duplicate',
+        'block-delete',
+    ],
 
     props: {
         block: {

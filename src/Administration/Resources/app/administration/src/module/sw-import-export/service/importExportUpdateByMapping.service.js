@@ -132,10 +132,7 @@ export default class ImportExportUpdateByMappingService {
         const usedEntities = {};
 
         profile.mapping.forEach((mapping) => {
-            const { entity, path, relation } = this.getEntity(
-                profile.sourceEntity,
-                mapping.key,
-            );
+            const { entity, path, relation } = this.getEntity(profile.sourceEntity, mapping.key);
 
             if (relation === 'many_to_many') {
                 usedEntities[entity] = true;
@@ -153,9 +150,10 @@ export default class ImportExportUpdateByMappingService {
         });
 
         const unusedMappings = profile.updateBy.filter((updateBy) => {
-            return !usedEntities.hasOwnProperty(updateBy.entityName) || (
-                Array.isArray(usedEntities[updateBy.entityName])
-                && !usedEntities[updateBy.entityName].includes(updateBy.mappedKey)
+            return (
+                !usedEntities.hasOwnProperty(updateBy.entityName) ||
+                (Array.isArray(usedEntities[updateBy.entityName]) &&
+                    !usedEntities[updateBy.entityName].includes(updateBy.mappedKey))
             );
         });
 

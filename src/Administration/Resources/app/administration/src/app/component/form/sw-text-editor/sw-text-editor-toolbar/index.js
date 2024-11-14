@@ -57,7 +57,6 @@ Component.register('sw-text-editor-toolbar', {
             required: false,
             default: false,
         },
-
     },
 
     data() {
@@ -166,8 +165,8 @@ Component.register('sw-text-editor-toolbar', {
                 const arrowWidth = 8;
                 const selectionBoundary = this.range.getBoundingClientRect();
 
-                let left = selectionBoundary.right - (selectionBoundary.width / 2);
-                left -= (leftSidebarWidth + arrowWidth);
+                let left = selectionBoundary.right - selectionBoundary.width / 2;
+                left -= leftSidebarWidth + arrowWidth;
                 this.arrowPosition['--left'] = `${left}px`;
                 this.arrowPosition['--right'] = 'unset';
             }
@@ -195,7 +194,7 @@ Component.register('sw-text-editor-toolbar', {
                 source = source.parentNode;
             }
 
-            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
                 return;
             }
 
@@ -239,7 +238,7 @@ Component.register('sw-text-editor-toolbar', {
 
             offsetTop += boundary.top - (this.$el.clientHeight + arrowHeight);
 
-            const middleBoundary = (boundary.left + boundary.width / 2) + 4;
+            const middleBoundary = boundary.left + boundary.width / 2 + 4;
             const halfWidth = this.$el.clientWidth / 2;
             const offsetLeft = middleBoundary - halfWidth;
 
@@ -442,13 +441,7 @@ Component.register('sw-text-editor-toolbar', {
                     return;
                 }
 
-                this.$emit(
-                    'on-set-link',
-                    button.value,
-                    target,
-                    button.displayAsButton,
-                    button.buttonVariant,
-                );
+                this.$emit('on-set-link', button.value, target, button.displayAsButton, button.buttonVariant);
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;

@@ -27,16 +27,15 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\RateLimiterTestTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\FormController;
@@ -67,11 +66,9 @@ class ControllerRateLimiterTest extends TestCase
 
     private Context $context;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private KernelBrowser $browser;
-
-    private ?AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -92,15 +89,15 @@ class ControllerRateLimiterTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
-        $this->salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
 
         $this->clearCache();
 
@@ -369,7 +366,6 @@ class ControllerRateLimiterTest extends TestCase
 
         \parse_str($rawParams, $params);
 
-        static::assertIsArray($params);
         static::assertArrayHasKey($param, $params);
         static::assertIsString($params[$param]);
 

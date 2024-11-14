@@ -21,15 +21,7 @@ const fixture = [
 ];
 
 function getCollection() {
-    return new EntityCollection(
-        '/test-entity',
-        'testEntity',
-        null,
-        new Criteria(1, 25),
-        fixture,
-        fixture.length,
-        null,
-    );
+    return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);
 }
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
@@ -92,16 +84,14 @@ describe('components/sw-entity-multi-id-select', () => {
     it('should reset selected value if it is invalid', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds = jest.fn();
-        await wrapper.setProps(
-            {
-                value: [{ id: '123', name: 'random' }],
-                repository: {
-                    search: () => {
-                        return Promise.resolve([]);
-                    },
+        await wrapper.setProps({
+            value: [{ id: '123', name: 'random' }],
+            repository: {
+                search: () => {
+                    return Promise.resolve([]);
                 },
             },
-        );
+        });
 
         expect(wrapper.vm.updateIds).toHaveBeenCalled();
     });

@@ -24,7 +24,10 @@ export default {
             type: Array,
             validator(value) {
                 const invalidElements = value.filter((element) => {
-                    return !['media', 'media_folder'].includes(element.getEntityName());
+                    return ![
+                        'media',
+                        'media_folder',
+                    ].includes(element.getEntityName());
                 });
                 return invalidElements.length === 0;
             },
@@ -122,11 +125,16 @@ export default {
 
             const filteredAttributes = {};
 
-            Object.entries(this.$attrs).forEach(([key, value]) => {
-                if (key.startsWith('on') && typeof value === 'function') {
-                    filteredAttributes[key] = value;
-                }
-            });
+            Object.entries(this.$attrs).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    if (key.startsWith('on') && typeof value === 'function') {
+                        filteredAttributes[key] = value;
+                    }
+                },
+            );
 
             return filteredAttributes;
         },

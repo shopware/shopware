@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductStream;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,9 +23,9 @@ class ProductStreamRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductStreamCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -32,25 +33,16 @@ class SalesChannelDefinitionTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var SalesChannelDefinitionInstanceRegistry
-     */
-    private $registry;
+    private SalesChannelDefinitionInstanceRegistry $registry;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    private $apiRepository;
+    private EntityRepository $apiRepository;
 
-    /**
-     * @var SalesChannelRepository
-     */
-    private $salesChannelProductRepository;
+    private SalesChannelRepository $salesChannelProductRepository;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $factory;
+    private AbstractSalesChannelContextFactory $factory;
 
     protected function setUp(): void
     {

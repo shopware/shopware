@@ -11,6 +11,8 @@ class NavigationRouteResponse extends StoreApiResponse
 {
     /**
      * @var CategoryCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

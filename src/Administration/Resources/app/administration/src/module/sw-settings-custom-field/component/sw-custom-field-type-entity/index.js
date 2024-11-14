@@ -16,10 +16,9 @@ export default {
     ],
 
     mounted() {
-        this.customEntityRepository.search(new Criteria(), Shopware.Context.api)
-            .then(result => {
-                this.customEntities = result;
-            });
+        this.customEntityRepository.search(new Criteria(), Shopware.Context.api).then((result) => {
+            this.customEntities = result;
+        });
     },
 
     data() {
@@ -55,7 +54,10 @@ export default {
                     label: this.$tc('sw-settings-custom-field.customField.entity.customer'),
                     value: 'customer',
                     config: {
-                        labelProperty: ['firstName', 'lastName'],
+                        labelProperty: [
+                            'firstName',
+                            'lastName',
+                        ],
                     },
                 },
                 {
@@ -76,7 +78,7 @@ export default {
                 },
             ];
 
-            this.customFieldsAwareCustomEntities.forEach(customEntity => {
+            this.customFieldsAwareCustomEntities.forEach((customEntity) => {
                 entityTypes.push({
                     label: this.$tc(`${customEntity.name}.label`),
                     value: customEntity.name,
@@ -90,13 +92,11 @@ export default {
         },
 
         customFieldsAwareCustomEntities() {
-            return this.customEntities.filter(customEntity => customEntity.customFieldsAware);
+            return this.customEntities.filter((customEntity) => customEntity.customFieldsAware);
         },
 
         customEntityRepository() {
-            return this.repositoryFactory.create(
-                'custom_entity',
-            );
+            return this.repositoryFactory.create('custom_entity');
         },
 
         sortedEntityTypes() {
@@ -117,16 +117,23 @@ export default {
                 }
             }
 
-            if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
+            const componentName = this.currentCustomField.config.componentName;
+            if (
+                !componentName ||
+                ![
+                    'sw-entity-single-select',
+                    'sw-entity-multi-id-select',
+                ].includes(componentName)
+            ) {
                 this.currentCustomField.config.componentName = 'sw-entity-single-select';
             }
 
             this.multiSelectSwitchDisabled = !this.currentCustomField._isNew;
-            this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-entity-multi-id-select';
+            this.multiSelectSwitch = componentName === 'sw-entity-multi-id-select';
         },
 
         onChangeEntityType(entity) {
-            const entityType = this.entityTypes.find(type => type.value === entity);
+            const entityType = this.entityTypes.find((type) => type.value === entity);
 
             if (this.isCompatEnabled('INSTANCE_DELETE')) {
                 this.$delete(this.currentCustomField.config, 'labelProperty');

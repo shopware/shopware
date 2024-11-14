@@ -47,7 +47,7 @@ export default {
 
     methods: {
         isSelected(item) {
-            return this.currentCollection.some(entity => {
+            return this.currentCollection.some((entity) => {
                 return entity.salesChannelId === item.id;
             });
         },
@@ -55,7 +55,7 @@ export default {
         addItem(item) {
             // Remove when already selected
             if (this.isSelected(item)) {
-                const associationEntity = this.currentCollection.find(entity => {
+                const associationEntity = this.currentCollection.find((entity) => {
                     return entity.salesChannelId === item.id;
                 });
                 this.remove(associationEntity);

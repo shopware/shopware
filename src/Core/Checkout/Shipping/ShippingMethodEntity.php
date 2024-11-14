@@ -34,61 +34,85 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $trackingUrl;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryTimeId;
 
     /**
      * @var DeliveryTimeEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryTime;
 
     /**
      * @var ShippingMethodTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var OrderDeliveryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderDeliveries;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDefaultAssignments;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var RuleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $availabilityRule;
 
@@ -96,31 +120,43 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
 
     /**
      * @var ShippingMethodPriceCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $prices;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxId;
 
     /**
      * @var MediaEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $media;
 
     /**
      * @var TagCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tags;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxType;
 
@@ -131,6 +167,8 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
 
     /**
      * @var TaxEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tax;
 

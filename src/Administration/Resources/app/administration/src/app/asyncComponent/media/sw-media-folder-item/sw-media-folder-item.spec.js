@@ -7,11 +7,17 @@ const { Module } = Shopware;
 
 // mocking modules
 const modulesToCreate = new Map();
-modulesToCreate.set('sw-product', { icon: 'regular-products', entity: 'product' });
-modulesToCreate.set('sw-mail-template', { icon: 'regular-cog', entity: 'mail_template' });
+modulesToCreate.set('sw-product', {
+    icon: 'regular-products',
+    entity: 'product',
+});
+modulesToCreate.set('sw-mail-template', {
+    icon: 'regular-cog',
+    entity: 'mail_template',
+});
 modulesToCreate.set('sw-cms', { icon: 'regular-content', entity: 'cms_page' });
 
-Array.from(modulesToCreate.keys()).forEach(moduleName => {
+Array.from(modulesToCreate.keys()).forEach((moduleName) => {
     const currentModuleValues = modulesToCreate.get(moduleName);
 
     Module.register(moduleName, {
@@ -46,9 +52,11 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 id: 'af46d5250e34403485e045ba7049dec7',
                 children: [],
                 isNew: () => false,
-                media: [{
-                    isNew: () => false,
-                }],
+                media: [
+                    {
+                        isNew: () => false,
+                    },
+                ],
             },
             showSelectionIndicator: false,
             showContextMenuButton: true,
@@ -67,12 +75,14 @@ async function createWrapper(defaultFolderId, privileges = []) {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        create: () => Promise.resolve({
-                            isNew: () => true,
-                        }),
-                        search: () => Promise.resolve({
-                            isNew: () => false,
-                        }),
+                        create: () =>
+                            Promise.resolve({
+                                isNew: () => true,
+                            }),
+                        search: () =>
+                            Promise.resolve({
+                                isNew: () => false,
+                            }),
                         get: (folderId) => {
                             switch (folderId) {
                                 case ID_PRODUCTS_FOLDER:
@@ -98,7 +108,9 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },

@@ -48,7 +48,8 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                         name: 'placeholder',
                         value: 'placeholder2',
                         label: 'Placeholder 2',
-                    }],
+                    },
+                ],
                 label: 'Rating',
             },
             global: {
@@ -137,11 +138,13 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
             { value: '5', label: 'Option 5' },
             { value: '6', label: 'Option 6' },
         ];
-        const wrapper = await createWrapper({ propsData: {
-            value: null,
-            options,
-            label: 'Rating',
-        } });
+        const wrapper = await createWrapper({
+            propsData: {
+                value: null,
+                options,
+                label: 'Rating',
+            },
+        });
 
         const preview = wrapper.find('.sw-meteor-single-select__preview');
         await preview.trigger('click');

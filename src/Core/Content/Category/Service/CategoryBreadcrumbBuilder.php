@@ -65,7 +65,7 @@ class CategoryBreadcrumbBuilder
         );
     }
 
-    public function loadCategory(string $categoryId, Context $context): CategoryEntity
+    public function loadCategory(string $categoryId, Context $context): ?CategoryEntity
     {
         $criteria = new Criteria([$categoryId]);
         $criteria->setTitle('breadcrumb::category::data');
@@ -75,7 +75,7 @@ class CategoryBreadcrumbBuilder
             ->get($categoryId);
 
         if (!$category instanceof CategoryEntity) {
-            throw BreadcrumbException::categoryNotFound($categoryId);
+            return null;
         }
 
         return $category;
@@ -129,6 +129,10 @@ class CategoryBreadcrumbBuilder
     {
         $seoBreadcrumb = $this->build($category, $salesChannel);
         $categoryIds = array_keys($seoBreadcrumb ?? []);
+
+        if (empty($categoryIds)) {
+            return [];
+        }
 
         $categories = $this->loadCategories($categoryIds, $context, $salesChannel);
         $seoUrls = $this->loadSeoUrls($categoryIds, $context, $salesChannel);

@@ -11,23 +11,26 @@ async function createWrapper() {
         props: {
             translationKey: 'test.snippet',
             fieldType: 'text',
-            snippets: [{
-                author: 'testUser',
-                id: null,
-                value: 'english',
-                origin: null,
-                resetTo: 'english',
-                translationKey: 'test.snippet',
-                setId: 'en-GB-MOCK-ID',
-            }, {
-                author: 'testUser',
-                id: null,
-                value: 'deutsch',
-                origin: null,
-                resetTo: 'deutsch',
-                translationKey: 'test.snippet',
-                setId: 'de-DE-MOCK-ID',
-            }],
+            snippets: [
+                {
+                    author: 'testUser',
+                    id: null,
+                    value: 'english',
+                    origin: null,
+                    resetTo: 'english',
+                    translationKey: 'test.snippet',
+                    setId: 'en-GB-MOCK-ID',
+                },
+                {
+                    author: 'testUser',
+                    id: null,
+                    value: 'deutsch',
+                    origin: null,
+                    resetTo: 'deutsch',
+                    translationKey: 'test.snippet',
+                    setId: 'de-DE-MOCK-ID',
+                },
+            ],
             snippetSets: createEntityCollection([
                 {
                     name: 'Base en-GB',
@@ -82,22 +85,39 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const [firstInput, secondInput] = wrapper.findAll('.sw-snippet-field-edit-modal__translation-field');
+        const [
+            firstInput,
+            secondInput,
+        ] = wrapper.findAll('.sw-snippet-field-edit-modal__translation-field');
 
         expect(firstInput.wrapperElement).toBeDisabled();
         expect(secondInput.wrapperElement).toBeDisabled();
     });
 
     it.each([
-        ['snippet.viewer', 'snippet.editor'],
-        ['snippet.viewer', 'snippet.editor', 'snippet.creator'],
-        ['snippet.viewer', 'snippet.editor', 'snippet.deleter'],
+        [
+            'snippet.viewer',
+            'snippet.editor',
+        ],
+        [
+            'snippet.viewer',
+            'snippet.editor',
+            'snippet.creator',
+        ],
+        [
+            'snippet.viewer',
+            'snippet.editor',
+            'snippet.deleter',
+        ],
     ])('should have enabled inputs when the user has the appropriate roles', async (...roles) => {
         global.activeAclRoles = roles;
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const [firstInput, secondInput] = wrapper.findAll('.sw-snippet-field-edit-modal__translation-field');
+        const [
+            firstInput,
+            secondInput,
+        ] = wrapper.findAll('.sw-snippet-field-edit-modal__translation-field');
 
         if (firstInput.attributes().hasOwnProperty('disabled')) {
             // eslint-disable-next-line jest/no-conditional-expect

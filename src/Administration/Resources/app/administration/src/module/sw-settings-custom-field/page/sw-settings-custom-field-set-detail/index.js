@@ -141,31 +141,37 @@ export default {
             // in case, the set is not translated
             if (!this.set.config.translated || this.set.config.translated === false) {
                 const fallbackLocale = this.swInlineSnippetFallbackLocale;
-                this.set.config.label = { [fallbackLocale]: this.set.config.label[fallbackLocale] };
+                this.set.config.label = {
+                    [fallbackLocale]: this.set.config.label[fallbackLocale],
+                };
             }
 
             if (!this.set.relations) {
                 this.set.relations = [];
             }
 
-            this.customFieldSetRepository.save(this.set).then(() => {
-                this.isSaveSuccessful = true;
+            this.customFieldSetRepository
+                .save(this.set)
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess,
+                    this.createNotificationSuccess({
+                        title: titleSaveSuccess,
+                        message: messageSaveSuccess,
+                    });
+
+                    return this.loadEntityData();
+                })
+                .catch((error) => {
+                    const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
+
+                    this.createNotificationError({
+                        message: errorMessage,
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-
-                return this.loadEntityData();
-            }).catch((error) => {
-                const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
-
-                this.createNotificationError({
-                    message: errorMessage,
-                });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         onCancel() {

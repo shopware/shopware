@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Increment\ArrayIncrementer;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -28,7 +29,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
             ],
             'message_queue' => [
                 'type' => 'redis',
-                'config' => ['url' => 'redis://test'],
+                'config' => ['connection' => 'redis_incrementer'],
             ],
             'another_pool' => [
                 'type' => 'array',
@@ -173,5 +174,30 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
         $entityCompilerPass->process($container);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Remove in 6.7
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
+    public function testRedisGatewayWithUrl(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('shopware.increment', [
+            'my_pool' => [
+                'type' => 'redis',
+                'config' => ['url' => 'redis://test'],
+            ],
+        ]);
+
+        $entityCompilerPass = new IncrementerGatewayCompilerPass();
+        $entityCompilerPass->process($container);
+
+        // my_pool is registered
+        static::assertTrue($container->hasDefinition('shopware.increment.my_pool.redis_adapter'));
+        static::assertTrue($container->hasDefinition('shopware.increment.my_pool.gateway.redis'));
+        $definition = $container->getDefinition('shopware.increment.my_pool.gateway.redis');
+        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 }

@@ -83,23 +83,23 @@ export default {
         },
 
         async onSalesChannelDomainMenuItemClick(salesChannelId, salesChannelDomainUrl) {
-            this.contextStoreService.generateImitateCustomerToken(
-                this.customer.id,
-                salesChannelId,
-            ).then((response) => {
-                const handledResponse = ApiService.handleResponse(response);
+            this.contextStoreService
+                .generateImitateCustomerToken(this.customer.id, salesChannelId)
+                .then((response) => {
+                    const handledResponse = ApiService.handleResponse(response);
 
-                this.contextStoreService.redirectToSalesChannelUrl(
-                    salesChannelDomainUrl,
-                    handledResponse.token,
-                    this.customer.id,
-                    this.currentUser?.id,
-                );
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                    this.contextStoreService.redirectToSalesChannelUrl(
+                        salesChannelDomainUrl,
+                        handledResponse.token,
+                        this.customer.id,
+                        this.currentUser?.id,
+                    );
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                    });
                 });
-            });
         },
 
         onCancel() {
@@ -107,12 +107,11 @@ export default {
         },
 
         fetchSalesChannelDomains() {
-            this.salesChannelDomainRepository.search(
-                this.salesChannelDomainCriteria,
-                Shopware.Context.api,
-            ).then((loadedDomains) => {
-                this.salesChannelDomains = loadedDomains;
-            });
+            this.salesChannelDomainRepository
+                .search(this.salesChannelDomainCriteria, Shopware.Context.api)
+                .then((loadedDomains) => {
+                    this.salesChannelDomains = loadedDomains;
+                });
         },
     },
 };

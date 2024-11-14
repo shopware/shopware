@@ -5,4 +5,12 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../Controller/*Controller.php" type="attribute" />
+
+    <when env="dev">
+        <import resource="@PentatrionViteBundle/Resources/config/routing.yaml" prefix="/build" />
+
+        <route id="_profiler_vite" path="/_profiler/vite">
+            <default key="_controller">Pentatrion\ViteBundle\Controller\ProfilerController::info</default>
+        </route>
+    </when>
 </routes>

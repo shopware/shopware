@@ -5,31 +5,34 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-sidebar-filter', {
-        sync: true,
-    }), {
-        props: {
-            element: {},
-        },
-        global: {
-            stubs: {
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-el-sidebar-filter', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {},
             },
-            provide: {
-                cmsService: {
-                    getCmsElementRegistry: () => ({
-                        'sidebar-filter': {},
-                    }),
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
+                provide: {
+                    cmsService: {
+                        getCmsElementRegistry: () => ({
+                            'sidebar-filter': {},
+                        }),
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
         });
     });
 

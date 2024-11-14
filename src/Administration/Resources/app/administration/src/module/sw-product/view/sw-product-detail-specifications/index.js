@@ -13,7 +13,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl', 'feature', 'repositoryFactory'],
+    inject: [
+        'acl',
+        'feature',
+        'repositoryFactory',
+    ],
 
     data() {
         return {
@@ -41,9 +45,7 @@ export default {
         },
 
         showCustomFieldsCard() {
-            return this.showProductCard('custom_fields') &&
-                !this.isLoading &&
-                this.customFieldsExists;
+            return this.showProductCard('custom_fields') && !this.isLoading && this.customFieldsExists;
         },
     },
 };

@@ -55,7 +55,7 @@ class SyncControllerTest extends TestCase
                         'test' => true,
                     ],
                 ],
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'Invalid payload. Should contain a list of associative arrays',
         ];
 
@@ -65,7 +65,7 @@ class SyncControllerTest extends TestCase
         ];
 
         yield 'Missing required keys' => [
-            json_encode(['delete-mapping' => 'action:delete']),
+            json_encode(['delete-mapping' => 'action:delete'], \JSON_THROW_ON_ERROR),
             'Invalid payload format. Expected an array of operations.',
         ];
     }
@@ -403,7 +403,6 @@ class SyncControllerTest extends TestCase
         $messages = $this->gateway->list('message_queue_stats');
 
         static::assertNotEmpty($messages);
-        static::assertNotEmpty($messages[ProductIndexingMessage::class]);
         static::assertEquals(1, $messages[ProductIndexingMessage::class]['count']);
     }
 
@@ -564,8 +563,8 @@ class SyncControllerTest extends TestCase
 
         $client->request('POST', '/api/_action/sync', content: $payload);
 
-        /** @var string $response */
         $response = $client->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 

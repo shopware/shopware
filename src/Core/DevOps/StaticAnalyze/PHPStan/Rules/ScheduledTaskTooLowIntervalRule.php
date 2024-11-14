@@ -9,6 +9,7 @@ use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
@@ -59,7 +60,13 @@ class ScheduledTaskTooLowIntervalRule implements Rule
 
                 if ($interval < self::MIN_SCHEDULED_TASK_INTERVAL) {
                     return [
-                        \sprintf('Scheduled task has an interval of %d seconds, it should have an minimum of %d seconds.', $interval, self::MIN_SCHEDULED_TASK_INTERVAL),
+                        RuleErrorBuilder::message(\sprintf(
+                            'Scheduled task has an interval of %d seconds, it should have an minimum of %d seconds.',
+                            $interval,
+                            self::MIN_SCHEDULED_TASK_INTERVAL
+                        ))
+                            ->identifier('shopware.scheduledTaskLowInterval')
+                            ->build(),
                     ];
                 }
             }

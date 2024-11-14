@@ -31,14 +31,18 @@ export default {
     },
 
     computed: {
+        textIsHighlighted() {
+            return this.text.includes(this.highlightClass);
+        },
+
         parsedSearch() {
-            return `(${this.searchTerm.trim().replace(/ +/g, '|')})`;
+            // escaped regexep
+            const term = this.searchTerm.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return `(${term.replace(/ +/g, '|')})`;
         },
 
         parsedMsg() {
-            return this.text.split(
-                new RegExp(this.parsedSearch, 'gi'),
-            );
+            return this.text.split(new RegExp(this.parsedSearch, 'gi'));
         },
     },
 

@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -43,6 +42,7 @@ use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureRefundBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Telemetry\Metrics\Metric;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
@@ -12,7 +13,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 /**
  * @internal
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(Metric::class)]
+#[CoversClass(Metric::class)]
 #[Package('core')]
 class MetricTest extends TestCase
 {
@@ -38,7 +39,7 @@ class MetricTest extends TestCase
             ['label1' => 'allowed_value', 'label2' => 'disallowed_value']
         );
 
-        $metric = new Metric($configuredMetric, $metricConfig);
+        $metric = Metric::fromConfigured($configuredMetric, $metricConfig);
         static::assertSame(['label1' => 'allowed_value'], $metric->labels);
     }
 
@@ -61,7 +62,25 @@ class MetricTest extends TestCase
             ['some_label' => 'some_value', 'another_label' => 'another_value']
         );
 
-        $metric = new Metric($configuredMetric, $metricConfig);
+        $metric = Metric::fromConfigured($configuredMetric, $metricConfig);
         static::assertSame([], $metric->labels);
+    }
+
+    public function testFromArray(): void
+    {
+        $metric = Metric::fromArray([
+            'name' => 'test_metric',
+            'value' => 100,
+            'labels' => ['label1' => 'allowed_value', 'label2' => 'disallowed_value'],
+            'type' => Type::COUNTER,
+            'description' => 'Cache hits',
+        ]);
+
+        static::assertSame('test_metric', $metric->name);
+        static::assertSame(100, $metric->value);
+        static::assertSame(['label1' => 'allowed_value', 'label2' => 'disallowed_value'], $metric->labels);
+        static::assertSame(Type::COUNTER, $metric->type);
+        static::assertSame('Cache hits', $metric->description);
+        static::assertNull($metric->unit);
     }
 }

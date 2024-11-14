@@ -32,7 +32,6 @@ export default {
     },
 
     methods: {
-
         onClose() {
             this.$emit('close');
         },

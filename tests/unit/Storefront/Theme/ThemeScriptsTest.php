@@ -4,8 +4,11 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\Test\Generator;
+use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File as StorefrontPluginConfigurationFile;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -31,7 +34,8 @@ class ThemeScriptsTest extends TestCase
             $this->createMock(ThemeFileResolver::class),
             $this->createMock(RequestStack::class),
             new MD5ThemePathBuilder(),
-            new ArrayAdapter()
+            new ArrayAdapter(),
+            $this->createMock(AbstractConfigLoader::class)
         );
 
         static::assertEquals([], $themeScripts->getThemeScripts());
@@ -48,6 +52,7 @@ class ThemeScriptsTest extends TestCase
             $requestStack,
             new MD5ThemePathBuilder(),
             new ArrayAdapter(),
+            $this->createMock(AbstractConfigLoader::class)
         );
 
         static::assertEquals([], $themeScripts->getThemeScripts());
@@ -69,6 +74,7 @@ class ThemeScriptsTest extends TestCase
             $requestStack,
             new MD5ThemePathBuilder(),
             new ArrayAdapter(),
+            $this->createMock(AbstractConfigLoader::class)
         );
 
         static::assertEquals([], $themeScripts->getThemeScripts());
@@ -81,6 +87,10 @@ class ThemeScriptsTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
+
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+
         $requestStack->push($request);
 
         $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
@@ -104,6 +114,7 @@ class ThemeScriptsTest extends TestCase
             $requestStack,
             new MD5ThemePathBuilder(),
             new ArrayAdapter(),
+            $this->createMock(AbstractConfigLoader::class)
         );
 
         static::assertEquals(['js/foo/foo.js'], $themeScripts->getThemeScripts());
@@ -114,11 +125,16 @@ class ThemeScriptsTest extends TestCase
     {
         $requestStack = new RequestStack();
         $request = new Request();
-        // for some reason db themes the theme name is null
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, null);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'ChildId');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'ChildName');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, 'Storefront');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createCLIContext());
+
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+
         $requestStack->push($request);
 
         $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
@@ -141,6 +157,7 @@ class ThemeScriptsTest extends TestCase
             $requestStack,
             new MD5ThemePathBuilder(),
             new ArrayAdapter(),
+            $this->createMock(AbstractConfigLoader::class)
         );
 
         static::assertEquals(['js/foo/foo.js'], $themeScripts->getThemeScripts());

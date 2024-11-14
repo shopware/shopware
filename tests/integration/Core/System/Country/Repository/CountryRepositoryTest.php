@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 
 /**
  * @internal
@@ -23,9 +24,9 @@ class CountryRepositoryTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CountryCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {

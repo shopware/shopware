@@ -21,24 +21,36 @@ async function createWrapper(privileges = []) {
                 repositoryFactory: {
                     create: (entity) => ({
                         create: () => {
-                            return Promise.resolve(entity === 'customer' ? [{
-                                id: '1a2b3c',
-                                entity: 'customer',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                            }] : []);
+                            return Promise.resolve(
+                                entity === 'customer'
+                                    ? [
+                                          {
+                                              id: '1a2b3c',
+                                              entity: 'customer',
+                                              customerId: 'd4c3b2a1',
+                                              productId: 'd4c3b2a1',
+                                              salesChannelId: 'd4c3b2a1',
+                                          },
+                                      ]
+                                    : [],
+                            );
                         },
                         search: () => {
-                            return Promise.resolve(entity === 'customer' ? [{
-                                id: '1a2b3c',
-                                entity: 'customer',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                                sourceEntitiy: 'customer',
-                                createdById: '123213132',
-                            }] : []);
+                            return Promise.resolve(
+                                entity === 'customer'
+                                    ? [
+                                          {
+                                              id: '1a2b3c',
+                                              entity: 'customer',
+                                              customerId: 'd4c3b2a1',
+                                              productId: 'd4c3b2a1',
+                                              salesChannelId: 'd4c3b2a1',
+                                              sourceEntitiy: 'customer',
+                                              createdById: '123213132',
+                                          },
+                                      ]
+                                    : [],
+                            );
                         },
                     }),
                 },

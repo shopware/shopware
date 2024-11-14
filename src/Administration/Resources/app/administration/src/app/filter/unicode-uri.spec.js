@@ -13,12 +13,26 @@ describe('src/app/filter/unicode-uri.ts', () => {
     });
 
     [
-        ['xn--maana-pta.com', 'mañana.com'],
-        ['xn----dqo34k.com', '☃-⌘.com'],
-        ['джумла@xn--p-8sbkgc5ag7bhce.xn--ba-lmcq', 'джумла@джpумлатест.bрфa'],
-    ].forEach(([input, expected]) => {
-        it(`should return correct result for ${input}`, () => {
-            expect(unicodeUriFilter(input)).toBe(expected);
-        });
-    });
+        [
+            'xn--maana-pta.com',
+            'mañana.com',
+        ],
+        [
+            'xn----dqo34k.com',
+            '☃-⌘.com',
+        ],
+        [
+            'джумла@xn--p-8sbkgc5ag7bhce.xn--ba-lmcq',
+            'джумла@джpумлатест.bрфa',
+        ],
+    ].forEach(
+        ([
+            input,
+            expected,
+        ]) => {
+            it(`should return correct result for ${input}`, () => {
+                expect(unicodeUriFilter(input)).toBe(expected);
+            });
+        },
+    );
 });

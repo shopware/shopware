@@ -9,9 +9,16 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-settings-snippet-set-list', () => import('./page/sw-settings-snippet-set-list'));
 Shopware.Component.register('sw-settings-snippet-list', () => import('./page/sw-settings-snippet-list'));
 Shopware.Component.register('sw-settings-snippet-detail', () => import('./page/sw-settings-snippet-detail'));
-Shopware.Component.extend('sw-settings-snippet-create', 'sw-settings-snippet-detail', () => import('./page/sw-settings-snippet-create'));
+Shopware.Component.extend(
+    'sw-settings-snippet-create',
+    'sw-settings-snippet-detail',
+    () => import('./page/sw-settings-snippet-create'),
+);
 Shopware.Component.register('sw-settings-snippet-sidebar', () => import('./component/sidebar/sw-settings-snippet-sidebar'));
-Shopware.Component.register('sw-settings-snippet-filter-switch', () => import('./component/sidebar/sw-settings-snippet-filter-switch'));
+Shopware.Component.register(
+    'sw-settings-snippet-filter-switch',
+    () => import('./component/sidebar/sw-settings-snippet-filter-switch'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

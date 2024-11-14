@@ -50,8 +50,9 @@ export default {
             const names = {};
 
             this.filteredItems.forEach((item) => {
-                names[item.id] = item.salesChannelInternal ?
-                    item.salesChannelInternal.translated.name : item.salesChannel.translated.name;
+                names[item.id] = item.salesChannelInternal
+                    ? item.salesChannelInternal.translated.name
+                    : item.salesChannel.translated.name;
             });
 
             return names;

@@ -14,11 +14,15 @@ class PriceRuleEntity extends Entity implements IdAware
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ruleId;
 
     /**
      * @var PriceCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 

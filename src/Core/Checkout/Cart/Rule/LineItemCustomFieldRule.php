@@ -20,6 +20,8 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @var array<string|int|bool|float>|string|int|float|bool|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $renderedFieldValue;
 

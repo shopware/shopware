@@ -5,109 +5,118 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];
-    const customFields = [{
-        name: 'my_first_custom_field',
-        config: {
-            label: { 'en-GB': 'asperiores sint dolore' },
+    const customFields = [
+        {
+            name: 'my_first_custom_field',
+            config: {
+                label: { 'en-GB': 'asperiores sint dolore' },
+            },
         },
-    }];
+    ];
 
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-settings-listing-option-criteria-grid', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                provide: {
-                    repositoryFactory: {
-                        create: repository => {
-                            if (repository === 'custom_field_set_relation') {
-                                return { search: () => Promise.resolve(customFieldRelations) };
-                            }
+        return mount(
+            await wrapTestComponent('sw-settings-listing-option-criteria-grid', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    provide: {
+                        repositoryFactory: {
+                            create: (repository) => {
+                                if (repository === 'custom_field_set_relation') {
+                                    return {
+                                        search: () => Promise.resolve(customFieldRelations),
+                                    };
+                                }
 
-                            if (repository === 'custom_field') {
-                                return {
-                                    search: () => Promise.resolve(customFields),
-                                    get: () => Promise.resolve(),
-                                };
-                            }
+                                if (repository === 'custom_field') {
+                                    return {
+                                        search: () => Promise.resolve(customFields),
+                                        get: () => Promise.resolve(),
+                                    };
+                                }
 
-                            return { search: () => Promise.resolve() };
+                                return { search: () => Promise.resolve() };
+                            },
                         },
                     },
-                },
-                stubs: {
-                    'sw-card': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                    },
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-icon': {
-                        template: '<i></i>',
-                    },
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-popover': await wrapTestComponent('sw-popover'),
-                    'sw-popover-deprecated': {
-                        props: ['popoverClass'],
-                        template: `
+                    stubs: {
+                        'sw-card': {
+                            template: '<div><slot></slot></div>',
+                        },
+                        'sw-empty-state': {
+                            template: '<div class="sw-empty-state"></div>',
+                        },
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
+                            sync: true,
+                        }),
+                        'sw-icon': {
+                            template: '<i></i>',
+                        },
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-field-error': await wrapTestComponent('sw-field-error'),
+                        'sw-context-button': await wrapTestComponent('sw-context-button'),
+                        'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                        'sw-select-result': await wrapTestComponent('sw-select-result'),
+                        'sw-popover': await wrapTestComponent('sw-popover'),
+                        'sw-popover-deprecated': {
+                            props: ['popoverClass'],
+                            template: `
                     <div class="sw-popover" :class="popoverClass">
                         <slot></slot>
                     </div>`,
+                        },
+                        'sw-loader': true,
+                        'sw-context-menu-item': true,
+                        'sw-context-menu': true,
+                        'sw-single-select': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'router-link': true,
+                        'sw-button': true,
+                        'sw-data-grid-skeleton': true,
+                        'sw-data-grid-settings': true,
+                        'sw-product-variant-info': true,
+                        'sw-highlight-text': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
                     },
-                    'sw-loader': true,
-                    'sw-context-menu-item': true,
-                    'sw-context-menu': true,
-                    'sw-single-select': true,
-                    'sw-data-grid-column-boolean': true,
-                    'sw-data-grid-inline-edit': true,
-                    'router-link': true,
-                    'sw-button': true,
-                    'sw-data-grid-skeleton': true,
-                    'sw-data-grid-settings': true,
-                    'sw-product-variant-info': true,
-                    'sw-highlight-text': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
+                },
+                props: {
+                    productSortingEntity: {
+                        label: 'Price descending',
+                        fields: [
+                            {
+                                field: 'product.cheapestPrice',
+                                order: 'desc',
+                                priority: 0,
+                                naturalSorting: 0,
+                            },
+                            {
+                                field: 'product.stock',
+                                order: 'desc',
+                                priority: 3,
+                                naturalSorting: 0,
+                            },
+                            {
+                                field: 'product.cheapestPrice',
+                                order: 'asc',
+                                priority: 2,
+                                naturalSorting: 1,
+                            },
+                        ],
+                    },
                 },
             },
-            props: {
-                productSortingEntity: {
-                    label: 'Price descending',
-                    fields: [
-                        {
-                            field: 'product.cheapestPrice',
-                            order: 'desc',
-                            priority: 0,
-                            naturalSorting: 0,
-                        },
-                        {
-                            field: 'product.stock',
-                            order: 'desc',
-                            priority: 3,
-                            naturalSorting: 0,
-                        },
-                        {
-                            field: 'product.cheapestPrice',
-                            order: 'asc',
-                            priority: 2,
-                            naturalSorting: 1,
-                        },
-                    ],
-                },
-            },
-        });
+        );
     }
 
     let wrapper;
@@ -188,19 +197,24 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     it('should return custom fields name', async () => {
         await wrapper.setProps({
             productSortingEntity: {
-                ...{ fields: [{
-                    field: 'customFields.custom_sports_necessitatibus_rerum_fugiat',
-                    name: '8d863f0747d84544a767ea77a239b0ec',
-                    naturalSorting: 0,
-                    order: 'asc',
-                    priority: 1,
-                }, {
-                    field: 'customFields.custom_movies_aspernatur_enim_error',
-                    name: '300d8964173b47d79cf4e348b09fce08',
-                    naturalSorting: 0,
-                    order: 'asc',
-                    priority: 1,
-                }] },
+                ...{
+                    fields: [
+                        {
+                            field: 'customFields.custom_sports_necessitatibus_rerum_fugiat',
+                            name: '8d863f0747d84544a767ea77a239b0ec',
+                            naturalSorting: 0,
+                            order: 'asc',
+                            priority: 1,
+                        },
+                        {
+                            field: 'customFields.custom_movies_aspernatur_enim_error',
+                            name: '300d8964173b47d79cf4e348b09fce08',
+                            naturalSorting: 0,
+                            order: 'asc',
+                            priority: 1,
+                        },
+                    ],
+                },
             },
         });
 
@@ -225,12 +239,16 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     it('should change productSortingEntity when add custom field', async () => {
         await wrapper.setProps({
             productSortingEntity: {
-                ...{ fields: [{
-                    field: 'customField',
-                    naturalSorting: 0,
-                    order: 'asc',
-                    priority: 1,
-                }] },
+                ...{
+                    fields: [
+                        {
+                            field: 'customField',
+                            naturalSorting: 0,
+                            order: 'asc',
+                            priority: 1,
+                        },
+                    ],
+                },
             },
         });
         await flushPromises();

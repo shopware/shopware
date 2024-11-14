@@ -119,7 +119,10 @@ Component.register('sw-category-tree-field', {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [...acc, ...pathIds];
+                return [
+                    ...acc,
+                    ...pathIds,
+                ];
             }, []);
         },
 
@@ -196,7 +199,7 @@ Component.register('sw-category-tree-field', {
                     }
 
                     actualElement.scrollTo({
-                        top: offsetValue - (actualElement.clientHeight / 2) - 50,
+                        top: offsetValue - actualElement.clientHeight / 2 - 50,
                         behavior: 'smooth',
                     });
                 }, 50)();
@@ -306,7 +309,7 @@ Component.register('sw-category-tree-field', {
             this.categoriesCollection.remove(item.id);
 
             if (this.pageId) {
-                const itemIndex = this.selectedCategories.findIndex(id => id === item.id);
+                const itemIndex = this.selectedCategories.findIndex((id) => id === item.id);
                 this.selectedCategories.splice(itemIndex, 1);
                 this.selectedCategoriesTotal -= 1;
             }
@@ -575,7 +578,7 @@ Component.register('sw-category-tree-field', {
         },
 
         changeSearchSelection(type = 'next') {
-            const typeValue = (type === 'previous') ? -1 : 1;
+            const typeValue = type === 'previous' ? -1 : 1;
 
             const actualIndex = this.searchResult.indexOf(this.searchResultFocusItem);
             const focusItem = this.searchResult[actualIndex + typeValue];

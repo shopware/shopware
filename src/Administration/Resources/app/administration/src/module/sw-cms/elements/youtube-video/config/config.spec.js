@@ -41,28 +41,33 @@ const defaultElementConfig = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-youtube-video', { sync: true }), {
-        props: {
-            element: {
-                config: defaultElementConfig,
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-youtube-video', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    config: defaultElementConfig,
+                },
+            },
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-text-field': true,
+                    'sw-switch-field': true,
+                    'sw-select-field': true,
+                    'sw-cms-mapping-field': true,
+                    'sw-media-upload-v2': true,
+                    'sw-alert': true,
+                    'sw-upload-listener': true,
+                    'sw-media-modal-v2': true,
+                },
             },
         },
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-            stubs: {
-                'sw-text-field': true,
-                'sw-switch-field': true,
-                'sw-select-field': true,
-                'sw-cms-mapping-field': true,
-                'sw-media-upload-v2': true,
-                'sw-alert': true,
-                'sw-upload-listener': true,
-                'sw-media-modal-v2': true,
-            },
-        },
-    });
+    );
 }
 
 describe('modules/sw-cms/elements/youtube-video/config', () => {

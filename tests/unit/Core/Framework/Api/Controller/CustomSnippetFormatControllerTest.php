@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Tests\Unit\Core\Framework\Api\Controller\Fixtures\BundleWithCustomSnippet\BundleWithCustomSnippet;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 
@@ -40,8 +39,6 @@ class CustomSnippetFormatControllerTest extends TestCase
     public function testGetSnippetsWithoutPlugins(): void
     {
         $response = $this->controller->snippets();
-
-        static::assertInstanceOf(JsonResponse::class, $response);
         $content = $response->getContent();
         static::assertNotFalse($content);
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -72,8 +69,6 @@ class CustomSnippetFormatControllerTest extends TestCase
         $this->pluginCollection->expects(static::once())->method('getActives')->willReturn([$plugin]);
 
         $response = $this->controller->snippets();
-
-        static::assertInstanceOf(JsonResponse::class, $response);
         $content = $response->getContent();
         static::assertNotFalse($content);
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -128,7 +123,6 @@ class CustomSnippetFormatControllerTest extends TestCase
         ])->willReturn('Rendered html');
 
         $response = $this->controller->render($request);
-        static::assertInstanceOf(JsonResponse::class, $response);
         $content = $response->getContent();
         static::assertNotFalse($content);
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);

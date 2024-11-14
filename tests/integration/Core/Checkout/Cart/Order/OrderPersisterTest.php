@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
@@ -46,11 +47,14 @@ class OrderPersisterTest extends TestCase
 
     private OrderConverter $orderConverter;
 
+    private CartSerializationCleaner $serializationCleaner;
+
     protected function setUp(): void
     {
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->cartProcessor = $this->getContainer()->get(Processor::class);
         $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
+        $this->serializationCleaner = $this->getContainer()->get(CartSerializationCleaner::class);
     }
 
     public function testSave(): void
@@ -97,7 +101,7 @@ class OrderPersisterTest extends TestCase
             )
         );
 
-        $persister = new OrderPersister($repository, $this->orderConverter);
+        $persister = new OrderPersister($repository, $this->orderConverter, $this->serializationCleaner);
 
         $persister->persist($cart, $this->getSalesChannelContext());
     }

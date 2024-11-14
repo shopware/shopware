@@ -148,7 +148,9 @@ Component.register('sw-search-preferences-modal', {
         onOpenSearchSettings() {
             this.$emit('modal-close');
             this.$nextTick(() => {
-                this.$router.push({ name: 'sw.profile.index.searchPreferences' });
+                this.$router.push({
+                    name: 'sw.profile.index.searchPreferences',
+                });
             });
         },
 
@@ -158,7 +160,8 @@ Component.register('sw-search-preferences-modal', {
 
         onSave() {
             // eslint-disable-next-line max-len
-            this.userSearchPreferences = this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
+            this.userSearchPreferences =
+                this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
             this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
                 return {
                     [entityName]: {
@@ -171,7 +174,10 @@ Component.register('sw-search-preferences-modal', {
             this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
-            return this.userConfigService.upsert({ [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value })
+            return this.userConfigService
+                .upsert({
+                    [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
+                })
                 .then(() => {
                     this.isLoading = false;
                     this.$emit('modal-close');

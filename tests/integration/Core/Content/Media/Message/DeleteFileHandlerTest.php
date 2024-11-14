@@ -14,10 +14,7 @@ class DeleteFileHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var DeleteFileHandler
-     */
-    private $handler;
+    private DeleteFileHandler $handler;
 
     protected function setUp(): void
     {

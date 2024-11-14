@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -87,7 +87,7 @@ class AddOrderTagActionTest extends TestCase
 
     public static function actionExecutedProvider(): \Generator
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         yield 'Test with single tag' => [
             ['tagIds' => self::keys([$ids->get('tag-1')])],

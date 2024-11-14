@@ -12,7 +12,11 @@ export default {
 
     inject: ['firstRunWizardService'],
 
-    emits: ['frw-set-title', 'buttons-update', 'frw-redirect'],
+    emits: [
+        'frw-set-title',
+        'buttons-update',
+        'frw-redirect',
+    ],
 
     data() {
         return {
@@ -80,20 +84,23 @@ export default {
         testCredentials() {
             const { shopwareId, password } = this;
 
-            return this.firstRunWizardService.checkShopwareId({
-                shopwareId,
-                password,
-            }).then(() => {
-                this.accountError = false;
+            return this.firstRunWizardService
+                .checkShopwareId({
+                    shopwareId,
+                    password,
+                })
+                .then(() => {
+                    this.accountError = false;
 
-                this.$emit('frw-redirect', 'sw.first.run.wizard.index.shopware.domain');
+                    this.$emit('frw-redirect', 'sw.first.run.wizard.index.shopware.domain');
 
-                return false;
-            }).catch(() => {
-                this.accountError = true;
+                    return false;
+                })
+                .catch(() => {
+                    this.accountError = true;
 
-                return true;
-            });
+                    return true;
+                });
         },
     },
 };

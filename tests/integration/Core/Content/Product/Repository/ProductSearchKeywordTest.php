@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Repository;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,9 +20,9 @@ class ProductSearchKeywordTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 

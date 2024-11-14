@@ -8,7 +8,7 @@
  */
 export default function createContext(context = {}) {
     const Defaults = Shopware.Defaults;
-    const isDevMode = (process.env.NODE_ENV !== 'production');
+    const isDevMode = process.env.NODE_ENV !== 'production';
     const installationPath = getInstallationPath(context, isDevMode);
     const apiPath = `${installationPath}/api`;
 
@@ -28,9 +28,14 @@ export default function createContext(context = {}) {
     }
 
     // assign unknown context information
-    Object.entries(context).forEach(([key, value]) => {
-        Shopware.State.commit('context/addApiValue', { key, value });
-    });
+    Object.entries(context).forEach(
+        ([
+            key,
+            value,
+        ]) => {
+            Shopware.State.commit('context/addApiValue', { key, value });
+        },
+    );
 
     return Shopware.Context.api;
 }

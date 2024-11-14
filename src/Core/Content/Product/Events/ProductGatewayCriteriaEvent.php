@@ -14,16 +14,22 @@ class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesCh
 {
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ids;
 
     /**
      * @var Criteria
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $criteria;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
 

@@ -19,10 +19,7 @@ class NavigationLoadedEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var NavigationLoaderInterface
-     */
-    protected $loader;
+    protected NavigationLoaderInterface $loader;
 
     protected function setUp(): void
     {

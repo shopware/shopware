@@ -23,36 +23,50 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 
     /**
      * @var TaxRuleCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxRules;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $quantity;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $isCalculated = true;
 
     /**
      * @var ReferencePriceDefinition|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $referencePriceDefinition;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $listPrice;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $regulationPrice;
 

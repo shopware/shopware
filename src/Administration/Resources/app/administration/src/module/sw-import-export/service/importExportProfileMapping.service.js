@@ -42,16 +42,14 @@ export default class ImportExportProfileMappingService {
             const entityDefinition = this.EntityDefinition.get(entityName);
             const primaryKeyFields = entityDefinition.getPrimaryKeyFields();
 
-            missingRequiredFields = missingRequiredFields.filter(
-                field => primaryKeyFields[field] !== undefined,
-            );
+            missingRequiredFields = missingRequiredFields.filter((field) => primaryKeyFields[field] !== undefined);
         }
 
         return { missingRequiredFields };
     }
 
     convertMappingKeys(mapping) {
-        const mappingKeys = mapping.map(field => field.key);
+        const mappingKeys = mapping.map((field) => field.key);
 
         mappingKeys.forEach((key) => {
             const keyParts = key.split('.');
@@ -82,10 +80,7 @@ export default class ImportExportProfileMappingService {
     getSystemRequiredFields(entityName, depth = 1) {
         const definition = this.EntityDefinition.get(entityName);
 
-        return this._getSystemRequiredFieldsForEntityCreation(
-            definition,
-            depth,
-        );
+        return this._getSystemRequiredFieldsForEntityCreation(definition, depth);
     }
 
     /**
@@ -130,8 +125,11 @@ export default class ImportExportProfileMappingService {
     _handleField(property, propertyName, properties, depth, prefix, visited) {
         let fields = {};
 
-        if (property.type === 'association' && property.relation === 'many_to_one' &&
-            properties[property.localField].flags.required === true) {
+        if (
+            property.type === 'association' &&
+            property.relation === 'many_to_one' &&
+            properties[property.localField].flags.required === true
+        ) {
             // association is many_to_one and required
             fields = {
                 ...fields,
@@ -198,10 +196,7 @@ export default class ImportExportProfileMappingService {
 
         // always include the reference id if it was not visited before
         // and is not a language in an translation
-        if (
-            visited[property.entity] === undefined &&
-            !nextPrefix.endsWith('translations.DEFAULT.language.')
-        ) {
+        if (visited[property.entity] === undefined && !nextPrefix.endsWith('translations.DEFAULT.language.')) {
             const fieldName = `${nextPrefix}${property.referenceField}`;
             fields[fieldName] = fieldName;
         }

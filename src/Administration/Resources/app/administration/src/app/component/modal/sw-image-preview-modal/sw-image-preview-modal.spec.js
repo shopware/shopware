@@ -45,14 +45,12 @@ function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) 
     const remainder = itemLength % itemPerPage;
     const totalPage = Math.ceil(itemLength / itemPerPage);
 
-    if (itemPerPage === 1
-        || remainder === 0
-        || itemLength <= itemPerPage) {
+    if (itemPerPage === 1 || remainder === 0 || itemLength <= itemPerPage) {
         return (expectedIndex / totalPage) * 100;
     }
 
     const itemWidth = 100 / itemLength;
-    return (expectedIndex === totalPage - 1)
+    return expectedIndex === totalPage - 1
         ? ((expectedIndex - 1) * itemPerPage + remainder) * itemWidth
         : expectedIndex * itemPerPage * itemWidth;
 }
@@ -85,24 +83,27 @@ function createImage(element = null, dimension = {}) {
 }
 
 async function createWrapper(props = {}, listeners = {}) {
-    return mount(await wrapTestComponent('sw-image-preview-modal', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-icon': true,
-                'sw-image-slider': await wrapTestComponent('sw-image-slider', {
-                    sync: true,
-                }),
+    return mount(
+        await wrapTestComponent('sw-image-preview-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                    'sw-image-slider': await wrapTestComponent('sw-image-slider', {
+                        sync: true,
+                    }),
+                },
+                listeners,
             },
-            listeners,
+            props: {
+                mediaItems,
+                activeItemId: '0',
+                ...props,
+            },
         },
-        props: {
-            mediaItems,
-            activeItemId: '0',
-            ...props,
-        },
-    });
+    );
 }
 
 describe('src/app/component/modal/sw-image-preview-modal', () => {
@@ -114,7 +115,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should navigate image slider correctly when clicking on thumbnail item', async () => {
         const wrapper = await createWrapper();
-        const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
+        const thumbnailItems = wrapper.findAll(
+            '.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container',
+        );
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
         const containerScrollable = wrapper.find('.sw-image-preview-modal__image-slider .sw-image-slider__image-scrollable');
@@ -122,8 +125,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         let expectedIndex = 0;
         let translateAmount = getTranslateAmount(mediaItems.length, 1, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Only display 1st item
         imageItems.forEach((item, index) => {
@@ -141,8 +145,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Move to 2nd item, translate 20% to the left
         translateAmount = getTranslateAmount(mediaItems.length, 1, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
@@ -158,8 +163,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Move to 4th item, translate 60% to the left
         translateAmount = getTranslateAmount(mediaItems.length, 1, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Only display 4th item
         imageItems.forEach((item, index) => {
@@ -174,7 +180,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should set active thumbnail item correctly when navigating image slider', async () => {
         const wrapper = await createWrapper();
-        const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
+        const thumbnailItems = wrapper.findAll(
+            '.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container',
+        );
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
         const arrowLeft = wrapper.find('.sw-image-preview-modal__image-slider .arrow-left');
@@ -235,7 +243,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         });
 
         const expectedIndex = 2;
-        const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
+        const thumbnailItems = wrapper.findAll(
+            '.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container',
+        );
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
         imageItems.forEach((item, index) => {
@@ -282,8 +292,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeUndefined();
         expect(btnReset.attributes('disabled')).toBeUndefined();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
 
         // Further click on zoom in button
         await btnZoomIn.trigger('click');
@@ -294,8 +303,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeUndefined();
         expect(btnReset.attributes('disabled')).toBeUndefined();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
 
         wrapper.vm.getActiveImage.mockReset();
     });
@@ -336,9 +344,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeUndefined();
         expect(btnReset.attributes('disabled')).toBeUndefined();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
-
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
 
         // Click on zoom out button
         await btnZoomOut.trigger('click');
@@ -347,8 +353,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeUndefined();
         expect(btnReset.attributes('disabled')).toBeUndefined();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
 
         // Further click on zoom out button
         await btnZoomOut.trigger('click');
@@ -357,8 +362,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBe('');
         expect(btnReset.attributes('disabled')).toBe('');
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(1);`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(1);`);
 
         wrapper.vm.getActiveImage.mockReset();
     });
@@ -397,8 +401,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
 
         // Click on zoom reset button
         await btnReset.trigger('click');
@@ -407,8 +410,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBe('');
         expect(btnReset.attributes('disabled')).toBe('');
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(1);`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(1);`);
 
         wrapper.vm.getActiveImage.mockReset();
     });
@@ -446,9 +448,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
-
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
 
         // Wheel down to max value
         await wrapper.trigger('wheel', { wheelDelta: 600 });
@@ -457,8 +457,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
 
         // Further wheel down
         await wrapper.trigger('wheel', { wheelDelta: 2000 });
@@ -467,8 +466,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
 
         // Wheel up a bit
         await wrapper.trigger('wheel', { wheelDelta: -300 });
@@ -478,8 +476,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
 
         // Further wheel up
         await wrapper.trigger('wheel', { wheelDelta: -2000 });
@@ -489,8 +486,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnZoomOut.attributes('disabled')).toBe('');
         expect(btnReset.attributes('disabled')).toBe('');
 
-        expect(image.attributes('style'))
-            .toContain(`${staticStyles} transform: scale(1);`);
+        expect(image.attributes('style')).toContain(`${staticStyles} transform: scale(1);`);
 
         wrapper.vm.getActiveImage.mockReset();
     });

@@ -14,7 +14,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -50,7 +53,8 @@ export default {
 
             this.isLoading = true;
 
-            this.deliveryTimeRepository.search(criteria)
+            this.deliveryTimeRepository
+                .search(criteria)
                 .then((deliveryTime) => {
                     this.total = deliveryTime.total;
                     this.deliveryTimes = deliveryTime;
@@ -73,21 +77,26 @@ export default {
         },
 
         deliveryTimeColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-delivery-time.list.columnName',
-                primary: true,
-                routerLink: 'sw.settings.delivery.time.detail',
-            }, {
-                property: 'unit',
-                label: 'sw-settings-delivery-time.list.columnUnit',
-            }, {
-                property: 'min',
-                label: 'sw-settings-delivery-time.list.columnMin',
-            }, {
-                property: 'max',
-                label: 'sw-settings-delivery-time.list.columnMax',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-delivery-time.list.columnName',
+                    primary: true,
+                    routerLink: 'sw.settings.delivery.time.detail',
+                },
+                {
+                    property: 'unit',
+                    label: 'sw-settings-delivery-time.list.columnUnit',
+                },
+                {
+                    property: 'min',
+                    label: 'sw-settings-delivery-time.list.columnMin',
+                },
+                {
+                    property: 'max',
+                    label: 'sw-settings-delivery-time.list.columnMax',
+                },
+            ];
         },
     },
 };

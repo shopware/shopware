@@ -51,6 +51,11 @@ module.exports = {
         'src/**/*.js',
         'src/**/*.ts',
         '!src/**/*.spec.js',
+        '!**/*.d.ts',
+
+        // Exception in the build dir for vite plugins
+        'build/vite-plugins/**/*.ts',
+        '!build/vite-plugins/**/*.spec.ts',
     ],
 
     coverageReporters: [
@@ -67,6 +72,7 @@ module.exports = {
     transform: {
         // stringify svg imports
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
+        '^.+\\.vue$': "@vue/vue3-jest",
     },
 
     transformIgnorePatterns: [
@@ -103,6 +109,7 @@ module.exports = {
         '<rootDir>/src/**/*.spec.js',
         '<rootDir>/src/**/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
+        '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
     ],
 

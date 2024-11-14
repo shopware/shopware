@@ -80,58 +80,66 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     }
 
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-settings-listing-option-create', {
-            sync: true,
-        }), {
-            global: {
-                mocks: {
-                    $router: {},
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: repository => {
-                            if (repository === 'product_sorting') {
-                                return {
-                                    search: (param) => {
-                                        let response = null;
+        return mount(
+            await wrapTestComponent('sw-settings-listing-option-create', {
+                sync: true,
+            }),
+            {
+                global: {
+                    mocks: {
+                        $router: {},
+                    },
+                    provide: {
+                        repositoryFactory: {
+                            create: (repository) => {
+                                if (repository === 'product_sorting') {
+                                    return {
+                                        search: (param) => {
+                                            let response = null;
 
-                                        getProductSortings().forEach(element => {
-                                            if (element[param.filters.field]) {
-                                                response = element;
-                                            }
-                                        });
+                                            getProductSortings().forEach((element) => {
+                                                if (element[param.filters.field]) {
+                                                    response = element;
+                                                }
+                                            });
 
-                                        return Promise.resolve(
-                                            {
+                                            return Promise.resolve({
                                                 first: () => {
                                                     return response;
                                                 },
-                                            },
-                                        );
-                                    },
-                                    create: () => getProductSortings()[0],
-                                    save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
+                                            });
+                                        },
+                                        create: () => getProductSortings()[0],
+                                        save: () =>
+                                            Promise.resolve({
+                                                config: {
+                                                    data: JSON.stringify({
+                                                        id: 'asdfaf',
+                                                    }),
+                                                },
+                                            }),
+                                    };
+                                }
+                                return {
+                                    search: () => Promise.resolve(),
                                 };
-                            }
-                            return {
-                                search: () => Promise.resolve(),
-                            };
+                            },
                         },
+                        systemConfigApiService: {},
                     },
-                    systemConfigApiService: {},
-                },
-                stubs: {
-                    'sw-page': {
-                        template: '<div></div>',
+                    stubs: {
+                        'sw-page': {
+                            template: '<div></div>',
+                        },
+                        'sw-language-switch': true,
+                        'sw-button': true,
+                        'sw-settings-listing-option-general-info': true,
+                        'sw-settings-listing-option-criteria-grid': true,
+                        'sw-settings-listing-delete-modal': true,
                     },
-                    'sw-language-switch': true,
-                    'sw-button': true,
-                    'sw-settings-listing-option-general-info': true,
-                    'sw-settings-listing-option-criteria-grid': true,
-                    'sw-settings-listing-delete-modal': true,
                 },
             },
-        });
+        );
     }
 
     let wrapper;
@@ -172,7 +180,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         expect(wrapper.vm.$router.push).toHaveBeenCalled();
     });
 
-    it('should throw an error message when the product sorting entity couldn\'t be saved', async () => {
+    it("should throw an error message when the product sorting entity couldn't be saved", async () => {
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.onSave();
@@ -189,7 +197,9 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         await wrapper.vm.onSave();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveError', { sortingOptionName: wrapper.vm.productSortingEntity.label }),
+            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveError', {
+                sortingOptionName: wrapper.vm.productSortingEntity.label,
+            }),
         });
     });
 

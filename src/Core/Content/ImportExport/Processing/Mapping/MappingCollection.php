@@ -16,6 +16,8 @@ class MappingCollection extends Collection
 {
     /**
      * @var array<string, string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $reverseIndex = [];
 

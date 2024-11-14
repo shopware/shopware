@@ -19,8 +19,6 @@ class CardFieldTest extends TestCase
         $cardFieldElement->setAttribute('ref', 'cardField ref');
 
         $cardField = CardField::fromXml($cardFieldElement);
-
-        static::assertInstanceOf(CardField::class, $cardField);
-        static::assertEquals('cardField ref', $cardField->getRef());
+        static::assertSame('cardField ref', $cardField->getRef());
     }
 }

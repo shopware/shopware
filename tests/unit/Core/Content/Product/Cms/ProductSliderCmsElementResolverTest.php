@@ -368,6 +368,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
         $product->setAvailableStock($availableStock);
+        $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
 
         $salesChannel = new SalesChannelEntity();

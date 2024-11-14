@@ -45,16 +45,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -1311,7 +1310,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithoutChildren(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->create('parent'),
@@ -1344,7 +1343,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testDuplicateWrittenEvents(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->getContainer()->get('property_group.repository')
             ->create([

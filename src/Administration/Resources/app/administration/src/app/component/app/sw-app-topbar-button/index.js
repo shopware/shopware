@@ -16,7 +16,7 @@ Component.register('sw-app-topbar-button', {
 
     computed: {
         topBarButtons() {
-            return Shopware.Store.get('topBarButtonState').buttons;
+            return Shopware.Store.get('topBarButton').buttons;
         },
     },
 
@@ -30,4 +30,3 @@ Component.register('sw-app-topbar-button', {
         },
     },
 });
-

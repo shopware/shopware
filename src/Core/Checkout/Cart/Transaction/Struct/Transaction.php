@@ -11,11 +11,15 @@ class Transaction extends Struct
 {
     /**
      * @var CalculatedPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $amount;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethodId;
 

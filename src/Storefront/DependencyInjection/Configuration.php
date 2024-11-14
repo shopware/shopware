@@ -27,6 +27,10 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('available_theme_provider')->defaultValue(DatabaseAvailableThemeProvider::class)->end()
                         ->integerNode('file_delete_delay')->defaultValue(900)->end()
                         ->BooleanNode('auto_prefix_css')->defaultFalse()->end()
+                        ->arrayNode('allowed_scss_values')->performNoDeepMerging()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->BooleanNode('validate_on_compile')->defaultFalse()->end()
                     ->end()
                 ->end()
             ->end();

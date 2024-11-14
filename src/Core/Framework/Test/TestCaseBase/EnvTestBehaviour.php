@@ -22,6 +22,7 @@ trait EnvTestBehaviour
             }
             $_SERVER[$envVar] = $value;
             $_ENV[$envVar] = $value;
+            putenv("{$envVar}={$value}");
         }
     }
 
@@ -32,6 +33,7 @@ trait EnvTestBehaviour
             foreach ($this->originalEnvVars as $envVar => $value) {
                 $_SERVER[$envVar] = $value;
                 $_ENV[$envVar] = $value;
+                putenv("{$envVar}={$value}");
             }
 
             $this->originalEnvVars = [];

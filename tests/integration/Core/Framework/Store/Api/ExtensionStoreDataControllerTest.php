@@ -20,10 +20,7 @@ class ExtensionStoreDataControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
-    /**
-     * @var ExtensionStoreDataController
-     */
-    private $controller;
+    private ExtensionStoreDataController $controller;
 
     protected function setUp(): void
     {

@@ -74,7 +74,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
             stubs: {
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-card': {
@@ -159,8 +161,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         wrapper = await createWrapper();
 
         const shippingCostField = wrapper.find('.sw-order-detail__summary div[role="button"]');
-        expect(shippingCostField.attributes()['tooltip-message'])
-            .toBe('sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}');
+        expect(shippingCostField.attributes()['tooltip-message']).toBe(
+            'sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}',
+        );
     });
 
     it('should tax description correctly if taxStatus is not tax-free', async () => {

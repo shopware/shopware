@@ -67,58 +67,69 @@ const orderFixture = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-document-settings-storno-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', { sync: true }),
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-order-document-settings-storno-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', {
+                        sync: true,
+                    }),
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-text-field': true,
+                    'sw-datepicker': true,
+                    'sw-checkbox-field': true,
+                    'sw-switch-field': true,
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-button': await wrapTestComponent('sw-button', {
+                        sync: true,
+                    }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
+                    'sw-context-menu-item': true,
+                    'sw-upload-listener': true,
+                    'sw-textarea-field': true,
+                    'sw-icon': true,
+                    'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                    'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
+                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', {
+                        sync: true,
+                    }),
+                    'sw-field-error': true,
+                    'sw-loader': true,
+                    'sw-media-upload-v2': true,
+                    'sw-media-modal-v2': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'router-link': true,
                 },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
+                provide: {
+                    numberRangeService: {
+                        reserve: () => Promise.resolve({}),
+                    },
+                    mediaService: {},
                 },
-                'sw-text-field': true,
-                'sw-datepicker': true,
-                'sw-checkbox-field': true,
-                'sw-switch-field': true,
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
-                'sw-context-menu-item': true,
-                'sw-upload-listener': true,
-                'sw-textarea-field': true,
-                'sw-icon': true,
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-field-error': true,
-                'sw-loader': true,
-                'sw-media-upload-v2': true,
-                'sw-media-modal-v2': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-                'router-link': true,
             },
-            provide: {
-                numberRangeService: {
-                    reserve: () => Promise.resolve({}),
-                },
-                mediaService: {},
+            props: {
+                order: orderFixture,
+                isLoading: false,
+                currentDocumentType: {},
+                isLoadingDocument: false,
+                isLoadingPreview: false,
             },
         },
-        props: {
-            order: orderFixture,
-            isLoading: false,
-            currentDocumentType: {},
-            isLoadingDocument: false,
-            isLoadingPreview: false,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-storno-modal', () => {
@@ -133,8 +144,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select').findAll('option');
 
         expect(invoiceOptions.at(1).text()).toBe('1000');
         expect(invoiceOptions.at(2).text()).toBe('1001');
@@ -156,8 +166,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select').findAll('option');
 
         await invoiceOptions.at(1).setSelected();
         await wrapper.vm.$nextTick();

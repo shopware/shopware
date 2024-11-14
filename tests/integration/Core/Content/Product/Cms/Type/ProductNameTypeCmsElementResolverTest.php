@@ -26,10 +26,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var ProductNameCmsElementResolver
-     */
-    private $productNameCmsElementResolver;
+    private ProductNameCmsElementResolver $productNameCmsElementResolver;
 
     protected function setUp(): void
     {

@@ -16,6 +16,21 @@
                     }
                 }
             }
+        },
+        "\/_action\/cache-delayed": {
+            "delete": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Clear all invalidated caches",
+                "description": "Directly triggers invalidation of all cache tags that were marked for invalidation.",
+                "operationId": "clearCacheDelayed",
+                "responses": {
+                    "204": {
+                        "description": "Returns a no content response indicating that the cache has been cleared."
+                    }
+                }
+            }
         }
     }
 }

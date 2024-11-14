@@ -23,7 +23,12 @@ export default {
         'feature',
     ],
 
-    emits: ['error', 'order-change', 'onEditDeliveryAddress', 'order-reset'],
+    emits: [
+        'error',
+        'order-change',
+        'onEditDeliveryAddress',
+        'order-reset',
+    ],
 
     mixins: [
         Mixin.getByName('salutation'),
@@ -66,10 +71,7 @@ export default {
         },
 
         OrderTagRepository() {
-            return this.repositoryFactory.create(
-                this.currentOrder.tags.entity,
-                this.currentOrder.tags.source,
-            );
+            return this.repositoryFactory.create(this.currentOrder.tags.entity, this.currentOrder.tags.source);
         },
 
         billingAddress() {
@@ -98,21 +100,16 @@ export default {
         },
 
         hasDifferentBillingAndShippingAddress() {
-            return this.hasDeliveries &&
-                this.billingAddress.id !== this.delivery.shippingOrderAddressId;
+            return this.hasDeliveries && this.billingAddress.id !== this.delivery.shippingOrderAddressId;
         },
 
         lastChangedDate() {
             if (this.currentOrder) {
                 if (this.currentOrder.updatedAt) {
-                    return format.date(
-                        this.currentOrder.updatedAt,
-                    );
+                    return format.date(this.currentOrder.updatedAt);
                 }
 
-                return format.date(
-                    this.currentOrder.orderDateTime,
-                );
+                return format.date(this.currentOrder.orderDateTime);
             }
             return '';
         },
@@ -127,7 +124,10 @@ export default {
                 company: this.currentOrder.orderCustomer.company,
             };
 
-            return Object.values(name).filter(item => item !== null).join(' - ').trim();
+            return Object.values(name)
+                .filter((item) => item !== null)
+                .join(' - ')
+                .trim();
         },
 
         currencyFilter() {
@@ -146,12 +146,11 @@ export default {
         },
 
         renderFormattingAddress() {
-            this.customSnippetApiService.render(
-                this.billingAddress,
-                this.billingAddress.country?.addressFormat,
-            ).then((res) => {
-                this.formattingAddress = res.rendered;
-            });
+            this.customSnippetApiService
+                .render(this.billingAddress, this.billingAddress.country?.addressFormat)
+                .then((res) => {
+                    this.formattingAddress = res.rendered;
+                });
         },
 
         reload() {
@@ -197,16 +196,19 @@ export default {
             const oldAddressId = this.addressBeingEdited.id;
             this.addressBeingEdited = null;
             this.$nextTick(() => {
-                return this.orderService.changeOrderAddress(
-                    oldAddressId,
-                    address.id,
-                    {},
-                    ApiService.getVersionHeader(this.currentOrder.versionId),
-                ).then(() => {
-                    this.emitChange();
-                }).catch((error) => {
-                    this.$emit('error', error);
-                });
+                return this.orderService
+                    .changeOrderAddress(
+                        oldAddressId,
+                        address.id,
+                        {},
+                        ApiService.getVersionHeader(this.currentOrder.versionId),
+                    )
+                    .then(() => {
+                        this.emitChange();
+                    })
+                    .catch((error) => {
+                        this.$emit('error', error);
+                    });
             });
         },
 
@@ -215,16 +217,15 @@ export default {
                 return;
             }
 
-            this.orderAddressRepository.clone(
-                this.delivery.shippingOrderAddressId,
-                {},
-                this.versionContext,
-            ).then((response) => {
-                this.delivery.shippingOrderAddressId = response.id;
-                this.emitChange();
-            }).catch((error) => {
-                this.$emit('error', error);
-            });
+            this.orderAddressRepository
+                .clone(this.delivery.shippingOrderAddressId, {}, this.versionContext)
+                .then((response) => {
+                    this.delivery.shippingOrderAddressId = response.id;
+                    this.emitChange();
+                })
+                .catch((error) => {
+                    this.$emit('error', error);
+                });
         },
 
         emitChange() {
@@ -249,5 +250,4 @@ export default {
             return urlTemplate ? urlTemplate.replace('%s', encodeURIComponent(trackingCode)) : '';
         },
     },
-
 };

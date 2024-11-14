@@ -20,7 +20,13 @@ Component.extend('sw-sidebar-collapse', 'sw-collapse', {
             type: String,
             required: false,
             default: 'right',
-            validator: (value) => ['up', 'left', 'right', 'bottom'].includes(value),
+            validator: (value) =>
+                [
+                    'up',
+                    'left',
+                    'right',
+                    'bottom',
+                ].includes(value),
         },
     },
 

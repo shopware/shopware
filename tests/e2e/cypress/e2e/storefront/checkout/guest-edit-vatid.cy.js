@@ -94,8 +94,8 @@ describe('Checkout as Guest', () => {
         cy.get('.confirm-address').contains('John Doe');
         cy.get('.confirm-address .confirm-billing-address .card-actions .btn').click();
         cy.get('.address-editor-modal .address-editor-edit').click();
-        cy.get('#billing-address-create-edit input#vatIds').should('be.visible');
-        cy.get('#billing-address-create-edit input#vatIds').clear().type('22222');
-        cy.get('#billing-address-create-edit .address-form-submit').click();
+        cy.get('#billing-edit-address-create-edit input#vatIds').should('be.visible');
+        cy.get('#billing-edit-address-create-edit input#vatIds').clear().type('22222');
+        cy.get('#billing-edit-address-create-edit .address-form-submit').click();
     });
 });

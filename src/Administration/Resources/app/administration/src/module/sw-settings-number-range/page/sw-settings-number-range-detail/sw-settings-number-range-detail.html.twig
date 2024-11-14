@@ -256,6 +256,9 @@
                         gap="0px 30px"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_number_range_detail_content_global_product_warning %}
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_base_general_input_type %}
                         <sw-entity-single-select
                             v-if="numberRange.type"

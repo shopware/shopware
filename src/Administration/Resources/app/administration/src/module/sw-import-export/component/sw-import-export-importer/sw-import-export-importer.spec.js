@@ -30,17 +30,19 @@ const repositoryMockFactory = () => {
                 },
             ];
 
-            return Promise.resolve(profiles.filter((profile) => {
-                let isAllowed = true;
+            return Promise.resolve(
+                profiles.filter((profile) => {
+                    let isAllowed = true;
 
-                criteria.filters.forEach(filter => {
-                    if (filter.type === 'equals' && profile[filter.field] !== filter.value) {
-                        isAllowed = false;
-                    }
-                });
+                    criteria.filters.forEach((filter) => {
+                        if (filter.type === 'equals' && profile[filter.field] !== filter.value) {
+                            isAllowed = false;
+                        }
+                    });
 
-                return isAllowed;
-            }));
+                    return isAllowed;
+                }),
+            );
         },
     };
 };
@@ -206,14 +208,10 @@ describe('components/sw-import-export-importer', () => {
             '.sw-import-export-importer__variants-warning .sw-import-export-importer__link',
         );
         expect(variantsWarningLinks.at(0).exists()).toBeTruthy();
-        expect(variantsWarningLinks.at(0).text()).toContain(
-            'sw-import-export.importer.directImportVariantsLabel',
-        );
+        expect(variantsWarningLinks.at(0).text()).toContain('sw-import-export.importer.directImportVariantsLabel');
 
         expect(variantsWarningLinks.at(1).exists()).toBeTruthy();
-        expect(variantsWarningLinks.at(1).text()).toContain(
-            'sw-import-export.importer.directImportPropertiesLabel',
-        );
+        expect(variantsWarningLinks.at(1).text()).toContain('sw-import-export.importer.directImportPropertiesLabel');
     });
 
     it('should show a modal with an importer', async () => {
@@ -279,7 +277,9 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show only matching profiles when sourceEntity property has been set', async () => {
-        await wrapper.setProps({ sourceEntity: 'product_configurator_setting' });
+        await wrapper.setProps({
+            sourceEntity: 'product_configurator_setting',
+        });
 
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();

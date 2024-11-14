@@ -33,7 +33,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.mail.template.detail_head_foot', params: { id: this.$route.params.id } });
+            this.$router.push({
+                name: 'sw.mail.template.detail_head_foot',
+                params: { id: this.$route.params.id },
+            });
         },
 
         onSave() {

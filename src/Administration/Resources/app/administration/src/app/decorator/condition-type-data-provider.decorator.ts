@@ -84,6 +84,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
+    ruleConditionService.addCondition('customerRequestedGroup', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.customerRequestedGroupRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
     ruleConditionService.addCondition('customerTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.customerTagRule',
@@ -639,86 +645,65 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'personaPromotions',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            equalsAny: [
-                ...ruleConditionService.getRestrictionsByGroup('customer'),
-                'alwaysValid',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('personaPromotions', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        equalsAny: [
+            ...ruleConditionService.getRestrictionsByGroup('customer'),
+            'alwaysValid',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'orderPromotions',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('orderPromotions', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'cartPromotions',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('cartPromotions', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'promotionSetGroups',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('promotionSetGroups', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'promotionDiscounts',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('promotionDiscounts', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'shippingMethodPriceCalculations',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('shippingMethodPriceCalculations', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'shippingMethodPrices',
-        {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-            ],
-            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('shippingMethodPrices', {
+        notEquals: [
+            'cartCartAmount',
+            'cartShippingCost',
+        ],
+        snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
+    });
 
     return ruleConditionService;
 });

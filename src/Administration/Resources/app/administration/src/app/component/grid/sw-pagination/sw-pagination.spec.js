@@ -19,12 +19,9 @@ describe('src/component/grid/sw-pagination', () => {
     }
 
     function getPositionOfActiveButton() {
-        const allPageButtons = wrapper.findAll(
-            '.sw-pagination__list-item :not(span.sw-pagination__list-separator)',
-        );
+        const allPageButtons = wrapper.findAll('.sw-pagination__list-item :not(span.sw-pagination__list-separator)');
 
-        return allPageButtons
-            .findIndex(currentElement => currentElement.attributes('class').includes('is-active'));
+        return allPageButtons.findIndex((currentElement) => currentElement.attributes('class').includes('is-active'));
     }
 
     async function checkNextPage(currentPage, direction, arrowButton) {
@@ -87,7 +84,10 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should have two arrow icons', async () => {
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
+        const [
+            leftArrow,
+            rightArrow,
+        ] = wrapper.findAll('div.icon');
 
         expect(leftArrow.exists()).toBe(true);
         expect(leftArrow.attributes('name')).toBe('regular-chevron-left-xs');
@@ -134,7 +134,10 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should navigate to another page via arrows', async () => {
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
+        const [
+            leftArrow,
+            rightArrow,
+        ] = wrapper.findAll('div.icon');
 
         expect(getActivePage().text()).toBe('1');
 
@@ -211,7 +214,10 @@ describe('src/component/grid/sw-pagination', () => {
 
     it('should navigate through complete pagination only with arrows', async () => {
         const startingPoint = wrapper.vm.currentPage;
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
+        const [
+            leftArrow,
+            rightArrow,
+        ] = wrapper.findAll('div.icon');
 
         await checkNextPage(startingPoint, 'right', rightArrow);
 
@@ -259,7 +265,11 @@ describe('src/component/grid/sw-pagination', () => {
     it('should return correct range', async () => {
         const range = wrapper.vm.range(1, 3);
 
-        expect(range).toEqual([1, 2, 3]);
+        expect(range).toEqual([
+            1,
+            2,
+            3,
+        ]);
     });
 
     it('should be visible when autoHide is set to false', async () => {

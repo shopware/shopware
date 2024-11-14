@@ -382,12 +382,7 @@ Component.register('sw-price-field', {
         requestTaxValue(value, outputType) {
             this.$emit('price-calculate', true);
             return new Promise((resolve) => {
-                if (
-                    !value ||
-                    typeof value !== 'number' ||
-                    !this.priceForCurrency[outputType] ||
-                    !outputType
-                ) {
+                if (!value || typeof value !== 'number' || !this.priceForCurrency[outputType] || !outputType) {
                     return;
                 }
 
@@ -397,21 +392,23 @@ Component.register('sw-price-field', {
                     return;
                 }
 
-                this.calculatePriceApiService.calculatePrice({
-                    taxId: this.taxRate.id,
-                    currencyId: this.currency.id,
-                    price: this.priceForCurrency[outputType],
-                    output: outputType,
-                }).then(({ data }) => {
-                    let tax = 0;
+                this.calculatePriceApiService
+                    .calculatePrice({
+                        taxId: this.taxRate.id,
+                        currencyId: this.currency.id,
+                        price: this.priceForCurrency[outputType],
+                        output: outputType,
+                    })
+                    .then(({ data }) => {
+                        let tax = 0;
 
-                    data.calculatedTaxes.forEach((item) => {
-                        tax += item.tax;
+                        data.calculatedTaxes.forEach((item) => {
+                            tax += item.tax;
+                        });
+
+                        resolve(tax);
+                        this.$emit('price-calculate', false);
                     });
-
-                    resolve(tax);
-                    this.$emit('price-calculate', false);
-                });
             });
         },
 

@@ -1,30 +1,80 @@
 @import "~scss/variables";
 
 .sw-product-detail-cross-selling {
-    .sw-product-detail-cross-selling__context-button {
+    &__restore-inheritance-btn {
+        display: block;
+        margin: 0 auto 40px;
+        background-color: transparent;
+        border-color: $color-module-purple-900;
+        color: $color-module-purple-900;
+
+        .sw-icon {
+            color: $color-module-purple-900;
+        }
+
+        &:hover {
+            background-color: $color-module-purple-50;
+        }
+
+        &:active {
+            background-color: $color-module-purple-100;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background-color: transparent;
+            border-color: $color-module-purple-200;
+            color: $color-module-purple-200;
+
+            .sw-icon {
+                color: $color-module-purple-200;
+            }
+        }
+    }
+
+    &__context-button {
         float: right;
         padding-bottom: 20px;
     }
 
-    .sw-product-detail-cross-selling__add-btn {
+    &__add-btn {
         display: block;
         margin: 0 auto;
     }
-}
 
-.sw-product-detail-cross-selling__empty-state {
-    .sw-product-detail-cross-selling__empty-state-inner {
+    .sw-empty-state__description p {
+        font-size: $font-size-s;
+        margin: 20px 0;
+    }
+
+    &__parent-cross-sellings-link {
+        margin-bottom: 20px;
+    }
+
+    &__inherit-toggle-wrapper {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 400px;
+        line-height: 16px;
+        font-size: $font-size-xs;
+        margin-bottom: 20px;
+        color: $color-darkgray-200;
 
-        .sw-product-detail-cross-selling__empty-state-inner--label {
-            max-width: 240px;
-            margin-top: 25px;
-            margin-bottom: 25px;
-            text-align: center;
+        &.is--inherited {
+            color: $color-module-purple-900;
         }
+    }
+
+    &__inherit-switch {
+        margin: 0 10px 0 0;
+
+        .sw-field--switch__input {
+            height: 16px;
+            padding: 0;
+        }
+    }
+
+    &__inheritance-icon {
+        margin-right: 8px;
     }
 }

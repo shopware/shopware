@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['cancel', 'delete'],
+    emits: [
+        'cancel',
+        'delete',
+    ],
 
     props: {
         title: {

@@ -1,0 +1,55 @@
+services:
+    database:
+        image: chainguard/mariadb:latest
+        environment:
+            MARIADB_ROOT_PASSWORD: root
+            MARIADB_DATABASE: shopware
+        command:
+            - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+            - --log_bin_trust_function_creators=1
+            - --binlog_cache_size=16M
+            - --key_buffer_size=0
+            - --join_buffer_size=1024M
+            - --innodb_log_file_size=128M
+            - --innodb_buffer_pool_size=1024M
+            - --innodb_buffer_pool_instances=1
+            - --group_concat_max_len=320000
+            - --default-time-zone=+00:00
+            - --max_binlog_size=512M
+            - --binlog_expire_logs_seconds=86400
+        ports:
+            - '3306:3306'
+        tmpfs:
+            - /var/lib/mysql:uid=999,gid=999
+
+    adminer:
+        image: shyim/adminerevo:latest
+        stop_signal: SIGKILL
+        depends_on: [ database ]
+        environment:
+            ADMINER_DEFAULT_SERVER: database
+        ports:
+            - '9080:8080'
+
+    valkey:
+        image: chainguard/valkey
+        command: [ "--maxmemory-policy", "volatile-lfu" ]
+        ports:
+            - '6379:6379'
+
+    mailer:
+        image: axllent/mailpit
+        ports:
+            - '8025:8025'
+
+    opensearch:
+        image: chainguard/opensearch:latest
+        ports:
+            - '9200:9200'
+        environment:
+            OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
+            discovery.type: single-node
+            plugins.security.disabled: 'true'
+
+volumes:
+    db-data:

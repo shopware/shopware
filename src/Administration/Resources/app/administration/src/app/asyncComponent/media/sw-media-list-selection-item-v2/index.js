@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['click', 'item-remove'],
+    emits: [
+        'click',
+        'item-remove',
+    ],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types

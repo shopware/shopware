@@ -16,8 +16,11 @@ class FindProductVariantRouteResponseTest extends TestCase
 {
     public function testInstantiate(): void
     {
-        $response = new FindProductVariantRouteResponse(new FoundCombination(Uuid::randomHex(), []));
+        $id = Uuid::randomHex();
+        $response = new FindProductVariantRouteResponse(new FoundCombination($id, []));
+        $foundCombination = $response->getFoundCombination();
 
-        static::assertInstanceOf(FoundCombination::class, $response->getFoundCombination());
+        static::assertSame($id, $foundCombination->getVariantId());
+        static::assertSame([], $foundCombination->getOptions());
     }
 }

@@ -107,51 +107,54 @@ async function createWrapper(
         Shopware.State.commit('settingsItems/addItem', settingsItem);
     });
 
-    return mount(await wrapTestComponent('sw-settings-index', {
-        sync: true,
-    }), {
-        global: {
-            mocks: {
-                $tc: (path) => {
-                    if (typeof path !== 'string') {
-                        return `${path}`;
-                    }
-                    return path;
+    return mount(
+        await wrapTestComponent('sw-settings-index', {
+            sync: true,
+        }),
+        {
+            global: {
+                mocks: {
+                    $tc: (path) => {
+                        if (typeof path !== 'string') {
+                            return `${path}`;
+                        }
+                        return path;
+                    },
                 },
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div><slot name="content"></slot></div>',
+                stubs: {
+                    'sw-page': {
+                        template: '<div><slot name="content"></slot></div>',
+                    },
+                    'sw-card-view': {
+                        template: '<div class="sw-card-view"><slot></slot></div>',
+                    },
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot></div>',
+                    },
+                    'sw-settings-item': await wrapTestComponent('sw-settings-item'),
+                    'router-link': {
+                        template: '<a><slot></slot></a>',
+                    },
+                    'sw-icon': {
+                        template: '<span></span>',
+                    },
+                    'sw-extension-component-section': true,
                 },
-                'sw-card-view': {
-                    template: '<div class="sw-card-view"><slot></slot></div>',
-                },
-                'sw-tabs': await wrapTestComponent('sw-tabs'),
-                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
-                },
-                'sw-settings-item': await wrapTestComponent('sw-settings-item'),
-                'router-link': {
-                    template: '<a><slot></slot></a>',
-                },
-                'sw-icon': {
-                    template: '<span></span>',
-                },
-                'sw-extension-component-section': true,
-            },
-            provide: {
-                acl: {
-                    can: (key) => {
-                        if (!key) return true;
+                provide: {
+                    acl: {
+                        can: (key) => {
+                            if (!key) return true;
 
-                        return privileges.includes(key);
+                            return privileges.includes(key);
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings/page/sw-settings-index', () => {
@@ -173,19 +176,22 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const wrapper = await createWrapper();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
-        settingsGroups.forEach(([, settingsItems]) => {
-            settingsItems.forEach((settingsItem, index) => {
-                let elementsSorted = true;
+        settingsGroups.forEach(
+            ([
+                ,
+                settingsItems,
+            ]) => {
+                settingsItems.forEach((settingsItem, index) => {
+                    let elementsSorted = true;
 
-                if (index < settingsItems.length - 1 && typeof settingsItems[index].label === 'string') {
-                    elementsSorted = (
-                        settingsItems[index].label.localeCompare(settingsItems[index + 1].label) === -1
-                    );
-                }
+                    if (index < settingsItems.length - 1 && typeof settingsItems[index].label === 'string') {
+                        elementsSorted = settingsItems[index].label.localeCompare(settingsItems[index + 1].label) === -1;
+                    }
 
-                expect(elementsSorted).toBe(true);
-            });
-        });
+                    expect(elementsSorted).toBe(true);
+                });
+            },
+        );
     });
 
     it('should render settings items in alphabetical order', async () => {
@@ -193,18 +199,23 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         await flushPromises();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
-        settingsGroups.forEach(([settingsGroup, settingsItems]) => {
-            const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
-            const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+        settingsGroups.forEach(
+            ([
+                settingsGroup,
+                settingsItems,
+            ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
-            // check, that all settings items were rendered
-            expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
+                // check, that all settings items were rendered
+                expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
 
-            // check, that settings items were rendered in alphabetical order
-            settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
-                expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
-            });
-        });
+                // check, that settings items were rendered in alphabetical order
+                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
+                    expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
+                });
+            },
+        );
     });
 
     it('should render settings items in alphabetical order with updated items', async () => {
@@ -223,16 +234,21 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         await flushPromises();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
-        settingsGroups.forEach(([settingsGroup, settingsItems]) => {
-            const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
-            const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+        settingsGroups.forEach(
+            ([
+                settingsGroup,
+                settingsItems,
+            ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
-            expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
+                expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
 
-            settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
-                expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
-            });
-        });
+                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
+                    expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
+                });
+            },
+        );
     });
 
     it('should add the setting to the settingsGroups in store', async () => {
@@ -250,7 +266,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const wrapper = await createWrapper();
 
         const settingsGroups = wrapper.vm.settingsGroups.shop;
-        const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
+        const barSetting = settingsGroups.find((setting) => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeDefined();
     });
@@ -271,7 +287,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const wrapper = await createWrapper('system.foo_bar');
 
         const settingsGroups = wrapper.vm.settingsGroups.shop;
-        const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
+        const barSetting = settingsGroups.find((setting) => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeDefined();
     });
@@ -292,7 +308,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const wrapper = await createWrapper();
 
         const settingsGroups = wrapper.vm.settingsGroups.shop;
-        const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
+        const barSetting = settingsGroups.find((setting) => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeUndefined();
     });
@@ -315,22 +331,27 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
-        settingsGroups.forEach(([settingsGroup, settingsItems]) => {
-            const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
-            const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+        settingsGroups.forEach(
+            ([
+                settingsGroup,
+                settingsItems,
+            ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
-            settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
-                const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
+                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
+                    const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
 
-                if (settingsItems[index].backgroundEnabled === false) {
-                    // eslint-disable-next-line jest/no-conditional-expect
-                    expect(iconClasses).not.toContain('background--enabled');
-                } else {
-                    // eslint-disable-next-line jest/no-conditional-expect
-                    expect(iconClasses).toContain('background--enabled');
-                }
-            });
-        });
+                    if (settingsItems[index].backgroundEnabled === false) {
+                        // eslint-disable-next-line jest/no-conditional-expect
+                        expect(iconClasses).not.toContain('background--enabled');
+                    } else {
+                        // eslint-disable-next-line jest/no-conditional-expect
+                        expect(iconClasses).toContain('background--enabled');
+                    }
+                });
+            },
+        );
     });
 
     it('should not hide the tab when user has access to any settings inside the tab', async () => {

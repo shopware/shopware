@@ -44,31 +44,43 @@ class MediaEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $userId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mimeType;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileExtension;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileSize;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $title;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $metaDataRaw;
 
@@ -76,106 +88,148 @@ class MediaEntity extends Entity
      * @internal
      *
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaTypeRaw;
 
     /**
      * @var array<string, mixed>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $metaData;
 
     /**
      * @var MediaType|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaType;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $uploadedAt;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $alt;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $url = '';
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileName;
 
     /**
      * @var UserEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $user;
 
     /**
      * @var MediaTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var CategoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $categories;
 
     /**
      * @var ProductManufacturerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productManufacturers;
 
     /**
      * @var ProductMediaCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productMedia;
 
     /**
      * @var UserCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $avatarUsers;
 
     /**
      * @var MediaThumbnailCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $thumbnails;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaFolderId;
 
     /**
      * @var MediaFolderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaFolder;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $hasFile = false;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $private = false;
 
     /**
      * @var PropertyGroupOptionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyGroupOptions;
 
     /**
      * @var MailTemplateMediaCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailTemplateMedia;
 
     /**
      * @var TagCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tags;
 
@@ -183,6 +237,8 @@ class MediaEntity extends Entity
      * @internal
      *
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $thumbnailsRo;
 
@@ -190,51 +246,71 @@ class MediaEntity extends Entity
 
     /**
      * @var DocumentBaseConfigCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentBaseConfigs;
 
     /**
      * @var ShippingMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethods;
 
     /**
      * @var PaymentMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethods;
 
     /**
      * @var ProductConfiguratorSettingCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productConfiguratorSettings;
 
     /**
      * @var OrderLineItemCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orderLineItems;
 
     /**
      * @var CmsBlockCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsBlocks;
 
     /**
      * @var CmsSectionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsSections;
 
     /**
      * @var CmsBlockCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsPages;
 
     /**
      * @var DocumentCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documents;
 
     /**
      * @var AppPaymentMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appPaymentMethods;
 

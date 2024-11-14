@@ -189,20 +189,11 @@ class TaxCalculationTypeTest extends TestCase
  */
 class ItemBlueprint
 {
-    /**
-     * @var int
-     */
-    public $quantity;
+    public int $quantity;
 
-    /**
-     * @var float
-     */
-    public $price;
+    public float $price;
 
-    /**
-     * @var int
-     */
-    public $taxRate;
+    public int $taxRate;
 
     public function __construct(
         float $price,

@@ -8,8 +8,8 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Source\AbstractTemporaryDirectoryFactory;
 use Shopware\Core\Framework\App\Source\Source;
+use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
@@ -27,7 +27,7 @@ use Symfony\Component\Filesystem\Path;
 class ServiceSourceResolver implements Source
 {
     public function __construct(
-        private readonly AbstractTemporaryDirectoryFactory $temporaryDirectoryFactory,
+        private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
         private readonly ServiceClientFactory $serviceClientFactory,
         private readonly AppExtractor $appExtractor,
         private readonly Io $io,

@@ -1,7 +1,10 @@
 import template from './sw-flow-app-action-modal.html.twig';
 import './sw-flow-app-action-modal.scss';
 
-const { Mixin, Classes: { ShopwareError } } = Shopware;
+const {
+    Mixin,
+    Classes: { ShopwareError },
+} = Shopware;
 
 /**
  * @private
@@ -14,7 +17,10 @@ export default {
 
     inject: ['acl'],
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -50,13 +56,13 @@ export default {
         },
 
         headline() {
-            return this.sequence?.propsAppFlowAction?.translated?.headline
-                || this.sequence?.propsAppFlowAction?.headline;
+            return this.sequence?.propsAppFlowAction?.translated?.headline || this.sequence?.propsAppFlowAction?.headline;
         },
 
         paragraph() {
-            return this.sequence?.propsAppFlowAction?.translated?.description
-                || this.sequence?.propsAppFlowAction?.description;
+            return (
+                this.sequence?.propsAppFlowAction?.translated?.description || this.sequence?.propsAppFlowAction?.description
+            );
         },
     },
 
@@ -71,11 +77,15 @@ export default {
                 return;
             }
 
-            Object.entries({ ...this.sequence.config }).forEach(([key, configValue]) => {
-                this.config[key] = (typeof configValue === 'object' && configValue.value !== undefined)
-                    ? configValue.value
-                    : configValue;
-            });
+            Object.entries({ ...this.sequence.config }).forEach(
+                ([
+                    key,
+                    configValue,
+                ]) => {
+                    this.config[key] =
+                        typeof configValue === 'object' && configValue.value !== undefined ? configValue.value : configValue;
+                },
+            );
         },
 
         onChange(event, field) {
@@ -84,7 +94,7 @@ export default {
 
         isValid() {
             this.errors = {};
-            this.fields.forEach(field => {
+            this.fields.forEach((field) => {
                 const val = this.config[field.name] ?? null;
                 this.handleValid(field, val);
             });
@@ -106,9 +116,13 @@ export default {
                 }
 
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.errors, field.name, new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                    }));
+                    this.$set(
+                        this.errors,
+                        field.name,
+                        new ShopwareError({
+                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        }),
+                    );
                 } else {
                     this.errors[field.name] = new ShopwareError({
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -138,7 +152,7 @@ export default {
 
         buildConfig() {
             const data = {};
-            this.fields.forEach(field => {
+            this.fields.forEach((field) => {
                 if (this.config[field.name]?.length !== 0 && this.config[field.name] !== null) {
                     data[field.name] = this.config[field.name];
                 }
@@ -168,15 +182,31 @@ export default {
                 return null;
             }
 
-            if (['int', 'float'].includes(type)) {
+            if (
+                [
+                    'int',
+                    'float',
+                ].includes(type)
+            ) {
                 return parseInt(value, 10);
             }
 
-            if (['bool', 'checkbox'].includes(type)) {
+            if (
+                [
+                    'bool',
+                    'checkbox',
+                ].includes(type)
+            ) {
                 return !!value;
             }
 
-            if (['date', 'datetime', 'time'].includes(type)) {
+            if (
+                [
+                    'date',
+                    'datetime',
+                    'time',
+                ].includes(type)
+            ) {
                 return null;
             }
 
@@ -206,7 +236,12 @@ export default {
                 return config;
             }
 
-            if (['single-select', 'multi-select'].includes(field.type)) {
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(field.type)
+            ) {
                 config.componentName = `sw-${field.type}`;
                 config.options = field.options;
             }

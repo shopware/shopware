@@ -71,7 +71,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $hash = $this->getDataContextHash($context);
 
             // find products in original cart which requires data from gateway
-            $ids = $this->getNotCompleted($data, $items, $context, $hash);
+            $ids = $this->getNotCompleted($data, $items, $hash);
 
             if (!empty($ids)) {
                 // fetch missing data over gateway
@@ -301,9 +301,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $lineItem->setLabel($product->getTranslation('name'));
         }
 
-        if ($product->getCover()) {
-            $lineItem->setCover($product->getCover()->getMedia());
-        }
+        $lineItem->setCover($product->getCover()?->getMedia());
 
         $deliveryTime = null;
         if ($product->getDeliveryTime() !== null) {
@@ -317,7 +315,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         if ($lineItem->hasState(State::IS_PHYSICAL)) {
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
-                    (int) $product->getAvailableStock(),
+                    $product->getStock(),
                     $weight,
                     $product->getShippingFree() === true,
                     $product->getRestockTime(),
@@ -424,7 +422,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      *
      * @return mixed[]
      */
-    private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context, string $hash): array
+    private function getNotCompleted(CartDataCollection $data, array $lineItems, string $hash): array
     {
         $ids = [];
 
@@ -432,11 +430,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
-
-            $key = $this->getDataKey((string) $id);
+            if ($id === '' || $id === null) {
+                continue;
+            }
 
             // data already fetched?
-            if ($data->has($key)) {
+            if ($data->has($this->getDataKey($id))) {
                 continue;
             }
 
@@ -581,6 +580,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             return $taxRule->getRules()?->getIds() ?: $taxRule->getId();
         }, $context->getTaxRules()->getElements());
 
-        return Hasher::hash($contextHash . json_encode($activeTaxRules), 'md5');
+        return Hasher::hash([$contextHash, $activeTaxRules]);
     }
 }

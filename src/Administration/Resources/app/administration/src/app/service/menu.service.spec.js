@@ -28,16 +28,22 @@ describe('src/app/service/menu.service', () => {
             const navigationEntries = menuService.getNavigationFromAdminModules();
 
             expect(navigationEntries).toHaveLength(11);
-            expect(navigationEntries).toEqual(expect.arrayContaining([
-                expect.objectContaining({ id: 'sw.second.top.level' }),
-                expect.objectContaining({ id: 'sw.second.level.last' }),
-                expect.objectContaining({ id: 'sw.second.level.first' }),
-                expect.objectContaining({ id: 'sw.second.level.second' }),
-                expect.objectContaining({ id: 'sw.first.top.level' }),
-                expect.objectContaining({ id: 'children.with.privilege' }),
-                expect.objectContaining({ id: 'children.with.privilege.first' }),
-                expect.objectContaining({ id: 'children.with.privilege.second' }),
-            ]));
+            expect(navigationEntries).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ id: 'sw.second.top.level' }),
+                    expect.objectContaining({ id: 'sw.second.level.last' }),
+                    expect.objectContaining({ id: 'sw.second.level.first' }),
+                    expect.objectContaining({ id: 'sw.second.level.second' }),
+                    expect.objectContaining({ id: 'sw.first.top.level' }),
+                    expect.objectContaining({ id: 'children.with.privilege' }),
+                    expect.objectContaining({
+                        id: 'children.with.privilege.first',
+                    }),
+                    expect.objectContaining({
+                        id: 'children.with.privilege.second',
+                    }),
+                ]),
+            );
         });
 
         it('ignores modules with empty navigation', async () => {
@@ -84,7 +90,8 @@ describe('src/app/service/menu.service', () => {
                         appName: 'testAppA',
                         moduleName: 'noPosition',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppB-default',
                     path: 'sw.extension.module',
                     parent: 'app-testAppB-structure',
@@ -93,7 +100,8 @@ describe('src/app/service/menu.service', () => {
                         moduleName: 'default',
                     },
                     position: 50,
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppB-structure',
                     parent: 'sw.first.top.level',
                     position: 50,
@@ -113,19 +121,22 @@ describe('src/app/service/menu.service', () => {
                         translated: true,
                         label: 'Standardmodul',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
                         label: 'Modul ohne Position',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppB-default',
                     label: {
                         translated: true,
                         label: 'Standard Modul',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppB-structure',
                     label: {
                         translated: true,
@@ -147,19 +158,22 @@ describe('src/app/service/menu.service', () => {
                         translated: true,
                         label: 'Standard module',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
                         label: 'Module without position',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppB-default',
                     label: {
                         translated: true,
                         label: 'Default module',
                     },
-                }), expect.objectContaining({
+                }),
+                expect.objectContaining({
                     id: 'app-testAppB-structure',
                     label: {
                         translated: true,

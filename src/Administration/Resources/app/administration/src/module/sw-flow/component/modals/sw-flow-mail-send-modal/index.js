@@ -2,7 +2,11 @@ import { email as emailValidation } from 'src/core/service/validation.service';
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
 
-const { Component, Utils, Classes: { ShopwareError } } = Shopware;
+const {
+    Component,
+    Utils,
+    Classes: { ShopwareError },
+} = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
@@ -19,7 +23,10 @@ export default {
         'repositoryFactory',
     ],
 
-    emits: ['modal-close', 'process-finish'],
+    emits: [
+        'modal-close',
+        'process-finish',
+    ],
 
     props: {
         sequence: {
@@ -106,13 +113,18 @@ export default {
         },
 
         entityAware() {
-            return ['CustomerAware', 'UserAware', 'OrderAware', 'CustomerGroupAware'];
+            return [
+                'CustomerAware',
+                'UserAware',
+                'OrderAware',
+                'CustomerGroupAware',
+            ];
         },
 
         recipientOptions() {
             const allowedAwareOrigin = this.triggerEvent.aware ?? [];
             const allowAwareConverted = [];
-            allowedAwareOrigin.forEach(aware => {
+            allowedAwareOrigin.forEach((aware) => {
                 aware = aware.slice(aware.lastIndexOf('\\') + 1);
                 const awareUpperCase = aware.charAt(0).toUpperCase() + aware.slice(1);
                 if (!allowAwareConverted.includes(awareUpperCase)) {
@@ -132,8 +144,13 @@ export default {
                     ...this.recipientCustom,
                 ];
             }
-            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
-                .includes(this.triggerEvent.name)) {
+            if (
+                [
+                    'newsletter.confirm',
+                    'newsletter.register',
+                    'newsletter.unsubscribe',
+                ].includes(this.triggerEvent.name)
+            ) {
                 return [
                     ...this.recipientCustomer,
                     ...this.recipientAdmin,
@@ -141,7 +158,7 @@ export default {
                 ];
             }
 
-            const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
+            const hasEntityAware = allowAwareConverted.some((allowedAware) => this.entityAware.includes(allowedAware));
 
             if (hasEntityAware) {
                 return [
@@ -158,15 +175,18 @@ export default {
         },
 
         recipientColumns() {
-            return [{
-                property: 'email',
-                label: 'sw-flow.modals.mail.columnRecipientMail',
-                inlineEdit: 'string',
-            }, {
-                property: 'name',
-                label: 'sw-flow.modals.mail.columnRecipientName',
-                inlineEdit: 'string',
-            }];
+            return [
+                {
+                    property: 'email',
+                    label: 'sw-flow.modals.mail.columnRecipientMail',
+                    inlineEdit: 'string',
+                },
+                {
+                    property: 'name',
+                    label: 'sw-flow.modals.mail.columnRecipientName',
+                    inlineEdit: 'string',
+                },
+            ];
         },
 
         replyToOptions() {
@@ -199,7 +219,11 @@ export default {
             return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
-        ...mapState('swFlowState', ['mailTemplates', 'triggerEvent', 'triggerActions']),
+        ...mapState('swFlowState', [
+            'mailTemplates',
+            'triggerEvent',
+            'triggerActions',
+        ]),
     },
 
     created() {
@@ -216,8 +240,11 @@ export default {
                 this.mailRecipient = config.recipient?.type;
 
                 if (config.recipient?.type === 'custom') {
-                    Object.entries(config.recipient.data)
-                        .forEach(([key, value]) => {
+                    Object.entries(config.recipient.data).forEach(
+                        ([
+                            key,
+                            value,
+                        ]) => {
                             const newId = Utils.createId();
                             this.recipients.push({
                                 id: newId,
@@ -225,7 +252,8 @@ export default {
                                 name: value,
                                 isNew: false,
                             });
-                        });
+                        },
+                    );
 
                     this.addRecipient();
                     this.showRecipientEmails = true;
@@ -250,7 +278,7 @@ export default {
                 return recipientData;
             }
 
-            this.recipients.forEach(recipient => {
+            this.recipients.forEach((recipient) => {
                 if (!recipient.email && !recipient.name) {
                     return;
                 }
@@ -267,15 +295,14 @@ export default {
                 return false;
             }
 
-            if (this.recipients.length === 1 &&
-                !this.recipients[0].email &&
-                !this.recipients[0].name) {
+            if (this.recipients.length === 1 && !this.recipients[0].email && !this.recipients[0].name) {
                 this.validateRecipient(this.recipients[0], 0);
                 return true;
             }
 
-            const invalidItemIndex = this.recipients.filter(item => !item.isNew)
-                .findIndex(recipient => (!recipient.name || !recipient.email || !emailValidation(recipient.email)));
+            const invalidItemIndex = this.recipients
+                .filter((item) => !item.isNew)
+                .findIndex((recipient) => !recipient.name || !recipient.email || !emailValidation(recipient.email));
 
             if (invalidItemIndex >= 0) {
                 this.validateRecipient(this.recipients[invalidItemIndex], invalidItemIndex);
@@ -333,9 +360,12 @@ export default {
                 this.mailTemplateIdError = null;
             }
 
-            const currentMailTemplate = this.mailTemplates.find(item => item.id === id);
+            const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.State.commit('swFlowState/setMailTemplates', [...this.mailTemplates, mailTemplate]);
+                Shopware.State.commit('swFlowState/setMailTemplates', [
+                    ...this.mailTemplates,
+                    mailTemplate,
+                ]);
             }
         },
 
@@ -409,8 +439,14 @@ export default {
             // Recheck error in current item
             if (!item.name && !item.email) {
                 if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.recipients, index, { ...item, errorName: null });
-                    this.$set(this.recipients, index, { ...item, errorMail: null });
+                    this.$set(this.recipients, index, {
+                        ...item,
+                        errorName: null,
+                    });
+                    this.$set(this.recipients, index, {
+                        ...item,
+                        errorMail: null,
+                    });
                 } else {
                     this.recipients[index] = { ...item, errorName: null };
                     this.recipients[index] = { ...item, errorMail: null };
@@ -441,8 +477,9 @@ export default {
         setNameError(name) {
             const error = !name
                 ? new ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                }) : null;
+                      code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                  })
+                : null;
 
             return error;
         },
@@ -488,7 +525,7 @@ export default {
 
         resetError() {
             this.recipientGridError = null;
-            this.recipients.forEach(item => {
+            this.recipients.forEach((item) => {
                 item.errorName = null;
                 item.errorMail = null;
             });

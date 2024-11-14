@@ -45,6 +45,7 @@ class ExtensionRule implements Rule
         $errors = [];
         if ($internal) {
             $errors[] = RuleErrorBuilder::message('Extension / Example classes should not be marked as internal')
+                ->identifier('shopware.extensionNotInternal')
                 ->line($node->getDocComment()?->getStartLine() ?? 0)
                 ->build();
         }
@@ -68,12 +69,14 @@ class ExtensionRule implements Rule
             $nameConstant = $node->getClassReflection()->getConstant('NAME');
         } catch (MissingConstantFromReflectionException) {
             $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
+                ->identifier('shopware.extensionPublicNameConst')
                 ->line($node->getLine())
                 ->build();
         }
 
         if ($nameConstant && !$nameConstant->isPublic()) {
             $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
+                ->identifier('shopware.extensionPublicNameConst')
                 ->line($node->getLine())
                 ->build();
         }
@@ -81,6 +84,7 @@ class ExtensionRule implements Rule
         // is final?
         if (!$node->getClassReflection()->isFinal()) {
             $errors[] = RuleErrorBuilder::message('Extension classes should be final')
+                ->identifier('shopware.extensionFinal')
                 ->line($node->getLine())
                 ->build();
         }
@@ -89,6 +93,7 @@ class ExtensionRule implements Rule
         $internal = $this->isInternal($constructor->getDocComment() ?? '');
         if (!$internal) {
             $errors[] = RuleErrorBuilder::message('Extension classes constructor should be marked as internal')
+                ->identifier('shopware.extensionConstructInternal')
                 ->line($node->getLine())
                 ->build();
         }

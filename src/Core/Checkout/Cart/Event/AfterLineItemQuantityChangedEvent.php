@@ -13,16 +13,22 @@ class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, Ca
 {
     /**
      * @var array<array<string, mixed>>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $items;
 
     /**
      * @var Cart
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cart;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelContext;
 

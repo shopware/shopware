@@ -29,11 +29,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -225,7 +224,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public static function propertyCases(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $defaults = [
             'id' => $ids->get('product'),
@@ -435,7 +434,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public static function variationCases(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $defaults = [
             'id' => $ids->get('product'),
@@ -1147,7 +1146,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public static function optionCases(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $defaults = [
             'id' => $ids->get('product'),
@@ -1226,7 +1225,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testListPrices(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $taxId = $this->getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
@@ -1375,84 +1374,18 @@ class ProductLoadedSubscriberTest extends TestCase
  */
 class ListPriceTestCase
 {
-    /**
-     * @var float
-     */
-    public $gross;
-
-    /**
-     * @var float
-     */
-    public $net;
-
-    /**
-     * @var float
-     */
-    public $wasGross;
-
-    /**
-     * @var float
-     */
-    public $wasNet;
-
-    /**
-     * @var string
-     */
-    public $currencyId;
-
-    /**
-     * @var float
-     */
-    public $percentage;
-
-    /**
-     * @var string
-     */
-    public $taxState;
-
-    /**
-     * @var float
-     */
-    public $discount;
-
-    /**
-     * @var string
-     */
-    public $usedCurrency;
-
-    /**
-     * @var float
-     */
-    public $expectedPrice;
-
-    /**
-     * @var float
-     */
-    public $expectedWas;
-
     public function __construct(
-        float $gross,
-        float $net,
-        float $wasGross,
-        float $wasNet,
-        float $percentage,
-        string $taxState,
-        float $discount,
-        float $expectedPrice,
-        float $expectedWas,
-        string $currencyId = Defaults::CURRENCY,
-        string $usedCurrency = Defaults::CURRENCY
+        public float $gross,
+        public float $net,
+        public float $wasGross,
+        public float $wasNet,
+        public float $percentage,
+        public string $taxState,
+        public float $discount,
+        public float $expectedPrice,
+        public float $expectedWas,
+        public string $currencyId = Defaults::CURRENCY,
+        public string $usedCurrency = Defaults::CURRENCY
     ) {
-        $this->gross = $gross;
-        $this->net = $net;
-        $this->wasGross = $wasGross;
-        $this->wasNet = $wasNet;
-        $this->currencyId = $currencyId;
-        $this->percentage = $percentage;
-        $this->taxState = $taxState;
-        $this->discount = $discount;
-        $this->usedCurrency = $usedCurrency;
-        $this->expectedPrice = $expectedPrice;
-        $this->expectedWas = $expectedWas;
     }
 }

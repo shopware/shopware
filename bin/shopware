@@ -4,6 +4,7 @@
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
@@ -39,14 +40,14 @@ return static function (array &$context) {
     }
 
     if (trim($context['DATABASE_URL'] ?? '') !== '' && !isset($context['INSTALL'])) {
-        $pluginLoader = new DbalKernelPluginLoader($classLoader, null, \Shopware\Core\Kernel::getConnection());
+        $pluginLoader = new DbalKernelPluginLoader($classLoader, null, Kernel::getConnection());
     }
 
     $kernel = KernelFactory::create(
-        environment: $env,
-        debug: $debug,
-        classLoader: $classLoader,
-        pluginLoader: $pluginLoader
+        $env,
+         $debug,
+        $classLoader,
+        $pluginLoader
     );
 
     $application = new Application($kernel);

@@ -6,7 +6,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-string-filter', { sync: true }), {
         global: {
             stubs: {
-                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', {
+                    sync: true,
+                }),
             },
         },
         props: {
@@ -39,6 +41,32 @@ describe('components/sw-string-filter', () => {
         ]);
     });
 
+    it('should emit `filter-update` event with equalsAny criteria filter and multiple values', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({ criteriaFilterType: 'equalsAny' });
+
+        const input = wrapper.find('input');
+
+        await input.setValue('1111,2222, 3333');
+        await input.trigger('change');
+
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+            'promotionCode',
+            [
+                Criteria.equalsAny('code', [
+                    '1111',
+                    '2222',
+                    '3333',
+                ]),
+            ],
+            [
+                '1111',
+                '2222',
+                '3333',
+            ],
+        ]);
+    });
+
     it('should emit `filter-update` event when value changes', async () => {
         const wrapper = await createWrapper();
 
@@ -57,7 +85,9 @@ describe('components/sw-string-filter', () => {
     it('should emit `filter-reset` event when user clicks Reset button', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'cheap' } });
+        await wrapper.setProps({
+            filter: { ...wrapper.vm.filter, value: 'cheap' },
+        });
 
         // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');

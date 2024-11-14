@@ -19,31 +19,43 @@ class DocumentTypeEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalName;
 
     /**
      * @var ProductTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var DocumentCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documents;
 
     /**
      * @var DocumentBaseConfigCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentBaseConfigs;
 
     /**
      * @var DocumentBaseConfigSalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentBaseConfigSalesChannels;
 

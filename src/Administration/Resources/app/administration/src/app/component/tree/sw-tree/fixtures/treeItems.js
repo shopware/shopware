@@ -64,7 +64,10 @@ export default function getTreeItems() {
                     mediaId: '111dca5d5c64499c8a5008df0eb2a5e3',
                     displayNestedProducts: true,
                     autoIncrement: 2,
-                    breadcrumb: ['Home', 'Health & Games'],
+                    breadcrumb: [
+                        'Home',
+                        'Health & Games',
+                    ],
                     level: 2,
                     path: '|a1d1da1e6d434902a2e5ffed7784c951|',
                     childCount: 5,
@@ -94,7 +97,10 @@ export default function getTreeItems() {
                     createdAt: '2021-06-17T06:27:07.267+00:00',
                     updatedAt: null,
                     translated: {
-                        breadcrumb: ['Home', 'Health & Games'],
+                        breadcrumb: [
+                            'Home',
+                            'Health & Games',
+                        ],
                         name: 'Health & Games',
                         customFields: [],
                         slotConfig: null,
@@ -130,7 +136,10 @@ export default function getTreeItems() {
                     mediaId: 'f2d05d5c84c8400f8e0cda5889481351',
                     displayNestedProducts: true,
                     autoIncrement: 3,
-                    breadcrumb: ['Home', 'Shoes'],
+                    breadcrumb: [
+                        'Home',
+                        'Shoes',
+                    ],
                     level: 2,
                     path: '|a1d1da1e6d434902a2e5ffed7784c951|',
                     childCount: 12,
@@ -160,7 +169,10 @@ export default function getTreeItems() {
                     createdAt: '2021-06-17T06:27:07.268+00:00',
                     updatedAt: null,
                     translated: {
-                        breadcrumb: ['Home', 'Shoes'],
+                        breadcrumb: [
+                            'Home',
+                            'Shoes',
+                        ],
                         name: 'Shoes',
                         customFields: [],
                         slotConfig: null,
@@ -374,7 +386,10 @@ export default function getTreeItems() {
             mediaId: '111dca5d5c64499c8a5008df0eb2a5e3',
             displayNestedProducts: true,
             autoIncrement: 2,
-            breadcrumb: ['Home', 'Health & Games'],
+            breadcrumb: [
+                'Home',
+                'Health & Games',
+            ],
             level: 2,
             path: '|a1d1da1e6d434902a2e5ffed7784c951|',
             childCount: 5,
@@ -404,7 +419,10 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.267+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Health & Games'],
+                breadcrumb: [
+                    'Home',
+                    'Health & Games',
+                ],
                 name: 'Health & Games',
                 customFields: [],
                 slotConfig: null,
@@ -440,10 +458,13 @@ export default function getTreeItems() {
             mediaId: '568ac2202943436780f6744c770eb52a',
             displayNestedProducts: true,
             autoIncrement: 10,
-            breadcrumb: ['Home', 'Health & Games', 'Electronics & Games'],
+            breadcrumb: [
+                'Home',
+                'Health & Games',
+                'Electronics & Games',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
             data: {
                 parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
@@ -471,7 +492,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.271+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Health & Games', 'Electronics & Games'],
+                breadcrumb: [
+                    'Home',
+                    'Health & Games',
+                    'Electronics & Games',
+                ],
                 name: 'Electronics & Games',
                 customFields: [],
                 slotConfig: null,
@@ -507,10 +532,13 @@ export default function getTreeItems() {
             mediaId: 'bae1546995f0431fb335a1784fe0c497',
             displayNestedProducts: true,
             autoIncrement: 12,
-            breadcrumb: ['Home', 'Health & Games', 'Clothing & Grocery'],
+            breadcrumb: [
+                'Home',
+                'Health & Games',
+                'Clothing & Grocery',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
             data: {
                 parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
@@ -538,7 +566,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.272+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Health & Games', 'Clothing & Grocery'],
+                breadcrumb: [
+                    'Home',
+                    'Health & Games',
+                    'Clothing & Grocery',
+                ],
                 name: 'Clothing & Grocery',
                 customFields: [],
                 slotConfig: null,
@@ -574,10 +606,13 @@ export default function getTreeItems() {
             mediaId: '42d2245b0ee74ccab0180e3c2e33a5b9',
             displayNestedProducts: true,
             autoIncrement: 11,
-            breadcrumb: ['Home', 'Health & Games', 'Baby, Health & Garden'],
+            breadcrumb: [
+                'Home',
+                'Health & Games',
+                'Baby, Health & Garden',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
             data: {
                 parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
@@ -605,7 +640,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.271+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Health & Games', 'Baby, Health & Garden'],
+                breadcrumb: [
+                    'Home',
+                    'Health & Games',
+                    'Baby, Health & Garden',
+                ],
                 name: 'Baby, Health & Garden',
                 customFields: [],
                 slotConfig: null,
@@ -641,10 +680,13 @@ export default function getTreeItems() {
             mediaId: 'ee3ff68b556041fa83bb1c5e8b809040',
             displayNestedProducts: true,
             autoIncrement: 9,
-            breadcrumb: ['Home', 'Health & Games', 'Automotive'],
+            breadcrumb: [
+                'Home',
+                'Health & Games',
+                'Automotive',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
             data: {
                 parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
@@ -672,7 +714,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.270+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Health & Games', 'Automotive'],
+                breadcrumb: [
+                    'Home',
+                    'Health & Games',
+                    'Automotive',
+                ],
                 name: 'Automotive',
                 customFields: [],
                 slotConfig: null,
@@ -708,10 +754,13 @@ export default function getTreeItems() {
             mediaId: '7b1c714879af4198818e2227c83659be',
             displayNestedProducts: true,
             autoIncrement: 13,
-            breadcrumb: ['Home', 'Health & Games', 'Toys, Health & Music'],
+            breadcrumb: [
+                'Home',
+                'Health & Games',
+                'Toys, Health & Music',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
             data: {
                 parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
@@ -739,7 +788,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.272+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Health & Games', 'Toys, Health & Music'],
+                breadcrumb: [
+                    'Home',
+                    'Health & Games',
+                    'Toys, Health & Music',
+                ],
                 name: 'Toys, Health & Music',
                 customFields: [],
                 slotConfig: null,
@@ -775,7 +828,10 @@ export default function getTreeItems() {
             mediaId: 'f2d05d5c84c8400f8e0cda5889481351',
             displayNestedProducts: true,
             autoIncrement: 3,
-            breadcrumb: ['Home', 'Shoes'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+            ],
             level: 2,
             path: '|a1d1da1e6d434902a2e5ffed7784c951|',
             childCount: 12,
@@ -805,7 +861,10 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.268+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                ],
                 name: 'Shoes',
                 customFields: [],
                 slotConfig: null,
@@ -841,10 +900,13 @@ export default function getTreeItems() {
             mediaId: 'de1f5edb53244f8eb7dc869a24447565',
             displayNestedProducts: true,
             autoIncrement: 15,
-            breadcrumb: ['Home', 'Shoes', 'Kids, Tools & Shoes'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Kids, Tools & Shoes',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -872,7 +934,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.273+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Kids, Tools & Shoes'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Kids, Tools & Shoes',
+                ],
                 name: 'Kids, Tools & Shoes',
                 customFields: [],
                 slotConfig: null,
@@ -908,10 +974,13 @@ export default function getTreeItems() {
             mediaId: '596f2b3b4ada4e0b9e788324ced88bd9',
             displayNestedProducts: true,
             autoIncrement: 18,
-            breadcrumb: ['Home', 'Shoes', 'Sports, Electronics & Jewelry'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Sports, Electronics & Jewelry',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -939,7 +1008,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.275+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Sports, Electronics & Jewelry'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Sports, Electronics & Jewelry',
+                ],
                 name: 'Sports, Electronics & Jewelry',
                 customFields: [],
                 slotConfig: null,
@@ -975,10 +1048,13 @@ export default function getTreeItems() {
             mediaId: '06e44be26ddc412fa2a8174323aeca39',
             displayNestedProducts: true,
             autoIncrement: 16,
-            breadcrumb: ['Home', 'Shoes', 'Grocery, Electronics & Clothing'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Grocery, Electronics & Clothing',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1006,7 +1082,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.274+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Grocery, Electronics & Clothing'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Grocery, Electronics & Clothing',
+                ],
                 name: 'Grocery, Electronics & Clothing',
                 customFields: [],
                 slotConfig: null,
@@ -1042,10 +1122,13 @@ export default function getTreeItems() {
             mediaId: '6e8a3e178cb34fb4a8db8113a30025ac',
             displayNestedProducts: true,
             autoIncrement: 25,
-            breadcrumb: ['Home', 'Shoes', 'Computers'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Computers',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1073,7 +1156,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.277+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Computers'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Computers',
+                ],
                 name: 'Computers',
                 customFields: [],
                 slotConfig: null,
@@ -1109,10 +1196,13 @@ export default function getTreeItems() {
             mediaId: '3f8fc6b8b6a54e0491e6c3512899ef96',
             displayNestedProducts: true,
             autoIncrement: 14,
-            breadcrumb: ['Home', 'Shoes', 'Sports'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Sports',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1140,7 +1230,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.273+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Sports'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Sports',
+                ],
                 name: 'Sports',
                 customFields: [],
                 slotConfig: null,
@@ -1176,10 +1270,13 @@ export default function getTreeItems() {
             mediaId: '8e134225a80a46b4b328c9d037cab4b6',
             displayNestedProducts: true,
             autoIncrement: 23,
-            breadcrumb: ['Home', 'Shoes', 'Grocery'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Grocery',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1207,7 +1304,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.277+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Grocery'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Grocery',
+                ],
                 name: 'Grocery',
                 customFields: [],
                 slotConfig: null,
@@ -1243,10 +1344,13 @@ export default function getTreeItems() {
             mediaId: '8882a3b1e4694f68a4a16c525b539ddb',
             displayNestedProducts: true,
             autoIncrement: 22,
-            breadcrumb: ['Home', 'Shoes', 'Movies, Computers & Tools'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Movies, Computers & Tools',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1274,7 +1378,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.276+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Movies, Computers & Tools'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Movies, Computers & Tools',
+                ],
                 name: 'Movies, Computers & Tools',
                 customFields: [],
                 slotConfig: null,
@@ -1310,10 +1418,13 @@ export default function getTreeItems() {
             mediaId: '6762e92561274bf18b74dd46ac2bdd36',
             displayNestedProducts: true,
             autoIncrement: 19,
-            breadcrumb: ['Home', 'Shoes', 'Tools & Home'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Tools & Home',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1330,8 +1441,7 @@ export default function getTreeItems() {
             internalLink: null,
             externalLink: null,
             linkNewTab: null,
-            description:
-                'Temporibus quia accusantium dolores aspernatur. Ea cumque quia dolor sed impedit.',
+            description: 'Temporibus quia accusantium dolores aspernatur. Ea cumque quia dolor sed impedit.',
             metaTitle: null,
             metaDescription: null,
             keywords: null,
@@ -1341,7 +1451,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.275+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Tools & Home'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Tools & Home',
+                ],
                 name: 'Tools & Home',
                 customFields: [],
                 slotConfig: null,
@@ -1349,8 +1463,7 @@ export default function getTreeItems() {
                 internalLink: null,
                 externalLink: null,
                 linkNewTab: null,
-                description:
-                    'Temporibus quia accusantium dolores aspernatur. Ea cumque quia dolor sed impedit.',
+                description: 'Temporibus quia accusantium dolores aspernatur. Ea cumque quia dolor sed impedit.',
                 metaTitle: null,
                 metaDescription: null,
                 keywords: null,
@@ -1377,10 +1490,13 @@ export default function getTreeItems() {
             mediaId: 'dc9d844b7d3a45899bb751d150d219ff',
             displayNestedProducts: true,
             autoIncrement: 17,
-            breadcrumb: ['Home', 'Shoes', 'Music, Grocery & Computers'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Music, Grocery & Computers',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1408,7 +1524,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.274+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Music, Grocery & Computers'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Music, Grocery & Computers',
+                ],
                 name: 'Music, Grocery & Computers',
                 customFields: [],
                 slotConfig: null,
@@ -1444,10 +1564,13 @@ export default function getTreeItems() {
             mediaId: 'bf7418a3af8c4f99829520caf72a2260',
             displayNestedProducts: true,
             autoIncrement: 21,
-            breadcrumb: ['Home', 'Shoes', 'Home'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Home',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1475,7 +1598,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.276+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Home'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Home',
+                ],
                 name: 'Home',
                 customFields: [],
                 slotConfig: null,
@@ -1511,10 +1638,13 @@ export default function getTreeItems() {
             mediaId: 'ec05c45d81494a05a24f2dd0a0bd6126',
             displayNestedProducts: true,
             autoIncrement: 20,
-            breadcrumb: ['Home', 'Shoes', 'Movies'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Movies',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1542,7 +1672,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.275+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Movies'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Movies',
+                ],
                 name: 'Movies',
                 customFields: [],
                 slotConfig: null,
@@ -1578,10 +1712,13 @@ export default function getTreeItems() {
             mediaId: '3ea821a7fb2f4056a4b4c056b65c80ed',
             displayNestedProducts: true,
             autoIncrement: 24,
-            breadcrumb: ['Home', 'Shoes', 'Movies & Shoes'],
+            breadcrumb: [
+                'Home',
+                'Shoes',
+                'Movies & Shoes',
+            ],
             level: 3,
-            path:
-                '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
+            path: '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
             data: {
                 parentId: '8da86665f27740dd8160c92e27b1c4c8',
@@ -1609,7 +1746,11 @@ export default function getTreeItems() {
             createdAt: '2021-06-17T06:27:07.277+00:00',
             updatedAt: null,
             translated: {
-                breadcrumb: ['Home', 'Shoes', 'Movies & Shoes'],
+                breadcrumb: [
+                    'Home',
+                    'Shoes',
+                    'Movies & Shoes',
+                ],
                 name: 'Movies & Shoes',
                 customFields: [],
                 slotConfig: null,

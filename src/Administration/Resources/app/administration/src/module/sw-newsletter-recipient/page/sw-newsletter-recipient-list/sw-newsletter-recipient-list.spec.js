@@ -9,59 +9,64 @@ import Criteria from 'src/core/data/criteria.data';
 function mockApiCall(type) {
     switch (type) {
         case 'language' || 'languageFilters':
-            return [{
-                localeId: '575d2f35a8144b79beefe70e158eb03e',
-                translationCodeId: '575d2f35a8144b79beefe70e158eb03e',
-                name: 'Deutsch',
-                createdAt: '2020-09-08T08:32:01.331+00:00',
-                updatedAt: null,
-                id: '25c6e7681c334d0caebae74c382c68e1',
-            }];
+            return [
+                {
+                    localeId: '575d2f35a8144b79beefe70e158eb03e',
+                    translationCodeId: '575d2f35a8144b79beefe70e158eb03e',
+                    name: 'Deutsch',
+                    createdAt: '2020-09-08T08:32:01.331+00:00',
+                    updatedAt: null,
+                    id: '25c6e7681c334d0caebae74c382c68e1',
+                },
+            ];
         case 'newsletter_recipient':
-            return [{
-                email: 'test@example.com',
-                title: null,
-                firstName: 'Max',
-                lastName: 'Mustermann',
-                zipCode: '48624',
-                city: 'Schöppingen',
-                street: null,
-                status: 'direct',
-                hash: 'c225f2cc023946679c4e0d9189375402',
-                confirmedAt: null,
-                salutationId: 'fd04f0ca555143ab9f28294699f7384b',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                salesChannelId: '7b872c384b254613b5a4bd5c8b965bab',
-                createdAt: '2020-09-23T11:42:12.104+00:00',
-                updatedAt: '2020-09-23T13:27:01.436+00:00',
-                apiAlias: null,
-                id: '92618290af63445b973cc1021d60e3f5',
-                salesChannel: {},
-            }];
+            return [
+                {
+                    email: 'test@example.com',
+                    title: null,
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    zipCode: '48624',
+                    city: 'Schöppingen',
+                    street: null,
+                    status: 'direct',
+                    hash: 'c225f2cc023946679c4e0d9189375402',
+                    confirmedAt: null,
+                    salutationId: 'fd04f0ca555143ab9f28294699f7384b',
+                    languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                    salesChannelId: '7b872c384b254613b5a4bd5c8b965bab',
+                    createdAt: '2020-09-23T11:42:12.104+00:00',
+                    updatedAt: '2020-09-23T13:27:01.436+00:00',
+                    apiAlias: null,
+                    id: '92618290af63445b973cc1021d60e3f5',
+                    salesChannel: {},
+                },
+            ];
 
         case 'sales_channel':
-            return [{
-                typeId: '8a243080f92e4c719546314b577cf82b',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                customerGroupId: 'cfbd5018d38d41d8adca10d94fc8bdd6',
-                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                paymentMethodId: 'af6c68b88b2d473f8f029d9d84a9f356',
-                shippingMethodId: '39bbd086fd47486eb1d0cf0b7cc91920',
-                countryId: 'f084714d257140a38206c8a6ed11eb3a',
-                navigationCategoryId: 'e66b31de54c54ad383cc00a91cc0d4c8',
-                navigationCategoryVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                navigationCategoryDepth: 2,
-                name: 'Storefront',
-                taxCalculationType: 'horizontal',
-                accessKey: 'SWSCMVRMCKY5WXLNTXRYYLVPQG',
-                translated: { name: 'Storefront', customFields: [] },
-                id: '7b872c384b254613b5a4bd5c8b965bab',
-            }];
+            return [
+                {
+                    typeId: '8a243080f92e4c719546314b577cf82b',
+                    languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                    customerGroupId: 'cfbd5018d38d41d8adca10d94fc8bdd6',
+                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    paymentMethodId: 'af6c68b88b2d473f8f029d9d84a9f356',
+                    shippingMethodId: '39bbd086fd47486eb1d0cf0b7cc91920',
+                    countryId: 'f084714d257140a38206c8a6ed11eb3a',
+                    navigationCategoryId: 'e66b31de54c54ad383cc00a91cc0d4c8',
+                    navigationCategoryVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                    navigationCategoryDepth: 2,
+                    name: 'Storefront',
+                    taxCalculationType: 'horizontal',
+                    accessKey: 'SWSCMVRMCKY5WXLNTXRYYLVPQG',
+                    translated: { name: 'Storefront', customFields: [] },
+                    id: '7b872c384b254613b5a4bd5c8b965bab',
+                },
+            ];
         default:
             throw new Error(`no data for ${type} available`);
     }
 }
-
 
 class MockRepositoryFactory {
     constructor(type) {
@@ -74,7 +79,6 @@ class MockRepositoryFactory {
         });
     }
 }
-
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
@@ -89,7 +93,13 @@ async function createWrapper() {
                     template: '<div class="sw-empty-state"></div>',
                 },
                 'sw-entity-listing': {
-                    props: ['items', 'allowView', 'allowEdit', 'allowDelete', 'allowInlineEdit'],
+                    props: [
+                        'items',
+                        'allowView',
+                        'allowEdit',
+                        'allowDelete',
+                        'allowInlineEdit',
+                    ],
                     data() {
                         return {
                             isInlineEdit: false,

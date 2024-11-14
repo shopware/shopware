@@ -59,7 +59,7 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
 
         expect(cmsItem.attributes('disabled')).toBeTruthy();
 
-        buttons.forEach(button => {
+        buttons.forEach((button) => {
             expect(button.attributes('disabled')).toBeTruthy();
         });
     });
@@ -73,7 +73,7 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
 
         expect(cmsItem.attributes('disabled')).toBeFalsy();
 
-        buttons.forEach(button => {
+        buttons.forEach((button) => {
             expect(button.attributes('disabled')).toBeFalsy();
         });
     });

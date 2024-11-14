@@ -14,10 +14,7 @@ class HookableEventCollectorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var HookableEventCollector
-     */
-    private $hookableEventCollector;
+    private HookableEventCollector $hookableEventCollector;
 
     protected function setUp(): void
     {

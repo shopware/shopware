@@ -11,10 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class MockThemeVariablesSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var SystemConfigService
-     */
-    protected $systemConfig;
+    protected SystemConfigService $systemConfig;
 
     public function __construct(SystemConfigService $systemConfig)
     {

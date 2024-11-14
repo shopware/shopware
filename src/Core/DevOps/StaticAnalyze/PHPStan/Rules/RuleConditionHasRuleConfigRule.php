@@ -7,6 +7,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
@@ -96,13 +97,21 @@ class RuleConditionHasRuleConfigRule implements Rule
     {
         if (!$this->isRuleClass($scope) || $this->isAllowed($scope) || $this->isValid($scope)) {
             if ($this->isAllowed($scope) && $this->isValid($scope)) {
-                return ['This class is implementing the getConfig function and has a own admin component. Remove getConfig or the component.'];
+                return [
+                    RuleErrorBuilder::message('This class is implementing the getConfig function and has a own admin component. Remove getConfig or the component.')
+                        ->identifier('shopware.ruleConfig')
+                        ->build(),
+                ];
             }
 
             return [];
         }
 
-        return ['This class has to implement getConfig or implement a new admin component.'];
+        return [
+            RuleErrorBuilder::message('This class has to implement getConfig or implement a new admin component.')
+                ->identifier('shopware.ruleConfig')
+                ->build(),
+        ];
     }
 
     private function isValid(Scope $scope): bool

@@ -18,77 +18,79 @@ function createRuleMock(isNew) {
 }
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-rule-modal', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            create: () => {
-                                return createRuleMock(true);
-                            },
-                            get: () => Promise.resolve(createRuleMock(false)),
-                            save: () => Promise.resolve(),
-                            search: () => Promise.resolve([]),
-                        };
+    return mount(
+        await wrapTestComponent('sw-flow-rule-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                create: () => {
+                                    return createRuleMock(true);
+                                },
+                                get: () => Promise.resolve(createRuleMock(false)),
+                                save: () => Promise.resolve(),
+                                search: () => Promise.resolve([]),
+                            };
+                        },
+                    },
+
+                    ruleConditionDataProviderService: {
+                        getModuleTypes: () => [],
+                        addScriptConditions: () => {},
+                        getAwarenessConfigurationByAssignmentName: () => ({}),
+                    },
+
+                    ruleConditionsConfigApiService: {
+                        load: () => Promise.resolve(),
                     },
                 },
 
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {
-                    },
-                    getAwarenessConfigurationByAssignmentName: () => ({}),
-                },
-
-                ruleConditionsConfigApiService: {
-                    load: () => Promise.resolve(),
-                },
-            },
-
-            stubs: {
-                'sw-tabs': await wrapTestComponent('sw-tabs'),
-                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
-                'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-modal': {
-                    template: `
+                stubs: {
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-multi-select': await wrapTestComponent('sw-multi-select'),
+                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                    'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-modal': {
+                        template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
+                    },
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-button-process': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-icon': true,
+                    'sw-condition-tree': true,
+                    'sw-extension-component-section': true,
+                    'router-link': true,
+                    'sw-select-selection-list': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-select-base': true,
+                    'sw-field-copyable': true,
+                    'sw-contextual-field': true,
+                    'sw-textarea-field-deprecated': true,
                 },
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-button-process': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-icon': true,
-                'sw-condition-tree': true,
-                'sw-extension-component-section': true,
-                'router-link': true,
-                'sw-select-selection-list': true,
-                'sw-highlight-text': true,
-                'sw-select-result': true,
-                'sw-select-result-list': true,
-                'sw-select-base': true,
-                'sw-field-copyable': true,
-                'sw-contextual-field': true,
-                'sw-textarea-field-deprecated': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
@@ -114,7 +116,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         await detailHeaderTab.trigger('click');
         await flushPromises();
 
-        fieldClasses.forEach(elementClass => {
+        fieldClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
         });
     });

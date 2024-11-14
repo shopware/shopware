@@ -40,15 +40,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -2510,7 +2509,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'tax', 'taxRate' => 15],
         ];
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             array_replace_recursive($defaults, ['id' => $ids->create('a'), 'price' => [['gross' => 99.96]], 'productNumber' => $ids->get('a')]),
@@ -2544,7 +2543,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testPriceSortingWithDifferentCurrencyNoFallback(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $isoCode = 'DEM';
         $currencyFactor = 0.5;
         $ids->create($isoCode);
@@ -2938,7 +2937,7 @@ class ProductRepositoryTest extends TestCase
     #[Group('slow')]
     public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $products = [
             [

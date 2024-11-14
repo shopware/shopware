@@ -82,20 +82,17 @@ export default {
                 return;
             }
 
-            const parentIds = nestedLineItems.map(lineItem => lineItem.id);
-            const criteria = (new Criteria(1, 25))
-                .addFilter(Criteria.equalsAny('parentId', parentIds));
+            const parentIds = nestedLineItems.map((lineItem) => lineItem.id);
+            const criteria = new Criteria(1, 25).addFilter(Criteria.equalsAny('parentId', parentIds));
 
-            criteria
-                .getAssociation('children')
-                .addSorting(Criteria.naturalSorting('label'));
+            criteria.getAssociation('children').addSorting(Criteria.naturalSorting('label'));
 
             const children = await this.lineItemRepository.search(criteria, Shopware.Context.api);
 
             const descendants = [];
             nestedLineItems.forEach((nestedLineItem) => {
                 nestedLineItem.nestingLevel = nestingLevel;
-                nestedLineItem.children = children.filter(child => child.parentId === nestedLineItem.id);
+                nestedLineItem.children = children.filter((child) => child.parentId === nestedLineItem.id);
                 nestedLineItem.children.sort(this.naturalSort);
 
                 descendants.push(...nestedLineItem.children);
@@ -105,14 +102,10 @@ export default {
         },
 
         naturalSort(a, b) {
-            return a.label.localeCompare(
-                b.label,
-                'en-GB',
-                {
-                    numeric: true,
-                    ignorePunctuation: true,
-                },
-            );
+            return a.label.localeCompare(b.label, 'en-GB', {
+                numeric: true,
+                ignorePunctuation: true,
+            });
         },
 
         onCloseModal() {

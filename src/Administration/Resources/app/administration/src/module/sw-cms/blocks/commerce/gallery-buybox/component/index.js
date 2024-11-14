@@ -14,7 +14,7 @@ export default {
 
     computed: {
         currentDeviceView() {
-            return Store.get('cmsPageState').currentCmsDeviceView;
+            return Store.get('cmsPage').currentCmsDeviceView;
         },
 
         currentDeviceViewClass() {

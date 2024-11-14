@@ -12,6 +12,8 @@ class SeoUrlRouteResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<SeoUrlCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

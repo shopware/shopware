@@ -90,6 +90,10 @@ class CacheStore implements StoreInterface
             return $key;
         }
 
+        if (!$this->stateValidator->isValid($request, $response)) {
+            return $key;
+        }
+
         $tags = $this->getTags($request);
 
         if ($response->headers->has(self::TAG_HEADER)) {

@@ -12,13 +12,13 @@ import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia implementation
  */
 export interface Extension {
-    name: string,
-    baseUrl: string,
-    permissions: extension['permissions'],
-    version?: string,
-    type: 'app'|'plugin',
-    integrationId?: string,
-    active?: boolean,
+    name: string;
+    baseUrl: string;
+    permissions: extension['permissions'];
+    version?: string;
+    type: 'app' | 'plugin';
+    integrationId?: string;
+    active?: boolean;
 }
 
 /**
@@ -68,7 +68,7 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
     },
 
     getters: {
-        privilegedExtensionBaseUrls: state => {
+        privilegedExtensionBaseUrls: (state) => {
             const acl = Shopware.Service('acl');
             const privilegedForAllApps = acl.can('app.all');
             const privilegedBaseUrls: string[] = [];
@@ -90,7 +90,7 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
             return privilegedBaseUrls;
         },
 
-        privilegedExtensions: state => {
+        privilegedExtensions: (state) => {
             const acl = Shopware.Service('acl');
             const privilegedForAllApps = acl.can('app.all');
             const privelegedExtensions: Extension[] = [];

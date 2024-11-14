@@ -23,81 +23,113 @@ class ImportExportLogEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $activity;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $state;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $records = 0;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $username;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $profileName;
 
     /**
      * @var UserEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $user;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $userId;
 
     /**
      * @var ImportExportProfileEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $profile;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $profileId;
 
     /**
      * @var ImportExportFileEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $file;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $fileId;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config = [];
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $result = [];
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $invalidRecordsLogId;
 
     /**
      * @var self|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $invalidRecordsLog;
 
     /**
      * @var self|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $failedImportLog;
 

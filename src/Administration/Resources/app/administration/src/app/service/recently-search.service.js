@@ -37,7 +37,7 @@ export default class RecentlySearchService {
         let stack = this.get(userId);
 
         // Remove already existed entity in stack
-        stack = stack.filter(item => {
+        stack = stack.filter((item) => {
             return item.entity !== entity || item.id !== id;
         });
 

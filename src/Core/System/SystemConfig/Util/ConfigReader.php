@@ -14,6 +14,8 @@ class ConfigReader extends XmlReader
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $xsdFile = __DIR__ . '/../Schema/config.xsd';
 

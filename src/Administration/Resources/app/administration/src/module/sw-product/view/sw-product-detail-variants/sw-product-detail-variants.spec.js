@@ -8,6 +8,7 @@ import 'src/app/component/base/sw-empty-state';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
+import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {
@@ -15,9 +16,14 @@ async function createWrapper(privileges = []) {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => {
-                            return Promise.resolve([]);
-                        },
+                        search: jest.fn(() =>
+                            Promise.resolve([
+                                {
+                                    id: '1',
+                                    name: 'group-1',
+                                },
+                            ]),
+                        ),
                         delete: () => {
                             return Promise.resolve();
                         },
@@ -43,10 +49,9 @@ async function createWrapper(privileges = []) {
                         return privileges.includes(identifier);
                     },
                 },
-
             },
             mocks: {
-                $tc: key => key,
+                $tc: (key) => key,
             },
             stubs: {
                 'sw-card': {
@@ -99,37 +104,45 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                 variants: [],
                 parentProduct: {
                     media: [],
-                    reviews: [{
-                        id: '1a2b3c',
-                        entity: 'review',
-                        customerId: 'd4c3b2a1',
-                        productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1',
-                    }],
+                    reviews: [
+                        {
+                            id: '1a2b3c',
+                            entity: 'review',
+                            customerId: 'd4c3b2a1',
+                            productId: 'd4c3b2a1',
+                            salesChannelId: 'd4c3b2a1',
+                        },
+                    ],
                 },
                 product: {
                     isNew: () => false,
                     getEntityName: () => 'product',
                     media: [],
-                    reviews: [{
-                        id: '1a2b3c',
-                        entity: 'review',
-                        customerId: 'd4c3b2a1',
-                        productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1',
-                    }],
-                    purchasePrices: [{
-                        currencyId: '1',
-                        linked: true,
-                        gross: 0,
-                        net: 0,
-                    }],
-                    price: [{
-                        currencyId: '1',
-                        linked: true,
-                        gross: 100,
-                        net: 84.034,
-                    }],
+                    reviews: [
+                        {
+                            id: '1a2b3c',
+                            entity: 'review',
+                            customerId: 'd4c3b2a1',
+                            productId: 'd4c3b2a1',
+                            salesChannelId: 'd4c3b2a1',
+                        },
+                    ],
+                    purchasePrices: [
+                        {
+                            currencyId: '1',
+                            linked: true,
+                            gross: 0,
+                            net: 0,
+                        },
+                    ],
+                    price: [
+                        {
+                            currencyId: '1',
+                            linked: true,
+                            gross: 100,
+                            net: 84.034,
+                        },
+                    ],
                     configuratorSettings: [],
                     children: [],
                 },
@@ -213,10 +226,10 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state__title')
-            .text()).toBe('sw-product.variations.emptyStatePropertyTitle');
-        expect(wrapper.find('.sw-empty-state__description-content').text())
-            .toBe('sw-product.variations.emptyStatePropertyDescription');
+        expect(wrapper.find('.sw-empty-state__title').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
+        expect(wrapper.find('.sw-empty-state__description-content').text()).toBe(
+            'sw-product.variations.emptyStatePropertyDescription',
+        );
     });
 
     it('should split the product states string into an array', async () => {
@@ -226,8 +239,10 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         });
         await flushPromises();
 
-
-        expect(wrapper.vm.currentProductStates).toEqual(['is-foo', 'is-bar']);
+        expect(wrapper.vm.currentProductStates).toEqual([
+            'is-foo',
+            'is-bar',
+        ]);
     });
 
     it('should return an empty array if product has no configurator settings', async () => {
@@ -244,9 +259,11 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     it('should return an array of group ids if the product has configurator settings', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            groups: [{
-                id: 'second-group',
-            }],
+            groups: [
+                {
+                    id: 'second-group',
+                },
+            ],
             productEntity: {
                 configuratorSettings: [
                     { option: { groupId: 'first-group' } },
@@ -256,8 +273,43 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             },
         });
 
-        expect(wrapper.vm.selectedGroups).toEqual([{
-            id: 'second-group',
-        }]);
+        expect(wrapper.vm.selectedGroups).toEqual([
+            {
+                id: 'second-group',
+            },
+        ]);
+    });
+
+    it('should be able to load configuration setting with group ids', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            groups: [
+                {
+                    id: 'group-1',
+                },
+            ],
+            productEntity: {
+                configuratorSettings: [
+                    { option: { groupId: 'id-1' } },
+                    { option: { groupId: 'id-2' } },
+                ],
+            },
+        });
+        await flushPromises();
+        const criteria = new Criteria(1, null);
+        criteria.addFilter(
+            Criteria.equalsAny('id', [
+                'id-1',
+                'id-2',
+            ]),
+        );
+
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledWith(criteria);
+        expect(wrapper.vm.configSettingGroups).toEqual([
+            {
+                id: '1',
+                name: 'group-1',
+            },
+        ]);
     });
 });

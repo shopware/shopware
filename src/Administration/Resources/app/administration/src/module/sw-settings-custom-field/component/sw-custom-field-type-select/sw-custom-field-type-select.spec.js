@@ -48,14 +48,16 @@ const defaultProps = {
         apiAlias: null,
         id: 'd2667dfae415440592a0944fbea2d3ce',
         customFields: [],
-        relations: [{
-            customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
-            entityName: 'product',
-            createdAt: '2021-06-30T08:02:28.996+00:00',
-            updatedAt: null,
-            apiAlias: null,
-            id: '559b6ae735b04e199505fd4c5ac5f22c',
-        }],
+        relations: [
+            {
+                customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
+                entityName: 'product',
+                createdAt: '2021-06-30T08:02:28.996+00:00',
+                updatedAt: null,
+                apiAlias: null,
+                id: '559b6ae735b04e199505fd4c5ac5f22c',
+            },
+        ],
         products: [],
     },
 };
@@ -160,5 +162,21 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.config.options).toHaveLength(4);
+    });
+
+    it('should only allow valid component names', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            currentCustomField: {
+                ...currentCustomField,
+                config: {
+                    ...currentCustomField.config,
+                    componentName: 'foo',
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-single-select');
     });
 });

@@ -22,7 +22,7 @@ use Symfony\Component\Console\Command\Command;
 class UseCLIContextRule implements Rule
 {
     /**
-     * @var array<class-string>
+     * @var list<class-string>
      */
     private array $baseClasses = [
         Command::class,

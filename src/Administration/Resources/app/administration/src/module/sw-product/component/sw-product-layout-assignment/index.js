@@ -13,7 +13,11 @@ export default {
 
     inject: ['acl'],
 
-    emits: ['modal-layout-open', 'button-edit-click', 'button-delete-click'],
+    emits: [
+        'modal-layout-open',
+        'button-edit-click',
+        'button-delete-click',
+    ],
 
     props: {
         cmsPage: {

@@ -58,15 +58,8 @@ Build:
     - "NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci"
     - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
 
-    - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
-    - composer run e2e:sdk-plugin:fixture-to-plugin
-    - "(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)"
-    - bin/console plugin:refresh
-    - bin/console plugin:install --activate TestPlugin
-    - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
     - composer run build:js
-    - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
     - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
     - bin/console theme:compile

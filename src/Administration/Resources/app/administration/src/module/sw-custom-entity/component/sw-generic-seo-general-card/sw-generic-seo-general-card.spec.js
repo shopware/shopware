@@ -13,11 +13,23 @@ async function createWrapper() {
                 },
                 'sw-text-field': {
                     template: '<input class="sw-text-field" />',
-                    props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
+                    props: [
+                        'value',
+                        'label',
+                        'help-text',
+                        'placeholder',
+                        'maxlength',
+                    ],
                 },
                 'sw-textarea-field': {
                     template: '<textarea class="sw-text-field" />',
-                    props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
+                    props: [
+                        'value',
+                        'label',
+                        'help-text',
+                        'placeholder',
+                        'maxlength',
+                    ],
                 },
                 'router-link': true,
             },
@@ -44,7 +56,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoMetaTitleDisplay.text()).toBe('');
 
         await seoMetaTitleInput.vm.$emit('update:value', TEST_SEO_META_TITLE);
-        expect(wrapper.emitted('update:seo-meta-title')).toEqual([[TEST_SEO_META_TITLE]]);
+        expect(wrapper.emitted('update:seo-meta-title')).toEqual([
+            [TEST_SEO_META_TITLE],
+        ]);
 
         await wrapper.setProps({
             seoMetaTitle: TEST_SEO_META_TITLE,
@@ -69,7 +83,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoMetaDescriptionDisplay.text()).toBe('');
 
         await seoMetaDescriptionInput.vm.$emit('update:value', TEST_SEO_META_DESCRIPTION);
-        expect(wrapper.emitted('update:seo-meta-description')).toEqual([[TEST_SEO_META_DESCRIPTION]]);
+        expect(wrapper.emitted('update:seo-meta-description')).toEqual([
+            [TEST_SEO_META_DESCRIPTION],
+        ]);
 
         await wrapper.setProps({
             seoMetaDescription: TEST_SEO_META_DESCRIPTION,
@@ -94,7 +110,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoUrlDisplay.text()).toBe(seoUrlPrefix);
 
         await seoUrlInput.vm.$emit('update:value', TEST_SEO_META_URL);
-        expect(wrapper.emitted('update:seo-url')).toEqual([[TEST_SEO_META_URL]]);
+        expect(wrapper.emitted('update:seo-url')).toEqual([
+            [TEST_SEO_META_URL],
+        ]);
 
         await wrapper.setProps({
             seoUrl: TEST_SEO_META_URL,

@@ -23,7 +23,7 @@ class PromotionExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(PromotionException::PROMOTION_CODE_ALREADY_REDEEMED, $exception->getErrorCode());
-        static::assertSame('Promotion with code "code-123" has already been marked as redeemed!', $exception->getMessage());
+        static::assertSame('Promo code "code-123" has already been marked as redeemed!', $exception->getMessage());
         static::assertSame(['code' => 'code-123'], $exception->getParameters());
     }
 

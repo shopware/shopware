@@ -51,11 +51,11 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         verticalAlign: {
             source: 'static',
-            value: null,
+            value: 'center',
         },
         horizontalAlign: {
             source: 'static',
-            value: null,
+            value: 'center',
         },
     },
 });

@@ -24,7 +24,11 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
     it('should handleWriteErrors has api error', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.apiErrors);
 
-        const result = Shopware.State.getters['error/getSystemConfigApiError'](ErrorResolverSystemConfig.ENTITY_NAME, null, 'dummy.key');
+        const result = Shopware.State.getters['error/getSystemConfigApiError'](
+            ErrorResolverSystemConfig.ENTITY_NAME,
+            null,
+            'dummy.key',
+        );
 
         expect(result).toBeInstanceOf(ShopwareError);
     });
@@ -32,7 +36,11 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
     it('should handleWriteErrors has api error with translations', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.apiErrorsWithTranslation);
 
-        const result = Shopware.State.getters['error/getSystemConfigApiError'](ErrorResolverSystemConfig.ENTITY_NAME, null, 'dummy.key');
+        const result = Shopware.State.getters['error/getSystemConfigApiError'](
+            ErrorResolverSystemConfig.ENTITY_NAME,
+            null,
+            'dummy.key',
+        );
 
         expect(result).toEqual({});
     });

@@ -20,11 +20,10 @@ export default function createLocaleToLanguageService() {
         const localeRepo = repoFactory.create('locale', '/locale');
         const localeCriteria = new Criteria(1, 25);
 
-        localeCriteria
-            .addFilter(Criteria.equals('code', locale))
-            .addAssociation('languages');
+        localeCriteria.addFilter(Criteria.equals('code', locale)).addAssociation('languages');
 
-        return localeRepo.search(localeCriteria, apiContext)
+        return localeRepo
+            .search(localeCriteria, apiContext)
             .then((data) => {
                 return data.first().languages.first().id;
             })

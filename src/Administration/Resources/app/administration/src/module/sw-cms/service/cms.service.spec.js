@@ -9,39 +9,41 @@ import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 describe('module/sw-cms/service/cms.service.spec.js', () => {
     const cmsService = Shopware.Service('cmsService');
 
-    const mediaEntites1 = [{
-        id: '123',
-        name: 'media',
-        filtered: true,
-    }];
+    const mediaEntites1 = [
+        {
+            id: '123',
+            name: 'media',
+            filtered: true,
+        },
+    ];
 
-    const mediaEntites2 = [{
-        id: '567',
-        name: 'media',
-        filtered: true,
-    }];
+    const mediaEntites2 = [
+        {
+            id: '567',
+            name: 'media',
+            filtered: true,
+        },
+    ];
 
     const enrichData = {
-        'entity-media-0':
-            new Shopware.Data.EntityCollection(
-                '/media',
-                'media',
-                null,
-                null,
-                mediaEntites1,
-                mediaEntites1.length,
-                null,
-            ),
-        'entity-media-1':
-            new Shopware.Data.EntityCollection(
-                '/media',
-                'media',
-                null,
-                null,
-                mediaEntites2,
-                mediaEntites2.length,
-                null,
-            ),
+        'entity-media-0': new Shopware.Data.EntityCollection(
+            '/media',
+            'media',
+            null,
+            null,
+            mediaEntites1,
+            mediaEntites1.length,
+            null,
+        ),
+        'entity-media-1': new Shopware.Data.EntityCollection(
+            '/media',
+            'media',
+            null,
+            null,
+            mediaEntites2,
+            mediaEntites2.length,
+            null,
+        ),
     };
 
     describe('registerCmsElement', () => {
@@ -264,7 +266,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: ['123', '567'],
+                        value: [
+                            '123',
+                            '567',
+                        ],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -276,11 +281,17 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             // search criteria gets optimized to only search the needed ids.
             const entityMedia2Criteria = new Shopware.Data.Criteria(1, 25);
-            entityMedia2Criteria.setIds(['123', '567']);
+            entityMedia2Criteria.setIds([
+                '123',
+                '567',
+            ]);
 
             expect(result).toEqual({
                 'entity-media-0': {
-                    value: ['123', '567'],
+                    value: [
+                        '123',
+                        '567',
+                    ],
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
@@ -332,7 +343,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [{ mediaId: '123' }, { mediaId: '567' }],
+                        value: [
+                            { mediaId: '123' },
+                            { mediaId: '567' },
+                        ],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -344,11 +358,17 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             // search criteria gets optimized to only search the needed ids.
             const entityMedia2Criteria = new Shopware.Data.Criteria(1, 25);
-            entityMedia2Criteria.setIds(['123', '567']);
+            entityMedia2Criteria.setIds([
+                '123',
+                '567',
+            ]);
 
             expect(result).toEqual({
                 'entity-media-0': {
-                    value: ['123', '567'],
+                    value: [
+                        '123',
+                        '567',
+                    ],
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
@@ -452,16 +472,15 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             cmsService.registerCmsElement(element);
 
             element.enrich(element, {
-                'entity-media-0':
-                    new Shopware.Data.EntityCollection(
-                        '/media',
-                        'media',
-                        null,
-                        null,
-                        mediaEntites2,
-                        mediaEntites2.length,
-                        null,
-                    ),
+                'entity-media-0': new Shopware.Data.EntityCollection(
+                    '/media',
+                    'media',
+                    null,
+                    null,
+                    mediaEntites2,
+                    mediaEntites2.length,
+                    null,
+                ),
             });
 
             expect(element.data).toEqual({
@@ -507,7 +526,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: ['123', '567'],
+                        value: [
+                            '123',
+                            '567',
+                        ],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -532,39 +554,89 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
             ];
 
-            element.enrich(
-                element,
-                {
-                    'entity-media-0':
-                        new Shopware.Data.EntityCollection(
-                            '/media',
-                            'media',
-                            null,
-                            null,
-                            mediaEntites,
-                            mediaEntites.length,
-                            null,
-                        ),
-                },
-            );
+            element.enrich(element, {
+                'entity-media-0': new Shopware.Data.EntityCollection(
+                    '/media',
+                    'media',
+                    null,
+                    null,
+                    mediaEntites,
+                    mediaEntites.length,
+                    null,
+                ),
+            });
 
             expect(element.data).toEqual({
-                media: [{
-                    filtered: true,
-                    id: '123',
-                    name: 'media',
-                },
-                {
-                    filtered: true,
-                    id: '567',
-                    name: 'media',
-                }],
+                media: [
+                    {
+                        filtered: true,
+                        id: '123',
+                        name: 'media',
+                    },
+                    {
+                        filtered: true,
+                        id: '567',
+                        name: 'media',
+                    },
+                ],
             });
         });
     });
 
     describe('getEntityMappingTypes', () => {
         const entityDefinition = Shopware.EntityDefinition;
+        let mockCustomFields;
+
+        beforeEach(async () => {
+            mockCustomFields = [
+                {
+                    id: '16a2beeb80f041c29390efa3432760aa',
+                    name: 'custom_text_field',
+                    type: 'text',
+                    config: {
+                        customFieldType: 'text',
+                    },
+                },
+                {
+                    id: '16a2beeb80f041c29390efa3432760bb',
+                    name: 'custom_textarea_field',
+                    type: 'html',
+                    config: {
+                        customFieldType: 'html',
+                    },
+                },
+                {
+                    id: '16a2beeb80f041c29390efa3432760cc',
+                    name: 'custom_datetime_field',
+                    type: 'datetime',
+                    config: {
+                        customFieldType: 'datetime',
+                    },
+                },
+            ];
+
+            const mockResponses = global.repositoryFactoryMock.responses;
+            mockResponses.addResponse({
+                method: 'Post',
+                url: '/search/custom-field',
+                status: 200,
+                response: {
+                    data: mockCustomFields.map((field) => ({
+                        id: field.id,
+                        type: 'custom_field',
+                        attributes: field,
+                        relationships: {
+                            customFieldSet: {
+                                data: {
+                                    entityName: 'product',
+                                },
+                            },
+                        },
+                    })),
+                    included: [],
+                },
+            });
+        });
 
         it('does not return entity mapping types if entity name is null', async () => {
             const result = cmsService.getEntityMappingTypes();
@@ -645,7 +717,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const result = cmsService.getEntityMappingTypes('testTypeArrayAlreadyMapped');
             expect(result).toEqual({
                 entity: {
-                    testTypeArrayAlreadyMapped: ['testTypeArrayAlreadyMapped.id', 'testTypeArrayAlreadyMapped.id.id'],
+                    testTypeArrayAlreadyMapped: [
+                        'testTypeArrayAlreadyMapped.id',
+                        'testTypeArrayAlreadyMapped.id.id',
+                    ],
                 },
             });
         });
@@ -734,6 +809,33 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 string: ['testTypeObjectWithSchema.id.mediaProperty'],
             });
         });
+
+        it('should add custom fields to mapping types for an entity', async () => {
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('product', mappings);
+
+            expect(mappings).toEqual({
+                string: [
+                    'product.customFields.custom_text_field',
+                    'product.customFields.custom_textarea_field',
+                    'product.customFields.custom_datetime_field',
+                ],
+            });
+        });
+
+        it('should not add custom fields if no fields are found for the entity', async () => {
+            global.repositoryFactoryMock.responses.addResponse({
+                method: 'Post',
+                url: '/search/custom-field',
+                status: 200,
+                response: { data: [] },
+            });
+
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('nonexistent_entity', mappings);
+
+            expect(mappings).toEqual({});
+        });
     });
 
     describe('getEntityMappingTypes Integration tests', () => {
@@ -751,21 +853,32 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 'category.linkNewTab',
                 'category.media.hasFile',
                 'category.media.private',
-            ].forEach(path => {
+            ].forEach((path) => {
                 expect(result.boolean).toContain(path);
             });
 
             [
                 // Only test some values
-                ['app_payment_method', ['category.media.appPaymentMethods']],
-                ['category', [
-                    'category.children',
-                    'category.media.categories',
-                    'category.productStream.categories',
-                ]],
-            ].forEach(([entityName, paths]) => {
-                expect(result.entity[entityName]).toEqual(paths);
-            });
+                [
+                    'app_payment_method',
+                    ['category.media.appPaymentMethods'],
+                ],
+                [
+                    'category',
+                    [
+                        'category.children',
+                        'category.media.categories',
+                        'category.productStream.categories',
+                    ],
+                ],
+            ].forEach(
+                ([
+                    entityName,
+                    paths,
+                ]) => {
+                    expect(result.entity[entityName]).toEqual(paths);
+                },
+            );
 
             [
                 // Only test some values
@@ -773,7 +886,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 'category.media.id',
                 'category.media.title',
                 'category.name',
-            ].forEach(path => {
+            ].forEach((path) => {
                 expect(result.string).toContain(path);
             });
         });
@@ -899,7 +1012,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 'ace9aa1742764f298811fa49410ff69d',
             ]);
 
-
             cmsService.registerCmsElement(element);
             const result = element.collect(element);
 
@@ -1021,7 +1133,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const blockName1 = 'block_1';
             const onLandingPageAndProduct = {
                 name: blockName1,
-                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
+                allowedPageTypes: [
+                    CMS.PAGE_TYPES.SHOP,
+                    CMS.PAGE_TYPES.LANDING,
+                ],
                 component: 'sw-cms-el-test',
                 config: {},
             };
@@ -1075,7 +1190,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const elementName1 = 'element_1';
             const onLandingPageAndProduct = {
                 name: elementName1,
-                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
+                allowedPageTypes: [
+                    CMS.PAGE_TYPES.SHOP,
+                    CMS.PAGE_TYPES.LANDING,
+                ],
                 component: 'sw-cms-el-test',
                 config: {},
             };

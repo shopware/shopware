@@ -1,0 +1,36 @@
+# @format
+
+name: Sync Repo
+
+on:
+  push:
+    branches:
+      - trunk
+      - 6.5.x
+  workflow_call:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: github.repository == 'shopware/shopware'
+    permissions:
+        id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: octo-sts/action@v1.0.0
+        id: sts-shopware-private
+        with:
+          scope: shopware
+          identity: ShopwarePrivateSync
+
+      - name: Push to private fork
+        run: |
+          git config --unset http."https://github.com/".extraheader
+          git config "http.https://github.com/shopware/shopware-private.git/.extraheader" "AUTHORIZATION: basic $(echo -n "x-access-token:${{ steps.sts-shopware-private.outputs.token }}" | base64)"
+          git remote add private https://github.com/shopware/shopware-private.git
+          git fetch private
+          git push -f private ${{ github.ref }}

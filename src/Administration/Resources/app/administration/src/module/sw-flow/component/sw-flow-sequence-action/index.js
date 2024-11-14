@@ -19,7 +19,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'flowBuilderService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -70,7 +74,7 @@ export default {
         },
 
         groups() {
-            const groups = this.actionGroups.map(group => {
+            const groups = this.actionGroups.map((group) => {
                 return {
                     id: group,
                     label: this.$tc(`sw-flow.actions.group.${group}`),
@@ -79,7 +83,7 @@ export default {
 
             if (this.appActions?.length) {
                 const action = this.appActions[0];
-                const appGroup = this.actionGroups.find(group => group === action?.app?.name);
+                const appGroup = this.actionGroups.find((group) => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
                         id: `${action?.app?.name[0].toLowerCase()}${action?.app?.name.slice(1)}`,
@@ -101,18 +105,20 @@ export default {
                 ];
             }
 
-            return this.sortByPosition(Object.values(this.sequence).map(item => {
-                return {
-                    ...item,
-                    ...this.getActionTitle(item.actionName),
-                };
-            }));
+            return this.sortByPosition(
+                Object.values(this.sequence).map((item) => {
+                    return {
+                        ...item,
+                        ...this.getActionTitle(item.actionName),
+                    };
+                }),
+            );
         },
 
         showAddAction() {
             return !(
                 this.sequence.actionName === this.stopFlowActionName ||
-                this.sequenceData.some(sequence => sequence.actionName === this.stopFlowActionName)
+                this.sequenceData.some((sequence) => sequence.actionName === this.stopFlowActionName)
             );
         },
 
@@ -143,30 +149,24 @@ export default {
             return Shopware.State.get('session').currentLocale;
         },
 
-        ...mapState(
-            'swFlowState',
-            [
-                'invalidSequences',
-                'stateMachineState',
-                'documentTypes',
-                'mailTemplates',
-                'customerGroups',
-                'customFieldSets',
-                'customFields',
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
-        ...mapGetters(
-            'swFlowState',
-            [
-                'availableActions',
-                'actionGroups',
-                'sequences',
-                'appActions',
-                'getSelectedAppAction',
-            ],
-        ),
+        ...mapState('swFlowState', [
+            'invalidSequences',
+            'stateMachineState',
+            'documentTypes',
+            'mailTemplates',
+            'customerGroups',
+            'customFieldSets',
+            'customFields',
+            'triggerEvent',
+            'triggerActions',
+        ]),
+        ...mapGetters('swFlowState', [
+            'availableActions',
+            'actionGroups',
+            'sequences',
+            'appActions',
+            'getSelectedAppAction',
+        ]),
     },
 
     watch: {
@@ -291,11 +291,11 @@ export default {
         },
 
         removeAction(id) {
-            const action = this.sequences.find(sequence => sequence.id === id);
+            const action = this.sequences.find((sequence) => sequence.id === id);
             if (action?.id) {
-                const sequencesInGroup = this.sequences.filter(item => item.parentId === action.parentId
-                    && item.trueCase === action.trueCase
-                    && item.id !== id);
+                const sequencesInGroup = this.sequences.filter(
+                    (item) => item.parentId === action.parentId && item.trueCase === action.trueCase && item.id !== id,
+                );
 
                 sequencesInGroup.forEach((item, index) => {
                     State.commit('swFlowState/updateSequence', {
@@ -313,13 +313,15 @@ export default {
         actionsWithoutStopFlow() {
             // When action list only has 1 item, this.sequence has object type
             if (this.sequence.id) {
-                return [{
-                    ...this.sequence,
-                }];
+                return [
+                    {
+                        ...this.sequence,
+                    },
+                ];
             }
 
             const sequences = Object.values(this.sequence);
-            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== this.stopFlowActionName));
+            return this.sortByPosition(sequences.filter((sequence) => sequence.actionName !== this.stopFlowActionName));
         },
 
         showMoveOption(action, type) {
@@ -335,16 +337,28 @@ export default {
             if (this.isAppDisabled(this.getSelectedAppAction(action.actionName))) return;
 
             const actions = this.actionsWithoutStopFlow();
-            const currentIndex = actions.findIndex(item => item.position === action.position);
+            const currentIndex = actions.findIndex((item) => item.position === action.position);
             const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
             const moveActionClone = cloneDeep(moveAction);
 
-            State.commit('swFlowState/updateSequence', { id: moveAction.id, position: action.position });
-            State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
+            State.commit('swFlowState/updateSequence', {
+                id: moveAction.id,
+                position: action.position,
+            });
+            State.commit('swFlowState/updateSequence', {
+                id: action.id,
+                position: moveActionClone.position,
+            });
 
             const index = type === 'up' ? key - 1 : key + 1;
             const contextButtons = this.$refs.contextButton;
-            [contextButtons[key], contextButtons[index]] = [contextButtons[index], contextButtons[key]];
+            [
+                contextButtons[key],
+                contextButtons[index],
+            ] = [
+                contextButtons[index],
+                contextButtons[key],
+            ];
         },
 
         onEditAction(sequence, target, key) {
@@ -447,7 +461,7 @@ export default {
             }
 
             this.fieldError = null;
-            const invalidSequences = this.invalidSequences?.filter(id => this.sequence.id !== id);
+            const invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
             State.commit('swFlowState/setInvalidSequences', invalidSequences);
         },
 
@@ -465,20 +479,25 @@ export default {
         },
 
         getStopFlowIndex(actions) {
-            const indexes = actions.map((item, index) => {
-                if (item.group === this.flowBuilderService.getGroup('GENERAL')) {
-                    return index;
-                }
+            const indexes = actions
+                .map((item, index) => {
+                    if (item.group === this.flowBuilderService.getGroup('GENERAL')) {
+                        return index;
+                    }
 
-                return false;
-            }).filter(item => item > 0);
+                    return false;
+                })
+                .filter((item) => item > 0);
 
             return indexes.pop() || actions.length;
         },
 
         sortActionOptions(actions) {
             const stopAction = actions.pop();
-            actions = orderBy(actions, ['group', 'label']);
+            actions = orderBy(actions, [
+                'group',
+                'label',
+            ]);
 
             actions.forEach((action) => {
                 if (action.group && action.group !== this.flowBuilderService.getGroup('GENERAL')) return;
@@ -486,10 +505,25 @@ export default {
                 action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
                 // eslint-disable-next-line max-len
-                actions.push(actions.splice(actions.findIndex(el => el.group === this.flowBuilderService.getGroup('GENERAL')), 1)[0]);
+                actions.push(
+                    actions.splice(
+                        actions.findIndex((el) => el.group === this.flowBuilderService.getGroup('GENERAL')),
+                        1,
+                    )[0],
+                );
             });
 
-            actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);
+            actions = sortBy(
+                actions,
+                [
+                    'group',
+                    'label',
+                ],
+                [
+                    'esc',
+                    'esc',
+                ],
+            );
             const stopFlowIndex = this.getStopFlowIndex(actions) + 1;
             actions.splice(stopFlowIndex, 0, stopAction);
 

@@ -62,7 +62,12 @@ Component.register('sw-text-editor', {
             required: false,
             default: '',
             validator(value) {
-                return ['', 'center', 'flex-start', 'flex-end'].includes(value);
+                return [
+                    '',
+                    'center',
+                    'flex-start',
+                    'flex-end',
+                ].includes(value);
             },
         },
 
@@ -315,7 +320,7 @@ Component.register('sw-text-editor', {
                 nextColWidth: null,
             },
             isTableEdit: false,
-            cmsPageState: Shopware.Store.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPage'),
             minorElementTags: [
                 '#text',
                 'br',
@@ -380,11 +385,17 @@ Component.register('sw-text-editor', {
         availableDataMappings() {
             let mappings = [];
 
-            Object.entries(this.cmsPageState.currentMappingTypes).forEach(entry => {
-                const [type, value] = entry;
+            Object.entries(this.cmsPageState.currentMappingTypes).forEach((entry) => {
+                const [
+                    type,
+                    value,
+                ] = entry;
 
                 if (type === 'string') {
-                    mappings = [...mappings, ...value];
+                    mappings = [
+                        ...mappings,
+                        ...value,
+                    ];
                 }
             });
 
@@ -457,10 +468,7 @@ Component.register('sw-text-editor', {
                     });
                 }
 
-                if (
-                    this.allowInlineDataMapping &&
-                    this.availableDataMappings.length > 0
-                ) {
+                if (this.allowInlineDataMapping && this.availableDataMappings.length > 0) {
                     const dataMappingButton = {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
@@ -471,14 +479,12 @@ Component.register('sw-text-editor', {
                         tooltipHideDelay: 100,
                     };
 
-                    const buttonConfigs = this.availableDataMappings.map(mapping => (
-                        {
-                            type: mapping,
-                            name: mapping,
-                            title: mapping,
-                            handler: this.handleInsertDataMapping,
-                        }
-                    ));
+                    const buttonConfigs = this.availableDataMappings.map((mapping) => ({
+                        type: mapping,
+                        name: mapping,
+                        title: mapping,
+                        handler: this.handleInsertDataMapping,
+                    }));
 
                     dataMappingButton.children = buttonConfigs;
 
@@ -525,12 +531,15 @@ Component.register('sw-text-editor', {
 
             const path = this.getPath(event);
 
-            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
                 return;
             }
 
-            if ((event.type === 'keydown' || event.type === 'mousedown') &&
-                !path.includes(this.$el) && !path.includes(this.toolbar)) {
+            if (
+                (event.type === 'keydown' || event.type === 'mousedown') &&
+                !path.includes(this.$el) &&
+                !path.includes(this.toolbar)
+            ) {
                 this.hasSelection = false;
                 return;
             }
@@ -576,14 +585,12 @@ Component.register('sw-text-editor', {
         },
 
         resetForeColor() {
-            Object.keys(this.buttonConfig).forEach(
-                (key) => {
-                    if (this.buttonConfig[key].type === 'foreColor') {
-                        // eslint-disable-next-line vue/no-mutating-props
-                        this.buttonConfig[key].value = '';
-                    }
-                },
-            );
+            Object.keys(this.buttonConfig).forEach((key) => {
+                if (this.buttonConfig[key].type === 'foreColor') {
+                    // eslint-disable-next-line vue/no-mutating-props
+                    this.buttonConfig[key].value = '';
+                }
+            });
         },
 
         onToolbarCreated(elem) {
@@ -629,9 +636,7 @@ Component.register('sw-text-editor', {
                 focusOffset,
             } = this.selection;
 
-            const contentAfterSelection = Array.from(focusNodeText)
-                .splice(focusOffset, focusNodeText.length)
-                .join('');
+            const contentAfterSelection = Array.from(focusNodeText).splice(focusOffset, focusNodeText.length).join('');
             const positionOfEndBracket = contentAfterSelection.indexOf('}}');
             const containsBothStartBrackets = /\{\{/.test(this.selection.toString());
 
@@ -652,10 +657,7 @@ Component.register('sw-text-editor', {
                 focusOffset,
             } = this.selection;
 
-            const contentBeforeSelection = Array.from(anchorNodeText)
-                .splice(0, anchorOffset)
-                .reverse()
-                .join('');
+            const contentBeforeSelection = Array.from(anchorNodeText).splice(0, anchorOffset).reverse().join('');
             const positionOfStartBracket = contentBeforeSelection.indexOf('{{');
             const containsBothEndBrackets = /}}/.test(this.selection.toString());
 
@@ -707,18 +709,13 @@ Component.register('sw-text-editor', {
                 focusNode: { textContent: focusNodeText },
             } = this.selection;
 
-            const contentBeforeSelection = Array.from(anchorNodeText)
-                .splice(0, anchorOffset)
-                .reverse()
-                .join('');
+            const contentBeforeSelection = Array.from(anchorNodeText).splice(0, anchorOffset).reverse().join('');
             // https://regex101.com/r/HWsZiH/1
-            const startBracketFound = (/^[^}]*{{/).test(contentBeforeSelection);
+            const startBracketFound = /^[^}]*{{/.test(contentBeforeSelection);
 
-            const contentAfterSelection = Array.from(focusNodeText)
-                .splice(focusOffset, focusNodeText.length)
-                .join('');
+            const contentAfterSelection = Array.from(focusNodeText).splice(focusOffset, focusNodeText.length).join('');
             // https://regex101.com/r/nzzL4t/1
-            const endBracketFound = (/^[^{]*}}/).test(contentAfterSelection);
+            const endBracketFound = /^[^{]*}}/.test(contentAfterSelection);
 
             return !!startBracketFound && !!endBracketFound;
         },
@@ -782,7 +779,7 @@ Component.register('sw-text-editor', {
                     const diffX = e.pageX - this.tableData.pageX;
 
                     if (this.tableData.nextCol) {
-                        this.tableData.nextCol.style.width = `${this.tableData.nextColWidth - (diffX)}px`;
+                        this.tableData.nextCol.style.width = `${this.tableData.nextColWidth - diffX}px`;
                     }
 
                     this.tableData.curCol.style.width = `${this.tableData.curColWidth + diffX}px`;
@@ -815,7 +812,7 @@ Component.register('sw-text-editor', {
 
             if (displayAsButton) {
                 classes.push('btn');
-                classes.push(...buttonVariant.split('-').map(cls => `btn-${cls}`));
+                classes.push(...buttonVariant.split('-').map((cls) => `btn-${cls}`));
             }
 
             if (classes.length > 0) {
@@ -902,7 +899,7 @@ Component.register('sw-text-editor', {
 
                     this.$refs.textEditor.replaceChild(paragraph, node);
 
-                // Wrap minor elements in a proper paragraph element.
+                    // Wrap minor elements in a proper paragraph element.
                 } else if (shouldBeWrapped) {
                     // If there are several following elements to wrap, they are collected in one paragraph.
                     if (newParagraph === null) {
@@ -915,7 +912,7 @@ Component.register('sw-text-editor', {
                         removeNodes.push(node);
                     }
 
-                // If a new section starts, replace all collected minor elements with the new paragraph.
+                    // If a new section starts, replace all collected minor elements with the new paragraph.
                 } else {
                     if (newParagraph !== null && replaceNode !== null) {
                         this.$refs.textEditor.replaceChild(newParagraph, replaceNode);
@@ -941,7 +938,7 @@ Component.register('sw-text-editor', {
          */
         hasDirectMinorElements() {
             const nodes = Array.from(this.$refs.textEditor.childNodes);
-            return nodes.some(node => this.minorElementTags.includes(node.nodeName.toLowerCase()));
+            return nodes.some((node) => this.minorElementTags.includes(node.nodeName.toLowerCase()));
         },
 
         setFocus() {
@@ -994,16 +991,14 @@ Component.register('sw-text-editor', {
             const nodes = [];
 
             let element = this.selection.focusNode;
-            while (
-                element.parentNode &&
-                !element?.parentNode?.classList.contains('sw-text-editor__content-editor')
-            ) {
+            while (element.parentNode && !element?.parentNode?.classList.contains('sw-text-editor__content-editor')) {
                 nodes.unshift(element.parentNode);
                 element = element.parentNode;
             }
 
-            const formattedSting = nodes.map(node => node.tagName.toLowerCase())
-                .filter(nodeName => nodeName !== 'p')
+            const formattedSting = nodes
+                .map((node) => node.tagName.toLowerCase())
+                .filter((nodeName) => nodeName !== 'p')
                 .reduce((previousValue, currentElement) => {
                     return `<${currentElement}>${previousValue}</${currentElement}>`;
                 }, this.selection.toString());
@@ -1062,9 +1057,11 @@ Component.register('sw-text-editor', {
                 return null;
             }
 
-            if (!this.$refs.textEditor.textContent ||
+            if (
+                !this.$refs.textEditor.textContent ||
                 !this.$refs.textEditor.textContent.length ||
-                this.$refs.textEditor.textContent.length <= 0) {
+                this.$refs.textEditor.textContent.length <= 0
+            ) {
                 return null;
             }
 

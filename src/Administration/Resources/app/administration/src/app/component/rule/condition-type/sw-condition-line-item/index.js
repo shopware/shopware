@@ -45,7 +45,10 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.identifiers']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.identifiers',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
@@ -81,7 +84,6 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
                 this.productRepository.entityName,
                 this.productContext,
             );
-
 
             if (this.productIds.length <= 0) {
                 return Promise.resolve();

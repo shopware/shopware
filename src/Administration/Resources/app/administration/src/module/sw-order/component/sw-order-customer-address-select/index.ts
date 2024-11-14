@@ -57,7 +57,7 @@ export default Component.wrapComponentConfig({
         customerAddresses: EntityCollection<'customer_address'> | [];
         isLoading: boolean;
         addressSearchTerm: string;
-        } {
+    } {
         return {
             customerAddresses: [],
             isLoading: false,
@@ -166,11 +166,9 @@ export default Component.wrapComponentConfig({
             // Get the latest addresses from customer's db
             return this.addressRepository
                 .search(this.addressCriteria)
-                .then(
-                    (addresses: EntityCollection<'customer_address'>): void => {
-                        this.customerAddresses = addresses;
-                    },
-                )
+                .then((addresses: EntityCollection<'customer_address'>): void => {
+                    this.customerAddresses = addresses;
+                })
                 .finally(() => {
                     this.isLoading = false;
                 });

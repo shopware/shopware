@@ -37,7 +37,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         creator: {
             privileges: ['product_stream:create'],
-            dependencies: ['product_stream.viewer', 'product_stream.editor'],
+            dependencies: [
+                'product_stream.viewer',
+                'product_stream.editor',
+            ],
         },
         deleter: {
             privileges: [

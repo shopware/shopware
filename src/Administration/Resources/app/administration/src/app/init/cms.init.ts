@@ -4,8 +4,9 @@
  */
 export default function initializeCms(): void {
     Shopware.ExtensionAPI.handle('cmsRegisterElement', (element, additionalInformation) => {
-        const extension = Object.values(Shopware.State.get('extensions'))
-            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
+        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+            ext.baseUrl.startsWith(additionalInformation._event_.origin),
+        );
 
         if (!extension) {
             return;
@@ -24,8 +25,9 @@ export default function initializeCms(): void {
     });
 
     Shopware.ExtensionAPI.handle('cmsRegisterBlock', (block, additionalInformation) => {
-        const extension = Object.values(Shopware.State.get('extensions'))
-            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
+        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+            ext.baseUrl.startsWith(additionalInformation._event_.origin),
+        );
 
         if (!extension) {
             return;
@@ -39,13 +41,14 @@ export default function initializeCms(): void {
             previewComponent: 'sw-cms-block-app-preview-renderer',
             previewImage: block.previewImage,
             appName: extension.name,
-            slots: block.slots.reduce((acc, slot, index) => {
-                (acc as { [key: string]: $TSFixMe })[`${slot.element}-${index}`] = {
-                    type: slot.element,
-                };
+            slots:
+                block.slots.reduce((acc, slot, index) => {
+                    (acc as { [key: string]: $TSFixMe })[`${slot.element}-${index}`] = {
+                        type: slot.element,
+                    };
 
-                return acc;
-            }, {}) ?? {},
+                    return acc;
+                }, {}) ?? {},
             defaultConfig: {
                 customFields: {
                     appBlockName: block.name,

@@ -15,7 +15,12 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -102,10 +107,15 @@ export default {
             };
         },
 
-        ...mapPropertyErrors(
-            'currency',
-            ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor'],
-        ),
+        ...mapPropertyErrors('currency', [
+            'name',
+            'isoCode',
+            'shortName',
+            'symbol',
+            'isDefault',
+            'decimalPrecision',
+            'factor',
+        ]),
 
         currencyCountryColumns() {
             return [
@@ -218,25 +228,33 @@ export default {
 
         loadEntityData() {
             this.isLoading = true;
-            return this.currencyRepository.get(this.currencyId)
+            return this.currencyRepository
+                .get(this.currencyId)
                 .then((currency) => {
                     this.currency = currency;
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
-                        return [currency, currencyCountryRoundings];
+                        return [
+                            currency,
+                            currencyCountryRoundings,
+                        ];
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
 
         loadCurrencyCountryRoundings() {
             this.currencyCountryLoading = true;
-            return this.currencyCountryRoundingRepository.search(this.currencyCountryRoundingCriteria).then(res => {
-                this.currencyCountryRoundings = res;
-                return res;
-            }).finally(() => {
-                this.currencyCountryLoading = false;
-            });
+            return this.currencyCountryRoundingRepository
+                .search(this.currencyCountryRoundingCriteria)
+                .then((res) => {
+                    this.currencyCountryRoundings = res;
+                    return res;
+                })
+                .finally(() => {
+                    this.currencyCountryLoading = false;
+                });
         },
 
         loadCustomFieldSets() {
@@ -253,22 +271,28 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.currencyRepository.save(this.currency).then(() => {
-                this.isSaveSuccessful = true;
-                if (!this.currencyId) {
-                    this.$router.push({ name: 'sw.settings.currency.detail', params: { id: this.currency.id } });
-                }
+            return this.currencyRepository
+                .save(this.currency)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    if (!this.currencyId) {
+                        this.$router.push({
+                            name: 'sw.settings.currency.detail',
+                            params: { id: this.currency.id },
+                        });
+                    }
 
-                this.currencyRepository.get(this.currency.id).then((updatedCurrency) => {
-                    this.currency = updatedCurrency;
+                    this.currencyRepository.get(this.currency.id).then((updatedCurrency) => {
+                        this.currency = updatedCurrency;
+                        this.isLoading = false;
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-currency.detail.notificationErrorMessage'),
+                    });
                     this.isLoading = false;
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-currency.detail.notificationErrorMessage'),
-                });
-                this.isLoading = false;
-            });
         },
 
         onCancel() {
@@ -309,21 +333,25 @@ export default {
 
         onSaveCurrencyCountry() {
             this.currencyCountryLoading = true;
-            this.currencyCountryRoundingRepository.save(this.currentCurrencyCountry).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
-                    message: this.$tc('sw-settings-currency.detail.notificationCountrySuccessMessage'),
+            this.currencyCountryRoundingRepository
+                .save(this.currentCurrencyCountry)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        title: this.$tc('global.default.success'),
+                        message: this.$tc('sw-settings-currency.detail.notificationCountrySuccessMessage'),
+                    });
+                    this.onCancelEditCountry();
+                    this.loadCurrencyCountryRoundings();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('sw-settings-currency.detail.notificationCountryErrorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.currencyCountryLoading = false;
                 });
-                this.onCancelEditCountry();
-                this.loadCurrencyCountryRoundings();
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-currency.detail.notificationCountryErrorMessage'),
-                });
-            }).finally(() => {
-                this.currencyCountryLoading = false;
-            });
         },
     },
 };

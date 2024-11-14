@@ -23,7 +23,8 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
             return;
         }
 
-        serviceContainer.updateService.checkForUpdates()
+        serviceContainer.updateService
+            .checkForUpdates()
             .then((response) => {
                 if (response.version) {
                     createUpdatesAvailableNotification(response);
@@ -33,10 +34,10 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
     });
 
     function createUpdatesAvailableNotification(response) {
-        const cancelLabel =
-            getApplicationRootReference().$tc('global.default.cancel');
-        const updateLabel =
-            getApplicationRootReference().$tc('global.notification-center.shopware-updates-listener.updateNow');
+        const cancelLabel = getApplicationRootReference().$tc('global.default.cancel');
+        const updateLabel = getApplicationRootReference().$tc(
+            'global.notification-center.shopware-updates-listener.updateNow',
+        );
 
         const notification = {
             title: getApplicationRootReference().$t(
@@ -54,19 +55,19 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
             variant: 'info',
             growl: true,
             system: true,
-            actions: [{
-                label: updateLabel,
-                route: { name: 'sw.settings.shopware.updates.wizard' },
-            }, {
-                label: cancelLabel,
-            }],
+            actions: [
+                {
+                    label: updateLabel,
+                    route: { name: 'sw.settings.shopware.updates.wizard' },
+                },
+                {
+                    label: cancelLabel,
+                },
+            ],
             autoClose: false,
         };
 
-        Shopware.State.dispatch(
-            'notification/createNotification',
-            notification,
-        );
+        Shopware.State.dispatch('notification/createNotification', notification);
     }
 
     function getApplicationRootReference() {

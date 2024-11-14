@@ -13,12 +13,15 @@ export type Item = {
     links?: unknown;
     meta?: unknown;
     attributes?: Record<string, unknown>;
-    relationships?: Record<string, {
-        data?: Item | Item[];
-        links?: {
-            related: string;
-        };
-    }>;
+    relationships?: Record<
+        string,
+        {
+            data?: Item | Item[];
+            links?: {
+                related: string;
+            };
+        }
+    >;
     associationLinks?: Record<string, unknown>;
 };
 
@@ -110,10 +113,7 @@ function convertRawDataToJson(data: string | object): false | Json {
  * Basic check if we're dealing with a data structure which follows the JSONApi spec.
  */
 function areTopMemberPropertiesPresent(json: Json): boolean {
-    return (json.data !== undefined
-        || json.errors !== undefined
-        || json.links !== undefined
-        || json.meta !== undefined);
+    return json.data !== undefined || json.errors !== undefined || json.links !== undefined || json.meta !== undefined;
 }
 
 /**
@@ -163,7 +163,10 @@ function parseDataStructure(json: Json): Data {
             const dataItem = createItem(record, includedMap);
 
             if (hasOwnProperty(dataItem, 'associationLinks')) {
-                data.associations = { ...data.associations, ...dataItem.associationLinks };
+                data.associations = {
+                    ...data.associations,
+                    ...dataItem.associationLinks,
+                };
                 delete dataItem.associationLinks;
             }
 
@@ -173,7 +176,10 @@ function parseDataStructure(json: Json): Data {
         const dataItem = createItem(json.data, includedMap);
 
         if (hasOwnProperty(dataItem, 'associationLinks')) {
-            data.associations = { ...data.associations, ...dataItem.associationLinks };
+            data.associations = {
+                ...data.associations,
+                ...dataItem.associationLinks,
+            };
             delete dataItem.associationLinks;
         }
         data.data = dataItem;
@@ -214,7 +220,11 @@ function createItem(record: Item, includedMap: Map<string, Item>): Require<Item,
 
     if (record.relationships) {
         const relations = createRelationships(record.relationships, includedMap);
-        item = { ...item, ...relations.mappedRelations, ...{ associationLinks: relations.associationLinks } };
+        item = {
+            ...item,
+            ...relations.mappedRelations,
+            ...{ associationLinks: relations.associationLinks },
+        };
     }
 
     return item;
@@ -277,5 +287,8 @@ function createRelationships(relationships: Exclude<Item['relationships'], undef
         }
     });
 
-    return { mappedRelations: mappedRelations, associationLinks: associationLinks };
+    return {
+        mappedRelations: mappedRelations,
+        associationLinks: associationLinks,
+    };
 }

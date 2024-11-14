@@ -35,11 +35,10 @@ class StateMachineApiService extends ApiService {
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .get(route, {
-                additionalParams,
-                headers,
-            });
+        return this.httpClient.get(route, {
+            additionalParams,
+            headers,
+        });
     }
 
     /**
@@ -63,11 +62,14 @@ class StateMachineApiService extends ApiService {
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .post(route, {}, {
+        return this.httpClient.post(
+            route,
+            {},
+            {
                 additionalParams,
                 headers,
-            });
+            },
+        );
     }
 }
 

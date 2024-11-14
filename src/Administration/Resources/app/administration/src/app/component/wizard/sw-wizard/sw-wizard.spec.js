@@ -45,7 +45,10 @@ async function createWrapper(options = {}) {
         },
     };
 
-    return mount(await wrapTestComponent('sw-wizard', { sync: true }), { ...defaults, ...options });
+    return mount(await wrapTestComponent('sw-wizard', { sync: true }), {
+        ...defaults,
+        ...options,
+    });
 }
 describe('src/app/component/wizard/sw-wizard', () => {
     it('should be a Vue.js component', async () => {

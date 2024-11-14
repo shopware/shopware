@@ -52,9 +52,9 @@ export default {
 
             const mergedPreferences = [];
 
-            defaultSearchPreferences.forEach(defaultPref => {
+            defaultSearchPreferences.forEach((defaultPref) => {
                 const prefKey = Object.keys(defaultPref)[0];
-                const userPref = this.userSearchPreferences.find(item => Object.keys(item)[0] === prefKey);
+                const userPref = this.userSearchPreferences.find((item) => Object.keys(item)[0] === prefKey);
 
                 if (!userPref) {
                     mergedPreferences.push(defaultPref);
@@ -65,14 +65,14 @@ export default {
                 const defaultPrefValue = defaultPref[prefKey];
 
                 // Merge values from default into user preferences
-                Object.keys(defaultPrefValue).forEach(prop => {
+                Object.keys(defaultPrefValue).forEach((prop) => {
                     if (!userPrefValue.hasOwnProperty(prop)) {
                         userPrefValue[prop] = defaultPrefValue[prop];
                     }
                 });
 
                 // Remove values from user preferences that are not in default
-                Object.keys(userPrefValue).forEach(prop => {
+                Object.keys(userPrefValue).forEach((prop) => {
                     if (!defaultPrefValue.hasOwnProperty(prop)) {
                         delete userPrefValue[prop];
                     }

@@ -12,11 +12,15 @@ class DeliveryDate extends Struct
 {
     /**
      * @var \DateTimeImmutable
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $earliest;
 
     /**
      * @var \DateTimeImmutable
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $latest;
 

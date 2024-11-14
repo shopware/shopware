@@ -34,7 +34,9 @@ const createWrapper = async () => {
     const wrapper = mount(baseComponent, {
         global: {
             stubs: {
-                'sw-radio-field': await wrapTestComponent('sw-radio-field', { sync: true }),
+                'sw-radio-field': await wrapTestComponent('sw-radio-field', {
+                    sync: true,
+                }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': {
                     template: '<div></div>',

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
@@ -52,20 +53,14 @@ class OrderServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
+
+    private OrderService $orderService;
 
     /**
-     * @var OrderService
+     * @var EntityRepository<OrderCollection>
      */
-    private $orderService;
-
-    /**
-     * @var EntityRepository
-     */
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
     protected function setUp(): void
     {

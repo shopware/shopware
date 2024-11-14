@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.7.0 - Will be removed, use Shopware\Core\Maintenance\MaintenanceException instead
+ *
+ * @phpstan-ignore shopware.internalClass
  */
 #[Package('core')]
 class SystemException extends HttpException
@@ -46,7 +48,7 @@ class SystemException extends HttpException
             self::MAINTENANCE_MIGRATION_INVALID_VERSION_SELECTION_MODE,
             'Version selection mode needs to be one of these values: "{{ validModes }}", but "{{ mode }}" was given.',
             [
-                'validModes' => implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES),
+                'validModes' => implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_VALUES),
                 'mode' => $mode,
             ]
         );

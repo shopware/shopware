@@ -14,7 +14,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'systemConfigApiService',
+    ],
 
     emits: ['media-open'],
 
@@ -82,7 +86,7 @@ export default {
                 return null;
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find(media => media.id === coverId);
+            return this.product.media.find((media) => media.id === coverId);
         },
 
         ...mapGetters('swProductDetail', {
@@ -117,7 +121,7 @@ export default {
         },
 
         currentCoverID() {
-            const coverMediaItem = this.productMedia.find(coverMedium => coverMedium.media.id === this.product.coverId);
+            const coverMediaItem = this.productMedia.find((coverMedium) => coverMedium.media.id === this.product.coverId);
 
             return coverMediaItem.id;
         },
@@ -129,11 +133,14 @@ export default {
 
     methods: {
         onCreated() {
-            this.systemConfigApiService.getValues('core.media').then((response) => {
-                this.globalIsArReady = response['core.media.defaultEnableAugmentedReality'];
-            }).catch((error) => {
-                throw error;
-            });
+            this.systemConfigApiService
+                .getValues('core.media')
+                .then((response) => {
+                    this.globalIsArReady = response['core.media.defaultEnableAugmentedReality'];
+                })
+                .catch((error) => {
+                    throw error;
+                });
         },
 
         onOpenMedia() {
@@ -146,7 +153,8 @@ export default {
                     return false;
                 }
 
-                const cssColumns = window.getComputedStyle(this.$refs.grid, null)
+                const cssColumns = window
+                    .getComputedStyle(this.$refs.grid, null)
                     .getPropertyValue('grid-template-columns')
                     .split(' ');
                 this.columnCount = cssColumns.length;
@@ -164,7 +172,7 @@ export default {
             let placeholderCount = columnCount;
 
             if (this.productMedia.length !== 0) {
-                placeholderCount = columnCount - ((this.productMedia.length) % columnCount);
+                placeholderCount = columnCount - (this.productMedia.length % columnCount);
                 if (placeholderCount === columnCount) {
                     return 0;
                 }
@@ -328,9 +336,11 @@ export default {
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true
-                || (dragData.id === this.product.coverId && dragData.position === 0)
-                || (dropData.id === this.product.coverId && dropData.position === 0)) {
+            if (
+                validDrop !== true ||
+                (dragData.id === this.product.coverId && dragData.position === 0) ||
+                (dropData.id === this.product.coverId && dropData.position === 0)
+            ) {
                 return;
             }
 

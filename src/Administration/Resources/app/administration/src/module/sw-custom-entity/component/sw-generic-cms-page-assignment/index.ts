@@ -10,7 +10,7 @@ import './sw-generic-cms-page-assignment.scss';
 const objectUtils = Shopware.Utils.object;
 
 interface CmsSlotOverrides {
-    [key: string]: unknown
+    [key: string]: unknown;
 }
 
 /**
@@ -48,10 +48,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data(): {
-        cmsPage: Entity<'cms_page'> | null,
-        showLayoutSelection: boolean,
-        isLoading: boolean
-        } {
+        cmsPage: Entity<'cms_page'> | null;
+        showLayoutSelection: boolean;
+        isLoading: boolean;
+    } {
         return {
             cmsPage: null,
             showLayoutSelection: false,
@@ -131,7 +131,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            void this.$router.push({ name: 'sw.cms.detail', params: { id: this.cmsPageId } });
+            void this.$router.push({
+                name: 'sw.cms.detail',
+                params: { id: this.cmsPageId },
+            });
         },
 
         createNewLayout(): void {
@@ -172,7 +175,7 @@ export default Shopware.Component.wrapComponentConfig({
             const response = await this.cmsPageRepository.search(criteria);
             const cmsPage = this.applySlotOverrides(response[0]);
 
-            Shopware.Store.get('cmsPageState').setCurrentPage(cmsPage);
+            Shopware.Store.get('cmsPage').setCurrentPage(cmsPage);
             this.cmsPage = cmsPage;
 
             this.isLoading = false;
@@ -198,11 +201,16 @@ export default Shopware.Component.wrapComponentConfig({
                             return;
                         }
 
-                        Object.values(slot.config as Record<string, {
-                            entity?: string,
-                            required?: boolean,
-                            type?: string
-                        }>).forEach((configField) => {
+                        Object.values(
+                            slot.config as Record<
+                                string,
+                                {
+                                    entity?: string;
+                                    required?: boolean;
+                                    type?: string;
+                                }
+                            >,
+                        ).forEach((configField) => {
                             if (!configField) {
                                 return;
                             }

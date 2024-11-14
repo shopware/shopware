@@ -33,15 +33,20 @@ export default function initializeWorker() {
 
     function getConfig() {
         return configService.getConfig().then((response) => {
-            Object.entries(response as { [key: string]: unknown}).forEach(([key, value]) => {
-                Shopware.State.commit('context/addAppConfigValue', { key, value });
-            });
+            Object.entries(response as { [key: string]: unknown }).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    Shopware.State.commit('context/addAppConfigValue', {
+                        key,
+                        value,
+                    });
+                },
+            );
 
             // Enable worker notification listener regardless of the config
-            enableWorkerNotificationListener(
-                loginService,
-                Shopware.Context.api,
-            );
+            enableWorkerNotificationListener(loginService, Shopware.Context.api);
 
             // Enable worker notification listener regardless of the config
             if (!enabledNotification) {
@@ -87,7 +92,10 @@ function enableAdminWorker(
     }
 
     loginService.addOnTokenChangedListener((auth) => {
-        getWorker().port.postMessage({ ...getMessage(), ...{ bearerAuth: auth } });
+        getWorker().port.postMessage({
+            ...getMessage(),
+            ...{ bearerAuth: auth },
+        });
     });
 
     loginService.addOnLogoutListener(() => {
@@ -97,7 +105,10 @@ function enableAdminWorker(
     const importExportService = Shopware.Service('importExport');
 
     importExportService.addOnProgressStartedListener(() => {
-        getWorker().port.postMessage({ ...getMessage(), ...{ type: 'consumeReset' } });
+        getWorker().port.postMessage({
+            ...getMessage(),
+            ...{ type: 'consumeReset' },
+        });
     });
 
     enabled = true;
@@ -107,7 +118,7 @@ function enableAdminWorker(
 let worker: SharedWorker;
 
 /* istanbul ignore next */
-function getWorker() : SharedWorker {
+function getWorker(): SharedWorker {
     if (worker) {
         return worker;
     }
@@ -128,7 +139,7 @@ function getWorker() : SharedWorker {
 
     worker.port.start();
 
-    worker.port.onmessage = ({ data }: { data: {[key: string]: unknown }}) => {
+    worker.port.onmessage = ({ data }: { data: { [key: string]: unknown } }) => {
         if (data && data.isWorkerError) {
             /**
              * To debug workers visit the following URL in Chrome browser
@@ -228,88 +239,160 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('PromotionIndexingMessage', {
         name: 'Shopware\\Core\\Checkout\\Promotion\\DataAbstractionLayer\\PromotionIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('promotion', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.promotion.title',
-                message: 'global.notification-center.worker-listener.promotion.message',
-                success: 'global.notification-center.worker-listener.promotion.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'promotion',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.promotion.title',
+                    message: 'global.notification-center.worker-listener.promotion.message',
+                    success: 'global.notification-center.worker-listener.promotion.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('ProductStreamIndexingMessage', {
         name: 'Shopware\\Core\\Content\\ProductStream\\DataAbstractionLayer\\ProductStreamIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('productStream', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.productStream.title',
-                message: 'global.notification-center.worker-listener.productStream.message',
-                success: 'global.notification-center.worker-listener.productStream.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'productStream',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.productStream.title',
+                    message: 'global.notification-center.worker-listener.productStream.message',
+                    success: 'global.notification-center.worker-listener.productStream.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('CategoryIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Category\\DataAbstractionLayer\\CategoryIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('category', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.category.title',
-                message: 'global.notification-center.worker-listener.category.message',
-                success: 'global.notification-center.worker-listener.category.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'category',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.category.title',
+                    message: 'global.notification-center.worker-listener.category.message',
+                    success: 'global.notification-center.worker-listener.category.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('MediaIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Media\\DataAbstractionLayer\\MediaIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('media', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.media.title',
-                message: 'global.notification-center.worker-listener.media.message',
-                success: 'global.notification-center.worker-listener.media.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'media',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.media.title',
+                    message: 'global.notification-center.worker-listener.media.message',
+                    success: 'global.notification-center.worker-listener.media.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('SalesChannelIndexingMessage', {
         name: 'Shopware\\Core\\System\\SalesChannel\\DataAbstractionLayer\\SalesChannelIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('salesChannel', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.salesChannel.title',
-                message: 'global.notification-center.worker-listener.salesChannel.message',
-                success: 'global.notification-center.worker-listener.salesChannel.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'salesChannel',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.salesChannel.title',
+                    message: 'global.notification-center.worker-listener.salesChannel.message',
+                    success: 'global.notification-center.worker-listener.salesChannel.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('RuleIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Rule\\DataAbstractionLayer\\RuleIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('rule', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.rule.title',
-                message: 'global.notification-center.worker-listener.rule.message',
-                success: 'global.notification-center.worker-listener.rule.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'rule',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.rule.title',
+                    message: 'global.notification-center.worker-listener.rule.message',
+                    success: 'global.notification-center.worker-listener.rule.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('ProductIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('product', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.product.title',
-                message: 'global.notification-center.worker-listener.product.message',
-                success: 'global.notification-center.worker-listener.product.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'product',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.notification-center.worker-listener.product.title',
+                    message: 'global.notification-center.worker-listener.product.message',
+                    success: 'global.notification-center.worker-listener.product.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
     factory.register('ElasticSearchIndexingMessage', {
         name: 'Shopware\\Elasticsearch\\Framework\\Indexing\\ElasticsearchIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('esIndexing', ids, next, entry, $root, notification, {
-                title: 'global.default.success',
-                message: 'global.notification-center.worker-listener.esIndexing.message',
-                success: 'global.notification-center.worker-listener.esIndexing.messageSuccess',
-            }, 50);
+            messageQueueNotification(
+                'esIndexing',
+                ids,
+                next,
+                entry,
+                $root,
+                notification,
+                {
+                    title: 'global.default.success',
+                    message: 'global.notification-center.worker-listener.esIndexing.message',
+                    success: 'global.notification-center.worker-listener.esIndexing.messageSuccess',
+                },
+                50,
+            );
         },
     });
 
@@ -351,18 +434,28 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
 
 function messageQueueNotification(
     key: string,
-    ids: { [key: string]: { notificationId: string, didSendForegroundMessage: boolean}},
+    ids: {
+        [key: string]: {
+            notificationId: string;
+            didSendForegroundMessage: boolean;
+        };
+    },
     next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
     entry: { size: number },
     $root: App<Element>,
     notification: NotificationService,
-    messages: { title: string, message: string, success: string, foregroundSuccessMessage?: string },
+    messages: {
+        title: string;
+        message: string;
+        success: string;
+        foregroundSuccessMessage?: string;
+    },
     multiplier = 1,
 ) {
     let notificationId = null;
     let didSendForegroundMessage = false;
 
-    if (ids.hasOwnProperty((key))) {
+    if (ids.hasOwnProperty(key)) {
         notificationId = ids[key].notificationId;
         didSendForegroundMessage = ids[key].didSendForegroundMessage;
     }
@@ -370,7 +463,6 @@ function messageQueueNotification(
     if (entry.size) {
         entry.size *= multiplier;
     }
-
 
     const config: NotificationConfig = {
         title: $root.$tc(messages.title),

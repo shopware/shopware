@@ -5,30 +5,50 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-rating', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-extension-select-rating', { sync: true }), {
-            global: {
-                provide: {
-                    validationService: {},
-                },
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                    'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
-                    'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
-                    'sw-icon': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
+        return mount(
+            await wrapTestComponent('sw-extension-select-rating', {
+                sync: true,
+            }),
+            {
+                global: {
+                    provide: {
+                        validationService: {},
+                    },
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                        'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+                        'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
+                        'sw-icon': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                    },
                 },
             },
-        });
+        );
     }
 
     it.each([
-        [0, 5],
-        [1, 4],
-        [2, 3],
-        [3, 2],
-        [4, 1],
+        [
+            0,
+            5,
+        ],
+        [
+            1,
+            4,
+        ],
+        [
+            2,
+            3,
+        ],
+        [
+            3,
+            2,
+        ],
+        [
+            4,
+            1,
+        ],
     ])('should have %d yellow star(s)', async (starPosition, expectedValue) => {
         const wrapper = await createWrapper();
 

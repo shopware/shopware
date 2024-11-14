@@ -24,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
+    final public const EXPLAIN_MODE = 'explain-mode';
     final public const MAX_LIMIT = 10000;
     final public const RESULT_STATE = 'loaded-by-elastic';
 
@@ -64,16 +65,18 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 )
             );
 
-            $searchBody = $this->convertSearch($criteria, $definition, $context, $search);
-
-            $trackTotalHits = $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT;
-
-            $result = $this->client->search([
+            $params = [
                 'index' => $this->helper->getIndexName($definition),
-                'track_total_hits' => $trackTotalHits,
-                'body' => $searchBody,
                 'search_type' => $this->searchType,
-            ]);
+                'track_total_hits' => $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT,
+                'body' => $this->convertSearch($criteria, $definition, $context, $search),
+            ];
+
+            if ($context->hasState(self::EXPLAIN_MODE)) {
+                $params['include_named_queries_score'] = true;
+            }
+
+            $result = $this->client->search($params);
 
             $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
 
@@ -125,6 +128,10 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
+        if ($context->hasState(self::EXPLAIN_MODE)) {
+            $search->setExplain(true);
+        }
+
         if (!$criteria->getGroupFields()) {
             $array = $search->toArray();
             $array['timeout'] = $this->timeout;

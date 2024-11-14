@@ -1,7 +1,10 @@
 /**
  * @package checkout
  */
-import SearchRankingService, { searchRankingPoint, KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
+import SearchRankingService, {
+    searchRankingPoint,
+    KEY_USER_SEARCH_PREFERENCE,
+} from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import searchRankingModules from './_mocks/searchRankingModules.json';
 
@@ -10,7 +13,6 @@ Shopware.Service().register('userConfigService', () => {
         search: () => Promise.resolve({ data: {} }),
     };
 });
-
 
 Shopware.Service().register('loginService', () => {
     return {
@@ -115,8 +117,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25))
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
+            new Criteria(1, 25).addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
             'term has just one word with word has 1 character',
@@ -124,7 +125,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25)).setTerm('o'),
+            new Criteria(1, 25).setTerm('o'),
         ],
         [
             'term has just two words with both have more than 1 character',
@@ -132,10 +133,9 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25))
+            new Criteria(1, 25)
                 .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING),
-
         ],
         [
             'term has just two words with one of them have less than 2 characters',
@@ -143,9 +143,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25))
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
-
+            new Criteria(1, 25).addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
             'term has just two words with both have less than 2 characters',
@@ -153,8 +151,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25))
-                .setTerm('o c'),
+            new Criteria(1, 25).setTerm('o c'),
         ],
         [
             'term has just two words with the same',
@@ -162,8 +159,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25))
-                .addQuery(Criteria.contains('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING),
+            new Criteria(1, 25).addQuery(Criteria.contains('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
             'term is undefined',
@@ -171,7 +167,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25)).setTerm(undefined),
+            new Criteria(1, 25).setTerm(undefined),
         ],
         [
             'term has only spaces',
@@ -179,7 +175,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25)).setTerm('       '),
+            new Criteria(1, 25).setTerm('       '),
         ],
     ];
 
@@ -290,14 +286,23 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual(expected);
     });
 
-    it.each(searchFieldsByEntityCases)('Should get search ranking fields of the entity with %s', async (testName, searchFields, expected) => {
-        const module = { ...defaultModule, defaultSearchConfiguration: { _searchable: true, ...searchFields } };
-        createModules([module]);
-        const service = new SearchRankingService();
+    it.each(searchFieldsByEntityCases)(
+        'Should get search ranking fields of the entity with %s',
+        async (testName, searchFields, expected) => {
+            const module = {
+                ...defaultModule,
+                defaultSearchConfiguration: {
+                    _searchable: true,
+                    ...searchFields,
+                },
+            };
+            createModules([module]);
+            const service = new SearchRankingService();
 
-        const actual = await service.getSearchFieldsByEntity('product');
-        expect(actual).toEqual(expected);
-    });
+            const actual = await service.getSearchFieldsByEntity('product');
+            expect(actual).toEqual(expected);
+        },
+    );
 
     it('Should return empty query when building global search query score with term less than 2 characters', async () => {
         createModules(searchRankingModules);
@@ -352,12 +357,15 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual(expected);
     });
 
-    it.each(buildingCriteriaScoreQueryCase)('Should building search query for entity when %', (testName, term, queryScores, newCriteria) => {
-        const service = new SearchRankingService();
+    it.each(buildingCriteriaScoreQueryCase)(
+        'Should building search query for entity when %',
+        (testName, term, queryScores, newCriteria) => {
+            const service = new SearchRankingService();
 
-        const criteria = service.buildSearchQueriesForEntity(queryScores, term, (new Criteria(1, 25).setTerm(term)));
-        expect(criteria.parse()).toEqual(newCriteria.parse());
-    });
+            const criteria = service.buildSearchQueriesForEntity(queryScores, term, new Criteria(1, 25).setTerm(term));
+            expect(criteria.parse()).toEqual(newCriteria.parse());
+        },
+    );
 
     it('Should cache the result when get search fields by entity', async () => {
         const service = new SearchRankingService();
@@ -438,15 +446,23 @@ describe('app/service/search-ranking.service.js', () => {
     it.each(userConfigSearchPreferenceCase)(
         'Should %s when search ranking fields of the entity along with getting user config',
         async (testName, defaultSearchFields, userConfigSearchFields, expected) => {
-            const module = { ...defaultModule, defaultSearchConfiguration: { _searchable: true, ...defaultSearchFields } };
+            const module = {
+                ...defaultModule,
+                defaultSearchConfiguration: {
+                    _searchable: true,
+                    ...defaultSearchFields,
+                },
+            };
 
             createModules([module]);
-            addDataToRegisterUserConfigService([{
-                product: {
-                    _searchable: true,
-                    ...userConfigSearchFields,
+            addDataToRegisterUserConfigService([
+                {
+                    product: {
+                        _searchable: true,
+                        ...userConfigSearchFields,
+                    },
                 },
-            }]);
+            ]);
             const newService = new SearchRankingService();
             const actual = await newService.getSearchFieldsByEntity('product');
 
@@ -479,11 +495,13 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual({
             product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
             order: { 'order.name': searchRankingPoint.HIGH_SEARCH_RANKING },
-            property_group: { 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING },
+            property_group: {
+                'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
         });
     });
 
-    it('Should remove an entity\'s search configurations from current user search preferences when entity\'s module does not have default search configurations', async () => {
+    it("Should remove an entity's search configurations from current user search preferences when entity's module does not have default search configurations", async () => {
         const commonSearchConfigurations = {
             _searchable: true,
             name: {
@@ -492,7 +510,10 @@ describe('app/service/search-ranking.service.js', () => {
             },
         };
 
-        const module = { ...defaultModule, defaultSearchConfiguration: { ...commonSearchConfigurations } };
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: { ...commonSearchConfigurations },
+        };
         createModules([module]);
         addDataToRegisterUserConfigService([
             {
@@ -527,31 +548,37 @@ describe('app/service/search-ranking.service.js', () => {
         };
 
         createModules([module]);
-        addDataToRegisterUserConfigService([{
-            product: {
-                _searchable: true,
-                name: {
+        addDataToRegisterUserConfigService([
+            {
+                product: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
                 },
             },
-        }]);
+        ]);
         const newService = new SearchRankingService();
         let actual = await newService.getSearchFieldsByEntity('product');
-        const expected = { 'product.name': searchRankingPoint.LOW_SEARCH_RANKING };
+        const expected = {
+            'product.name': searchRankingPoint.LOW_SEARCH_RANKING,
+        };
 
         expect(actual).toEqual(expected);
 
         // Set the response to return different response
-        addDataToRegisterUserConfigService([{
-            product: {
-                _searchable: false,
-                name: {
+        addDataToRegisterUserConfigService([
+            {
+                product: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    name: {
+                        _searchable: false,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
                 },
             },
-        }]);
+        ]);
 
         actual = await newService.getSearchFieldsByEntity('product');
         // expect to still be equal the old one
@@ -571,30 +598,36 @@ describe('app/service/search-ranking.service.js', () => {
         };
 
         createModules([module]);
-        addDataToRegisterUserConfigService([{
-            product: {
-                _searchable: true,
-                name: {
+        addDataToRegisterUserConfigService([
+            {
+                product: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
                 },
             },
-        }]);
+        ]);
         const newService = new SearchRankingService();
         let actual = await newService.getSearchFieldsByEntity('product');
 
-        expect(actual).toEqual({ 'product.name': searchRankingPoint.LOW_SEARCH_RANKING });
+        expect(actual).toEqual({
+            'product.name': searchRankingPoint.LOW_SEARCH_RANKING,
+        });
 
         // Set the response to return different response
-        addDataToRegisterUserConfigService([{
-            product: {
-                _searchable: false,
-                name: {
+        addDataToRegisterUserConfigService([
+            {
+                product: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    name: {
+                        _searchable: false,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
                 },
             },
-        }]);
+        ]);
         newService.clearCacheUserSearchConfiguration();
 
         actual = await newService.getSearchFieldsByEntity('product');

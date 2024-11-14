@@ -136,7 +136,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Germany' => ['DE', ['DE123456789', 'DE999999999', 'DE888888888']];
 
-        yield 'valid vat with Belgium' => ['BE', ['BE0123456789']];
+        yield 'valid vat with Belgium' => ['BE', ['BE0123456789', 'BE1123456789']];
 
         yield 'valid vat with Bulgaria' => ['BG', ['BG1234567890', 'BG123456789']];
 

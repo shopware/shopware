@@ -76,17 +76,19 @@ class RecalculationService
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
+        $shouldIncludeDeliveries = \count($cart->getLineItems()) > 0;
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
-            ->setIncludeDeliveries(true)
+            ->setIncludeDeliveries($shouldIncludeDeliveries)
             ->setIncludeTransactions(false)
             ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
-        if ($order->getDeliveries()?->first()?->getStateId()) {
+
+        if ($order->getDeliveries()?->first()?->getStateId() && $shouldIncludeDeliveries) {
             $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
         }
 
@@ -333,7 +335,7 @@ class RecalculationService
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems.downloads')
             ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingMethod.tax')
             ->addAssociation('deliveries.positions.orderLineItem')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');

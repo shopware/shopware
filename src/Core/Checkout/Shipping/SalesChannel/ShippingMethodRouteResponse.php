@@ -12,6 +12,8 @@ class ShippingMethodRouteResponse extends StoreApiResponse
 {
     /**
      * @var EntitySearchResult<ShippingMethodCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

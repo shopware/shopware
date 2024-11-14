@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 
 /**
- * @internal
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
  */
 #[Package('core')]
 abstract class TelemetryException extends HttpException
@@ -26,6 +26,9 @@ abstract class TelemetryException extends HttpException
         );
     }
 
+    /**
+     * @internal
+     */
     public static function metricMissingConfiguration(string $metric): MissingMetricConfigurationException
     {
         return new MissingMetricConfigurationException(

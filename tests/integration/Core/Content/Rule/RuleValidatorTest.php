@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,14 +27,14 @@ class RuleValidatorTest extends TestCase
     private Context $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<RuleConditionCollection>
      */
-    private $ruleConditionRepository;
+    private EntityRepository $ruleConditionRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<RuleCollection>
      */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
     protected function setUp(): void
     {

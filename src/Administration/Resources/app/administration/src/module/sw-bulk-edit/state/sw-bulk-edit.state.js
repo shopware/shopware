@@ -7,7 +7,7 @@ export default {
     namespaced: true,
 
     state() {
-        const today = (new Date()).toISOString();
+        const today = new Date().toISOString();
 
         return {
             isFlowTriggered: true,
@@ -17,6 +17,7 @@ export default {
                     value: {
                         documentDate: today,
                         documentComment: null,
+                        forceDocumentCreation: false,
                     },
                 },
                 storno: {
@@ -24,6 +25,7 @@ export default {
                     value: {
                         documentDate: today,
                         documentComment: null,
+                        forceDocumentCreation: false,
                     },
                 },
                 delivery_note: {
@@ -35,6 +37,7 @@ export default {
                         },
                         documentDate: today,
                         documentComment: null,
+                        forceDocumentCreation: false,
                     },
                 },
                 credit_note: {
@@ -42,6 +45,7 @@ export default {
                     value: {
                         documentDate: today,
                         documentComment: null,
+                        forceDocumentCreation: false,
                     },
                 },
                 download: {
@@ -68,18 +72,23 @@ export default {
         documentTypeConfigs(state) {
             const documentTypeConfigs = [];
 
-            Object.entries(state.orderDocuments).forEach(([key, value]) => {
-                if (key === 'download') {
-                    return;
-                }
-                if (value.isChanged === true) {
-                    documentTypeConfigs.push({
-                        fileType: 'pdf',
-                        type: key,
-                        config: value.value,
-                    });
-                }
-            });
+            Object.entries(state.orderDocuments).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    if (key === 'download') {
+                        return;
+                    }
+                    if (value.isChanged === true) {
+                        documentTypeConfigs.push({
+                            fileType: 'pdf',
+                            type: key,
+                            config: value.value,
+                        });
+                    }
+                },
+            );
 
             return documentTypeConfigs;
         },

@@ -39,7 +39,6 @@ async function createWrapper(condition = {}) {
     });
 }
 
-
 describe('component/rule/sw-condition-date-range', () => {
     let wrapper;
 

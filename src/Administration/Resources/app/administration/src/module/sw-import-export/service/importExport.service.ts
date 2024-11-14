@@ -30,11 +30,15 @@ export default class ImportExportService extends ApiService {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
-        const createdLog = await this.httpClient.post('/_action/import-export/prepare', {
-            profileId: profileId,
-            config: config,
-            expireDate: expireDate.toDateString(),
-        }, { headers: this.getBasicHeaders() });
+        const createdLog = await this.httpClient.post(
+            '/_action/import-export/prepare',
+            {
+                profileId: profileId,
+                config: config,
+                expireDate: expireDate.toDateString(),
+            },
+            { headers: this.getBasicHeaders() },
+        );
 
         return this.trackProgress(createdLog, callback);
     }
@@ -46,14 +50,18 @@ export default class ImportExportService extends ApiService {
      * @returns {string}
      */
     async getDownloadUrl(fileId: string) {
-        const accessTokenResponse: { data: { fileId: string, accessToken: string }} = await this.httpClient.post(
+        const accessTokenResponse: {
+            data: { fileId: string; accessToken: string };
+        } = await this.httpClient.post(
             `/_action/import-export/file/prepare-download/${fileId}`,
             {},
             { headers: this.getBasicHeaders() },
         );
 
-        return `${Shopware.Context.api.apiPath || ''}/_action/${this.getApiBasePath()}/` +
-            `file/download?fileId=${fileId}&accessToken=${accessTokenResponse.data.accessToken}`;
+        return (
+            `${Shopware.Context.api.apiPath || ''}/_action/${this.getApiBasePath()}/` +
+            `file/download?fileId=${fileId}&accessToken=${accessTokenResponse.data.accessToken}`
+        );
     }
 
     /**
@@ -63,14 +71,18 @@ export default class ImportExportService extends ApiService {
      * @returns {string}
      */
     async getTemplateFileDownloadUrl(profileId: string) {
-        const prepareResponse: { data: { fileId: string, accessToken: string }} = await this.httpClient.post(
+        const prepareResponse: {
+            data: { fileId: string; accessToken: string };
+        } = await this.httpClient.post(
             `/_action/import-export/prepare-template-file-download?profileId=${profileId}`,
             {},
             { headers: this.getBasicHeaders() },
         );
 
-        return `${Shopware.Context.api.apiPath || ''}/_action/${this.getApiBasePath()}/` +
-            `file/download?fileId=${prepareResponse.data.fileId}&accessToken=${prepareResponse.data.accessToken}`;
+        return (
+            `${Shopware.Context.api.apiPath || ''}/_action/${this.getApiBasePath()}/` +
+            `file/download?fileId=${prepareResponse.data.fileId}&accessToken=${prepareResponse.data.accessToken}`
+        );
     }
 
     /**
@@ -90,15 +102,17 @@ export default class ImportExportService extends ApiService {
         formData.append('delimiter', delimiter);
         formData.append('enclosure', enclosure);
 
-        return this.httpClient.post('/_action/import-export/mapping-from-template', formData, {
-            headers: this.getBasicHeaders(),
-        }).then((response) => {
-            if (!response.data) {
-                return Promise.reject(new Error('Empty response data'));
-            }
+        return this.httpClient
+            .post('/_action/import-export/mapping-from-template', formData, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                if (!response.data) {
+                    return Promise.reject(new Error('Empty response data'));
+                }
 
-            return Promise.resolve(response.data);
-        });
+                return Promise.resolve(response.data);
+            });
     }
 
     /**
@@ -126,9 +140,14 @@ export default class ImportExportService extends ApiService {
             formData.append('dryRun', 'true');
         }
 
-        Object.entries(config).forEach(([key, value]) => {
-            formData.append(`config[${key}]`, JSON.stringify(value));
-        });
+        Object.entries(config).forEach(
+            ([
+                key,
+                value,
+            ]) => {
+                formData.append(`config[${key}]`, JSON.stringify(value));
+            },
+        );
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
             headers: this.getBasicHeaders(),
@@ -142,10 +161,14 @@ export default class ImportExportService extends ApiService {
      * @param callback
      * @returns {Promise<void>}
      */
-    async trackProgress(logEntry: { data: { log: { id: string }}}, callback: (log?: { id: string }) => unknown) {
-        await this.httpClient.post('/_action/import-export/process', {
-            logId: logEntry.data.log.id,
-        }, { headers: this.getBasicHeaders() });
+    async trackProgress(logEntry: { data: { log: { id: string } } }, callback: (log?: { id: string }) => unknown) {
+        await this.httpClient.post(
+            '/_action/import-export/process',
+            {
+                logId: logEntry.data.log.id,
+            },
+            { headers: this.getBasicHeaders() },
+        );
 
         callback.call(this, logEntry.data.log);
 
@@ -169,10 +192,8 @@ export default class ImportExportService extends ApiService {
      * @returns {Promise<*>} - ApiService.handleResponse(response)
      */
     cancel(logId: string): Promise<unknown> {
-        return this.httpClient.post<unknown>(
-            `/_action/${this.getApiBasePath()}/cancel`,
-            { logId },
-            { headers: this.getBasicHeaders() },
-        ).then(ApiService.handleResponse.bind(this));
+        return this.httpClient
+            .post<unknown>(`/_action/${this.getApiBasePath()}/cancel`, { logId }, { headers: this.getBasicHeaders() })
+            .then(ApiService.handleResponse.bind(this));
     }
 }

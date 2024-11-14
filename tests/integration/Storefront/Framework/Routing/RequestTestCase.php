@@ -9,59 +9,17 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RequestTestCase
 {
-    /**
-     * @var string
-     */
-    public $scriptFilename;
-
-    /**
-     * @var string
-     */
-    public $scriptName;
-
-    /**
-     * @var bool
-     */
-    public $https;
-
-    /**
-     * @var string
-     */
-    public $host;
-
-    /**
-     * @var string
-     */
-    public $uri;
-
-    /**
-     * @var string
-     */
-    public $route;
-
-    /**
-     * @var string
-     */
-    public $salesChannelPrefix;
-
     public function __construct(
         private readonly string $method,
-        string $route,
-        string $scriptFilename,
-        string $scriptName,
-        string $host,
-        string $uri,
+        public string $route,
+        public string $scriptFilename,
+        public string $scriptName,
+        public string $host,
+        public string $uri,
         private readonly string $pathInfo,
-        string $salesChannelPrefix = '',
-        bool $https = false
+        public string $salesChannelPrefix = '',
+        public bool $https = false
     ) {
-        $this->route = $route;
-        $this->scriptFilename = $scriptFilename;
-        $this->scriptName = $scriptName;
-        $this->https = $https;
-        $this->host = $host;
-        $this->uri = $uri;
-        $this->salesChannelPrefix = $salesChannelPrefix;
     }
 
     public function createRequest(): Request

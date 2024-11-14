@@ -82,7 +82,7 @@ describe('app/service/recently-search.service.js', () => {
 
         const data = recentlySearchService.get('userId');
 
-        const foundOldProduct = data.find(item => item.id === 'productId-old');
+        const foundOldProduct = data.find((item) => item.id === 'productId-old');
 
         expect(foundOldProduct).toBeUndefined();
     });
@@ -107,7 +107,7 @@ describe('app/service/recently-search.service.js', () => {
 
         const data = recentlySearchService.get('userId');
 
-        const foundOldProducts = data.filter(item => item.id === uniqueProduct.id);
+        const foundOldProducts = data.filter((item) => item.id === uniqueProduct.id);
 
         expect(foundOldProducts).toBeTruthy();
         expect(foundOldProducts).toHaveLength(1);

@@ -68,7 +68,10 @@ describe('app/plugins/meta-info.plugin', () => {
         });
 
         expect(document.title).toBe('');
-        expect(global.console.warn).toHaveBeenCalledWith('[Meta Info Plugin]', 'Providing the metaInfo as an object is not supported anymore. Please use a function instead.');
+        expect(global.console.warn).toHaveBeenCalledWith(
+            '[Meta Info Plugin]',
+            'Providing the metaInfo as an object is not supported anymore. Please use a function instead.',
+        );
         global.console.warn.mockReset();
     });
 });

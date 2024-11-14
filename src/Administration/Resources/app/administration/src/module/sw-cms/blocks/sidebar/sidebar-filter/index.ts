@@ -6,10 +6,9 @@ import CMS from '../../../constant/sw-cms.constant';
  */
 Shopware.Component.register('sw-cms-preview-sidebar-filter', () => import('./preview'));
 /**
-  * @private
-  */
+ * @private
+ */
 Shopware.Component.register('sw-cms-block-sidebar-filter', () => import('./component'));
-
 
 /**
  * @private

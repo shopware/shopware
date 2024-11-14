@@ -87,14 +87,21 @@ describe('src/core/service/util.service.spec.js', () => {
         });
 
         it('should not move the item if entity does not exist', () => {
-            entity = [null, 1, null];
+            entity = [
+                null,
+                1,
+                null,
+            ];
             const oldIndex = 0;
             const newIndex = 1;
 
             UtilService.moveItem(entity, oldIndex, newIndex);
 
-            expect(entity).toEqual([null, 1, null]);
+            expect(entity).toEqual([
+                null,
+                1,
+                null,
+            ]);
         });
     });
 });
-

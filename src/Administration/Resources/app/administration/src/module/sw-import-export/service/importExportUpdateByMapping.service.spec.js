@@ -9,15 +9,23 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     let importExportUpdateByMappingService;
 
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
-            Shopware.EntityDefinition.add(entityName, entityDefinition);
-        });
+        Object.entries(entitySchemaMock).forEach(
+            ([
+                entityName,
+                entityDefinition,
+            ]) => {
+                Shopware.EntityDefinition.add(entityName, entityDefinition);
+            },
+        );
 
         importExportUpdateByMappingService = new ImportExportUpdateByMappingService(Shopware.EntityDefinition);
     });
 
     it('should return entity, path, relation by source entity and path', async () => {
-        const { entity, path, relation, name } = importExportUpdateByMappingService.getEntity('product', 'manufacturer.translations.name');
+        const { entity, path, relation, name } = importExportUpdateByMappingService.getEntity(
+            'product',
+            'manufacturer.translations.name',
+        );
 
         expect(entity).toBe('product_manufacturer');
         expect(path).toBe('manufacturer');
@@ -26,12 +34,16 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('should return selected mapped key by entity from update by mapping', async () => {
-        const updateByMapping = [{
-            entityName: 'product_manufacturer',
-            mappedKey: 'translations.name',
-        }];
+        const updateByMapping = [
+            {
+                entityName: 'product_manufacturer',
+                mappedKey: 'translations.name',
+            },
+        ];
 
-        expect(importExportUpdateByMappingService.getSelected('product_manufacturer', updateByMapping)).toBe('translations.name');
+        expect(importExportUpdateByMappingService.getSelected('product_manufacturer', updateByMapping)).toBe(
+            'translations.name',
+        );
         expect(importExportUpdateByMappingService.getSelected('property_group_option', updateByMapping)).toBe('id');
     });
 

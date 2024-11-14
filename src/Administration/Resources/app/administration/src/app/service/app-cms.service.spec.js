@@ -21,15 +21,21 @@ describe('src/app/service/app-cms.service', () => {
         vueAdapter = new VueAdapter({
             getContainer: () => ({
                 component: '',
-                locale: { getLocaleRegistry: () => [], getLastKnownLocale: () => 'en-GB' },
+                locale: {
+                    getLocaleRegistry: () => [],
+                    getLastKnownLocale: () => 'en-GB',
+                },
             }),
         });
 
-        service = await new AppCmsService({
-            fetchAppBlocks() {
-                return Promise.resolve(fixtures.blocks);
+        service = await new AppCmsService(
+            {
+                fetchAppBlocks() {
+                    return Promise.resolve(fixtures.blocks);
+                },
             },
-        }, vueAdapter);
+            vueAdapter,
+        );
     });
 
     it('should be able to override the default block configuration', async () => {

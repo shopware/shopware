@@ -17,13 +17,15 @@ describe('searchPreferencesService', () => {
             processSearchPreferencesFields: jest.fn(),
         };
 
-        expect(searchPreferencesService).toEqual(expect.objectContaining({
-            createUserSearchPreferences: searchPreferencesService.createUserSearchPreferences,
-            getDefaultSearchPreferences: searchPreferencesService.getDefaultSearchPreferences,
-            getUserSearchPreferences: searchPreferencesService.getUserSearchPreferences,
-            processSearchPreferences: searchPreferencesService.processSearchPreferences,
-            processSearchPreferencesFields: searchPreferencesService.processSearchPreferencesFields,
-        }));
+        expect(searchPreferencesService).toEqual(
+            expect.objectContaining({
+                createUserSearchPreferences: searchPreferencesService.createUserSearchPreferences,
+                getDefaultSearchPreferences: searchPreferencesService.getDefaultSearchPreferences,
+                getUserSearchPreferences: searchPreferencesService.getUserSearchPreferences,
+                processSearchPreferences: searchPreferencesService.processSearchPreferences,
+                processSearchPreferencesFields: searchPreferencesService.processSearchPreferencesFields,
+            }),
+        );
     });
 
     describe('processSearchPreferences', () => {
@@ -31,26 +33,30 @@ describe('searchPreferencesService', () => {
             const searchPreferencesService = new SearchPreferencesService({
                 userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
             });
-            const searchPreferences = await searchPreferencesService.processSearchPreferences([orderDefaultSearchConfiguration]);
+            const searchPreferences = await searchPreferencesService.processSearchPreferences([
+                orderDefaultSearchConfiguration,
+            ]);
 
-            expect(searchPreferences).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    fields: [
-                        {
-                            _score: 80,
-                            _searchable: false,
-                            fieldName: 'documentNumber',
-                            group: [
-                                {
-                                    _score: 80,
-                                    _searchable: false,
-                                    fieldName: 'config.documentNumber',
-                                },
-                            ],
-                        },
-                    ],
-                }),
-            ]));
+            expect(searchPreferences).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        fields: [
+                            {
+                                _score: 80,
+                                _searchable: false,
+                                fieldName: 'documentNumber',
+                                group: [
+                                    {
+                                        _score: 80,
+                                        _searchable: false,
+                                        fieldName: 'config.documentNumber',
+                                    },
+                                ],
+                            },
+                        ],
+                    }),
+                ]),
+            );
         });
     });
 });

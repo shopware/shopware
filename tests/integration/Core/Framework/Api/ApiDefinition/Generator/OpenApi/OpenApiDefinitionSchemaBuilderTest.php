@@ -18,10 +18,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour;
     use KernelTestBehaviour;
 
-    /**
-     * @var OpenApiDefinitionSchemaBuilder
-     */
-    private $service;
+    private OpenApiDefinitionSchemaBuilder $service;
 
     protected function setUp(): void
     {

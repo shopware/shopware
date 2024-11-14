@@ -11,61 +11,66 @@ async function createWrapper(privileges = []) {
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
 
-    return mount(await wrapTestComponent('sw-settings-shipping-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    query: '',
+    return mount(
+        await wrapTestComponent('sw-settings-shipping-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        query: '',
+                    },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: jest.fn(() => {
-                            return Promise.resolve([]);
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: jest.fn(() => {
+                                return Promise.resolve([]);
+                            }),
                         }),
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    searchRankingService: {
+                        getSearchFieldsByEntity: () => {
+                            return Promise.resolve({
+                                name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                            });
+                        },
+                        buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                            return criteria;
+                        },
                     },
                 },
-                searchRankingService: {
-                    getSearchFieldsByEntity: () => {
-                        return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                        });
+                stubs: {
+                    'sw-page': {
+                        template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
                     },
-                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                        return criteria;
-                    },
+                    'sw-button': true,
+                    'sw-entity-listing': true,
+                    'sw-empty-state': true,
+                    'router-link': true,
+                    'sw-search-bar': true,
+                    'sw-icon': true,
+                    'sw-language-switch': true,
+                    'sw-checkbox-field': true,
+                    'sw-single-select': true,
+                    'sw-context-menu-item': true,
+                    'sw-sidebar-item': true,
+                    'sw-sidebar': true,
                 },
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
-                },
-                'sw-button': true,
-                'sw-entity-listing': true,
-                'sw-empty-state': true,
-                'router-link': true,
-                'sw-search-bar': true,
-                'sw-icon': true,
-                'sw-language-switch': true,
-                'sw-checkbox-field': true,
-                'sw-single-select': true,
-                'sw-context-menu-item': true,
-                'sw-sidebar-item': true,
-                'sw-sidebar': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
@@ -222,4 +227,3 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });
-

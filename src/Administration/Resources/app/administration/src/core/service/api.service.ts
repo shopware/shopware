@@ -8,14 +8,14 @@ import type { LoginService } from './login.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type BasicHeaders = {
-    Accept: string,
-    Authorization: string,
-    'Content-Type': string,
-    [key: string]: string,
+    Accept: string;
+    Authorization: string;
+    'Content-Type': string;
+    [key: string]: string;
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type ApiResponse<T> = T extends (null|undefined) ? AxiosResponse<T> : T;
+export type ApiResponse<T> = T extends null | undefined ? AxiosResponse<T> : T;
 
 /**
  * ApiService class which provides the common methods for our REST API
@@ -47,7 +47,7 @@ class ApiService {
     /**
      * Returns the URI to the API endpoint
      */
-    getApiBasePath(id?: string|number, prefix = ''): string {
+    getApiBasePath(id?: string | number, prefix = ''): string {
         let url = '';
 
         if (prefix?.length) {
@@ -92,7 +92,7 @@ class ApiService {
             return response as ApiResponse<T>;
         }
 
-        const headers = response.headers as {'content-type'? : string}|null|undefined;
+        const headers = response.headers as { 'content-type'?: string } | null | undefined;
 
         if (typeof headers === 'object' && headers !== null && headers['content-type'] === 'application/vnd.api+json') {
             return ApiService.parseJsonApiData<ApiResponse<T>>(response.data);
@@ -104,7 +104,7 @@ class ApiService {
     /**
      * Parses a JSON api data structure to a simplified object.
      */
-    static parseJsonApiData<T = unknown>(data: string|object): T {
+    static parseJsonApiData<T = unknown>(data: string | object): T {
         return parseJsonApi(data) as T;
     }
 
@@ -112,11 +112,10 @@ class ApiService {
         return { 'sw-version-id': versionId };
     }
 
-    static makeQueryParams(paramDictionary = {} as { [key: string]: string|number}): string {
-        const params = Object
-            .keys(paramDictionary)
-            .filter(key => typeof paramDictionary[key] === 'string')
-            .map(key => `${key}=${paramDictionary[key]}`);
+    static makeQueryParams(paramDictionary = {} as { [key: string]: string | number }): string {
+        const params = Object.keys(paramDictionary)
+            .filter((key) => typeof paramDictionary[key] === 'string')
+            .map((key) => `${key}=${paramDictionary[key]}`);
 
         if (!params.length) {
             return '';

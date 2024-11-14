@@ -54,6 +54,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         // indicates if form was at least submitted once
         this.loaded = false;
 
+        this.formSubmittedByCaptcha = false;
+
         this._getForm();
 
         if (!this._form) {
@@ -120,6 +122,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _onSubmit(event) {
+        if (!event.cancelable) {
+            console.error('[Ajax Form Submit]: The submit event cannot be prevented as it is not cancelable and would be handled by the navigator.');
+        }
+
         event.preventDefault();
 
         // checks form validity before submit
@@ -155,7 +161,9 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         this._createLoadingIndicators();
         this.$emitter.publish('beforeSubmit');
 
-        this.sendAjaxFormSubmit();
+        if (!this.formSubmittedByCaptcha) {
+            this.sendAjaxFormSubmit();
+        }
     }
 
     sendAjaxFormSubmit() {

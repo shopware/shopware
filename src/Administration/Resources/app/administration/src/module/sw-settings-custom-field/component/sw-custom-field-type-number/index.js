@@ -15,8 +15,14 @@ export default {
                 helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
             numberTypes: [
-                { id: 'int', name: this.$tc('sw-settings-custom-field.customField.detail.labelInt') },
-                { id: 'float', name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat') },
+                {
+                    id: 'int',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelInt'),
+                },
+                {
+                    id: 'float',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat'),
+                },
             ],
         };
     },

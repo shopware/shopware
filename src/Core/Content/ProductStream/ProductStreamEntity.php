@@ -20,46 +20,64 @@ class ProductStreamEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var array<array<string, string|array<array<string, mixed>>>>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $apiFilter;
 
     /**
      * @var ProductStreamFilterCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filters;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $invalid;
 
     /**
      * @var ProductStreamTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var ProductExportCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productExports;
 
     /**
      * @var ProductCrossSellingCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productCrossSellings;
 
     /**
      * @var CategoryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $categories;
 

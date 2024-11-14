@@ -62,7 +62,6 @@ class CheckoutFinishPageLoaderTest extends TestCase
             $this->getContextWithDummyCustomer(),
         );
 
-        static::assertInstanceOf(CheckoutFinishPage::class, $page);
         static::assertNull($page->getMetaInformation());
     }
 
@@ -93,8 +92,6 @@ class CheckoutFinishPageLoaderTest extends TestCase
             $request,
             $this->getContextWithDummyCustomer(),
         );
-
-        static::assertInstanceOf(CheckoutFinishPage::class, $page);
         static::assertNotNull($page->getMetaInformation());
         static::assertSame('noindex,follow', $page->getMetaInformation()->getRobots());
     }
@@ -119,12 +116,10 @@ class CheckoutFinishPageLoaderTest extends TestCase
             'paymentFailed' => false,
         ]);
 
-        $page = $checkoutFinishPageLoader->load(
+        $checkoutFinishPageLoader->load(
             $request,
             $this->getContextWithDummyCustomer(),
         );
-
-        static::assertInstanceOf(CheckoutFinishPage::class, $page);
     }
 
     public function testItemRoundingIsSetInContext(): void
@@ -155,12 +150,10 @@ class CheckoutFinishPageLoaderTest extends TestCase
                 static::assertSame($itemRounding, $givenItemRounding);
             });
 
-        $page = $checkoutFinishPageLoader->load(
+        $checkoutFinishPageLoader->load(
             $request,
             $salesChannelContext,
         );
-
-        static::assertInstanceOf(CheckoutFinishPage::class, $page);
     }
 
     public function testTotalRoundingIsSetInContext(): void
@@ -191,12 +184,10 @@ class CheckoutFinishPageLoaderTest extends TestCase
                 static::assertSame($totalRounding, $givenItemRounding);
             });
 
-        $page = $checkoutFinishPageLoader->load(
+        $checkoutFinishPageLoader->load(
             $request,
             $salesChannelContext,
         );
-
-        static::assertInstanceOf(CheckoutFinishPage::class, $page);
     }
 
     public function testNoCustomerLoggedInException(): void

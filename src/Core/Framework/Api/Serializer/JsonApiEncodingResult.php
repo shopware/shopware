@@ -9,31 +9,43 @@ class JsonApiEncodingResult implements \JsonSerializable
 {
     /**
      * @var Record[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $data = [];
 
     /**
      * @var Record[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $included = [];
 
     /**
      * @var array<string, int>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $keyCollection = [];
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $single = false;
 
     /**
      * @var array<string, mixed>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $metaData = [];
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $baseUrl;
 

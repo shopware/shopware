@@ -77,20 +77,14 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         string $productId,
         SalesChannelContext $salesChannelContext
     ): void {
-        $searchResult = $result->get('product_' . $slot->getUniqueIdentifier());
-        if ($searchResult === null) {
+        $product = $result->get('product_' . $slot->getUniqueIdentifier())?->get($productId);
+        if (!$product instanceof SalesChannelProductEntity) {
             return;
         }
 
-        /** @var SalesChannelProductEntity|null $product */
-        $product = $searchResult->get($productId);
-        if ($product === null) {
-            return;
-        }
-
-        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelContext->getSalesChannel()->getId())
-            && $product->getIsCloseout()
-            && $product->getAvailableStock() <= 0
+        if ($product->getIsCloseout()
+            && $product->getStock() <= 0
+            && $this->systemConfigService->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelContext->getSalesChannelId())
         ) {
             return;
         }

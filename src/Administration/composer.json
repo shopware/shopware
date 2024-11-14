@@ -9,7 +9,10 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues",
@@ -27,10 +30,11 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0",
         "doctrine/dbal": "^3.9",
+        "pentatrion/vite-bundle": "^7.0",
         "shopware/core": "*",
         "symfony/framework-bundle": "~7.1.1",
         "symfony/http-foundation": "~7.1.1",
-        "symfony/routing": "~7.1.1",
-        "symfony/mime": "~7.1.1"
+        "symfony/mime": "~7.1.1",
+        "symfony/routing": "~7.1.1"
     }
 }

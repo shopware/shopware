@@ -41,6 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: context
+          include-hidden-files: true
           path: |
             .
             .github/
@@ -50,6 +51,23 @@ jobs:
             !**/node_modules
             !vendor
             !vendor-bin
+
+  check-recipe:
+    runs-on: ubuntu-latest
+    if: github.repository == 'shopware/shopware'
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CHECK_REPOSITORY: 'shopware/recipes'
+      CHECK_WORKFLOW: 'nightly.yml'
+      CHECK_STATUS: 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check whether the nightly workflow of the recipe repository is successful
+        run: |
+          bash .github/bin/check_workflow.bash "${CHECK_REPOSITORY}" "${CHECK_WORKFLOW}" "${CHECK_STATUS}"
 
   split:
     needs: build
@@ -122,6 +140,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

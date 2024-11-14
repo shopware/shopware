@@ -111,6 +111,7 @@
 
         <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer">
             <argument>%shopware.dompdf.options%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentGenerator">

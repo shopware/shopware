@@ -1,7 +1,8 @@
-const path = require('path');
+const path = require('node:path');
+const allChunkNames = [];
+const debug = false;
 
 class FilenameToChunkNamePlugin {
-    allChunkNames = {};
     apply(compiler) {
         compiler.hooks.compilation.tap('FilenameToChunkNamePlugin', (compilation) => {
             compilation.hooks.chunkIds.tap('FilenameToChunkNamePlugin', (chunks) => {
@@ -13,12 +14,26 @@ class FilenameToChunkNamePlugin {
                         const rootPath = rootModule && rootModule.userRequest;
                         const name = rootPath && rootPath.split(path.sep).slice(-1)[0].replace('.js', '');
                         // only set the name if it is not already used by another chunk
-                        if (name && !Object.values(this.allChunkNames).includes(name)) {
+                        if (name && !allChunkNames.includes(name)) {
                             chunk.name = name;
+
+                            if (debug) {
+                                // eslint-disable-next-line no-console
+                                console.log(`Setting chunk name to '${name}'`);
+                            }
+                        } else {
+                            if (debug) {
+                                // eslint-disable-next-line no-console
+                                console.log(`Chunk name '${name}' already exists, keeping original name`);
+                            }
                         }
-                        this.allChunkNames[chunk.id] = name;
+                        allChunkNames.push(name);
                     }
                 });
+                if (debug) {
+                    // eslint-disable-next-line no-console
+                    console.log('allChunkNames', allChunkNames);
+                }
             });
         });
     }

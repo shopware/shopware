@@ -82,7 +82,11 @@ export default {
             required: false,
             default: 'arrow',
             validator(value) {
-                return ['arrow', 'button', 'all'].includes(value);
+                return [
+                    'arrow',
+                    'button',
+                    'all',
+                ].includes(value);
             },
         },
 
@@ -97,7 +101,10 @@ export default {
             required: false,
             default: 'hidden',
             validator(value) {
-                return ['hidden', 'visible'].includes(value);
+                return [
+                    'hidden',
+                    'visible',
+                ].includes(value);
             },
         },
 
@@ -144,7 +151,11 @@ export default {
             required: false,
             default: 'inside',
             validator(value) {
-                return ['inside', 'outside', 'none'].includes(value);
+                return [
+                    'inside',
+                    'outside',
+                    'none',
+                ].includes(value);
             },
         },
 
@@ -153,7 +164,11 @@ export default {
             required: false,
             default: 'outside',
             validator(value) {
-                return ['inside', 'outside', 'none'].includes(value);
+                return [
+                    'inside',
+                    'outside',
+                    'none',
+                ].includes(value);
             },
         },
 
@@ -162,7 +177,11 @@ export default {
             required: false,
             default: 'cover',
             validator(value) {
-                return ['contain', 'cover', 'none'].includes(value);
+                return [
+                    'contain',
+                    'cover',
+                    'none',
+                ].includes(value);
             },
         },
     },
@@ -176,7 +195,7 @@ export default {
 
     computed: {
         totalPage() {
-            return Math.ceil((this.images.length) / this.itemPerPage);
+            return Math.ceil(this.images.length / this.itemPerPage);
         },
 
         remainder() {
@@ -207,9 +226,7 @@ export default {
 
         containerStyles() {
             const offset = this.arrowStyle === 'outside' ? 112 : 0;
-            const width = this.canvasWidth ?
-                `${this.canvasWidth - offset}px`
-                : `calc(100% - ${offset}px)`;
+            const width = this.canvasWidth ? `${this.canvasWidth - offset}px` : `calc(100% - ${offset}px)`;
 
             return {
                 width,
@@ -219,9 +236,7 @@ export default {
         },
 
         scrollableContainerStyles() {
-            if (this.itemPerPage === 1
-                || this.remainder === 0
-                || this.images.length <= this.itemPerPage) {
+            if (this.itemPerPage === 1 || this.remainder === 0 || this.images.length <= this.itemPerPage) {
                 return {
                     width: `${this.totalPage * 100}%`,
                     gap: `${this.gap}px`,
@@ -230,9 +245,10 @@ export default {
             }
 
             const itemWidth = 100 / this.images.length;
-            const translateAmount = (this.currentPageNumber === this.totalPage - 1)
-                ? ((this.currentPageNumber - 1) * this.itemPerPage + this.remainder) * itemWidth
-                : (this.currentPageNumber * this.itemPerPage) * itemWidth;
+            const translateAmount =
+                this.currentPageNumber === this.totalPage - 1
+                    ? ((this.currentPageNumber - 1) * this.itemPerPage + this.remainder) * itemWidth
+                    : this.currentPageNumber * this.itemPerPage * itemWidth;
 
             return {
                 width: `${(this.totalPage - 1 + this.remainder / this.itemPerPage) * 100}%`,
@@ -252,14 +268,24 @@ export default {
         },
 
         showButtons() {
-            return this.images.length >= 2
-                && this.images.length > this.itemPerPage
-                && ['button', 'all'].includes(this.navigationType);
+            return (
+                this.images.length >= 2 &&
+                this.images.length > this.itemPerPage &&
+                [
+                    'button',
+                    'all',
+                ].includes(this.navigationType)
+            );
         },
 
         showArrows() {
-            return this.images.length > this.itemPerPage
-                && ['arrow', 'all'].includes(this.navigationType);
+            return (
+                this.images.length > this.itemPerPage &&
+                [
+                    'arrow',
+                    'all',
+                ].includes(this.navigationType)
+            );
         },
     },
 
@@ -282,10 +308,12 @@ export default {
         },
 
         hasValidDescription(image) {
-            return this.enableDescriptions &&
+            return (
+                this.enableDescriptions &&
                 this.isImageObject(image) &&
                 image.hasOwnProperty('description') &&
-                image.description.length >= 1;
+                image.description.length >= 1
+            );
         },
 
         getImage(image) {
@@ -309,9 +337,8 @@ export default {
         },
 
         goToPreviousImage() {
-            this.currentPageNumber = (this.rewind && this.currentPageNumber === 0)
-                ? this.totalPage - 1
-                : Math.max(this.currentPageNumber - 1, 0);
+            this.currentPageNumber =
+                this.rewind && this.currentPageNumber === 0 ? this.totalPage - 1 : Math.max(this.currentPageNumber - 1, 0);
 
             if (this.itemPerPage === 1) {
                 this.currentItemIndex = this.currentPageNumber;
@@ -320,9 +347,10 @@ export default {
         },
 
         goToNextImage() {
-            this.currentPageNumber = (this.rewind && this.currentPageNumber === this.totalPage - 1)
-                ? 0
-                : Math.min(this.currentPageNumber + 1, this.totalPage - 1);
+            this.currentPageNumber =
+                this.rewind && this.currentPageNumber === this.totalPage - 1
+                    ? 0
+                    : Math.min(this.currentPageNumber + 1, this.totalPage - 1);
 
             if (this.itemPerPage === 1) {
                 this.currentItemIndex = this.currentPageNumber;
@@ -332,7 +360,9 @@ export default {
 
         elementClasses(index) {
             return [
-                { 'is--active': index === this.currentItemIndex && this.itemPerPage > 1 },
+                {
+                    'is--active': index === this.currentItemIndex && this.itemPerPage > 1,
+                },
                 { 'is--bordered': this.bordered },
                 { 'is--rounded': this.rounded },
             ];
@@ -384,8 +414,9 @@ export default {
                 return index < this.images.length - this.itemPerPage;
             }
 
-            return this.currentPageNumber * this.itemPerPage > index
-                || index >= (this.currentPageNumber + 1) * this.itemPerPage;
+            return (
+                this.currentPageNumber * this.itemPerPage > index || index >= (this.currentPageNumber + 1) * this.itemPerPage
+            );
         },
     },
 };

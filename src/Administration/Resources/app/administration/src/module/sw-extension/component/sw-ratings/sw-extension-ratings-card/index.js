@@ -107,11 +107,7 @@ export default {
         },
 
         async getReviews() {
-            return this.extensionStoreDataService.getReviews(
-                this.criteriaPage,
-                this.criteriaLimit,
-                this.extension.id,
-            );
+            return this.extensionStoreDataService.getReviews(this.criteriaPage, this.criteriaLimit, this.extension.id);
         },
     },
 };

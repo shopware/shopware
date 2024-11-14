@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -47,16 +48,13 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     private ContainerInterface $container;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PluginCollection>
      */
-    private $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private PluginLifecycleService $pluginLifecycleService;
 

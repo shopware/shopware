@@ -8,10 +8,10 @@ import type { LoginService } from '../login.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type action = {
-    url: string,
-    entity: string,
-    action: string,
-    appName: string,
+    url: string;
+    entity: string;
+    action: string;
+    appName: string;
 };
 
 /**
@@ -26,34 +26,38 @@ export default class ExtensionSdkService extends ApiService {
     }
 
     runAction(action: action, entityIdList: string[]): Promise<unknown> {
-        return this.httpClient.post(
-            `/_action/${this.getApiBasePath()}/run-action`,
-            {
-                ...action,
-                ids: entityIdList,
-            },
-            {
-                params: {},
-                headers: this.getBasicHeaders(),
-            },
-        ).then((response: AxiosResponse<unknown>) => {
-            ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                `/_action/${this.getApiBasePath()}/run-action`,
+                {
+                    ...action,
+                    ids: entityIdList,
+                },
+                {
+                    params: {},
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response: AxiosResponse<unknown>) => {
+                ApiService.handleResponse(response);
+            });
     }
 
     signIframeSrc(appName: string, src: string): Promise<unknown> {
-        return this.httpClient.post(
-            `/_action/${this.getApiBasePath()}/sign-uri`,
-            {
-                appName,
-                uri: src,
-            },
-            {
-                params: {},
-                headers: this.getBasicHeaders(),
-            },
-        ).then((response: AxiosResponse<unknown>) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                `/_action/${this.getApiBasePath()}/sign-uri`,
+                {
+                    appName,
+                    uri: src,
+                },
+                {
+                    params: {},
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response: AxiosResponse<unknown>) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }

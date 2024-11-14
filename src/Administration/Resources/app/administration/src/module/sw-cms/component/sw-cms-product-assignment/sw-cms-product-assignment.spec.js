@@ -8,41 +8,44 @@ function createEntityCollection(entities = []) {
 }
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-product-assignment', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-select-base': {
-                    template: '<div class="sw-select-base"></div>',
-                    props: ['disabled'],
+    return mount(
+        await wrapTestComponent('sw-cms-product-assignment', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-select-base': {
+                        template: '<div class="sw-select-base"></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-data-grid': {
+                        template: '<div><slot name="actions"></slot></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-context-menu-item': {
+                        template: '<div class="sw-context-menu-item"></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
+                    },
+                    'sw-select-result-list': true,
+                    'sw-select-result': true,
+                    'sw-highlight-text': true,
+                    'sw-pagination': true,
                 },
-                'sw-data-grid': {
-                    template: '<div><slot name="actions"></slot></div>',
-                    props: ['disabled'],
+                provide: {
+                    repositoryFactory: {},
                 },
-                'sw-context-menu-item': {
-                    template: '<div class="sw-context-menu-item"></div>',
-                    props: ['disabled'],
-                },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
-                },
-                'sw-select-result-list': true,
-                'sw-select-result': true,
-                'sw-highlight-text': true,
-                'sw-pagination': true,
             },
-            provide: {
-                repositoryFactory: {},
+            props: {
+                columns: [],
+                entityCollection: createEntityCollection(),
+                localMode: true,
             },
         },
-        props: {
-            columns: [],
-            entityCollection: createEntityCollection(),
-            localMode: true,
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-product-assignment', () => {

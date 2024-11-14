@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
-use Shopware\Core\Framework\App\Source\AbstractTemporaryDirectoryFactory;
+use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -108,7 +108,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallLogsErrorIfAppCannotBeInstalled(): void
     {
-        $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
+        $tempDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
 
         $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
@@ -152,7 +152,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstall(): void
     {
-        $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
+        $tempDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
 
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
 
@@ -231,7 +231,7 @@ class ServiceLifecycleTest extends TestCase
             },
         ]);
 
-        $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
+        $tempDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
 
         $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
@@ -297,7 +297,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app', activateOnInstall: false);
 
-        $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
+        $tempDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
 
         $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);

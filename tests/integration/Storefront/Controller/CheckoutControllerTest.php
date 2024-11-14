@@ -74,7 +74,7 @@ class CheckoutControllerTest extends TestCase
     private const SHIPPING_METHOD_CHANGED_ERROR_CONTENT = '"%s" shipping is not available for your current cart, the shipping was changed to "%s".';
     private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "Cash on delivery" is blocked for your current shopping cart.';
     private const PAYMENT_METHOD_CHANGED_ERROR_CONTENT = '"%s" payment is not available for your current cart, the payment was changed to "%s".';
-    private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promotion with code "tn-08" could not be found.';
+    private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promo code "tn-08" could not be found.';
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
 
     private ?string $customerId = null;

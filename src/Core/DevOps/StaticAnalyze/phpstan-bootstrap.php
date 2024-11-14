@@ -45,10 +45,10 @@ KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
 /** @var StaticAnalyzeKernel $kernel */
 $kernel = KernelFactory::create(
-    environment: 'phpstan_dev',
-    debug: true,
-    classLoader: $classLoader,
-    pluginLoader: $pluginLoader
+    'phpstan_dev',
+    true,
+    $classLoader,
+    $pluginLoader
 );
 
 $kernel->boot();

@@ -16,14 +16,15 @@ async function createWrapper() {
                                 entity: 'property',
                             };
                         },
-                        get: () => Promise.resolve({
-                            id: '1a2b3c',
-                            name: 'Test property',
-                            entity: 'property',
-                            options: {
-                                entity: 'property_options_group',
-                            },
-                        }),
+                        get: () =>
+                            Promise.resolve({
+                                id: '1a2b3c',
+                                name: 'Test property',
+                                entity: 'property',
+                                options: {
+                                    entity: 'property_options_group',
+                                },
+                            }),
                         search: () => Promise.resolve({}),
                     }),
                 },

@@ -14,6 +14,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 {
     /**
      * @var array<array-key, TElement>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $elements = [];
 

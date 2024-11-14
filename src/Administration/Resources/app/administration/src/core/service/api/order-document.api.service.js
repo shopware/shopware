@@ -21,10 +21,14 @@ export default class OrderDocumentApiService extends ApiService {
     }
 
     download(documentIds, additionalParams = {}, additionalHeaders = {}) {
-        return this.httpClient.post(`/_action/${this.apiEndpoint}/download`, { documentIds }, {
-            additionalParams,
-            responseType: 'blob',
-            headers: this.getBasicHeaders(additionalHeaders),
-        });
+        return this.httpClient.post(
+            `/_action/${this.apiEndpoint}/download`,
+            { documentIds },
+            {
+                additionalParams,
+                responseType: 'blob',
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
+        );
     }
 }

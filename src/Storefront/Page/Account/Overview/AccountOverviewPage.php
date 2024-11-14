@@ -13,11 +13,15 @@ class AccountOverviewPage extends Page
 {
     /**
      * @var OrderEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $newestOrder;
 
     /**
      * @var CustomerEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customer;
 

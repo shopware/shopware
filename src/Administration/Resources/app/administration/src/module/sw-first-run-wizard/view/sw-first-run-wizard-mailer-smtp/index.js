@@ -12,7 +12,11 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: ['buttons-update', 'frw-set-title', 'frw-redirect'],
+    emits: [
+        'buttons-update',
+        'frw-set-title',
+        'frw-redirect',
+    ],
 
     data() {
         return {
@@ -24,7 +28,6 @@ export default {
                 'core.mailerSettings.username': null,
                 'core.mailerSettings.password': null,
                 'core.mailerSettings.encryption': 'null',
-                'core.mailerSettings.authenticationMethod': 'null',
                 'core.mailerSettings.senderAddress': null,
                 'core.mailerSettings.deliveryAddress': null,
                 'core.mailerSettings.disableDelivery': false,
@@ -119,12 +122,15 @@ export default {
         saveMailerSettings() {
             this.isLoading = true;
 
-            return this.systemConfigApiService.saveValues(this.mailerSettings).then(() => {
-                this.$emit('frw-redirect', this.nextAction);
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.systemConfigApiService
+                .saveValues(this.mailerSettings)
+                .then(() => {
+                    this.$emit('frw-redirect', this.nextAction);
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
     },
 };

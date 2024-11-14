@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -74,6 +75,10 @@ class AccountEditOrderPageLoader
 
         /** @var OrderEntity $order */
         $order = $orderRouteResponse->getOrders()->first();
+
+        if ($this->isOrderCancelled($order)) {
+            throw OrderException::orderCancelled($order->getId());
+        }
 
         if ($this->isOrderPaid($order)) {
             throw OrderException::orderAlreadyPaid($order->getId());
@@ -174,6 +179,17 @@ class AccountEditOrderPageLoader
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
         return $paymentMethods;
+    }
+
+    private function isOrderCancelled(OrderEntity $order): bool
+    {
+        $stateMachineState = $order->getStateMachineState();
+
+        if ($stateMachineState === null) {
+            return false;
+        }
+
+        return $stateMachineState->getTechnicalName() === OrderStates::STATE_CANCELLED;
     }
 
     private function isOrderPaid(OrderEntity $order): bool

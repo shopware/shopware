@@ -5,23 +5,28 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {
-    return mount(await wrapTestComponent('sw-sales-channel-detail-hreflang', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-sales-channel-detail-hreflang', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot></div>',
+                    },
+                    'sw-switch-field': true,
+                    'sw-entity-single-select': true,
                 },
-                'sw-switch-field': true,
-                'sw-entity-single-select': true,
+            },
+            props: {
+                salesChannel: {
+                    hreflangActive: true,
+                },
+                ...customProps,
             },
         },
-        props: {
-            salesChannel: {
-                hreflangActive: true,
-            },
-            ...customProps,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang', () => {

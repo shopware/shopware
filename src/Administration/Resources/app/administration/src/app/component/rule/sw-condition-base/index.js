@@ -91,7 +91,9 @@ Component.register('sw-condition-base', {
     watch: {
         value() {
             if (this.hasError) {
-                this.$store.commit('error/removeApiError', { expression: this.valueErrorPath });
+                this.$store.commit('error/removeApiError', {
+                    expression: this.valueErrorPath,
+                });
             }
             if (this.isEmpty && !!this.inputKey) {
                 if (this.isCompatEnabled('INSTANCE_DELETE')) {

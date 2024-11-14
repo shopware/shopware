@@ -16,7 +16,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'businessEventService'],
+    inject: [
+        'repositoryFactory',
+        'businessEventService',
+    ],
 
     emits: ['option-select'],
 
@@ -72,8 +75,7 @@ export default {
         },
 
         showTreeView() {
-            return this.eventTree.length >= 0
-                && (this.searchTerm.length <= 0 || this.searchTerm === this.formatEventName);
+            return this.eventTree.length >= 0 && (this.searchTerm.length <= 0 || this.searchTerm === this.formatEventName);
         },
 
         eventTree() {
@@ -92,7 +94,10 @@ export default {
             return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState('swFlowState', ['flow', 'triggerEvents']),
+        ...mapState('swFlowState', [
+            'flow',
+            'triggerEvents',
+        ]),
         ...mapGetters('swFlowState', ['isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
@@ -115,12 +120,12 @@ export default {
                 return;
             }
 
-            const keyWords = value.split(/[\W_]+/ig);
+            const keyWords = value.split(/[\W_]+/gi);
 
-            this.searchResult = this.triggerEvents.filter(event => {
+            this.searchResult = this.triggerEvents.filter((event) => {
                 const eventName = this.getEventName(event.name).toLowerCase();
 
-                return keyWords.every(key => eventName.includes(key.toLowerCase()));
+                return keyWords.every((key) => eventName.includes(key.toLowerCase()));
             });
 
             // set first item as focus
@@ -154,7 +159,7 @@ export default {
                     }
 
                     actualElement?.scrollTo({
-                        top: offsetValue - (actualElement.clientHeight / 2) - 50,
+                        top: offsetValue - actualElement.clientHeight / 2 - 50,
                         behavior: 'smooth',
                     });
                 }, 50)();
@@ -195,8 +200,10 @@ export default {
                 return;
             }
 
-            if (target.closest('.sw-tree-item .is--no-children .sw-tree-item__content')
-            || target.closest('.sw-flow-trigger__search-result')) {
+            if (
+                target.closest('.sw-tree-item .is--no-children .sw-tree-item__content') ||
+                target.closest('.sw-flow-trigger__search-result')
+            ) {
                 this.closeDropdown();
                 return;
             }
@@ -479,7 +486,7 @@ export default {
         },
 
         changeSearchSelection(type = 'next') {
-            const typeValue = (type === 'previous') ? -1 : 1;
+            const typeValue = type === 'previous' ? -1 : 1;
 
             const actualIndex = this.searchResult.indexOf(this.searchResultFocusItem);
             const focusItem = this.searchResult[actualIndex + typeValue];
@@ -498,9 +505,9 @@ export default {
                     return true;
                 }
             } else if (
-                !this.isCompatEnabled('INSTANCE_CHILDREN')
-                && vnode?.component?.proxy?.openTreeItem
-                && vnode?.component?.proxy?.opened !== shouldOpen
+                !this.isCompatEnabled('INSTANCE_CHILDREN') &&
+                vnode?.component?.proxy?.openTreeItem &&
+                vnode?.component?.proxy?.opened !== shouldOpen
             ) {
                 vnode.component.proxy.openTreeItem();
                 return true;
@@ -526,10 +533,7 @@ export default {
                         if (child?.item?.id) {
                             return child.item.id === itemId;
                         }
-                    } else if (
-                        !this.isCompatEnabled('INSTANCE_CHILDREN')
-                        && child.component?.proxy?.item?.id
-                    ) {
+                    } else if (!this.isCompatEnabled('INSTANCE_CHILDREN') && child.component?.proxy?.item?.id) {
                         return child.component?.proxy?.item?.id === itemId;
                     }
 
@@ -559,7 +563,7 @@ export default {
                 } else {
                     const childrenToIterate = children[i].component
                         ? children[i].component?.subTree?.children
-                        : (children[i].children);
+                        : children[i].children;
                     foundInChildren = this.findTreeItemVNodeById(itemId, childrenToIterate ?? null);
                 }
                 // stop when found in children
@@ -586,7 +590,7 @@ export default {
             // set first item or selected event as focus
             this.$nextTick(() => {
                 if (this.searchTerm === this.formatEventName) {
-                    const currentEvent = this.eventTree.find(event => event.id === this.eventName);
+                    const currentEvent = this.eventTree.find((event) => event.id === this.eventName);
                     this.selectedTreeItem = currentEvent || this.$refs.flowTriggerTree.treeItems[0];
                 }
             });
@@ -635,11 +639,11 @@ export default {
         },
 
         getDataByEvent(event) {
-            return this.triggerEvents.find(item => item.name === event);
+            return this.triggerEvents.find((item) => item.name === event);
         },
 
         hasOnlyStopFlow(event) {
-            const eventAware = this.triggerEvents.find(item => item.name === event).aware || [];
+            const eventAware = this.triggerEvents.find((item) => item.name === event).aware || [];
             return eventAware.length === 0;
         },
 
@@ -647,7 +651,7 @@ export default {
         getEventTree(events) {
             const mappedObj = {};
 
-            events.forEach(event => {
+            events.forEach((event) => {
                 // Split event name by '.'
                 const eventNameKeys = event.name.split('.');
                 if (eventNameKeys.length === 0) {
@@ -690,7 +694,7 @@ export default {
 
             // Convert tree object to array to work with sw-tree
             const convertTreeToArray = (nodes, output = []) => {
-                nodes.forEach(node => {
+                nodes.forEach((node) => {
                     const children = node.children ? Object.values(node.children) : [];
                     output.push({
                         id: node.id,
@@ -698,8 +702,10 @@ export default {
                         childCount: children.length,
                         parentId: node.parentId,
                         disabled: isEmpty(node.children) && this.hasOnlyStopFlow(node.id),
-                        disabledToolTipText: (isEmpty(node.children) && this.hasOnlyStopFlow(node.id))
-                            ? this.$tc('sw-flow.detail.trigger.textHint') : null,
+                        disabledToolTipText:
+                            isEmpty(node.children) && this.hasOnlyStopFlow(node.id)
+                                ? this.$tc('sw-flow.detail.trigger.textHint')
+                                : null,
                     });
 
                     if (children.length > 0) {
@@ -719,9 +725,12 @@ export default {
 
             const keyWords = eventName.split('.');
 
-            return keyWords.map(key => {
-                return capitalizeString(key);
-            }).join(' / ').replace(/_|-/g, ' ');
+            return keyWords
+                .map((key) => {
+                    return capitalizeString(key);
+                })
+                .join(' / ')
+                .replace(/_|-/g, ' ');
         },
 
         onClickSearchItem(item) {
@@ -749,9 +758,11 @@ export default {
 
             const keyWords = eventName.split('.');
 
-            return keyWords.map(key => {
-                return this.getEventNameTranslated(key);
-            }).join(' / ');
+            return keyWords
+                .map((key) => {
+                    return this.getEventNameTranslated(key);
+                })
+                .join(' / ');
         },
 
         isSearchResultInFocus(item) {
@@ -764,7 +775,7 @@ export default {
                 `sw-flow-app.triggers-app.${eventNameCamelCase}`,
                 `sw-flow-custom-event.event-tree.${eventNameCamelCase}`,
                 `sw-flow.triggers.${eventNameCamelCase}`,
-            ].find(key => this.$te(key));
+            ].find((key) => this.$te(key));
 
             return translatedEventName ? this.$tc(translatedEventName) : eventName.replace(/_|-/g, ' ');
         },

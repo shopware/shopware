@@ -42,7 +42,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            Shopware.Store.get('adminMenu').collapseSidebar();
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
             if (!isSystemDefaultLanguage) {
@@ -75,20 +75,26 @@ export default {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
+            return this.pageRepository
+                .save(this.page)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
-            }).catch((exception) => {
-                this.isLoading = false;
+                    this.$router.push({
+                        name: 'sw.cms.detail',
+                        params: { id: this.page.id },
+                    });
+                })
+                .catch((exception) => {
+                    this.isLoading = false;
 
-                this.createNotificationError({
-                    message: exception.message,
+                    this.createNotificationError({
+                        message: exception.message,
+                    });
+
+                    return Promise.reject(exception);
                 });
-
-                return Promise.reject(exception);
-            });
         },
 
         async assignToEntity(page) {

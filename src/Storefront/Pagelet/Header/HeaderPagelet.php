@@ -16,26 +16,36 @@ class HeaderPagelet extends NavigationPagelet
 {
     /**
      * @var LanguageCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $languages;
 
     /**
      * @var CurrencyCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencies;
 
     /**
      * @var LanguageEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $activeLanguage;
 
     /**
      * @var CurrencyEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $activeCurrency;
 
     /**
      * @var CategoryCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $serviceMenu;
 

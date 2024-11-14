@@ -4,94 +4,96 @@ import { reactive } from 'vue';
  * @private
  */
 export interface AdminUiFieldsRef {
-    ref: string,
+    ref: string;
 }
 
 /**
  * @private
  */
 export interface ColumnRef extends AdminUiFieldsRef {
-    hidden?: boolean,
+    hidden?: boolean;
 }
 
 /**
  * @private
  */
 export type AdminUiCardsDefinition = {
-    name: string,
-    fields: AdminUiFieldsRef[],
-}
+    name: string;
+    fields: AdminUiFieldsRef[];
+};
 
 /**
  * @private
  */
 export type AdminTabsDefinition = {
-    name: string,
-    cards: AdminUiCardsDefinition[],
-}
+    name: string;
+    cards: AdminUiCardsDefinition[];
+};
 
 /**
  * @private
  */
 export type AdminUiDetailDefinition = {
-    tabs: AdminTabsDefinition[],
-}
+    tabs: AdminTabsDefinition[];
+};
 
 /**
  * @private
  */
 export type AdminUiListingDefinition = {
-    columns: ColumnRef[],
-}
+    columns: ColumnRef[];
+};
 
 /**
  * @private
  */
 export type AdminUiDefinition = {
-    navigationParent: string,
-    position: number,
-    icon: string,
-    color: string,
-    detail: AdminUiDetailDefinition,
-    listing: AdminUiListingDefinition,
-}
+    navigationParent: string;
+    position: number;
+    icon: string;
+    color: string;
+    detail: AdminUiDetailDefinition;
+    listing: AdminUiListingDefinition;
+};
 
 /**
  * @private
  */
 export type CmsAwareDefinition = {
-    name: string,
-}
+    name: string;
+};
 
 /**
  * @private
  */
 export type CustomEntityProperties = {
-    [key: string]: {
-        flags: Array<unknown>,
-        type: string
-    } | undefined,
-}
+    [key: string]:
+        | {
+              flags: Array<unknown>;
+              type: string;
+          }
+        | undefined;
+};
 
 /**
  * @private
  */
 export type CustomEntityDefinition = {
-    entity: string,
-    properties: CustomEntityProperties,
+    entity: string;
+    properties: CustomEntityProperties;
     flags: {
-        'admin-ui': AdminUiDefinition,
-        'cms-aware': CmsAwareDefinition,
-    },
-}
+        'admin-ui': AdminUiDefinition;
+        'cms-aware': CmsAwareDefinition;
+    };
+};
 
 type NavigationMenuEntry = {
-    label: string,
-    moduleType: string,
-    path: string,
-    position: number,
-    parent: string,
-}
+    label: string;
+    moduleType: string;
+    path: string;
+    position: number;
+    parent: string;
+};
 
 /**
  * @private
@@ -107,7 +109,7 @@ export default class CustomEntityDefinitionService {
     }
 
     getDefinitionByName(name: string): Readonly<CustomEntityDefinition | undefined> {
-        return this.#state.customEntityDefinitions.find(entityDefinition => entityDefinition.entity === name);
+        return this.#state.customEntityDefinitions.find((entityDefinition) => entityDefinition.entity === name);
     }
 
     getAllDefinitions(): Readonly<CustomEntityDefinition[]> {
@@ -127,23 +129,31 @@ export default class CustomEntityDefinitionService {
     }
 
     getCmsAwareDefinitions(): Readonly<CustomEntityDefinition[]> {
-        return this.#state.customEntityDefinitions.filter(entityDefinition => !!entityDefinition.flags?.['cms-aware']?.name);
+        return this.#state.customEntityDefinitions.filter(
+            (entityDefinition) => !!entityDefinition.flags?.['cms-aware']?.name,
+        );
     }
 
     getMenuEntries(): Readonly<NavigationMenuEntry[]> {
-        const customEntityDefinitionsWithAdminUi: { name: string, adminUi: AdminUiDefinition }[] = [];
+        const customEntityDefinitionsWithAdminUi: {
+            name: string;
+            adminUi: AdminUiDefinition;
+        }[] = [];
 
-        this.#state.customEntityDefinitions.forEach(entityDefinition => {
+        this.#state.customEntityDefinitions.forEach((entityDefinition) => {
             const adminUi = entityDefinition.flags?.['admin-ui'];
 
             if (!adminUi) {
                 return;
             }
 
-            customEntityDefinitionsWithAdminUi.push({ name: entityDefinition.entity, adminUi });
+            customEntityDefinitionsWithAdminUi.push({
+                name: entityDefinition.entity,
+                adminUi,
+            });
         });
 
-        return customEntityDefinitionsWithAdminUi.map(entityDefinition => {
+        return customEntityDefinitionsWithAdminUi.map((entityDefinition) => {
             return {
                 id: `custom-entity/${entityDefinition.name}`,
                 label: `${entityDefinition.name}.moduleTitle`,

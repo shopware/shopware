@@ -23,10 +23,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -285,7 +285,7 @@ class LineItemListPriceRuleTest extends TestCase
 
     public function testProductListPrice(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $itemRounding = json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR);
         static::assertNotFalse($itemRounding);

@@ -42,10 +42,7 @@ class DeliveryProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {

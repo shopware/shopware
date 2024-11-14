@@ -26,12 +26,25 @@ async function createWrapper(slots) {
                     props: ['showResetButton'],
                 },
                 'sw-entity-multi-select': {
-                    template: '<div class="sw-entity-multi-select"><slot name="selection-label-property"></slot><slot name="result-item"></slot></div>',
-                    props: ['value', 'options', 'labelProperty', 'valueProperty', 'placeholder', 'displayVariants'],
+                    template:
+                        '<div class="sw-entity-multi-select"><slot name="selection-label-property"></slot><slot name="result-item"></slot></div>',
+                    props: [
+                        'value',
+                        'options',
+                        'labelProperty',
+                        'valueProperty',
+                        'placeholder',
+                        'displayVariants',
+                    ],
                 },
                 'sw-multi-select': {
                     template: '<div class="sw-multi-select"><slot></slot></div>',
-                    props: ['value', 'options', 'labelProperty', 'valueProperty'],
+                    props: [
+                        'value',
+                        'options',
+                        'labelProperty',
+                        'valueProperty',
+                    ],
                 },
             },
             provide: {
@@ -77,7 +90,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', entities);
 
-        const [name, criteria, value] = wrapper.emitted('filter-update')[0];
+        const [
+            name,
+            criteria,
+            value,
+        ] = wrapper.emitted('filter-update')[0];
 
         expect(name).toBe('category-filter');
         expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
@@ -94,7 +111,9 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             { id: 'id2', name: 'item2' },
         ]);
 
-        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: entityCollection } });
+        await wrapper.setProps({
+            filter: { ...wrapper.vm.filter, value: entityCollection },
+        });
 
         // Trigger click Reset button
         await wrapper.getComponent('.sw-base-filter').vm.$emit('filter-reset');
@@ -190,11 +209,13 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         });
 
         await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', [filter.options[0].key]);
-        expect(wrapper.emitted('filter-update')).toEqual([[
-            'category-filter',
-            [Criteria.equalsAny('category', ['option1'])],
-            ['option1'],
-        ]]);
+        expect(wrapper.emitted('filter-update')).toEqual([
+            [
+                'category-filter',
+                [Criteria.equalsAny('category', ['option1'])],
+                ['option1'],
+            ],
+        ]);
     });
 
     it('should emit filter-update with correct value when filter has existing type', async () => {
@@ -224,7 +245,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'category-filter',
-            [Criteria.multi('or', [Criteria.not('and', [Criteria.equals('option1.id', null)])])],
+            [
+                Criteria.multi('or', [
+                    Criteria.not('and', [Criteria.equals('option1.id', null)]),
+                ]),
+            ],
             ['option1'],
         ]);
     });
@@ -243,10 +268,12 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
                     {
                         id: 'product1',
                         name: 'Product name 1',
-                        variation: [{
-                            group: 'color',
-                            option: 'blue',
-                        }],
+                        variation: [
+                            {
+                                group: 'color',
+                                option: 'blue',
+                            },
+                        ],
                     },
                 ],
                 displayVariants: true,

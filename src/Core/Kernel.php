@@ -2,13 +2,17 @@
 
 namespace Shopware\Core;
 
+use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
+use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
@@ -94,15 +98,36 @@ class Kernel extends HttpKernel
 
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
+                /** @var ShopwareBundle|Bundle $bundle */
                 $bundle = new $class();
+
+                if ($this->isBundleRegistered($bundle, $instanciatedBundleNames)) {
+                    continue;
+                }
+
                 $instanciatedBundleNames[] = $bundle->getName();
 
                 yield $bundle;
+
+                if (!$bundle instanceof ShopwareBundle) {
+                    continue;
+                }
+
+                $classLoader = new ClassLoader();
+                $parameters = new AdditionalBundleParameters($classLoader, new KernelPluginCollection(), $this->getKernelParameters());
+                foreach ($bundle->getAdditionalBundles($parameters) as $additionalBundle) {
+                    if ($this->isBundleRegistered($additionalBundle, $instanciatedBundleNames)) {
+                        continue;
+                    }
+
+                    $instanciatedBundleNames[] = $additionalBundle->getName();
+                    yield $additionalBundle;
+                }
             }
         }
 
         if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service\Service::class])) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The %s bundle should be added to config/bundles.php');
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf('The %s bundle should be added to config/bundles.php', Service\Service::class));
             yield new Service\Service();
         }
 
@@ -202,6 +227,20 @@ class Kernel extends HttpKernel
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
         );
+    }
+
+    public function getBuildDir(): string
+    {
+        if (EnvironmentHelper::hasVariable('APP_BUILD_DIR')) {
+            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment;
+        }
+
+        return parent::getBuildDir();
+    }
+
+    public function getLogDir(): string
+    {
+        return (string) EnvironmentHelper::getVariable('APP_LOG_DIR', parent::getLogDir());
     }
 
     public function getPluginLoader(): KernelPluginLoader
@@ -396,7 +435,7 @@ PHP;
     private function addBundleRoutes(RoutingConfigurator $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
-            if ($bundle instanceof Framework\Bundle) {
+            if ($bundle instanceof ShopwareBundle) {
                 $bundle->configureRoutes($routes, $this->environment);
             }
         }
@@ -405,7 +444,7 @@ PHP;
     private function addBundleOverwrites(RoutingConfigurator $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
-            if ($bundle instanceof Framework\Bundle) {
+            if ($bundle instanceof ShopwareBundle) {
                 $bundle->configureRouteOverwrites($routes, $this->environment);
             }
         }
@@ -420,5 +459,14 @@ PHP;
         $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
 
         $routes->add('root.fallback', $route->getPath());
+    }
+
+    /**
+     * @param array<int, string> $instanciatedBundleNames
+     */
+    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instanciatedBundleNames): bool
+    {
+        return \array_key_exists($bundle->getName(), $instanciatedBundleNames)
+            || \array_key_exists($bundle->getName(), $this->bundles);
     }
 }

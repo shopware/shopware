@@ -24,8 +24,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -37,7 +37,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(FlowDispatcher::class)]
 class FlowDispatcherTest extends TestCase
 {
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private MockObject&ContainerInterface $container;
 
@@ -53,7 +53,7 @@ class FlowDispatcherTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->container = $this->createMock(ContainerInterface::class);
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);

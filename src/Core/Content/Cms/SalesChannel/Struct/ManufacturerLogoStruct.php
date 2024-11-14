@@ -10,6 +10,8 @@ class ManufacturerLogoStruct extends ImageStruct
 {
     /**
      * @var ProductManufacturerEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $manufacturer;
 

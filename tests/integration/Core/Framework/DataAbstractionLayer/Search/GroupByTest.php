@@ -164,7 +164,7 @@ class TestData
     /**
      * @var array<string>
      */
-    protected $ids = [];
+    protected array $ids = [];
 
     public function add(string $key, string $id): void
     {

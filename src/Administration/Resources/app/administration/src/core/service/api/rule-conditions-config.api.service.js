@@ -15,13 +15,12 @@ export default class RuleConditionsConfigApiService extends ApiService {
             return Promise.resolve();
         }
 
-        return this.httpClient.get(
-            '_info/rule-config',
-            {
+        return this.httpClient
+            .get('_info/rule-config', {
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            Shopware.State.commit('ruleConditionsConfig/setConfig', ApiService.handleResponse(response));
-        });
+            })
+            .then((response) => {
+                Shopware.State.commit('ruleConditionsConfig/setConfig', ApiService.handleResponse(response));
+            });
     }
 }

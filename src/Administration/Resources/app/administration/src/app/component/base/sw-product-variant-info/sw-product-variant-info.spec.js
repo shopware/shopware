@@ -8,10 +8,12 @@ describe('components/base/sw-product-variant-info', () => {
     async function createWrapper() {
         return mount(await wrapTestComponent('sw-product-variant-info', { sync: true }), {
             props: {
-                variations: [{
-                    group: 'Size',
-                    option: 'M',
-                }],
+                variations: [
+                    {
+                        group: 'Size',
+                        option: 'M',
+                    },
+                ],
             },
             slots: {
                 default: 'Product name from slot',
@@ -32,7 +34,9 @@ describe('components/base/sw-product-variant-info', () => {
                     return false;
                 }
 
-                return msg.includes('invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead');
+                return msg.includes(
+                    'invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead',
+                );
             },
         });
     });

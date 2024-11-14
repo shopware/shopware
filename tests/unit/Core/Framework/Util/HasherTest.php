@@ -28,6 +28,12 @@ class HasherTest extends TestCase
         static::assertSame($expectedHash, $result);
     }
 
+    public function testHashThrowsExceptionIfProvidedDataContainsMalformedUtf8(): void
+    {
+        $this->expectException(UtilException::class);
+        Hasher::hash(["\xB1\x31"]);
+    }
+
     #[DataProvider('hashProvider')]
     public function testHashBinary(string $data, ?string $algo, string $expectedHash): void
     {

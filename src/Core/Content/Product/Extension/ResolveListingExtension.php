@@ -10,6 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
+ *
+ * @codeCoverageIgnore
+ *
  * @extends Extension<EntitySearchResult<ProductCollection>>
  */
 #[Package('inventory')]

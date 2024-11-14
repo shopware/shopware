@@ -58,37 +58,33 @@ export default {
                 return null;
             }
 
-            const localDateString = (new Date(expirationDate)).toLocaleDateString();
+            const localDateString = new Date(expirationDate).toLocaleDateString();
 
             // Show different text when it's a test phase instead of a rent
             if (this.extension?.storeLicense?.variant === 'test' && !this.extension?.storeLicense?.expired) {
-                return this.$t(
-                    'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
-                    { date: localDateString },
-                );
+                return this.$t('sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt', {
+                    date: localDateString,
+                });
             }
 
             // Text when the test phase is expired
             if (this.isExpiredTestPhase) {
-                return this.$t(
-                    'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-                    { date: localDateString },
-                );
+                return this.$t('sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt', {
+                    date: localDateString,
+                });
             }
 
             // Text for expired rent
             if (this.isExpiredRent) {
-                return this.$t(
-                    'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
-                    { date: localDateString },
-                );
+                return this.$t('sw-extension-store.component.sw-extension-card-bought.rentExpiredAt', {
+                    date: localDateString,
+                });
             }
 
             // Text for non-expired rent
-            return this.$t(
-                'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
-                { date: localDateString },
-            );
+            return this.$t('sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt', {
+                date: localDateString,
+            });
         },
 
         isExpiredRent() {
@@ -127,8 +123,7 @@ export default {
                 return;
             }
 
-            if (!this.license
-                || this.license.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT) {
+            if (!this.license || this.license.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT) {
                 await this.deactivateExtension();
                 return;
             }
@@ -145,10 +140,7 @@ export default {
             try {
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.activateExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.activateExtension(this.extension.name, this.extension.type);
                 this.extension.active = true;
                 this.clearCacheAndReloadPage();
             } catch (e) {
@@ -163,10 +155,7 @@ export default {
             try {
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.deactivateExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.deactivateExtension(this.extension.name, this.extension.type);
                 this.extension.active = false;
                 this.clearCacheAndReloadPage();
             } catch (e) {
@@ -191,15 +180,10 @@ export default {
 
             try {
                 if (this.extension.source === 'store') {
-                    await this.extensionStoreActionService.downloadExtension(
-                        this.extension.name,
-                    );
+                    await this.extensionStoreActionService.downloadExtension(this.extension.name);
                 }
 
-                await this.shopwareExtensionService.installExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.installExtension(this.extension.name, this.extension.type);
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
@@ -224,19 +208,11 @@ export default {
 
             try {
                 if (this.extension.source === 'store') {
-                    await this.extensionStoreActionService.downloadExtension(
-                        this.extension.name,
-                    );
+                    await this.extensionStoreActionService.downloadExtension(this.extension.name);
                 }
 
-                await this.shopwareExtensionService.installExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
-                await this.shopwareExtensionService.activateExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.installExtension(this.extension.name, this.extension.type);
+                await this.shopwareExtensionService.activateExtension(this.extension.name, this.extension.type);
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
@@ -267,10 +243,7 @@ export default {
                     await this.shopwareExtensionService.cancelLicense(this.extension.storeLicense.id);
                 }
 
-                await this.shopwareExtensionService.removeExtension(
-                    this.extension.name,
-                    this.extension.type,
-                );
+                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
 
                 this.$nextTick(() => {
                     this.emitUpdateList();

@@ -12,6 +12,8 @@ class AccountOverviewPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var AccountOverviewPage
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 

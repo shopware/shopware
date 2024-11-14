@@ -4,15 +4,18 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-preview-image-slider', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-preview-image-slider', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/blocks/image/image-slider/preview', () => {

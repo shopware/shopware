@@ -80,44 +80,49 @@ const documentTypeFixture = [
 ];
 
 async function createWrapper(customData = {}) {
-    return mount(await wrapTestComponent('sw-order-select-document-type-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-order-select-document-type-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-field-error': true,
+                    'sw-help-text': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
-                'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-field-error': true,
-                'sw-help-text': true,
-                'router-link': true,
-                'sw-loader': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: (entity) => ({
-                        search: () => {
-                            if (entity === 'document_type') {
-                                return Promise.resolve(getCollection('document_type', documentTypeFixture));
-                            }
+                provide: {
+                    repositoryFactory: {
+                        create: (entity) => ({
+                            search: () => {
+                                if (entity === 'document_type') {
+                                    return Promise.resolve(getCollection('document_type', documentTypeFixture));
+                                }
 
-                            return Promise.resolve([]);
-                        },
-                        searchIds: () => Promise.resolve(getCollection('document', customData.documents || [])),
-                        get: () => Promise.resolve({}),
-                    }),
+                                return Promise.resolve([]);
+                            },
+                            searchIds: () => Promise.resolve(getCollection('document', customData.documents || [])),
+                            get: () => Promise.resolve({}),
+                        }),
+                    },
                 },
             },
+            props: {
+                order: { ...orderFixture, ...customData.order },
+                value: {},
+            },
         },
-        props: {
-            order: { ...orderFixture, ...customData.order },
-            value: {},
-        },
-    });
+    );
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
@@ -134,12 +139,10 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(documentTypeRadioOptions).toHaveLength(4);
 
         // Delivery note
-        expect(documentTypeRadioOptions[0].find('input')
-            .attributes().disabled).toBeUndefined();
+        expect(documentTypeRadioOptions[0].find('input').attributes().disabled).toBeUndefined();
 
         // Invoice
-        expect(documentTypeRadioOptions[1].find('input')
-            .attributes().disabled).toBeUndefined();
+        expect(documentTypeRadioOptions[1].find('input').attributes().disabled).toBeUndefined();
 
         // Cancellation invoice
         expect(documentTypeRadioOptions[2].find('input').element.disabled).toBe(true);
@@ -149,12 +152,10 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
 
         const helpTextStorno = documentTypeRadioOptions[2].findComponent('sw-help-text-stub');
 
-        expect(helpTextStorno.attributes().text)
-            .toBe('sw-order.components.selectDocumentTypeModal.helpText.storno');
+        expect(helpTextStorno.attributes().text).toBe('sw-order.components.selectDocumentTypeModal.helpText.storno');
 
         const helpTextCredit = documentTypeRadioOptions.at(3).find('sw-help-text-stub');
-        expect(helpTextCredit.attributes().text)
-            .toBe('sw-order.components.selectDocumentTypeModal.helpText.credit_note');
+        expect(helpTextCredit.attributes().text).toBe('sw-order.components.selectDocumentTypeModal.helpText.credit_note');
     });
 
     it('should enable cancellation invoice if there is at least one invoice exists', async () => {
@@ -165,20 +166,16 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(documentTypeRadioOptions).toHaveLength(4);
 
         // Delivery note
-        expect(documentTypeRadioOptions.at(0).find('input')
-            .attributes().disabled).toBeUndefined();
+        expect(documentTypeRadioOptions.at(0).find('input').attributes().disabled).toBeUndefined();
 
         // Invoice
-        expect(documentTypeRadioOptions.at(1).find('input')
-            .attributes().disabled).toBeUndefined();
+        expect(documentTypeRadioOptions.at(1).find('input').attributes().disabled).toBeUndefined();
 
         // Cancellation invoice
-        expect(documentTypeRadioOptions.at(2).find('input')
-            .attributes().disabled).toBeUndefined();
+        expect(documentTypeRadioOptions.at(2).find('input').attributes().disabled).toBeUndefined();
 
         // Credit note
-        expect(documentTypeRadioOptions.at(3).find('input')
-            .element.disabled).toBe(true);
+        expect(documentTypeRadioOptions.at(3).find('input').element.disabled).toBe(true);
     });
 
     it('should enable credit note if there is at least one invoice exists and order has credit item', async () => {
@@ -219,9 +216,8 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         const documentTypeRadioOptions = wrapper.findAll('.sw-field__radio-option');
         expect(documentTypeRadioOptions).toHaveLength(4);
 
-        documentTypeRadioOptions.forEach(option => {
-            expect(option.find('input')
-                .attributes().disabled).toBeUndefined();
+        documentTypeRadioOptions.forEach((option) => {
+            expect(option.find('input').attributes().disabled).toBeUndefined();
         });
     });
 });

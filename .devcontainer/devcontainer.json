@@ -4,7 +4,7 @@
   "overrideCommand": false,
   "forwardPorts": [8000, 8080, 8025],
   "containerEnv": {
-    "COMPOSER_ROOT_VERSION": "6.6.9999999.9999999-dev"
+    "COMPOSER_ROOT_VERSION": "6.6.9999999-dev"
   },
   "customizations": {
     "jetbrains": {

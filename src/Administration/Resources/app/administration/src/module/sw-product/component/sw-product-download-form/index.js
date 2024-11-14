@@ -13,7 +13,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl', 'configService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'configService',
+    ],
 
     emits: ['media-open'],
 
@@ -148,10 +152,9 @@ export default {
 
             this.product.downloads.add(productDownload);
             if (this.error) {
-                Shopware.State.dispatch(
-                    'error/removeApiError',
-                    { expression: this.error.selfLink },
-                );
+                Shopware.State.dispatch('error/removeApiError', {
+                    expression: this.error.selfLink,
+                });
             }
         },
 

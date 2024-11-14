@@ -5,8 +5,11 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer\I
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -30,34 +33,25 @@ class ProductRatingAverageIndexerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductReviewCollection>
      */
-    private $reviewRepository;
+    private EntityRepository $reviewRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    private $productRepository;
+    private EntityRepository $productRepository;
+
+    private SalesChannelContext $salesChannel;
 
     /**
-     * @var SalesChannelContext
+     * @var EntityRepository<CustomerCollection>
      */
-    private $salesChannel;
+    private EntityRepository $customerRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
+    private Connection $connection;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var ProductIndexer
-     */
-    private $productIndexer;
+    private ProductIndexer $productIndexer;
 
     protected function setUp(): void
     {

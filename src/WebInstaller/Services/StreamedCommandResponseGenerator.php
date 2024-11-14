@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Services;
 
+use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
@@ -13,6 +14,8 @@ use Symfony\Component\Process\Process;
 #[Package('core')]
 class StreamedCommandResponseGenerator
 {
+    public const DEFAULT_TIMEOUT = 900.0; // 15 minutes
+
     /**
      * @param array<string> $params
      * @param callable(Process): void $finish
@@ -21,7 +24,15 @@ class StreamedCommandResponseGenerator
     {
         $process = new Process($params);
         $process->setEnv(['COMPOSER_HOME' => sys_get_temp_dir() . '/composer']);
-        $process->setTimeout(900);
+
+        // Read process timeout from environment or use default value
+        $timeout = Platform::getEnv('SHOPWARE_INSTALLER_TIMEOUT');
+        if (empty($timeout) || !is_numeric($timeout) || $timeout < 0) {
+            $timeout = self::DEFAULT_TIMEOUT;
+        } else {
+            $timeout = (float) $timeout;
+        }
+        $process->setTimeout($timeout);
 
         $process->start();
 

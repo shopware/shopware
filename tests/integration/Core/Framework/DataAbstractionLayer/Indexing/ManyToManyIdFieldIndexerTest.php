@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -34,7 +34,7 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
     public function testPropertyIndexing(): void
     {
-        $data = new TestDataCollection();
+        $data = new IdsCollection();
 
         $this->createProduct($data);
 
@@ -111,7 +111,7 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
     public function testResetRelation(): void
     {
-        $data = new TestDataCollection();
+        $data = new IdsCollection();
 
         $this->createProduct($data);
 
@@ -164,7 +164,7 @@ class ManyToManyIdFieldIndexerTest extends TestCase
         static::assertContains($data->get('green'), $propertyIds);
     }
 
-    private function createProduct(TestDataCollection $data): void
+    private function createProduct(IdsCollection $data): void
     {
         $this->productRepository->create(
             [

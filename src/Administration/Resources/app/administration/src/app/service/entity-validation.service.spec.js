@@ -11,20 +11,21 @@ import EntityDefinitionFactory from 'src/core/factory/entity-definition.factory'
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 function createService() {
-    return new EntityValidationService(
-        EntityDefinitionFactory,
-        new ChangesetGenerator(),
-        new ErrorResolver(),
-    );
+    return new EntityValidationService(EntityDefinitionFactory, new ChangesetGenerator(), new ErrorResolver());
 }
 
 const entityFactory = new EntityFactory();
 
 describe('src/app/service/entity-validation.service.js', () => {
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(([entityName, definitionData]) => {
-            Shopware.EntityDefinition.add(entityName, new EntityDefinition(definitionData));
-        });
+        Object.entries(entitySchemaMock).forEach(
+            ([
+                entityName,
+                definitionData,
+            ]) => {
+                Shopware.EntityDefinition.add(entityName, new EntityDefinition(definitionData));
+            },
+        );
     });
 
     it('should create a required shopware error with the right error code and source pointer', () => {

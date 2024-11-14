@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['host-changed', 'port-changed'],
+    emits: [
+        'host-changed',
+        'port-changed',
+    ],
 
     props: {
         mailerSettings: {
@@ -32,9 +35,18 @@ export default {
     computed: {
         encryptionOptions() {
             return [
-                { value: 'null', label: this.$tc('sw-settings-mailer.encryption.no-encryption') },
-                { value: 'ssl', label: this.$tc('sw-settings-mailer.encryption.ssl') },
-                { value: 'tls', label: this.$tc('sw-settings-mailer.encryption.tls') },
+                {
+                    value: 'null',
+                    label: this.$tc('sw-settings-mailer.encryption.no-encryption'),
+                },
+                {
+                    value: 'ssl',
+                    label: this.$tc('sw-settings-mailer.encryption.ssl'),
+                },
+                {
+                    value: 'tls',
+                    label: this.$tc('sw-settings-mailer.encryption.tls'),
+                },
             ];
         },
     },

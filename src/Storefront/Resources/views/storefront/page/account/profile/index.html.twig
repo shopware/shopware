@@ -350,7 +350,7 @@
                                                         {% block page_account_profile_current_password_input %}
                                                             <input type="password"
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
-                                                                   autocomplete="new-password"
+                                                                   autocomplete="current-password"
                                                                    id="password"
                                                                    placeholder="{{ 'account.profilePasswordCurrentPlaceholder'|trans|striptags }}"
                                                                    name="password[password]"

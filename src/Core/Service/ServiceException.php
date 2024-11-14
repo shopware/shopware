@@ -21,6 +21,8 @@ class ServiceException extends HttpException
     public const SERVICE_MISSING_APP_VERSION_INFO = 'SERVICE__MISSING_APP_INFO';
     public const SERVICE_CANNOT_WRITE_APP = 'SERVICE__CANNOT_WRITE_APP';
 
+    public const SERVICE_MISSING_APP_SECRET_INFO = 'SERVICE__MISSING_APP_SECRET_INFO';
+
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
 
     public static function notFound(string $field, string $value): self
@@ -114,6 +116,16 @@ class ServiceException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_MISSING_APP_VERSION_INFO,
             'Error downloading app. The version information was missing.'
+        );
+    }
+
+    public static function missingAppSecretInfo(string $appId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_MISSING_APP_SECRET_INFO,
+            'Error creating client. The app secret information was missing. App ID: "{{ appId }}"',
+            ['appId' => $appId]
         );
     }
 

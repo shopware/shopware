@@ -26,11 +26,16 @@ export default {
 
             const filteredAttributes = {};
 
-            Object.entries(this.$attrs).forEach(([key, value]) => {
-                if (key.startsWith('on') && typeof value === 'function') {
-                    filteredAttributes[key] = value;
-                }
-            });
+            Object.entries(this.$attrs).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    if (key.startsWith('on') && typeof value === 'function') {
+                        filteredAttributes[key] = value;
+                    }
+                },
+            );
 
             return filteredAttributes;
         },

@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 class LineItemGroup
 {
     /**
-     * @var LineItemQuantity[]
+     * @var array<string, LineItemQuantity>
      */
-    private $items;
+    private array $items;
 
     /**
      * @internal

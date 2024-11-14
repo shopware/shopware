@@ -59,41 +59,66 @@
                                 {% set selectQuantityThreshold = 100 %}
 
                                 {% block component_line_item_quantity_select %}
-                                    {% block component_line_item_quantity_select_input %}
-                                        <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
-                                            <label class="form-label visually-hidden">{{ 'component.product.quantitySelect.label'|trans|striptags }}</label>
-                                            <button
-                                                {% if isDigital %}disabled="disabled"{% endif %}
-                                                type="button"
-                                                class="btn btn-outline-light btn-minus js-btn-minus"
-                                                aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}"
-                                                data-focus-id="line-item-{{ displayMode }}-quantity-down-{{ lineItem.id }}"
+                                    <fieldset>
+                                        {% block component_line_item_quantity_select_input %}
+                                            <legend class="form-label visually-hidden">
+                                                {{ 'component.product.quantitySelect.legend'|trans|striptags }}
+                                            </legend>
+
+                                            {% set quantitySelectorOptions = {
+                                                ariaLiveUpdateMode: 'onload',
+                                            } %}
+                                            <div
+                                                id="line-item-quantity-group-{{ lineItem.id }}"
+                                                class="input-group line-item-quantity-group quantity-selector-group"
+                                                data-quantity-selector="true"
+                                                data-quantity-selector-options="{{ quantitySelectorOptions|json_encode }}"
                                             >
-                                                {% sw_icon 'minus' style {size: 'xs'} %}
-                                            </button>
-                                            <input
-                                                {% if isDigital %}disabled="disabled"{% endif %}
-                                                type="number"
-                                                name="quantity"
-                                                class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
-                                                min="{{ quantityInformation.minPurchase }}"
-                                                max="{{ maxQuantity }}"
-                                                step="{{ quantityInformation.purchaseSteps }}"
-                                                value="{{ lineItem.quantity }}"
-                                                aria-label="{{ 'component.product.quantitySelect.label'|trans|striptags }}"
-                                                data-focus-id="line-item-{{ displayMode }}-quantity-{{ lineItem.id }}"
-                                            />
-                                            <button
-                                                {% if isDigital %}disabled="disabled"{% endif %}
-                                                type="button"
-                                                class="btn btn-outline-light btn-plus js-btn-plus"
-                                                aria-label="{{ 'component.product.quantitySelect.increase'|trans|striptags }}"
-                                                data-focus-id="line-item-{{ displayMode }}-quantity-up-{{ lineItem.id }}"
-                                            >
-                                                {% sw_icon 'plus' style {size: 'xs'} %}
-                                            </button>
-                                        </div>
-                                    {% endblock %}
+                                                <button
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
+                                                    type="button"
+                                                    class="btn btn-outline-light btn-minus js-btn-minus"
+                                                    aria-label="{{ 'component.product.quantitySelect.decreaseOfProduct'|trans({ '%product%': lineItem.label })|striptags }}"
+                                                    data-focus-id="line-item-{{ displayMode }}-quantity-down-{{ lineItem.id }}"
+                                                >
+                                                    {% sw_icon 'minus' style {size: 'xs'} %}
+                                                </button>
+                                                <input
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
+                                                    type="number"
+                                                    name="quantity"
+                                                    class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
+                                                    min="{{ quantityInformation.minPurchase }}"
+                                                    max="{{ maxQuantity }}"
+                                                    step="{{ quantityInformation.purchaseSteps }}"
+                                                    value="{{ lineItem.quantity }}"
+                                                    aria-label="{{ 'component.product.quantitySelect.labelWithProduct'|trans({ '%product%': lineItem.label })|striptags }}"
+                                                    data-focus-id="line-item-{{ displayMode }}-quantity-{{ lineItem.id }}"
+                                                />
+                                                <button
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
+                                                    type="button"
+                                                    class="btn btn-outline-light btn-plus js-btn-plus"
+                                                    aria-label="{{ 'component.product.quantitySelect.increaseOfProduct'|trans({ '%product%': lineItem.label })|striptags }}"
+                                                    data-focus-id="line-item-{{ displayMode }}-quantity-up-{{ lineItem.id }}"
+                                                >
+                                                    {% sw_icon 'plus' style {size: 'xs'} %}
+                                                </button>
+                                            </div>
+
+                                            {# Aria live region to tell the screen reader what quantity amount is selected when changing the quantity. #}
+                                            {% block component_line_item_quantity_select_live_area %}
+                                                <div
+                                                    class="quantity-area-live visually-hidden"
+                                                    aria-live="polite"
+                                                    aria-atomic="true"
+                                                    data-aria-live-text="{{ 'component.product.quantitySelect.areaLiveText'|trans|striptags }}"
+                                                    data-aria-live-product-name="{{ lineItem.label }}">
+                                                    {# The live region content is generated by the `QuantitySelectorPlugin` #}
+                                                </div>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </fieldset>
                                 {% endblock %}
                             </form>
                         {% endblock %}

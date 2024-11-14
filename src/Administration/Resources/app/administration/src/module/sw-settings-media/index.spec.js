@@ -10,7 +10,6 @@ describe('src/module/sw-settings-media/index.js', () => {
         expect(Shopware.Component.getComponentRegistry().has('sw-settings-media')).toBeTruthy();
     });
 
-
     it('should register module base information', () => {
         const module = Module.getModuleRegistry().get('sw-settings-media');
         expect(module).toBeDefined();

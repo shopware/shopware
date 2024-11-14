@@ -46,7 +46,8 @@ export default {
 
             if (this.entityContext.addContext.association) {
                 criteria.addAssociation(this.entityContext.addContext.association);
-                criteria.getAssociation(this.entityContext.addContext.association)
+                criteria
+                    .getAssociation(this.entityContext.addContext.association)
                     .addFilter(Criteria.equals('id', this.ruleId));
             }
 
@@ -58,16 +59,20 @@ export default {
         },
 
         shippingCostTaxOptions() {
-            return [{
-                label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
-                value: 'auto',
-            }, {
-                label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
-                value: 'highest',
-            }, {
-                label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
-                value: 'fixed',
-            }];
+            return [
+                {
+                    label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
+                    value: 'auto',
+                },
+                {
+                    label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
+                    value: 'highest',
+                },
+                {
+                    label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
+                    value: 'fixed',
+                },
+            ];
         },
     },
 
@@ -110,12 +115,15 @@ export default {
                 criteria.addFilter(Criteria.contains(this.entityContext.addContext.searchColumn ?? 'name', term));
             }
 
-            return this.repository.search(criteria, api).then((result) => {
-                this.items = result;
-                this.total = result.total;
-            }).finally(() => {
-                this.loading = false;
-            });
+            return this.repository
+                .search(criteria, api)
+                .then((result) => {
+                    this.items = result;
+                    this.total = result.total;
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
         },
 
         shippingTaxTypeLabel(taxName) {

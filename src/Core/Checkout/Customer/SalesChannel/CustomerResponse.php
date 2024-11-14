@@ -11,6 +11,8 @@ class CustomerResponse extends StoreApiResponse
 {
     /**
      * @var CustomerEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $object;
 

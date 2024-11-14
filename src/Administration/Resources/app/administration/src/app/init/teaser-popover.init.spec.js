@@ -1,6 +1,5 @@
 import initTeaserButtons from 'src/app/init/teaser-popover.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
-import 'src/app/store/teaser-popover.store';
 
 describe('src/app/init/teaser-popover.init.ts', () => {
     it('should handle __upsellingTeaserPopover', async () => {
@@ -18,12 +17,12 @@ describe('src/app/init/teaser-popover.init.ts', () => {
             },
         });
 
-        const teaserButtonState = Shopware.Store.get('teaserPopoverState');
+        const teaserButtonStore = Shopware.Store.get('teaserPopover');
 
-        expect(teaserButtonState.identifier[positionId]).toBeDefined();
-        expect(teaserButtonState.identifier[positionId].component).toBe('button');
-        expect(teaserButtonState.identifier[positionId].props.label).toBe('Ask AI Copilot');
-        expect(teaserButtonState.identifier[positionId].props.locationId).toBe('locationId');
+        expect(teaserButtonStore.identifier[positionId]).toBeDefined();
+        expect(teaserButtonStore.identifier[positionId].component).toBe('button');
+        expect(teaserButtonStore.identifier[positionId].props.label).toBe('Ask AI Copilot');
+        expect(teaserButtonStore.identifier[positionId].props.locationId).toBe('locationId');
 
         await send('__upsellingTeaserPopover', {
             positionId: 'sales-channel',
@@ -42,8 +41,8 @@ describe('src/app/init/teaser-popover.init.ts', () => {
             },
         });
 
-        expect(teaserButtonState.salesChannels).toHaveLength(1);
-        expect(teaserButtonState.salesChannels[0]).toStrictEqual({
+        expect(teaserButtonStore.salesChannels).toHaveLength(1);
+        expect(teaserButtonStore.salesChannels[0]).toStrictEqual({
             positionId: 'sales-channel',
             salesChannel: {
                 title: 'Facebook',

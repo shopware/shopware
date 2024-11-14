@@ -16,26 +16,36 @@ class UserAccessKeyEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $userId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $accessKey;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $secretAccessKey;
 
     /**
      * @var \DateTimeInterface|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lastUsageAt;
 
     /**
      * @var UserEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $user;
 

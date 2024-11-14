@@ -18,7 +18,7 @@ class VersionParser
     private const VALID_VERSION_PATTERN = '#^\d\.\d+\.\d+\.(\d+|x)(-\w+)?#';
 
     /**
-     * @return array{version: string, revision: string}
+     * @return array{version: string, revision: string|null}
      */
     public static function parseShopwareVersion(?string $version): array
     {

@@ -11,11 +11,15 @@ class Tree extends Struct
 {
     /**
      * @var TreeItem[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $tree;
 
     /**
      * @var CategoryEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 

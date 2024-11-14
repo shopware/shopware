@@ -22,11 +22,13 @@
 object-src 'none';
 script-src 'none';
 base-uri 'self';
+frame-ancestors 'none';
             </parameter>
             <parameter key="administration">
 object-src 'none';
 script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
 base-uri 'self';
+frame-ancestors 'none';
             </parameter>
             <parameter key="storefront"/>
             <parameter key="installer"/>
@@ -653,6 +655,12 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory">
             <argument>%shopware.cache.redis_prefix%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider">
+            <argument />  <!-- $serviceLocator will be set in the compiler pass -->
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
+        </service>
+
 
         <service id="Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory" public="true">
             <argument type="service" id="request_stack"/>

@@ -6,7 +6,7 @@ type style = {
     icon: variantKeys;
     color: variantKeys;
     variant: variantKeys;
-}
+};
 
 type storedStyle = {
     selectBackgroundStyle: string;
@@ -15,19 +15,21 @@ type storedStyle = {
     variant: string;
     colorCode: string;
     iconStyle: string;
-}
+};
 
 type store = {
-    [key: string]: storedStyle | {
-        [key: string]: storedStyle
-    },
+    [key: string]:
+        | storedStyle
+        | {
+              [key: string]: storedStyle;
+          };
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type stateStyleService = {
     getPlaceholder: () => storedStyle;
-    getStyle: (stateMachine: string, state: string) => (style);
-    addStyle: (stateMachine: string, state: string, style: style) => void
+    getStyle: (stateMachine: string, state: string) => style;
+    addStyle: (stateMachine: string, state: string, style: style) => void;
 };
 
 /**

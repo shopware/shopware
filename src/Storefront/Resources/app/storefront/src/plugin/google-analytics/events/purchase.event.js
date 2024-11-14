@@ -13,9 +13,10 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        const orderNumberElement = DomAccessHelper.querySelector(document, '.finish-ordernumber');
-
+        const orderNumberElement = document.querySelector('.finish-ordernumber');
         if (!orderNumberElement) {
+            console.warn('Cannot get order number element - Skip order tracking');
+
             return;
         }
 

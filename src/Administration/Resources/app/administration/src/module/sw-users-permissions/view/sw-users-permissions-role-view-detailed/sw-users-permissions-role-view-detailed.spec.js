@@ -4,31 +4,36 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-users-permissions-role-view-detailed', {
-        sync: true,
-    }), {
-        props: {
-            role: {},
-            detailedPrivileges: [],
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-alert': true,
-                'sw-users-permissions-detailed-permissions-grid': true,
-                'sw-users-permissions-detailed-additional-permissions': true,
+    return mount(
+        await wrapTestComponent('sw-users-permissions-role-view-detailed', {
+            sync: true,
+        }),
+        {
+            props: {
+                role: {},
+                detailedPrivileges: [],
             },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-alert': true,
+                    'sw-users-permissions-detailed-permissions-grid': true,
+                    'sw-users-permissions-detailed-additional-permissions': true,
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detailed', () => {

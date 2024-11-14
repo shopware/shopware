@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -56,10 +59,18 @@ export default {
             const allowedAware = this.triggerEvent.aware ?? [];
             const properties = [];
             // eslint-disable-next-line max-len
-            return Service('flowBuilderService').getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
+            return Service('flowBuilderService').getAvailableEntities(
+                this.action,
+                this.triggerActions,
+                allowedAware,
+                properties,
+            );
         },
 
-        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
+        ...mapState('swFlowState', [
+            'triggerEvent',
+            'triggerActions',
+        ]),
     },
 
     watch: {

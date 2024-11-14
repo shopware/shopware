@@ -10,7 +10,13 @@ const { debug } = Shopware.Utils;
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const BLOCKS_CATEGORIES = [
-    'text', 'image', 'video', 'text-image', 'sidebar', 'commerce', 'form',
+    'text',
+    'image',
+    'video',
+    'text-image',
+    'sidebar',
+    'commerce',
+    'form',
 ];
 
 /**
@@ -84,10 +90,7 @@ export default class AppCmsService {
      */
     registerCmsBlock(block) {
         if (!this.validateBlockCategory(block.category)) {
-            debug.warn(
-                this.constructor.name,
-                `The category "${block.category}" is not a valid category.`,
-            );
+            debug.warn(this.constructor.name, `The category "${block.category}" is not a valid category.`);
             return false;
         }
 
@@ -147,17 +150,25 @@ export default class AppCmsService {
                 if (typeof createElement === 'function') {
                     const children = slotEntries.map(([slotName]) => this.$scopedSlots[slotName]());
 
-                    return createElement('div', {
-                        class: componentName,
-                    }, children);
+                    return createElement(
+                        'div',
+                        {
+                            class: componentName,
+                        },
+                        children,
+                    );
                 }
 
                 // Vue3 syntax
                 const children = slotEntries.map(([slotName]) => this.$slots[slotName]());
 
-                return h('div', {
-                    class: componentName,
-                }, children);
+                return h(
+                    'div',
+                    {
+                        class: componentName,
+                    },
+                    children,
+                );
             },
         };
 
@@ -194,10 +205,7 @@ export default class AppCmsService {
     registerBlockSnippets(blockName, label) {
         return Object.keys(label).reduce((accumulator, localeKey) => {
             if (!Locale.getByName(localeKey)) {
-                debug.warn(
-                    this.constructor.name,
-                    `The locale "${localeKey}" is not registered in Shopware.Locale.`,
-                );
+                debug.warn(this.constructor.name, `The locale "${localeKey}" is not registered in Shopware.Locale.`);
 
                 accumulator = false;
                 return accumulator;

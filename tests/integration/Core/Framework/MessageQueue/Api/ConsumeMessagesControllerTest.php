@@ -24,14 +24,11 @@ class ConsumeMessagesControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
 
-    /**
-     * @var AbstractIncrementer
-     */
-    private $gateway;
+    private AbstractIncrementer $incrementer;
 
     protected function setUp(): void
     {
-        $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $this->incrementer = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
     }
 
     public function testConsumeMessages(): void
@@ -86,7 +83,7 @@ class ConsumeMessagesControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'async']);
 
-        $entries = $this->gateway->list('message_queue_stats');
+        $entries = $this->incrementer->list('message_queue_stats');
 
         static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
         static::assertEquals(0, $entries[ProductIndexingMessage::class]['count']);

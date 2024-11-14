@@ -12,16 +12,23 @@ export default class Feature {
     static flags: { [featureName: string]: boolean } = {};
 
     static init(flagConfig: { [featureName: string]: boolean }): void {
-        Object.entries(flagConfig).forEach(([flagName, isActive]) => {
-            this.flags[flagName] = isActive;
-        });
+        Object.entries(flagConfig).forEach(
+            ([
+                flagName,
+                isActive,
+            ]) => {
+                this.flags[flagName.toUpperCase()] = isActive;
+            },
+        );
     }
 
     static getAll(): { [featureName: string]: boolean } {
         return this.flags;
     }
 
-    static isActive(flagName:string):boolean {
+    static isActive(flagName: string): boolean {
+        flagName = flagName.toUpperCase();
+
         if (!this.flags.hasOwnProperty(flagName)) {
             // if not set, its false
             return false;

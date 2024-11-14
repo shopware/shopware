@@ -9,7 +9,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card-view': await wrapTestComponent('sw-card-view', { sync: true }),
+                'sw-card-view': await wrapTestComponent('sw-card-view', {
+                    sync: true,
+                }),
                 'sw-card': {
                     template: `
                         <div class="sw-card__content">
@@ -18,7 +20,9 @@ async function createWrapper() {
                     `,
                 },
                 'sw-order-user-card': true,
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
                 'sw-order-state-select': true,
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
@@ -55,7 +59,7 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            get: () => { },
+                            get: () => {},
                         };
                     },
                 },
@@ -63,7 +67,6 @@ async function createWrapper() {
         },
     });
 }
-
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
     beforeEach(() => {
@@ -195,17 +198,19 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             price: {
                 taxStatus: 'tax-free',
             },
-            deliveries: [{
-                shippingCosts: {
-                    totalPrice: 50,
-                    calculatedTaxes: [],
+            deliveries: [
+                {
+                    shippingCosts: {
+                        totalPrice: 50,
+                        calculatedTaxes: [],
+                    },
                 },
-            }],
+            ],
         });
 
         await wrapper.vm.$nextTick();
 
-        const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => { });
+        const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => {});
 
         let button = wrapper.find('.sw-order-create-summary__data div[role="button"]');
         await button.trigger('click');

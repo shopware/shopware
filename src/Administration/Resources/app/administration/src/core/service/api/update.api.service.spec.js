@@ -24,12 +24,9 @@ describe('updateApiService', () => {
     it('test check for updates', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/check').reply(
-            200,
-            {
-                success: true,
-            },
-        );
+        clientMock.onGet('/_action/update/check').reply(200, {
+            success: true,
+        });
 
         const result = await updateApiService.checkForUpdates();
 
@@ -41,12 +38,9 @@ describe('updateApiService', () => {
     it('test requirements', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/check-requirements').reply(
-            200,
-            {
-                success: true,
-            },
-        );
+        clientMock.onGet('/_action/update/check-requirements').reply(200, {
+            success: true,
+        });
 
         const result = await updateApiService.checkRequirements();
 
@@ -58,12 +52,9 @@ describe('updateApiService', () => {
     it('test extensionCompatibility', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/extension-compatibility').reply(
-            200,
-            {
-                success: true,
-            },
-        );
+        clientMock.onGet('/_action/update/extension-compatibility').reply(200, {
+            success: true,
+        });
 
         const result = await updateApiService.extensionCompatibility();
 
@@ -75,12 +66,9 @@ describe('updateApiService', () => {
     it('test downloadRecovery', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/download-recovery').reply(
-            200,
-            {
-                success: true,
-            },
-        );
+        clientMock.onGet('/_action/update/download-recovery').reply(200, {
+            success: true,
+        });
 
         const result = await updateApiService.downloadRecovery();
 
@@ -92,12 +80,9 @@ describe('updateApiService', () => {
     it('test deactivatePlugins', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/deactivate-plugins?offset=0&deactivationFilter=foo').reply(
-            200,
-            {
-                success: true,
-            },
-        );
+        clientMock.onGet('/_action/update/deactivate-plugins?offset=0&deactivationFilter=foo').reply(200, {
+            success: true,
+        });
 
         const result = await updateApiService.deactivatePlugins(0, 'foo');
 

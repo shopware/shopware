@@ -21,7 +21,12 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -40,7 +45,6 @@ export default {
             default: null,
         },
     },
-
 
     data() {
         return {
@@ -304,10 +308,7 @@ export default {
         documentBaseConfigCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria
-                .addAssociation('documentType')
-                .getAssociation('salesChannels')
-                .addAssociation('salesChannel');
+            criteria.addAssociation('documentType').getAssociation('salesChannels').addAssociation('salesChannel');
 
             return criteria;
         },
@@ -363,7 +364,10 @@ export default {
         documentBaseConfig() {
             return this.documentConfig;
         },
-        ...mapPropertyErrors('documentBaseConfig', ['name', 'documentTypeId']),
+        ...mapPropertyErrors('documentBaseConfig', [
+            'name',
+            'documentTypeId',
+        ]),
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
@@ -379,7 +383,10 @@ export default {
             this.isLoading = true;
             await this.loadAvailableSalesChannel();
             if (this.documentConfigId) {
-                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
+                await Promise.all([
+                    this.loadEntityData(),
+                    this.loadCustomFieldSets(),
+                ]);
             } else {
                 this.documentConfig = this.documentBaseConfigRepository.create();
                 this.documentConfig.global = false;
@@ -419,7 +426,7 @@ export default {
                 }
             }
 
-            this.documentConfig.salesChannels.forEach(salesChannelAssoc => {
+            this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
             this.isLoading = false;
@@ -463,16 +470,17 @@ export default {
 
             this.createSalesChannelSelectOptions();
             const documentSalesChannelCriteria = new Criteria(1, 25);
-            documentSalesChannelCriteria.addFilter(
-                Criteria.equals('documentTypeId', documentType.id),
-            );
+            documentSalesChannelCriteria.addFilter(Criteria.equals('documentTypeId', documentType.id));
 
-            this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria)
+            this.documentBaseConfigSalesChannelRepository
+                .search(documentSalesChannelCriteria)
                 .then((responseSalesChannels) => {
                     this.alreadyAssignedSalesChannelIdsToType = [];
                     responseSalesChannels.forEach((salesChannel) => {
-                        if (salesChannel.salesChannelId !== null
-                            && salesChannel.documentBaseConfigId !== this.documentConfig.id) {
+                        if (
+                            salesChannel.salesChannelId !== null &&
+                            salesChannel.documentBaseConfigId !== this.documentConfig.id
+                        ) {
                             this.alreadyAssignedSalesChannelIdsToType.push(salesChannel.salesChannelId);
                         }
                     });
@@ -515,7 +523,10 @@ export default {
 
         async saveFinish() {
             if (this.documentConfig.isNew()) {
-                await this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
+                await this.$router.replace({
+                    name: 'sw.settings.document.detail',
+                    params: { id: this.documentConfig.id },
+                });
             }
             this.loadEntityData();
         },
@@ -525,12 +536,15 @@ export default {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
-            return this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.documentBaseConfigRepository
+                .save(this.documentConfig)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onCancel() {
@@ -549,9 +563,9 @@ export default {
                 return;
             }
 
-            this.salesChannels.forEach(salesChannel => {
+            this.salesChannels.forEach((salesChannel) => {
                 let salesChannelAlreadyAssigned = false;
-                this.documentConfig.salesChannels.forEach(documentConfigSalesChannel => {
+                this.documentConfig.salesChannels.forEach((documentConfigSalesChannel) => {
                     if (documentConfigSalesChannel.salesChannelId === salesChannel.id) {
                         salesChannelAlreadyAssigned = true;
                         this.documentConfigSalesChannelOptionsCollection.push(documentConfigSalesChannel);

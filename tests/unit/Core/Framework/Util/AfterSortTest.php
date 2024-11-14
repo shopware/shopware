@@ -32,8 +32,9 @@ class AfterSortTest extends TestCase
 
         $afterSortCollection = new AfterSortCollection([$entity1]);
         $afterSortCollection->sortByAfter();
-
-        static::assertEquals($entity1->getId(), $afterSortCollection->first()->getId());
+        $first = $afterSortCollection->first();
+        static::assertInstanceOf(TestEntity::class, $first);
+        static::assertSame($entity1->getId(), $first->getId());
     }
 
     public function testSortingByAfterId(): void

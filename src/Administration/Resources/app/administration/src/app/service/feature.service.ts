@@ -18,7 +18,7 @@ export default class FeatureService {
         this.Feature = Feature;
     }
 
-    isActive(flagName: string):boolean {
+    isActive(flagName: string): boolean {
         return this.Feature.isActive(flagName);
     }
 }

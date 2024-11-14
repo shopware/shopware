@@ -106,7 +106,10 @@ Component.register('sw-tagged-field', {
                 return;
             }
 
-            this.$emit('update:value', [...this.value, this.newTagName]);
+            this.$emit('update:value', [
+                ...this.value,
+                this.newTagName,
+            ]);
             this.newTagName = '';
         },
 

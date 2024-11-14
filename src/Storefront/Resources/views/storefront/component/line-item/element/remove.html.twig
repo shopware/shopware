@@ -31,7 +31,7 @@
                         aria-label="{{ 'checkout.removeLineItem'|trans({ '%lineItemLabel%': label })|striptags }}"
                         title="{{ 'global.default.remove'|trans }}"
                         data-product-id="{{ lineItem.id }}"
-                        class="btn btn-light btn-sm line-item-remove-button">
+                        class="btn btn-outline-secondary btn-sm line-item-remove-button">
                     {% sw_icon 'x' style { size: 'sm' } %}
                 </button>
             {% endblock %}

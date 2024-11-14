@@ -70,9 +70,11 @@ describe('components/media/sw-media-modal-move', () => {
         const mockedParent = createFolderEntity();
         const mockedChild = createFolderEntity({ parentId: mockedParent.id });
 
-        wrapper.vm.mediaFolderRepository.search = jest.fn(() => Promise.resolve([
-            mockedParent,
-        ]));
+        wrapper.vm.mediaFolderRepository.search = jest.fn(() =>
+            Promise.resolve([
+                mockedParent,
+            ]),
+        );
 
         await wrapper.vm.updateParentFolder(mockedChild);
 

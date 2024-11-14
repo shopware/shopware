@@ -4,7 +4,10 @@
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,7 +15,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['integrationService', 'repositoryFactory', 'acl'],
+    inject: [
+        'integrationService',
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -65,7 +72,8 @@ export default {
                     property: 'label',
                     label: this.$tc('sw-integration.list.integrationName'),
                     primary: true,
-                }, {
+                },
+                {
                     property: 'writeAccess',
                     label: this.$tc('sw-integration.list.permissions'),
                 },
@@ -85,7 +93,8 @@ export default {
         getList() {
             this.isLoading = true;
 
-            this.integrationRepository.search(this.integrationCriteria)
+            this.integrationRepository
+                .search(this.integrationCriteria)
                 .then((integrations) => {
                     this.integrations = integrations;
                 })
@@ -99,7 +108,7 @@ export default {
                 return;
             }
 
-            const integration = this.integrations.find(a => a.id === this.currentIntegration.id);
+            const integration = this.integrations.find((a) => a.id === this.currentIntegration.id);
 
             if (typeof integration === 'undefined') {
                 this.createIntegration();
@@ -111,7 +120,8 @@ export default {
         updateIntegration(integration) {
             this.isModalLoading = true;
 
-            this.integrationRepository.save(integration)
+            this.integrationRepository
+                .save(integration)
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.onCloseDetailModal();
@@ -130,7 +140,8 @@ export default {
 
             this.isModalLoading = true;
 
-            this.integrationRepository.save(this.currentIntegration)
+            this.integrationRepository
+                .save(this.currentIntegration)
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.getList();
@@ -164,17 +175,20 @@ export default {
 
             this.isModalLoading = true;
 
-            this.integrationService.generateKey().then((response) => {
-                this.currentIntegration = this.currentIntegration || this.integrationRepository.create();
-                this.currentIntegration.accessKey = response.accessKey;
-                this.currentIntegration.secretAccessKey = response.secretAccessKey;
-                this.showSecretAccessKey = true;
-                this.isModalLoading = false;
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-integration.detail.messageCreateNewError'),
+            this.integrationService
+                .generateKey()
+                .then((response) => {
+                    this.currentIntegration = this.currentIntegration || this.integrationRepository.create();
+                    this.currentIntegration.accessKey = response.accessKey;
+                    this.currentIntegration.secretAccessKey = response.secretAccessKey;
+                    this.showSecretAccessKey = true;
+                    this.isModalLoading = false;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-integration.detail.messageCreateNewError'),
+                    });
                 });
-            });
         },
 
         onShowDetailModal(integration) {
@@ -204,10 +218,9 @@ export default {
 
             this.onCloseDeleteModal();
 
-            this.integrationRepository.delete(id)
-                .then(() => {
-                    this.getList();
-                });
+            this.integrationRepository.delete(id).then(() => {
+                this.getList();
+            });
         },
     },
 };

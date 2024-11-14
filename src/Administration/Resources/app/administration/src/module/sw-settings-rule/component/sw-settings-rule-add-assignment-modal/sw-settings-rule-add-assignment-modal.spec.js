@@ -76,49 +76,56 @@ const defaultProps = {
 };
 
 async function createWrapper(props = defaultProps) {
-    return mount(await wrapTestComponent('sw-settings-rule-add-assignment-modal', { sync: true }), {
-        props,
-        global: {
-            stubs: {
-                'sw-settings-rule-add-assignment-listing': await wrapTestComponent('sw-settings-rule-add-assignment-listing'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-settings-rule-category-tree': true,
-                'router-link': true,
-                'sw-loader': true,
-                'sw-card-filter': true,
-                'sw-product-variant-info': true,
-                'sw-icon': true,
-                'sw-pagination': true,
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
-                'sw-extension-component-section': true,
-                'sw-ai-copilot-badge': true,
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-inline-edit': true,
-                'sw-data-grid-skeleton': true,
-                'sw-field-error': true,
-                'sw-inheritance-switch': true,
-                'sw-help-text': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => shippingMethodRepositoryMock,
+    return mount(
+        await wrapTestComponent('sw-settings-rule-add-assignment-modal', {
+            sync: true,
+        }),
+        {
+            props,
+            global: {
+                stubs: {
+                    'sw-settings-rule-add-assignment-listing': await wrapTestComponent(
+                        'sw-settings-rule-add-assignment-listing',
+                    ),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-settings-rule-category-tree': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-card-filter': true,
+                    'sw-product-variant-info': true,
+                    'sw-icon': true,
+                    'sw-pagination': true,
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-context-menu-item': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-field-error': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => shippingMethodRepositoryMock,
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal', () => {
@@ -137,7 +144,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
     });
 
     it.each([
-        { name: 'category entity', entityName: 'category', expected: 'default' },
+        {
+            name: 'category entity',
+            entityName: 'category',
+            expected: 'default',
+        },
         { name: 'other entity', entityName: 'testEntity', expected: 'large' },
     ])('should define modal size by entity: $name', async ({ entityName, expected }) => {
         const wrapper = await createWrapper({
@@ -304,10 +315,12 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
 
         expect(shippingMethodRepositoryMock.sync).toHaveBeenCalledTimes(1);
         expect(shippingMethodRepositoryMock.sync).toHaveBeenLastCalledWith(
-            [new Entity('shipping_method', 'test_id', {
-                ruleId: ruleMock.id,
-                [entityContextMock.addContext.column]: entityResultMock[0].id,
-            })],
+            [
+                new Entity('shipping_method', 'test_id', {
+                    ruleId: ruleMock.id,
+                    [entityContextMock.addContext.column]: entityResultMock[0].id,
+                }),
+            ],
             defaultApi ? Context.api : { ...Context.api, apiPath },
         );
         expect(wrapper.emitted()).toHaveProperty('entities-saved');

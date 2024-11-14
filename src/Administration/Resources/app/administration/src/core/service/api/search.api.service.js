@@ -24,10 +24,14 @@ class SearchApiService extends ApiService {
         this.searchAbortController = new AbortController();
 
         return this.httpClient
-            .post(`${this.getApiBasePath()}/es-search`, { term, limit, entities }, {
-                headers,
-                signal: this.searchAbortController.signal,
-            })
+            .post(
+                `${this.getApiBasePath()}/es-search`,
+                { term, limit, entities },
+                {
+                    headers,
+                    signal: this.searchAbortController.signal,
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             })
@@ -47,7 +51,7 @@ class SearchApiService extends ApiService {
     searchQuery(queries = {}, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        Object.keys(queries).forEach(entity => {
+        Object.keys(queries).forEach((entity) => {
             if (typeof queries[entity].parse === 'function') {
                 queries[entity] = queries[entity].parse();
             }

@@ -9,7 +9,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     props: {
         sequence: {

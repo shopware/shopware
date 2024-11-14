@@ -47,10 +47,7 @@ function getRegistry() {
  */
 function register(apiServiceName, apiService = null) {
     if (!apiServiceName || !apiServiceName.length) {
-        warn(
-            name,
-            'A apiService always needs a name',
-        );
+        warn(name, 'A apiService always needs a name');
         return false;
     }
 
@@ -82,8 +79,17 @@ function getByName(apiServiceName) {
 }
 
 function getServices() {
-    return Array.from(apiServiceRegistry).reduce((accumulator, [key, value]) => {
-        accumulator[key] = value;
-        return accumulator;
-    }, {});
+    return Array.from(apiServiceRegistry).reduce(
+        (
+            accumulator,
+            [
+                key,
+                value,
+            ],
+        ) => {
+            accumulator[key] = value;
+            return accumulator;
+        },
+        {},
+    );
 }

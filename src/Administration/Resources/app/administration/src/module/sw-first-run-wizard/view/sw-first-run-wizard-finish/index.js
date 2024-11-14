@@ -13,7 +13,11 @@ export default {
 
     inject: ['firstRunWizardService'],
 
-    emits: ['frw-set-title', 'buttons-update', 'frw-finish'],
+    emits: [
+        'frw-set-title',
+        'buttons-update',
+        'frw-finish',
+    ],
 
     data() {
         return {
@@ -87,18 +91,21 @@ export default {
         createdComponent() {
             this.updateButtons();
 
-            this.firstRunWizardService.getLicenseDomains().then((response) => {
-                const { items } = response;
+            this.firstRunWizardService
+                .getLicenseDomains()
+                .then((response) => {
+                    const { items } = response;
 
-                if (!items || items.length < 1) {
-                    return;
-                }
+                    if (!items || items.length < 1) {
+                        return;
+                    }
 
-                this.licenceDomains = items;
-                this.licensed = true;
-            }).catch(() => {
-                this.licensed = false;
-            });
+                    this.licenceDomains = items;
+                    this.licensed = true;
+                })
+                .catch(() => {
+                    this.licensed = false;
+                });
         },
 
         setTitle() {

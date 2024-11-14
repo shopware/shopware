@@ -18,7 +18,10 @@ export default {
 
         onSave() {
             this.$super('onSave').then(() => {
-                this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
+                this.$router.push({
+                    name: 'sw.settings.payment.detail',
+                    params: { id: this.paymentMethod.id },
+                });
             });
         },
     },

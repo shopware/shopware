@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     data() {
         return {
@@ -36,10 +39,11 @@ export default {
         },
 
         discounts() {
-            return Shopware.State.get('swPromotionDetail').promotion &&
-                Shopware.State.get('swPromotionDetail').promotion.discounts;
+            return (
+                Shopware.State.get('swPromotionDetail').promotion &&
+                Shopware.State.get('swPromotionDetail').promotion.discounts
+            );
         },
-
     },
 
     methods: {
@@ -47,10 +51,7 @@ export default {
         // It will automatically trigger a rendering of the view which
         // leads to a new card that appears within our discounts area.
         onAddDiscount() {
-            const promotionDiscountRepository = this.repositoryFactory.create(
-                this.discounts.entity,
-                this.discounts.source,
-            );
+            const promotionDiscountRepository = this.repositoryFactory.create(this.discounts.entity, this.discounts.source);
             const newDiscount = promotionDiscountRepository.create();
             newDiscount.promotionId = this.promotion.id;
             newDiscount.scope = DiscountScopes.CART;
@@ -71,10 +72,7 @@ export default {
             }
 
             this.isLoading = true;
-            const promotionDiscountRepository = this.repositoryFactory.create(
-                this.discounts.entity,
-                this.discounts.source,
-            );
+            const promotionDiscountRepository = this.repositoryFactory.create(this.discounts.entity, this.discounts.source);
 
             promotionDiscountRepository.delete(discount.id, this.discounts.context).then(() => {
                 this.discounts.remove(discount.id);

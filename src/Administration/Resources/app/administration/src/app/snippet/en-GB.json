@@ -661,6 +661,7 @@
         "billingStateRule": "Billing address: State",
         "billingZipCodeRule": "Billing address: Postal code",
         "customerGroupRule": "Customer group",
+        "customerRequestedGroupRule": "Requested customer group",
         "customerTagRule": "Customer with tag",
         "customerNumberRule": "Customer number",
         "differentAddressesRule": "Customer with deviating shipping address",

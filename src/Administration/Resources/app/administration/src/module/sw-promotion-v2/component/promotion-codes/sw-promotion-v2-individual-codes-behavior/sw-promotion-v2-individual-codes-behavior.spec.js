@@ -4,105 +4,111 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalPromotionData = {}) {
-    return mount(await wrapTestComponent('sw-promotion-v2-individual-codes-behavior', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot><slot name="toolbar"></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-promotion-v2-individual-codes-behavior', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot><slot name="toolbar"></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-card-filter': {
+                        template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                    },
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-confirm-modal': true,
+                    'sw-promotion-v2-generate-codes-modal': {
+                        template: '<div class="sw-promotion-v2-generate-codes-modal"></div>',
+                    },
+                    'sw-one-to-many-grid': true,
+                    'sw-empty-state': {
+                        template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-button': {
+                        template: '<button class="sw-button" @click="$emit(\'click\', $event.target.value)"></button>',
+                        props: ['disabled'],
+                    },
+                    'sw-button-process': {
+                        template:
+                            '<button class="sw-button-process" @click="$emit(\'click\', $event.target.value)"></button>',
+                        props: ['disabled'],
+                    },
+                    'sw-number-field': {
+                        template: '<div class="sw-number-field"><slot></slot></div>',
+                        props: ['value'],
+                    },
+                    'sw-icon': true,
+                    'sw-loader': true,
                 },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
-                },
-                'sw-card-filter': {
-                    template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
-                },
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-                },
-                'sw-confirm-modal': true,
-                'sw-promotion-v2-generate-codes-modal': {
-                    template: '<div class="sw-promotion-v2-generate-codes-modal"></div>',
-                },
-                'sw-one-to-many-grid': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
-                },
-                'sw-context-menu-item': true,
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(\'click\', $event.target.value)"></button>',
-                    props: ['disabled'],
-                },
-                'sw-button-process': {
-                    template: '<button class="sw-button-process" @click="$emit(\'click\', $event.target.value)"></button>',
-                    props: ['disabled'],
-                },
-                'sw-number-field': {
-                    template: '<div class="sw-number-field"><slot></slot></div>',
-                    props: ['value'],
-                },
-                'sw-icon': true,
-                'sw-loader': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([{ id: 'promotionId1' }]),
-                    }),
-                },
-                promotionCodeApiService: {
-                    addIndividualCodes() {
-                        return new Promise((resolve) => {
-                            resolve();
-                        });
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                        }),
+                    },
+                    promotionCodeApiService: {
+                        addIndividualCodes() {
+                            return new Promise((resolve) => {
+                                resolve();
+                            });
+                        },
                     },
                 },
             },
-        },
-        props: {
-            promotion: {
-                name: 'Test Promotion',
-                active: true,
-                validFrom: '2020-07-28T12:00:00.000+00:00',
-                validUntil: '2020-08-11T12:00:00.000+00:00',
-                maxRedemptionsGlobal: 45,
-                maxRedemptionsPerCustomer: 12,
-                exclusive: false,
-                code: null,
-                useCodes: true,
-                useIndividualCodes: false,
-                individualCodePattern: 'code-%d',
-                useSetGroups: false,
-                customerRestriction: true,
-                orderCount: 0,
-                ordersPerCustomerCount: null,
-                exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
-                translated: {
+            props: {
+                promotion: {
                     name: 'Test Promotion',
-                },
-                apiAlias: null,
-                id: 'promotionId',
-                setgroups: [],
-                salesChannels: [
-                    {
-                        promotionId: 'promotionId',
-                        salesChannelId: 'salesChannelId',
-                        priority: 1,
-                        createdAt: '2020-08-17T13:24:52.692+00:00',
-                        id: 'promotionSalesChannelId',
+                    active: true,
+                    validFrom: '2020-07-28T12:00:00.000+00:00',
+                    validUntil: '2020-08-11T12:00:00.000+00:00',
+                    maxRedemptionsGlobal: 45,
+                    maxRedemptionsPerCustomer: 12,
+                    exclusive: false,
+                    code: null,
+                    useCodes: true,
+                    useIndividualCodes: false,
+                    individualCodePattern: 'code-%d',
+                    useSetGroups: false,
+                    customerRestriction: true,
+                    orderCount: 0,
+                    ordersPerCustomerCount: null,
+                    exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
+                    translated: {
+                        name: 'Test Promotion',
                     },
-                ],
-                discounts: [],
-                individualCodes: [],
-                personaRules: [],
-                personaCustomers: [],
-                orderRules: [],
-                cartRules: [],
-                translations: [],
-                hasOrders: false,
-                ...additionalPromotionData,
+                    apiAlias: null,
+                    id: 'promotionId',
+                    setgroups: [],
+                    salesChannels: [
+                        {
+                            promotionId: 'promotionId',
+                            salesChannelId: 'salesChannelId',
+                            priority: 1,
+                            createdAt: '2020-08-17T13:24:52.692+00:00',
+                            id: 'promotionSalesChannelId',
+                        },
+                    ],
+                    discounts: [],
+                    individualCodes: [],
+                    personaRules: [],
+                    personaCustomers: [],
+                    orderRules: [],
+                    cartRules: [],
+                    translations: [],
+                    hasOrders: false,
+                    ...additionalPromotionData,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior', () => {

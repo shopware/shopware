@@ -12,8 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @phpstan-type CodePattern array{prefix?: string, replacement: string, suffix?: string, replacementString: string, replacementArray: array<string>}
+ */
 #[Package('buyers-experience')]
 class PromotionCodeService
 {
@@ -139,12 +143,11 @@ class PromotionCodeService
     }
 
     /**
-     * @return array{prefix: string, replacement: string, suffix: string, replacementString: string, replacementArray: array<string>}
+     * @return CodePattern
      */
     public function splitPattern(string $pattern): array
     {
         preg_match(self::PROMOTION_PATTERN_REGEX, $pattern, $codePattern);
-        /** @var array{prefix: string, replacement: ?string, suffix: string} $codePattern */
         if (!isset($codePattern['replacement'])) {
             throw PromotionException::invalidCodePattern($pattern);
         }
@@ -165,7 +168,7 @@ class PromotionCodeService
     }
 
     /**
-     * @param array{prefix: string, replacement: string, suffix: string, replacementString: string, replacementArray: array<string>} $codePattern
+     * @param CodePattern $codePattern
      */
     private function generateCode(array $codePattern): string
     {
@@ -174,16 +177,16 @@ class PromotionCodeService
             $code .= $this->getRandomChar($letter);
         }
 
-        return $codePattern['prefix'] . $code . $codePattern['suffix'];
+        return ($codePattern['prefix'] ?? '') . $code . ($codePattern['suffix'] ?? '');
     }
 
     private function getRandomChar(string $type): string
     {
         if ($type === 'd') {
-            return (string) random_int(0, 9);
+            return (string) Random::getInteger(0, 9);
         }
 
-        return \chr(random_int(65, 90));
+        return \chr(Random::getInteger(65, 90));
     }
 
     /**

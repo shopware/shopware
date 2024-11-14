@@ -5,7 +5,10 @@ import './sw-newsletter-recipient-list.scss';
  * @package buyers-experience
  */
 
-const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria, EntityCollection },
+} = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,7 +16,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -74,9 +80,12 @@ export default {
             this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria(1, 25));
 
             const criteria = new Criteria(1, 100);
-            this.repositoryFactory.create('language').search(criteria, Shopware.Context.api).then((items) => {
-                this.languageFilters = items;
-            });
+            this.repositoryFactory
+                .create('language')
+                .search(criteria, Shopware.Context.api)
+                .then((items) => {
+                    this.languageFilters = items;
+                });
 
             this.salesChannelRepository.search(new Criteria(1, 100)).then((salesChannels) => {
                 this.salesChannelFilters = salesChannels;
@@ -109,14 +118,17 @@ export default {
             }
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
-            this.repository.search(criteria).then((searchResult) => {
-                this.items = searchResult;
-                this.total = searchResult.total;
+            this.repository
+                .search(criteria)
+                .then((searchResult) => {
+                    this.items = searchResult;
+                    this.total = searchResult.total;
 
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         handleTagFilter(filter) {
@@ -138,7 +150,9 @@ export default {
             }
 
             if (!filter.value) {
-                this[filter.group] = this[filter.group].filter((x) => { return x !== filter.id; });
+                this[filter.group] = this[filter.group].filter((x) => {
+                    return x !== filter.id;
+                });
 
                 if (this[filter.group].length > 0) {
                     this.internalFilters[filter.group] = Criteria.equalsAny(filter.group, this[filter.group]);
@@ -180,54 +194,64 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'email',
-                label: 'sw-newsletter-recipient.list.email',
-                routerLink: 'sw.newsletter.recipient.detail',
-                allowResize: true,
-                inlineEdit: 'string',
-            }, {
-                property: 'firstName',
-                dataIndex: 'firstName,lastName',
-                inlineEdit: 'string',
-                label: 'sw-newsletter-recipient.list.name',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'salesChannel.name',
-                label: 'sw-newsletter-recipient.list.salesChannel',
-                allowResize: true,
-                primary: false,
-                visible: false,
-            }, {
-                property: 'status',
-                label: 'sw-newsletter-recipient.list.status',
-                allowResize: true,
-            }, {
-                property: 'zipCode',
-                label: 'sw-newsletter-recipient.list.zipCode',
-                allowResize: true,
-                align: 'right',
-            }, {
-                property: 'city',
-                label: 'sw-newsletter-recipient.list.city',
-                allowResize: true,
-            }, {
-                property: 'street',
-                label: 'sw-newsletter-recipient.list.street',
-                allowResize: true,
-                visible: false,
-            }, {
-                property: 'updatedAt',
-                label: 'sw-newsletter-recipient.list.updatedAt',
-                allowResize: true,
-                visible: false,
-            }, {
-                property: 'createdAt',
-                label: 'sw-newsletter-recipient.list.createdAt',
-                allowResize: true,
-                visible: false,
-            }];
+            return [
+                {
+                    property: 'email',
+                    label: 'sw-newsletter-recipient.list.email',
+                    routerLink: 'sw.newsletter.recipient.detail',
+                    allowResize: true,
+                    inlineEdit: 'string',
+                },
+                {
+                    property: 'firstName',
+                    dataIndex: 'firstName,lastName',
+                    inlineEdit: 'string',
+                    label: 'sw-newsletter-recipient.list.name',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'salesChannel.name',
+                    label: 'sw-newsletter-recipient.list.salesChannel',
+                    allowResize: true,
+                    primary: false,
+                    visible: false,
+                },
+                {
+                    property: 'status',
+                    label: 'sw-newsletter-recipient.list.status',
+                    allowResize: true,
+                },
+                {
+                    property: 'zipCode',
+                    label: 'sw-newsletter-recipient.list.zipCode',
+                    allowResize: true,
+                    align: 'right',
+                },
+                {
+                    property: 'city',
+                    label: 'sw-newsletter-recipient.list.city',
+                    allowResize: true,
+                },
+                {
+                    property: 'street',
+                    label: 'sw-newsletter-recipient.list.street',
+                    allowResize: true,
+                    visible: false,
+                },
+                {
+                    property: 'updatedAt',
+                    label: 'sw-newsletter-recipient.list.updatedAt',
+                    allowResize: true,
+                    visible: false,
+                },
+                {
+                    property: 'createdAt',
+                    label: 'sw-newsletter-recipient.list.createdAt',
+                    allowResize: true,
+                    visible: false,
+                },
+            ];
         },
     },
 };

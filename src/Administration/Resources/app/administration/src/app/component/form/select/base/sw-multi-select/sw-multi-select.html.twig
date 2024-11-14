@@ -19,7 +19,7 @@
             ref="selectionList"
             :selections="visibleValues"
             :invisible-count="invisibleValueCount"
-            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled }"
+            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled: disabled || undefined }"
             @total-count-click="expandValueLimit"
             @item-remove="remove"
             @last-item-delete="removeLastItem"

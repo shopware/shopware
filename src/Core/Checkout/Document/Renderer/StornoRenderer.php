@@ -102,6 +102,11 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     continue;
                 }
 
+                $forceDocumentCreation = $operation->getConfig()['forceDocumentCreation'] ?? true;
+                if (!$forceDocumentCreation && $order->getDocuments()?->first()) {
+                    continue;
+                }
+
                 $order = $this->handlePrices($order);
 
                 $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
@@ -188,7 +193,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
             'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
-        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
 
         /** @var ?OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);

@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
@@ -29,24 +31,18 @@ class ProductConfiguratorOrderTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     /**
-     * @var SalesChannelRepository
+     * @var SalesChannelRepository<SalesChannelProductCollection>
      */
-    private $salesChannelProductRepository;
+    private SalesChannelRepository $salesChannelProductRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var ProductConfiguratorLoader
-     */
-    private $loader;
+    private ProductConfiguratorLoader $loader;
 
     protected function setUp(): void
     {

@@ -71,37 +71,49 @@ describe('core/factory/worker-notification.factory.js', () => {
         });
 
         it('should reject the registration using the same name', async () => {
-            expect(WorkerNotificationFactory.register('foo', {
-                name: 'foo',
-                fn: noop,
-            })).toBeTruthy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    name: 'foo',
+                    fn: noop,
+                }),
+            ).toBeTruthy();
 
-            expect(WorkerNotificationFactory.register('foo', {
-                name: 'foo',
-                fn: noop,
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    name: 'foo',
+                    fn: noop,
+                }),
+            ).toBeFalsy();
         });
 
         it('should reject the registration if the options object is not valid', async () => {
             expect(WorkerNotificationFactory.register('', {})).toBeFalsy();
 
-            expect(WorkerNotificationFactory.register('foo', {
-                fn: noop,
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    fn: noop,
+                }),
+            ).toBeFalsy();
 
-            expect(WorkerNotificationFactory.register('foo', {
-                name: '',
-                fn: noop,
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    name: '',
+                    fn: noop,
+                }),
+            ).toBeFalsy();
 
-            expect(WorkerNotificationFactory.register('foo', {
-                name: 'foo',
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    name: 'foo',
+                }),
+            ).toBeFalsy();
 
-            expect(WorkerNotificationFactory.register('foo', {
-                name: 'foo',
-                fn: { foo: 'bar' },
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    name: 'foo',
+                    fn: { foo: 'bar' },
+                }),
+            ).toBeFalsy();
         });
     });
 
@@ -112,38 +124,48 @@ describe('core/factory/worker-notification.factory.js', () => {
                 fn: noop,
             });
 
-            expect(WorkerNotificationFactory.override('foo', {
-                name: 'bar',
-                fn: noop,
-            })).toBeTruthy();
+            expect(
+                WorkerNotificationFactory.override('foo', {
+                    name: 'bar',
+                    fn: noop,
+                }),
+            ).toBeTruthy();
 
             const registryEntry = WorkerNotificationFactory.getRegistry().get('foo');
             expect(registryEntry.name).toBe('bar');
         });
 
         it('should reject the override if no worker notification with the same name is registered', async () => {
-            expect(WorkerNotificationFactory.override('foo', {
-                name: 'foo',
-                fn: noop,
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.override('foo', {
+                    name: 'foo',
+                    fn: noop,
+                }),
+            ).toBeFalsy();
         });
 
         it('should reject the override if the options are not valid', async () => {
-            expect(WorkerNotificationFactory.register('foo', {
-                name: 'foo',
-                fn: noop,
-            })).toBeTruthy();
+            expect(
+                WorkerNotificationFactory.register('foo', {
+                    name: 'foo',
+                    fn: noop,
+                }),
+            ).toBeTruthy();
             expect(WorkerNotificationFactory.override('')).toBeFalsy();
             expect(WorkerNotificationFactory.override('', {})).toBeFalsy();
             expect(WorkerNotificationFactory.override('foo', {})).toBeFalsy();
-            expect(WorkerNotificationFactory.override('foo', {
-                name: '',
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.override('foo', {
+                    name: '',
+                }),
+            ).toBeFalsy();
 
-            expect(WorkerNotificationFactory.override('foo', {
-                name: 'foo',
-                fn: { foo: 'bar' },
-            })).toBeFalsy();
+            expect(
+                WorkerNotificationFactory.override('foo', {
+                    name: 'foo',
+                    fn: { foo: 'bar' },
+                }),
+            ).toBeFalsy();
         });
     });
 

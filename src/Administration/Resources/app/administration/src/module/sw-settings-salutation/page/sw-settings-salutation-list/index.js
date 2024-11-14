@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -76,22 +79,26 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'salutationKey',
-                label: 'sw-settings-salutation.list.columnSalutationKey',
-                inlineEdit: 'string',
-                routerLink: 'sw.settings.salutation.detail',
-                primary: true,
-            }, {
-                property: 'displayName',
-                label: 'sw-settings-salutation.list.columnDisplayName',
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'letterName',
-                label: 'sw-settings-salutation.list.columnLetterName',
-                inlineEdit: 'string',
-            }];
+            return [
+                {
+                    property: 'salutationKey',
+                    label: 'sw-settings-salutation.list.columnSalutationKey',
+                    inlineEdit: 'string',
+                    routerLink: 'sw.settings.salutation.detail',
+                    primary: true,
+                },
+                {
+                    property: 'displayName',
+                    label: 'sw-settings-salutation.list.columnDisplayName',
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'letterName',
+                    label: 'sw-settings-salutation.list.columnLetterName',
+                    inlineEdit: 'string',
+                },
+            ];
         },
     },
 };

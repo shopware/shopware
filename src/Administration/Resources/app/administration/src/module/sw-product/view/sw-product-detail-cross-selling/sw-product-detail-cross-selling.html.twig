@@ -13,6 +13,23 @@
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_restore_inheritance %}
+        <sw-button
+            v-if="isChild"
+            class="sw-product-detail-cross-selling__restore-inheritance-btn"
+            :disabled="!acl.can('product.editor')"
+            @click="onShowRestoreInheritanceModal"
+        >
+            <sw-icon
+                key="inherit-icon"
+                name="regular-link-horizontal"
+                size="16px"
+            />
+            {{ $tc('sw-product.crossselling.buttonRestoreCrossSellingInheritance') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_cross_selling_items %}
         <ul class="sw-product-detail-cross-selling__cross-selling-list">
             <sw-product-cross-selling-form
@@ -44,27 +61,112 @@
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_detail_cross_selling_empty_state_card %}
+    {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_card` instead. #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_empty_state %}
     <sw-card
         v-else
         position-identifier="sw-product-detail-cross-selling-empty-state"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_empty_state %}
         <sw-empty-state
             :title="$tc('sw-product.crossselling.cardTitleCrossSelling')"
-            :subline="$tc('sw-product.crossselling.emptyStateDescription')"
             :absolute="false"
             empty-module
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_cross_selling_empty_state_icon %}
             <template #icon>
                 <img
                     :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-product.crossselling.cardTitleCrossSelling')"
                 >
             </template>
+            {% endblock %}
 
+            <template #default>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_cross_selling_empty_state_content %}
+                <template v-if="isChild">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_cross_selling_empty_state_content_child %}
+                    <template v-if="isInherited">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}
+                        <p>{{ $tc('sw-product.crossselling.inheritedEmptyStateDescription') }}</p>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}
+                        <router-link
+                            v-if="isChild && isInherited"
+                            :to="{ name: 'sw.product.detail.crossSelling', params: { id: product.parentId } }"
+                            class="sw-product-detail-cross-selling__parent-cross-sellings-link"
+                        >
+                            {{ $tc('sw-product.crossselling.linkCrossSellingsOfParent') }}
+                            <sw-icon
+                                name="regular-long-arrow-right"
+                                small
+                            />
+                        </router-link>
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}
+                        <p>{{ $tc('sw-product.crossselling.notInheritedEmptyStateDescription') }}</p>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </template>
+
+                <template v-else>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_cross_selling_empty_state_content_empty %}
+                    <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_cross_selling_empty_state_inherit_switch %}
+                <template v-if="isChild">
+                    <div
+                        class="sw-product-detail-cross-selling__inherit-toggle-wrapper"
+                        :class="{ 'is--inherited': isInherited }"
+                    >
+                        <sw-switch-field
+                            v-model:value="isInherited"
+                            class="sw-product-detail-cross-selling__inherit-switch"
+                            :disabled="!acl.can('product.editor')"
+                        />
+                        <sw-inheritance-switch
+                            class="sw-product-detail-cross-selling__inheritance-icon"
+                            :is-inherited="isInherited"
+                            :disabled="!acl.can('product.editor')"
+                            @inheritance-restore="restoreInheritance"
+                            @inheritance-remove="removeInheritance"
+                        />
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                        <label class="sw-product-detail-cross-selling__inheritance-label">
+                            {{ $tc('sw-product.crossselling.inheritSwitchLabel') }}
+                        </label>
+                    </div>
+                </template>
+                {% endblock %}
+            </template>
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_cross_selling_empty_state_actions %}
+            {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_actions` instead. #}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_empty_state_cross_selling_add %}
             <template #actions>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_cross_selling_empty_state_actions_add %}
                 <sw-button
                     v-tooltip="{
                         message: onAddCrossSellingTooltipMessage,
@@ -72,15 +174,64 @@
                         showOnDisabledElements: true
                     }"
                     variant="ghost"
-                    :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+                    :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
                     @click="onAddCrossSelling"
                 >
                     {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
                 </sw-button>
+                {% endblock %}
             </template>
             {% endblock %}
+            {% endblock %}
         </sw-empty-state>
+        {% endblock %}
     </sw-card>
+    {% endblock %}
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_detail_cross_selling_modal_restore_inheritance %}
+    <sw-modal
+        v-if="showRestoreInheritanceModal"
+        variant="small"
+        :title="$tc('sw-product.crossselling.restoreInheritanceConfirmTitle')"
+        class="sw-product-detail-cross-selling__restore-inheritance-modal"
+        @modal-close="onCloseRestoreInheritanceModal"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_modal_restore_inheritance_text %}
+        <p>
+            {{ $tc('sw-product.crossselling.restoreInheritanceConfirmText') }}
+        </p>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_cross_selling_modal_restore_inheritance_footer %}
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseRestoreInheritanceModal"
+            >
+                {{ $tc('sw-product.crossselling.restoreInheritanceButtonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_restore %}
+            <sw-button
+                class="sw-product-detail-cross-selling__restore-button"
+                size="small"
+                variant="danger"
+                @click="onConfirmRestoreInheritance"
+            >
+                {{ $tc('sw-product.crossselling.restoreInheritanceButtonRestore') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
     {% endblock %}
 </div>
 {% endblock %}

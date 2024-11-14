@@ -13,8 +13,8 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -58,7 +58,7 @@ class SetOrderStateActionTest extends TestCase
     #[DataProvider('actionProvider')]
     public function testAction(array $config, int $expectsTimes, array $expected): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $orderId = Uuid::randomHex();
         $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [

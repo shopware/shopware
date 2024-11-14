@@ -45,16 +45,15 @@ async function createWrapper(privileges = []) {
                         }
 
                         return {
-                            get: () => Promise.resolve({ id: '87923', localeId: '1337' }),
-                            search: () => Promise.resolve(new EntityCollection(
-                                '',
-                                '',
-                                Shopware.Context.api,
-                                null,
-                                [],
-                                0,
-                            )),
-                            getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
+                            get: () =>
+                                Promise.resolve({
+                                    id: '87923',
+                                    localeId: '1337',
+                                }),
+                            search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
+                            getSyncChangeset: () => ({
+                                changeset: [{ changes: { id: '1337' } }],
+                            }),
                         };
                     },
                 },
@@ -65,10 +64,8 @@ async function createWrapper(privileges = []) {
                 },
                 mediaDefaultFolderService: {},
                 searchPreferencesService: {
-                    getDefaultSearchPreferences: () => {
-                    },
-                    getUserSearchPreferences: () => {
-                    },
+                    getDefaultSearchPreferences: () => {},
+                    getUserSearchPreferences: () => {},
                     createUserSearchPreferences: () => {
                         return {
                             key: 'search.preferences',
@@ -77,8 +74,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 searchRankingService: {
-                    clearCacheUserSearchConfiguration: () => {
-                    },
+                    clearCacheUserSearchConfiguration: () => {},
                 },
                 userConfigService: {
                     upsert: () => {

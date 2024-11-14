@@ -6,6 +6,7 @@ import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
+const { uniqBy } = Shopware.Utils.array;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,7 +15,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     data() {
         return {
@@ -29,6 +33,7 @@ export default {
             showAddPropertiesModal: false,
             defaultTab: 'all',
             activeTab: 'all',
+            configSettingGroups: [],
         };
     },
 
@@ -39,7 +44,7 @@ export default {
         ]),
 
         ...mapState('context', {
-            contextLanguageId: state => state.api.languageId,
+            contextLanguageId: (state) => state.api.languageId,
         }),
 
         ...mapGetters('swProductDetail', {
@@ -64,6 +69,9 @@ export default {
                 : this.product.properties;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Unused computed will be removed.
+         */
         selectedGroups() {
             if (!this.productEntity.configuratorSettings) {
                 return [];
@@ -134,8 +142,24 @@ export default {
                 this.loadOptions()
                     .then(() => {
                         return this.loadGroups();
+                    })
+                    .then(() => {
+                        return this.loadConfigSettingGroups();
                     });
             }
+        },
+
+        async loadConfigSettingGroups() {
+            const groupIds = uniqBy(this.productEntity.configuratorSettings, 'option.groupId').map(
+                (group) => group.option.groupId,
+            );
+
+            const criteria = new Criteria(1, null);
+            if (groupIds.length) {
+                criteria.addFilter(Criteria.equalsAny('id', groupIds));
+            }
+
+            this.configSettingGroups = await this.groupRepository.search(criteria);
         },
 
         loadOptions() {
@@ -232,7 +256,6 @@ export default {
                 this.productProperties.aggregations,
             );
         },
-
 
         onCancelAddPropertiesModal() {
             this.closeAddPropertiesModal();

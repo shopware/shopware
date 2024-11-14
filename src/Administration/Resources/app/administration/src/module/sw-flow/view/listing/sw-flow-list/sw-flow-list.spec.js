@@ -80,9 +80,11 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                         search: () => {
                             return Promise.resolve(customFlowData);
                         },
-                        clone: jest.fn(() => Promise.resolve({
-                            id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
-                        })),
+                        clone: jest.fn(() =>
+                            Promise.resolve({
+                                id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
+                            }),
+                        ),
                     }),
                 },
 
@@ -221,14 +223,18 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should show trigger column correctly with unknown trigger', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ], false, [
-            {
-                id: '44de136acf314e7184401d36406c1e90',
-                eventName: 'checkout.order.custom',
-            },
-        ]);
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            false,
+            [
+                {
+                    id: '44de136acf314e7184401d36406c1e90',
+                    eventName: 'checkout.order.custom',
+                },
+            ],
+        );
 
         await flushPromises();
 
@@ -237,9 +243,12 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should show custom trigger column correctly', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ], true);
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            true,
+        );
 
         await wrapper.vm.$nextTick();
 

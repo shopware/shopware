@@ -3,8 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-import ImportExportUpdateByMappingService
-    from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
+import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
 // eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
@@ -52,54 +51,62 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     }
 
     async function createWrapper(profile) {
-        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
-            Shopware.EntityDefinition.add(entityName, entityDefinition);
-        });
+        Object.entries(entitySchemaMock).forEach(
+            ([
+                entityName,
+                entityDefinition,
+            ]) => {
+                Shopware.EntityDefinition.add(entityName, entityDefinition);
+            },
+        );
 
-        return mount(await wrapTestComponent('sw-import-export-edit-profile-modal-identifiers', {
-            sync: true,
-        }), {
-            props: {
-                profile,
-            },
-            global: {
-                provide: {
-                    importExportUpdateByMapping: new ImportExportUpdateByMappingService(Shopware.EntityDefinition),
+        return mount(
+            await wrapTestComponent('sw-import-export-edit-profile-modal-identifiers', {
+                sync: true,
+            }),
+            {
+                props: {
+                    profile,
                 },
-                stubs: {
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                    'sw-import-export-entity-path-select': true,
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-empty-state': true,
-                    'sw-icon': true,
-                    'sw-field-error': true,
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-popover': await wrapTestComponent('sw-popover'),
-                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-highlight-text': {
-                        props: ['text'],
-                        template: '<div class="sw-highlight-text">{{ this.text }}</div>',
+                global: {
+                    provide: {
+                        importExportUpdateByMapping: new ImportExportUpdateByMappingService(Shopware.EntityDefinition),
                     },
-                    'sw-checkbox-field': true,
-                    'sw-context-menu-item': true,
-                    'sw-context-button': true,
-                    'sw-data-grid-settings': true,
-                    'sw-data-grid-column-boolean': true,
-                    'sw-data-grid-inline-edit': true,
-                    'router-link': true,
-                    'sw-button': true,
-                    'sw-data-grid-skeleton': true,
-                    'sw-loader': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
+                    stubs: {
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-import-export-entity-path-select': true,
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-single-select': await wrapTestComponent('sw-single-select'),
+                        'sw-empty-state': true,
+                        'sw-icon': true,
+                        'sw-field-error': true,
+                        'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                        'sw-popover': await wrapTestComponent('sw-popover'),
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                        'sw-select-result': await wrapTestComponent('sw-select-result'),
+                        'sw-highlight-text': {
+                            props: ['text'],
+                            template: '<div class="sw-highlight-text">{{ this.text }}</div>',
+                        },
+                        'sw-checkbox-field': true,
+                        'sw-context-menu-item': true,
+                        'sw-context-button': true,
+                        'sw-data-grid-settings': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'router-link': true,
+                        'sw-button': true,
+                        'sw-data-grid-skeleton': true,
+                        'sw-loader': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                    },
                 },
             },
-        });
+        );
     }
 
     beforeEach(async () => {
@@ -151,7 +158,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--identifierName').text()).toBe('tax');
     });
 
-
     it('should have options for entries in update by mapping', async () => {
         const profileMock = getProfileMock();
 
@@ -164,11 +170,19 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const productNumberOption = wrapper.find('.sw-select-option--0');
         expect(productNumberOption.exists()).toBeTruthy();
 
-        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--mapped .sw-single-select__selection-text').text()).toBe('translations.DEFAULT.name');
+        expect(
+            wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--mapped .sw-single-select__selection-text').text(),
+        ).toBe('translations.DEFAULT.name');
 
-        expect(wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--mapped sw-import-export-entity-path-select-stub').exists()).toBeTruthy();
+        expect(
+            wrapper
+                .find('.sw-data-grid__row--2 .sw-data-grid__cell--mapped sw-import-export-entity-path-select-stub')
+                .exists(),
+        ).toBeTruthy();
 
-        expect(wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--mapped .sw-single-select__selection-text').text()).toBe('id');
+        expect(
+            wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--mapped .sw-single-select__selection-text').text(),
+        ).toBe('id');
 
         await wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--mapped .sw-select__selection').trigger('click');
         await flushPromises();

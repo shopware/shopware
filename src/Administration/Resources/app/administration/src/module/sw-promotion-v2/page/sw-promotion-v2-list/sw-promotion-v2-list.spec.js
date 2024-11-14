@@ -10,7 +10,8 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-page': {
-                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
+                    template:
+                        '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                 },
                 'sw-button': true,
                 'sw-entity-listing': true,
@@ -85,7 +86,10 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable editing of entries when privilege is set', async () => {
-        global.activeAclRoles = ['promotion.viewer', 'promotion.editor'];
+        global.activeAclRoles = [
+            'promotion.viewer',
+            'promotion.editor',
+        ];
 
         const wrapper = await createWrapper();
 
@@ -103,7 +107,11 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable deletion of entries when privilege is set', async () => {
-        global.activeAclRoles = ['promotion.viewer', 'promotion.editor', 'promotion.deleter'];
+        global.activeAclRoles = [
+            'promotion.viewer',
+            'promotion.editor',
+            'promotion.deleter',
+        ];
 
         const wrapper = await createWrapper();
 

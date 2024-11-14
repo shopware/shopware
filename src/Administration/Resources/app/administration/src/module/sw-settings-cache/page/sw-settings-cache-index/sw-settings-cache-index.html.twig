@@ -107,8 +107,8 @@
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_cache_content_clear_cache_row %}
-                <sw-card-section divider="bottom">
+                {% block sw_settings_cache_content_clear_data_cache_row %}
+                <sw-card-section v-if="feature.isActive('cache_rework')" divider="bottom">
                     <sw-container align="center" columns="1fr auto" gap="20px">
                         <div>
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

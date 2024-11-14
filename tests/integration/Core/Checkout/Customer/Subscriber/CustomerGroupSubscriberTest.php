@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -26,14 +27,14 @@ class CustomerGroupSubscriberTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SeoUrlCollection>
      */
-    private $seoRepository;
+    private EntityRepository $seoRepository;
 
     protected function setUp(): void
     {

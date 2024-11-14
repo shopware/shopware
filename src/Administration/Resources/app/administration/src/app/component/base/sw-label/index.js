@@ -29,30 +29,64 @@ Component.register('sw-label', {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'neutral-reversed', 'primary'],
+            validValues: [
+                'info',
+                'danger',
+                'success',
+                'warning',
+                'neutral',
+                'neutral-reversed',
+                'primary',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['info', 'danger', 'success', 'warning', 'neutral', 'neutral-reversed', 'primary'].includes(value);
+                return [
+                    'info',
+                    'danger',
+                    'success',
+                    'warning',
+                    'neutral',
+                    'neutral-reversed',
+                    'primary',
+                ].includes(value);
             },
         },
         size: {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['small', 'medium', 'default'],
+            validValues: [
+                'small',
+                'medium',
+                'default',
+            ],
             validator(value) {
-                return ['small', 'medium', 'default'].includes(value);
+                return [
+                    'small',
+                    'medium',
+                    'default',
+                ].includes(value);
             },
         },
         appearance: {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'pill', 'circle', 'badged'],
+            validValues: [
+                'default',
+                'pill',
+                'circle',
+                'badged',
+            ],
             validator(value) {
-                return ['default', 'pill', 'circle', 'badged'].includes(value);
+                return [
+                    'default',
+                    'pill',
+                    'circle',
+                    'badged',
+                ].includes(value);
             },
         },
         ghost: {

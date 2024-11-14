@@ -16,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -32,7 +32,7 @@ class SeoUrlUpdaterTest extends TestCase
     private const PARENT = 'de-DE';
     private const CHILD = 'de-TEST';
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     /**
      * @var array<string, mixed>
@@ -48,7 +48,7 @@ class SeoUrlUpdaterTest extends TestCase
     {
         parent::setUp();
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         // Get language ids
         $this->ids->set(self::DEFAULT, Defaults::LANGUAGE_SYSTEM);

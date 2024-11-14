@@ -12,26 +12,36 @@ class Delivery extends Struct
 {
     /**
      * @var DeliveryPositionCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $positions;
 
     /**
      * @var ShippingLocation
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $location;
 
     /**
      * @var DeliveryDate
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryDate;
 
     /**
      * @var ShippingMethodEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethod;
 
     /**
      * @var CalculatedPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingCosts;
 

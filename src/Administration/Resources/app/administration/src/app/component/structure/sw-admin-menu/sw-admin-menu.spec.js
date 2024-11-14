@@ -75,17 +75,19 @@ async function createWrapper(options = {}) {
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
                         const entityName = 'customEntityName';
-                        return [{
-                            id: `custom-entity/${entityName}`,
-                            label: `${entityName}.moduleTitle`,
-                            moduleType: 'plugin',
-                            path: 'sw.custom.entity.index',
-                            params: {
-                                entityName: entityName,
+                        return [
+                            {
+                                id: `custom-entity/${entityName}`,
+                                label: `${entityName}.moduleTitle`,
+                                moduleType: 'plugin',
+                                path: 'sw.custom.entity.index',
+                                params: {
+                                    entityName: entityName,
+                                },
+                                position: 100,
+                                parent: 'sw.second.top.level',
                             },
-                            position: 100,
-                            parent: 'sw.second.top.level',
-                        }];
+                        ];
                     },
                 },
             },
@@ -198,7 +200,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         await wrapper.vm.$nextTick();
 
-
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
         expect(userTitle.text()).toBe('Copyreader');
@@ -211,10 +212,14 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         element1.classList.add('foo', 'bar');
         element2.classList.add('foo', 'bar');
 
-        wrapper.vm.removeClassesFromElements([
-            element1,
-            element2,
-        ], ['foo'], [element2]);
+        wrapper.vm.removeClassesFromElements(
+            [
+                element1,
+                element2,
+            ],
+            ['foo'],
+            [element2],
+        );
 
         expect(element1.classList.contains('bar')).toBe(true);
         expect(element1.classList.contains('foo')).toBe(false);
@@ -225,10 +230,22 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
     it('should be able to check if a mouse position is in a polygon', async () => {
         const polygon = [
-            [0, 287],
-            [0, 335],
-            [300, 431],
-            [300, 287],
+            [
+                0,
+                287,
+            ],
+            [
+                0,
+                335,
+            ],
+            [
+                300,
+                431,
+            ],
+            [
+                300,
+                287,
+            ],
         ];
 
         const insideMousePosition = {
@@ -247,13 +264,31 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should get polygon from menu item', async () => {
         const element = document.createElement('div');
         const entry = {
-            children: [{
-                name: 'foo',
-            }],
+            children: [
+                {
+                    name: 'foo',
+                },
+            ],
         };
 
-        expect(wrapper.vm.getPolygonFromMenuItem(element, entry))
-            .toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
+        expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([
+            [
+                0,
+                0,
+            ],
+            [
+                0,
+                0,
+            ],
+            [
+                0,
+                0,
+            ],
+            [
+                0,
+                0,
+            ],
+        ]);
     });
 
     it('should render correct admin menu entries', async () => {
@@ -299,12 +334,12 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         // Console error gets thrown for both levels
         expect(Shopware.Utils.debug.error.mock.calls[0][0]).toBeInstanceOf(Error);
         expect(Shopware.Utils.debug.error.mock.calls[0][0].toString()).toBe(
-            'Error: The navigation entry \"sw.fourth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
+            'Error: The navigation entry "sw.fourth.level.first" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
         );
 
         expect(Shopware.Utils.debug.error.mock.calls[1][0]).toBeInstanceOf(Error);
         expect(Shopware.Utils.debug.error.mock.calls[1][0].toString()).toBe(
-            'Error: The navigation entry \"sw.fifth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
+            'Error: The navigation entry "sw.fifth.level.first" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
         );
     });
 
@@ -432,7 +467,9 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await target.trigger('mouseenter');
         await flushPromises();
 
-        const flyoutItem = wrapper.findComponent('.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first');
+        const flyoutItem = wrapper.findComponent(
+            '.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first',
+        );
         expect(flyoutItem.findAll('.sw-icon')).toHaveLength(0);
     });
 });

@@ -16,12 +16,12 @@ export default Shopware.Component.wrapComponentConfig({
                 slots: Array<{
                     slot: string;
                     type: string;
-                }>,
+                }>;
                 customFields?: {
                     slotLayout?: {
                         grid?: string;
-                    }
-                },
+                    };
+                };
             }>,
             required: false,
             default() {

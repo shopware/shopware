@@ -11,11 +11,15 @@ class SearchPage extends Page
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $searchTerm;
 
     /**
      * @var ProductListingResult
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $listing;
 

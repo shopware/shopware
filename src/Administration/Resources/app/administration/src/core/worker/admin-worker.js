@@ -35,7 +35,9 @@ self.onerror = (msg, url, lineNo, columnNo, error) => {
         isWorkerError: true,
     };
 
-    ports.forEach((port) => { port.postMessage(data); });
+    ports.forEach((port) => {
+        port.postMessage(data);
+    });
 };
 
 function onconnect(event) {
@@ -47,11 +49,9 @@ function onconnect(event) {
 
 function onMessage({ data: { context, bearerAuth, host, transports, type } }) {
     // This if statement is so ugly, because we cannot use ES6 Syntax in web workers
-    if (type === 'logout' ||
-        !(typeof context === 'object' &&
-            context.hasOwnProperty('apiResourcePath') &&
-            context.apiResourcePath
-        )
+    if (
+        type === 'logout' ||
+        !(typeof context === 'object' && context.hasOwnProperty('apiResourcePath') && context.apiResourcePath)
     ) {
         isRunning = false;
         return;
@@ -99,7 +99,9 @@ function runTasks(timeout) {
     }
 
     scheduledTaskService.runTasks().catch((error) => {
-        const { response: { status } } = error;
+        const {
+            response: { status },
+        } = error;
 
         if (status === 401) {
             postMessage('expiredToken');
@@ -116,7 +118,8 @@ function consumeMessages(receiver, _setTimeout = setTimeout) {
         return;
     }
 
-    messageQueueService.consume(receiver, cancelTokenSource.token)
+    messageQueueService
+        .consume(receiver, cancelTokenSource.token)
         .then((response) => {
             // no message handled, set timeout to 20 seconds to send next consume call.
             // if a message handled, directly send next consume call.

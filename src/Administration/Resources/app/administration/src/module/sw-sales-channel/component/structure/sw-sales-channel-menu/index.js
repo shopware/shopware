@@ -17,7 +17,11 @@ Component.register('sw-sales-channel-menu', {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'domainLinkService',
+    ],
 
     data() {
         return {
@@ -40,9 +44,18 @@ Component.register('sw-sales-channel-menu', {
             const criteria = new Criteria(1, 7);
 
             criteria.addIncludes({
-                sales_channel: ['name', 'type', 'active', 'translated', 'domains'],
+                sales_channel: [
+                    'name',
+                    'type',
+                    'active',
+                    'translated',
+                    'domains',
+                ],
                 sales_channel_type: ['iconName'],
-                sales_channel_domain: ['url', 'languageId'],
+                sales_channel_domain: [
+                    'url',
+                    'languageId',
+                ],
             });
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
@@ -70,7 +83,10 @@ Component.register('sw-sales-channel-menu', {
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
                     color: '#D8DDE6',
-                    label: { label: salesChannel.translated.name, translated: true },
+                    label: {
+                        label: salesChannel.translated.name,
+                        translated: true,
+                    },
                     icon: salesChannel.type.iconName,
                     children: [],
                     domainLink: this.getDomainLink(salesChannel),
@@ -115,7 +131,6 @@ Component.register('sw-sales-channel-menu', {
             this.loadEntityData();
         },
     },
-
 
     created() {
         this.createdComponent();

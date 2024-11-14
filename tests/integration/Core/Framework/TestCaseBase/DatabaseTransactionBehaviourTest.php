@@ -17,10 +17,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    /**
-     * @var bool
-     */
-    private $setUpIsInTransaction = false;
+    private bool $setUpIsInTransaction = false;
 
     protected function setUp(): void
     {

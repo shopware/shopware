@@ -9,7 +9,7 @@ const { Application } = Shopware;
  */
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
-        flowBuilderService: FlowBuilderService,
+        flowBuilderService: FlowBuilderService;
     }
 }
 

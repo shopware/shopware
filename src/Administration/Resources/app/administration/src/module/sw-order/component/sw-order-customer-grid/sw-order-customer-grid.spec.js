@@ -20,7 +20,12 @@ const customers = generateCustomers();
 
 const contextState = {
     namespaced: true,
-    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    state: {
+        api: {
+            languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        },
+    },
     mutations: {
         resetLanguageToDefault: jest.fn(),
         setLanguageId: jest.fn(),
@@ -40,7 +45,7 @@ function generateCustomers() {
             lastName: 'Nguyen',
             email: `quynh${i}@example.com`,
             salesChannelId: '1234',
-            customerNumber: i,
+            customerNumber: `sw${i}`,
             salesChannel: {
                 translated: {
                     name: 'Storefront',
@@ -82,8 +87,12 @@ async function createWrapper() {
                     },
                 },
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
+                'sw-pagination': await wrapTestComponent('sw-pagination', {
+                    sync: true,
+                }),
                 'sw-product-variant-info': true,
                 'sw-data-grid-settings': true,
                 'sw-data-grid-skeleton': true,
@@ -93,8 +102,11 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-empty-state': true,
                 'sw-card-filter': {
-                    props: ['value'],
-                    template: '<input class="sw-card-filter" :value="value" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
+                    data() {
+                        return { term: '' };
+                    },
+                    template:
+                        '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
                 },
                 'sw-icon': true,
                 'sw-field': true,
@@ -110,7 +122,10 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result': {
-                    props: ['item', 'index'],
+                    props: [
+                        'item',
+                        'index',
+                    ],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -157,9 +172,10 @@ async function createWrapper() {
                             return Promise.resolve(customerData);
                         },
                         get: () => Promise.resolve({ ...customers[0] }),
-                        searchIds: () => Promise.resolve({
-                            data: customers.map((customer) => customer.salesChannelId),
-                        }),
+                        searchIds: () =>
+                            Promise.resolve({
+                                data: customers.map((customer) => customer.salesChannelId),
+                            }),
                     }),
                 },
             },
@@ -179,25 +195,28 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     beforeAll(() => {
         Shopware.Service().register('contextStoreService', () => {
             return {
-                updateCustomerContext: () => Promise.resolve({
-                    status: 200,
-                }),
+                updateCustomerContext: () =>
+                    Promise.resolve({
+                        status: 200,
+                    }),
             };
         });
 
         Shopware.Service().register('cartStoreService', () => {
             return {
-                getCart: () => Promise.resolve({
-                    data: {
-                        token: 'token',
-                        lineItems: [],
-                    },
-                }),
-                createCart: () => Promise.resolve({
-                    data: {
-                        token: 'token',
-                    },
-                }),
+                getCart: () =>
+                    Promise.resolve({
+                        data: {
+                            token: 'token',
+                            lineItems: [],
+                        },
+                    }),
+                createCart: () =>
+                    Promise.resolve({
+                        data: {
+                            token: 'token',
+                        },
+                    }),
             };
         });
 
@@ -246,8 +265,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await searchField.trigger('input');
 
         emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title'))
-            .toBe('sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}');
+        expect(emptyState.attributes('title')).toBe(
+            'sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}',
+        );
     });
 
     it('should show customer grid', async () => {
@@ -362,11 +382,15 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         });
 
         const wrapper = await createWrapper();
+        const spyOnSearchList = jest.spyOn(wrapper.vm, 'onSearch');
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         const firstRowRadioField = firstRow.find('.sw-field__radio-input input');
 
         await flushPromises();
+
+        expect(wrapper.find('.sw-card-filter').element.value).toBe('sw1');
+        expect(spyOnSearchList).toHaveBeenCalledWith('sw1');
 
         expect(firstRowRadioField.element.checked).toBeTruthy();
     });

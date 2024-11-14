@@ -31,11 +31,9 @@ class SnippetApiService extends ApiService {
     getFilter() {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/filter`, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return this.httpClient.get(`/_action/${this.getApiBasePath()}/filter`, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
     }
 
     /**
@@ -53,14 +51,20 @@ class SnippetApiService extends ApiService {
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
-            }).then((allSnippets) => {
+            })
+            .then((allSnippets) => {
                 const registry = localeFactory.getLocaleRegistry();
 
-                Object.entries(allSnippets).forEach(([localeKey, snippets]) => {
-                    const fnName = (registry.has(localeKey) ? 'extend' : 'register');
+                Object.entries(allSnippets).forEach(
+                    ([
+                        localeKey,
+                        snippets,
+                    ]) => {
+                        const fnName = registry.has(localeKey) ? 'extend' : 'register';
 
-                    localeFactory[fnName](localeKey, snippets);
-                });
+                        localeFactory[fnName](localeKey, snippets);
+                    },
+                );
             });
     }
 }

@@ -11,8 +11,12 @@ async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-app-module-page', { sync: true }), {
         global: {
             stubs: {
-                'sw-extension-app-module-error-page': await wrapTestComponent('sw-extension-app-module-error-page', { sync: true }),
-                'sw-page': await wrapTestComponent('sw-page', { sync: true }),
+                'sw-extension-app-module-error-page': await wrapTestComponent('sw-extension-app-module-error-page', {
+                    sync: true,
+                }),
+                'sw-page': await wrapTestComponent('sw-page', {
+                    sync: true,
+                }),
                 'sw-notification-center': true,
                 'sw-help-center': true,
                 'sw-search-bar': true,
@@ -36,7 +40,9 @@ async function createWrapper(props) {
             provide: {
                 extensionSdkService: {
                     signIframeSrc(_, source) {
-                        return Promise.resolve({ uri: `${source}?timestamp=signed` });
+                        return Promise.resolve({
+                            uri: `${source}?timestamp=signed`,
+                        });
                     },
                 },
             },

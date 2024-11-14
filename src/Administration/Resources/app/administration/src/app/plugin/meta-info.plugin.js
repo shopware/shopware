@@ -42,7 +42,10 @@ class MetaInfoPlugin {
                     });
                 } else {
                     // eslint-disable-next-line max-len
-                    warn('Meta Info Plugin', 'Providing the metaInfo as an object is not supported anymore. Please use a function instead.');
+                    warn(
+                        'Meta Info Plugin',
+                        'Providing the metaInfo as an object is not supported anymore. Please use a function instead.',
+                    );
                 }
             },
 

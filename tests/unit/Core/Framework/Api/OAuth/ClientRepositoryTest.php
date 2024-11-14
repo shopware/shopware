@@ -44,6 +44,7 @@ class ClientRepositoryTest extends TestCase
         $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier, $clientSecret) {
             if ($clientIdentifier === 'SWUAADMIN' && $clientSecret === 'shopware') {
                 return [
+                    'id' => '123',
                     'secret_access_key' => password_hash($clientSecret, \PASSWORD_BCRYPT),
                 ];
             }
@@ -51,8 +52,41 @@ class ClientRepositoryTest extends TestCase
             return false;
         });
 
+        $this->connection
+            ->expects(
+                ($expectedResult && $grantType === 'client_credentials') ? static::once() : static::never()
+            )
+            ->method('update');
+
         $result = $this->clientRepository->validateClient($clientIdentifier, $clientSecret, $grantType);
         static::assertSame($expectedResult, $result);
+    }
+
+    public function testValidateClientMustNotAuthenticateBecauseInvalidClientSecret(): void
+    {
+        $this->connection
+            ->method('fetchAssociative')
+            ->willReturnCallback(
+                function () {
+                    return [
+                        'id' => '123',
+                        'active' => true,
+                        'secret_access_key' => 'secret_access_key',
+                    ];
+                }
+            );
+
+        $this->connection
+            ->expects(static::never())
+            ->method('update');
+
+        $result = $this->clientRepository->validateClient(
+            'SWIAINTEGRATION',
+            'wrong-client-secret',
+            'client_credentials'
+        );
+
+        static::assertFalse($result);
     }
 
     #[DataProvider('getClientEntityDataProvider')]
@@ -86,6 +120,10 @@ class ClientRepositoryTest extends TestCase
 
             return false;
         });
+
+        $this->connection
+            ->expects(static::never())
+            ->method('update');
 
         $clientEntity = $this->clientRepository->getClientEntity($clientIdentifier);
 

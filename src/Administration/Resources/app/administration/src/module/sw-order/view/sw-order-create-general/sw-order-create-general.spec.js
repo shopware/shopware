@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-
 /**
  * @package customer-order
  */
@@ -19,7 +18,9 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
@@ -47,7 +48,6 @@ async function createWrapper() {
         },
     });
 }
-
 
 describe('src/module/sw-order/view/sw-order-create-general', () => {
     beforeEach(() => {
@@ -180,17 +180,19 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             price: {
                 taxStatus: 'tax-free',
             },
-            deliveries: [{
-                shippingCosts: {
-                    totalPrice: 50,
-                    calculatedTaxes: [],
+            deliveries: [
+                {
+                    shippingCosts: {
+                        totalPrice: 50,
+                        calculatedTaxes: [],
+                    },
                 },
-            }],
+            ],
         });
 
         await wrapper.vm.$nextTick();
 
-        const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => { });
+        const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => {});
 
         let button = wrapper.find('.sw-order-create-summary__data div[role="button"]');
         await button.trigger('click');

@@ -80,6 +80,14 @@
             <tag name="shopware.sitemap_url_provider"/>
         </service>
 
+        <service id="Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="router"/>
+
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
         <!-- Config Handler -->
         <service id="Shopware\Core\Content\Sitemap\ConfigHandler\File">
             <argument>%shopware.sitemap%</argument>

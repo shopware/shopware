@@ -31,6 +31,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\SwagTestPlugin;
+use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
@@ -48,11 +49,9 @@ class KernelPluginIntegrationTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->kernel) {
-            /** @var TestContainer $serviceContainer */
-            $serviceContainer = $this->kernel->getContainer()
-                ->get('test.service_container');
-            $serviceContainer->get('cache.object')
-                ->clear();
+            $serviceContainer = $this->kernel->getContainer()->get('test.service_container');
+            static::assertInstanceOf(TestContainer::class, $serviceContainer);
+            $serviceContainer->get('cache.object')->clear();
         }
     }
 
@@ -119,11 +118,8 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
-        // should always be public
-        static::assertTrue($this->kernel->getContainer()->has(SwagTestPlugin::class));
-
-        /** @var SwagTestPlugin $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getContainer()->get(SwagTestPlugin::class);
+        static::assertInstanceOf(SwagTestPlugin::class, $swagTestPlugin);
 
         // autowired
         static::assertInstanceOf(SystemConfigService::class, $swagTestPlugin->systemConfig);
@@ -144,9 +140,8 @@ class KernelPluginIntegrationTest extends TestCase
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext());
 
-        /** @var SwagTestPlugin $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
-        static::assertNotNull($swagTestPlugin);
+        static::assertInstanceOf(SwagTestPlugin::class, $swagTestPlugin);
 
         // autowired
         static::assertInstanceOf(SystemConfigService::class, $swagTestPlugin->systemConfig);
@@ -173,9 +168,8 @@ class KernelPluginIntegrationTest extends TestCase
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext());
 
-        /** @var SwagTestPlugin $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
-        static::assertNotNull($swagTestPlugin);
+        static::assertInstanceOf(SwagTestSkipRebuild::class, $swagTestPlugin);
 
         // not autowired
         static::assertNull($swagTestPlugin->systemConfig);
@@ -202,9 +196,8 @@ class KernelPluginIntegrationTest extends TestCase
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
 
-        /** @var SwagTestPlugin $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
-        static::assertNotNull($swagTestPlugin);
+        static::assertInstanceOf(SwagTestSkipRebuild::class, $swagTestPlugin);
 
         // autowired
         static::assertInstanceOf(SystemConfigService::class, $swagTestPlugin->systemConfig);
@@ -230,13 +223,13 @@ class KernelPluginIntegrationTest extends TestCase
 
         $lifecycleService = $this->makePluginLifecycleService();
 
-        /** @var SwagTestPlugin $oldPluginInstance */
         $oldPluginInstance = $this->kernel->getPluginLoader()->getPluginInstances()->get($active->getBaseClass());
+        static::assertInstanceOf(SwagTestPlugin::class, $oldPluginInstance);
 
         $lifecycleService->deactivatePlugin($active, Context::createDefaultContext());
 
-        /** @var SwagTestPlugin $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($active->getBaseClass());
+        static::assertInstanceOf(SwagTestPlugin::class, $swagTestPlugin);
 
         // only the preDeactivate is called with the plugin still active
         static::assertNull($oldPluginInstance->preActivateContext);
@@ -303,8 +296,8 @@ class KernelPluginIntegrationTest extends TestCase
 
         $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
         $this->makeKernel($loader);
-        /** @var Kernel $kernel */
         $kernel = $this->kernel;
+        static::assertNotNull($kernel);
         $kernel->boot();
 
         $criteria = new Criteria();
@@ -312,7 +305,6 @@ class KernelPluginIntegrationTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepository $scheduledTasksRepo */
         $scheduledTasksRepo = $kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities()->first();
         static::assertNull($result);
@@ -320,14 +312,12 @@ class KernelPluginIntegrationTest extends TestCase
         $pluginLifecycleManager = $this->makePluginLifecycleService();
         $pluginLifecycleManager->activatePlugin($plugin, $context);
 
-        /** @var EntityRepository $scheduledTasksRepo */
         $scheduledTasksRepo = $kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities();
         static::assertNotNull($result);
 
         $pluginLifecycleManager->deactivatePlugin($plugin, $context);
 
-        /** @var EntityRepository $scheduledTasksRepo */
         $scheduledTasksRepo = $kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities()->first();
         static::assertNull($result);
@@ -335,8 +325,8 @@ class KernelPluginIntegrationTest extends TestCase
 
     private function makePluginLifecycleService(): PluginLifecycleService
     {
-        /** @var Kernel $kernel */
         $kernel = $this->kernel;
+        static::assertNotNull($kernel);
         $container = $kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();

@@ -12,11 +12,11 @@ class IconCacheTwigFilter extends AbstractExtension
 {
     protected static bool $enabled = false;
 
+    /**
+     * @var array<string, string|null>
+     */
     protected static array $iconCache = [];
 
-    /**
-     * @return TwigFilter[]
-     */
     public function getFilters(): array
     {
         return [
@@ -24,9 +24,6 @@ class IconCacheTwigFilter extends AbstractExtension
         ];
     }
 
-    /**
-     * @return TwigFunction[]
-     */
     public function getFunctions(): array
     {
         return [
@@ -37,13 +34,12 @@ class IconCacheTwigFilter extends AbstractExtension
 
     public function iconCache(?string $icon): ?string
     {
-        if (self::$enabled === false || $icon === null) {
+        if (!self::$enabled || $icon === null) {
             return $icon;
         }
 
-        $iconId = false;
         preg_match('#id="(.*?)"#', $icon, $iconId);
-        if (\is_array($iconId) && \count($iconId) === 2 && !empty($iconId[1])) {
+        if (\count($iconId) === 2 && !empty($iconId[1])) {
             if (isset(self::$iconCache[$iconId[1]])) {
                 return self::$iconCache[$iconId[1]];
             }

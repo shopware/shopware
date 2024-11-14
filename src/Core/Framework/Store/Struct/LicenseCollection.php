@@ -15,6 +15,8 @@ class LicenseCollection extends Collection
 {
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $total = 0;
 

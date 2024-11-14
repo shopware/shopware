@@ -38,85 +38,87 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     };
 
     const valuesCard = async (additionalOptions = {}, additionalProps = {}) => {
-        return mount(await wrapTestComponent('sw-settings-product-feature-sets-values-card', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-container': true,
-                    'sw-simple-search-field': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-icon': true,
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid', {
-                        sync: true,
-                    }),
-                    'sw-loader': true,
-                    'sw-checkbox-field': true,
-                    'sw-data-grid-column-position': await wrapTestComponent('sw-data-grid-column-position', {
-                        sync: true,
-                    }),
-                    'sw-button-group': true,
-                    'sw-extension-component-section': true,
-                    'sw-settings-product-feature-sets-modal': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-context-button': true,
-                    'router-link': true,
-                    'sw-context-menu-item': true,
-                    'sw-data-grid-settings': true,
-                    'sw-data-grid-column-boolean': true,
-                    'sw-data-grid-inline-edit': true,
-                    'sw-data-grid-skeleton': true,
-                    i18n: true,
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: () => ({
-                            search: () => Promise.reject(),
+        return mount(
+            await wrapTestComponent('sw-settings-product-feature-sets-values-card', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    stubs: {
+                        'sw-card': await wrapTestComponent('sw-card'),
+                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                        'sw-container': true,
+                        'sw-simple-search-field': true,
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-icon': true,
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                            sync: true,
                         }),
-                        search: () => {
+                        'sw-loader': true,
+                        'sw-checkbox-field': true,
+                        'sw-data-grid-column-position': await wrapTestComponent('sw-data-grid-column-position', {
+                            sync: true,
+                        }),
+                        'sw-button-group': true,
+                        'sw-extension-component-section': true,
+                        'sw-settings-product-feature-sets-modal': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-context-button': true,
+                        'router-link': true,
+                        'sw-context-menu-item': true,
+                        'sw-data-grid-settings': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'sw-data-grid-skeleton': true,
+                        i18n: true,
+                    },
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.reject(),
+                            }),
+                            search: () => {},
                         },
                     },
+                    ...additionalOptions,
                 },
-                ...additionalOptions,
-            },
-            props: {
-                isLoading: false,
-                productFeatureSet: {
-                    id: '21605c15655f441f9e1275e2a2f2e1d1',
-                    name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
-                    description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
-                    features: [
-                        {
-                            type: 'referencePrice',
-                            id: null,
-                            name: null,
-                            position: 0,
-                        },
-                        {
-                            type: 'product',
-                            id: null,
-                            name: 'description',
-                            position: 1,
-                        },
-                        {
-                            type: 'product',
-                            id: null,
-                            name: 'name',
-                            position: 2,
-                        },
-                    ],
+                props: {
+                    isLoading: false,
+                    productFeatureSet: {
+                        id: '21605c15655f441f9e1275e2a2f2e1d1',
+                        name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
+                        description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
+                        features: [
+                            {
+                                type: 'referencePrice',
+                                id: null,
+                                name: null,
+                                position: 0,
+                            },
+                            {
+                                type: 'product',
+                                id: null,
+                                name: 'description',
+                                position: 1,
+                            },
+                            {
+                                type: 'product',
+                                id: null,
+                                name: 'name',
+                                position: 2,
+                            },
+                        ],
+                    },
+                    ...additionalProps,
                 },
-                ...additionalProps,
             },
-        });
+        );
     };
 
     const getReferencePrice = (props) => {
-        return props.productFeatureSet.features.find(feature => feature.type === 'referencePrice');
+        return props.productFeatureSet.features.find((feature) => feature.type === 'referencePrice');
     };
 
     beforeEach(async () => {
@@ -152,9 +154,11 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         // Check if all column headers are present
         Object.values(headerCellContent).forEach((value) => {
-            expect(headerCells.filter((cell) => {
-                return cell.text() === value;
-            })).toHaveLength(1);
+            expect(
+                headerCells.filter((cell) => {
+                    return cell.text() === value;
+                }),
+            ).toHaveLength(1);
         });
 
         const bodyCells = firstRow.findAll(`.${classes.valueListCellContent}`);
@@ -211,7 +215,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(addButton.attributes().disabled).toBeUndefined();
         expect(dataGrid.props().showSelection).toBe(true);
 
-        columnPositions.forEach(columnPosition => {
+        columnPositions.forEach((columnPosition) => {
             expect(columnPosition.props().disabled).toBe(false);
         });
     });
@@ -237,7 +241,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(addButton.attributes().disabled).toBeDefined();
         expect(dataGrid.props().showSelection).toBe(false);
 
-        columnPositions.forEach(columnPosition => {
+        columnPositions.forEach((columnPosition) => {
             expect(columnPosition.props().disabled).toBe(true);
         });
     });
@@ -246,15 +250,18 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         wrapper.unmount();
         await flushPromises();
 
-        wrapper = await valuesCard({}, {
-            isLoading: false,
-            productFeatureSet: {
-                id: '21605c15655f441f9e1275e2a2f2e1d1',
-                name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
-                description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
-                features: [],
+        wrapper = await valuesCard(
+            {},
+            {
+                isLoading: false,
+                productFeatureSet: {
+                    id: '21605c15655f441f9e1275e2a2f2e1d1',
+                    name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
+                    description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
+                    features: [],
+                },
             },
-        });
+        );
         await flushPromises();
 
         const rootEmpty = wrapper.get(`.${classes.componentRoot}.is--empty`);

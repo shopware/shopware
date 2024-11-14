@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -83,7 +83,7 @@ class ProductCrossSellingSerializerTest extends TestCase
 
     private function getProductCrossSelling(): ProductCrossSellingEntity
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             (new ProductBuilder($ids, 'a'))->price(15, 10)->visibility()->build(),

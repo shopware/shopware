@@ -35,46 +35,64 @@ class AppEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $id;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $path;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $author;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $copyright;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $license;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $privacy;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $version;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $allowDisable;
 
@@ -106,31 +124,43 @@ class AppEntity extends Entity
      * @internal
      *
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $iconRaw;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $icon;
 
     /**
      * @var AppTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $privacyPolicyExtensions;
 
@@ -138,41 +168,57 @@ class AppEntity extends Entity
      * @internal
      *
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appSecret;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $integrationId;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $active;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configurable;
 
     /**
      * @var IntegrationEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $integration;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aclRoleId;
 
     /**
      * @var AclRoleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aclRole;
 
     /**
      * @var TemplateCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $templates;
 
@@ -183,21 +229,29 @@ class AppEntity extends Entity
 
     /**
      * @var CustomFieldSetCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customFieldSets;
 
     /**
      * @var ActionButtonCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $actionButtons;
 
     /**
      * @var WebhookCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $webhooks;
 
     /**
      * @var AppPaymentMethodCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethods;
 
@@ -207,6 +261,8 @@ class AppEntity extends Entity
      * @internal
      *
      * @var AppScriptConditionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $scriptConditions;
 
@@ -214,16 +270,22 @@ class AppEntity extends Entity
      * @internal
      *
      * @var AppCmsBlockCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsBlocks;
 
     /**
      * @var AppFlowActionCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $flowActions;
 
     /**
      * @var AppFlowEventCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $flowEvents;
 
@@ -234,6 +296,8 @@ class AppEntity extends Entity
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $templateLoadPriority;
 

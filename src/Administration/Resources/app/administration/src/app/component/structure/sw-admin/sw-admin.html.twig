@@ -6,6 +6,16 @@
     @mousemove="onUserActivity"
     @keyup="onUserActivity"
 >
+    <!-- @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM -->
+    <div id="overrideCompnents" style="display: none;">
+        <component
+            :is="overrideComponent"
+            v-for="(overrideComponent, index) in overrideComponents"
+            v-once
+            :key="index"
+        />
+    </div>
+
     <sw-notifications ref="notifications" />
     <sw-duplicated-media-v2 v-if="isLoggedIn" />
     <router-view />

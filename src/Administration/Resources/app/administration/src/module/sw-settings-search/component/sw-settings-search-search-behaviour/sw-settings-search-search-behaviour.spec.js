@@ -4,63 +4,64 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-search-search-behaviour', {
-        sync: true,
-    }), {
-        props: {
-            searchBehaviourConfigs: {
-                andLogic: true,
-                minSearchLength: 2,
-            },
-        },
-
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
-                    },
+    return mount(
+        await wrapTestComponent('sw-settings-search-search-behaviour', {
+            sync: true,
+        }),
+        {
+            props: {
+                searchBehaviourConfigs: {
+                    andLogic: true,
+                    minSearchLength: 2,
                 },
             },
 
-            provide: {
-                validationService: {},
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
 
-            },
+                provide: {
+                    validationService: {},
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-            stubs: {
-                'sw-card': true,
-                'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': true,
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-help-text': true,
-                'mt-number-field': true,
-                'sw-field-copyable': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-            },
+                            return privileges.includes(identifier);
+                        },
+                    },
+                },
 
-            attachTo: document.body,
+                stubs: {
+                    'sw-card': true,
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-help-text': true,
+                    'mt-number-field': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                },
+
+                attachTo: document.body,
+            },
         },
-
-    });
+    );
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-behaviour', () => {

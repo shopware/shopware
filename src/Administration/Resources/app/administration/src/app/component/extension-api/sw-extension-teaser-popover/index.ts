@@ -13,7 +13,7 @@ interface TeaserPopoverConfig {
         icon?: string;
         variant?: string;
         locationTriggerId?: string;
-    }
+    };
 }
 
 /**
@@ -21,9 +21,9 @@ interface TeaserPopoverConfig {
  *
  * @private
  * @description A teaser popover for upselling service only, no public usage
-  * @example-type dynamic
-  * @component-example
-  * <sw-extension-teaser-popover position-identifier="my-special-position" />
+ * @example-type dynamic
+ * @component-example
+ * <sw-extension-teaser-popover position-identifier="my-special-position" />
  */
 Shopware.Component.register('sw-extension-teaser-popover', {
     template,
@@ -48,11 +48,11 @@ Shopware.Component.register('sw-extension-teaser-popover', {
     },
 
     data(): {
-        isOpened: boolean,
-        isMouseEnterTrigger: boolean,
-        isMouseEnterContent: boolean,
-        delay: number
-        } {
+        isOpened: boolean;
+        isMouseEnterTrigger: boolean;
+        isMouseEnterContent: boolean;
+        delay: number;
+    } {
         return {
             isMouseEnterTrigger: false,
             isMouseEnterContent: false,
@@ -67,8 +67,7 @@ Shopware.Component.register('sw-extension-teaser-popover', {
                 return this.component;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return Shopware.Store.get('teaserPopoverState')?.identifier[this.positionIdentifier] || {};
+            return Shopware.Store.get('teaserPopover')?.identifier[this.positionIdentifier] || {};
         },
 
         isInsideComponent(): boolean {
@@ -86,11 +85,15 @@ Shopware.Component.register('sw-extension-teaser-popover', {
         },
 
         onMouseLeaveContent(): void {
-            setTimeout(() => { this.isMouseEnterContent = false; }, this.delay);
+            setTimeout(() => {
+                this.isMouseEnterContent = false;
+            }, this.delay);
         },
 
         onMouseLeaveTrigger(): void {
-            setTimeout(() => { this.isMouseEnterTrigger = false; }, this.delay);
+            setTimeout(() => {
+                this.isMouseEnterTrigger = false;
+            }, this.delay);
         },
     },
 });

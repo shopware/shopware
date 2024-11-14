@@ -73,14 +73,16 @@ Module.register('sw-property', {
         },
     },
 
-    navigation: [{
-        id: 'sw-property',
-        label: 'sw-property.general.mainMenuItemGeneral',
-        parent: 'sw-catalogue',
-        path: 'sw.property.index',
-        position: 40,
-        privilege: 'property.viewer',
-    }],
+    navigation: [
+        {
+            id: 'sw-property',
+            label: 'sw-property.general.mainMenuItemGeneral',
+            parent: 'sw-catalogue',
+            path: 'sw.property.index',
+            position: 40,
+            privilege: 'property.viewer',
+        },
+    ],
 
     defaultSearchConfiguration,
 });

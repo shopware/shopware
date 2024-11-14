@@ -21,6 +21,8 @@ abstract class KernelPluginLoader extends Bundle
 {
     /**
      * @var array<int, PluginInfo>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $pluginInfos = [];
 

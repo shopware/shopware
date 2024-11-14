@@ -29,10 +29,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var ManufacturerLogoCmsElementResolver
-     */
-    private $manufacturerLogoCmsElementResolver;
+    private ManufacturerLogoCmsElementResolver $manufacturerLogoCmsElementResolver;
 
     protected function setUp(): void
     {

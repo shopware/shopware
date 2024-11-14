@@ -19,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -76,7 +78,12 @@ class PaymentProcessor
 
             // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
             if (!$paymentHandler instanceof AbstractPaymentHandler) {
-                return $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
+                $result = null;
+                Feature::callSilentIfInactive('v6.7.0.0', function () use ($orderId, $request, $salesChannelContext, $finishUrl, $errorUrl, &$result): void {
+                    $result = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
+                });
+
+                return $result;
             }
 
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
@@ -124,7 +131,17 @@ class PaymentProcessor
                 throw PaymentException::invalidToken('');
             }
 
-            return $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
+            $result = null;
+            Feature::callSilentIfInactive('v6.7.0.0', function () use ($paymentToken, $request, $context, &$result): void {
+                $result = $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
+            });
+
+            if (!$result) {
+                // @phpstan-ignore-next-line
+                throw FeatureException::error('The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead');
+            }
+
+            return $result;
         }
 
         try {

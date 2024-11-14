@@ -79,12 +79,12 @@ class CartPromotionsDataDefinition extends Struct
     public function addCodePromotions(string $code, array $promotions): void
     {
         if (!\array_key_exists($code, $this->codePromotions)) {
-            $this->codePromotions[$code] = [];
+            $this->codePromotions[$code] = $promotions;
+
+            return;
         }
 
-        $existing = $this->codePromotions[$code];
-
-        $this->codePromotions[$code] = array_merge($existing, $promotions);
+        $this->codePromotions[$code] = array_merge($this->codePromotions[$code], $promotions);
     }
 
     /**

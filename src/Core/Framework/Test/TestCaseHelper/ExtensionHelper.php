@@ -19,11 +19,15 @@ class ExtensionHelper
 
     /**
      * @var PropertyInfoExtractor
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyInfoExtractor;
 
     /**
      * @var PropertyAccessor
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyAccessor;
 

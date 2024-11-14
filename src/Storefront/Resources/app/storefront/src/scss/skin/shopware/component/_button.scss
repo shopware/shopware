@@ -29,4 +29,5 @@ https://getbootstrap.com/docs/5.2/components/buttons
 
 .btn-link {
     --#{$prefix}btn-font-weight: #{$font-weight-semibold};
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
 }

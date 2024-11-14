@@ -1,0 +1,40 @@
+shopware:
+    redis:
+        connections:
+            ephemeral:
+                dsn: '%env(string:REDIS_URL)%'
+            persistent:
+                dsn: '%env(string:REDIS_URL)%'
+
+    # delayed cache invalidation
+    cache:
+        invalidation:
+            delay: 1
+            delay_options:
+                storage: 'redis'
+                # dsn: 'redis://localhost:6379/1'
+                connection: 'ephemeral'
+
+    # increment storage
+    increment:
+        redis_increment:
+            type: 'redis'
+            config:
+                connection: 'persistent'
+                #url: 'redis://localhost:6379/3'
+
+    # number ranges
+    number_range:
+        increment_storage: "redis"
+        config:
+            # dsn: 'redis://host:port/dbindex'
+            connection: 'persistent'
+
+    # cart storage
+    cart:
+        storage:
+            type: 'redis'
+            config:
+                #dsn: 'redis://host:port/dbindex'
+                connection: 'persistent'
+

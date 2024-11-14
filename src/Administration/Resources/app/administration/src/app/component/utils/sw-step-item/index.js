@@ -78,7 +78,14 @@ Component.register('sw-step-item', {
         },
 
         setVariant(variant) {
-            if (!['disabled', 'info', 'error', 'success'].includes(variant)) {
+            if (
+                ![
+                    'disabled',
+                    'info',
+                    'error',
+                    'success',
+                ].includes(variant)
+            ) {
                 return;
             }
 

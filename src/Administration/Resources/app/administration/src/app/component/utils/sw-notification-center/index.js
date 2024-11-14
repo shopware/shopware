@@ -35,7 +35,7 @@ Component.register('sw-notification-center', {
 
         additionalContextButtonClass() {
             return {
-                'sw-notification-center__context-button--new-available': this.notifications.some(n => !n.visited),
+                'sw-notification-center__context-button--new-available': this.notifications.some((n) => !n.visited),
             };
         },
     },

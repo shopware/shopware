@@ -24,52 +24,62 @@ async function createWrapper() {
         },
     ]);
 
-    return mount(await wrapTestComponent('sw-category-entry-point-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-modal': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-category-entry-point-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-modal': {
+                        template: `
                         <div class="sw-modal">
                           <slot name="modal-header"></slot>
                           <slot></slot>
                           <slot name="modal-footer"></slot>
                         </div>
                     `,
+                    },
+                    'sw-single-select': true,
+                    'sw-text-field': true,
+                    'sw-textarea-field': true,
+                    'sw-cms-list-item': true,
+                    'sw-switch-field': true,
+                    'sw-button': true,
+                    'sw-cms-layout-modal': true,
+                    'sw-icon': true,
+                    'sw-discard-changes-modal': true,
                 },
-                'sw-single-select': true,
-                'sw-text-field': true,
-                'sw-textarea-field': true,
-                'sw-cms-list-item': true,
-                'sw-switch-field': true,
-                'sw-button': true,
-                'sw-cms-layout-modal': true,
-                'sw-icon': true,
-                'sw-discard-changes-modal': true,
-            },
-            provide: {
-                cmsPageTypeService: {
-                    getTypes: () => {
-                        return [{
-                            name: 'page',
-                            title: 'page',
-                        }, {
-                            name: 'landingpage',
-                            title: 'landingpage',
-                        }, {
-                            name: 'product_list',
-                            title: 'product_list',
-                        }, {
-                            name: 'product_detail',
-                            title: 'product_detail',
-                        }];
+                provide: {
+                    cmsPageTypeService: {
+                        getTypes: () => {
+                            return [
+                                {
+                                    name: 'page',
+                                    title: 'page',
+                                },
+                                {
+                                    name: 'landingpage',
+                                    title: 'landingpage',
+                                },
+                                {
+                                    name: 'product_list',
+                                    title: 'product_list',
+                                },
+                                {
+                                    name: 'product_detail',
+                                    title: 'product_detail',
+                                },
+                            ];
+                        },
                     },
                 },
             },
+            props: {
+                salesChannelCollection,
+            },
         },
-        props: {
-            salesChannelCollection,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-category/component/sw-category-entry-point-modal', () => {
@@ -82,35 +92,25 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled)
-            .toBeUndefined();
-        expect(wrapper.find('.sw-category-entry-point-modal__layout-item').attributes().disabled)
-            .toBeUndefined();
-        expect(wrapper.find('.sw-category-entry-point-modal__meta-title').attributes().disabled)
-            .toBeUndefined();
-        expect(wrapper.find('.sw-category-entry-point-modal__meta-description').attributes().disabled)
-            .toBeUndefined();
-        expect(wrapper.find('.sw-category-entry-point-modal__seo-keywords').attributes().disabled)
-            .toBeUndefined();
+        expect(
+            wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled,
+        ).toBeUndefined();
+        expect(wrapper.find('.sw-category-entry-point-modal__layout-item').attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-category-entry-point-modal__meta-title').attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-category-entry-point-modal__meta-description').attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-category-entry-point-modal__seo-keywords').attributes().disabled).toBeUndefined();
     });
 
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled)
-            .toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__name-in-main-navigation').attributes().disabled)
-            .toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__layout-item').attributes().disabled)
-            .toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__meta-title').attributes().disabled)
-            .toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__meta-description').attributes().disabled)
-            .toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__seo-keywords').attributes().disabled)
-            .toBe('true');
+        expect(wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled).toBe('true');
+        expect(wrapper.find('.sw-category-entry-point-modal__name-in-main-navigation').attributes().disabled).toBe('true');
+        expect(wrapper.find('.sw-category-entry-point-modal__layout-item').attributes().disabled).toBe('true');
+        expect(wrapper.find('.sw-category-entry-point-modal__meta-title').attributes().disabled).toBe('true');
+        expect(wrapper.find('.sw-category-entry-point-modal__meta-description').attributes().disabled).toBe('true');
+        expect(wrapper.find('.sw-category-entry-point-modal__seo-keywords').attributes().disabled).toBe('true');
     });
-
 
     it('should have sales channel options which contain no changes', async () => {
         global.activeAclRoles = ['category.editor'];

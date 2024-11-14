@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['page-leave-confirm', 'page-leave-cancel'],
+    emits: [
+        'page-leave-confirm',
+        'page-leave-cancel',
+    ],
 
     methods: {
         onConfirm() {

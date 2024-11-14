@@ -51,7 +51,10 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        price: [dollarPrice, euroPrice],
+        price: [
+            dollarPrice,
+            euroPrice,
+        ],
         purchasePrices: [purchasePrices],
         taxRate,
         currency,
@@ -128,8 +131,9 @@ describe('components/form/sw-list-price-field', () => {
     it('should not display gross help text when not in vertical mode', async () => {
         const wrapper = await setup();
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBeUndefined();
+        expect(
+            wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text'],
+        ).toBeUndefined();
     });
 
     it('should display gross help text when in vertical mode', async () => {
@@ -137,8 +141,9 @@ describe('components/form/sw-list-price-field', () => {
             vertical: true,
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBe('global.sw-list-price-field.helpTextListPriceGross');
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text']).toBe(
+            'global.sw-list-price-field.helpTextListPriceGross',
+        );
     });
 
     it('should not display gross help text when in compact mode', async () => {
@@ -147,10 +152,12 @@ describe('components/form/sw-list-price-field', () => {
             compact: true,
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBeUndefined();
+        expect(
+            wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text'],
+        ).toBeUndefined();
 
-        expect(wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBeUndefined();
+        expect(
+            wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub').attributes()['gross-help-text'],
+        ).toBeUndefined();
     });
 });

@@ -65,10 +65,7 @@ export default {
         },
 
         addressRepository() {
-            return this.repositoryFactory.create(
-                this.activeCustomer.addresses.entity,
-                this.activeCustomer.addresses.source,
-            );
+            return this.repositoryFactory.create(this.activeCustomer.addresses.entity, this.activeCustomer.addresses.source);
         },
 
         sortedAddresses() {
@@ -85,7 +82,7 @@ export default {
                     }
 
                     if (typeof aValue === 'number' && typeof bValue === 'number') {
-                        isBigger = (aValue - bValue) > 0;
+                        isBigger = aValue - bValue > 0;
                     }
 
                     if (isBigger !== null) {
@@ -133,7 +130,10 @@ export default {
             }
 
             if (!this.activeCustomer.id) {
-                this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
+                this.$router.push({
+                    name: 'sw.customer.detail.base',
+                    params: { id: this.$route.params.id },
+                });
                 return;
             }
 
@@ -148,38 +148,47 @@ export default {
         },
 
         getAddressColumns() {
-            return [{
-                property: 'defaultShippingAddress',
-                label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
-                align: 'center',
-                iconLabel: 'regular-shopping-cart',
-                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
-            }, {
-                property: 'defaultBillingAddress',
-                label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
-                align: 'center',
-                iconLabel: 'regular-file-text',
-                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
-            }, {
-                property: 'lastName',
-                label: this.$tc('sw-customer.detailAddresses.columnLastName'),
-            }, {
-                property: 'firstName',
-                label: this.$tc('sw-customer.detailAddresses.columnFirstName'),
-            }, {
-                property: 'company',
-                label: this.$tc('sw-customer.detailAddresses.columnCompany'),
-            }, {
-                property: 'street',
-                label: this.$tc('sw-customer.detailAddresses.columnStreet'),
-            }, {
-                property: 'zipcode',
-                label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
-                align: 'right',
-            }, {
-                property: 'city',
-                label: this.$tc('sw-customer.detailAddresses.columnCity'),
-            }];
+            return [
+                {
+                    property: 'defaultShippingAddress',
+                    label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    align: 'center',
+                    iconLabel: 'regular-shopping-cart',
+                    iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                },
+                {
+                    property: 'defaultBillingAddress',
+                    label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    align: 'center',
+                    iconLabel: 'regular-file-text',
+                    iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                },
+                {
+                    property: 'lastName',
+                    label: this.$tc('sw-customer.detailAddresses.columnLastName'),
+                },
+                {
+                    property: 'firstName',
+                    label: this.$tc('sw-customer.detailAddresses.columnFirstName'),
+                },
+                {
+                    property: 'company',
+                    label: this.$tc('sw-customer.detailAddresses.columnCompany'),
+                },
+                {
+                    property: 'street',
+                    label: this.$tc('sw-customer.detailAddresses.columnStreet'),
+                },
+                {
+                    property: 'zipcode',
+                    label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
+                    align: 'right',
+                },
+                {
+                    property: 'city',
+                    label: this.$tc('sw-customer.detailAddresses.columnCity'),
+                },
+            ];
         },
 
         setAddressSorting(column) {
@@ -237,24 +246,19 @@ export default {
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
             let isValid = true;
 
-            requiredAddressFields.forEach(field => {
-                if ((ignoreFields.indexOf(field) !== -1) || required(address[field])) {
+            requiredAddressFields.forEach((field) => {
+                if (ignoreFields.indexOf(field) !== -1 || required(address[field])) {
                     return;
                 }
 
                 isValid = false;
 
-                Shopware.State.dispatch(
-                    'error/addApiError',
-                    {
-                        expression: `customer_address.${this.currentAddress.id}.${field}`,
-                        error: new ShopwareError(
-                            {
-                                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                            },
-                        ),
-                    },
-                );
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: `customer_address.${this.currentAddress.id}.${field}`,
+                    error: new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }),
+                });
             });
 
             return isValid;
@@ -306,8 +310,10 @@ export default {
         },
 
         isDefaultAddress(addressId) {
-            return this.activeCustomer.defaultBillingAddressId === addressId ||
-                this.activeCustomer.defaultShippingAddressId === addressId;
+            return (
+                this.activeCustomer.defaultBillingAddressId === addressId ||
+                this.activeCustomer.defaultShippingAddressId === addressId
+            );
         },
 
         onChangeDefaultBillingAddress(billingAddressId) {

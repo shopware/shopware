@@ -344,7 +344,9 @@
         "downloadDocuments": {
           "label": "Download: Documents",
           "helpText": "With this option, the most recent documents available are offered for download. Multiple documents are merged into the same file. The download is available after the multiple change has been completed."
-        }
+        },
+        "forceDocumentCreation": "Force document creation",
+        "forceDocumentCreationHelpText": "The document is also generated if the order already contains a document of this type."
       },
       "customFields": {
         "cardTitle": "Custom fields",

@@ -59,7 +59,10 @@ Component.register('sw-sidebar-item', {
             required: false,
             default: 'top',
             validator(value) {
-                return ['top', 'bottom'].includes(value);
+                return [
+                    'top',
+                    'bottom',
+                ].includes(value);
             },
         },
 

@@ -14,16 +14,22 @@ class CmsSlotTranslationEntity extends TranslationEntity
 
     /**
      * @var array|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $config;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsSlotId;
 
     /**
      * @var CmsSlotEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsSlot;
 

@@ -50,10 +50,10 @@ export default class ErrorResolverSystemConfig {
 
     private reduceErrorsByWriteIndex(errors: ApiError[]) {
         const writeErrors: {
-            systemError: ShopwareError[],
+            systemError: ShopwareError[];
             apiError: {
-                [key: string]: ShopwareError
-            },
+                [key: string]: ShopwareError;
+            };
         } = {
             systemError: [],
             apiError: {},
@@ -82,7 +82,7 @@ export default class ErrorResolverSystemConfig {
             const denormalized = {};
             const lastIndex = segments.length - 1;
 
-            segments.reduce((pointer: {[key: string]: Partial<ShopwareError> }, segment, index) => {
+            segments.reduce((pointer: { [key: string]: Partial<ShopwareError> }, segment, index) => {
                 // skip translations
                 if (segment === 'translations' || segments[index - 1] === 'translations') {
                     return pointer;
@@ -109,7 +109,7 @@ export default class ErrorResolverSystemConfig {
         });
     }
 
-    private handleErrors(errors: {[key: string]: ShopwareError}) {
+    private handleErrors(errors: { [key: string]: ShopwareError }) {
         Object.keys(errors).forEach((key: string) => {
             void Shopware.State.dispatch('error/addApiError', {
                 expression: this.getErrorPath(key),

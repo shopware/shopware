@@ -18,11 +18,15 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
 
     /**
      * @var Request
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $request;
 
     /**
      * @var EntitySearchResult<ProductCollection>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $result;
 

@@ -14,11 +14,15 @@ trait ConsoleProgressTrait
 {
     /**
      * @var SymfonyStyle|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $io;
 
     /**
      * @var ProgressBar|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $progress;
 

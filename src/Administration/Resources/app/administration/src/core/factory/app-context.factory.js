@@ -12,9 +12,14 @@ export default function createContext(context = {}) {
     Shopware.State.commit('context/setAppFallbackLocale', 'en-GB');
 
     // assign unknown context information
-    Object.entries(context).forEach(([key, value]) => {
-        Shopware.State.commit('context/addAppValue', { key, value });
-    });
+    Object.entries(context).forEach(
+        ([
+            key,
+            value,
+        ]) => {
+            Shopware.State.commit('context/addAppValue', { key, value });
+        },
+    );
 
     return Shopware.Context.app;
 }

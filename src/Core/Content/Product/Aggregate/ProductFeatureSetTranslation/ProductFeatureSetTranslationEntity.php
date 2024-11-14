@@ -11,21 +11,29 @@ class ProductFeatureSetTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productFeatureSetId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $description;
 
     /**
      * @var ProductFeatureSetEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productFeatureSet;
 

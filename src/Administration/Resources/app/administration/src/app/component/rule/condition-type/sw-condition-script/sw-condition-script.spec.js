@@ -114,46 +114,50 @@ describe('components/rule/condition-type/sw-condition-script', () => {
             type: 'scriptRule',
             scriptId: 'foo',
             appScriptCondition: {
-                config: [{
-                    name: 'operator',
-                    type: 'select',
-                    config: {
-                        options: [
-                            {
-                                label: { 'en-GB': 'Is equal to' },
-                                value: '=',
-                            },
-                            {
-                                label: { 'en-GB': 'Is not equal to' },
-                                value: '!=',
-                            },
-                        ],
-                        validation: 'required',
-                        componentName: 'sw-single-select',
-                        customFieldType: 'select',
-                        customFieldPosition: 1,
+                config: [
+                    {
+                        name: 'operator',
+                        type: 'select',
+                        config: {
+                            options: [
+                                {
+                                    label: { 'en-GB': 'Is equal to' },
+                                    value: '=',
+                                },
+                                {
+                                    label: { 'en-GB': 'Is not equal to' },
+                                    value: '!=',
+                                },
+                            ],
+                            validation: 'required',
+                            componentName: 'sw-single-select',
+                            customFieldType: 'select',
+                            customFieldPosition: 1,
+                        },
                     },
-                }, {
-                    name: 'firstName',
-                    type: 'text',
-                    config: {
+                    {
+                        name: 'firstName',
                         type: 'text',
-                        validation: 'required',
-                        componentName: 'sw-field',
-                        customFieldType: 'text',
-                        customFieldPosition: 1,
+                        config: {
+                            type: 'text',
+                            validation: 'required',
+                            componentName: 'sw-field',
+                            customFieldType: 'text',
+                            customFieldPosition: 1,
+                        },
                     },
-                }, {
-                    name: 'productIds',
-                    type: 'entity',
-                    config: {
-                        validation: 'required',
-                        componentName: 'sw-entity-multi-id-select',
-                        customFieldType: 'select',
-                        customFieldPosition: 1,
-                        entity: 'product',
+                    {
+                        name: 'productIds',
+                        type: 'entity',
+                        config: {
+                            validation: 'required',
+                            componentName: 'sw-entity-multi-id-select',
+                            customFieldType: 'select',
+                            customFieldPosition: 1,
+                            entity: 'product',
+                        },
                     },
-                }],
+                ],
             },
         });
         await flushPromises();
@@ -197,7 +201,17 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await entryOne.trigger('click');
         await entryTwo.trigger('click');
 
-        expect(wrapper.vm.condition.value.productIds).toEqual(expect.arrayContaining(['p.a', 'p.b']));
-        expect(wrapper.vm.values.productIds).toEqual(expect.arrayContaining(['p.a', 'p.b']));
+        expect(wrapper.vm.condition.value.productIds).toEqual(
+            expect.arrayContaining([
+                'p.a',
+                'p.b',
+            ]),
+        );
+        expect(wrapper.vm.values.productIds).toEqual(
+            expect.arrayContaining([
+                'p.a',
+                'p.b',
+            ]),
+        );
     });
 });

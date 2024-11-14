@@ -21,12 +21,24 @@ export default Shopware.Component.wrapComponentConfig({
             required: true,
         },
         criteriaFilterType: {
-            type: String as PropType<'contains' | 'equals'>,
+            type: String as PropType<'contains' | 'equals' | 'equalsAny' | 'prefix' | 'suffix'>,
             required: false,
             default: 'contains',
-            validValues: ['contains', 'equals'],
+            validValues: [
+                'contains',
+                'equals',
+                'equalsAny',
+                'prefix',
+                'suffix',
+            ],
             validator(value: string): boolean {
-                return ['contains', 'equals'].includes(value);
+                return [
+                    'contains',
+                    'equals',
+                    'equalsAny',
+                    'prefix',
+                    'suffix',
+                ].includes(value);
             },
         },
     },
@@ -39,9 +51,17 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const filterCriteria = [Criteria[this.criteriaFilterType](this.filter.property, newValue)];
+            let filterValue: string | string[] = newValue;
+            let filterCriteria;
 
-            this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
+            if (this.criteriaFilterType === 'equalsAny') {
+                filterValue = newValue.split(',').map((e) => e.trim());
+                filterCriteria = Criteria.equalsAny(this.filter.property, filterValue);
+            } else {
+                filterCriteria = Criteria[this.criteriaFilterType](this.filter.property, filterValue);
+            }
+
+            this.$emit('filter-update', this.filter.name, [filterCriteria], filterValue);
         },
 
         resetFilter(): void {

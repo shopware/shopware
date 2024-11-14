@@ -20,14 +20,12 @@ function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) 
     const remainder = itemLength % itemPerPage;
     const totalPage = Math.ceil(itemLength / itemPerPage);
 
-    if (itemPerPage === 1
-        || remainder === 0
-        || itemLength <= itemPerPage) {
+    if (itemPerPage === 1 || remainder === 0 || itemLength <= itemPerPage) {
         return (expectedIndex / totalPage) * 100;
     }
 
     const itemWidth = 100 / itemLength;
-    return (expectedIndex === totalPage - 1)
+    return expectedIndex === totalPage - 1
         ? ((expectedIndex - 1) * itemPerPage + remainder) * itemWidth
         : expectedIndex * itemPerPage * itemWidth;
 }
@@ -62,9 +60,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     it('should display every image, even in an object, independent if the link is external or not', async () => {
         const wrapper = await createWrapper();
         const containerScrollable = wrapper.find('.sw-image-slider__image-scrollable');
-        const actualImages = wrapper.findAll(
-            '.sw-image-slider__image-scrollable .sw-image-slider__element-image',
-        );
+        const actualImages = wrapper.findAll('.sw-image-slider__image-scrollable .sw-image-slider__element-image');
 
         expect(containerScrollable.exists()).toBeTruthy();
         expect(actualImages).toHaveLength(images.length);
@@ -114,8 +110,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex = 0;
         let translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
         expect(data.currentPageNumber).toBe(expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // First ArrowRight click
         await arrowRight.trigger('click');
@@ -123,8 +120,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // First ArrowLeft click
         await arrowLeft.trigger('click');
@@ -132,8 +130,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Check if it doesnt exceed its range to the left
         await arrowLeft.trigger('click');
@@ -141,8 +140,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Click a bit further to the right
         expectedIndex = 4;
@@ -153,8 +153,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Check if it doesnt exceed its range to the right
         await arrowRight.trigger('click');
@@ -162,8 +163,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
     });
 
     it('should navigate using the buttons', async () => {
@@ -182,24 +184,27 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex = 0;
         let translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
         expect(data.currentPageNumber).toBe(0);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         expectedIndex = 3;
         await buttons.at(expectedIndex).trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         expectedIndex = 1;
         await buttons.at(expectedIndex).trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
     });
 
     it('should navigate by arrows correctly when there are more than 1 item per page', async () => {
@@ -224,8 +229,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex = 0;
         let translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
         expect(data.currentPageNumber).toBe(expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // First ArrowRight click
         await arrowRight.trigger('click');
@@ -233,8 +239,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // First ArrowLeft click
         await arrowLeft.trigger('click');
@@ -242,8 +249,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Check if it doesnt exceed its range to the left
         await arrowLeft.trigger('click');
@@ -251,8 +259,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Click a bit further to the right
         expectedIndex = 2;
@@ -261,8 +270,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Check if it doesnt exceed its range to the right
         await arrowRight.trigger('click');
@@ -270,8 +280,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
     });
 
     it('should navigate by buttons correctly when there are more than 1 item per page', async () => {
@@ -294,8 +305,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex = 0;
         let translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
         expect(data.currentPageNumber).toBe(0);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Move to last page which contain 4th and 5th images
         expectedIndex = 2;
@@ -303,8 +315,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
 
         // Move to 2nd page which contain 3rd and 4th images
         expectedIndex = 1;
@@ -312,8 +325,9 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(data.currentPageNumber).toBe(expectedIndex);
 
         translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
-        expect(containerScrollable.attributes().style)
-            .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
+        expect(containerScrollable.attributes().style).toContain(
+            `${staticStyles} transform: translateX(-${translateAmount}%);`,
+        );
     });
 
     it('should mark aria-hidden correctly when navigating', async () => {
@@ -328,7 +342,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex;
         const imageWrappers = wrapper.findAll('.sw-image-slider__element-wrapper');
         imageWrappers.forEach((item, index) => {
-            expect(item.attributes()['aria-hidden']).toBe((index === 0 || index === 1) ? undefined : 'true');
+            expect(item.attributes()['aria-hidden']).toBe(index === 0 || index === 1 ? undefined : 'true');
         });
 
         // Move to last page, mark 4th and 5th images not hidden
@@ -336,7 +350,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         await buttons.at(expectedIndex).trigger('click');
 
         imageWrappers.forEach((item, index) => {
-            expect(item.attributes()['aria-hidden']).toBe((index === 3 || index === 4) ? undefined : 'true');
+            expect(item.attributes()['aria-hidden']).toBe(index === 3 || index === 4 ? undefined : 'true');
         });
 
         // Move to 2nd page, mark 3rd and 4th images not hidden
@@ -344,7 +358,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         await buttons.at(expectedIndex).trigger('click');
 
         imageWrappers.forEach((item, index) => {
-            expect(item.attributes()['aria-hidden']).toBe((index === 2 || index === 3) ? undefined : 'true');
+            expect(item.attributes()['aria-hidden']).toBe(index === 2 || index === 3 ? undefined : 'true');
         });
     });
 

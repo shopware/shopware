@@ -46,48 +46,50 @@ async function createWrapper(privileges = []) {
         };
     });
 
-    return mount(await wrapTestComponent('sw-settings-tag-list', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
-                    },
-                },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve(responseMock);
+    return mount(
+        await wrapTestComponent('sw-settings-tag-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
                         },
-
-                        delete: deleteEndpoint,
-
-                        clone: cloneEndpoint,
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
-                tagApiService: {
-                    filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] })),
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve(responseMock);
+                            },
+
+                            delete: deleteEndpoint,
+
+                            clone: cloneEndpoint,
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    searchRankingService: {},
+                    tagApiService: {
+                        filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] })),
+                    },
                 },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -100,50 +102,51 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card-view': {
-                    template: `
+                    },
+                    'sw-card-view': {
+                        template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card': {
-                    template: `
+                    },
+                    'sw-card': {
+                        template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
-                },
-                'sw-entity-listing': {
-                    props: ['items'],
-                    template: `
+                    },
+                    'sw-entity-listing': {
+                        props: ['items'],
+                        template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
                 `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-search-bar': true,
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'sw-button': true,
+                    'sw-modal': true,
+                    'sw-empty-state': true,
+                    'sw-card-filter': true,
+                    'sw-context-menu-divider': true,
+                    'sw-switch-field': true,
+                    'sw-multi-select': true,
+                    'sw-context-button': true,
+                    'sw-alert': true,
+                    'sw-label': true,
+                    'sw-text-field': true,
+                    'sw-settings-tag-detail-modal': true,
                 },
-                'sw-context-menu-item': true,
-                'sw-search-bar': true,
-                'sw-icon': true,
-                'sw-loader': true,
-                'sw-button': true,
-                'sw-modal': true,
-                'sw-empty-state': true,
-                'sw-card-filter': true,
-                'sw-context-menu-divider': true,
-                'sw-switch-field': true,
-                'sw-multi-select': true,
-                'sw-context-button': true,
-                'sw-alert': true,
-                'sw-label': true,
-                'sw-text-field': true,
-                'sw-settings-tag-detail-modal': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
@@ -227,13 +230,18 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         await wrapper.vm.$nextTick();
 
         const expected = {};
-        Object.entries(connections).forEach(([propertyName, count]) => {
-            if (!count) {
-                return;
-            }
+        Object.entries(connections).forEach(
+            ([
+                propertyName,
+                count,
+            ]) => {
+                if (!count) {
+                    return;
+                }
 
-            expected[propertyName] = count;
-        });
+                expected[propertyName] = count;
+            },
+        );
         const counts = wrapper.vm.getCounts('1');
 
         expect(counts).toEqual(expected);
@@ -274,13 +282,22 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const options = wrapper.vm.assignmentFilterOptions;
 
-        const expected = ['categories', 'customers', 'landingPages', 'media', 'newsletterRecipients', 'orders', 'products', 'rules', 'shippingMethods']
-            .map((value) => {
-                return {
-                    value,
-                    label: `sw-settings-tag.list.assignments.filter.${value}`,
-                };
-            });
+        const expected = [
+            'categories',
+            'customers',
+            'landingPages',
+            'media',
+            'newsletterRecipients',
+            'orders',
+            'products',
+            'rules',
+            'shippingMethods',
+        ].map((value) => {
+            return {
+                value,
+                label: `sw-settings-tag.list.assignments.filter.${value}`,
+            };
+        });
 
         expect(options).toEqual(expected);
     });

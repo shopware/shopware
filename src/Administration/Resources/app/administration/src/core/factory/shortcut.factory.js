@@ -50,18 +50,12 @@ function getShortcutRegistry() {
  */
 function register(combination, path = '') {
     if (!combination || !combination.length) {
-        warn(
-            'ShortcutFactory',
-            'A combination can\'t be blank.',
-        );
+        warn('ShortcutFactory', "A combination can't be blank.");
         return false;
     }
 
     if (shortcutRegistry.has(combination)) {
-        warn(
-            'ShortcutFactory',
-            `The combination "${combination}" is registered already.`,
-        );
+        warn('ShortcutFactory', `The combination "${combination}" is registered already.`);
 
         return false;
     }

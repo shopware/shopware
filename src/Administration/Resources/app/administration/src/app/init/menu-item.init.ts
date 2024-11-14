@@ -5,8 +5,9 @@
  */
 export default function initMenuItems(): void {
     Shopware.ExtensionAPI.handle('menuItemAdd', async (menuItemConfig, additionalInformation) => {
-        const extension = Object.values(Shopware.State.get('extensions'))
-            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
+        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+            ext.baseUrl.startsWith(additionalInformation._event_.origin),
+        );
 
         if (!extension) {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
@@ -31,10 +32,10 @@ export default function initMenuItems(): void {
     });
 
     Shopware.ExtensionAPI.handle('menuCollapse', () => {
-        Shopware.State.commit('adminMenu/collapseSidebar');
+        Shopware.Store.get('adminMenu').collapseSidebar();
     });
 
     Shopware.ExtensionAPI.handle('menuExpand', () => {
-        Shopware.State.commit('adminMenu/expandSidebar');
+        Shopware.Store.get('adminMenu').expandSidebar();
     });
 }

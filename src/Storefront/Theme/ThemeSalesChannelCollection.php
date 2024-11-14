@@ -13,6 +13,8 @@ class ThemeSalesChannelCollection extends Collection
 {
     /**
      * @var ThemeSalesChannel[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $elements = [];
 

@@ -114,7 +114,7 @@ class MeterTest extends TestCase
     {
         $configuredMetric = new ConfiguredMetric('test', 1, ['test' => 'test']);
         $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: [], unit: 'unit');
-        $metric = new Metric($configuredMetric, $metricConfig);
+        $metric = Metric::fromConfigured($configuredMetric, $metricConfig);
         $transportCall = static::callback(function (Metric $inputMetric) use ($metric) {
             self::assertEquals($metric, $inputMetric);
 

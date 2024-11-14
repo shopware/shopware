@@ -4,11 +4,18 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-plugin-box', () => import('./component/sw-plugin-box'));
-Shopware.Component.register('sw-settings-payment-sorting-modal', () => import('./component/sw-settings-payment-sorting-modal'));
+Shopware.Component.register(
+    'sw-settings-payment-sorting-modal',
+    () => import('./component/sw-settings-payment-sorting-modal'),
+);
 Shopware.Component.register('sw-payment-card', () => import('./component/sw-payment-card'));
 Shopware.Component.register('sw-settings-payment-overview', () => import('./page/sw-settings-payment-overview'));
 Shopware.Component.register('sw-settings-payment-detail', () => import('./page/sw-settings-payment-detail'));
-Shopware.Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', () => import('./page/sw-settings-payment-create'));
+Shopware.Component.extend(
+    'sw-settings-payment-create',
+    'sw-settings-payment-detail',
+    () => import('./page/sw-settings-payment-create'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

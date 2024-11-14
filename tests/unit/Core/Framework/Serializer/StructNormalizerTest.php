@@ -199,10 +199,7 @@ class StructNormalizerTest extends TestCase
  */
 class TestStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $foo;
+    protected string $foo;
 
     public function getFoo(): string
     {
@@ -236,12 +233,12 @@ class AdvancedTestStruct extends TestStruct
     /**
      * @var list<TestStruct>
      */
-    protected $subClasses = [];
+    protected array $subClasses = [];
 
     /**
      * @var array<string>
      */
-    protected $meta = [];
+    protected array $meta = [];
 
     /**
      * @return list<TestStruct>
@@ -281,10 +278,7 @@ class AdvancedTestStruct extends TestStruct
  */
 class ConstructorStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     public function __construct(string $name)
     {

@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'numberRangeService'],
+    inject: [
+        'repositoryFactory',
+        'numberRangeService',
+    ],
 
     emits: ['clone-finish'],
 
@@ -52,10 +55,7 @@ export default {
         },
 
         duplicate() {
-            this.numberRangeService
-                .reserve('product')
-                .then(this.cloneParent)
-                .then(this.verifyVariants);
+            this.numberRangeService.reserve('product').then(this.cloneParent).then(this.verifyVariants);
         },
 
         async cloneParent(number) {
@@ -102,15 +102,11 @@ export default {
 
         getChildrenIds() {
             const criteria = new Criteria(1, null);
-            criteria.addFilter(
-                Criteria.equals('parentId', this.product.id),
-            );
+            criteria.addFilter(Criteria.equals('parentId', this.product.id));
 
-            return this.repository
-                .searchIds(criteria)
-                .then((response) => {
-                    return response.data;
-                });
+            return this.repository.searchIds(criteria).then((response) => {
+                return response.data;
+            });
         },
 
         duplicateVariant(duplicate, ids, callback) {
@@ -128,12 +124,10 @@ export default {
                 cloneChildren: false,
             };
 
-            this.repository
-                .clone(id, behavior, Shopware.Context.api)
-                .then(() => {
-                    this.cloneProgress += 1;
-                    this.duplicateVariant(duplicate, ids, callback);
-                });
+            this.repository.clone(id, behavior, Shopware.Context.api).then(() => {
+                this.cloneProgress += 1;
+                this.duplicateVariant(duplicate, ids, callback);
+            });
         },
     },
 };

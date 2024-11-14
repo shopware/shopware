@@ -12,11 +12,13 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Content\Flow\Extension\FlowExecutorExtension;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -41,6 +43,7 @@ class FlowExecutor
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly FlowRuleScopeBuilder $scopeBuilder,
         private readonly Connection $connection,
+        private readonly ExtensionDispatcher $extensions,
         $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
@@ -48,29 +51,11 @@ class FlowExecutor
 
     public function execute(Flow $flow, StorableFlow $event): void
     {
-        $state = new FlowState();
-
-        $event->setFlowState($state);
-        $state->flowId = $flow->getId();
-        foreach ($flow->getSequences() as $sequence) {
-            $state->delayed = false;
-
-            try {
-                $this->executeSequence($sequence, $event);
-            } catch (\Exception $e) {
-                throw new ExecuteSequenceException(
-                    $sequence->flowId,
-                    $sequence->sequenceId,
-                    $e->getMessage(),
-                    $e->getCode(),
-                    $e
-                );
-            }
-
-            if ($state->stop) {
-                return;
-            }
-        }
+        $this->extensions->publish(
+            name: FlowExecutorExtension::NAME,
+            extension: new FlowExecutorExtension($flow, $event),
+            function: $this->_execute(...)
+        );
     }
 
     public function executeSequence(?Sequence $sequence, StorableFlow $event): void
@@ -129,6 +114,33 @@ class FlowExecutor
         }
 
         $this->executeSequence($sequence->falseCase, $event);
+    }
+
+    private function _execute(Flow $flow, StorableFlow $event): void
+    {
+        $state = new FlowState();
+
+        $event->setFlowState($state);
+        $state->flowId = $flow->getId();
+        foreach ($flow->getSequences() as $sequence) {
+            $state->delayed = false;
+
+            try {
+                $this->executeSequence($sequence, $event);
+            } catch (\Exception $e) {
+                throw new ExecuteSequenceException(
+                    $sequence->flowId,
+                    $sequence->sequenceId,
+                    $e->getMessage(),
+                    $e->getCode(),
+                    $e
+                );
+            }
+
+            if ($state->stop) {
+                return;
+            }
+        }
     }
 
     private function callHandle(ActionSequence $sequence, StorableFlow $event): void

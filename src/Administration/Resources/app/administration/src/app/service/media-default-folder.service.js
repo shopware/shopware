@@ -17,11 +17,10 @@ export default function createMediaDefaultFolderService() {
 
             const criteria = new Criteria(1, 1);
             criteria.addAssociation('folder');
-            criteria.addFilter(
-                Criteria.equals('entity', entityName),
-            );
+            criteria.addFilter(Criteria.equals('entity', entityName));
 
-            cache[entityName] = repository.search(criteria, Shopware.Context.api)
+            cache[entityName] = repository
+                .search(criteria, Shopware.Context.api)
                 .then((data) => {
                     return data.first().folder.id;
                 })

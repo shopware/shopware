@@ -13,6 +13,8 @@ class ExportInvalidException extends ShopwareHttpException
 {
     /**
      * @var ErrorMessage[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $errorMessages;
 

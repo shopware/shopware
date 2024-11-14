@@ -45,11 +45,20 @@ export default {
                 this.addOption();
             }
 
-            if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
+            const componentName = this.currentCustomField.config.componentName;
+            if (
+                !componentName ||
+                ![
+                    'sw-single-select',
+                    'sw-multi-select',
+                ].includes(componentName)
+            ) {
                 this.currentCustomField.config.componentName = 'sw-single-select';
             }
 
-            const options = this.currentCustomField.config.options.map(option => {
+            this.multiSelectSwitch = componentName === 'sw-multi-select';
+
+            const options = this.currentCustomField.config.options.map((option) => {
                 if (Array.isArray(option.label)) {
                     option.label = {};
                 }
@@ -62,12 +71,13 @@ export default {
             } else {
                 this.currentCustomField.config.options = options;
             }
-
-            this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-multi-select';
         },
 
         addOption() {
-            this.currentCustomField.config.options.push({ value: '', label: {} });
+            this.currentCustomField.config.options.push({
+                value: '',
+                label: {},
+            });
         },
 
         onClickAddOption() {

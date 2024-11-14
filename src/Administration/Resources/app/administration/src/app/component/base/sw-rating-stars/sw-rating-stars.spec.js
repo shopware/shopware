@@ -43,7 +43,11 @@ describe('src/app/component/base/sw-rating-stars', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    const maxStarCases = [5, 3, 8];
+    const maxStarCases = [
+        5,
+        3,
+        8,
+    ];
 
     maxStarCases.forEach((maxStars) => {
         it(`should round render float values per default into full stars (MaxStars = ${maxStars})`, async () => {

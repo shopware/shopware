@@ -40,10 +40,7 @@ class VariantListingIndexerTest extends TestCase
      */
     private array $variantIds = [];
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {

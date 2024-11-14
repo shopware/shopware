@@ -10,16 +10,22 @@ class ImportExportProfileTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $importExportProfileId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $label;
 
     /**
      * @var ImportExportProfileEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $importExportProfile;
 

@@ -67,11 +67,7 @@ class FlatTree {
         const nodeIdentifier = node.id || node.path;
 
         if (!nodeIdentifier) {
-            warn(
-                'FlatTree',
-                'The node needs an "id" or "path" property. Abort registration.',
-                node,
-            );
+            warn('FlatTree', 'The node needs an "id" or "path" property. Abort registration.', node);
             return this;
         }
 

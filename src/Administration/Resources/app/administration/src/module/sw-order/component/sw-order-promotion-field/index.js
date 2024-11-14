@@ -42,7 +42,11 @@ export default {
         },
     },
 
-    emits: ['loading-change', 'error', 'reload-entity-data'],
+    emits: [
+        'loading-change',
+        'error',
+        'reload-entity-data',
+    ],
 
     mixins: [
         'notification',
@@ -74,7 +78,7 @@ export default {
         },
 
         hasLineItem() {
-            return this.order.lineItems.filter(item => item.hasOwnProperty('id')).length > 0;
+            return this.order.lineItems.filter((item) => item.hasOwnProperty('id')).length > 0;
         },
 
         currency() {
@@ -82,16 +86,16 @@ export default {
         },
 
         manualPromotions() {
-            return this.order.lineItems.filter(item => item.type === 'promotion' && item.referencedId !== null);
+            return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId !== null);
         },
 
         automaticPromotions() {
-            return this.order.lineItems.filter(item => item.type === 'promotion' && item.referencedId === null);
+            return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
         },
 
         promotionCodeTags: {
             get() {
-                return this.manualPromotions.map(item => item.payload);
+                return this.manualPromotions.map((item) => item.payload);
             },
 
             set(newValue) {
@@ -111,7 +115,9 @@ export default {
                 }
 
                 if (promotionCodeLength > 0 && latestTag.isInvalid) {
-                    this.promotionError = { detail: this.$tc('sw-order.createBase.textInvalidPromotionCode') };
+                    this.promotionError = {
+                        detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                    };
                 }
             },
         },
@@ -148,7 +154,6 @@ export default {
         this.createdComponent();
     },
 
-
     methods: {
         createdComponent() {
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
@@ -162,30 +167,30 @@ export default {
             const deletionPromises = [];
 
             this.automaticPromotions.forEach((promotion) => {
-                deletionPromises.push(
-                    this.orderLineItemRepository.delete(promotion.id, this.versionContext),
-                );
+                deletionPromises.push(this.orderLineItemRepository.delete(promotion.id, this.versionContext));
             });
 
-            return Promise.all(deletionPromises).then(() => {
-                this.automaticPromotions.forEach((promotion) => {
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
-                            promotion: promotion.label,
-                        }),
+            return Promise.all(deletionPromises)
+                .then(() => {
+                    this.automaticPromotions.forEach((promotion) => {
+                        this.createNotificationSuccess({
+                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
+                                promotion: promotion.label,
+                            }),
+                        });
                     });
-                });
-            }).catch((error) => {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                })
+                .catch((error) => {
+                    this.$emit('loading-change', false);
+                    if (this.swOrderDetailOnLoadingChange) {
+                        this.swOrderDetailOnLoadingChange(false);
+                    }
 
-                this.$emit('error', error);
-                if (this.swOrderDetailOnError) {
-                    this.swOrderDetailOnError(error);
-                }
-            });
+                    this.$emit('error', error);
+                    if (this.swOrderDetailOnError) {
+                        this.swOrderDetailOnError(error);
+                    }
+                });
         },
 
         toggleAutomaticPromotions(state) {
@@ -207,28 +212,27 @@ export default {
                 return;
             }
 
-            this.deleteAutomaticPromotions().then(() => {
-                return this.orderService.toggleAutomaticPromotions(
-                    this.order.id,
-                    this.order.versionId,
-                    state,
-                );
-            }).then((response) => {
-                this.handlePromotionResponse(response);
-                this.$emit('reload-entity-data');
-                if (this.swOrderDetailOnReloadEntityData) {
-                    this.swOrderDetailOnReloadEntityData();
-                }
-            }).catch((error) => {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
-                this.$emit('error', error);
-                if (this.swOrderDetailOnError) {
-                    this.swOrderDetailOnError(error);
-                }
-            });
+            this.deleteAutomaticPromotions()
+                .then(() => {
+                    return this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state);
+                })
+                .then((response) => {
+                    this.handlePromotionResponse(response);
+                    this.$emit('reload-entity-data');
+                    if (this.swOrderDetailOnReloadEntityData) {
+                        this.swOrderDetailOnReloadEntityData();
+                    }
+                })
+                .catch((error) => {
+                    this.$emit('loading-change', false);
+                    if (this.swOrderDetailOnLoadingChange) {
+                        this.swOrderDetailOnLoadingChange(false);
+                    }
+                    this.$emit('error', error);
+                    if (this.swOrderDetailOnError) {
+                        this.swOrderDetailOnError(error);
+                    }
+                });
         },
 
         onSubmitCode(code) {
@@ -246,26 +250,25 @@ export default {
                 return;
             }
 
-            this.orderService.addPromotionToOrder(
-                this.order.id,
-                this.order.versionId,
-                code,
-            ).then((response) => {
-                this.handlePromotionResponse(response);
-                this.$emit('reload-entity-data');
-                if (this.swOrderDetailOnReloadEntityData) {
-                    this.swOrderDetailOnReloadEntityData();
-                }
-            }).catch((error) => {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
-                this.$emit('error', error);
-                if (this.swOrderDetailOnError) {
-                    this.swOrderDetailOnError(error);
-                }
-            });
+            this.orderService
+                .addPromotionToOrder(this.order.id, this.order.versionId, code)
+                .then((response) => {
+                    this.handlePromotionResponse(response);
+                    this.$emit('reload-entity-data');
+                    if (this.swOrderDetailOnReloadEntityData) {
+                        this.swOrderDetailOnReloadEntityData();
+                    }
+                })
+                .catch((error) => {
+                    this.$emit('loading-change', false);
+                    if (this.swOrderDetailOnLoadingChange) {
+                        this.swOrderDetailOnLoadingChange(false);
+                    }
+                    this.$emit('error', error);
+                    if (this.swOrderDetailOnError) {
+                        this.swOrderDetailOnError(error);
+                    }
+                });
         },
 
         handlePromotionResponse(response) {
@@ -338,7 +341,7 @@ export default {
         },
 
         getLineItemByPromotionCode(code) {
-            return this.order.lineItems.find(item => {
+            return this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === code;
             });
         },

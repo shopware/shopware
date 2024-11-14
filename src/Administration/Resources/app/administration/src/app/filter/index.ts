@@ -6,9 +6,11 @@
 export default (): any[] => {
     if (window._features_.ADMIN_VITE) {
         // @ts-expect-error
-        const context = import.meta.glob<$TSFixMe>('./**/!(*.spec).{j,t}s', { eager: true });
+        const context = import.meta.glob<$TSFixMe>('./**/!(*.spec).{j,t}s', {
+            eager: true,
+        });
 
-        return Object.values(context).map(module => module.default);
+        return Object.values(context).map((module) => module.default);
     }
 
     const context = require.context('./', true, /(?<!index)\.(?<!spec\.)(?<!spec\.vue2\.)(js|ts)$/);
@@ -21,4 +23,3 @@ export default (): any[] => {
         return accumulator;
     }, []);
 };
-

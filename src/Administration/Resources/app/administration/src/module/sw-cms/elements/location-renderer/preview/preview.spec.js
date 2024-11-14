@@ -9,27 +9,28 @@ const elementData = {
     component: 'sw-cms-el-location-renderer',
     previewComponent: 'sw-cms-el-preview-location-renderer',
     configComponent: 'sw-cms-el-config-location-renderer',
-    defaultConfig: {
-
-    },
+    defaultConfig: {},
     appData: {
         baseUrl: 'https://example.com',
     },
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-preview-location-renderer', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-iframe-renderer': await wrapTestComponent('sw-iframe-renderer'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-preview-location-renderer', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-iframe-renderer': await wrapTestComponent('sw-iframe-renderer'),
+                },
+            },
+            props: {
+                elementData,
             },
         },
-        props: {
-            elementData,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/location-renderer/preview', () => {
@@ -38,4 +39,3 @@ describe('src/module/sw-cms/elements/location-renderer/preview', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 });
-

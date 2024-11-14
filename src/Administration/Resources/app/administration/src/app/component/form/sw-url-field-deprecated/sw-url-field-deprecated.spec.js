@@ -251,4 +251,24 @@ describe('components/form/sw-url-field', () => {
 
         expect(wrapper.vm.sslActive).toBe(false);
     });
+
+    it('should update empty values', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                value: 'https://shopware.com',
+            },
+        });
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        expect(input.element.value).toBe('shopware.com');
+
+        await input.setValue('');
+        await input.trigger('blur');
+        expect(wrapper.vm.currentUrlValue).toBe('');
+        expect(wrapper.emitted('update:value')).toStrictEqual([
+            ['https://shopware.com'],
+            [''],
+        ]);
+    });
 });

@@ -65,99 +65,105 @@ function getSequencesCollection(collection = []) {
 }
 
 async function createWrapper(propsData = {}, appFlowResponseData = [], flag = '') {
-    return mount(await wrapTestComponent('sw-flow-sequence-action', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-single-select': await wrapTestComponent('sw-single-select'),
-                'sw-grouped-single-select': await wrapTestComponent('sw-grouped-single-select'),
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
-                'sw-select-result': {
-                    props: ['item', 'index'],
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-flow-sequence-action', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-icon': {
+                        template: '<div class="sw-icon"></div>',
+                    },
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-grouped-single-select': await wrapTestComponent('sw-grouped-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-popover': {
+                        template: '<div class="sw-popover"><slot></slot></div>',
+                    },
+                    'sw-select-result': {
+                        props: [
+                            'item',
+                            'index',
+                        ],
+                        template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
                         </li>`,
-                    methods: {
-                        onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                        methods: {
+                            onClickResult() {
+                                this.$parent.$parent.$emit('item-select', this.item);
+                            },
                         },
                     },
-                },
-                'sw-highlight-text': {
-                    props: ['text'],
-                    template: '<div class="sw-highlight-text">{{ this.text }}</div>',
-                },
-                'sw-field-error': true,
-                'sw-flow-sequence-modal': {
-                    props: ['sequence'],
-                    template: `
+                    'sw-highlight-text': {
+                        props: ['text'],
+                        template: '<div class="sw-highlight-text">{{ this.text }}</div>',
+                    },
+                    'sw-field-error': true,
+                    'sw-flow-sequence-modal': {
+                        props: ['sequence'],
+                        template: `
                         <div class="sw-flow-sequence-modal" @click="onSaveActionSuccess">
                             <slot></slot>
                         </div>`,
-                    methods: {
-                        onSaveActionSuccess() {
-                            this.$emit('process-finish', {
-                                ...this.sequence,
-                                config: {
-                                    entity: 'Customer',
-                                    tagIds: ['123'],
-                                },
-                            });
+                        methods: {
+                            onSaveActionSuccess() {
+                                this.$emit('process-finish', {
+                                    ...this.sequence,
+                                    config: {
+                                        entity: 'Customer',
+                                        tagIds: ['123'],
+                                    },
+                                });
+                            },
                         },
                     },
+                    'sw-flow-sequence-action-error': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'router-link': true,
                 },
-                'sw-flow-sequence-action-error': true,
-                'sw-loader': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-                'router-link': true,
-            },
 
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        if (flag === 'appFlowAction') {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            if (flag === 'appFlowAction') {
+                                return {
+                                    create: () => {
+                                        return {};
+                                    },
+                                    search: () => Promise.resolve(appFlowResponseData),
+                                };
+                            }
+
                             return {
                                 create: () => {
                                     return {};
                                 },
-                                search: () => Promise.resolve(appFlowResponseData),
+                                search: () => Promise.resolve([]),
                             };
-                        }
-
-                        return {
-                            create: () => {
-                                return {};
-                            },
-                            search: () => Promise.resolve([]),
-                        };
+                        },
                     },
-                },
 
-                flowBuilderService: Shopware.Service('flowBuilderService'),
+                    flowBuilderService: Shopware.Service('flowBuilderService'),
+                },
+            },
+
+            props: {
+                sequence: sequenceFixture,
+                ...propsData,
             },
         },
-
-        props: {
-            sequence: sequenceFixture,
-            ...propsData,
-        },
-    });
+    );
 }
 
 describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
@@ -190,40 +196,58 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 triggerActions: [
                     {
                         name: 'action.add.order.tag',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\OrderAware',
+                        ],
                         extensions: [],
                     },
                     {
                         name: 'action.add.customer.tag',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                        ],
                         extensions: [],
                     },
                     {
                         name: 'action.remove.customer.tag',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                        ],
                         extensions: [],
                     },
                     {
                         name: 'action.remove.order.tag',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\OrderAware',
+                        ],
                         extensions: [],
                     },
                     {
                         name: 'action.mail.send',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\MailAware',
+                        ],
                         extensions: [],
                     },
                     {
                         name: 'action.set.order.state',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\OrderAware',
+                        ],
                         extensions: [],
                     },
                     {
                         name: 'telegram.send.message',
-                        requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
+                        requirements: [
+                            'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                        ],
                         extensions: [],
                     },
-                    { name: 'action.stop.flow', requirements: [], extensions: [] },
+                    {
+                        name: 'action.stop.flow',
+                        requirements: [],
+                        extensions: [],
+                    },
                 ],
                 appActions: [],
                 originAvailableActions: [],
@@ -393,10 +417,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should remove error for after select an action name', async () => {
-        Shopware.State.commit(
-            'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }]),
-        );
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection([{ ...sequenceFixture }]));
         Shopware.State.commit('swFlowState/setInvalidSequences', ['2']);
 
         let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
@@ -653,16 +674,24 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware'],
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
             },
         ];
 
-        Shopware.State.commit('swFlowState/setAppActions', [{
-            label: 'Telegram send message',
-            name: 'telegram.send.message',
-            swIcon: 'default-communication-speech-bubbles',
-            requirements: ['customerAware', 'orderAware'],
-        }]);
+        Shopware.State.commit('swFlowState/setAppActions', [
+            {
+                label: 'Telegram send message',
+                name: 'telegram.send.message',
+                swIcon: 'default-communication-speech-bubbles',
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
+            },
+        ]);
 
         const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
         await flushPromises();
@@ -683,7 +712,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware'],
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
                 app: {
                     active: false,
                     name: 'FlowAppSystem',
@@ -691,9 +723,11 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             },
         ];
 
-        Shopware.State.commit('swFlowState/setAppActions', [{
-            name: 'telegram.send.message',
-        }]);
+        Shopware.State.commit('swFlowState/setAppActions', [
+            {
+                name: 'telegram.send.message',
+            },
+        ]);
 
         const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
         await flushPromises();
@@ -712,7 +746,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware'],
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
             },
         ];
 
@@ -737,7 +774,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware'],
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
                 app: {
                     active: false,
                     name: 'FlowAppSystem',
@@ -762,7 +802,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware'],
+                requirements: [
+                    'customerAware',
+                    'orderAware',
+                ],
                 app: {
                     active: false,
                     name: 'FlowAppSystem',
@@ -778,20 +821,24 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             },
         ];
 
-        const wrapper = await createWrapper({
-            sequence: {
-                id: '2',
-                ruleId: null,
-                parentId: '1',
-                position: 1,
-                displayGroup: 1,
-                trueCase: false,
-                config: {
-                    message: 'message',
+        const wrapper = await createWrapper(
+            {
+                sequence: {
+                    id: '2',
+                    ruleId: null,
+                    parentId: '1',
+                    position: 1,
+                    displayGroup: 1,
+                    trueCase: false,
+                    config: {
+                        message: 'message',
+                    },
+                    actionName: 'telegram.send.message',
                 },
-                actionName: 'telegram.send.message',
             },
-        }, appFlowResponse, 'appFlowAction');
+            appFlowResponse,
+            'appFlowAction',
+        );
 
         await wrapper.vm.$nextTick();
         const description = wrapper.find('.sw-flow-sequence-action__action-description');

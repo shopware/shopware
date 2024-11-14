@@ -71,21 +71,22 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                     },
                 },
                 customFieldDataProviderService: {
-                    getCustomFieldSets: () => Promise.resolve([
-                        reactive({
-                            id: '018a848f9592774c8e8b4c9eb21370b7',
-                            name: 'custom_rule_set',
-                            active: true,
-                            global: 'false',
-                            customFields: [
-                                {
-                                    id: '018a8490c9df7c8bbc4fd331739f1d0a',
-                                    name: 'custom_rule_set_field',
-                                    active: true,
-                                },
-                            ],
-                        }),
-                    ]),
+                    getCustomFieldSets: () =>
+                        Promise.resolve([
+                            reactive({
+                                id: '018a848f9592774c8e8b4c9eb21370b7',
+                                name: 'custom_rule_set',
+                                active: true,
+                                global: 'false',
+                                customFields: [
+                                    {
+                                        id: '018a8490c9df7c8bbc4fd331739f1d0a',
+                                        name: 'custom_rule_set_field',
+                                        active: true,
+                                    },
+                                ],
+                            }),
+                        ]),
                 },
             },
         },
@@ -129,13 +130,15 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').exists()).toBe(true);
-            await wrapper.find('.sw-select__selection-indicators').trigger('click');
+            await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
             await wrapper.find('.sw-select-result').trigger('click');
             await flushPromises();
 
-            expect(wrapper.vm.rule.moduleTypes).toEqual({ types: ['shipping'] });
+            expect(wrapper.vm.rule.moduleTypes).toEqual({
+                types: ['shipping'],
+            });
         });
 
         it('should set module types to null if value is empty', async () => {
@@ -151,7 +154,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').exists()).toBe(true);
-            await wrapper.find('.sw-select__selection-indicators').trigger('click');
+            await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
             await wrapper.find('.sw-select-result').trigger('click');
@@ -177,17 +180,23 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
 
             const conditionTree = wrapper.getComponent(swConditionTree);
 
-            await conditionTree.vm.$emit('conditions-changed', [{
-                id: 'some-condition-id',
-                ruleId: 'rule-id',
-            }]);
+            await conditionTree.vm.$emit('conditions-changed', [
+                {
+                    id: 'some-condition-id',
+                    ruleId: 'rule-id',
+                },
+            ]);
 
             expect(wrapper.emitted('conditions-changed')).toBeTruthy();
             expect(wrapper.emitted('conditions-changed')).toHaveLength(1);
-            expect(wrapper.emitted('conditions-changed')[0]).toEqual([[{
-                id: 'some-condition-id',
-                ruleId: 'rule-id',
-            }]]);
+            expect(wrapper.emitted('conditions-changed')[0]).toEqual([
+                [
+                    {
+                        id: 'some-condition-id',
+                        ruleId: 'rule-id',
+                    },
+                ],
+            ]);
         });
 
         it('emits initial loading', async () => {

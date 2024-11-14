@@ -24,10 +24,7 @@ class ColumnsTest extends TestCase
         );
 
         $columns = Columns::fromXml($columnsElement);
-        static::assertInstanceOf(Columns::class, $columns);
-
         $columnsList = $columns->getContent();
-        static::assertIsArray($columnsList);
         static::assertInstanceOf(Column::class, \array_pop($columnsList));
     }
 

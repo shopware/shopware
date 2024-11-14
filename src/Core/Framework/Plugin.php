@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -73,14 +73,6 @@ abstract class Plugin extends Bundle
     }
 
     /**
-     * @return Bundle[]
-     */
-    public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
-    {
-        return [];
-    }
-
-    /**
      * By default the container is rebuild during plugin activation and deactivation to allow the plugin to access
      * its own services. If you are absolutely sure you do not require this feature for you plugin you might want
      * to overwrite this method and return false to improve the activation/deactivation of your plugin. This change will
@@ -105,7 +97,7 @@ abstract class Plugin extends Bundle
     {
         // namespace should not start with `shopware`
         if (str_starts_with(mb_strtolower($this->getMigrationNamespace()), 'shopware') && !str_starts_with(mb_strtolower($this->getMigrationNamespace()), 'shopware\commercial')) {
-            throw new \RuntimeException('Deleting Shopware migrations is not allowed');
+            throw PluginException::cannotDeleteShopwareMigrations();
         }
 
         $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';

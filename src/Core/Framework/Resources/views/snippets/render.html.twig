@@ -28,12 +28,22 @@
                     {% endif %}
                 {% endif %}
 
+                {% if lineSnippets|first|trim in concatSymbol %}
+                    {% set lineSnippets = lineSnippets|slice(-1) %}
+                {% endif %}
+
                 {% set lineSnippets = lineSnippets|merge([snippetRendered]) %}
             {% endif %}
 
             {# if the rendered snippet is blank and the previous snippet is a concat symbol, we can remove the that symbol too #}
             {% if snippetRendered|length == 0 %}
-                {% set lineSnippets = lineSnippets|slice(0, -1) %}
+                {% if lineSnippets|last|trim in concatSymbol %}
+                    {% set lineSnippets = lineSnippets|slice(0, -1) %}
+                {% endif %}
+
+                {% if lineSnippets|first|trim in concatSymbol %}
+                    {% set lineSnippets = lineSnippets|slice(-1) %}
+                {% endif %}
             {% endif %}
         {% endfor %}
         {% if lineSnippets|length > 0 %}{{ lineSnippets|join('')|trim|raw }}{% if not loop.last %}<br/>{% endif %}{% endif %}

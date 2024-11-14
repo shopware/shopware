@@ -127,6 +127,7 @@
       "basic-captcha-invalid": "Incorrect input. Please try again."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
+    "CHECKOUT__ORDER_ORDER_CANCELLED": "The order with the order number \"%orderNumber%\" was canceled and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
     "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
     "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
@@ -431,8 +432,8 @@
     "cartHeaderTaxIncludeVat": "incl. VAT",
     "cartHeaderTaxExcludeVat": "excl. VAT",
     "cartItemInfoId": "Product number:",
-    "addPromotionLabel": "Discount code",
-    "addPromotionPlaceholder": "Enter discount code...",
+    "addPromotionLabel": "Promo code",
+    "addPromotionPlaceholder": "Enter promo code...",
     "addProductLabel": "Product number",
     "addProductPlaceholder": "Enter product number...",
     "summaryPositionPrice": "Total",
@@ -478,7 +479,7 @@
     "finishButtonBackToShop": "Back to shop",
     "finishChangePayment": "Change payment method",
     "finishPaymentFailed": "Unfortunately, the payment process went wrong. Please change your payment method to finish your order. <a href=\"%editOrderUrl%\">Change payment method</a>",
-    "codeAddedSuccessful": "Gift code added successfully.",
+    "codeAddedSuccessful": "Promo code added successfully.",
     "addToCartSuccess": "{1} 1 product added to your shopping cart.|]1,Inf[ %count% products added to your shopping cart.",
     "shippingCosts": "Shipping details",
     "shippingCountry": "Shipping country",
@@ -496,7 +497,7 @@
     "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
     "promotion-discount-deleted": "Discount \"%name%\" has been removed",
     "promotion-discount-added": "Discount \"%name%\" has been added",
-    "promotion-not-found": "Promotion with code \"%code%\" could not be found.",
+    "promotion-not-found": "Promo code \"%code%\" could not be found.",
     "auto-promotion-not-found": "Promotion \"%name%\" no longer valid!",
     "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",
     "promotion-excluded": "One or more discounts have been removed from the shopping cart, due to conflicts with other discounts. Once the conditions are met again, the discounts will be applied automatically.",
@@ -762,9 +763,14 @@
         }
       },
       "quantitySelect": {
+        "legend": "Product Quantity: Enter the desired amount or use the buttons to increase or decrease the quantity.",
+        "areaLiveText": "Quantity of %product% set to %quantity%.",
         "label": "Quantity",
+        "labelWithProduct": "Quantity of %product%",
         "increase": "Increase quantity",
-        "decrease": "Decrease quantity"
+        "increaseOfProduct": "Increase quantity of %product%",
+        "decrease": "Decrease quantity",
+        "decreaseOfProduct": "Decrease quantity of %product%"
       }
     },
     "cms": {

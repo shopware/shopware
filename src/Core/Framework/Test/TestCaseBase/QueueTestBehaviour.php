@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
+use Symfony\Component\Messenger\TraceableMessageBus;
 use Symfony\Component\Messenger\Worker;
 
 trait QueueTestBehaviour
@@ -21,6 +21,9 @@ trait QueueTestBehaviour
     public function clearQueue(): void
     {
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');
+        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+        $bus->reset();
     }
 
     public function runWorker(): void
@@ -29,14 +32,13 @@ trait QueueTestBehaviour
         $eventDispatcher->addSubscriber(new StopWorkerWhenIdleListener());
         $eventDispatcher->addSubscriber($this->getContainer()->get(MessageQueueStatsSubscriber::class));
 
-        /** @var ServiceLocator<ReceiverInterface> $locator */
         $locator = $this->getContainer()->get('messenger.test_receiver_locator');
+        static::assertInstanceOf(ServiceLocator::class, $locator);
 
-        /** @var ReceiverInterface $receiver */
         $receiver = $locator->get('async');
 
-        /** @var MessageBusInterface $bus */
         $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+        static::assertInstanceOf(MessageBusInterface::class, $bus);
 
         $worker = new Worker([$receiver], $bus, $eventDispatcher);
 

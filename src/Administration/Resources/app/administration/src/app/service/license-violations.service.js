@@ -63,18 +63,17 @@ export default function createLicenseViolationsService(storeService) {
             return handleResponse(cachedViolations);
         }
 
-        return fetchLicenseViolations()
-            .then((response) => {
-                if (!response) {
-                    return Promise.reject();
-                }
+        return fetchLicenseViolations().then((response) => {
+            if (!response) {
+                return Promise.reject();
+            }
 
-                const licenseViolations = response.filter((i) => i.extensions.licenseViolation);
+            const licenseViolations = response.filter((i) => i.extensions.licenseViolation);
 
-                saveViolationsToCache(licenseViolations);
+            saveViolationsToCache(licenseViolations);
 
-                return handleResponse(licenseViolations);
-            });
+            return handleResponse(licenseViolations);
+        });
     }
 
     function handleResponse(response) {
@@ -82,8 +81,10 @@ export default function createLicenseViolationsService(storeService) {
             violations: response.filter((violation) => violation.extensions.licenseViolation.type.level === 'violation'),
             warnings: response.filter((violation) => violation.extensions.licenseViolation.type.level === 'warning'),
             other: response.filter((violation) => {
-                return violation.extensions.licenseViolation.type.level !== 'violation'
-                    && violation.extensions.licenseViolation.type.level !== 'warning';
+                return (
+                    violation.extensions.licenseViolation.type.level !== 'violation' &&
+                    violation.extensions.licenseViolation.type.level !== 'warning'
+                );
             }),
         };
 

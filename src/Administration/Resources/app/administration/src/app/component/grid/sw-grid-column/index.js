@@ -116,7 +116,7 @@ Component.register('sw-grid-column', {
                 ? this.parentGrid?.columns
                 : this.swGridColumns;
 
-            const hasColumn = parentGridColumns.some(column => {
+            const hasColumn = parentGridColumns.some((column) => {
                 return column.label === this.label;
             });
 

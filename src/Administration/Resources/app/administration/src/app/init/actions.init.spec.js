@@ -48,12 +48,15 @@ describe('src/app/init/actions.init.ts', () => {
             entityIds: ['123'],
         });
 
-        expect(mock).toHaveBeenCalledWith(expect.objectContaining({
-            url: 'https://example.com',
-            entity: 'customer',
-            action: expect.any(String),
-            appName: appName,
-        }), ['123']);
+        expect(mock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                url: 'https://example.com',
+                entity: 'customer',
+                action: expect.any(String),
+                appName: appName,
+            }),
+            ['123'],
+        );
     });
 
     it('should not handle actionExecute if extension is not found', async () => {

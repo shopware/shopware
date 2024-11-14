@@ -5,13 +5,18 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-extension-rating-stars', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-icon': true,
+        return mount(
+            await wrapTestComponent('sw-extension-rating-stars', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'sw-icon': true,
+                    },
                 },
             },
-        });
+        );
     }
 
     it('should be a Vue.js component', async () => {
@@ -19,7 +24,14 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.each([0, 1, 2, 3, 4, 5])('should show %d yellow star(s)', async rating => {
+    it.each([
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+    ])('should show %d yellow star(s)', async (rating) => {
         const wrapper = await createWrapper();
         await wrapper.setProps({ rating });
 
@@ -27,7 +39,13 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars
         expect(amountOfFullStars).toBe(rating);
     });
 
-    it.each([0.5, 1.5, 2.5, 3.5, 4.5])('should show %d yellow star(s)', async rating => {
+    it.each([
+        0.5,
+        1.5,
+        2.5,
+        3.5,
+        4.5,
+    ])('should show %d yellow star(s)', async (rating) => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({ rating });

@@ -56,10 +56,7 @@ export default {
         },
 
         assignmentRepository() {
-            return this.repositoryFactory.create(
-                this.assignedProducts.entity,
-                this.assignedProducts.source,
-            );
+            return this.repositoryFactory.create(this.assignedProducts.entity, this.assignedProducts.source);
         },
 
         productRepository() {
@@ -70,10 +67,12 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
-            criteria.addFilter(Criteria.multi('or', [
-                Criteria.equals('childCount', 0),
-                Criteria.not('and', [Criteria.equals('parentId', null)]),
-            ]));
+            criteria.addFilter(
+                Criteria.multi('or', [
+                    Criteria.equals('childCount', 0),
+                    Criteria.not('and', [Criteria.equals('parentId', null)]),
+                ]),
+            );
 
             criteria.addAssociation('options.group');
 
@@ -96,23 +95,27 @@ export default {
         },
 
         assignedProductColumns() {
-            return [{
-                property: 'product.translated.name',
-                label: this.$tc('sw-product.list.columnName'),
-                primary: true,
-                allowResize: true,
-                sortable: false,
-            }, {
-                property: 'product.productNumber',
-                label: this.$tc('sw-product.list.columnProductNumber'),
-                allowResize: true,
-                sortable: false,
-            }, {
-                property: 'position',
-                label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
-                allowResize: true,
-                sortable: false,
-            }];
+            return [
+                {
+                    property: 'product.translated.name',
+                    label: this.$tc('sw-product.list.columnName'),
+                    primary: true,
+                    allowResize: true,
+                    sortable: false,
+                },
+                {
+                    property: 'product.productNumber',
+                    label: this.$tc('sw-product.list.columnProductNumber'),
+                    allowResize: true,
+                    sortable: false,
+                },
+                {
+                    property: 'position',
+                    label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
+                    allowResize: true,
+                    sortable: false,
+                },
+            ];
         },
 
         variantProductIds() {
@@ -200,7 +203,7 @@ export default {
         },
 
         isSelected(item) {
-            return this.assignedProducts.some(p => p.productId === item.id);
+            return this.assignedProducts.some((p) => p.productId === item.id);
         },
     },
 };

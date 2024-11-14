@@ -14,7 +14,11 @@ export default {
 
     inject: ['orderDocumentApiService'],
 
-    emits: ['changes-apply', 'title-set', 'buttons-update'],
+    emits: [
+        'changes-apply',
+        'title-set',
+        'buttons-update',
+    ],
 
     data() {
         return {
@@ -167,24 +171,28 @@ export default {
             const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
             const percentages = Math.round(100 / chunkedPayload.length);
 
-            return Promise
-                .all(chunkedPayload.map(async (item) => {
+            return Promise.all(
+                chunkedPayload.map(async (item) => {
                     await this.orderDocumentApiService.generate(documentType, item);
                     if (this.isCompatEnabled('INSTANCE_SET')) {
                         // eslint-disable-next-line max-len
-                        this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
+                        this.$set(
+                            this.document[documentType],
+                            'isReached',
+                            this.document[documentType].isReached + percentages,
+                        );
                     } else {
                         // eslint-disable-next-line operator-assignment
                         this.document[documentType].isReached = this.document[documentType].isReached + percentages;
                     }
-                }))
-                .then(() => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.document[documentType], 'isReached', 100);
-                    } else {
-                        this.document[documentType].isReached = 100;
-                    }
-                });
+                }),
+            ).then(() => {
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.document[documentType], 'isReached', 100);
+                } else {
+                    this.document[documentType].isReached = 100;
+                }
+            });
         },
     },
 };

@@ -119,37 +119,50 @@ describe('Form country state select plugin', () => {
     it('should set zipcode field to required when a country with required one setting is selected', () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">
-               <label class="form-label" for="addressZipcode">
-                   Postal code<span id="zipcodeLabel" class="d-none">*</span>
-               </label>
+                <label class="form-label" for="addressZipCode">
+                    Postal code<span id="zipcodeLabel" class="d-none">*</span>
+                </label>
 
-               <input type="text" class="form-control" id="addressZipcode" value="" data-input-name="zipcodeInput">
+                <input type="text" class="form-control" id="addressZipCode" value="" data-input-name="zipcodeInput">
 
-               <select class="country-select" data-initial-country-id="">
-                  <option disabled="disabled" value="">Select country...</option>
-                  <option value="1" data-vat-id-required="0" data-zipcode-required="1" data-state-required="1" selected="selected" data-placeholder-option="true">Germany</option>
-               </select>
+                <label class="form-label" for="alternativeZipCode">
+                     Postal code<span id="zipcodeLabel" class="d-none">*</span>
+                </label>
 
-               <select class="country-state-select" data-initial-country-state-id="">
-                 <option>Select state..</option>
-               </select>
+                <input type="text" class="form-control" id="alternativeZipCode" value="" data-input-name="zipcodeInput">
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="">Select country...</option>
+                    <option value="1" data-vat-id-required="0" data-zipcode-required="1" data-state-required="1" selected="selected" data-placeholder-option="true">Germany</option>
+                </select>
+
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option>Select state..</option>
+                </select>
             </form>
         `;
 
         document.body.innerHTML = template;
 
-        createPlugin({
+        const plugin = createPlugin({
             scopeElementSelector: '.register-shipping',
         });
 
-        expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(false);
-        expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(true);
+        const updateZipCodeSpy = jest.spyOn(plugin, '_updateZipcodeRequired');
+
+        const labels = document.querySelectorAll('#zipcodeLabel');
+        const inputs = document.querySelectorAll('[data-input-name="zipcodeInput"]');
+
+        labels.forEach(label => expect(label.classList.contains('d-none')).toBe(true));
+        inputs.forEach(input => expect(input.hasAttribute('required')).toBe(false));
 
         // Perform selection
         document.querySelector('.country-select').dispatchEvent(new Event('change'));
 
-        expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(true);
-        expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(false);
+        expect(updateZipCodeSpy).toHaveBeenCalled();
+
+        labels.forEach(label => expect(label.classList.contains('d-none')).toBe(false));
+        inputs.forEach(input => expect(input.hasAttribute('required')).toBe(true));
     });
 
     it('should initialize form field toggle instance and subscribe to onChange event', () => {

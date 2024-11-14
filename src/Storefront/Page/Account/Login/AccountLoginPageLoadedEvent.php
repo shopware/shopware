@@ -12,6 +12,8 @@ class AccountLoginPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var AccountLoginPage
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 

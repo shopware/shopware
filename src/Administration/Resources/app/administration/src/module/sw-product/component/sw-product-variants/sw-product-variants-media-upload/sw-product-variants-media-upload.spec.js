@@ -10,78 +10,83 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     const listEntity = [];
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-product-variants-media-upload', { sync: true }), {
-            props: {
-                uploadTag: 'upload-tag',
-                source: {
-                    media: new EntityCollection(
-                        '/test-entity',
-                        'testEntity',
-                        null,
-                        { isShopwareContext: true },
-                        listEntity,
-                        listEntity.length,
-                        null,
-                    ),
+        wrapper = mount(
+            await wrapTestComponent('sw-product-variants-media-upload', {
+                sync: true,
+            }),
+            {
+                props: {
+                    uploadTag: 'upload-tag',
+                    source: {
+                        media: new EntityCollection(
+                            '/test-entity',
+                            'testEntity',
+                            null,
+                            { isShopwareContext: true },
+                            listEntity,
+                            listEntity.length,
+                            null,
+                        ),
+                    },
+                    parentProduct: {
+                        media: new EntityCollection(
+                            '/test-entity',
+                            'testEntity',
+                            null,
+                            { isShopwareContext: true },
+                            listEntity,
+                            listEntity.length,
+                            null,
+                        ),
+                    },
                 },
-                parentProduct: {
-                    media: new EntityCollection(
-                        '/test-entity',
-                        'testEntity',
-                        null,
-                        { isShopwareContext: true },
-                        listEntity,
-                        listEntity.length,
-                        null,
-                    ),
+                global: {
+                    stubs: {
+                        'sw-context-button': {
+                            template: '<div class="sw-context-button"><slot></slot></div>',
+                        },
+                        'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                        'sw-icon': true,
+                        'sw-button': true,
+                        'sw-media-url-form': true,
+                        'sw-media-preview-v2': true,
+                        'sw-upload-listener': true,
+                        'sw-media-modal-v2': true,
+                        'sw-image-preview-modal': true,
+                        'router-link': true,
+                    },
+                    mocks: {
+                        $t: (v) => v,
+                        $tc: (v) => v,
+                    },
+                    provide: {
+                        repositoryFactory: {
+                            create: () => {
+                                return {
+                                    create: () => {
+                                        return Promise.resolve();
+                                    },
+                                    search: () => {
+                                        return Promise.resolve();
+                                    },
+                                };
+                            },
+                        },
+                        mediaDefaultFolderService: {
+                            getDefaultFolderId: () => {
+                                return Promise.resolve('id');
+                            },
+                        },
+                        configService: {},
+                        mediaService: {
+                            removeByTag: () => null,
+                            removeListener: () => null,
+                        },
+                        fileValidationService: {},
+                    },
                 },
             },
-            global: {
-                stubs: {
-                    'sw-context-button': {
-                        template: '<div class="sw-context-button"><slot></slot></div>',
-                    },
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-icon': true,
-                    'sw-button': true,
-                    'sw-media-url-form': true,
-                    'sw-media-preview-v2': true,
-                    'sw-upload-listener': true,
-                    'sw-media-modal-v2': true,
-                    'sw-image-preview-modal': true,
-                    'router-link': true,
-                },
-                mocks: {
-                    $t: v => v,
-                    $tc: v => v,
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: () => {
-                            return {
-                                create: () => {
-                                    return Promise.resolve();
-                                },
-                                search: () => {
-                                    return Promise.resolve();
-                                },
-                            };
-                        },
-                    },
-                    mediaDefaultFolderService: {
-                        getDefaultFolderId: () => {
-                            return Promise.resolve('id');
-                        },
-                    },
-                    configService: {},
-                    mediaService: {
-                        removeByTag: () => null,
-                        removeListener: () => null,
-                    },
-                    fileValidationService: {},
-                },
-            },
-        });
+        );
     });
 
     it('should be a Vue.js component', async () => {
@@ -116,10 +121,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should show image and have buttons action', async () => {
-        const entities = [{
-            mediaId: 'mediaId',
-            id: 'id1',
-        }];
+        const entities = [
+            {
+                mediaId: 'mediaId',
+                id: 'id1',
+            },
+        ];
 
         await wrapper.setProps({
             uploadTag: 'upload-tag',
@@ -260,8 +267,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         await button.trigger('click');
 
-        expect(wrapper
-            .findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image')).toHaveLength(1);
+        expect(
+            wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image'),
+        ).toHaveLength(1);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeFalsy();
     });
 

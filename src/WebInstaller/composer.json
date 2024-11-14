@@ -17,6 +17,7 @@
         "symfony/translation": "6.4.*",
         "symfony/twig-bundle": "6.4.*",
         "symfony/yaml": "6.4.*",
+        "symfony/filesystem": "6.4.*",
         "twig/twig": "^3.4"
     },
     "replace": {
@@ -54,7 +55,7 @@
     },
     "scripts": {
         "build-phar": [
-            "wget -q https://github.com/box-project/box/releases/download/4.2.0/box.phar -O box.phar",
+            "curl -qL -o box.phar https://github.com/box-project/box/releases/download/4.2.0/box.phar",
             "@php -d phar.readonly=0 box.phar compile",
             "rm box.phar"
         ],

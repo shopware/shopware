@@ -85,6 +85,8 @@ abstract class MigrationStep
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter `column` will be renamed to `columnName`
+     *
      * @return bool - Returns true when the column has really been deleted
      */
     protected function dropColumnIfExists(Connection $connection, string $table, string $column): bool
@@ -108,6 +110,8 @@ abstract class MigrationStep
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter `column` will be renamed to `foreignKeyName`
+     *
      * @return bool - Returns true when the foreign key has really been deleted
      */
     protected function dropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
@@ -133,6 +137,8 @@ abstract class MigrationStep
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:parameter-name-change - Parameter `index` will be renamed to `indexName`
+     *
      * @return bool - Returns true when the index has really been deleted
      */
     protected function dropIndexIfExists(Connection $connection, string $table, string $index): bool

@@ -41,7 +41,8 @@ class PluginCreateCommand extends Command
     {
         $this
             ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)')
-            ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)');
+            ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)')
+            ->addOption('static', null, null, 'Plugin will be created in the static-plugins folder');
 
         foreach ($this->generators as $generator) {
             if (!$generator->hasCommandOption()) {
@@ -66,12 +67,13 @@ class PluginCreateCommand extends Command
 
         try {
             $pluginName = $input->getArgument('plugin-name');
+            $staticPrefix = $input->getOption('static') ? 'static-' : '';
 
             if (!$pluginName) {
                 $pluginName = $this->askPascalCaseString('Please enter a plugin name (PascalCase)', $io);
             }
 
-            $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
+            $directory = \sprintf('%s/custom/%splugins/%s', $this->projectDir, $staticPrefix, $pluginName);
 
             if ($this->filesystem->exists($directory)) {
                 $io->error(\sprintf('Plugin directory %s already exists', $directory));

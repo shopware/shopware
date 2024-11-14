@@ -22,41 +22,46 @@ function getProfileMock() {
 }
 
 async function createWrapper(profile) {
-    return mount(await wrapTestComponent('sw-import-export-edit-profile-general', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-import-export-edit-profile-general', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-popover': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                    'sw-icon': true,
+                    'sw-field-copyable': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': true,
-                'sw-single-select': await wrapTestComponent('sw-single-select'),
-                'sw-select-result': await wrapTestComponent('sw-select-result'),
-                'sw-popover': {
-                    template: '<div><slot></slot></div>',
+                provide: {
+                    validationService: {},
                 },
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
-                'sw-icon': true,
-                'sw-field-copyable': true,
-                'sw-loader': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
             },
-            provide: {
-                validationService: {},
+            props: {
+                profile,
             },
         },
-        props: {
-            profile,
-        },
-    });
+    );
 }
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-general', () => {
@@ -89,7 +94,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         wrapper = await createWrapper(profile);
         await flushPromises();
 
-        const objectSelect = wrapper.find('.sw-import-export-edit-profile-general__object-type-select .sw-single-select__selection');
+        const objectSelect = wrapper.find(
+            '.sw-import-export-edit-profile-general__object-type-select .sw-single-select__selection',
+        );
         await objectSelect.trigger('click');
         await flushPromises();
 
@@ -107,7 +114,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         wrapper = await createWrapper(profile);
         await flushPromises();
 
-        const objectSelect = wrapper.find('.sw-import-export-edit-profile-general__type-select .sw-single-select__selection');
+        const objectSelect = wrapper.find(
+            '.sw-import-export-edit-profile-general__type-select .sw-single-select__selection',
+        );
         await objectSelect.trigger('click');
         await flushPromises();
 

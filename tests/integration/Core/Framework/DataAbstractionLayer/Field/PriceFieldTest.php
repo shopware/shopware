@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\PriceFieldDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -68,7 +68,7 @@ EOF;
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             [
@@ -115,7 +115,7 @@ EOF;
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             [
@@ -197,7 +197,7 @@ EOF;
      */
     public static function cashRoundingSortingProvider(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         return [
             '0.01 interval default currency' => [
@@ -269,7 +269,7 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->getContainer()
             ->get(EntityWriter::class)
@@ -313,7 +313,7 @@ EOF;
      */
     public static function cashRoundingFilterProvider(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         return [
             '0.01 interval default currency' => [
@@ -503,7 +503,7 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $this->getContainer()
             ->get(EntityWriter::class)

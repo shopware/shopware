@@ -6,9 +6,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-time-ago';
 
 // mock Date.now() to 2025-06-24 15:00
-Date.now = jest.fn(
-    () => new Date(Date.UTC(2025, 5, 24, 15, 0)).valueOf(),
-);
+Date.now = jest.fn(() => new Date(Date.UTC(2025, 5, 24, 15, 0)).valueOf());
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-time-ago', { sync: true }), {
@@ -45,9 +43,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
     it('should update the time every minute', async () => {
         jest.useFakeTimers();
 
-        Date.now = jest.fn(
-            () => new Date(Date.UTC(2025, 5, 24, 15, 0)).valueOf(),
-        );
+        Date.now = jest.fn(() => new Date(Date.UTC(2025, 5, 24, 15, 0)).valueOf());
 
         const wrapper = await createWrapper({
             date: '2025-06-24T14:30:00.000+00:00',
@@ -55,9 +51,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
         expect(wrapper.vm.now).toBe(1750777200000);
 
-        Date.now = jest.fn(
-            () => new Date(Date.UTC(2025, 5, 24, 15, 1)).valueOf(),
-        );
+        Date.now = jest.fn(() => new Date(Date.UTC(2025, 5, 24, 15, 1)).valueOf());
 
         jest.advanceTimersByTime(30000);
 
@@ -69,7 +63,9 @@ describe('src/app/component/utils/sw-time-ago', () => {
     it('should clear intervals', async () => {
         jest.spyOn(global, 'clearInterval');
 
-        const wrapper = await createWrapper({ date: '2025-06-24T15:00:00.000+00:00' });
+        const wrapper = await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
 
         expect(clearInterval).toHaveBeenCalledTimes(0);
 
@@ -82,7 +78,9 @@ describe('src/app/component/utils/sw-time-ago', () => {
     it('should not clear intervals if not set', async () => {
         jest.spyOn(global, 'clearInterval');
 
-        const wrapper = await createWrapper({ date: '2025-06-24T15:00:00.000+00:00' });
+        const wrapper = await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
 
         expect(clearInterval).toHaveBeenCalledTimes(0);
 
@@ -95,7 +93,9 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
     describe('date property as string', () => {
         it('should be a Vue.JS component', async () => {
-            const wrapper = await createWrapper({ date: '2025-06-24T15:00:00.000+00:00' });
+            const wrapper = await createWrapper({
+                date: '2025-06-24T15:00:00.000+00:00',
+            });
 
             expect(wrapper.vm).toBeTruthy();
         });
@@ -203,7 +203,9 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
     describe('date property as object', () => {
         it('should be a Vue.JS component', async () => {
-            const wrapper = await createWrapper({ date: new Date('2025-06-24T15:00:00.000+00:00') });
+            const wrapper = await createWrapper({
+                date: new Date('2025-06-24T15:00:00.000+00:00'),
+            });
 
             expect(wrapper.vm).toBeTruthy();
         });

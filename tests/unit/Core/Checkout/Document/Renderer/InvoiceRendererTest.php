@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -31,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -193,6 +197,70 @@ class InvoiceRendererTest extends TestCase
         ];
 
         $invoiceRenderer->render($operations, $context, new DocumentRendererConfig());
+    }
+
+    public function testDoNotForceDocumentCreation(): void
+    {
+        Feature::skipTestIfInActive('v6.7.0.0', $this);
+
+        $context = Context::createDefaultContext();
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+
+        $order = $this->createOrder([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'isCountryCompanyTaxFree' => true,
+            'setOrderDelivery' => true,
+            'setShippingCountry' => true,
+            'setEuCountry' => true,
+        ]);
+
+        $order->setDocuments(new DocumentCollection([$document]));
+
+        $orderId = $order->getId();
+        $orderCollection = new OrderCollection([$order]);
+        $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
+
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock->method('fetchAllAssociative')->willReturn([
+            [
+                'language_id' => Defaults::LANGUAGE_SYSTEM,
+                'ids' => $orderId,
+            ],
+        ]);
+
+        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
+
+        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
+        $documentTemplateRenderer->expects(static::never())->method('render');
+
+        $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class));
+
+        $invoiceRenderer = new InvoiceRenderer(
+            $orderRepositoryMock,
+            $documentConfigLoaderMock,
+            $this->createMock(EventDispatcherInterface::class),
+            $documentTemplateRenderer,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            '',
+            $connectionMock,
+        );
+
+        $operations = [
+            $orderId => new DocumentGenerateOperation(
+                $orderId,
+                FileTypes::PDF,
+                ['forceDocumentCreation' => false],
+            ),
+        ];
+
+        $result = $invoiceRenderer->render($operations, $context, new DocumentRendererConfig());
+
+        $successResults = $result->getSuccess();
+
+        static::assertCount(0, $successResults);
     }
 
     public static function configDataProvider(): \Generator

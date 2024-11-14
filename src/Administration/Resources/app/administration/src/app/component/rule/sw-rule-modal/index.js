@@ -68,10 +68,7 @@ Component.register('sw-rule-modal', {
                 return null;
             }
 
-            return this.repositoryFactory.create(
-                this.rule.conditions.entity,
-                this.rule.conditions.source,
-            );
+            return this.repositoryFactory.create(this.rule.conditions.entity, this.rule.conditions.source);
         },
 
         appScriptConditionRepository() {
@@ -85,7 +82,10 @@ Component.register('sw-rule-modal', {
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
         },
 
-        ...mapPropertyErrors('rule', ['name', 'priority']),
+        ...mapPropertyErrors('rule', [
+            'name',
+            'priority',
+        ]),
     },
 
     created() {
@@ -110,7 +110,10 @@ Component.register('sw-rule-modal', {
         },
 
         loadConditionData() {
-            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const context = {
+                ...Context.api,
+                languageId: Shopware.State.get('session').languageId,
+            };
             const criteria = new Criteria(1, 500);
 
             return Promise.all([
@@ -173,34 +176,32 @@ Component.register('sw-rule-modal', {
                 this.rule[this.ruleAwareGroupKey] = [];
             }
 
-
             const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc(
-                'sw-rule-modal.messageSaveSuccess',
-                0,
-                { name: this.rule.name },
-            );
+            const messageSaveSuccess = this.$tc('sw-rule-modal.messageSaveSuccess', 0, { name: this.rule.name });
 
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', 0, { name: this.rule.name });
 
             this.isLoading = true;
-            return this.ruleRepository.save(this.rule, Context.api).then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess,
-                });
+            return this.ruleRepository
+                .save(this.rule, Context.api)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        title: titleSaveSuccess,
+                        message: messageSaveSuccess,
+                    });
 
-                this.loading = false;
-                this.$emit('save', this.rule.id, this.rule);
-                this.$emit('modal-close');
-            }).catch(() => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError,
+                    this.loading = false;
+                    this.$emit('save', this.rule.id, this.rule);
+                    this.$emit('modal-close');
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError,
+                    });
                 });
-            });
         },
     },
 });

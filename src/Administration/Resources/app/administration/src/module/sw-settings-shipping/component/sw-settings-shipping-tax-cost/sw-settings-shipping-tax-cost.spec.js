@@ -8,17 +8,20 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 Shopware.State.registerModule('swShippingDetail', state);
 
 const createWrapper = async () => {
-    return mount(await wrapTestComponent('sw-settings-shipping-tax-cost', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-card': true,
-                'sw-entity-single-select': true,
-                'sw-single-select': true,
+    return mount(
+        await wrapTestComponent('sw-settings-shipping-tax-cost', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': true,
+                    'sw-entity-single-select': true,
+                    'sw-single-select': true,
+                },
             },
         },
-    });
+    );
 };
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-tax-cost', () => {

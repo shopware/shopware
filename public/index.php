@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Installer\InstallerKernel;
-use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 
 $_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
@@ -15,7 +15,6 @@ if (!file_exists(__DIR__ . '/../.env') && !file_exists(__DIR__ . '/../.env.dist'
 
 $_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod', 'e2e'];
 
-
 return function (array $context) {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
@@ -23,7 +22,7 @@ return function (array $context) {
         $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
         $baseURL = rtrim($baseURL, '/');
 
-        if (strpos($_SERVER['REQUEST_URI'], '/installer') === false) {
+        if (!str_contains($_SERVER['REQUEST_URI'], '/installer')) {
             header('Location: ' . $baseURL . '/installer');
             exit;
         }
@@ -56,9 +55,9 @@ return function (array $context) {
     }
 
     return KernelFactory::create(
-        environment: $appEnv,
-        debug: $debug,
-        classLoader: $classLoader,
-        pluginLoader: $pluginLoader
+        $appEnv,
+        $debug,
+        $classLoader,
+        $pluginLoader
     );
 };

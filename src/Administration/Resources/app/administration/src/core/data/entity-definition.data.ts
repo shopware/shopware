@@ -5,22 +5,35 @@
 /* @private */
 export interface Property {
     flags?: {
-        primary_key?: boolean,
-        required?: boolean,
-        translatable?: boolean,
-    },
-    required?: boolean,
-    type?: string,
-    relation?: 'one_to_one' | 'one_to_many' | 'many_to_one' | 'many_to_many',
-    entity?: string,
+        primary_key?: boolean;
+        required?: boolean;
+        translatable?: boolean;
+    };
+    required?: boolean;
+    type?: string;
+    relation?: 'one_to_one' | 'one_to_many' | 'many_to_one' | 'many_to_many';
+    entity?: string;
 }
 
 interface Properties {
     [key: string]: Property;
 }
 
-const scalarTypes = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
-const jsonTypes = ['json_list', 'json_object'];
+const scalarTypes = [
+    'uuid',
+    'int',
+    'text',
+    'password',
+    'float',
+    'string',
+    'blob',
+    'boolean',
+    'date',
+];
+const jsonTypes = [
+    'json_list',
+    'json_object',
+];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getScalarTypes() {
@@ -38,7 +51,7 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     readonly properties: Properties;
 
-    constructor({ entity, properties }: { entity: EntitySchema.Entity<EntityName>, properties: Properties }) {
+    constructor({ entity, properties }: { entity: EntitySchema.Entity<EntityName>; properties: Properties }) {
         this.entity = entity;
         this.properties = properties;
     }
@@ -77,7 +90,10 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
                 return false;
             }
 
-            return ['one_to_many', 'many_to_many'].includes(property.relation ?? '');
+            return [
+                'one_to_many',
+                'many_to_many',
+            ].includes(property.relation ?? '');
         });
     }
 
@@ -91,7 +107,10 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
                 return false;
             }
 
-            return ['one_to_one', 'many_to_one'].includes(property.relation ?? '');
+            return [
+                'one_to_one',
+                'many_to_one',
+            ].includes(property.relation ?? '');
         });
     }
 
@@ -165,11 +184,23 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
     }
 
     isToManyAssociation(field: Property) {
-        return field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation ?? '');
+        return (
+            field.type === 'association' &&
+            [
+                'one_to_many',
+                'many_to_many',
+            ].includes(field.relation ?? '')
+        );
     }
 
     isToOneAssociation(field: Property) {
-        return field.type === 'association' && ['many_to_one', 'one_to_one'].includes(field.relation ?? '');
+        return (
+            field.type === 'association' &&
+            [
+                'many_to_one',
+                'one_to_one',
+            ].includes(field.relation ?? '')
+        );
     }
 
     isOneToOneAssociation(field: Property) {

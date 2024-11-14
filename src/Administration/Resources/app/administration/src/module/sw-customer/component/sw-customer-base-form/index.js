@@ -35,19 +35,26 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.not('or', [
-                Criteria.equals('id', Defaults.defaultSalutationId),
-            ]));
+            criteria.addFilter(
+                Criteria.not('or', [
+                    Criteria.equals('id', Defaults.defaultSalutationId),
+                ]),
+            );
 
             return criteria;
         },
 
         accountTypeOptions() {
-            return [{
-                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
-            }, {
-                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
-            }];
+            return [
+                {
+                    value: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
+                    label: this.$tc('sw-customer.customerType.labelPrivate'),
+                },
+                {
+                    value: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
+                    label: this.$tc('sw-customer.customerType.labelBusiness'),
+                },
+            ];
         },
 
         isBusinessAccountType() {

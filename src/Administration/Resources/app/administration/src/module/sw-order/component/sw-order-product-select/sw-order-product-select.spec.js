@@ -36,7 +36,6 @@ const createWrapper = async () => {
                 'sw-select-result': true,
             },
         },
-
     });
 };
 

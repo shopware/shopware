@@ -17,8 +17,9 @@ describe('src/core/service/utils/format.utils.js', () => {
 
     describe('date', () => {
         const setLocale = (locale) => {
-            jest.spyOn(Shopware.Application.getContainer('factory').locale, 'getLastKnownLocale')
-                .mockImplementation(() => locale);
+            jest.spyOn(Shopware.Application.getContainer('factory').locale, 'getLastKnownLocale').mockImplementation(
+                () => locale,
+            );
         };
         const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
 
@@ -77,16 +78,19 @@ describe('src/core/service/utils/format.utils.js', () => {
             setLocale('de-DE');
             setTimeZone('America/New_York');
 
-            expect(date('2000-06-18T08:30:00.000+00:00', {
-                skipTimezoneConversion: true,
-            })).toBe('18. Juni 2000 um 08:30');
+            expect(
+                date('2000-06-18T08:30:00.000+00:00', {
+                    skipTimezoneConversion: true,
+                }),
+            ).toBe('18. Juni 2000 um 08:30');
         });
     });
 
     describe('dateWithUserTimezone', () => {
         const setLocale = (locale) => {
-            jest.spyOn(Shopware.Application.getContainer('factory').locale, 'getLastKnownLocale')
-                .mockImplementation(() => locale);
+            jest.spyOn(Shopware.Application.getContainer('factory').locale, 'getLastKnownLocale').mockImplementation(
+                () => locale,
+            );
         };
         const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
 
@@ -100,7 +104,9 @@ describe('src/core/service/utils/format.utils.js', () => {
             // eslint-disable-next-line no-shadow
             const date = new Date(2000, 1, 1, 11, 13, 37);
 
-            expect(dateWithUserTimezone(date).toString()).toBe('Tue Feb 01 2000 00:13:37 GMT+0000 (Coordinated Universal Time)');
+            expect(dateWithUserTimezone(date).toString()).toBe(
+                'Tue Feb 01 2000 00:13:37 GMT+0000 (Coordinated Universal Time)',
+            );
         });
 
         it('should convert the date correctly with timezone UTC as fallback', async () => {
@@ -108,7 +114,9 @@ describe('src/core/service/utils/format.utils.js', () => {
             // eslint-disable-next-line no-shadow
             const date = new Date(2000, 1, 1, 0, 13, 37);
 
-            expect(dateWithUserTimezone(date).toString()).toBe('Tue Feb 01 2000 00:13:37 GMT+0000 (Coordinated Universal Time)');
+            expect(dateWithUserTimezone(date).toString()).toBe(
+                'Tue Feb 01 2000 00:13:37 GMT+0000 (Coordinated Universal Time)',
+            );
         });
     });
 
@@ -126,7 +134,7 @@ describe('src/core/service/utils/format.utils.js', () => {
         });
 
         it('should handle floats', async () => {
-            expect(currencyFilter(42.20, 'EUR', 2)).toBe('€42.20');
+            expect(currencyFilter(42.2, 'EUR', 2)).toBe('€42.20');
         });
 
         it('should use the provided language', async () => {

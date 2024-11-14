@@ -120,7 +120,9 @@ async function createWrapper() {
                     },
                 },
                 stateMachineService: {
-                    getState: () => { return { data: { } }; },
+                    getState: () => {
+                        return { data: {} };
+                    },
                 },
                 feature: {
                     isActive: () => true,
@@ -128,12 +130,7 @@ async function createWrapper() {
                 repositoryFactory: {
                     create() {
                         return {
-                            search: () => Promise.resolve(new EntityCollection(
-                                '',
-                                '',
-                                Shopware.Context.api,
-                                null,
-                            )),
+                            search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null)),
                             delete: deleteFn,
                             assign: assignFn,
                         };
@@ -149,7 +146,6 @@ async function createWrapper() {
                 'sw-order-state-change-modal': true,
             },
         },
-
     });
 }
 
@@ -193,7 +189,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(summary.text()).toContain('john@doe.dev');
     });
 
-    it('should not mutate the original of the order\'s tags when removing tag', async () => {
+    it("should not mutate the original of the order's tags when removing tag", async () => {
         const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
 
         expect(tagsStub.exists()).toBeTruthy();
@@ -208,7 +204,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(wrapper.vm.$data.tagCollection).toHaveLength(1);
     });
 
-    it('should not mutate the original of the order\'s tags when adding tag', async () => {
+    it("should not mutate the original of the order's tags when adding tag", async () => {
         const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
 
         expect(tagsStub.exists()).toBeTruthy();

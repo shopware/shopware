@@ -19,7 +19,4 @@ enum DiscountScopes {
 /**
  * @private
  */
-export {
-    DiscountTypes,
-    DiscountScopes,
-};
+export { DiscountTypes, DiscountScopes };

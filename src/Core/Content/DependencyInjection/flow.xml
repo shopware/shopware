@@ -36,6 +36,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="tagged_iterator" tag="flow.action" index-by="key" />
         </service>
 

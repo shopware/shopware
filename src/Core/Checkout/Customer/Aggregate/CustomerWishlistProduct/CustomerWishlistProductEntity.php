@@ -15,26 +15,36 @@ class CustomerWishlistProductEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $wishlistId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productVersionId;
 
     /**
      * @var CustomerWishlistEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $wishlist;
 
     /**
      * @var ProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 

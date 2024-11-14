@@ -9,12 +9,12 @@ import { compatUtils } from '@vue/compat';
 import type { Module } from 'vuex';
 import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/component-section';
 
-type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'> & { extensionName: string }
+type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'> & { extensionName: string };
 
 interface ExtensionComponentSectionsState {
     identifier: {
-        [positionId: string]: ComponentSectionEntry[]
-    },
+        [positionId: string]: ComponentSectionEntry[];
+    };
 }
 
 const ExtensionComponentSectionsStore: Module<ExtensionComponentSectionsState, VuexRootState> = {
@@ -27,7 +27,7 @@ const ExtensionComponentSectionsStore: Module<ExtensionComponentSectionsState, V
     mutations: {
         addSection(
             state,
-            { component, positionId, src, props, extensionName }: uiComponentSectionRenderer & { extensionName: string},
+            { component, positionId, src, props, extensionName }: uiComponentSectionRenderer & { extensionName: string },
         ) {
             if (!state.identifier[positionId]) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access

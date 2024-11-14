@@ -6,58 +6,43 @@
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TeaserPopoverConfig = {
-    positionId: string,
-    src: string,
-    component: string,
+    positionId: string;
+    src: string;
+    component: string;
     props: {
-        label?: string,
-        locationId: string,
-        locationTriggerId?: string,
-        variant?: string,
-        icon?: string,
+        label?: string;
+        locationId: string;
+        locationTriggerId?: string;
+        variant?: string;
+        icon?: string;
     };
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TeaserSalesChannelConfig = {
-    positionId: string,
+    positionId: string;
     salesChannel: {
-        title: string,
-        description: string,
-        iconName: string,
+        title: string;
+        description: string;
+        iconName: string;
     };
     popoverComponent: {
-        src: string,
-        component: string,
+        src: string;
+        component: string;
         props: {
-            label: string,
-            locationId: string,
-            variant: string,
-        }
-    }
+            label: string;
+            locationId: string;
+            variant: string;
+        };
+    };
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type TeaserPopoverState = {
-    state: {
-        identifier: {
-            [positionId: string]: TeaserPopoverConfig,
-        },
-        salesChannels: TeaserSalesChannelConfig[],
-    },
-    actions: {
-        addPopoverComponent: (popoverComponent: TeaserPopoverConfig) => void,
-        addSalesChannel: (popoverComponent: TeaserSalesChannelConfig) => void,
-    },
-    getters: unknown,
-};
+const teaserPopoverStore = Shopware.Store.register({
+    id: 'teaserPopover',
 
-const TeaserPopoverState = Shopware.Store.wrapStoreDefinition({
-    id: 'teaserPopoverState',
-
-    state: (): TeaserPopoverState['state'] => ({
-        identifier: {},
-        salesChannels: [],
+    state: () => ({
+        identifier: {} as Record<string, TeaserPopoverConfig>,
+        salesChannels: [] as TeaserSalesChannelConfig[],
     }),
 
     actions: {
@@ -78,4 +63,9 @@ const TeaserPopoverState = Shopware.Store.wrapStoreDefinition({
 /**
  * @private
  */
-export default TeaserPopoverState;
+export type TeaserPopoverStore = ReturnType<typeof teaserPopoverStore>;
+
+/**
+ * @private
+ */
+export default teaserPopoverStore;

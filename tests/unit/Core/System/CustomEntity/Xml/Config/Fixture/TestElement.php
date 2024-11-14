@@ -9,6 +9,9 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  */
 class TestElement extends ConfigXmlElement
 {
+    /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     */
     public $extensions = [];
 
     public string $testData = 'TEST_DATA';

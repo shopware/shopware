@@ -7,16 +7,28 @@ Shopware.Component.register('sw-first-run-wizard', () => import('./page/index'))
 Shopware.Component.register('sw-first-run-wizard-welcome', () => import('./view/sw-first-run-wizard-welcome'));
 Shopware.Component.register('sw-first-run-wizard-data-import', () => import('./view/sw-first-run-wizard-data-import'));
 Shopware.Component.register('sw-first-run-wizard-mailer-base', () => import('./view/sw-first-run-wizard-mailer-base'));
-Shopware.Component.register('sw-first-run-wizard-mailer-selection', () => import('./view/sw-first-run-wizard-mailer-selection'));
+Shopware.Component.register(
+    'sw-first-run-wizard-mailer-selection',
+    () => import('./view/sw-first-run-wizard-mailer-selection'),
+);
 Shopware.Component.register('sw-first-run-wizard-mailer-smtp', () => import('./view/sw-first-run-wizard-mailer-smtp'));
 Shopware.Component.register('sw-first-run-wizard-mailer-local', () => import('./view/sw-first-run-wizard-mailer-local'));
 Shopware.Component.register('sw-first-run-wizard-paypal-base', () => import('./view/sw-first-run-wizard-paypal-base'));
 Shopware.Component.register('sw-first-run-wizard-paypal-info', () => import('./view/sw-first-run-wizard-paypal-info'));
-Shopware.Component.register('sw-first-run-wizard-paypal-credentials', () => import('./view/sw-first-run-wizard-paypal-credentials'));
+Shopware.Component.register(
+    'sw-first-run-wizard-paypal-credentials',
+    () => import('./view/sw-first-run-wizard-paypal-credentials'),
+);
 Shopware.Component.register('sw-first-run-wizard-plugins', () => import('./view/sw-first-run-wizard-plugins'));
 Shopware.Component.register('sw-first-run-wizard-shopware-base', () => import('./view/sw-first-run-wizard-shopware-base'));
-Shopware.Component.register('sw-first-run-wizard-shopware-account', () => import('./view/sw-first-run-wizard-shopware-account'));
-Shopware.Component.register('sw-first-run-wizard-shopware-domain', () => import('./view/sw-first-run-wizard-shopware-domain'));
+Shopware.Component.register(
+    'sw-first-run-wizard-shopware-account',
+    () => import('./view/sw-first-run-wizard-shopware-account'),
+);
+Shopware.Component.register(
+    'sw-first-run-wizard-shopware-domain',
+    () => import('./view/sw-first-run-wizard-shopware-domain'),
+);
 Shopware.Component.register('sw-first-run-wizard-defaults', () => import('./view/sw-first-run-wizard-defaults'));
 Shopware.Component.register('sw-first-run-wizard-store', () => import('./view/sw-first-run-wizard-store'));
 Shopware.Component.register('sw-first-run-wizard-finish', () => import('./view/sw-first-run-wizard-finish'));

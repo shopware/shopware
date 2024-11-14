@@ -13,11 +13,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\SnippetEvents;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -25,12 +25,9 @@ use Shopware\Core\System\Snippet\SnippetEvents;
 #[CoversClass(TranslatorCacheInvalidate::class)]
 class TranslatorCacheInvalidateTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
 
-    private mixed $cacheInvalidator;
+    private CacheInvalidator&MockObject $cacheInvalidator;
 
     private TranslatorCacheInvalidate $translatorCacheInvalidate;
 

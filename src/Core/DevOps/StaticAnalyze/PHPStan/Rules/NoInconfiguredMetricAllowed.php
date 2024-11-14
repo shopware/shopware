@@ -11,6 +11,7 @@ use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ParameterMap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
@@ -41,7 +42,6 @@ class NoInconfiguredMetricAllowed implements Rule
 
     public function __construct(ParameterMap $parameterMap)
     {
-        /** @phpstan-ignore-next-line ignore possible breaking change */
         $paramValues = $parameterMap->getParameter('shopware.telemetry.metrics.definitions')?->getValue() ?? [];
         $this->definitions = array_fill_keys(array_keys((array) $paramValues), true);
     }
@@ -91,7 +91,11 @@ class NoInconfiguredMetricAllowed implements Rule
 
         $metricName = $nameArgument->value->value;
         if (!\array_key_exists($metricName, $this->definitions)) {
-            return [\sprintf('Metric "%s" is not configured', $metricName)];
+            return [
+                RuleErrorBuilder::message(\sprintf('Metric "%s" is not configured', $metricName))
+                    ->identifier('shopware.metricConfiguration')
+                    ->build(),
+            ];
         }
 
         return [];

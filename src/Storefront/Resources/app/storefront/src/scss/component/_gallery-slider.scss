@@ -19,8 +19,18 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     margin-bottom: $spacer;
 
     &.is-loading {
-        height: 430px;
+        height: auto;
         overflow: hidden;
+
+        .gallery-slider-item-container {
+            &:not(:first-child) {
+                display: none;
+            }
+        }
+
+        .gallery-slider-thumbnails-col.is-underneath{
+            display: none;
+        }
     }
 
     &.is-single-image {

@@ -113,7 +113,10 @@ Component.register('sw-text-field-deprecated', {
         filteredInputAttributes() {
             // Filter attributes and remove "size" attribute
             return Object.keys(this.$attrs).reduce((acc, key) => {
-                const filteredValues = ['size', 'class'];
+                const filteredValues = [
+                    'size',
+                    'class',
+                ];
 
                 if (!filteredValues.includes(key)) {
                     acc[key] = this.$attrs[key];

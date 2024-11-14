@@ -49,7 +49,11 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     inject: ['feature'],
 
@@ -75,9 +79,17 @@ export default {
         dateType: {
             type: String,
             default: 'date',
-            validValues: ['time', 'date', 'datetime'],
+            validValues: [
+                'time',
+                'date',
+                'datetime',
+            ],
             validator(value) {
-                return ['time', 'date', 'datetime'].includes(value);
+                return [
+                    'time',
+                    'date',
+                    'datetime',
+                ].includes(value);
             },
         },
 
@@ -168,7 +180,12 @@ export default {
                  * The callback methods will emit the corresponding event to the parent.
                  */
                 Object.keys(this.$listeners).forEach((key) => {
-                    if (!['change', 'input'].includes(key)) {
+                    if (
+                        ![
+                            'change',
+                            'input',
+                        ].includes(key)
+                    ) {
                         listeners[key] = this.$listeners[key];
                     }
                 });
@@ -184,7 +201,12 @@ export default {
              * Do not pass "change" or "input" event listeners to the form elements.
              */
             Object.keys(this.$attrs).forEach((key) => {
-                if (!['onChange', 'onInput'].includes(key)) {
+                if (
+                    ![
+                        'onChange',
+                        'onInput',
+                    ].includes(key)
+                ) {
                     attrs[key] = this.$attrs[key];
                 }
             });
@@ -202,7 +224,12 @@ export default {
                     return null;
                 }
 
-                if (['time', 'date'].includes(this.dateType)) {
+                if (
+                    [
+                        'time',
+                        'date',
+                    ].includes(this.dateType)
+                ) {
                     return this.value;
                 }
 
@@ -219,7 +246,12 @@ export default {
                     return;
                 }
 
-                if (['time', 'date'].includes(this.dateType)) {
+                if (
+                    [
+                        'time',
+                        'date',
+                    ].includes(this.dateType)
+                ) {
                     this.$emit('update:value', newValue);
 
                     return;
@@ -337,14 +369,13 @@ export default {
         getMergedConfig(newConfig) {
             if (newConfig.mode !== undefined) {
                 console.warn(
-                    '[sw-datepicker] The only allowed mode is the default \'single\' mode ' +
-                    '(the specified mode will be ignored!). ' +
-                    'The modes \'multiple\' or \'range\' are currently not supported',
+                    "[sw-datepicker] The only allowed mode is the default 'single' mode " +
+                        '(the specified mode will be ignored!). ' +
+                        "The modes 'multiple' or 'range' are currently not supported",
                 );
             }
 
             return {
-
                 ...this.defaultConfig,
                 enableTime: this.enableTime,
                 noCalendar: this.noCalendar,
@@ -363,8 +394,10 @@ export default {
 
             const mergedConfig = this.getMergedConfig(this.config);
 
-            if (mergedConfig.enableTime !== undefined
-                    && mergedConfig.enableTime !== this.currentFlatpickrConfig.enableTime) {
+            if (
+                mergedConfig.enableTime !== undefined &&
+                mergedConfig.enableTime !== this.currentFlatpickrConfig.enableTime
+            ) {
                 // The instance must be recreated for some config options to take effect like 'enableTime' changes.
                 // See https://github.com/flatpickr/flatpickr/issues/1108 for details.
                 this.createFlatpickrInstance(this.config);
@@ -382,7 +415,10 @@ export default {
             this.flatpickrInstance.set(mergedConfig);
 
             // Workaround: Allow to change locale dynamically
-            ['locale', 'showMonths'].forEach((name) => {
+            [
+                'locale',
+                'showMonths',
+            ].forEach((name) => {
                 if (typeof mergedConfig[name] !== 'undefined') {
                     this.flatpickrInstance.set(name, mergedConfig[name]);
                 }

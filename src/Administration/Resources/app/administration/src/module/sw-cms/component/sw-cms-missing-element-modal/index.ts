@@ -11,7 +11,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['modal-close', 'modal-save', 'modal-dont-remind-change'],
+    emits: [
+        'modal-close',
+        'modal-save',
+        'modal-dont-remind-change',
+    ],
 
     props: {
         missingElements: {
@@ -25,9 +29,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         element() {
-            return this.missingElements.map((missingElement) => {
-                return this.$tc(`sw-cms.elements.${missingElement}.label`);
-            }).join(', ');
+            return this.missingElements
+                .map((missingElement) => {
+                    return this.$tc(`sw-cms.elements.${missingElement}.label`);
+                })
+                .join(', ');
         },
 
         title() {

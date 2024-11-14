@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Content\Media;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaFolderService;
@@ -24,25 +26,22 @@ class MediaFolderServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    /**
-     * @var MediaFolderService
-     */
-    private $mediaFolderService;
+    private MediaFolderService $mediaFolderService;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaCollection>
      */
-    private $mediaRepo;
+    private EntityRepository $mediaRepo;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaFolderCollection>
      */
-    private $mediaFolderRepo;
+    private EntityRepository $mediaFolderRepo;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaFolderConfigurationCollection>
      */
-    private $mediaFolderConfigRepo;
+    private EntityRepository $mediaFolderConfigRepo;
 
     private Context $context;
 

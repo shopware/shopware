@@ -18,6 +18,7 @@ const {
     Data,
     Classes,
     Helper,
+    Vue,
 } = Shopware;
 
 describe('core/shopware', () => {
@@ -129,5 +130,52 @@ describe('core/shopware', () => {
     it('should contain the necessary methods for the Helper', async () => {
         expect(Helper).toHaveProperty('FlatTreeHelper');
         expect(Helper).toHaveProperty('MiddlewareHelper');
+    });
+
+    it('should contain the necessary methods for "Vue"', async () => {
+        expect(Vue).toHaveProperty('ref');
+        expect(Vue).toHaveProperty('computed');
+        expect(Vue).toHaveProperty('reactive');
+        expect(Vue).toHaveProperty('readonly');
+        expect(Vue).toHaveProperty('watchEffect');
+        expect(Vue).toHaveProperty('watchPostEffect');
+        expect(Vue).toHaveProperty('watchSyncEffect');
+        expect(Vue).toHaveProperty('watch');
+        expect(Vue).toHaveProperty('isRef');
+        expect(Vue).toHaveProperty('unref');
+        expect(Vue).toHaveProperty('toRef');
+        expect(Vue).toHaveProperty('toRefs');
+        expect(Vue).toHaveProperty('toValue');
+        expect(Vue).toHaveProperty('isProxy');
+        expect(Vue).toHaveProperty('isReactive');
+        expect(Vue).toHaveProperty('isReadonly');
+        expect(Vue).toHaveProperty('shallowRef');
+        expect(Vue).toHaveProperty('triggerRef');
+        expect(Vue).toHaveProperty('customRef');
+        expect(Vue).toHaveProperty('shallowReactive');
+        expect(Vue).toHaveProperty('shallowReadonly');
+        expect(Vue).toHaveProperty('toRaw');
+        expect(Vue).toHaveProperty('markRaw');
+        expect(Vue).toHaveProperty('effectScope');
+        expect(Vue).toHaveProperty('getCurrentScope');
+        expect(Vue).toHaveProperty('onScopeDispose');
+        expect(Vue).toHaveProperty('onMounted');
+        expect(Vue).toHaveProperty('onUpdated');
+        expect(Vue).toHaveProperty('onUnmounted');
+        expect(Vue).toHaveProperty('onBeforeMount');
+        expect(Vue).toHaveProperty('onBeforeUpdate');
+        expect(Vue).toHaveProperty('onBeforeUnmount');
+        expect(Vue).toHaveProperty('onErrorCaptured');
+        expect(Vue).toHaveProperty('onRenderTracked');
+        expect(Vue).toHaveProperty('onRenderTriggered');
+        expect(Vue).toHaveProperty('onActivated');
+        expect(Vue).toHaveProperty('onDeactivated');
+        expect(Vue).toHaveProperty('onServerPrefetch');
+        expect(Vue).toHaveProperty('provide');
+        expect(Vue).toHaveProperty('inject');
+        expect(Vue).toHaveProperty('hasInjectionContext');
+        expect(Vue).toHaveProperty('useAttrs');
+        expect(Vue).toHaveProperty('useSlots');
+        expect(Vue).toHaveProperty('useModel');
     });
 });

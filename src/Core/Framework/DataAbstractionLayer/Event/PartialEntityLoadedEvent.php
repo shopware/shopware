@@ -12,6 +12,8 @@ class PartialEntityLoadedEvent extends EntityLoadedEvent
 {
     /**
      * @var PartialEntity[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $entities;
 

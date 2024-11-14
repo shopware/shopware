@@ -95,8 +95,7 @@ Component.register('sw-wizard', {
 
     computed: {
         hasFooterSlot() {
-            return !!this.$slots['footer-left-button']
-                || !!this.$slots['footer-right-button'];
+            return !!this.$slots['footer-left-button'] || !!this.$slots['footer-right-button'];
         },
 
         pagesCount() {

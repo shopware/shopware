@@ -12,26 +12,36 @@ class Filter extends Struct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filtered;
 
     /**
      * @var Aggregation[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aggregations;
 
     /**
      * @var DALFilter
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filter;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $exclude;
 

@@ -228,7 +228,7 @@ class LineItemTransformer
 
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
-                    (int) $product->getAvailableStock(),
+                    $product->getStock(),
                     $product->getWeight(),
                     $product->getShippingFree() === true,
                     $product->getRestockTime(),

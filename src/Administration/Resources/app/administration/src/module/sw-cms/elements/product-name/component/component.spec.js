@@ -4,52 +4,55 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsOverride) {
-    return mount(await wrapTestComponent('sw-cms-el-product-name', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                config: {
-                    content: {
-                        source: 'static',
-                        value: null,
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null,
+    return mount(
+        await wrapTestComponent('sw-cms-el-product-name', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    config: {
+                        content: {
+                            source: 'static',
+                            value: null,
+                        },
+                        verticalAlign: {
+                            source: 'static',
+                            value: null,
+                        },
                     },
                 },
+                defaultConfig: {},
+                ...propsOverride,
             },
-            defaultConfig: {},
-            ...propsOverride,
+            global: {
+                mocks: {
+                    $sanitize: (key) => key,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-text-editor': true,
+                },
+            },
         },
-        global: {
-            mocks: {
-                $sanitize: key => key,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-            stubs: {
-                'sw-text-editor': true,
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/product-name/component', () => {
     beforeAll(async () => {
-        await import('src/module/sw-cms/state/cms-page.state');
+        await import('src/module/sw-cms/store/cms-page.store');
         await import('src/module/sw-cms/service/cms.service');
         await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should map to a product name if the component is in a product page', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();
@@ -87,7 +90,7 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('should display skeleton on product name block if entity demo is null', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();
@@ -156,7 +159,7 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('demoValue is retrieved from cms state, if it exists', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentDemoEntity({
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             name: 'Test product',
             ean: 'test-ean',
         });

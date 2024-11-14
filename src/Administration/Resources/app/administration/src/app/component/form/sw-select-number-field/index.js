@@ -18,7 +18,6 @@ const { Component } = Shopware;
  * </sw-select-number-field>
  */
 Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
-
     inheritAttrs: false,
 
     inject: ['feature'],
@@ -40,7 +39,9 @@ Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
     },
 
     watch: {
-        value() { this.currentValue = Number(this.value); },
+        value() {
+            this.currentValue = Number(this.value);
+        },
     },
 
     methods: {

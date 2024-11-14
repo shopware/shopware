@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['thumbnail-form-size-add', 'on-input'],
+    emits: [
+        'thumbnail-form-size-add',
+        'on-input',
+    ],
 
     props: {
         disabled: {
@@ -42,7 +45,10 @@ export default {
         },
 
         onAdd() {
-            this.$emit('thumbnail-form-size-add', { width: this.width, height: this.height });
+            this.$emit('thumbnail-form-size-add', {
+                width: this.width,
+                height: this.height,
+            });
             this.width = null;
             this.height = null;
         },

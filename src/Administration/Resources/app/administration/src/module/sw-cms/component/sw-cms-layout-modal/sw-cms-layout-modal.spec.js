@@ -37,78 +37,89 @@ const productMocks = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-layout-modal', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: jest.fn(() => Promise.resolve(productMocks)),
+    return mount(
+        await wrapTestComponent('sw-cms-layout-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: jest.fn(() => Promise.resolve(productMocks)),
+                        }),
+                    },
+                    searchRankingService: {},
+                    systemConfigApiService: {
+                        getValues: (query) => {
+                            if (query !== 'core.cms') {
+                                return null;
+                            }
+
+                            return {
+                                'core.cms.default_category_cms_page': defaultCategoryId,
+                                'core.cms.default_product_cms_page': defaultProductId,
+                            };
+                        },
+                        saveValues: () => null,
+                    },
+                    cmsPageTypeService: {
+                        getType: () => {
+                            return {
+                                name: 'custom_entity_detail',
+                                icon: 'regular-tag',
+                                title: 'sw-cms.detail.label.pageType.customEntityDetail',
+                                class: [
+                                    'sw-cms-create-wizard__page-type-custom-entity-detail',
+                                ],
+                                hideInList: false,
+                            };
+                        },
+                    },
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
+                },
+
+                stubs: {
+                    'sw-icon': true,
+                    'sw-modal': await wrapTestComponent('sw-modal', {
+                        sync: true,
                     }),
-                },
-                searchRankingService: {},
-                systemConfigApiService: {
-                    getValues: (query) => {
-                        if (query !== 'core.cms') {
-                            return null;
-                        }
 
-                        return {
-                            'core.cms.default_category_cms_page': defaultCategoryId,
-                            'core.cms.default_product_cms_page': defaultProductId,
-                        };
-                    },
-                    saveValues: () => null,
+                    'sw-simple-search-field': true,
+                    'sw-loader': true,
+                    'sw-container': true,
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-sorting-select': true,
+                    'sw-pagination': true,
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', {
+                        sync: true,
+                    }),
+                    'sw-inheritance-switch': true,
+                    'sw-field-error': true,
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                        sync: true,
+                    }),
+                    'sw-cms-list-item': await wrapTestComponent('sw-cms-list-item', { sync: true }),
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-help-text': true,
+                    'sw-ai-copilot-badge': true,
                 },
-                cmsPageTypeService: {
-                    getType: () => {
-                        return {
-                            name: 'custom_entity_detail',
-                            icon: 'regular-tag',
-                            title: 'sw-cms.detail.label.pageType.customEntityDetail',
-                            class: ['sw-cms-create-wizard__page-type-custom-entity-detail'],
-                            hideInList: false,
-                        };
-                    },
-                },
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
-                },
-            },
-
-            stubs: {
-                'sw-icon': true,
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
-
-                'sw-simple-search-field': true,
-                'sw-loader': true,
-                'sw-container': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-sorting-select': true,
-                'sw-pagination': true,
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-inheritance-switch': true,
-                'sw-field-error': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-cms-list-item': await wrapTestComponent('sw-cms-list-item', { sync: true }),
-                'sw-context-menu-item': true,
-                'sw-context-button': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-inline-edit': true,
-                'router-link': true,
-                'sw-data-grid-skeleton': true,
-                'sw-help-text': true,
-                'sw-ai-copilot-badge': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-layout-modal', () => {
@@ -120,19 +131,25 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageTypes: ['page', 'landingpage', 'product_list'],
+            cmsPageTypes: [
+                'page',
+                'landingpage',
+                'product_list',
+            ],
         });
         await wrapper.vm.getList();
 
-        expect(wrapper.vm.cmsPageCriteria).toEqual(expect.objectContaining({
-            filters: [
-                {
-                    type: 'equalsAny',
-                    field: 'type',
-                    value: 'page|landingpage|product_list',
-                },
-            ],
-        }));
+        expect(wrapper.vm.cmsPageCriteria).toEqual(
+            expect.objectContaining({
+                filters: [
+                    {
+                        type: 'equalsAny',
+                        field: 'type',
+                        value: 'page|landingpage|product_list',
+                    },
+                ],
+            }),
+        );
 
         expect(wrapper.vm.pageRepository.search).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
     });
@@ -145,9 +162,11 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         });
         await wrapper.vm.getList();
 
-        expect(wrapper.vm.cmsPageCriteria).toEqual(expect.objectContaining({
-            filters: [],
-        }));
+        expect(wrapper.vm.cmsPageCriteria).toEqual(
+            expect.objectContaining({
+                filters: [],
+            }),
+        );
 
         expect(wrapper.vm.pageRepository.search).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
     });
@@ -216,11 +235,13 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         expect(wrapper.vm.cmsPageCriteria.limit).toBe(10);
         expect(wrapper.vm.cmsPageCriteria.filters).toEqual([]);
         expect(wrapper.vm.cmsPageCriteria.hasAssociation('previewMedia')).toBe(true);
-        expect(wrapper.vm.cmsPageCriteria.sortings).toEqual([{
-            field: 'createdAt',
-            order: 'DESC',
-            naturalSorting: false,
-        }]);
+        expect(wrapper.vm.cmsPageCriteria.sortings).toEqual([
+            {
+                field: 'createdAt',
+                order: 'DESC',
+                naturalSorting: false,
+            },
+        ]);
 
         wrapper.vm.onSearch('');
         await flushPromises();
@@ -230,11 +251,13 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         expect(wrapper.vm.cmsPageCriteria.limit).toBe(10);
         expect(wrapper.vm.cmsPageCriteria.filters).toEqual([]);
         expect(wrapper.vm.cmsPageCriteria.hasAssociation('previewMedia')).toBe(true);
-        expect(wrapper.vm.cmsPageCriteria.sortings).toEqual([{
-            field: 'createdAt',
-            order: 'DESC',
-            naturalSorting: false,
-        }]);
+        expect(wrapper.vm.cmsPageCriteria.sortings).toEqual([
+            {
+                field: 'createdAt',
+                order: 'DESC',
+                naturalSorting: false,
+            },
+        ]);
     });
 
     it.each(productMocks)('should select the given item and load all variables correctly', async (product) => {
@@ -257,18 +280,23 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         });
     });
 
-    it.each(productMocks)('should set and unset the selectedPageObject correctly, when selecting a column', async (product) => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: false,
-        });
+    it.each(productMocks)(
+        'should set and unset the selectedPageObject correctly, when selecting a column',
+        async (product) => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                isLoading: false,
+            });
 
-        const productIndex = productMocks.indexOf(product);
-        const expected = productMocks[productIndex];
+            const productIndex = productMocks.indexOf(product);
+            const expected = productMocks[productIndex];
 
-        const checkbox = wrapper.findAll('.sw-cms-layout-modal__content-item .sw-field__checkbox input').at(productIndex);
+            const checkbox = wrapper
+                .findAll('.sw-cms-layout-modal__content-item .sw-field__checkbox input')
+                .at(productIndex);
 
-        await checkbox.setChecked(true);
-        expect(wrapper.vm.selectedPageObject).toEqual(expected);
-    });
+            await checkbox.setChecked(true);
+            expect(wrapper.vm.selectedPageObject).toEqual(expected);
+        },
+    );
 });

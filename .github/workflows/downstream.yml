@@ -2,7 +2,14 @@ name: Downstream
 
 on:
   workflow_dispatch:
+    inputs:
+      nightly:
+        default: ""
   workflow_call:
+    inputs:
+      nightly:
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -21,6 +28,8 @@ jobs:
           workflow: Downstream
           ref: trunk
           timeout: 15m
+          env:
+            NIGHTLY=${{ inputs.nightly }}
   
   commercial:
     name: Commercial
@@ -34,3 +43,5 @@ jobs:
           workflow: Downstream
           ref: trunk
           timeout: 20m
+          env:
+            NIGHTLY=${{ inputs.nightly }}

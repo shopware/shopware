@@ -29,10 +29,7 @@ class ResponseTypeRegistryTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var ResponseFactoryRegistry
-     */
-    private $responseRegistry;
+    private ResponseFactoryRegistry $responseRegistry;
 
     protected function setUp(): void
     {

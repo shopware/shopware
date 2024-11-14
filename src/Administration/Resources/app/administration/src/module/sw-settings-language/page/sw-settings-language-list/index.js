@@ -69,26 +69,32 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-language.list.columnName',
-                dataIndex: 'name',
-                inlineEdit: true,
-            }, {
-                property: 'locale',
-                dataIndex: 'locale.id',
-                label: 'sw-settings-language.list.columnLocaleName',
-            }, {
-                property: 'translationCode.code',
-                label: 'sw-settings-language.list.columnIsoCode',
-            }, {
-                property: 'parent',
-                dataIndex: 'parent.id',
-                label: 'sw-settings-language.list.columnInherit',
-            }, {
-                property: 'id',
-                label: 'sw-settings-language.list.columnDefault',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-language.list.columnName',
+                    dataIndex: 'name',
+                    inlineEdit: true,
+                },
+                {
+                    property: 'locale',
+                    dataIndex: 'locale.id',
+                    label: 'sw-settings-language.list.columnLocaleName',
+                },
+                {
+                    property: 'translationCode.code',
+                    label: 'sw-settings-language.list.columnIsoCode',
+                },
+                {
+                    property: 'parent',
+                    dataIndex: 'parent.id',
+                    label: 'sw-settings-language.list.columnInherit',
+                },
+                {
+                    property: 'id',
+                    label: 'sw-settings-language.list.columnDefault',
+                },
+            ];
         },
 
         allowCreate() {
@@ -118,7 +124,7 @@ export default {
             return this.languageRepository.search(this.listingCriteria).then((languageResult) => {
                 this.total = languageResult.total || this.total;
 
-                const parentCriteria = (new Criteria(1, this.limit));
+                const parentCriteria = new Criteria(1, this.limit);
                 const parentIds = {};
 
                 languageResult.forEach((language) => {

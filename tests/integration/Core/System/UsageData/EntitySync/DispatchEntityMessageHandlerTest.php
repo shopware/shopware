@@ -14,7 +14,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +25,7 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -198,7 +198,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertArrayNotHasKey('productVersionId', $firstProductTranslation);
 
             static::assertArrayHasKey('productId', $firstProductTranslation);
-            static::assertSame($ids->get('test-product-1'), $firstProductTranslation['productId']);
+            static::assertSame($ids->get('test-product-3'), $firstProductTranslation['productId']);
 
             static::assertArrayHasKey('languageId', $firstProductTranslation);
             static::assertSame(Defaults::LANGUAGE_SYSTEM, $firstProductTranslation['languageId']);
@@ -208,7 +208,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertArrayNotHasKey('productVersionId', $secondProductTranslation);
 
             static::assertArrayHasKey('productId', $secondProductTranslation);
-            static::assertSame($ids->get('test-product-2'), $secondProductTranslation['productId']);
+            static::assertSame($ids->get('test-product-4'), $secondProductTranslation['productId']);
 
             static::assertArrayHasKey('languageId', $secondProductTranslation);
             static::assertSame(Defaults::LANGUAGE_SYSTEM, $secondProductTranslation['languageId']);
@@ -218,8 +218,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $this->addProductDefinition();
 
-        $this->createTestProduct($ids, 'test-product-1');
-        $this->createTestProduct($ids, 'test-product-2');
+        $this->createTestProduct($ids, 'test-product-3');
+        $this->createTestProduct($ids, 'test-product-4');
 
         $dispatchEntityMessage = new DispatchEntityMessage(
             'product_translation',
@@ -227,12 +227,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
             new \DateTimeImmutable(),
             [
                 [
-                    'product_id' => $ids->get('test-product-1'),
+                    'product_id' => $ids->get('test-product-3'),
                     'product_version_id' => Defaults::LIVE_VERSION,
                     'language_id' => Defaults::LANGUAGE_SYSTEM,
                 ],
                 [
-                    'product_id' => $ids->get('test-product-2'),
+                    'product_id' => $ids->get('test-product-4'),
                     'product_version_id' => Defaults::LIVE_VERSION,
                     'language_id' => Defaults::LANGUAGE_SYSTEM,
                 ],
@@ -513,19 +513,22 @@ class DispatchEntityMessageHandlerTest extends TestCase
     {
         $repo = $this->getContainer()->get('custom_field_set.repository');
 
+        $firstCustomFieldsId = Uuid::randomHex();
+        $secondCustomFieldsId = Uuid::randomHex();
+
         $attributeSet = [
             'id' => $id,
             'name' => 'test_set',
             'config' => ['description' => 'test set'],
             'customFields' => [
                 [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'test_field_' . rand(1, 1000),
+                    'id' => $firstCustomFieldsId,
+                    'name' => 'test_field_' . $firstCustomFieldsId,
                     'type' => 'int',
                 ],
                 [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'test_field_' . rand(1, 1000),
+                    'id' => $secondCustomFieldsId,
+                    'name' => 'test_field_' . $secondCustomFieldsId,
                     'type' => 'string',
                 ],
             ],

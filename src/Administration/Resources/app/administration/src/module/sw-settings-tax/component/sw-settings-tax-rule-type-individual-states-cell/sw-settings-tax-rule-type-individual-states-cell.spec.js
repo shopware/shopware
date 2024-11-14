@@ -6,40 +6,43 @@ import { mount } from '@vue/test-utils';
 async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };
 
-    return mount(await wrapTestComponent('sw-settings-tax-rule-type-individual-states-cell', {
-        sync: true,
-    }), {
-        props: {
-            taxRule,
-        },
+    return mount(
+        await wrapTestComponent('sw-settings-tax-rule-type-individual-states-cell', {
+            sync: true,
+        }),
+        {
+            props: {
+                taxRule,
+            },
 
-        global: {
-            provide: {
-                repositoryFactory: {
-                    create: (entityName) => {
-                        if (entityName !== 'country_state') {
-                            throw new Error('expected entity name to be country_state');
-                        }
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: (entityName) => {
+                            if (entityName !== 'country_state') {
+                                throw new Error('expected entity name to be country_state');
+                            }
 
-                        return {
-                            entityName: 'country_state',
-                            route: '/country_state',
-                            search: (criteria) => {
-                                const states = criteria.ids.map((id) => {
-                                    return {
-                                        id,
-                                        name: `state ${id}`,
-                                    };
-                                });
+                            return {
+                                entityName: 'country_state',
+                                route: '/country_state',
+                                search: (criteria) => {
+                                    const states = criteria.ids.map((id) => {
+                                        return {
+                                            id,
+                                            name: `state ${id}`,
+                                        };
+                                    });
 
-                                return Promise.resolve(states);
-                            },
-                        };
+                                    return Promise.resolve(states);
+                                },
+                            };
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
@@ -80,10 +83,12 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
 
         const individualStates = wrapper.vm.individualStates;
         expect(individualStates).toHaveLength(2);
-        expect(individualStates).toEqual(expect.arrayContaining([
-            `state ${states[0]}`,
-            `state ${states[1]}`,
-        ]));
+        expect(individualStates).toEqual(
+            expect.arrayContaining([
+                `state ${states[0]}`,
+                `state ${states[1]}`,
+            ]),
+        );
     });
 
     it('watches for changes in its props', async () => {
@@ -97,15 +102,19 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
 
         const stateId = Shopware.Utils.createId();
 
-        await wrapper.setProps({ taxRule: {
-            type: { typeName: 'Individual States' },
-            data: {
-                states: [stateId],
+        await wrapper.setProps({
+            taxRule: {
+                type: { typeName: 'Individual States' },
+                data: {
+                    states: [stateId],
+                },
             },
-        } });
+        });
 
-        expect(wrapper.vm.individualStates).toEqual(expect.arrayContaining([
-            `state ${stateId}`,
-        ]));
+        expect(wrapper.vm.individualStates).toEqual(
+            expect.arrayContaining([
+                `state ${stateId}`,
+            ]),
+        );
     });
 });

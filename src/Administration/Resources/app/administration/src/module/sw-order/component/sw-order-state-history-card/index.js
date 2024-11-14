@@ -22,7 +22,10 @@ export default {
         'feature',
     ],
 
-    emits: ['options-change', 'order-state-change'],
+    emits: [
+        'options-change',
+        'order-state-change',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -74,7 +77,12 @@ export default {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                if (
+                    ![
+                        'cancelled',
+                        'failed',
+                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
+                ) {
                     return this.order.transactions[i];
                 }
             }
@@ -90,30 +98,28 @@ export default {
 
             const entityIds = [
                 this.order.id,
-                ...this.order.transactions?.getIds() || [],
-                ...this.order.deliveries?.getIds() || [],
+                ...(this.order.transactions?.getIds() || []),
+                ...(this.order.deliveries?.getIds() || []),
             ];
 
+            criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.referencedId',
-                    entityIds,
-                ),
-            );
-            criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.entityName',
-                    ['order', 'order_transaction', 'order_delivery'],
-                ),
+                Criteria.equalsAny('state_machine_history.entityName', [
+                    'order',
+                    'order_transaction',
+                    'order_delivery',
+                ]),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
-            criteria.addSorting({ field: 'state_machine_history.createdAt', order: 'ASC' });
+            criteria.addSorting({
+                field: 'state_machine_history.createdAt',
+                order: 'ASC',
+            });
 
             return criteria;
         },
-
     },
 
     created() {
@@ -132,27 +138,27 @@ export default {
             Promise.all([
                 this.getStateHistoryEntries(),
                 this.getTransitionOptions(),
-            ]).then(() => {
-                this.$emit('options-change', 'order.states', this.orderOptions);
-                if (this.transaction) {
-                    this.$emit('options-change', 'order_transaction.states', this.transactionOptions);
-                }
-                if (this.delivery) {
-                    this.$emit('options-change', 'order_delivery.states', this.deliveryOptions);
-                }
-            }).catch((error) => {
-                this.createNotificationError(error);
-            }).finally(() => {
-                this.statesLoading = false;
-            });
+            ])
+                .then(() => {
+                    this.$emit('options-change', 'order.states', this.orderOptions);
+                    if (this.transaction) {
+                        this.$emit('options-change', 'order_transaction.states', this.transactionOptions);
+                    }
+                    if (this.delivery) {
+                        this.$emit('options-change', 'order_delivery.states', this.deliveryOptions);
+                    }
+                })
+                .catch((error) => {
+                    this.createNotificationError(error);
+                })
+                .finally(() => {
+                    this.statesLoading = false;
+                });
         },
 
         getStateHistoryEntries() {
             return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
-                this.orderHistory = this.buildStateHistory(
-                    this.order,
-                    this.fetchEntries([this.order.id], fetchedEntries),
-                );
+                this.orderHistory = this.buildStateHistory(this.order, this.fetchEntries([this.order.id], fetchedEntries));
 
                 if (this.transaction && this.order.transactions) {
                     this.transactionHistory = this.buildStateHistory(
@@ -185,11 +191,13 @@ export default {
         buildStateHistory(entity, fetchedEntries) {
             // this entity has no state history
             if (fetchedEntries.length === 0) {
-                return [{
-                    state: entity.stateMachineState,
-                    createdAt: entity.createdAt,
-                    user: null,
-                }];
+                return [
+                    {
+                        state: entity.stateMachineState,
+                        createdAt: entity.createdAt,
+                        user: null,
+                    },
+                ];
             }
 
             const entries = [];
@@ -212,7 +220,9 @@ export default {
         },
 
         getTransitionOptions() {
-            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
+            const statePromises = [
+                this.stateMachineService.getState('order', this.order.id),
+            ];
             if (this.transaction) {
                 statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
             }
@@ -220,19 +230,13 @@ export default {
                 statePromises.push(this.stateMachineService.getState('order_delivery', this.delivery.id));
             }
 
-            return Promise.all(
-                [
-                    this.getAllStates(),
-                    ...statePromises,
-                ],
-            ).then((data) => {
+            return Promise.all([
+                this.getAllStates(),
+                ...statePromises,
+            ]).then((data) => {
                 const allStates = data[0];
                 const orderState = data[1];
-                this.orderOptions = this.buildTransitionOptions(
-                    'order.state',
-                    allStates,
-                    orderState.data.transitions,
-                );
+                this.orderOptions = this.buildTransitionOptions('order.state', allStates, orderState.data.transitions);
 
                 if (this.transaction) {
                     const orderTransactionState = data[2];
@@ -265,10 +269,11 @@ export default {
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_state.stateMachine.technicalName',
-                    ['order.state', 'order_transaction.state', 'order_delivery.state'],
-                ),
+                Criteria.equalsAny('state_machine_state.stateMachine.technicalName', [
+                    'order.state',
+                    'order_transaction.state',
+                    'order_delivery.state',
+                ]),
             );
 
             return criteria;
@@ -363,38 +368,41 @@ export default {
         onLeaveModalConfirm(docIds, sendMail = true) {
             this.showModal = false;
             if (this.currentStateType === 'orderTransactionState') {
-                this.orderStateMachineService.transitionOrderTransactionState(
-                    this.transaction.id,
-                    this.currentActionName,
-                    { documentIds: docIds, sendMail },
-                ).then(() => {
-                    this.$emit('order-state-change');
-                    this.loadHistory();
-                }).catch((error) => {
-                    this.createStateChangeErrorNotification(error);
-                });
+                this.orderStateMachineService
+                    .transitionOrderTransactionState(this.transaction.id, this.currentActionName, {
+                        documentIds: docIds,
+                        sendMail,
+                    })
+                    .then(() => {
+                        this.$emit('order-state-change');
+                        this.loadHistory();
+                    })
+                    .catch((error) => {
+                        this.createStateChangeErrorNotification(error);
+                    });
             } else if (this.currentStateType === 'orderState') {
-                this.orderStateMachineService.transitionOrderState(
-                    this.order.id,
-                    this.currentActionName,
-                    { documentIds: docIds, sendMail },
-                ).then(() => {
-                    this.$emit('order-state-change');
-                    this.loadHistory();
-                }).catch((error) => {
-                    this.createStateChangeErrorNotification(error);
-                });
+                this.orderStateMachineService
+                    .transitionOrderState(this.order.id, this.currentActionName, { documentIds: docIds, sendMail })
+                    .then(() => {
+                        this.$emit('order-state-change');
+                        this.loadHistory();
+                    })
+                    .catch((error) => {
+                        this.createStateChangeErrorNotification(error);
+                    });
             } else if (this.currentStateType === 'orderDeliveryState') {
-                this.orderStateMachineService.transitionOrderDeliveryState(
-                    this.delivery.id,
-                    this.currentActionName,
-                    { documentIds: docIds, sendMail },
-                ).then(() => {
-                    this.$emit('order-state-change');
-                    this.loadHistory();
-                }).catch((error) => {
-                    this.createStateChangeErrorNotification(error);
-                });
+                this.orderStateMachineService
+                    .transitionOrderDeliveryState(this.delivery.id, this.currentActionName, {
+                        documentIds: docIds,
+                        sendMail,
+                    })
+                    .then(() => {
+                        this.$emit('order-state-change');
+                        this.loadHistory();
+                    })
+                    .catch((error) => {
+                        this.createStateChangeErrorNotification(error);
+                    });
             }
             this.currentActionName = null;
             this.currentStateType = null;

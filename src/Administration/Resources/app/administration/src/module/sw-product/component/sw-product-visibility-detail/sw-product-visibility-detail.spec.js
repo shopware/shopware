@@ -59,9 +59,7 @@ async function createWrapper() {
         }),
         {
             global: {
-                provide: {
-
-                },
+                provide: {},
                 stubs: {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
@@ -145,4 +143,3 @@ describe('src/module/sw-settings-listing/component/sw-product-visibility-detail'
         expect(nameElement.attributes()['tooltip-mock-message']).toBe(name);
     });
 });
-

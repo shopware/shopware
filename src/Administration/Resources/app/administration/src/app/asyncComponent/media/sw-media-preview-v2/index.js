@@ -23,9 +23,15 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
-    emits: ['click', 'media-preview-play'],
+    emits: [
+        'click',
+        'media-preview-play',
+    ],
 
     playableVideoFormats: [
         'video/mp4',

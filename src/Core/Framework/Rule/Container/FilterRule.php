@@ -10,6 +10,8 @@ abstract class FilterRule extends Rule implements ContainerInterface
 {
     /**
      * @var Container|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filter;
 

@@ -47,77 +47,79 @@ const customerData = {
     },
     billingAddressId: '1',
     shippingAddressId: '2',
-    addresses: new EntityCollection(
-        '/customer-address',
-        'customer-address',
-        null,
-        null,
-        [],
-    ),
+    addresses: new EntityCollection('/customer-address', 'customer-address', null, null, []),
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-customer-address-select', { sync: true }), {
-
-        props: {
-            customer: { ...customerData },
-            value: '1',
-            sameAddressLabel: 'Same address',
-            sameAddressValue: '2',
-        },
-        global: {
-            stubs: {
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
-                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
-                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
-                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-highlight-text': true,
-                'sw-loader': true,
-                'sw-icon': true,
-                'sw-field-error': true,
-                'sw-select-result': {
-                    props: ['item', 'index'],
-                    template: `<li class="sw-select-result" @click.stop="onClickResult">
+    return mount(
+        await wrapTestComponent('sw-order-customer-address-select', {
+            sync: true,
+        }),
+        {
+            props: {
+                customer: { ...customerData },
+                value: '1',
+                sameAddressLabel: 'Same address',
+                sameAddressValue: '2',
+            },
+            global: {
+                stubs: {
+                    'sw-popover': {
+                        template: '<div class="sw-popover"><slot></slot></div>',
+                    },
+                    'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
+                    'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
+                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', {
+                        sync: true,
+                    }),
+                    'sw-highlight-text': true,
+                    'sw-loader': true,
+                    'sw-icon': true,
+                    'sw-field-error': true,
+                    'sw-select-result': {
+                        props: [
+                            'item',
+                            'index',
+                        ],
+                        template: `<li class="sw-select-result" @click.stop="onClickResult">
                                     <slot></slot>
                             </li>`,
-                    methods: {
-                        onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                        methods: {
+                            onClickResult() {
+                                this.$parent.$parent.$emit('item-select', this.item);
+                            },
+                        },
+                    },
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: (criteria) => {
+                                    const collection = new EntityCollection(
+                                        '/customer-address',
+                                        'customer-address',
+                                        null,
+                                        null,
+                                        criteria.term !== null ? [addresses[0]] : addresses,
+                                    );
+
+                                    return Promise.resolve(collection);
+                                },
+                                get: () => Promise.resolve(),
+                            };
                         },
                     },
                 },
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: (criteria) => {
-                                const collection = new EntityCollection(
-                                    '/customer-address',
-                                    'customer-address',
-                                    null,
-                                    null,
-                                    criteria.term !== null ? [addresses[0]] : addresses,
-                                );
-
-                                return Promise.resolve(collection);
-                            },
-                            get: () => Promise.resolve(),
-                        };
-                    },
-                },
             },
         },
-    });
+    );
 }
-
 
 describe('src/module/sw-order/component/sw-order-customer-address-select', () => {
     it('should show address option correctly', async () => {
@@ -129,7 +131,9 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         await billingAddressSelect.trigger('click');
 
         expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
-        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe(
+            'Ebbinghoff 10, 48624, London, Nottingham, United Kingdom',
+        );
     });
 
     it('should able to show same address label', async () => {

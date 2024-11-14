@@ -17,11 +17,15 @@ class TreeItem extends Struct
 
     /**
      * @var CategoryEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $category;
 
     /**
      * @var TreeItem[]
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $children;
 

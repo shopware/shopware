@@ -137,7 +137,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
-            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingMethod.tax')
             ->addAssociation('deliveries.positions.orderLineItem')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
@@ -322,6 +322,35 @@ class RecalculationServiceTest extends TestCase
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$orderId]), $versionContext)->get($orderId);
 
         static::assertEquals($this->getDeDeLanguageId(), $order->getLanguageId());
+    }
+
+    public function testFetchOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $service = $this->getContainer()->get(RecalculationService::class);
+
+        /** @var OrderEntity|null $order */
+        $order = (new \ReflectionClass($service))
+            ->getMethod('fetchOrder')
+            ->invoke($service, $orderId, $this->context);
+
+        static::assertNotNull($order);
+
+        static::assertNotNull($order->getLineItems());
+        $lineItem = $order->getLineItems()->first();
+        static::assertNotNull($lineItem);
+        static::assertNotNull($lineItem->getDownloads());
+
+        static::assertNotNull($order->getDeliveries());
+        $delivery = $order->getDeliveries()->first();
+        static::assertNotNull($delivery);
+        static::assertNotNull($delivery->getShippingMethod());
+        static::assertNotNull($delivery->getShippingMethod()->getTax());
+        static::assertNotNull($delivery->getShippingOrderAddress());
+        static::assertNotNull($delivery->getShippingOrderAddress()->getCountry());
     }
 
     public function testRecalculationWithDeletedCustomer(): void
@@ -1097,6 +1126,70 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($zipcode, $orderAddress->getZipcode());
     }
 
+    public function testRecalculationControllerWithEmptyLineItems(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $order = $this->persistCart($cart);
+
+        $orderId = $order['orderId'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        // recalculate order
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/recalculate',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $versionContext)->get($orderId);
+        static::assertNotNull($order->getLineItems());
+        static::assertSame($order->getLineItems()->count(), 2);
+
+        // delete all line items
+        $ids = $order->getLineItems()->fmap(fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
+        $this->getContainer()->get('order_line_item.repository')->delete(array_values($ids), $versionContext);
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $versionContext)->get($orderId);
+        static::assertNotNull($order->getLineItems());
+        static::assertSame($order->getLineItems()->count(), 0);
+
+        // recalculate order 2nd time
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/recalculate',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
     protected function getValidCountryIdWithTaxes(): string
     {
         /** @var EntityRepository $repository */
@@ -1846,6 +1939,8 @@ class RecalculationServiceTest extends TestCase
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
+        $taxId = Uuid::randomHex();
+
         $data = [
             'id' => $shippingMethodId,
             'type' => 0,
@@ -1898,6 +1993,12 @@ class RecalculationServiceTest extends TestCase
                         'type' => 'true',
                     ],
                 ],
+            ],
+            'taxId' => $taxId,
+            'tax' => [
+                'id' => $taxId,
+                'taxRate' => 19,
+                'name' => 'test',
             ],
         ];
 

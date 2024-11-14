@@ -41,10 +41,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -56,7 +55,7 @@ class EntityAggregatorTest extends TestCase
 
     private EntityAggregatorInterface $aggregator;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private ProductDefinition $definition;
 
@@ -1356,7 +1355,7 @@ class EntityAggregatorTest extends TestCase
     {
         $repository = $this->getContainer()->get('product.repository');
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $repository->create([
             $this->getProduct('p-1', 't-1', 'm-1', 50, ['c-1', 'c-2'], '2019-01-01 10:11:00'),

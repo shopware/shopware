@@ -34,7 +34,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.mail.template.detail', params: { id: this.mailTemplate.id } });
+            this.$router.push({
+                name: 'sw.mail.template.detail',
+                params: { id: this.mailTemplate.id },
+            });
         },
 
         onSave() {

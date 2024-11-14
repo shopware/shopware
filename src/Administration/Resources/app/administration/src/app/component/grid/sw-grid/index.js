@@ -159,7 +159,7 @@ Component.register('sw-grid', {
         },
 
         columnFlex() {
-            let flex = (this.selectable === true) ? '50px ' : '';
+            let flex = this.selectable === true ? '50px ' : '';
 
             this.columns.forEach((column) => {
                 if (`${parseInt(column.flex, 10)}` === column.flex) {

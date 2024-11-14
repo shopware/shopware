@@ -2,7 +2,10 @@ import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
 const { Mixin } = Shopware;
-const { moveItem, object: { cloneDeep } } = Shopware.Utils;
+const {
+    moveItem,
+    object: { cloneDeep },
+} = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
@@ -14,7 +17,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: ['element-update'],
 
@@ -88,7 +94,7 @@ export default {
                 return item.media;
             });
 
-            this.element.config.sliderItems.value = this.sliderItems.map(item => {
+            this.element.config.sliderItems.value = this.sliderItems.map((item) => {
                 return {
                     mediaId: item.media.id,
                     mediaUrl: item.media.url,
@@ -135,9 +141,7 @@ export default {
         },
 
         initConfig() {
-            if (!this.isProductPage
-                || this.element?.translated?.config
-                || this.element?.data?.sliderItems) {
+            if (!this.isProductPage || this.element?.translated?.config || this.element?.data?.sliderItems) {
                 return;
             }
 
@@ -158,7 +162,8 @@ export default {
             }
 
             this.$nextTick(() => {
-                const cssColumns = window.getComputedStyle(this.$refs.demoMediaGrid, null)
+                const cssColumns = window
+                    .getComputedStyle(this.$refs.demoMediaGrid, null)
                     .getPropertyValue('grid-template-columns')
                     .split(' ');
                 this.columnWidth = cssColumns[0];
@@ -212,14 +217,11 @@ export default {
 
         onItemRemove(mediaItem, index) {
             const key = mediaItem.id;
-            this.element.config.sliderItems.value =
-                this.element.config.sliderItems.value.filter(
-                    (item, i) => (item.mediaId !== key || i !== index),
-                );
-
-            this.mediaItems = this.mediaItems.filter(
-                (item, i) => (item.id !== key || i !== index),
+            this.element.config.sliderItems.value = this.element.config.sliderItems.value.filter(
+                (item, i) => item.mediaId !== key || i !== index,
             );
+
+            this.mediaItems = this.mediaItems.filter((item, i) => item.id !== key || i !== index);
 
             this.updateMediaDataValue();
             this.emitUpdateEl();
@@ -289,7 +291,12 @@ export default {
         },
 
         onChangeDisplayMode(value) {
-            if (['cover', 'contain'].includes(value)) {
+            if (
+                [
+                    'cover',
+                    'contain',
+                ].includes(value)
+            ) {
                 this.element.config.verticalAlign.value = null;
             }
 

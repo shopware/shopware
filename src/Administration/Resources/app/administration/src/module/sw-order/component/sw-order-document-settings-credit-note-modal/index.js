@@ -52,10 +52,10 @@ export default {
             this.$super('createdComponent');
 
             const invoiceNumbers = this.order.documents
-                .filter(document => {
+                .filter((document) => {
                     return document.documentType.technicalName === 'invoice';
                 })
-                .map(item => {
+                .map((item) => {
                     return item.config.custom.invoiceNumber;
                 });
 
@@ -66,20 +66,18 @@ export default {
             this.$emit('loading-document');
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService.reserve(
-                    `document_${this.currentDocumentType.technicalName}`,
-                    this.order.salesChannelId,
-                    false,
-                ).then((response) => {
-                    this.documentConfig.custom.creditNoteNumber = response.number;
-                    if (response.number !== this.documentConfig.documentNumber) {
-                        this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                        });
-                    }
-                    this.documentConfig.documentNumber = response.number;
-                    this.callDocumentCreate(additionalAction);
-                });
+                this.numberRangeService
+                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
+                    .then((response) => {
+                        this.documentConfig.custom.creditNoteNumber = response.number;
+                        if (response.number !== this.documentConfig.documentNumber) {
+                            this.createNotificationInfo({
+                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                            });
+                        }
+                        this.documentConfig.documentNumber = response.number;
+                        this.callDocumentCreate(additionalAction);
+                    });
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
                 this.callDocumentCreate(additionalAction);

@@ -5,31 +5,33 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-location-renderer', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                id: '123456789',
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-location-renderer', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    id: '123456789',
+                },
+                elementData: {
+                    name: 'example_cms_element_type',
+                    appData: {
+                        baseUrl: 'http://test.example-app.com',
+                    },
+                },
             },
-            elementData: {
-                name: 'example_cms_element_type',
-                appData: {
-                    baseUrl: 'http://test.example-app.com',
+            global: {
+                stubs: {
+                    'sw-iframe-renderer': true,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
                 },
             },
         },
-        global: {
-            stubs: {
-                'sw-iframe-renderer': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-        },
-    });
+    );
 }
-
 
 describe('module/sw-cms/elements/location-renderer/config', () => {
     beforeAll(async () => {

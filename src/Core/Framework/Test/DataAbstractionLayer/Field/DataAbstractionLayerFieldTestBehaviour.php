@@ -20,12 +20,12 @@ trait DataAbstractionLayerFieldTestBehaviour
     /**
      * @var list<class-string<EntityDefinition>>
      */
-    private $addedDefinitions = [];
+    private array $addedDefinitions = [];
 
     /**
      * @var list<class-string<EntityDefinition>>
      */
-    private $addedSalesChannelDefinitions = [];
+    private array $addedSalesChannelDefinitions = [];
 
     /**
      * @var list<class-string<EntityExtension>>

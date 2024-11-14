@@ -45,4 +45,3 @@ Component.register('sw-app-action-button', {
         },
     },
 });
-

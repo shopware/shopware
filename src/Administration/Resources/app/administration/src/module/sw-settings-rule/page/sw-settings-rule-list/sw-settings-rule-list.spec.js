@@ -187,7 +187,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
         const conditionFilterOptions = wrapper.vm.conditionFilterOptions;
 
-        expect(conditionFilterOptions).toEqual([{ label: 'bar', value: 'foo' }]);
+        expect(conditionFilterOptions).toEqual([
+            { label: 'bar', value: 'foo' },
+        ]);
     });
 
     it('should get filter options for groups', async () => {
@@ -203,8 +205,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
         const associationFilterOptions = wrapper.vm.associationFilterOptions;
 
-        expect(associationFilterOptions.map(option => option.value)).toContain('productPrices');
-        expect(associationFilterOptions.map(option => option.value)).toContain('paymentMethods');
+        expect(associationFilterOptions.map((option) => option.value)).toContain('productPrices');
+        expect(associationFilterOptions.map((option) => option.value)).toContain('paymentMethods');
     });
 
     it('should get list filters', async () => {
@@ -226,12 +228,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
             rules: {
                 aggregations: {
                     productPrices: {
-                        buckets: [{
-                            key: '1',
-                            productPrices: {
-                                count: 100,
+                        buckets: [
+                            {
+                                key: '1',
+                                productPrices: {
+                                    count: 100,
+                                },
                             },
-                        }],
+                        ],
                     },
                 },
             },

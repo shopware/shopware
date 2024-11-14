@@ -5,28 +5,31 @@ import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-html', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-html', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-code-editor': true,
+                    'sw-alert': true,
+                },
             },
-            stubs: {
-                'sw-code-editor': true,
-                'sw-alert': true,
-            },
-        },
-        props: {
-            element: {
-                config: {
-                    content: {
-                        value: 'Test',
+            props: {
+                element: {
+                    config: {
+                        content: {
+                            value: 'Test',
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/html/config', () => {

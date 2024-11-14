@@ -8,7 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Scheduler\Generator\MessageGenerator;
 
 /**
@@ -24,7 +27,12 @@ class ScheduleProviderTest extends TestCase
             new TestTask2(),
         ];
 
-        $scheduleProvider = new ScheduleProvider($tasks, $this->createMock(Connection::class));
+        $scheduleProvider = new ScheduleProvider(
+            $tasks,
+            $this->createMock(Connection::class),
+            new ArrayAdapter(),
+            new LockFactory(new InMemoryStore()),
+        );
 
         $mockClock = new MockClock();
         $generator = new MessageGenerator($scheduleProvider, 'foo', $mockClock);
@@ -69,7 +77,12 @@ class ScheduleProviderTest extends TestCase
             ]
         );
 
-        $scheduleProvider = new ScheduleProvider($tasks, $connection);
+        $scheduleProvider = new ScheduleProvider(
+            $tasks,
+            $connection,
+            new ArrayAdapter(),
+            new LockFactory(new InMemoryStore()),
+        );
 
         $mockClock = new MockClock();
         $generator = new MessageGenerator($scheduleProvider, 'foo', $mockClock);

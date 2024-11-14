@@ -42,7 +42,13 @@ class LineItemCollection extends Collection
         }
 
         if ($exists) {
-            $exists->setQuantity($lineItem->getQuantity() + $exists->getQuantity());
+            $newQuantity = $lineItem->getQuantity() + $exists->getQuantity();
+            if (\is_float($newQuantity)) {
+                // PHP int overflow automatically becomes float, obviously not a valid input
+                return;
+            }
+
+            $exists->setQuantity($newQuantity);
 
             return;
         }

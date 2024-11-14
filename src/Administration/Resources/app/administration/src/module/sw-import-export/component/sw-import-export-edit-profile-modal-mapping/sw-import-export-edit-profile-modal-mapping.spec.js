@@ -50,50 +50,53 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     }
 
     async function createWrapper(profile) {
-        return mount(await wrapTestComponent('sw-import-export-edit-profile-modal-mapping', {
-            sync: true,
-        }), {
-            props: {
-                profile,
-            },
-            global: {
-                provide: {
-                    validationService: {},
+        return mount(
+            await wrapTestComponent('sw-import-export-edit-profile-modal-mapping', {
+                sync: true,
+            }),
+            {
+                props: {
+                    profile,
                 },
-                stubs: {
-                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                    'sw-import-export-entity-path-select': true,
-                    'sw-context-menu-item': true,
-                    'sw-context-button': true,
-                    'sw-switch-field': true,
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-button-group': {
-                        template: '<div class="sw-button-group"><slot></slot></div>',
+                global: {
+                    provide: {
+                        validationService: {},
                     },
-                    'sw-field-error': true,
-                    'sw-icon': true,
-                    'sw-empty-state': true,
-                    'router-link': true,
-                    'sw-loader': true,
-                    'sw-checkbox-field': true,
-                    'sw-data-grid-settings': true,
-                    'sw-data-grid-column-boolean': true,
-                    'sw-data-grid-inline-edit': true,
-                    'sw-data-grid-skeleton': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
+                    stubs: {
+                        'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-import-export-entity-path-select': true,
+                        'sw-context-menu-item': true,
+                        'sw-context-button': true,
+                        'sw-switch-field': true,
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-button-group': {
+                            template: '<div class="sw-button-group"><slot></slot></div>',
+                        },
+                        'sw-field-error': true,
+                        'sw-icon': true,
+                        'sw-empty-state': true,
+                        'router-link': true,
+                        'sw-loader': true,
+                        'sw-checkbox-field': true,
+                        'sw-data-grid-settings': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'sw-data-grid-skeleton': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                    },
                 },
             },
-        });
+        );
     }
 
     beforeEach(async () => {
@@ -189,7 +192,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 id: 'a4209aad611b4a51a32f69b9a2c693ff',
             },
         ];
-
 
         const emittedMappings = wrapper.emitted('update-mapping')[0][0];
 
@@ -300,7 +302,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const enabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button:not([disabled])');
 
         expect(enabledPositionButtons).toHaveLength(4);
-        enabledPositionButtons.forEach(button => {
+        enabledPositionButtons.forEach((button) => {
             expect(button.attributes('disabled')).toBeUndefined();
         });
 
@@ -311,7 +313,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button');
 
         expect(disabledPositionButtons).toHaveLength(6);
-        disabledPositionButtons.forEach(button => {
+        disabledPositionButtons.forEach((button) => {
             expect(button.classes()).toContain('sw-button--disabled');
         });
     });
@@ -331,15 +333,19 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         // assert structure
         const orderedItems = wrapper.findAll('.sw-data-grid__row .sw-data-grid__cell--csvName input');
 
-        const expectedOrder = ['custom_value', 'id', 'parent_id', 'product_number'];
-        const actualOrder = orderedItems.map(input => {
+        const expectedOrder = [
+            'custom_value',
+            'id',
+            'parent_id',
+            'product_number',
+        ];
+        const actualOrder = orderedItems.map((input) => {
             return input.element.value;
         });
 
         expect(actualOrder).toEqual(expectedOrder);
 
-        const downwardsButton = wrapper
-            .find('.sw-data-grid__row--0 .sw-data-grid__cell--position button:not([disabled])');
+        const downwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--position button:not([disabled])');
 
         await downwardsButton.trigger('click');
 
@@ -347,7 +353,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const reorderedEvent = wrapper.emitted('update-mapping')[0][0];
 
         // removing unnecessary data
-        const actualEventData = reorderedEvent.map(mapping => {
+        const actualEventData = reorderedEvent.map((mapping) => {
             delete mapping.id;
 
             return mapping;

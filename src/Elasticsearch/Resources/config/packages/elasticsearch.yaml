@@ -45,7 +45,9 @@ elasticsearch:
     ssl:
         verify_server_cert: true
     index_settings:
+        # @deprecated tag:v6.7.0 - change default value to null, so the search services define the default value for better scalability
         number_of_shards: 3
+        # @deprecated tag:v6.7.0 - change default value to null, so the search services define the default value for better scalability
         number_of_replicas: 3
         'mapping.total_fields.limit': 50000
         'mapping.nested_fields.limit': 500
@@ -111,5 +113,5 @@ parameters:
     env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
-    env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100
+    env(SHOPWARE_ES_INDEXING_BATCH_SIZE): "100"
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"

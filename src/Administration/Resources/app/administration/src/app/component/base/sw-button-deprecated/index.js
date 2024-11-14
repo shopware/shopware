@@ -37,25 +37,45 @@ Component.register('sw-button-deprecated', {
             type: String,
             required: false,
             default: '',
-            validValues: ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'],
+            validValues: [
+                'primary',
+                'ghost',
+                'danger',
+                'ghost-danger',
+                'contrast',
+                'context',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'].includes(value);
+                return [
+                    'primary',
+                    'ghost',
+                    'danger',
+                    'ghost-danger',
+                    'contrast',
+                    'context',
+                ].includes(value);
             },
         },
         size: {
             type: String,
             required: false,
             default: '',
-            validValues: ['x-small', 'small'],
+            validValues: [
+                'x-small',
+                'small',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
 
-                return ['x-small', 'small'].includes(value);
+                return [
+                    'x-small',
+                    'small',
+                ].includes(value);
             },
         },
         square: {

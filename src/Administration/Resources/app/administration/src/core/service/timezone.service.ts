@@ -49,7 +49,7 @@ export default class TimezoneService {
             return '(UTC)';
         }
 
-        let hours: number|string = Math.floor(number / 60);
+        let hours: number | string = Math.floor(number / 60);
         let minutes = `${Math.abs(number % 60)}`;
 
         if (hours > 0) {

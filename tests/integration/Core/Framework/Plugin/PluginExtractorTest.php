@@ -21,10 +21,7 @@ class PluginExtractorTest extends TestCase
 
     protected ContainerInterface $container;
 
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     private PluginExtractor $extractor;
 

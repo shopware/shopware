@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['modal-close', 'bulk-save'],
+    emits: [
+        'modal-close',
+        'bulk-save',
+    ],
 
     props: {
         itemTotal: {
@@ -26,26 +29,26 @@ export default {
             type: String,
         },
         /**
-        * {
-        *     ...
-        *     orderDeliveries: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     },
-        *     orderTransactions: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     },
-        *     orders: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     }
-        *     ...
-        * }
-        */
+         * {
+         *     ...
+         *     orderDeliveries: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     },
+         *     orderTransactions: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     },
+         *     orders: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     }
+         *     ...
+         * }
+         */
         bulkEditData: {
             type: Object,
             required: false,

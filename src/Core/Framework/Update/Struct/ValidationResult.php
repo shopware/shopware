@@ -10,21 +10,29 @@ class ValidationResult extends Struct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $result;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $message;
 
     /**
      * @var array<mixed>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $vars;
 

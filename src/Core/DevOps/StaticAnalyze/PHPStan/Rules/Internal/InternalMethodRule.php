@@ -7,6 +7,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -57,7 +58,11 @@ class InternalMethodRule implements Rule
             }
 
             if ($this->isService($scope)) {
-                return ['__construct of di container services has to be @internal'];
+                return [
+                    RuleErrorBuilder::message('__construct of di container services has to be @internal')
+                        ->identifier('shopware.internalMethod')
+                        ->build(),
+                ];
             }
         }
 
@@ -82,7 +87,6 @@ class InternalMethodRule implements Rule
             return false;
         }
 
-        // @phpstan-ignore-next-line
         $service = $this->serviceMap->getService($class->getName());
 
         return $service !== null;

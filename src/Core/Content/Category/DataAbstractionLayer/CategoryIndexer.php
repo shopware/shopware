@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
@@ -12,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('inventory')]
@@ -25,9 +28,12 @@ class CategoryIndexer extends EntityIndexer
     final public const CHILD_COUNT_UPDATER = 'category.child-count';
     final public const TREE_UPDATER = 'category.tree';
     final public const BREADCRUMB_UPDATER = 'category.breadcrumb';
+    private const UPDATE_IDS_CHUNK_SIZE = 50;
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -36,7 +42,8 @@ class CategoryIndexer extends EntityIndexer
         private readonly ChildCountUpdater $childCountUpdater,
         private readonly TreeUpdater $treeUpdater,
         private readonly CategoryBreadcrumbUpdater $breadcrumbUpdater,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
@@ -109,10 +116,20 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
-
         $ids = array_unique(array_merge($ids, $children));
 
-        return new CategoryIndexingMessage(array_values($ids), null, $event->getContext(), \count($ids) > 20);
+        $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
+        $idsForReturnedMessage = array_shift($chunks);
+
+        foreach ($chunks as $chunk) {
+            $childrenIndexingMessage = new CategoryIndexingMessage($chunk, null, $event->getContext());
+            $childrenIndexingMessage->setIndexer($this->getName());
+            EntityIndexerRegistry::addSkips($childrenIndexingMessage, $event->getContext());
+
+            $this->messageBus->dispatch($childrenIndexingMessage);
+        }
+
+        return new CategoryIndexingMessage($idsForReturnedMessage, null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

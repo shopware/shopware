@@ -35,7 +35,10 @@ export default {
         },
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.settings.custom.field.detail', params: { id: this.setId } });
+            this.$router.push({
+                name: 'sw.settings.custom.field.detail',
+                params: { id: this.setId },
+            });
         },
         onSave() {
             this.isLoading = true;

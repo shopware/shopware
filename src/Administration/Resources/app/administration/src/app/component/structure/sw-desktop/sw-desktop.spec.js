@@ -51,16 +51,20 @@ const routes = [
                 routes: {
                     index: { name: 'sw.product.index' },
                     create: {
-                        children: [{
-                            name: 'sw.product.create.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.create.base',
+                            },
+                        ],
                         name: 'sw.product.create',
                     },
                     detail: {
                         name: 'sw.product.detail',
-                        children: [{
-                            name: 'sw.product.detail.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.detail.base',
+                            },
+                        ],
                     },
                 },
             },
@@ -82,16 +86,20 @@ const routes = [
                 routes: {
                     index: { name: 'sw.product.index' },
                     create: {
-                        children: [{
-                            name: 'sw.product.create.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.create.base',
+                            },
+                        ],
                         name: 'sw.product.create',
                     },
                     detail: {
                         name: 'sw.product.detail',
-                        children: [{
-                            name: 'sw.product.detail.base',
-                        }],
+                        children: [
+                            {
+                                name: 'sw.product.detail.base',
+                            },
+                        ],
                     },
                 },
             },

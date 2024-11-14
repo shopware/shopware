@@ -13,12 +13,14 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 
 /**
- * @internal
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
  */
 #[Package('core')]
 class Meter
 {
     /**
+     * @internal
+     *
      * @param TransportCollection<MetricTransportInterface> $transports
      */
     public function __construct(
@@ -53,7 +55,7 @@ class Meter
                 return null;
             }
 
-            return new Metric(configuredMetric: $metric, metricConfig: $metricConfig);
+            return Metric::fromConfigured(configuredMetric: $metric, metricConfig: $metricConfig);
         } catch (MissingMetricConfigurationException $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             if ($this->environment === 'dev' || $this->environment === 'test') {

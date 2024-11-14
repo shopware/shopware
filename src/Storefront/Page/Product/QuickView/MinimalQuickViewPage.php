@@ -11,6 +11,8 @@ class MinimalQuickViewPage extends Struct
 {
     /**
      * @var ProductEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 

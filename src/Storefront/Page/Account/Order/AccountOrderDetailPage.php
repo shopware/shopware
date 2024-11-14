@@ -12,11 +12,15 @@ class AccountOrderDetailPage extends Page
 {
     /**
      * @var OrderEntity
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $order;
 
     /**
      * @var OrderLineItemCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lineItems;
 

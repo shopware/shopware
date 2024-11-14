@@ -14,16 +14,22 @@ class AvailableCombinationResult extends Struct
 {
     /**
      * @var combination
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $hashes = [];
 
     /**
      * @var combination
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $optionIds = [];
 
     /**
      * @var array<string, array<string>>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $combinations = [];
 

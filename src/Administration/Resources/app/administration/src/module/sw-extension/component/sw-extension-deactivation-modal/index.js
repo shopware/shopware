@@ -10,7 +10,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['modal-close', 'extension-deactivate'],
+    emits: [
+        'modal-close',
+        'extension-deactivate',
+    ],
 
     props: {
         extensionName: {
@@ -29,15 +32,11 @@ export default {
 
     computed: {
         removeHint() {
-            return this.$tc(
-                'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
-                0,
-                {
-                    removeLabel: this.isLicensed ?
-                        this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') :
-                        this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
-                },
-            );
+            return this.$tc('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel', 0, {
+                removeLabel: this.isLicensed
+                    ? this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
+                    : this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
+            });
         },
     },
 

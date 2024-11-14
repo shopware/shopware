@@ -1,103 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    {% if debug %}
-    <title>Shopware Domain Mapping Misconfiguration Help</title>
-    {% else %}
-    <title>Sales Channel Not Found</title>
-    {% endif %}
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #2c3e50;
-        }
-        .issue {
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        .solution {
-            background-color: #e9ecef;
-            border-left: 4px solid #28a745;
-            padding: 10px;
-            margin-top: 10px;
-        }
-        code {
-            white-space: pre;
-        }
-    </style>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex, nofollow">
+        {% if debug %}
+        <title>Shopware Domain Mapping Misconfiguration Help</title>
+        {% else %}
+        <title>Sales Channel Not Found</title>
+        {% endif %}
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            h1, h2 {
+                color: #2c3e50;
+            }
+            .issue {
+                background-color: #f8f9fa;
+                border-left: 4px solid #007bff;
+                padding: 10px;
+                margin-bottom: 20px;
+            }
+            .solution {
+                background-color: #e9ecef;
+                border-left: 4px solid #28a745;
+                padding: 10px;
+                margin-top: 10px;
+            }
+            code {
+                white-space: pre;
+            }
+        </style>
+    </head>
+    <body>
 
-{% if not debug %}
-<h1>Sales Channel Not Found</h1>
+        {% if not debug %}
+        <h1>Sales Channel Not Found</h1>
 
-<p>Sorry, we couldn't find a Sales Channel for the current URL. Please check the URL and try again.</p>
-<p>For more information, enable the debug mode in the <code>.env</code> with <code>APP_DEBUG=1</code></p>
-{% endif %}
+        <p>Sorry, we couldn't find a Sales Channel for the current URL. Please check the URL and try again.</p>
+        <p>For more information, enable the debug mode in the <code>.env</code> with <code>APP_DEBUG=1</code></p>
+        {% endif %}
 
-{% if debug %}
-<h1>Shopware Domain Mapping Misconfiguration Help</h1>
+        {% if debug %}
+        <h1>Shopware Domain Mapping Misconfiguration Help</h1>
 
-<p>Dear Visitor, you accessed Shopware 6 with an unknown Domain. This page provides guidance on common misconfigurations and how to resolve them.</p>
+        <p>Dear Visitor, you accessed Shopware 6 with an unknown Domain. This page provides guidance on common misconfigurations and how to resolve them.</p>
 
-<h2>Common Misconfigurations</h2>
+        <h2>Common Misconfigurations</h2>
 
-<div class="issue">
-    <h3>1. Current URL not matching any Sales Channel Domains</h3>
-    <p>Following URLs are known to Shopware: {% for domain in registeredDomains %}{{ domain }}, {% endfor %}</p>
-    <div class="solution">
-        <h4>Solution:</h4>
-        <ol>
-            <li>Open the Administration</li>
-            <li>Click on the left bottom side on the desired sales channel</li>
-            <li>Make sure in the Domain Panel that the current access URL is added there: <code>{{ domain }}</code></li>
-        </ol>
-    </div>
-</div>
+        <div class="issue">
+            <h3>1. Current URL not matching any Sales Channel Domains</h3>
+            <p>Following URLs are known to Shopware: {% for domain in registeredDomains %}{{ domain }}, {% endfor %}</p>
+            <div class="solution">
+                <h4>Solution:</h4>
+                <ol>
+                    <li>Open the Administration</li>
+                    <li>Click on the left bottom side on the desired sales channel</li>
+                    <li>Make sure in the Domain Panel that the current access URL is added there: <code>{{ domain }}</code></li>
+                </ol>
+            </div>
+        </div>
 
-<div class="issue">
-    <h3>2. Misconfigured Proxy Header forwarding / Trusted Proxies</h3>
-    <p>Symptoms: Cannot resolve a Sales Channel, Assets are loading with http instead of https.</p>
-    <div class="solution">
-        <h4>Solution:</h4>
-        <p>Make sure the visible URL is the actual URL in your browser: <code>{{ accessedUrl }}</code>. If not, the proxy configuration could be wrong.</p>
-        <p>
-            Shopware got following headers from IP <code>{{ clientIp }}</code>:<br>
-            <code>{{ relevantHeaders|json_encode(constant('JSON_PRETTY_PRINT')) }}</code>
-            <br><br>
+        <div class="issue">
+            <h3>2. Misconfigured Proxy Header forwarding / Trusted Proxies</h3>
+            <p>Symptoms: Cannot resolve a Sales Channel, Assets are loading with http instead of https.</p>
+            <div class="solution">
+                <h4>Solution:</h4>
+                <p>Make sure the visible URL is the actual URL in your browser: <code>{{ accessedUrl }}</code>. If not, the proxy configuration could be wrong.</p>
+                <p>
+                    Shopware got following headers from IP <code>{{ clientIp }}</code>:<br>
+                    <code>{{ relevantHeaders|json_encode(constant('JSON_PRETTY_PRINT')) }}</code>
+                    <br><br>
 
-The trusted_proxy configuration could look like this: <br>
+        The trusted_proxy configuration could look like this: <br>
 
-<code>
-# config/packages/framework.yaml
-framework:
-    # You can use multiple with comma separated values or subnet notation (10.0.0.0/8)
-    trusted_proxies: '{{ clientIp }}'
-    # trust *all* "X-Forwarded-*" headers
-    trusted_headers: [{% for key in trustedProxyRelevantHeaders %} '{{ key }}', {% endfor %}]
-</code><br>
-{% if trustedProxyRelevantHeaders is empty %}
-<strong>We could not determine any proxy header, make sure your reverse proxy forwards headers like <code>X-Forwarded-For, X-Forwarded-Host, X-Forwarded-Proto</code></strong>
-{% endif %}
-        </p>
+        <code>
+        # config/packages/framework.yaml
+        framework:
+            # You can use multiple with comma separated values or subnet notation (10.0.0.0/8)
+            trusted_proxies: '{{ clientIp }}'
+            # trust *all* "X-Forwarded-*" headers
+            trusted_headers: [{% for key in trustedProxyRelevantHeaders %} '{{ key }}', {% endfor %}]
+        </code><br>
+        {% if trustedProxyRelevantHeaders is empty %}
+        <strong>We could not determine any proxy header, make sure your reverse proxy forwards headers like <code>X-Forwarded-For, X-Forwarded-Host, X-Forwarded-Proto</code></strong>
+        {% endif %}
+                </p>
 
-        <p>For further information about Trusted Proxies and configuration and handling of load balancer, <a href="https://symfony.com/doc/current/deployment/proxies.html" target="_blank">checkout the Symfony documentation</a></p>
-    </div>
-</div>
+                <p>For further information about Trusted Proxies and configuration and handling of load balancer, <a href="https://symfony.com/doc/current/deployment/proxies.html" target="_blank">checkout the Symfony documentation</a></p>
+            </div>
+        </div>
 
-{% endif %}
+        {% endif %}
 
-</body>
+    </body>
 </html>

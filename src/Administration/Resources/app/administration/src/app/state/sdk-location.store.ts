@@ -10,8 +10,8 @@ import type { Module } from 'vuex';
 
 interface SdkLocationState {
     locations: {
-        [locationId: string]: string
-    }
+        [locationId: string]: string;
+    };
 }
 
 /**
@@ -25,7 +25,7 @@ const SdkLocationStore: Module<SdkLocationState, VuexRootState> = {
     }),
 
     mutations: {
-        addLocation(state, { locationId, componentName }: { locationId: string, componentName: string }) {
+        addLocation(state, { locationId, componentName }: { locationId: string; componentName: string }) {
             if (!state.locations[locationId]) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 if (compatUtils.isCompatEnabled('GLOBAL_SET')) {

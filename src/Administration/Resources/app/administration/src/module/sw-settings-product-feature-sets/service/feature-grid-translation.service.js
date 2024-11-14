@@ -48,7 +48,7 @@ export default class FeatureGridTranslationService {
             return Promise.resolve();
         }
 
-        const identifier = features.filter(value => value.type === type).map(value => value[filterBy]);
+        const identifier = features.filter((value) => value.type === type).map((value) => value[filterBy]);
 
         if (identifier.length < 1) {
             return Promise.resolve();
@@ -56,10 +56,7 @@ export default class FeatureGridTranslationService {
 
         const criteria = new Criteria(1, 25);
 
-        criteria.addFilter(Criteria.equalsAny(
-            filterBy,
-            identifier,
-        ));
+        criteria.addFilter(Criteria.equalsAny(filterBy, identifier));
 
         return repo.search(criteria, Shopware.Context.api).then((items) => {
             this.entities[type] = items;
@@ -79,8 +76,8 @@ export default class FeatureGridTranslationService {
 
         if (item.type === 'property') {
             return this.entities.property
-                .filter(group => group.id === item.id)
-                .map(group => group.translated.name)
+                .filter((group) => group.id === item.id)
+                .map((group) => group.translated.name)
                 .pop();
         }
 
@@ -89,8 +86,8 @@ export default class FeatureGridTranslationService {
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return this.entities.customField
-                .filter(field => field.name === item.name)
-                .map(field => (field.config.label[language] || field.config.label[fallback]))
+                .filter((field) => field.name === item.name)
+                .map((field) => field.config.label[language] || field.config.label[fallback])
                 .pop();
         }
 

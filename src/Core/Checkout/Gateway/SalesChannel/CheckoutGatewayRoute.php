@@ -48,13 +48,6 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         $paymentCriteria->addAssociation('appPaymentMethod.app');
         $shippingCriteria->addAssociation('appShippingMethod.app');
 
-        if ($request->query->has('onlyAvailable') || $request->request->has('onlyAvailable')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.7.0.0',
-                'The "onlyAvailable" parameter is deprecated. The checkout gateway route will always filter payment and shipping methods based on active rules'
-            );
-        }
-
         if (!Feature::isActive('v6.7.0.0')) {
             $request->query->set('onlyAvailable', '1');
         }

@@ -58,8 +58,12 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
                 this.ensureValueExist();
 
                 // eslint-disable-next-line max-len
-                const date = this.isDateTime === 'datetime' ? fromDate.replace('.000Z', '+00:00') : fromDate.concat('+00:00');
-                this.condition.value = { ...this.condition.value, fromDate: date };
+                const date =
+                    this.isDateTime === 'datetime' ? fromDate.replace('.000Z', '+00:00') : fromDate.concat('+00:00');
+                this.condition.value = {
+                    ...this.condition.value,
+                    fromDate: date,
+                };
             },
         },
 
@@ -72,7 +76,10 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
                 this.ensureValueExist();
 
                 const date = this.isDateTime === 'datetime' ? toDate.replace('.000Z', '+00:00') : toDate.concat('+00:00');
-                this.condition.value = { ...this.condition.value, toDate: date };
+                this.condition.value = {
+                    ...this.condition.value,
+                    toDate: date,
+                };
             },
         },
 
@@ -80,7 +87,11 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             return this.useTime ? 'datetime' : 'date';
         },
 
-        ...mapPropertyErrors('condition', ['value.useTime', 'value.fromDate', 'value.toDate']),
+        ...mapPropertyErrors('condition', [
+            'value.useTime',
+            'value.fromDate',
+            'value.toDate',
+        ]),
 
         currentError() {
             return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;

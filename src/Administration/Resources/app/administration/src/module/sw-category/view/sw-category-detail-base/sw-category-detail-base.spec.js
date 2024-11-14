@@ -35,12 +35,20 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value', 'disabled'],
+                    template:
+                        '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                    props: [
+                        'value',
+                        'disabled',
+                    ],
                 },
                 'sw-switch-field': {
-                    template: '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: ['value', 'disabled'],
+                    template:
+                        '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
+                    props: [
+                        'value',
+                        'disabled',
+                    ],
                 },
                 'sw-single-select': {
                     template: '<input type="select" class="sw-single-select"></input>',
@@ -74,7 +82,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
 
         const wrapper = await createWrapper();
 
-        wrapper.findAllComponents('input').forEach(element => {
+        wrapper.findAllComponents('input').forEach((element) => {
             expect(element.props('disabled')).toBe(true);
         });
     });
@@ -84,7 +92,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
 
         const wrapper = await createWrapper();
 
-        wrapper.findAllComponents('input').forEach(element => {
+        wrapper.findAllComponents('input').forEach((element) => {
             expect(element.props('disabled')).toBe(false);
         });
     });

@@ -22,7 +22,10 @@
         </service>
 
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
-            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
+            <!-- @deprecated tag:v6.7.0 - Replace factory method with getConnection on the next line -->
+            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getOrCreateFromDsn"/>
+            <argument>%shopware.cache.invalidation.delay_options.connection%</argument>
+            <!-- @deprecated tag:v6.7.0 - remove next line (dsn argument) -->
             <argument>%shopware.cache.invalidation.delay_options.dsn%</argument>
         </service>
 
@@ -218,6 +221,13 @@
         <service id="Shopware\Core\Framework\Adapter\Command\CacheInvalidateDelayedCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Command\CacheClearAllCommand">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument>%kernel.environment%</argument>
+            <argument>%kernel.debug%</argument>
+            <tag name="console.command"/>
         </service>
 
         <service id="shopware.reverse_proxy.http_client" class="GuzzleHttp\Client"/>

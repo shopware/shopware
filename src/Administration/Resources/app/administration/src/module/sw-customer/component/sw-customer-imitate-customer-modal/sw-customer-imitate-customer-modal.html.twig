@@ -6,6 +6,8 @@
     class="sw-customer-imitate-customer-modal"
     @modal-close="onCancel"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_customer_imitate_customer_modal_alert %}
     <sw-alert>
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
@@ -16,6 +18,7 @@
             </template>
         </i18n-t>
     </sw-alert>
+    {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_imitate_customer_modal_description %}

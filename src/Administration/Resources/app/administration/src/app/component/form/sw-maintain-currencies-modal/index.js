@@ -83,7 +83,8 @@ Component.register('sw-maintain-currencies-modal', {
                     primary: true,
                     rawData: false,
                     width: '150px',
-                }, {
+                },
+                {
                     property: 'price',
                     label: 'sw-maintain-currencies-modal.columnPrice',
                     visible: true,
@@ -117,15 +118,18 @@ Component.register('sw-maintain-currencies-modal', {
         },
 
         loadCurrencies() {
-            this.repositoryFactory.create('currency').search(new Criteria(1, 25)).then(response => {
-                this.currencyCollection = response;
-                this.sortCurrencies();
-            });
+            this.repositoryFactory
+                .create('currency')
+                .search(new Criteria(1, 25))
+                .then((response) => {
+                    this.currencyCollection = response;
+                    this.sortCurrencies();
+                });
         },
 
         updateCurrencyCollectionFromCurrencies() {
             if (this.currencyCollection.length > 0) {
-                const isSame = this.currencies.every(c => this.currencyCollection.some(_c => c.id === _c.id));
+                const isSame = this.currencies.every((c) => this.currencyCollection.some((_c) => c.id === _c.id));
 
                 if (!isSame) {
                     this.currencyCollection = this.currencies;

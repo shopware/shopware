@@ -127,7 +127,7 @@ class CheckoutConfirmPageLoader
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
-        $this->eventDispatcher->dispatch($validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($billingAddress === null) {
             return;
@@ -152,7 +152,7 @@ class CheckoutConfirmPageLoader
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
-        $this->eventDispatcher->dispatch($validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($shippingAddress === null) {
             return;

@@ -11,7 +11,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['feature', 'acl'],
+    inject: [
+        'feature',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

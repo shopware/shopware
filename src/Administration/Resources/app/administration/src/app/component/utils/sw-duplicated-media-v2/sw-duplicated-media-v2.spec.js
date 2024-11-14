@@ -34,7 +34,11 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                         create: () => {
                             return {
                                 search: () => Promise.resolve([{ id: 'foo' }]),
-                                get: () => Promise.resolve({ id: 'foo', hasFile: true }),
+                                get: () =>
+                                    Promise.resolve({
+                                        id: 'foo',
+                                        hasFile: true,
+                                    }),
                                 delete: () => Promise.resolve(),
                             };
                         },
@@ -97,7 +101,7 @@ describe('components/utils/sw-duplicated-media-v2', () => {
     it('should upload the renamed file', async () => {
         await wrapper.vm.renameFile(uploadTaskMock);
 
-        const matchingUploadTask = uploads[uploadTaskMock.uploadTag].find(upload => {
+        const matchingUploadTask = uploads[uploadTaskMock.uploadTag].find((upload) => {
             return upload.targetId === uploadTaskMock.targetId;
         });
 

@@ -12,21 +12,29 @@ class BuyBoxStruct extends Struct
 {
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productId;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalReviews;
 
     /**
      * @var SalesChannelProductEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $product;
 
     /**
      * @var PropertyGroupCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $configuratorSettings;
 

@@ -38,8 +38,8 @@ const orderFixture = {
     ],
 };
 
-const manualPromotions = orderFixture.lineItems.filter(item => item.type === 'promotion' && item.referencedId !== null);
-const automaticPromotions = orderFixture.lineItems.filter(item => item.type === 'promotion' && item.referencedId === null);
+const manualPromotions = orderFixture.lineItems.filter((item) => item.type === 'promotion' && item.referencedId !== null);
+const automaticPromotions = orderFixture.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
 
 const successResponseForNotification = {
     data: {
@@ -102,7 +102,7 @@ async function createWrapper(privileges = []) {
                     create: () => ({
                         delete: (promotionId) => {
                             createStateMapper({
-                                lineItems: orderFixture.lineItems.filter(item => promotionId !== item.id),
+                                lineItems: orderFixture.lineItems.filter((item) => promotionId !== item.id),
                             });
 
                             return Promise.resolve(successResponseForNotification);
@@ -133,7 +133,9 @@ async function createWrapper(privileges = []) {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -216,7 +218,10 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }]);
+        expect(wrapper.vm.promotionCodeTags).toEqual([
+            { code: 'Redeem3456' },
+            { code: 'Redeem23' },
+        ]);
         expect(wrapper.emitted('reload-entity-data')).toBeFalsy();
         expect(wrapper.emitted('error')).toBeUndefined();
     });
@@ -230,7 +235,11 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         wrapper.vm.onSubmitCode('Redeem675');
         await flushPromises();
 
-        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }, { code: 'Redeem675' }]);
+        expect(wrapper.vm.promotionCodeTags).toEqual([
+            { code: 'Redeem3456' },
+            { code: 'Redeem23' },
+            { code: 'Redeem675' },
+        ]);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
     });
@@ -245,7 +254,10 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
         await flushPromises();
 
-        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }]);
+        expect(wrapper.vm.promotionCodeTags).toEqual([
+            { code: 'Redeem3456' },
+            { code: 'Redeem23' },
+        ]);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeFalsy();
     });

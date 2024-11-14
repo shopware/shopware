@@ -11,6 +11,8 @@ class AccountProfilePage extends Page
 {
     /**
      * @var SalutationCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutations;
 

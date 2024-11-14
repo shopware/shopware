@@ -12,16 +12,22 @@ class ReviewSummaryStruct extends StoreStruct
 {
     /**
      * @var list<array{rating: int<1, 5>, count: positive-int}>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ratingAssignment;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $averageRating;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberOfRatings;
 

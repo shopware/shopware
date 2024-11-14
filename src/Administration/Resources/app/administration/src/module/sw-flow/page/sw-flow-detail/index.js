@@ -79,7 +79,8 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('sequences.rule');
-            criteria.getAssociation('sequences')
+            criteria
+                .getAssociation('sequences')
                 .addSorting(Criteria.sort('displayGroup', 'ASC'))
                 .addSorting(Criteria.sort('parentId', 'ASC'))
                 .addSorting(Criteria.sort('trueCase', 'ASC'))
@@ -146,10 +147,11 @@ export default {
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_state.stateMachine.technicalName',
-                    ['order.state', 'order_transaction.state', 'order_delivery.state'],
-                ),
+                Criteria.equalsAny('state_machine_state.stateMachine.technicalName', [
+                    'order.state',
+                    'order_transaction.state',
+                    'order_delivery.state',
+                ]),
             );
 
             return criteria;
@@ -185,7 +187,10 @@ export default {
             });
         },
 
-        ...mapState('swFlowState', ['flow', 'triggerEvents']),
+        ...mapState('swFlowState', [
+            'flow',
+            'triggerEvents',
+        ]),
         ...mapGetters('swFlowState', [
             'sequences',
             'mailTemplateIds',
@@ -193,7 +198,10 @@ export default {
             'customFieldIds',
             'hasFlowChanged',
         ]),
-        ...mapPropertyErrors('flow', ['name', 'eventName']),
+        ...mapPropertyErrors('flow', [
+            'name',
+            'eventName',
+        ]),
     },
 
     watch: {
@@ -265,7 +273,9 @@ export default {
                 if (this.$route.params.flowTemplateId) {
                     return {
                         name: `sw.flow.create.${tabName}`,
-                        params: { flowTemplateId: this.$route.params.flowTemplateId },
+                        params: {
+                            flowTemplateId: this.$route.params.flowTemplateId,
+                        },
                     };
                 }
 
@@ -273,7 +283,10 @@ export default {
             }
 
             if (this.isTemplate) {
-                return { name: `sw.flow.detail.${tabName}`, query: { type: 'template' } };
+                return {
+                    name: `sw.flow.detail.${tabName}`,
+                    query: { type: 'template' },
+                };
             }
 
             return { name: `sw.flow.detail.${tabName}` };
@@ -296,7 +309,8 @@ export default {
             this.isLoading = true;
             Shopware.State.dispatch('swFlowState/fetchTriggerActions');
 
-            return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
+            return this.flowRepository
+                .get(this.flowId, Context.api, this.flowCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
@@ -313,16 +327,16 @@ export default {
         },
 
         getAppFlowAction() {
-            return this.appFlowActionRepository.search(this.appFlowActionCriteria, Shopware.Context.api)
-                .then((response) => {
-                    State.commit('swFlowState/setAppActions', response);
-                });
+            return this.appFlowActionRepository.search(this.appFlowActionCriteria, Shopware.Context.api).then((response) => {
+                State.commit('swFlowState/setAppActions', response);
+            });
         },
 
         getDetailFlowTemplate() {
             this.isLoading = true;
 
-            return this.flowTemplateRepository.get(this.flowId, Context.api, this.flowTemplateCriteria)
+            return this.flowTemplateRepository
+                .get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
@@ -371,7 +385,8 @@ export default {
                 await this.updateSequences();
             }
 
-            this.flowRepository.save(this.flow)
+            this.flowRepository
+                .save(this.flow)
                 .then(() => {
                     if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
                         this.createNotificationSuccess({
@@ -401,7 +416,7 @@ export default {
         },
 
         async updateSequences() {
-            const sequences = this.sequences.map(item => {
+            const sequences = this.sequences.map((item) => {
                 item.flowId = this.flow.id;
                 return item;
             });
@@ -426,10 +441,12 @@ export default {
         },
 
         getDeletedSequenceIds() {
-            const sequenceIds = this.sequences.map(sequence => sequence.id);
-            const deletedSequences = this.flow.getOrigin().sequences.filter(sequence => !sequenceIds.includes(sequence.id));
+            const sequenceIds = this.sequences.map((sequence) => sequence.id);
+            const deletedSequences = this.flow
+                .getOrigin()
+                .sequences.filter((sequence) => !sequenceIds.includes(sequence.id));
 
-            return deletedSequences.map(sequence => sequence.id);
+            return deletedSequences.map((sequence) => sequence.id);
         },
 
         handleFieldValiationError() {
@@ -439,13 +456,13 @@ export default {
 
             const currentRouteName = this.$router.history.current.name;
 
-            const hasErrorTabFlow = (currentRouteName === 'sw.flow.create.flow'
-               || currentRouteName === 'sw.flow.detail.flow')
-               && this.flowEventNameError;
+            const hasErrorTabFlow =
+                (currentRouteName === 'sw.flow.create.flow' || currentRouteName === 'sw.flow.detail.flow') &&
+                this.flowEventNameError;
 
-            const hasErrorTabGeneral = (currentRouteName === 'sw.flow.create.general'
-                || currentRouteName === 'sw.flow.detail.general')
-                && this.flowNameError;
+            const hasErrorTabGeneral =
+                (currentRouteName === 'sw.flow.create.general' || currentRouteName === 'sw.flow.detail.general') &&
+                this.flowNameError;
 
             if (hasErrorTabFlow || hasErrorTabGeneral) {
                 return;
@@ -454,9 +471,7 @@ export default {
             // Navigate to another tab which contains field errors
             if (this.flowId) {
                 this.$router.push({
-                    name: this.flowNameError
-                        ? 'sw.flow.detail.general'
-                        : 'sw.flow.detail.flow',
+                    name: this.flowNameError ? 'sw.flow.detail.general' : 'sw.flow.detail.flow',
                     params: { flowId: this.flowId },
                 });
 
@@ -464,9 +479,7 @@ export default {
             }
 
             this.$router.push({
-                name: this.flowNameError
-                    ? 'sw.flow.create.general'
-                    : 'sw.flow.create.flow',
+                name: this.flowNameError ? 'sw.flow.create.general' : 'sw.flow.create.flow',
             });
         },
 
@@ -490,7 +503,7 @@ export default {
         },
 
         removeAllSelectors() {
-            const newSequences = this.sequences.filter(sequence => {
+            const newSequences = this.sequences.filter((sequence) => {
                 return sequence.ruleId !== null || sequence.actionName !== null;
             });
 
@@ -518,44 +531,59 @@ export default {
 
             const promises = [];
             // eslint-disable-next-line max-len
-            const hasSetOrderStateAction = this.sequences.some(sequence => sequence.actionName === this.flowBuilderService.getActionName('SET_ORDER_STATE'));
+            const hasSetOrderStateAction = this.sequences.some(
+                (sequence) => sequence.actionName === this.flowBuilderService.getActionName('SET_ORDER_STATE'),
+            );
 
             if (hasSetOrderStateAction) {
                 // get support information for set order state action.
-                promises.push(this.stateMachineStateRepository.search(this.stateMachineStateCriteria)
-                    .then(data => {
+                promises.push(
+                    this.stateMachineStateRepository.search(this.stateMachineStateCriteria).then((data) => {
                         State.commit('swFlowState/setStateMachineState', data);
-                    }));
+                    }),
+                );
             }
 
             // eslint-disable-next-line max-len
-            const hasDocumentAction = this.sequences.some(sequence => sequence.actionName === this.flowBuilderService.getActionName('GENERATE_DOCUMENT'));
+            const hasDocumentAction = this.sequences.some(
+                (sequence) => sequence.actionName === this.flowBuilderService.getActionName('GENERATE_DOCUMENT'),
+            );
 
             if (hasDocumentAction) {
                 // get support information for generate document action.
-                promises.push(this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setDocumentTypes', data);
-                }));
+                promises.push(
+                    this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
+                        Shopware.State.commit('swFlowState/setDocumentTypes', data);
+                    }),
+                );
             }
 
             // eslint-disable-next-line max-len
-            const hasMailSendAction = this.sequences.some(sequence => sequence.actionName === this.flowBuilderService.getActionName('MAIL_SEND'));
+            const hasMailSendAction = this.sequences.some(
+                (sequence) => sequence.actionName === this.flowBuilderService.getActionName('MAIL_SEND'),
+            );
 
             if (hasMailSendAction) {
                 // get support information for mail send action.
-                promises.push(this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setMailTemplates', data);
-                }));
+                promises.push(
+                    this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
+                        Shopware.State.commit('swFlowState/setMailTemplates', data);
+                    }),
+                );
             }
 
             // eslint-disable-next-line max-len
-            const hasChangeCustomerGroup = this.sequences.some(sequence => sequence.actionName === this.flowBuilderService.getActionName('CHANGE_CUSTOMER_GROUP'));
+            const hasChangeCustomerGroup = this.sequences.some(
+                (sequence) => sequence.actionName === this.flowBuilderService.getActionName('CHANGE_CUSTOMER_GROUP'),
+            );
 
             if (hasChangeCustomerGroup) {
                 // get support information for change customer group action.
-                promises.push(this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setCustomerGroups', data);
-                }));
+                promises.push(
+                    this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
+                        Shopware.State.commit('swFlowState/setCustomerGroups', data);
+                    }),
+                );
             }
 
             const customFieldActionConstants = [
@@ -564,16 +592,22 @@ export default {
                 this.flowBuilderService.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
             ];
             // eslint-disable-next-line max-len
-            const hasSetCustomFieldAction = this.sequences.some(sequence => customFieldActionConstants.includes(sequence.actionName));
+            const hasSetCustomFieldAction = this.sequences.some((sequence) =>
+                customFieldActionConstants.includes(sequence.actionName),
+            );
 
             if (hasSetCustomFieldAction) {
-                promises.push(this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setCustomFieldSets', data);
-                }));
+                promises.push(
+                    this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
+                        Shopware.State.commit('swFlowState/setCustomFieldSets', data);
+                    }),
+                );
 
-                promises.push(this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setCustomFields', data);
-                }));
+                promises.push(
+                    this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
+                        Shopware.State.commit('swFlowState/setCustomFields', data);
+                    }),
+                );
             }
 
             return Promise.all(promises);
@@ -584,7 +618,8 @@ export default {
             flow.id = Utils.createId();
             flow.priority = 0;
 
-            return this.flowTemplateRepository.get(this.$route.params.flowTemplateId, Context.api, this.flowTemplateCriteria)
+            return this.flowTemplateRepository
+                .get(this.$route.params.flowTemplateId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
                     flow.name = data.name;
                     flow.eventName = data.config?.eventName;
@@ -630,7 +665,7 @@ export default {
         buildSequencesFromConfig(sequences) {
             const parentIds = {};
 
-            sequences = sequences.map(sequence => {
+            sequences = sequences.map((sequence) => {
                 sequence = this.createSequenceEntity(sequence);
 
                 parentIds[sequence.id] = Utils.createId();
@@ -658,7 +693,7 @@ export default {
         },
 
         getRuleDataForFlowTemplate() {
-            const ruleIds = this.sequences.filter(sequence => sequence.ruleId !== null).map(sequence => sequence.ruleId);
+            const ruleIds = this.sequences.filter((sequence) => sequence.ruleId !== null).map((sequence) => sequence.ruleId);
 
             if (!ruleIds.length) {
                 return;
@@ -668,9 +703,9 @@ export default {
             criteria.addFilter(Criteria.equalsAny('id', ruleIds));
 
             this.ruleRepository.search(criteria).then((rules) => {
-                const sequencesWithRules = this.sequences.map(sequence => {
+                const sequencesWithRules = this.sequences.map((sequence) => {
                     if (sequence.ruleId) {
-                        sequence.rule = rules.find(item => item.id === sequence.ruleId);
+                        sequence.rule = rules.find((item) => item.id === sequence.ruleId);
                     }
 
                     return sequence;

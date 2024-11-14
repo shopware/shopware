@@ -8,8 +8,8 @@ import type { AppModuleDefinition } from 'src/core/service/api/app-modules.servi
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ShopwareAppsState {
-    apps: AppModuleDefinition[],
-    selectedIds: string[],
+    apps: AppModuleDefinition[];
+    selectedIds: string[];
 }
 
 const shopwareApps: Module<ShopwareAppsState, VuexRootState> = {

@@ -47,6 +47,23 @@ class ThemeCreateCommandTest extends TestCase
         static::assertFileExists($expectedDirectory . 'Resources/theme.json');
     }
 
+    public function testSuccessfulCreateAsStaticCommand(): void
+    {
+        $expectedDirectory = $this->projectDir . 'custom/static-plugins/' . self::THEME_NAME . '/src/';
+
+        $commandTester = $this->getCommandTester();
+
+        $commandTester->execute(['theme-name' => self::THEME_NAME, '--static' => true]);
+        $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
+
+        static::assertIsString($result);
+        static::assertStringContainsString('Creating theme structure under', $result);
+        static::assertDirectoryExists($expectedDirectory);
+        static::assertFileExists($expectedDirectory . 'TestPlugin.php');
+        static::assertDirectoryExists($expectedDirectory . 'Resources');
+        static::assertFileExists($expectedDirectory . 'Resources/theme.json');
+    }
+
     public function testCommandFailsOnDuplicate(): void
     {
         $commandTester = $this->getCommandTester();

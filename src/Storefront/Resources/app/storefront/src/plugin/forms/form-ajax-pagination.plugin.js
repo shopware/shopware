@@ -77,7 +77,7 @@ export default class FormAjaxPaginationPlugin extends Plugin {
 
         const currentPage = event.currentTarget.dataset.page;
         this._pageInput.value = currentPage;
-        this._pageInput.dispatchEvent(new Event('change', { bubbles: true }));
+        this._pageInput.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
 
         window.focusHandler.saveFocusState('form-ajax-pagination', `[data-focus-id="${currentPage}"]`);
     }

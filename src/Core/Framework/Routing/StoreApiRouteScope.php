@@ -17,6 +17,8 @@ class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelConte
 
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $allowedPaths = [DefinitionService::STORE_API];
 

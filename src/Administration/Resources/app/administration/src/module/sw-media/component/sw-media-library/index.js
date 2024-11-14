@@ -20,7 +20,10 @@ export default {
         'feature',
     ],
 
-    emits: ['update:selection', 'media-folder-change'],
+    emits: [
+        'update:selection',
+        'media-folder-change',
+    ],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),
@@ -50,9 +53,23 @@ export default {
             type: Number,
             required: false,
             default: 25,
-            validValues: [1, 5, 25, 50, 100, 500],
+            validValues: [
+                1,
+                5,
+                25,
+                50,
+                100,
+                500,
+            ],
             validator(value) {
-                return [1, 5, 25, 50, 100, 500].includes(value);
+                return [
+                    1,
+                    5,
+                    25,
+                    50,
+                    100,
+                    500,
+                ].includes(value);
             },
         },
 
@@ -102,9 +119,10 @@ export default {
 
     computed: {
         shouldDisplayEmptyState() {
-            return !this.isLoading && (this.selectableItems.length === 0 || (
-                this.isValidTerm(this.term) && this.selectableItems.length === 0
-            ));
+            return (
+                !this.isLoading &&
+                (this.selectableItems.length === 0 || (this.isValidTerm(this.term) && this.selectableItems.length === 0))
+            );
         },
 
         mediaRepository() {
@@ -120,7 +138,11 @@ export default {
         },
 
         selectableItems() {
-            return [...this.subFolders, ...this.pendingUploads, ...this.items];
+            return [
+                ...this.subFolders,
+                ...this.pendingUploads,
+                ...this.items,
+            ];
         },
 
         rootFolder() {
@@ -155,9 +177,7 @@ export default {
             // always search without folderId criteria --> search for all items
             const criteria = new Criteria(this.pageItem, this.limit);
 
-            criteria
-                .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
-                .setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection)).setTerm(this.term);
 
             // eslint-disable-next-line no-warning-comments
             // ToDo NEXT-22186 - will be replaced by a new overview
@@ -174,13 +194,13 @@ export default {
                 'cmsBlocks.section.page',
                 'cmsSections.page',
                 'cmsPages',
-            ].forEach(association => {
+            ].forEach((association) => {
                 const associationParts = association.split('.');
 
                 criteria.addAssociation(association);
 
                 let path = null;
-                associationParts.forEach(currentPart => {
+                associationParts.forEach((currentPart) => {
                     path = path ? `${path}.${currentPart}` : currentPart;
 
                     criteria.getAssociation(path).setLimit(25);
@@ -311,7 +331,13 @@ export default {
 
         async loadItems() {
             this.isLoading = true;
-            const [nextFolders, nextMedia] = await Promise.allSettled([this.nextFolders(), this.nextMedia()]);
+            const [
+                nextFolders,
+                nextMedia,
+            ] = await Promise.allSettled([
+                this.nextFolders(),
+                this.nextMedia(),
+            ]);
 
             if (nextMedia.status === 'fulfilled') {
                 this.items.push(...nextMedia.value);
@@ -345,11 +371,7 @@ export default {
                     return [];
                 }
 
-                criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                    searchRankingFields,
-                    this.term,
-                    criteria,
-                );
+                criteria = this.searchRankingService.buildSearchQueriesForEntity(searchRankingFields, this.term, criteria);
             }
 
             // only fetch items of current folder
@@ -359,10 +381,12 @@ export default {
 
             // search only in current and all subFolders
             if (this.folderId != null && this.isValidTerm(this.term)) {
-                criteria.addFilter(Criteria.multi('OR', [
-                    Criteria.equals('mediaFolderId', this.folderId),
-                    Criteria.contains('mediaFolder.path', this.folderId),
-                ]));
+                criteria.addFilter(
+                    Criteria.multi('OR', [
+                        Criteria.equals('mediaFolderId', this.folderId),
+                        Criteria.contains('mediaFolder.path', this.folderId),
+                    ]),
+                );
             }
 
             const media = await this.mediaRepository.search(criteria, Context.api);
@@ -419,7 +443,7 @@ export default {
                 return;
             }
 
-            throw new Error('Injected entity has to be of \'type media\'');
+            throw new Error("Injected entity has to be of 'type media'");
         },
 
         injectMedia(mediaEntity) {
@@ -427,9 +451,11 @@ export default {
                 return;
             }
 
-            if (!this.items.some((alreadyListed) => {
-                return alreadyListed.id === mediaEntity.id;
-            })) {
+            if (
+                !this.items.some((alreadyListed) => {
+                    return alreadyListed.id === mediaEntity.id;
+                })
+            ) {
                 this.items.unshift(mediaEntity);
             }
         },

@@ -20,7 +20,7 @@ use Symfony\Component\Filesystem\Path;
 readonly class RemoteZip implements Source
 {
     public function __construct(
-        private AbstractTemporaryDirectoryFactory $temporaryDirectoryFactory,
+        private TemporaryDirectoryFactory $temporaryDirectoryFactory,
         private AppDownloader $downloader,
         private AppExtractor $appExtractor,
         private Io $io = new Io()

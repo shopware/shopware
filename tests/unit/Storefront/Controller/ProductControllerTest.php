@@ -15,18 +15,22 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRou
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
+use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Page\Product\ProductPage;
@@ -34,9 +38,9 @@ use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPage;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
-use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
+use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook as StorefrontProductReviewsWidgetLoadedHook;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\ProductControllerStub;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -80,7 +84,8 @@ class ProductControllerTest extends TestCase
             $this->productReviewSaveRouteMock,
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
-            $this->systemConfigServiceMock
+            $this->systemConfigServiceMock,
+            $this->createMock(EventDispatcher::class),
         );
     }
 
@@ -293,17 +298,24 @@ class ProductControllerTest extends TestCase
         static::assertSame(['productId' => $ids->get('productId')], $this->controller->forwardToRouteParameters);
     }
 
-    public function testLoadReview(): void
+    public function testLoadReviewResults(): void
     {
         $ids = new IdsCollection();
 
         $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);
 
-        $request = new Request(['test' => 'test']);
+        $productId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+
+        $request = new Request([
+            'test' => 'test',
+            'productId' => $productId,
+            'parentId' => $parentId,
+        ]);
 
         $productReview = new ProductReviewEntity();
         $productReview->setUniqueIdentifier($ids->get('productReview'));
-        $reviewResult = new ReviewLoaderResult(
+        $reviewResult = new ProductReviewResult(
             'review',
             1,
             new ProductReviewCollection([$productReview]),
@@ -311,12 +323,19 @@ class ProductControllerTest extends TestCase
             new Criteria(),
             Context::createDefaultContext()
         );
+        $reviewResult->setMatrix(new RatingMatrix([]));
+        $reviewResult->setProductId($productId);
+        $reviewResult->setParentId($parentId);
+
         $this->productReviewLoaderMock->method('load')->with(
             $request,
-            $this->createMock(SalesChannelContext::class)
+            $this->createMock(SalesChannelContext::class),
+            $productId,
+            $parentId
         )->willReturn($reviewResult);
 
         $response = $this->controller->loadReviews(
+            $productId,
             $request,
             $this->createMock(SalesChannelContext::class)
         );
@@ -330,5 +349,11 @@ class ProductControllerTest extends TestCase
             ],
             $this->controller->renderStorefrontParameters
         );
+
+        if (Feature::isActive('v6.7.0.0')) {
+            static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+        } else {
+            static::assertInstanceOf(StorefrontProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+        }
     }
 }

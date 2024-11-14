@@ -47,10 +47,8 @@ export default {
         customFieldSetCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria
-                .addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
+            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
 
             return criteria;
         },
@@ -64,10 +62,9 @@ export default {
         createdComponent() {
             Shopware.State.commit('shopwareApps/setSelectedIds', this.customer.id ? [this.customer.id] : []);
 
-            this.customFieldSetRepository.search(this.customFieldSetCriteria)
-                .then((customFieldSets) => {
-                    this.customerCustomFieldSets = customFieldSets;
-                });
+            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
+                this.customerCustomFieldSets = customFieldSets;
+            });
         },
     },
 };

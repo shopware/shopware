@@ -20,7 +20,7 @@
             <input name="privacy"
                    type="checkbox"
                    class="form-check-input"
-                   id="{{ identifierTemplate|format(_key) }}"
+                   id="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}{{ identifierTemplate|format(_key) }}"
                    required>
         {% endblock %}
 

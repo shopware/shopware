@@ -4,6 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
@@ -34,7 +35,7 @@ class UseHasherRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isInTestClass($scope) || $this->isInWebInstaller($scope)) {
+        if ($this->isInTestClass($scope) || $this->isInWebInstaller($scope) || str_contains($scope->getFile(), '/tests/')) {
             // if in a test namespace, don't care
             return [];
         }
@@ -43,7 +44,7 @@ class UseHasherRule implements Rule
             return [];
         }
 
-        if (!$node->name instanceof Node\Name) {
+        if (!$node->name instanceof Name) {
             return [];
         }
 
@@ -55,7 +56,9 @@ class UseHasherRule implements Rule
 
         if (\in_array($name, self::NOT_ALLOWED_FUNCTIONS, true)) {
             return [
-                RuleErrorBuilder::message(\sprintf('Do not use %s function, use class %s instead.', $name, self::HASHER_CLASS))->build(),
+                RuleErrorBuilder::message(\sprintf('Do not use %s function, use class %s instead.', $name, self::HASHER_CLASS))
+                    ->identifier('shopware.hasher')
+                    ->build(),
             ];
         }
 
@@ -63,7 +66,7 @@ class UseHasherRule implements Rule
     }
 
     /**
-     * The webinstaller also runs on older installations and therefore we can't enforce the usage of the Hasher class.
+     * The webinstaller also runs on older installations, and therefore we can't enforce the usage of the Hasher class.
      */
     protected function isInWebInstaller(Scope $scope): bool
     {
@@ -71,9 +74,7 @@ class UseHasherRule implements Rule
             return false;
         }
 
-        $definitionClassReflection = $scope->getClassReflection()->getNativeReflection();
-
-        $className = $definitionClassReflection->getName();
+        $className = $scope->getClassReflection()->getNativeReflection()->getName();
 
         return str_contains($className, 'Shopware\WebInstaller');
     }

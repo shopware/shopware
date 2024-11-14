@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -25,7 +25,7 @@ class ProductReviewSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private EntityRepository $productReviewRepository;
 
@@ -35,7 +35,7 @@ class ProductReviewSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         /** @var EntityRepository $productReviewRepository */
         $productReviewRepository = $this->getContainer()->get('product_review.repository');

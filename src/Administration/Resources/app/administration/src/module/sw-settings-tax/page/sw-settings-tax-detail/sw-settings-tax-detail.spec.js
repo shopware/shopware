@@ -4,55 +4,58 @@ import { mount } from '@vue/test-utils';
  * @package customer-order
  */
 async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
-    return mount(await wrapTestComponent('sw-settings-tax-detail', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            mocks: {
-                $te: () => isShopwareDefaultTax,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        get: () => {
-                            return Promise.resolve({
-                                isNew: () => false,
-                            });
-                        },
-
-                        create: () => {
-                            return Promise.resolve({
-                                isNew: () => true,
-                            });
-                        },
-
-                        save: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+    return mount(
+        await wrapTestComponent('sw-settings-tax-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $te: () => isShopwareDefaultTax,
                 },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                return Promise.resolve({
+                                    isNew: () => false,
+                                });
+                            },
 
-                        return privileges.includes(identifier);
+                            create: () => {
+                                return Promise.resolve({
+                                    isNew: () => true,
+                                });
+                            },
+
+                            save: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([]),
+                    },
+                    systemConfigApiService: {
+                        getConfig: () =>
+                            Promise.resolve({
+                                'core.tax.defaultTaxRate': '',
+                            }),
                     },
                 },
-                customFieldDataProviderService: {
-                    getCustomFieldSets: () => Promise.resolve([]),
-                },
-                systemConfigApiService: {
-                    getConfig: () => Promise.resolve({
-                        'core.tax.defaultTaxRate': '',
-                    }),
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -65,23 +68,24 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                         <slot></slot>
                     </div>
                 `,
+                    },
+                    'sw-alert': true,
+                    'sw-card-view': true,
+                    'sw-language-switch': true,
+                    'sw-card': true,
+                    'sw-container': true,
+                    'sw-button': true,
+                    'sw-button-process': true,
+                    'sw-switch-field': true,
+                    'sw-text-field': true,
+                    'sw-number-field': true,
+                    'sw-skeleton': true,
+                    'sw-tax-rule-card': true,
+                    'sw-custom-field-set-renderer': true,
                 },
-                'sw-alert': true,
-                'sw-card-view': true,
-                'sw-language-switch': true,
-                'sw-card': true,
-                'sw-container': true,
-                'sw-button': true,
-                'sw-button-process': true,
-                'sw-switch-field': true,
-                'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-skeleton': true,
-                'sw-tax-rule-card': true,
-                'sw-custom-field-set-renderer': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
@@ -98,15 +102,9 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         ]);
         await wrapper.vm.$nextTick();
 
-        const saveButton = wrapper.find(
-            '.sw-settings-tax-detail__save-action',
-        );
-        const taxNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]',
-        );
-        const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]',
-        );
+        const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
+        const taxNameField = wrapper.find('sw-text-field-stub[label="sw-settings-tax.detail.labelName"]');
+        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
         expect(taxNameField.attributes().disabled).toBeTruthy();
@@ -114,14 +112,15 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     });
 
     it('the name should be editable for non default rates', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ], false);
+        const wrapper = await createWrapper(
+            [
+                'tax.editor',
+            ],
+            false,
+        );
         await wrapper.vm.$nextTick();
 
-        const taxNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]',
-        );
+        const taxNameField = wrapper.find('sw-text-field-stub[label="sw-settings-tax.detail.labelName"]');
         expect(taxNameField.attributes().disabled).toBeUndefined();
     });
 
@@ -129,15 +128,9 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const saveButton = wrapper.find(
-            '.sw-settings-tax-detail__save-action',
-        );
-        const taxNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]',
-        );
-        const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]',
-        );
+        const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
+        const taxNameField = wrapper.find('sw-text-field-stub[label="sw-settings-tax.detail.labelName"]');
+        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(taxNameField.attributes().disabled).toBeTruthy();
@@ -147,9 +140,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     it('should have a tax rate field with a correct "digits" property', async () => {
         const wrapper = await createWrapper();
 
-        const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]',
-        );
+        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

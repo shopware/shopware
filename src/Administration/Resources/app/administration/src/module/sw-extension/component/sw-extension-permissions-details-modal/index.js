@@ -84,7 +84,10 @@ export default {
             const topOfElement = entityElement.offsetTop;
             const headRow = this.$el.querySelector('.sw-extension-permissions-details-modal__operations');
 
-            modalBody.scroll({ top: topOfElement - headRow.offsetHeight, behavior: 'smooth' });
+            modalBody.scroll({
+                top: topOfElement - headRow.offsetHeight,
+                behavior: 'smooth',
+            });
         },
 
         close() {

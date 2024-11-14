@@ -12,9 +12,7 @@ let $routerMock = {
     replace: jest.fn(),
 };
 
-async function createWrapper({
-    props = {},
-} = {}) {
+async function createWrapper({ props = {} } = {}) {
     return mount(await wrapTestComponent('sw-iframe-renderer', { sync: true }), {
         props: {
             src: 'https://example.com',
@@ -115,7 +113,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.signedIframeSrc).toBe('https://example.com/?location-id=foo&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+        expect(wrapper.vm.signedIframeSrc).toBe(
+            'https://example.com/?location-id=foo&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+        );
     });
 
     it('should render correct iFrame src when parameters are given', async () => {
@@ -140,7 +140,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const iframe = wrapper.find('iframe');
         const iframeSrc = iframe.attributes('src');
 
-        expect(iframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+        expect(iframeSrc).toBe(
+            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+        );
     });
 
     it('should render iFrame', async () => {
@@ -192,7 +194,10 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         $routeMock.query = {
             // mock query params inside iFrame
             'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                ['search', 'T-Shirt'],
+                [
+                    'search',
+                    'T-Shirt',
+                ],
             ]),
             // mock hash route inside iFrame
             'locationId_my-great-extension-main-module_hash': '#/detail/1',
@@ -217,14 +222,19 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.signedIframeSrc).toBe('https://my-great-extension.com/app/?location-id=my-great-extension-main-module&shop-id=__SHOP_ID&shop-signature=__SIGNED__&search=T-Shirt#/detail/1');
+        expect(wrapper.vm.signedIframeSrc).toBe(
+            'https://my-great-extension.com/app/?location-id=my-great-extension-main-module&shop-id=__SHOP_ID&shop-signature=__SIGNED__&search=T-Shirt#/detail/1',
+        );
     });
 
     it('should handle location url updates', async () => {
         $routeMock.query = {
             // mock query params inside iFrame
             'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                ['search', 'T-Shirt'],
+                [
+                    'search',
+                    'T-Shirt',
+                ],
             ]),
             // mock hash route inside iFrame
             'locationId_my-great-extension-main-module_hash': '#/detail/1',
@@ -241,7 +251,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        window.location = new URL('https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-main-module&search=T-Shirt#/detail/1');
+        window.location = new URL(
+            'https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-main-module&search=T-Shirt#/detail/1',
+        );
 
         await createWrapper({
             props: {
@@ -251,16 +263,17 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         await flushPromises();
 
-        await location.updateUrl(new URL(
-            'https://my-great-extension.com/app/?search=Shorts#/detail/2',
-        ));
+        await location.updateUrl(new URL('https://my-great-extension.com/app/?search=Shorts#/detail/2'));
 
         await flushPromises();
 
         expect($routerMock.replace).toHaveBeenCalledWith({
             query: {
                 'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                    ['search', 'Shorts'],
+                    [
+                        'search',
+                        'Shorts',
+                    ],
                 ]),
                 'locationId_my-great-extension-main-module_hash': '#/detail/2',
                 'locationId_my-great-extension-main-module_pathname': '/app/',
@@ -272,7 +285,10 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         $routeMock.query = {
             // mock query params inside iFrame
             'locationId_my-great-extension-main-module_searchParams': JSON.stringify([
-                ['search', 'T-Shirt'],
+                [
+                    'search',
+                    'T-Shirt',
+                ],
             ]),
             // mock hash route inside iFrame
             'locationId_my-great-extension-main-module_hash': '#/detail/1',
@@ -289,7 +305,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        window.location = new URL('https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-other-module&search=T-Shirt#/detail/1');
+        window.location = new URL(
+            'https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-other-module&search=T-Shirt#/detail/1',
+        );
 
         await createWrapper({
             props: {
@@ -299,9 +317,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         await flushPromises();
 
-        await location.updateUrl(new URL(
-            'https://my-great-extension.com/app/?search=Shorts#/detail/2',
-        ));
+        await location.updateUrl(new URL('https://my-great-extension.com/app/?search=Shorts#/detail/2'));
 
         await flushPromises();
 
@@ -342,7 +358,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const iframe = wrapper.find('iframe');
         const iframeSrc = iframe.attributes('src');
 
-        expect(iframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+        expect(iframeSrc).toBe(
+            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+        );
 
         // Update location ID
         await wrapper.setProps({
@@ -354,6 +372,8 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const updatedIframe = wrapper.find('iframe');
         const updatedIframeSrc = updatedIframe.attributes('src');
 
-        expect(updatedIframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+        expect(updatedIframeSrc).toBe(
+            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+        );
     });
 });

@@ -9,7 +9,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl', 'repositoryFactory'],
+    inject: [
+        'acl',
+        'repositoryFactory',
+    ],
 
     props: {
         category: {
@@ -79,5 +82,4 @@ export default {
             this.onSetMediaItem({ targetId: dropItem.id });
         },
     },
-
 };

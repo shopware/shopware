@@ -20,7 +20,10 @@ Component.register('sw-sales-channel-config', {
         'feature',
     ],
 
-    emits: ['update:value', 'salesChannelChanged'],
+    emits: [
+        'update:value',
+        'salesChannelChanged',
+    ],
 
     props: {
         domain: {
@@ -88,7 +91,7 @@ Component.register('sw-sales-channel-config', {
     methods: {
         createdComponent() {
             if (!this.salesChannel.length) {
-                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then(res => {
+                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then((res) => {
                     res.add({
                         id: null,
                         translated: {

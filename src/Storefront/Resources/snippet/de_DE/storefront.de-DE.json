@@ -127,6 +127,7 @@
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden.",
+    "CHECKOUT__ORDER_ORDER_CANCELLED": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde storniert und kann nicht nachträglich bearbeitet werden.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden.",
     "CHECKOUT__CART_HASH_MISMATCH": "Produkte oder Preise in Deinem Warenkorb haben sich möglicherweise geändert. Bitte überprüfe den Warenkorb, bevor Du die Bestellung aufgibst.",
     "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig."
@@ -431,8 +432,8 @@
     "cartHeaderTaxIncludeVat": "inkl. MwSt.",
     "cartHeaderTaxExcludeVat": "exkl. MwSt.",
     "cartItemInfoId": "Produkt-Nr.:",
-    "addPromotionLabel": "Gutschein-Code",
-    "addPromotionPlaceholder": "Gutschein-Code eingeben ...",
+    "addPromotionLabel": "Gutscheincode",
+    "addPromotionPlaceholder": "Gutscheincode eingeben ...",
     "addProductLabel": "Produktnummer",
     "addProductPlaceholder": "Produktnummer eingeben ...",
     "summaryPositionPrice": "Zwischensumme",
@@ -478,7 +479,7 @@
     "finishButtonBackToShop": "Zurück zum Shop",
     "finishChangePayment": "Zahlungsart ändern",
     "finishPaymentFailed": "Leider ist der Zahlungsprozess fehlgeschlagen. Bitte ändern Sie die Zahlungsart um Ihre Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
-    "codeAddedSuccessful": "Gutschein-Code erfolgreich hinzugefügt.",
+    "codeAddedSuccessful": "Gutscheincode erfolgreich hinzugefügt.",
     "addToCartSuccess": "{1} 1 Produkt zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte zum Warenkorb hinzugefügt.",
     "shippingCosts": "Versanddetails",
     "shippingCountry": "Lieferland",
@@ -496,7 +497,7 @@
     "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
     "promotion-discount-deleted": "Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
     "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
-    "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
+    "promotion-not-found": "Gutscheincode \"%code%\" existiert nicht.",
     "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
     "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
     "promotion-excluded": "Mindestens ein Rabatt wurde wegen Konflikten mit anderen Rabatten aus dem Warenkorb entfernt. Sobald die Bedingungen wieder zutreffen, wird der Rabatt automatisch hinzugefügt.",
@@ -762,9 +763,14 @@
         }
       },
       "quantitySelect": {
+        "legend": "Produkt Anzahl: Gib den gewünschten Wert ein oder benutze die Schaltflächen um die Anzahl zu erhöhen oder zu reduzieren.",
+        "areaLiveText": "Anzahl für %product% ist %quantity%.",
         "label": "Anzahl",
+        "labelWithProduct": "Anzahl von %product%",
         "increase": "Anzahl erhöhen",
-        "decrease": "Anzahl verringern"
+        "increaseOfProduct": "Erhöhe die Anzahl von %product%",
+        "decrease": "Anzahl verringern",
+        "decreaseOfProduct": "Verringere die Anzahl %product%"
       }
     },
     "cms": {

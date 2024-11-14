@@ -18,8 +18,11 @@ export default {
     inject: ['repositoryFactory'],
 
     emits: [
-        'media-folder-remove', 'media-folder-changed', 'media-folder-delete',
-        'media-folder-dissolve', 'media-folder-move',
+        'media-folder-remove',
+        'media-folder-changed',
+        'media-folder-delete',
+        'media-folder-dissolve',
+        'media-folder-move',
     ],
 
     mixins: [

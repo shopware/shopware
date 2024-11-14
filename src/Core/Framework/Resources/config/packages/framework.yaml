@@ -4,6 +4,7 @@ parameters:
     env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
     env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
     env(MAILER_DSN): 'null://null'
+    env(LOCK_DSN): 'flock'
     '.container.dumper.inline_class_loader': false
     '.container.dumper.inline_factories': true
 
@@ -30,6 +31,7 @@ framework:
     mailer:
         message_bus: false
         dsn: '%env(MAILER_DSN)%'
+    lock: '%env(LOCK_DSN)%'
     php_errors:
         log: true
     cache:

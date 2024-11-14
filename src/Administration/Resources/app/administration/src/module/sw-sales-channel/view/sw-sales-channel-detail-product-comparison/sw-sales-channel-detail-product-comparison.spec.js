@@ -5,34 +5,39 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-sales-channel-detail-product-comparison', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-sales-channel-detail-product-comparison', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot></div>',
+                    },
+                    'sw-code-editor': {
+                        template: '<div class="sw-code-editor"></div>',
+                        props: ['disabled'],
+                    },
+                    'sw-container': {
+                        template: '<div class="sw-container"><slot></slot></div>',
+                    },
+                    'sw-button-process': true,
+                    'sw-sales-channel-detail-product-comparison-preview': true,
                 },
-                'sw-code-editor': {
-                    template: '<div class="sw-code-editor"></div>',
-                    props: ['disabled'],
+                provide: {
+                    salesChannelService: {},
+                    productExportService: {},
+                    entityMappingService: {},
+                    repositoryFactory: {},
                 },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
-                },
-                'sw-button-process': true,
-                'sw-sales-channel-detail-product-comparison-preview': true,
             },
-            provide: {
-                salesChannelService: {},
-                productExportService: {},
-                entityMappingService: {},
-                repositoryFactory: {},
+            props: {
+                productExport: {},
+                salesChannel: {},
             },
         },
-        props: {
-            productExport: {},
-            salesChannel: {},
-        },
-    });
+    );
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison', () => {
@@ -46,7 +51,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
         const codeEditors = wrapper.findAllComponents('.sw-code-editor');
 
         expect(codeEditors.length).toBeGreaterThan(0);
-        codeEditors.forEach(codeEditor => {
+        codeEditors.forEach((codeEditor) => {
             expect(codeEditor.props('disabled')).toBe(true);
         });
     });
@@ -61,7 +66,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
         const codeEditors = wrapper.findAllComponents('.sw-code-editor');
 
         expect(codeEditors.length).toBeGreaterThan(0);
-        codeEditors.forEach(codeEditor => {
+        codeEditors.forEach((codeEditor) => {
             expect(codeEditor.attributes().disabled).toBeUndefined();
         });
     });

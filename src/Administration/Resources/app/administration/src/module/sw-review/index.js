@@ -43,14 +43,16 @@ Module.register('sw-review', {
         },
     },
 
-    navigation: [{
-        id: 'sw-review',
-        label: 'sw-review.general.mainMenuItemList',
-        color: '#57D9A3',
-        path: 'sw.review.index',
-        icon: 'regular-products',
-        parent: 'sw-catalogue',
-        position: 20,
-        privilege: 'review.viewer',
-    }],
+    navigation: [
+        {
+            id: 'sw-review',
+            label: 'sw-review.general.mainMenuItemList',
+            color: '#57D9A3',
+            path: 'sw.review.index',
+            icon: 'regular-products',
+            parent: 'sw-catalogue',
+            position: 20,
+            privilege: 'review.viewer',
+        },
+    ],
 });

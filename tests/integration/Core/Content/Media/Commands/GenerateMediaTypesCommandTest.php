@@ -26,14 +26,11 @@ class GenerateMediaTypesCommandTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaCollection>
      */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    /**
-     * @var GenerateMediaTypesCommand
-     */
-    private $generateMediaTypesCommand;
+    private GenerateMediaTypesCommand $generateMediaTypesCommand;
 
     private Context $context;
 

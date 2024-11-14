@@ -21,9 +21,9 @@ export type NotificationConfig = {
 
 /** @private */
 export type NotificationService = {
-    create: (config: NotificationConfig) => Promise<string>,
-    update: (config: NotificationConfig) => Promise<void>
-;}
+    create: (config: NotificationConfig) => Promise<string>;
+    update: (config: NotificationConfig) => Promise<void>;
+};
 
 /**
  * @private
@@ -65,11 +65,15 @@ function getRegistry() {
 
 /** @private */
 export type NotificationWorkerOptions = {
-    name: string,
+    name: string;
     fn: (
         next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
-        opts: { entry: { size: number }, $root: App<Element>, notification: NotificationService }
-    ) => unknown
+        opts: {
+            entry: { size: number };
+            $root: App<Element>;
+            notification: NotificationService;
+        },
+    ) => unknown;
 };
 
 /**
@@ -119,7 +123,7 @@ function remove(name: string) {
  * @param {Object} opts
  * @return {boolean}
  */
-function override(name: string, opts: { name: string; fn: () => unknown}) {
+function override(name: string, opts: { name: string; fn: () => unknown }) {
     if (!registry.has(name)) {
         return false;
     }
@@ -142,7 +146,7 @@ function initialize() {
     }
 
     initialized = true;
-    getRegistry().forEach(({ fn, name }: { name: string, fn: () => unknown }) => {
+    getRegistry().forEach(({ fn, name }: { name: string; fn: () => unknown }) => {
         helper.use(middlewareFunctionWrapper(name, fn));
     });
     return helper;
@@ -155,10 +159,8 @@ function initialize() {
  * @return {Function}
  */
 function middlewareFunctionWrapper(name: string, fn: (next: () => unknown, data: unknown) => unknown) {
-    return (next: () => unknown, data: { queue : Array<{ name: string }>}) => {
-        const entry = data.queue.find(
-            (q) => q.name === name,
-        ) || null;
+    return (next: () => unknown, data: { queue: Array<{ name: string }> }) => {
+        const entry = data.queue.find((q) => q.name === name) || null;
         const mergedData = { ...data, ...{ entry, name } };
 
         if (entry === null) {
@@ -175,10 +177,7 @@ function middlewareFunctionWrapper(name: string, fn: (next: () => unknown, data:
  * @return {Boolean|boolean}
  */
 function validateOpts(opts: NotificationWorkerOptions) {
-    return (hasOwnProperty(opts, 'name')
-        && opts.name.length > 0
-        && hasOwnProperty(opts, 'fn')
-        && types.isFunction(opts.fn));
+    return hasOwnProperty(opts, 'name') && opts.name.length > 0 && hasOwnProperty(opts, 'fn') && types.isFunction(opts.fn);
 }
 
 /**

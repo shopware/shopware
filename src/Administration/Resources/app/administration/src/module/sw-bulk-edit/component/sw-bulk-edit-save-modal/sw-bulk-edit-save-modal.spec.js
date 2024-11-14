@@ -309,12 +309,18 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     it('should be able to listen to beforeunload event', async () => {
         await wrapper.setProps({ isLoading: false });
         expect(
-            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' }),
+            wrapper.vm.beforeUnloadListener({
+                preventDefault: () => {},
+                returnValue: '',
+            }),
         ).toBe('');
 
         await wrapper.setProps({ isLoading: true });
         expect(
-            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' }),
+            wrapper.vm.beforeUnloadListener({
+                preventDefault: () => {},
+                returnValue: '',
+            }),
         ).toBe('sw-bulk-edit.modal.messageBeforeTabLeave');
     });
 });

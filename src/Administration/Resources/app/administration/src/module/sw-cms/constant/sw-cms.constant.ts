@@ -26,8 +26,7 @@ export default Object.freeze({
             mode: 'single',
         },
     },
-    UNIQUE_SLOTS: uniqueSlotsKebab
-        .map((slotName) => slotName.replace(/-./g, char => char.toUpperCase()[1])),
+    UNIQUE_SLOTS: uniqueSlotsKebab.map((slotName) => slotName.replace(/-./g, (char) => char.toUpperCase()[1])),
     UNIQUE_SLOTS_KEBAB: uniqueSlotsKebab,
     SLOT_POSITIONS: {
         left: 0,

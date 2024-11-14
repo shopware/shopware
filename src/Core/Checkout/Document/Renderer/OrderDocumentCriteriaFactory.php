@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -20,7 +21,7 @@ final class OrderDocumentCriteriaFactory
     /**
      * @param array<int, string> $ids
      */
-    public static function create(array $ids, string $deepLinkCode = ''): Criteria
+    public static function create(array $ids, string $deepLinkCode = '', ?string $documentType = null): Criteria
     {
         $criteria = new Criteria($ids);
 
@@ -43,6 +44,13 @@ final class OrderDocumentCriteriaFactory
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
+
+        if ($documentType && Feature::isActive('v6.7.0.0')) {
+            $criteria->addAssociation('documents.documentType');
+            $criteria->getAssociation('documents')
+                ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))
+                ->setLimit(1);
+        }
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));

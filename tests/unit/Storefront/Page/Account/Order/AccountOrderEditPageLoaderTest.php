@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -25,6 +27,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -212,5 +215,45 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ));
 
         $this->pageLoader->load($request, Generator::createSalesChannelContext());
+    }
+
+    public function testLoadCancelled(): void
+    {
+        $order = new OrderEntity();
+        $order->setStateId(OrderStates::STATE_CANCELLED);
+        $smEntity = new StateMachineStateEntity();
+        $smEntity->setTechnicalName(OrderStates::STATE_CANCELLED);
+        $order->setStateMachineState($smEntity);
+        $order->setId(Uuid::randomHex());
+
+        $orders = new OrderCollection([$order]);
+
+        $orderResponse = new OrderRouteResponse(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                1,
+                $orders,
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $this->orderRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($orderResponse);
+
+        $page = new Page();
+        $page->setMetaInformation(new MetaInformation());
+        $page->getMetaInformation()?->setMetaTitle('testshop');
+
+        $this->genericPageLoader
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($page);
+
+        static::expectException(OrderException::class);
+        $page = $this->pageLoader->load(new Request(), Generator::createSalesChannelContext());
     }
 }

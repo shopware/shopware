@@ -12,6 +12,8 @@ class GuestWishlistPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var GuestWishlistPage
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 

@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Script\Execution;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal

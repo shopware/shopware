@@ -16,7 +16,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -52,14 +55,12 @@ export default {
             'productStates',
         ]),
 
-        ...mapState('swProductDetail', {
-        }),
+        ...mapState('swProductDetail', {}),
 
         mediaFormVisible() {
-            return !this.loading.product &&
-                   !this.loading.parentProduct &&
-                   !this.loading.customFieldSets &&
-                   !this.loading.media;
+            return (
+                !this.loading.product && !this.loading.parentProduct && !this.loading.customFieldSets && !this.loading.media
+            );
         },
 
         productMediaRepository() {
@@ -81,8 +82,7 @@ export default {
     },
 
     watch: {
-        product() {
-        },
+        product() {},
     },
 
     created() {
@@ -97,7 +97,8 @@ export default {
         },
 
         getMediaDefaultFolderId() {
-            return this.mediaDefaultFolderRepository.search(this.mediaDefaultFolderCriteria, Context.api)
+            return this.mediaDefaultFolderRepository
+                .search(this.mediaDefaultFolderCriteria, Context.api)
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
 
@@ -112,7 +113,11 @@ export default {
         mediaRemoveInheritanceFunction(newValue) {
             newValue.forEach(({ id, mediaId, position }) => {
                 const media = this.productMediaRepository.create(Context.api);
-                Object.assign(media, { mediaId, position, productId: this.product.id });
+                Object.assign(media, {
+                    mediaId,
+                    position,
+                    productId: this.product.id,
+                });
                 if (this.parentProduct.coverId === id) {
                     this.product.coverId = media.id;
                 }

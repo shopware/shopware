@@ -100,9 +100,18 @@ export default {
 
         scopes() {
             const scopes = [
-                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') },
-                { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') },
-                { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') },
+                {
+                    key: DiscountScopes.CART,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart'),
+                },
+                {
+                    key: DiscountScopes.DELIVERY,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery'),
+                },
+                {
+                    key: DiscountScopes.SET,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet'),
+                },
             ];
 
             let index = 1;
@@ -118,26 +127,37 @@ export default {
 
         types() {
             const availableTypes = [
-                { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
-                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') },
-                { key: DiscountTypes.FIXED_UNIT, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixedUnit') },
+                {
+                    key: DiscountTypes.ABSOLUTE,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute'),
+                },
+                {
+                    key: DiscountTypes.PERCENTAGE,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage'),
+                },
+                {
+                    key: DiscountTypes.FIXED_UNIT,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixedUnit'),
+                },
             ];
 
             // do not allow a fixed-total price for cart. this would mean the whole
             // cart is sold for price X.
             // we do only allow this option if the scope is something else
             if (!this.cartScope) {
-                availableTypes.push(
-                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') },
-                );
+                availableTypes.push({
+                    key: DiscountTypes.FIXED,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed'),
+                });
             }
 
             // if we do have a cart scope, only allow the fixed value if
             // at least advanced rules have been activated
             if (this.cartScope && this.discount.considerAdvancedRules) {
-                availableTypes.push(
-                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') },
-                );
+                availableTypes.push({
+                    key: DiscountTypes.FIXED,
+                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed'),
+                });
             }
 
             return availableTypes;
@@ -156,7 +176,7 @@ export default {
         },
 
         showAbsoluteAdvancedPricesSettings() {
-            return (this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED);
+            return this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED;
         },
 
         // only show advanced max value settings if
@@ -185,19 +205,17 @@ export default {
         },
 
         displayAdvancedRuleOption() {
-            return (this.discount.scope !== DiscountScopes.DELIVERY);
+            return this.discount.scope !== DiscountScopes.DELIVERY;
         },
 
         graduationSorters() {
             const result = [];
 
             this.sorterKeys.forEach((keyValue) => {
-                result.push(
-                    {
-                        key: keyValue,
-                        name: this.$tc(`sw-promotion-v2.detail.conditions.filter.sorter.${keyValue}`),
-                    },
-                );
+                result.push({
+                    key: keyValue,
+                    name: this.$tc(`sw-promotion-v2.detail.conditions.filter.sorter.${keyValue}`),
+                });
             });
 
             return result;
@@ -207,12 +225,10 @@ export default {
             const result = [];
 
             this.pickerKeys.forEach((keyValue) => {
-                result.push(
-                    {
-                        key: keyValue,
-                        name: this.$tc(`sw-promotion-v2.detail.conditions.filter.picker.${keyValue}`),
-                    },
-                );
+                result.push({
+                    key: keyValue,
+                    name: this.$tc(`sw-promotion-v2.detail.conditions.filter.picker.${keyValue}`),
+                });
             });
 
             return result;
@@ -227,7 +243,7 @@ export default {
         },
 
         isSet() {
-            return (this.discount.scope === DiscountScopes.SET);
+            return this.discount.scope === DiscountScopes.SET;
         },
 
         graduationAppliers() {
@@ -254,12 +270,10 @@ export default {
 
             let i;
             for (i = 1; i <= maxCount; i += 1) {
-                appliers.push(
-                    {
-                        key: i,
-                        name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', 0, { count: i }),
-                    },
-                );
+                appliers.push({
+                    key: i,
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', 0, { count: i }),
+                });
             }
 
             return appliers;
@@ -275,12 +289,10 @@ export default {
 
             let i;
             for (i = 1; i < 10; i += 1) {
-                counts.push(
-                    {
-                        key: i,
-                        name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', 0, { count: i }),
-                    },
-                );
+                counts.push({
+                    key: i,
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', 0, { count: i }),
+                });
             }
 
             return counts;
@@ -308,12 +320,11 @@ export default {
 
         promotionDiscountSnippet() {
             return this.$tc(
-                this.ruleConditionDataProviderService
-                    .getAwarenessConfigurationByAssignmentName('promotionDiscounts').snippet,
+                this.ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('promotionDiscounts')
+                    .snippet,
                 2,
             );
         },
-
     },
     created() {
         this.createdComponent();
@@ -325,7 +336,7 @@ export default {
 
             this.currencyRepository.search(new Criteria(1, 25)).then((response) => {
                 this.currencies = response;
-                this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
+                this.defaultCurrency = this.currencies.find((currency) => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
             });
 
@@ -346,8 +357,8 @@ export default {
         },
 
         onDiscountScopeChanged(value) {
-            this.cartScope = (value === DiscountScopes.CART);
-            this.shippingScope = (value === DiscountScopes.DELIVERY);
+            this.cartScope = value === DiscountScopes.CART;
+            this.shippingScope = value === DiscountScopes.DELIVERY;
 
             if (value === DiscountScopes.DELIVERY) {
                 this.discount.considerAdvancedRules = false;
@@ -453,7 +464,7 @@ export default {
         },
 
         onCloseAdvancedPricesModal() {
-            if ((this.discount.type === DiscountTypes.PERCENTAGE) && this.discount.maxValue === null) {
+            if (this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue === null) {
                 // clear any currency values if max value is gone
                 this.clearAdvancedPrices();
             } else {
@@ -481,9 +492,7 @@ export default {
 
         async loadSetGroups() {
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(
-                Criteria.equals('promotionId', this.promotion.id),
-            );
+            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
 
             await this.repositoryGroups.search(criteria).then((groups) => {
                 this.availableSetGroups = groups;
@@ -493,30 +502,29 @@ export default {
         },
 
         async loadSorters() {
-            return this.httpClient.get(
-                '/_action/promotion/setgroup/sorter',
-                {
+            return this.httpClient
+                .get('/_action/promotion/setgroup/sorter', {
                     headers: this.syncService.getBasicHeaders(),
-                },
-            ).then((response) => {
-                return response.data;
-            });
+                })
+                .then((response) => {
+                    return response.data;
+                });
         },
 
         async loadPickers() {
-            return this.httpClient.get(
-                '/_action/promotion/discount/picker',
-                {
+            return this.httpClient
+                .get('/_action/promotion/discount/picker', {
                     headers: this.syncService.getBasicHeaders(),
-                },
-            ).then((response) => {
-                return response.data;
-            });
+                })
+                .then((response) => {
+                    return response.data;
+                });
         },
 
         loadRestrictedRules() {
-            this.ruleConditionDataProviderService.getRestrictedRules('promotionSetGroups')
-                .then((result) => { this.restrictedRules = result; });
+            this.ruleConditionDataProviderService.getRestrictedRules('promotionSetGroups').then((result) => {
+                this.restrictedRules = result;
+            });
         },
     },
 };

@@ -172,7 +172,9 @@ Component.register('sw-checkbox-field-deprecated', {
     },
 
     watch: {
-        value() { this.currentValue = this.value; },
+        value() {
+            this.currentValue = this.value;
+        },
     },
 
     methods: {

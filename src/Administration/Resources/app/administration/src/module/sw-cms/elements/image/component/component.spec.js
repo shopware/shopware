@@ -11,55 +11,58 @@ const mediaDataMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-image', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-image', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
             },
-        },
-        props: {
-            element: {
-                config: {},
-                data: {},
-            },
-            defaultConfig: {
-                media: {
-                    source: 'static',
-                    value: null,
-                    required: true,
-                    entity: {
-                        name: 'media',
+            props: {
+                element: {
+                    config: {},
+                    data: {},
+                },
+                defaultConfig: {
+                    media: {
+                        source: 'static',
+                        value: null,
+                        required: true,
+                        entity: {
+                            name: 'media',
+                        },
+                    },
+                    displayMode: {
+                        source: 'static',
+                        value: 'standard',
+                    },
+                    url: {
+                        source: 'static',
+                        value: null,
+                    },
+                    newTab: {
+                        source: 'static',
+                        value: false,
+                    },
+                    minHeight: {
+                        source: 'static',
+                        value: '340px',
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null,
+                    },
+                    horizontalAlign: {
+                        source: 'static',
+                        value: null,
                     },
                 },
-                displayMode: {
-                    source: 'static',
-                    value: 'standard',
-                },
-                url: {
-                    source: 'static',
-                    value: null,
-                },
-                newTab: {
-                    source: 'static',
-                    value: false,
-                },
-                minHeight: {
-                    source: 'static',
-                    value: '340px',
-                },
-                verticalAlign: {
-                    source: 'static',
-                    value: null,
-                },
-                horizontalAlign: {
-                    source: 'static',
-                    value: null,
-                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/image/component', () => {
@@ -72,8 +75,9 @@ describe('src/module/sw-cms/elements/image/component', () => {
         const wrapper = await createWrapper();
 
         const img = wrapper.find('img');
-        expect(img.attributes('src'))
-            .toBe(wrapper.vm.assetFilter('administration/static/img/cms/preview_mountain_large.jpg'));
+        expect(img.attributes('src')).toBe(
+            wrapper.vm.assetFilter('administration/static/img/cms/preview_mountain_large.jpg'),
+        );
     });
 
     it('should show media source regarding to media data', async () => {
@@ -115,7 +119,8 @@ describe('src/module/sw-cms/elements/image/component', () => {
         });
 
         const img = wrapper.find('img');
-        expect(img.attributes('src'))
-            .toBe(wrapper.vm.assetFilter('administration/static/img/cms/preview_mountain_large.jpg'));
+        expect(img.attributes('src')).toBe(
+            wrapper.vm.assetFilter('administration/static/img/cms/preview_mountain_large.jpg'),
+        );
     });
 });

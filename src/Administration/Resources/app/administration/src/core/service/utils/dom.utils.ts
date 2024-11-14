@@ -14,7 +14,7 @@ function getScrollbarHeight(element: HTMLElement): number {
         warn('DOM Utilities', 'The provided element needs to be an instance of "HTMLElement".', element);
         return 0;
     }
-    return (element.offsetHeight - element.clientHeight);
+    return element.offsetHeight - element.clientHeight;
 }
 
 /**
@@ -25,7 +25,7 @@ function getScrollbarWidth(element: HTMLElement): number {
         warn('DOM Utilities', 'The provided element needs to be an instance of "HTMLElement".', element);
         return 0;
     }
-    return (element.offsetWidth - element.clientWidth);
+    return element.offsetWidth - element.clientWidth;
 }
 
 async function copyStringToClipboard(stringToCopy: string): Promise<void> {

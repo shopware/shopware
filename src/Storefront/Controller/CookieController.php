@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
@@ -29,6 +29,8 @@ class CookieController extends StorefrontController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SalesChannelAnalyticsCollection> $salesChannelAnalyticsRepository
      */
     public function __construct(
         private readonly CookieProviderInterface $cookieProvider,
@@ -40,12 +42,9 @@ class CookieController extends StorefrontController
     #[Route(path: '/cookie/offcanvas', name: 'frontend.cookie.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function offcanvas(SalesChannelContext $context): Response
     {
-        $cookieGroups = $this->cookieProvider->getCookieGroups();
-        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
-        $cookieGroups = $this->filterComfortFeaturesCookie($context->getSalesChannelId(), $cookieGroups);
-        $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
-
-        $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', ['cookieGroups' => $cookieGroups]);
+        $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', [
+            'cookieGroups' => $this->getCookieGroups($context),
+        ]);
         $response->headers->set('x-robots-tag', 'noindex,follow');
 
         return $response;
@@ -54,15 +53,25 @@ class CookieController extends StorefrontController
     #[Route(path: '/cookie/permission', name: 'frontend.cookie.permission', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function permission(SalesChannelContext $context): Response
     {
-        $cookieGroups = $this->cookieProvider->getCookieGroups();
-        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
-        $cookieGroups = $this->filterComfortFeaturesCookie($context->getSalesChannelId(), $cookieGroups);
-        $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
-
-        $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', ['cookieGroups' => $cookieGroups]);
+        $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', [
+            'cookieGroups' => $this->getCookieGroups($context),
+        ]);
         $response->headers->set('x-robots-tag', 'noindex,follow');
 
         return $response;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getCookieGroups(SalesChannelContext $context): array
+    {
+        $cookieGroups = $this->cookieProvider->getCookieGroups();
+        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
+        $cookieGroups = $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
+        $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
+
+        return $cookieGroups;
     }
 
     /**
@@ -74,43 +83,41 @@ class CookieController extends StorefrontController
     {
         $salesChannel = $context->getSalesChannel();
 
-        if (!$salesChannel->getAnalytics() && $salesChannel->getAnalyticsId()) {
-            $this->loadAnalytics($context);
+        if ($salesChannel->getAnalytics() === null && $salesChannel->getAnalyticsId() !== null) {
+            $criteria = new Criteria([$salesChannel->getAnalyticsId()]);
+            $criteria->setTitle('cookie-controller::load-analytics');
+
+            $salesChannel->setAnalytics(
+                $this->salesChannelAnalyticsRepository->search($criteria, $context->getContext())->getEntities()->first()
+            );
         }
 
-        if ($salesChannel->getAnalytics() && $salesChannel->getAnalytics()->isActive()) {
+        if ($salesChannel->getAnalytics()?->isActive() === true) {
             return $cookieGroups;
         }
 
         $filteredGroups = [];
-
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
-                $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics');
-                // Only add statistics cookie group if it has entries
-                if (\count($cookieGroup['entries']) > 0) {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupStatisticalGoogleAnalytics', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
+                continue;
+            } elseif ($cookieGroup['snippet_name'] === 'cookie.groupMarketing') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupMarketingAdConsent', $cookieGroup);
+                if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }
 
                 continue;
             }
+
             $filteredGroups[] = $cookieGroup;
         }
 
         return $filteredGroups;
-    }
-
-    private function loadAnalytics(SalesChannelContext $context): void
-    {
-        $salesChannel = $context->getSalesChannel();
-
-        $criteria = new Criteria([(string) $salesChannel->getAnalyticsId()]);
-        $criteria->setTitle('cookie-controller::load-analytics');
-
-        /** @var SalesChannelAnalyticsEntity|null $analytics */
-        $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $context->getContext())->first();
-
-        $salesChannel->setAnalytics($analytics);
     }
 
     /**
@@ -118,29 +125,27 @@ class CookieController extends StorefrontController
      *
      * @return array<string|int, mixed>
      */
-    private function filterComfortFeaturesCookie(string $salesChannelId, array $cookieGroups): array
+    private function filterWishlistCookie(string $salesChannelId, array $cookieGroups): array
     {
-        foreach ($cookieGroups as $groupIndex => $cookieGroup) {
-            if ($cookieGroup['snippet_name'] !== 'cookie.groupComfortFeatures') {
+        if ($this->systemConfigService->getBool('core.cart.wishlistEnabled', $salesChannelId)) {
+            return $cookieGroups;
+        }
+
+        $filteredGroups = [];
+        foreach ($cookieGroups as $cookieGroup) {
+            if ($cookieGroup['snippet_name'] === 'cookie.groupComfortFeatures') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupComfortFeaturesWishlist', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
                 continue;
             }
 
-            foreach ($cookieGroup['entries'] as $entryIndex => $entry) {
-                if ($entry['snippet_name'] !== 'cookie.groupComfortFeaturesWishlist') {
-                    continue;
-                }
-
-                if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $salesChannelId)) {
-                    unset($cookieGroups[$groupIndex]['entries'][$entryIndex]);
-                }
-            }
-
-            if ((is_countable($cookieGroups[$groupIndex]['entries']) ? \count($cookieGroups[$groupIndex]['entries']) : 0) === 0) {
-                unset($cookieGroups[$groupIndex]);
-            }
+            $filteredGroups[] = $cookieGroup;
         }
 
-        return $cookieGroups;
+        return $filteredGroups;
     }
 
     /**
@@ -150,29 +155,47 @@ class CookieController extends StorefrontController
      */
     private function filterGoogleReCaptchaCookie(string $salesChannelId, array $cookieGroups): array
     {
-        foreach ($cookieGroups as $groupIndex => $cookieGroup) {
-            if ($cookieGroup['snippet_name'] !== 'cookie.groupRequired') {
+        $googleRecaptchaActive = $this->systemConfigService->getBool(
+            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive',
+            $salesChannelId
+        ) || $this->systemConfigService->getBool(
+            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV3::CAPTCHA_NAME . '.isActive',
+            $salesChannelId
+        );
+
+        if ($googleRecaptchaActive) {
+            return $cookieGroups;
+        }
+
+        $filteredGroups = [];
+        foreach ($cookieGroups as $cookieGroup) {
+            if ($cookieGroup['snippet_name'] === 'cookie.groupRequired') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupRequiredCaptcha', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
                 continue;
             }
 
-            foreach ($cookieGroup['entries'] as $entryIndex => $entry) {
-                if ($entry['snippet_name'] !== 'cookie.groupRequiredCaptcha') {
-                    continue;
-                }
-
-                $activeGreCaptchaV2 = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive', $salesChannelId) ?? false;
-                $activeGreCaptchaV3 = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV3::CAPTCHA_NAME . '.isActive', $salesChannelId) ?? false;
-
-                if (!$activeGreCaptchaV2 && !$activeGreCaptchaV3) {
-                    unset($cookieGroups[$groupIndex]['entries'][$entryIndex]);
-                }
-            }
-
-            if ((is_countable($cookieGroups[$groupIndex]['entries']) ? \count($cookieGroups[$groupIndex]['entries']) : 0) === 0) {
-                unset($cookieGroups[$groupIndex]);
-            }
+            $filteredGroups[] = $cookieGroup;
         }
 
-        return $cookieGroups;
+        return $filteredGroups;
+    }
+
+    /**
+     * @param array<mixed> $cookieGroup
+     *
+     * @return ?array<mixed>
+     */
+    private function filterCookieGroup(string $cookieSnippetName, array $cookieGroup): ?array
+    {
+        $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== $cookieSnippetName);
+        if (\count($cookieGroup['entries']) === 0) {
+            return null;
+        }
+
+        return $cookieGroup;
     }
 }

@@ -33,7 +33,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.users.permissions.user.detail', params: { id: this.user.id } });
+            this.$router.push({
+                name: 'sw.users.permissions.user.detail',
+                params: { id: this.user.id },
+            });
         },
 
         onSave() {

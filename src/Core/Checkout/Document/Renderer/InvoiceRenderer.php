@@ -61,7 +61,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode);
+            $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode, self::TYPE);
+
             $context = $context->assign([
                 'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$languageIdChain]))),
             ]);
@@ -83,6 +84,11 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
                     /** @var DocumentGenerateOperation $operation */
                     $operation = $operations[$orderId];
+
+                    $forceDocumentCreation = $operation->getConfig()['forceDocumentCreation'] ?? true;
+                    if (!$forceDocumentCreation && $order->getDocuments()?->first()) {
+                        continue;
+                    }
 
                     $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
 

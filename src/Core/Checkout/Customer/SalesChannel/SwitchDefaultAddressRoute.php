@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
@@ -20,19 +21,15 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepository
-     */
-    private $addressRepository;
-
-    /**
      * @internal
+     *
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
      */
     public function __construct(
-        EntityRepository $addressRepository,
+        private readonly EntityRepository $addressRepository,
         private readonly EntityRepository $customerRepository,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->addressRepository = $addressRepository;
     }
 
     public function getDecorated(): AbstractSwitchDefaultAddressRoute
@@ -40,8 +37,18 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/address/default-shipping/{addressId}', name: 'store-api.account.address.change.default.shipping', methods: ['PATCH'], defaults: ['type' => 'shipping', '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
-    #[Route(path: '/store-api/account/address/default-billing/{addressId}', name: 'store-api.account.address.change.default.billing', methods: ['PATCH'], defaults: ['type' => 'billing', '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/account/address/default-shipping/{addressId}',
+        name: 'store-api.account.address.change.default.shipping',
+        defaults: ['type' => 'shipping', '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['PATCH']
+    )]
+    #[Route(
+        path: '/store-api/account/address/default-billing/{addressId}',
+        name: 'store-api.account.address.change.default.billing',
+        defaults: ['type' => 'billing', '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['PATCH']
+    )]
     public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);

@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask;
-use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
+use Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TestScheduledTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
@@ -38,9 +38,9 @@ class TaskRegistryTest extends TestCase
 
     public function testNewTasksAreCreated(): void
     {
-        $tasks = [new InvalidateCacheTask(), new CreateAliasTask(), new CleanupCartTask()];
+        $tasks = [new TestScheduledTask(), new CreateAliasTask(), new CleanupCartTask()];
         $parameterBag = new ParameterBag([
-            'shopware.cache.invalidation.delay' => 10,
+            'shopware.test.active' => true,
             'elasticsearch.enabled' => false,
         ]);
 
@@ -65,10 +65,10 @@ class TaskRegistryTest extends TestCase
             [
                 [
                     [
-                        'name' => InvalidateCacheTask::getTaskName(),
-                        'scheduledTaskClass' => InvalidateCacheTask::class,
-                        'runInterval' => InvalidateCacheTask::getDefaultInterval(),
-                        'defaultRunInterval' => InvalidateCacheTask::getDefaultInterval(),
+                        'name' => TestScheduledTask::getTaskName(),
+                        'scheduledTaskClass' => TestScheduledTask::class,
+                        'runInterval' => TestScheduledTask::getDefaultInterval(),
+                        'defaultRunInterval' => TestScheduledTask::getDefaultInterval(),
                         'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                     ],
                 ],
@@ -117,11 +117,11 @@ class TaskRegistryTest extends TestCase
 
     public function testQueuedOrScheduledTasksShouldBecomeSkipped(): void
     {
-        $tasks = [new InvalidateCacheTask(), new CreateAliasTask()];
+        $tasks = [new TestScheduledTask(), new CreateAliasTask()];
 
         // passing these parameters so these task shouldRun return false
         $parameterBag = new ParameterBag([
-            'shopware.cache.invalidation.delay' => 0,
+            'shopware.test.active' => false,
             'elasticsearch.enabled' => false,
         ]);
 
@@ -131,12 +131,12 @@ class TaskRegistryTest extends TestCase
         $scheduledTask = new ScheduledTaskEntity();
 
         $queuedTask->setId('queuedTask');
-        $queuedTask->setName(InvalidateCacheTask::getTaskName());
-        $queuedTask->setRunInterval(InvalidateCacheTask::getDefaultInterval());
-        $queuedTask->setDefaultRunInterval(InvalidateCacheTask::getDefaultInterval());
+        $queuedTask->setName(TestScheduledTask::getTaskName());
+        $queuedTask->setRunInterval(TestScheduledTask::getDefaultInterval());
+        $queuedTask->setDefaultRunInterval(TestScheduledTask::getDefaultInterval());
         $queuedTask->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
         $queuedTask->setNextExecutionTime(new \DateTimeImmutable());
-        $queuedTask->setScheduledTaskClass(InvalidateCacheTask::class);
+        $queuedTask->setScheduledTaskClass(TestScheduledTask::class);
 
         $scheduledTask->setId('scheduledTask');
         $scheduledTask->setName(CreateAliasTask::getTaskName());
@@ -179,11 +179,11 @@ class TaskRegistryTest extends TestCase
 
     public function testQueuedOrSkippedTasksShouldBecomeScheduled(): void
     {
-        $tasks = [new InvalidateCacheTask(), new CreateAliasTask()];
+        $tasks = [new TestScheduledTask(), new CreateAliasTask()];
 
         // passing these parameters so these task shouldRun return true
         $parameterBag = new ParameterBag([
-            'shopware.cache.invalidation.delay' => 10,
+            'shopware.test.active' => true,
             'elasticsearch.enabled' => true,
         ]);
 
@@ -193,12 +193,12 @@ class TaskRegistryTest extends TestCase
         $skippedTask = new ScheduledTaskEntity();
 
         $queuedTask->setId('queuedTask');
-        $queuedTask->setName(InvalidateCacheTask::getTaskName());
-        $queuedTask->setRunInterval(InvalidateCacheTask::getDefaultInterval());
-        $queuedTask->setDefaultRunInterval(InvalidateCacheTask::getDefaultInterval());
+        $queuedTask->setName(TestScheduledTask::getTaskName());
+        $queuedTask->setRunInterval(TestScheduledTask::getDefaultInterval());
+        $queuedTask->setDefaultRunInterval(TestScheduledTask::getDefaultInterval());
         $queuedTask->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
         $queuedTask->setNextExecutionTime(new \DateTimeImmutable());
-        $queuedTask->setScheduledTaskClass(InvalidateCacheTask::class);
+        $queuedTask->setScheduledTaskClass(TestScheduledTask::class);
 
         $skippedTask->setId('skippedTask');
         $skippedTask->setName(CreateAliasTask::getTaskName());

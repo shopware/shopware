@@ -11,6 +11,8 @@ class CartCreatedEvent extends Event implements CartEvent
 {
     /**
      * @var Cart
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cart;
 

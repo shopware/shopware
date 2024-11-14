@@ -33,20 +33,11 @@ class DeliveryBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var DeliveryBuilder
-     */
-    private $builder;
+    private DeliveryBuilder $builder;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var DeliveryProcessor
-     */
-    private $processor;
+    private DeliveryProcessor $processor;
 
     protected function setUp(): void
     {

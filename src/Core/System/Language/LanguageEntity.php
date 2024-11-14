@@ -71,306 +71,428 @@ class LanguageEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parentId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $localeId;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translationCodeId;
 
     /**
      * @var LocaleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translationCode;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var LocaleEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $locale;
 
     /**
      * @var LanguageEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $parent;
 
     /**
      * @var LanguageCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $children;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var CustomerCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customers;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDefaultAssignments;
 
     /**
      * @var CategoryTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $categoryTranslations;
 
     /**
      * @var CountryStateTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countryStateTranslations;
 
     /**
      * @var CountryTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countryTranslations;
 
     /**
      * @var CurrencyTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $currencyTranslations;
 
     /**
      * @var CustomerGroupTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $customerGroupTranslations;
 
     /**
      * @var LocaleTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $localeTranslations;
 
     /**
      * @var MediaTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mediaTranslations;
 
     /**
      * @var PaymentMethodTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $paymentMethodTranslations;
 
     /**
      * @var ProductManufacturerTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productManufacturerTranslations;
 
     /**
      * @var ProductTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productTranslations;
 
     /**
      * @var ShippingMethodTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethodTranslations;
 
     /**
      * @var UnitTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $unitTranslations;
 
     /**
      * @var PropertyGroupTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyGroupTranslations;
 
     /**
      * @var PropertyGroupOptionTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $propertyGroupOptionTranslations;
 
     /**
      * @var SalesChannelTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelTranslations;
 
     /**
      * @var SalesChannelTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelTypeTranslations;
 
     /**
      * @var SalutationTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salutationTranslations;
 
     /**
      * @var SalesChannelDomainCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDomains;
 
     /**
      * @var PluginTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $pluginTranslations;
 
     /**
      * @var ProductStreamTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productStreamTranslations;
 
     /**
      * @var StateMachineTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineTranslations;
 
     /**
      * @var StateMachineStateTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineStateTranslations;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsPageTranslations;
 
     /**
      * @var EntityCollection<CmsSlotTranslationEntity>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cmsSlotTranslations;
 
     /**
      * @var MailTemplateCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailTemplateTranslations;
 
     /**
      * @var MailHeaderFooterCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailHeaderFooterTranslations;
 
     /**
      * @var DocumentTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $documentTypeTranslations;
 
     /**
      * @var DeliveryTimeCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryTimeTranslations;
 
     /**
      * @var NewsletterRecipientCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $newsletterRecipients;
 
     /**
      * @var OrderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orders;
 
     /**
      * @var NumberRangeTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRangeTypeTranslations;
 
     /**
      * @var ProductSearchKeywordCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productSearchKeywords;
 
     /**
      * @var ProductKeywordDictionaryCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productKeywordDictionaries;
 
     /**
      * @var MailTemplateTypeDefinition|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $mailTemplateTypeTranslations;
 
     /**
      * @var PromotionTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionTranslations;
 
     /**
      * @var NumberRangeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRangeTranslations;
 
     /**
      * @var ProductReviewCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productReviews;
 
     /**
      * @var SeoUrlCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $seoUrlTranslations;
 
     /**
      * @var TaxRuleTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxRuleTypeTranslations;
 
     /**
      * @var ProductCrossSellingTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productCrossSellingTranslations;
 
     /**
      * @var ImportExportProfileTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $importExportProfileTranslations;
 
     /**
      * @var ProductFeatureSetTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productFeatureSetTranslations;
 
     /**
      * @var AppTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appTranslations;
 
     /**
      * @var ActionButtonTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $actionButtonTranslations;
 
     /**
      * @var ProductSortingTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productSortingTranslations;
 
     /**
      * @var ProductSearchConfigEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productSearchConfig;
 
     /**
      * @var LandingPageTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $landingPageTranslations;
 
     /**
      * @var AppCmsBlockTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appCmsBlockTranslations;
 
     /**
      * @var AppScriptConditionTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appScriptConditionTranslations;
 
     /**
      * @var AppFlowActionTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $appFlowActionTranslations;
 

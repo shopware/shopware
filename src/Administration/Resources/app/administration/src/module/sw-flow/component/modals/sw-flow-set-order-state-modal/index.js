@@ -17,7 +17,10 @@ export default {
         'repositoryFactory',
     ],
 
-    emits: ['modal-close', 'process-finish'],
+    emits: [
+        'modal-close',
+        'process-finish',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -54,10 +57,11 @@ export default {
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_state.stateMachine.technicalName',
-                    ['order.state', 'order_transaction.state', 'order_delivery.state'],
-                ),
+                Criteria.equalsAny('state_machine_state.stateMachine.technicalName', [
+                    'order.state',
+                    'order_transaction.state',
+                    'order_delivery.state',
+                ]),
             );
 
             return criteria;
@@ -82,28 +86,18 @@ export default {
         },
 
         getAllStates() {
-            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria)
-                .then(data => {
-                    this.generateOptions(data);
-                    Shopware.State.commit('swFlowState/setStateMachineState', data);
-                });
+            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria).then((data) => {
+                this.generateOptions(data);
+                Shopware.State.commit('swFlowState/setStateMachineState', data);
+            });
         },
 
         generateOptions(data) {
-            this.paymentOptions = this.buildTransitionOptions(
-                'order_transaction.state',
-                data,
-            );
+            this.paymentOptions = this.buildTransitionOptions('order_transaction.state', data);
 
-            this.deliveryOptions = this.buildTransitionOptions(
-                'order_delivery.state',
-                data,
-            );
+            this.deliveryOptions = this.buildTransitionOptions('order_delivery.state', data);
 
-            this.orderOptions = this.buildTransitionOptions(
-                'order.state',
-                data,
-            );
+            this.orderOptions = this.buildTransitionOptions('order.state', data);
         },
 
         buildTransitionOptions(stateMachineName, allTransitions) {

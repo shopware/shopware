@@ -23,91 +23,127 @@ class CurrencyEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $isoCode;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $factor;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $symbol;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shortName;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $position;
 
     /**
      * @var CurrencyTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 
     /**
      * @var OrderCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $orders;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannels;
 
     /**
      * @var SalesChannelCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDefaultAssignments;
 
     /**
      * @var SalesChannelDomainCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelDomains;
 
     /**
      * @var PromotionDiscountPriceCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $promotionDiscountPrices;
 
     /**
      * @var bool|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $isSystemDefault;
 
     /**
      * @var ProductExportCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productExports;
 
     /**
      * @var CurrencyCountryRoundingCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $countryRoundings;
 
     /**
      * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $itemRounding;
 
     /**
      * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalRounding;
 
     /**
      * @var float|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $taxFreeFrom;
 

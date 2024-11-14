@@ -83,7 +83,10 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginAllowlist = [
-                '/login/', '/login', '/login/info', '/login/recovery',
+                '/login/',
+                '/login',
+                '/login/info',
+                '/login/recovery',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
@@ -91,18 +94,20 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
 
             // The login route will be called and the user is not logged in, let him see the login.
-            if (!loggedIn && (to.name === 'login' ||
-                loginAllowlist.includes(to.path) ||
-                to.path.startsWith('/login/user-recovery/') ||
-                to.path.match(/\/inactivity\/login\/[a-z0-9]{32}/))
+            if (
+                !loggedIn &&
+                (to.name === 'login' ||
+                    loginAllowlist.includes(to.path) ||
+                    to.path.startsWith('/login/user-recovery/') ||
+                    to.path.match(/\/inactivity\/login\/[a-z0-9]{32}/))
             ) {
                 return true;
             }
 
             // The login route will be called and the user is logged in, redirect to the dashboard.
-            if (loggedIn && (to.name === 'login' ||
-                loginAllowlist.includes(to.path) ||
-                to.path.startsWith('/login/user-recovery/'))
+            if (
+                loggedIn &&
+                (to.name === 'login' || loginAllowlist.includes(to.path) || to.path.startsWith('/login/user-recovery/'))
             ) {
                 return { name: 'core' };
             }
@@ -110,19 +115,25 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             // User tries to access a protected route, therefore redirect him to the login.
             if (!loggedIn) {
                 // Save the last route in case the user gets logged out in the mean time.
-                sessionStorage.setItem('sw-admin-previous-route', JSON.stringify({
-                    fullPath: to.fullPath,
-                    name: to.name,
-                }));
+                sessionStorage.setItem(
+                    'sw-admin-previous-route',
+                    JSON.stringify({
+                        fullPath: to.fullPath,
+                        name: to.name,
+                    }),
+                );
 
                 if (!tokenHandler.isRefreshing) {
-                    return tokenHandler.fireRefreshTokenRequest().then(() => {
-                        return addModuleInfoToTarget(to);
-                    }).catch(() => {
-                        return {
-                            name: 'sw.login.index',
-                        };
-                    });
+                    return tokenHandler
+                        .fireRefreshTokenRequest()
+                        .then(() => {
+                            return addModuleInfoToTarget(to);
+                        })
+                        .catch(() => {
+                            return {
+                                name: 'sw.login.index',
+                            };
+                        });
                 }
             }
 
@@ -248,7 +259,10 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         // Merge the module core routes with the routes from the routes file
-        core = [...core, ...moduleRootRoutes];
+        core = [
+            ...core,
+            ...moduleRootRoutes,
+        ];
         return core;
     }
 

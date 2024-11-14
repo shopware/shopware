@@ -9,7 +9,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 type SlotsErrorObject = {
     parameters?: {
         elements: Array<{
-            blockIds: string[]
+            blockIds: string[];
         }>;
     };
 };
@@ -17,7 +17,7 @@ type SlotsErrorObject = {
 type SlotConfigErrorObject = {
     parameters?: {
         elements: Array<{
-            blockId: string
+            blockId: string;
         }>;
     };
 };
@@ -42,7 +42,10 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    emits: ['page-config-open', 'block-duplicate'],
+    emits: [
+        'page-config-open',
+        'block-duplicate',
+    ],
 
     mixins: [
         Mixin.getByName('cms-state'),
@@ -132,7 +135,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         sectionMobileAndHidden() {
-            const view = Shopware.Store.get('cmsPageState').currentCmsDeviceView;
+            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
             return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
@@ -153,14 +156,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         sideBarBlocks() {
-            const sideBarBlocks = this.section.blocks!.filter((block => this.blockTypeExists(block.type)
-                && block.sectionPosition === 'sidebar'));
+            const sideBarBlocks = this.section.blocks!.filter(
+                (block) => this.blockTypeExists(block.type) && block.sectionPosition === 'sidebar',
+            );
             return sideBarBlocks.sort((a, b) => a.position - b.position);
         },
 
         mainContentBlocks() {
-            const mainContentBlocks = this.section.blocks!.filter((block => this.blockTypeExists(block.type)
-                && block.sectionPosition !== 'sidebar'));
+            const mainContentBlocks = this.section.blocks!.filter(
+                (block) => this.blockTypeExists(block.type) && block.sectionPosition !== 'sidebar',
+            );
             return mainContentBlocks.sort((a, b) => a.position - b.position);
         },
 
@@ -173,13 +178,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVisible() {
-            const view = Shopware.Store.get('cmsPageState').currentCmsDeviceView;
+            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
 
             const visibility = this.section.visibility as CmsVisibility;
 
-            return (view === 'desktop' && !visibility.desktop) ||
+            return (
+                (view === 'desktop' && !visibility.desktop) ||
                 (view === 'tablet-landscape' && !visibility.tablet) ||
-                (view === 'mobile' && !visibility.mobile);
+                (view === 'mobile' && !visibility.mobile)
+            );
         },
 
         toggleButtonText() {
@@ -233,7 +240,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onBlockSelection(block: EntitySchema.Entity<'cms_block'>) {
-            Shopware.Store.get('cmsPageState').setBlock(block);
+            Shopware.Store.get('cmsPage').setBlock(block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
@@ -245,7 +252,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.blocks!.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
-                Shopware.Store.get('cmsPageState').removeSelectedBlock();
+                Shopware.Store.get('cmsPage').removeSelectedBlock();
             }
 
             this.updateBlockPositions();

@@ -22,7 +22,10 @@ export default {
         'repositoryFactory',
     ],
 
-    emits: ['modal-close', 'document-sent'],
+    emits: [
+        'modal-close',
+        'document-sent',
+    ],
 
     mixins: [
         'notification',
@@ -66,15 +69,12 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(
-                Criteria.equalsAny(
-                    'mailTemplateType.technicalName',
-                    [
-                        'delivery_mail',
-                        'invoice_mail',
-                        'credit_note_mail',
-                        'cancellation_mail',
-                    ],
-                ),
+                Criteria.equalsAny('mailTemplateType.technicalName', [
+                    'delivery_mail',
+                    'invoice_mail',
+                    'credit_note_mail',
+                    'cancellation_mail',
+                ]),
             );
 
             return criteria;
@@ -120,11 +120,13 @@ export default {
             }
 
             this.mailTemplateRepository.search(this.mailTemplateCriteria, Shopware.Context.api).then((result) => {
-                const mailTemplate = result.filter(
-                    t => t.mailTemplateType.technicalName === documentMailTemplateMapping[
-                        this.document.documentType.technicalName
-                    ],
-                ).first();
+                const mailTemplate = result
+                    .filter(
+                        (t) =>
+                            t.mailTemplateType.technicalName ===
+                            documentMailTemplateMapping[this.document.documentType.technicalName],
+                    )
+                    .first();
 
                 if (!mailTemplate) {
                     return;
@@ -152,63 +154,68 @@ export default {
             }
 
             const mailTemplateWithHeaderFooter = { ...mailTemplate };
-            return this.mailHeaderFooterRepository.search(
-                new Criteria(1, 1)
-                    .addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)),
-            ).then((mailHeaderFooter) => {
-                if (mailHeaderFooter[0].headerHtml) {
-                    mailTemplateWithHeaderFooter.contentHtml =
-                        mailHeaderFooter[0].headerHtml + mailTemplateWithHeaderFooter.contentHtml;
-                }
+            return this.mailHeaderFooterRepository
+                .search(new Criteria(1, 1).addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)))
+                .then((mailHeaderFooter) => {
+                    if (mailHeaderFooter[0].headerHtml) {
+                        mailTemplateWithHeaderFooter.contentHtml =
+                            mailHeaderFooter[0].headerHtml + mailTemplateWithHeaderFooter.contentHtml;
+                    }
 
-                if (mailHeaderFooter[0].footerHtml) {
-                    mailTemplateWithHeaderFooter.contentHtml += mailHeaderFooter[0].footerHtml;
-                }
+                    if (mailHeaderFooter[0].footerHtml) {
+                        mailTemplateWithHeaderFooter.contentHtml += mailHeaderFooter[0].footerHtml;
+                    }
 
-                return this.mailService.buildRenderPreview(
-                    mailTemplateWithHeaderFooter.mailTemplateType,
-                    mailTemplateWithHeaderFooter,
-                );
-            }).then((result) => {
-                this.content = result;
-            });
+                    return this.mailService.buildRenderPreview(
+                        mailTemplateWithHeaderFooter.mailTemplateType,
+                        mailTemplateWithHeaderFooter,
+                    );
+                })
+                .then((result) => {
+                    this.content = result;
+                });
         },
 
         onSendDocument() {
             this.isLoading = true;
 
-            this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, this.mailTemplateSendCriteria)
+            this.mailTemplateRepository
+                .get(this.mailTemplateId, Shopware.Context.api, this.mailTemplateSendCriteria)
                 .then((mailTemplate) => {
-                    this.mailService.sendMailTemplate(
-                        this.recipient,
-                        `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
-                        {
-                            ...mailTemplate,
-                            ...{
-                                subject: this.subject,
-                                recipient: this.recipient,
+                    this.mailService
+                        .sendMailTemplate(
+                            this.recipient,
+                            `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                            {
+                                ...mailTemplate,
+                                ...{
+                                    subject: this.subject,
+                                    recipient: this.recipient,
+                                },
                             },
-                        },
-                        {
-                            getIds: () => {},
-                        },
-                        this.order.salesChannelId,
-                        false,
-                        [this.document.id],
-                        {
-                            order: this.order,
-                            salesChannel: this.order.salesChannel,
-                        },
-                    ).catch(() => {
-                        this.createNotificationError({
-                            message: this.$tc('sw-order.documentSendModal.errorMessage'),
+                            {
+                                getIds: () => {},
+                            },
+                            this.order.salesChannelId,
+                            false,
+                            [this.document.id],
+                            {
+                                order: this.order,
+                                salesChannel: this.order.salesChannel,
+                            },
+                        )
+                        .catch(() => {
+                            this.createNotificationError({
+                                message: this.$tc('sw-order.documentSendModal.errorMessage'),
+                            });
+                            this.$emit('modal-close');
+                        })
+                        .then(() => {
+                            this.$emit('document-sent');
+                        })
+                        .finally(() => {
+                            this.isLoading = false;
                         });
-                        this.$emit('modal-close');
-                    }).then(() => {
-                        this.$emit('document-sent');
-                    }).finally(() => {
-                        this.isLoading = false;
-                    });
                 });
         },
     },

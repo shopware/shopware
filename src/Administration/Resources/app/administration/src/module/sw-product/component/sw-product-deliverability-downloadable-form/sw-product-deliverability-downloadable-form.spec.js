@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
-
 /**
  * @package inventory
  */
@@ -11,13 +10,12 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 const { Utils } = Shopware;
 describe('module/sw-product/component/sw-product-deliverability-downloadable-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity =
-            {
-                metaTitle: 'Product1',
-                id: 'productId1',
-                isCloseout: false,
-                ...productEntityOverride,
-            };
+        const productEntity = {
+            metaTitle: 'Product1',
+            id: 'productId1',
+            isCloseout: false,
+            ...productEntityOverride,
+        };
 
         const parentProduct = {
             id: 'productId',
@@ -111,7 +109,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             '.product-deliverability-downloadable-form__delivery-time',
         ];
 
-        deliveryFieldsClassName.forEach(item => {
+        deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
     });
@@ -136,7 +134,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             '.product-deliverability-downloadable-form__delivery-time',
         ];
 
-        deliveryFieldsClassName.forEach(item => {
+        deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();
         });
     });

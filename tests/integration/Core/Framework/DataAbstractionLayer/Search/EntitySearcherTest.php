@@ -19,11 +19,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -451,7 +450,7 @@ class EntitySearcherTest extends TestCase
 
     public function testSortingByProvidedIds(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             ['id' => $ids->create('t1'), 'name' => 'tax 1', 'taxRate' => 10],
@@ -495,7 +494,7 @@ class EntitySearcherTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $data = [
             array_merge($defaults, [
                 'id' => $ids->create('product-1'),
@@ -542,7 +541,7 @@ class EntitySearcherTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $data = [
             array_merge($defaults, [
                 'id' => $ids->create('product-1'),

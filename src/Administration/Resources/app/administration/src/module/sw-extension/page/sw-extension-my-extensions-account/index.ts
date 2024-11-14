@@ -27,13 +27,13 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     data(): {
-        isLoading: boolean,
-        unsubscribeStore: (() => void)|null,
+        isLoading: boolean;
+        unsubscribeStore: (() => void) | null;
         form: {
-            password: string,
-            shopwareId: string,
-        },
-        } {
+            password: string;
+            shopwareId: string;
+        };
+    } {
         return {
             isLoading: true,
             unsubscribeStore: null,
@@ -45,7 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        userInfo(): UserInfo|null {
+        userInfo(): UserInfo | null {
             return State.get('shopwareExtensions').userInfo;
         },
 
@@ -59,11 +59,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        this.createdComponent().then(() => {
-            // component functions are always bound to this
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.unsubscribeStore = State.subscribe(this.showErrorNotification);
-        })
+        this.createdComponent()
+            .then(() => {
+                // component functions are always bound to this
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                this.unsubscribeStore = State.subscribe(this.showErrorNotification);
+            })
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {});
     },
@@ -89,7 +90,11 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.storeService.logout();
                 this.$emit('logout-success');
             } catch (errorResponse) {
-                this.commitErrors(errorResponse as AxiosError<{ errors: StoreApiException[] }>);
+                this.commitErrors(
+                    errorResponse as AxiosError<{
+                        errors: StoreApiException[];
+                    }>,
+                );
             } finally {
                 await this.shopwareExtensionService.checkLogin();
             }
@@ -108,14 +113,18 @@ export default Shopware.Component.wrapComponentConfig({
                     message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage'),
                 });
             } catch (errorResponse) {
-                this.commitErrors(errorResponse as AxiosError<{ errors: StoreApiException[] }>);
+                this.commitErrors(
+                    errorResponse as AxiosError<{
+                        errors: StoreApiException[];
+                    }>,
+                );
             } finally {
                 await this.shopwareExtensionService.checkLogin();
                 this.isLoading = false;
             }
         },
 
-        showErrorNotification({ type, payload }: { type: string, payload: MappedError[]}) {
+        showErrorNotification({ type, payload }: { type: string; payload: MappedError[] }) {
             if (type !== 'shopwareExtensions/pluginErrorsMapped') {
                 return;
             }

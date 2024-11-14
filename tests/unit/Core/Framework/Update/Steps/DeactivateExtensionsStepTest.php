@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -126,8 +125,6 @@ class DeactivateExtensionsStepTest extends TestCase
         );
 
         $result = $deactivateExtensionsStep->run(0);
-
-        static::assertInstanceOf(ValidResult::class, $result);
         static::assertSame(1, $result->getOffset());
     }
 }

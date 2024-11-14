@@ -13,7 +13,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+    ],
 
     mixins: [
         'notification',
@@ -57,13 +60,9 @@ export default {
         productSortingsOptionsCriteria() {
             const criteria = new Criteria(this.sortingOptionsGridPage, this.sortingOptionsGridLimit);
 
-            criteria.addSorting(
-                Criteria.sort('priority', 'DESC'),
-            );
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
 
-            criteria.addFilter(
-                Criteria.equals('locked', false),
-            );
+            criteria.addFilter(Criteria.equals('locked', false));
 
             return criteria;
         },
@@ -71,9 +70,11 @@ export default {
         productSortingOptionsSearchCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.contains('label', this.productSortingOptionsSearchTerm),
-            );
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
+
+            criteria.addFilter(Criteria.equals('locked', false));
+
+            criteria.addFilter(Criteria.contains('label', this.productSortingOptionsSearchTerm));
 
             return criteria;
         },
@@ -138,7 +139,7 @@ export default {
         fetchProductSortingOptions() {
             this.isProductSortingOptionsCardLoading = true;
 
-            this.productSortingOptionRepository.search(this.productSortingsOptionsCriteria).then(response => {
+            this.productSortingOptionRepository.search(this.productSortingsOptionsCriteria).then((response) => {
                 this.productSortingOptions = response;
 
                 this.isProductSortingOptionsCardLoading = false;
@@ -146,7 +147,7 @@ export default {
         },
 
         fetchCustomFields() {
-            this.customFieldRepository.search(this.customFieldCriteria).then(response => {
+            this.customFieldRepository.search(this.customFieldCriteria).then((response) => {
                 this.customFields = response;
             });
         },
@@ -164,35 +165,41 @@ export default {
                 resolve();
             });
 
-            return validateSalesChannelDefaultSortingOption.then(async () => {
-                const saveSalesChannelConfig = this.$refs.systemConfig.saveAll();
+            return validateSalesChannelDefaultSortingOption
+                .then(async () => {
+                    const saveSalesChannelConfig = this.$refs.systemConfig.saveAll();
 
-                this.setDefaultSortingActive();
+                    this.setDefaultSortingActive();
 
-                const saveProductSortingOptions = this.saveProductSortingOptions();
+                    const saveProductSortingOptions = this.saveProductSortingOptions();
 
-                const saveSalesChannelVisibilityConfig = this.$refs.defaultSalesChannelCard
-                    .saveSalesChannelVisibilityConfig();
+                    const saveSalesChannelVisibilityConfig =
+                        this.$refs.defaultSalesChannelCard.saveSalesChannelVisibilityConfig();
 
-                return Promise.all([
-                    saveSalesChannelConfig,
-                    saveProductSortingOptions,
-                    saveSalesChannelVisibilityConfig,
-                ]);
-            }).then(() => {
-                this.isSaveSuccessful = true;
+                    return Promise.all([
+                        saveSalesChannelConfig,
+                        saveProductSortingOptions,
+                        saveSalesChannelVisibilityConfig,
+                    ]);
+                })
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
+                    });
+                })
+                .catch((e) => {
+                    const options = {
+                        message: e?.response.data?.errors[0]?.detail || 'Unknown error',
+                    };
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-listing.general.messageSaveError', options),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).catch((e) => {
-                const options = { message: e?.response.data?.errors[0]?.detail || 'Unknown error' };
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-listing.general.messageSaveError', options),
-                });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         saveProductSortingOptions() {
@@ -215,7 +222,7 @@ export default {
                 this.systemConfigApiService.batchSave(actualConfigData);
             });
 
-            Object.keys(this.$refs.systemConfig.actualConfigData).forEach(id => {
+            Object.keys(this.$refs.systemConfig.actualConfigData).forEach((id) => {
                 const configData = this.$refs.systemConfig.actualConfigData[id];
                 if (configData && configData['core.listing.defaultSorting'] === item.id) {
                     configData['core.listing.defaultSorting'] = null;
@@ -225,7 +232,8 @@ export default {
             // closes modal
             this.toBeDeletedProductSortingOption = null;
 
-            this.productSortingOptionRepository.delete(item.id)
+            this.productSortingOptionRepository
+                .delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError'),
@@ -244,7 +252,7 @@ export default {
             if (this.sortingOptionsGridPage !== 1) {
                 const newTotal = this.productSortingOptions.total - 1;
 
-                if ((this.sortingOptionsGridPage * this.sortingOptionsGridLimit) >= newTotal) {
+                if (this.sortingOptionsGridPage * this.sortingOptionsGridLimit >= newTotal) {
                     this.onPageChange({
                         page: this.sortingOptionsGridPage - 1,
                         limit: this.sortingOptionsGridLimit,
@@ -261,7 +269,10 @@ export default {
         },
 
         onEditProductSortingOption(productSortingId) {
-            this.$router.push({ name: 'sw.settings.listing.edit', params: { id: productSortingId } });
+            this.$router.push({
+                name: 'sw.settings.listing.edit',
+                params: { id: productSortingId },
+            });
         },
 
         formatProductSortingOptionField(fields) {
@@ -269,7 +280,7 @@ export default {
                 return '';
             }
 
-            const labels = fields.map(currentField => {
+            const labels = fields.map((currentField) => {
                 if (this.isItemACustomField(currentField.field)) {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
@@ -296,7 +307,7 @@ export default {
         },
 
         getCustomFieldByName(technicalName) {
-            return this.customFields.find(currentCustomField => {
+            return this.customFields.find((currentCustomField) => {
                 return currentCustomField.name === technicalName;
             });
         },
@@ -313,13 +324,13 @@ export default {
                 return;
             }
 
-            this.productSortingOptionRepository.search(this.productSortingOptionsSearchCriteria).then(response => {
+            this.productSortingOptionRepository.search(this.productSortingOptionsSearchCriteria).then((response) => {
                 this.productSortingOptions = response;
             });
         },
 
         onSaveProductSortingOptionInlineEdit(newProductSortingOption) {
-            const indexOfOldProductSortingOption = this.productSortingOptions.findIndex(currentElement => {
+            const indexOfOldProductSortingOption = this.productSortingOptions.findIndex((currentElement) => {
                 return currentElement.id === newProductSortingOption.id;
             });
 
@@ -333,13 +344,13 @@ export default {
         isItemACustomField(fieldName) {
             const strippedFieldName = this.stripCustomFieldPath(fieldName);
 
-            return this.customFields.some(currentCustomField => {
+            return this.customFields.some((currentCustomField) => {
                 return currentCustomField.name === strippedFieldName;
             });
         },
 
         getCustomFieldById(id) {
-            const customField = this.customFields.find(currentCustomField => {
+            const customField = this.customFields.find((currentCustomField) => {
                 return currentCustomField.id === id;
             });
 
@@ -362,11 +373,16 @@ export default {
             const defaultSortingId = this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
 
             if (defaultSortingId) {
-                Object.entries(this.productSortingOptions).forEach(([, productSorting]) => {
-                    if (productSorting.id === defaultSortingId) {
-                        productSorting.active = true;
-                    }
-                });
+                Object.entries(this.productSortingOptions).forEach(
+                    ([
+                        ,
+                        productSorting,
+                    ]) => {
+                        if (productSorting.id === defaultSortingId) {
+                            productSorting.active = true;
+                        }
+                    },
+                );
             }
         },
 

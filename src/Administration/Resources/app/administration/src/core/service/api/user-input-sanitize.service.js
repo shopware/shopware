@@ -13,15 +13,17 @@ export default class AppUrlChangeService extends ApiService {
      * @returns {*} - ApiService.handleResponse(response)
      */
     sanitizeInput({ html, field }) {
-        return this.httpClient.post(
-            '_admin/sanitize-html',
-            {
-                html,
-                field: field ?? null,
-            },
-            {
-                headers: this.getBasicHeaders(),
-            },
-        ).then(response => ApiService.handleResponse(response));
+        return this.httpClient
+            .post(
+                '_admin/sanitize-html',
+                {
+                    html,
+                    field: field ?? null,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => ApiService.handleResponse(response));
     }
 }

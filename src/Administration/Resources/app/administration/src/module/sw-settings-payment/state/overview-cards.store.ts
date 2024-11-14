@@ -6,10 +6,10 @@ import type { uiModulePaymentOverviewCard } from '@shopware-ag/meteor-admin-sdk/
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 
-type PaymentOverviewCard = Omit<uiModulePaymentOverviewCard, 'responseType'>
+type PaymentOverviewCard = Omit<uiModulePaymentOverviewCard, 'responseType'>;
 
 interface PaymentOverviewCardState {
-    cards: PaymentOverviewCard[]
+    cards: PaymentOverviewCard[];
 }
 
 const PaymentOverviewCardsStore: Module<PaymentOverviewCardState, VuexRootState> = {

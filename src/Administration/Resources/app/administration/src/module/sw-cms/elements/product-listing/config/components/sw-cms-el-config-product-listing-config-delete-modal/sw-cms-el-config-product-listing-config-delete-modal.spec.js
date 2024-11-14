@@ -4,7 +4,10 @@
 import { mount } from '@vue/test-utils';
 import swCmsElConfigProductListingConfigDeleteModal from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal';
 
-Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-modal', swCmsElConfigProductListingConfigDeleteModal);
+Shopware.Component.register(
+    'sw-cms-el-config-product-listing-config-delete-modal',
+    swCmsElConfigProductListingConfigDeleteModal,
+);
 async function createWrapper() {
     // Not found in componentregistry
     return mount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-delete-modal'), {
@@ -49,7 +52,6 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
         expect(wrapper.emitted('confirm')).toBeUndefined();
         expect(wrapper.emitted('cancel')).toBeUndefined();
-
 
         wrapper.findComponent('.sw-cms-el-config-product-listing-config-delete-modal__confirm').vm.$emit('click');
 

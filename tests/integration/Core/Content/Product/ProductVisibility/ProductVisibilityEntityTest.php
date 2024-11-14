@@ -40,9 +40,9 @@ class ProductVisibilityEntityTest extends TestCase
     private string $salesChannelId2;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductVisibilityCollection>
      */
-    private $visibilityRepository;
+    private EntityRepository $visibilityRepository;
 
     protected function setUp(): void
     {

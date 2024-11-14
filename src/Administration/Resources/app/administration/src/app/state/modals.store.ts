@@ -7,10 +7,12 @@ import type { Module } from 'vuex';
 import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & { baseUrl: string };
+export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & {
+    baseUrl: string;
+};
 
 interface ModalsState {
-    modals: ModalItemEntry[]
+    modals: ModalItemEntry[];
 }
 
 const ModalsStore: Module<ModalsState, VuexRootState> = {
@@ -21,16 +23,10 @@ const ModalsStore: Module<ModalsState, VuexRootState> = {
     }),
 
     mutations: {
-        openModal(state, {
-            locationId,
-            title,
-            closable,
-            showHeader,
-            showFooter,
-            variant,
-            baseUrl,
-            buttons,
-        }: ModalItemEntry) {
+        openModal(
+            state,
+            { locationId, title, closable, showHeader, showFooter, variant, baseUrl, buttons }: ModalItemEntry,
+        ) {
             state.modals.push({
                 title,
                 closable,
@@ -44,7 +40,7 @@ const ModalsStore: Module<ModalsState, VuexRootState> = {
         },
 
         closeModal(state, locationId: string): void {
-            state.modals = state.modals.filter(modal => {
+            state.modals = state.modals.filter((modal) => {
                 return modal.locationId !== locationId;
             });
         },

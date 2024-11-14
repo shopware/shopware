@@ -33,7 +33,9 @@ async function createWrapper() {
             address: {
                 _isNew: true,
                 id: '1',
-                getEntityName: () => { return 'customer_address'; },
+                getEntityName: () => {
+                    return 'customer_address';
+                },
             },
         },
         global: {
@@ -73,12 +75,14 @@ async function createWrapper() {
 
                         return {
                             search: (criteria = {}) => {
-                                const countryIdFilter = criteria?.filters.find(item => item.field === 'countryId');
+                                const countryIdFilter = criteria?.filters.find((item) => item.field === 'countryId');
 
                                 if (countryIdFilter?.value === '1') {
-                                    return Promise.resolve([{
-                                        id: 'state1',
-                                    }]);
+                                    return Promise.resolve([
+                                        {
+                                            id: 'state1',
+                                        },
+                                    ]);
                                 }
                                 return Promise.resolve([]);
                             },
@@ -94,7 +98,17 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
-        const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
+        const expectedCriteria = {
+            type: 'not',
+            operator: 'or',
+            queries: [
+                {
+                    field: 'id',
+                    type: 'equals',
+                    value: 'ed643807c9f84cc8b50132ea3ccb1c3b',
+                },
+            ],
+        };
 
         expect(criteria.filters).toContainEqual(expectedCriteria);
     });
@@ -105,7 +119,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             address: {
                 countryId: '2',
-                getEntityName: () => { return 'customer_address'; },
+                getEntityName: () => {
+                    return 'customer_address';
+                },
             },
         });
 
@@ -121,7 +137,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             address: {
                 countryId: '1',
-                getEntityName: () => { return 'customer_address'; },
+                getEntityName: () => {
+                    return 'customer_address';
+                },
             },
         });
 
@@ -142,8 +160,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]')
-            .attributes('required')).toBeDefined();
+        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]').attributes('required')).toBeDefined();
     });
 
     it('should not mark company as required when switching to private type', async () => {
@@ -156,8 +173,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
-            .attributes('required')).toBeUndefined();
+        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').attributes('required')).toBeUndefined();
     });
 
     it('should display company, department and vat fields by default when account type is empty', async () => {

@@ -2,7 +2,7 @@ name: Nightly
 
 on:
   schedule:
-    - cron: '0 1 * * *' # every day at 01:00
+    - cron: "0 1 * * *" # every day at 01:00
   workflow_dispatch:
 
 jobs:
@@ -10,18 +10,39 @@ jobs:
     name: Delete old unused container images
     runs-on: ubuntu-latest
     steps:
+      - name: Collect skipped SHAs
+        id: skip-sha
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          result="skip-sha="
+          while read tag; do
+            docker_manifest=$(docker manifest inspect ghcr.io/shopware/shopware/ci-e2e:${tag} 2>&1 || true)
+            # If the image does not exist or an error happens
+            if ! jq '.' <<<"${docker_manifest}" > /dev/null 2>&1; then
+              echo "${tag}: ${docker_manifest}"
+              continue
+            fi
+            # Only collect the shas of multi-arch images
+            if [[ $(jq -r '.manifests | length' <<<"${docker_manifest}") -gt 0 ]]; then
+              result="${result}$(jq -r '.manifests[] | .digest' <<<"${docker_manifest}" | paste -s -d ',' -),"
+            fi
+          done<<<$(gh api '/orgs/shopware/packages/container/shopware%2Fci-e2e/versions?per_page=100' --jq '.[] | .metadata.container.tags[] | select(. == "latest" or . == "trunk" or . == "6.5.x" or startswith("v"))')
+          echo "${result}" >> "${GITHUB_OUTPUT}"
       - name: Delete old images
-        uses: snok/container-retention-policy@v2
+        uses: snok/container-retention-policy@v3.0.0
         with:
+          account: shopware
+          token: ${{ github.token }}
+          cut-off: 2d
           image-names: ${{ github.event.repository.name }}/ci-e2e
-          skip-tags: latest, trunk, 6.5.x, v*
-          cut-off: two days ago UTC
-          keep-at-least: 1
-          account-type: personal
-          token: ${{ secrets.GITHUB_TOKEN }}
-          token-type: github-token
+          image-tags: "!latest, !trunk, !6.5.x, !v*"
+          skip-shas: ${{ steps.skip-sha.outputs.skip-sha }}
+          keep-n-most-recent: 1
+          dry-run: ${{ env.ACT }}
+
   redis:
-    name:
+    name: Redis
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -48,7 +69,7 @@ jobs:
       - name: Run PHPUnit
         run: |
           ./vendor/bin/phpunit --group=redis
-                
+
   admin:
     uses: ./.github/workflows/admin.yml
     secrets: inherit
@@ -64,3 +85,6 @@ jobs:
   downstream:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
+    with:
+      nightly: true
+

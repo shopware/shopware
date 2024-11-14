@@ -38,7 +38,11 @@ export default {
         },
     },
 
-    emits: ['save-and-recalculate', 'save-edits', 'recalculate-and-reload'],
+    emits: [
+        'save-and-recalculate',
+        'save-edits',
+        'recalculate-and-reload',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -82,19 +86,21 @@ export default {
 
         shippingCostsDetail() {
             const calcTaxes = this.sortByTaxRate(cloneDeep(this.order.shippingCosts.calculatedTaxes));
-            const formattedTaxes = `${calcTaxes.map(
-                calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
-                    taxRate: calcTax.taxRate,
-                    tax: format.currency(calcTax.tax, this.order.currency.isoCode),
-                })}`,
-            ).join('<br>')}`;
+            const formattedTaxes = `${calcTaxes
+                .map(
+                    (calcTax) =>
+                        `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
+                            taxRate: calcTax.taxRate,
+                            tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                        })}`,
+                )
+                .join('<br>')}`;
 
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
 
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(cloneDeep(this.order.price.calculatedTaxes))
-                .filter(price => price.tax !== 0);
+            return this.sortByTaxRate(cloneDeep(this.order.price.calculatedTaxes)).filter((price) => price.tax !== 0);
         },
 
         taxStatus() {
@@ -102,8 +108,10 @@ export default {
         },
 
         displayRounded() {
-            return this.order.totalRounding.interval !== 0.01
-                || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
+            return (
+                this.order.totalRounding.interval !== 0.01 ||
+                this.order.totalRounding.decimals !== this.order.itemRounding.decimals
+            );
         },
 
         orderTotal() {

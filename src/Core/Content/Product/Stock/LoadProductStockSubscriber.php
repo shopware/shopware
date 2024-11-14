@@ -21,8 +21,8 @@ class LoadProductStockSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'sales_channel.' . ProductEvents::PRODUCT_LOADED_EVENT => 'salesChannelLoaded',
-            'sales_channel.product.partial_loaded' => 'salesChannelLoaded',
+            'sales_channel.' . ProductEvents::PRODUCT_LOADED_EVENT => ['salesChannelLoaded', 50],
+            'sales_channel.product.partial_loaded' => ['salesChannelLoaded', 50],
         ];
     }
 

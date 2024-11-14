@@ -23,7 +23,7 @@ class MetricNotSupportedExceptionTest extends TestCase
     {
         $transport = $this->createMock(MetricTransportInterface::class);
         $metricConfig = new MetricConfig('test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
-        $metric = new Metric(new ConfiguredMetric('test', 1, []), $metricConfig);
+        $metric = Metric::fromConfigured(new ConfiguredMetric('test', 1, []), $metricConfig);
         $exception = new MetricNotSupportedException($metric, $transport);
         static::assertSame('TELEMETRY__METRIC_NOT_SUPPORTED', $exception->getErrorCode());
     }

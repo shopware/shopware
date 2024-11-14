@@ -22,6 +22,16 @@
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_bulk_edit_order_documents_generate_invoice_toggle_skip %}
+    <sw-switch-field
+        v-if="feature.isActive('v6.7.0.0')"
+        v-model:value="generateData.forceDocumentCreation"
+        :label="$tc('sw-bulk-edit.order.documents.forceDocumentCreation')"
+        :help-text="$tc('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_generate_invoice_placeholder %}
     {% endblock %}
 </div>

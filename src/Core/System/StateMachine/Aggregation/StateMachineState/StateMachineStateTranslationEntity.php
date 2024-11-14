@@ -13,16 +13,22 @@ class StateMachineStateTranslationEntity extends TranslationEntity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $name;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineStateId;
 
     /**
      * @var StateMachineStateEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $stateMachineState;
 

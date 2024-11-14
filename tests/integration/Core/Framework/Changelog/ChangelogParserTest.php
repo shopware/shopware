@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -71,7 +72,7 @@ class ChangelogParserTest extends TestCase
     {
         $parser = self::getContainer()->get(ChangelogParser::class);
 
-        $logEntry = $parser->parse((string) file_get_contents($inFile));
+        $logEntry = $parser->parse(new SplFileInfo($inFile, __DIR__, __DIR__), __DIR__);
 
         static::assertSame($expectedData['title'], $logEntry->getTitle());
         static::assertSame($expectedData['issue'], $logEntry->getIssue());

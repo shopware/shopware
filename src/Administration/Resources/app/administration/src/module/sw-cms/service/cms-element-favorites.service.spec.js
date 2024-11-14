@@ -10,12 +10,14 @@ responses.addResponse({
     url: '/search/user-config',
     status: 200,
     response: {
-        data: [{
-            id: '8badf7ebe678ab968fe88c269c214ea6',
-            userId: '8fe88c269c214ea68badf7ebe678ab96',
-            key: CmsElementFavorites.USER_CONFIG_KEY,
-            value: [],
-        }],
+        data: [
+            {
+                id: '8badf7ebe678ab968fe88c269c214ea6',
+                userId: '8fe88c269c214ea68badf7ebe678ab96',
+                key: CmsElementFavorites.USER_CONFIG_KEY,
+                value: [],
+            },
+        ],
     },
 });
 
@@ -44,7 +46,10 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     });
 
     it('getFavoriteElementNames > should return favorites from internal state', () => {
-        const expected = ['foo', 'bar'];
+        const expected = [
+            'foo',
+            'bar',
+        ];
         service.state.favorites = expected;
 
         expect(service.getFavoriteElementNames()).toEqual(expected);
@@ -52,7 +57,10 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
 
     it('isFavorite > checks if given string is included in favorites', () => {
         const expected = 'bar';
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         expect(service.isFavorite(expected)).toBeTruthy();
     });
@@ -61,7 +69,10 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const newItem = 'biz';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         service.update(true, newItem);
 
@@ -73,7 +84,10 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const removedItem = 'bar';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         service.update(false, removedItem);
 
@@ -85,7 +99,10 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const existingItem = 'foo';
         const nonExistingItem = 'biz';
 
-        service.state.favorites = ['foo', 'bar'];
+        service.state.favorites = [
+            'foo',
+            'bar',
+        ];
 
         service.update(false, nonExistingItem);
         expect(service.isFavorite(nonExistingItem)).toBeFalsy();
@@ -119,8 +136,16 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     it('getCriteria > returns a criteria including specific filters', () => {
         const criteria = service.getCriteria(CmsElementFavorites.USER_CONFIG_KEY);
 
-        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: CmsElementFavorites.USER_CONFIG_KEY });
-        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'userId', value: '8fe88c269c214ea68badf7ebe678ab96' });
+        expect(criteria.filters).toContainEqual({
+            type: 'equals',
+            field: 'key',
+            value: CmsElementFavorites.USER_CONFIG_KEY,
+        });
+        expect(criteria.filters).toContainEqual({
+            type: 'equals',
+            field: 'userId',
+            value: '8fe88c269c214ea68badf7ebe678ab96',
+        });
     });
 
     it('getCurrentUserId > returns the userId of the current session user', () => {

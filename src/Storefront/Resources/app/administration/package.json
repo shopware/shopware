@@ -1,0 +1,6 @@
+{
+  "name": "storefront-admin-extension",
+  "version": "1.0.0",
+  "description": "Adding the storefront related changes to the administration.",
+  "main": "./src/main.js"
+}

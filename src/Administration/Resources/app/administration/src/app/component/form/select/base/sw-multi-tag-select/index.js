@@ -75,7 +75,7 @@ Component.register('sw-multi-tag-select', {
         validate: {
             type: Function,
             required: false,
-            default: searchTerm => searchTerm.length > 0,
+            default: (searchTerm) => searchTerm.length > 0,
         },
 
         disabled: {
@@ -98,8 +98,7 @@ Component.register('sw-multi-tag-select', {
          * @deprecated tag:v6.7.0 - Will be removed
          */
         // eslint-disable-next-line vue/return-in-computed-property
-        objectValues() {
-        },
+        objectValues() {},
 
         errorObject() {
             return null;
@@ -116,7 +115,6 @@ Component.register('sw-multi-tag-select', {
 
             return this.value.map((entry) => ({ value: entry })).slice(0, this.limit);
         },
-
 
         totalValuesCount() {
             if (this.value.length) {
@@ -156,12 +154,18 @@ Component.register('sw-multi-tag-select', {
                 return;
             }
 
-            this.$emit('update:value', [...this.value, this.searchTerm]);
+            this.$emit('update:value', [
+                ...this.value,
+                this.searchTerm,
+            ]);
             this.searchTerm = '';
         },
 
         remove({ value }) {
-            this.$emit('update:value', this.value.filter(entry => entry !== value));
+            this.$emit(
+                'update:value',
+                this.value.filter((entry) => entry !== value),
+            );
         },
 
         removeLastItem() {

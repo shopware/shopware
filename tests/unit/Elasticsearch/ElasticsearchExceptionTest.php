@@ -117,4 +117,13 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('Empty query provided', $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
+
+    public function testAwsCredentialsNotFoundError(): void
+    {
+        $exception = ElasticsearchException::awsCredentialsNotFound();
+
+        static::assertSame('ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('Could not get AWS credentials', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
 }

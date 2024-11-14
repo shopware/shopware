@@ -38,7 +38,10 @@ Component.extend('sw-condition-line-item-goods-total', 'sw-condition-base', {
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.count']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.count',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCountError;

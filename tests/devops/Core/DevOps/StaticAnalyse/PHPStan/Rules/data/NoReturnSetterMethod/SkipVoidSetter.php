@@ -7,7 +7,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoR
  */
 final class SkipVoidSetter
 {
-    private $name;
+    private string $name;
 
     public function setName(string $name): void
     {

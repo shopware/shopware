@@ -45,6 +45,8 @@ describe('src/app/component/structure/sw-page', () => {
 
         await wrapper.setProps({ headerBorderColor: 'green' });
 
-        expect(wrapper.get('.sw-page__head-area').attributes('style')).toBe('border-bottom-color: green; padding-right: 0px;');
+        expect(wrapper.get('.sw-page__head-area').attributes('style')).toBe(
+            'border-bottom-color: green; padding-right: 0px;',
+        );
     });
 });

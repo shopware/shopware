@@ -29,19 +29,24 @@ export default class AdminNotificationWorker {
     }
 
     loadNotifications() {
-        this._notificationService.fetchNotifications(this._limit, this._timestamp).then(({ notifications, timestamp }) => {
-            notifications.forEach((notification) => {
-                const { status, message } = notification;
-                this.createNotification(status, message);
-            });
+        this._notificationService
+            .fetchNotifications(this._limit, this._timestamp)
+            .then(({ notifications, timestamp }) => {
+                notifications.forEach((notification) => {
+                    const { status, message } = notification;
+                    this.createNotification(status, message);
+                });
 
-            if (timestamp) {
-                this._timestamp = timestamp;
-                this._userConfigService.upsert({ [READ_NOTIFICATION]: { timestamp } });
-            }
-        }).catch((error) => {
-            this.createNotification('error', error.message);
-        });
+                if (timestamp) {
+                    this._timestamp = timestamp;
+                    this._userConfigService.upsert({
+                        [READ_NOTIFICATION]: { timestamp },
+                    });
+                }
+            })
+            .catch((error) => {
+                this.createNotification('error', error.message);
+            });
 
         this._notiticationTimeoutId = setTimeout(() => {
             this.loadNotifications();

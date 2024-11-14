@@ -15,16 +15,22 @@ class CmsPageLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesCha
 {
     /**
      * @var Request
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $request;
 
     /**
      * @var Criteria
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $criteria;
 
     /**
      * @var SalesChannelContext
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $salesChannelContext;
 

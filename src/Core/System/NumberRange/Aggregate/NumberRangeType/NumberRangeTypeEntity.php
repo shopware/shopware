@@ -18,31 +18,43 @@ class NumberRangeTypeEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $typeName;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $technicalName;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $global;
 
     /**
      * @var NumberRangeCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRanges;
 
     /**
      * @var NumberRangeSalesChannelEntity|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $numberRangeSalesChannels;
 
     /**
      * @var NumberRangeTypeTranslationCollection|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $translations;
 

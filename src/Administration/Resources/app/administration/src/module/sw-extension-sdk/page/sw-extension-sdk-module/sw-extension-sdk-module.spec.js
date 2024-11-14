@@ -29,7 +29,13 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'router-link': {
                     props: {
-                        to: { type: [String, Object], required: true },
+                        to: {
+                            type: [
+                                String,
+                                Object,
+                            ],
+                            required: true,
+                        },
                     },
                     template: '<a @click="$router.push(to)"></a>',
                 },

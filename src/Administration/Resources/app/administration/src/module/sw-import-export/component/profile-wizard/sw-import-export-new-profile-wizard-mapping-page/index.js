@@ -48,8 +48,11 @@ export default {
         },
 
         mergeMappings() {
-            const requiredMappings = Object.entries(this.systemRequiredFields).map(mapping => {
-                const [key, mappedKey] = mapping;
+            const requiredMappings = Object.entries(this.systemRequiredFields).map((mapping) => {
+                const [
+                    key,
+                    mappedKey,
+                ] = mapping;
 
                 return { key, mappedKey };
             });

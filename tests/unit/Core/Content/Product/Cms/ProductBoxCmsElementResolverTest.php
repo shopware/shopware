@@ -177,13 +177,14 @@ class ProductBoxCmsElementResolverTest extends TestCase
     public function testEnrich(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {
-            $this->systemConfig->method('get')->willReturn(true);
+            $this->systemConfig->method('getBool')->willReturn(true);
         }
 
         $salesChannelId = 'f3489c46df62422abdea4aa1bb03511c';
         $productId = Uuid::randomHex();
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
+        $product->setStock($availableStock);
         $product->setAvailableStock($availableStock);
         $product->setIsCloseout($closeout);
 

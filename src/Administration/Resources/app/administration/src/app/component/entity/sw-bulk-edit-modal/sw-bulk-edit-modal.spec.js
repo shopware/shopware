@@ -24,33 +24,46 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     };
 
     const modal = async () => {
-        return mount(await wrapTestComponent('sw-bulk-edit-modal', {
-            sync: true,
-        }), {
-            props: {
-                selection: {
-                    uuid1: { id: 'uuid1', manufacturer: 'Wordify', name: 'Portia Jobson' },
-                    uuid2: { id: 'uuid2', manufacturer: 'Twitternation', name: 'Baxy Eardley' },
-                    uuid3: { id: 'uuid3', manufacturer: 'Skidoo', name: 'Arturo Staker' },
-                },
-                bulkGridEditColumns: [],
-                currencies: [],
-            },
-            global: {
-                stubs: stubs,
-                data() {
-                    return {};
-                },
-                provide: {
-                    shortcutService: {
-                        startEventListener: () => {
+        return mount(
+            await wrapTestComponent('sw-bulk-edit-modal', {
+                sync: true,
+            }),
+            {
+                props: {
+                    selection: {
+                        uuid1: {
+                            id: 'uuid1',
+                            manufacturer: 'Wordify',
+                            name: 'Portia Jobson',
                         },
-                        stopEventListener: () => {
+                        uuid2: {
+                            id: 'uuid2',
+                            manufacturer: 'Twitternation',
+                            name: 'Baxy Eardley',
+                        },
+                        uuid3: {
+                            id: 'uuid3',
+                            manufacturer: 'Skidoo',
+                            name: 'Arturo Staker',
+                        },
+                    },
+                    bulkGridEditColumns: [],
+                    currencies: [],
+                },
+                global: {
+                    stubs: stubs,
+                    data() {
+                        return {};
+                    },
+                    provide: {
+                        shortcutService: {
+                            startEventListener: () => {},
+                            stopEventListener: () => {},
                         },
                     },
                 },
             },
-        });
+        );
     };
 
     beforeAll(async () => {

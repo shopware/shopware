@@ -89,15 +89,7 @@ const files = [
 ];
 
 function getFileCollection(collection = []) {
-    return new EntityCollection(
-        '/media',
-        'media',
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
+    return new EntityCollection('/media', 'media', null, { isShopwareContext: true }, collection, collection.length, null);
 }
 
 describe('module/sw-product/component/sw-product-download-form', () => {

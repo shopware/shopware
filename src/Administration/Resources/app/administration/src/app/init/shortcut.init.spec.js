@@ -24,10 +24,12 @@ describe('src/app/init/shortcut.init.ts', () => {
     });
 
     it('should init the shortcut service', () => {
-        expect(result).toEqual(expect.objectContaining({
-            getPathByCombination: expect.any(Function),
-            getShortcutRegistry: expect.any(Function),
-            register: expect.any(Function),
-        }));
+        expect(result).toEqual(
+            expect.objectContaining({
+                getPathByCombination: expect.any(Function),
+                getShortcutRegistry: expect.any(Function),
+                register: expect.any(Function),
+            }),
+        );
     });
 });

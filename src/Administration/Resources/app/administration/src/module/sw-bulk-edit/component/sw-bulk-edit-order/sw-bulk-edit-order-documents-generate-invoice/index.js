@@ -12,6 +12,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['feature'],
+
     computed: {
         generateData: {
             get() {

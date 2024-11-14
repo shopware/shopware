@@ -10,17 +10,21 @@ const fixture = [
         id: utils.createId(),
         name: 'entity one',
         filtered: true,
-    }, {
+    },
+    {
         id: utils.createId(),
         name: 'entity two',
-    }, {
+    },
+    {
         id: utils.createId(),
         name: 'entity three',
         filtered: true,
-    }, {
+    },
+    {
         id: utils.createId(),
         name: 'entity four',
-    }, {
+    },
+    {
         id: utils.createId(),
         name: 'entity five',
         filtered: true,
@@ -180,7 +184,7 @@ describe('entity-collection.data.ts', () => {
 
         collection.addAt(newItem, 12);
         expect(collection.last()).toStrictEqual(newItem);
-        expect(collection.findIndex(i => i === undefined)).toBe(-1);
+        expect(collection.findIndex((i) => i === undefined)).toBe(-1);
     });
 
     it('adds item at the end if index is undefined', async () => {
@@ -265,8 +269,8 @@ describe('entity-collection.data.ts', () => {
     it('uses a filter callback', async () => {
         const collection = getCollection();
 
-        const filtered = collection.filter(item => item.filtered !== true);
-        expect(filtered.find((item => item.filtered))).toBeUndefined();
+        const filtered = collection.filter((item) => item.filtered !== true);
+        expect(filtered.find((item) => item.filtered)).toBeUndefined();
     });
 
     it('even uses scopes in filter', async () => {
@@ -277,7 +281,6 @@ describe('entity-collection.data.ts', () => {
         const collection = getCollection();
 
         const filtered = collection.filter(scopedFilter, fixture[0]);
-
 
         expect(filtered).toHaveLength(1);
         expect(filtered.first()).toStrictEqual(fixture[0]);

@@ -46,7 +46,10 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        value: [dollarPrice, euroPrice],
+        value: [
+            dollarPrice,
+            euroPrice,
+        ],
         taxRate,
         currency,
         defaultPrice,
@@ -57,11 +60,17 @@ const setup = async (propOverride) => {
     return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
         global: {
             stubs: {
-                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
+                'sw-number-field': await wrapTestComponent('sw-number-field', {
+                    sync: true,
+                }),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
-                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', {
+                    sync: true,
+                }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-field-error': true,
@@ -144,7 +153,12 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup({ value: [euroPrice] });
 
         expect(wrapper.vm.isInherited).toBeTruthy();
-        await wrapper.setProps({ value: [dollarPrice, euroPrice] });
+        await wrapper.setProps({
+            value: [
+                dollarPrice,
+                euroPrice,
+            ],
+        });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
 
@@ -190,7 +204,7 @@ describe('components/form/sw-price-field', () => {
             value: [euroPrice],
         });
 
-        const expectedNetPrice = (euroPrice.net * currency.factor);
+        const expectedNetPrice = euroPrice.net * currency.factor;
 
         expect(wrapper.vm.priceForCurrency.net).toBe(parseFloat(expectedNetPrice, 10));
     });

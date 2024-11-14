@@ -197,21 +197,6 @@ class OpenApiPathBuilder
             ],
             'requestBody' => [
                 'content' => [
-                    'application/vnd.api+json' => [
-                        'schema' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'data' => [
-                                    '$ref' => '#/components/schemas/' . $schemaName,
-                                ],
-                                'included' => [
-                                    'type' => 'array',
-                                    'items' => ['$ref' => '#/components/schemas/resource'],
-                                    'uniqueItems' => true,
-                                ],
-                            ],
-                        ],
-                    ],
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/' . $schemaName,
@@ -246,21 +231,6 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'description' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.',
                 'content' => [
-                    'application/vnd.api+json' => [
-                        'schema' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'data' => [
-                                    '$ref' => '#/components/schemas/' . $schemaName,
-                                ],
-                                'included' => [
-                                    'type' => 'array',
-                                    'items' => ['$ref' => '#/components/schemas/resource'],
-                                    'uniqueItems' => true,
-                                ],
-                            ],
-                        ],
-                    ],
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/' . $schemaName,
@@ -317,11 +287,6 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'required' => true,
                 'content' => [
-                    'application/vnd.api+json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/Criteria',
-                        ],
-                    ],
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/Criteria',

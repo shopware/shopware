@@ -15,7 +15,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     props: {
         disabled: {
@@ -54,7 +57,6 @@ export default {
             return this.repositoryFactory.create('property_group');
         },
 
-
         propertyOptionRepository() {
             return this.repositoryFactory.create('property_group_option');
         },
@@ -62,12 +64,8 @@ export default {
         propertyGroupCriteria() {
             const criteria = new Criteria(1, 10);
 
-            criteria.addSorting(
-                Criteria.sort('name', 'ASC', false),
-            );
-            criteria.addFilter(
-                Criteria.equalsAny('id', this.groupIds),
-            );
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addFilter(Criteria.equalsAny('id', this.groupIds));
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
@@ -166,7 +164,8 @@ export default {
             }
 
             this.isPropertiesLoading = true;
-            return this.propertyGroupRepository.search(this.propertyGroupCriteria, Context.api)
+            return this.propertyGroupRepository
+                .search(this.propertyGroupCriteria, Context.api)
                 .then((properties) => {
                     this.properties = properties;
                 })

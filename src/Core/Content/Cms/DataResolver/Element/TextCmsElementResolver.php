@@ -16,8 +16,9 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
     /**
      * @internal
      */
-    public function __construct(private readonly HtmlSanitizer $sanitizer)
-    {
+    public function __construct(
+        private readonly HtmlSanitizer $sanitizer
+    ) {
     }
 
     public function getType(): string

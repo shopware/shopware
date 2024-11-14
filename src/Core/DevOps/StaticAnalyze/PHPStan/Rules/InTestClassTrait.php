@@ -17,9 +17,7 @@ trait InTestClassTrait
             return false;
         }
 
-        $definitionClassReflection = $scope->getClassReflection()->getNativeReflection();
-
-        $className = $definitionClassReflection->getName();
+        $className = $scope->getClassReflection()->getNativeReflection()->getName();
 
         return str_contains(\strtolower($className), 'test') || \str_contains(\strtolower($className), 'tests');
     }

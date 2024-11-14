@@ -70,6 +70,17 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame('{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}', $data);
     }
 
+    public function testSerializeCollection(): void
+    {
+        $price = new Price(Defaults::CURRENCY, 5, 5, true);
+        $collection = new PriceCollection();
+        $collection->add($price);
+
+        $data = $this->encode($collection);
+
+        static::assertSame('{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","net":5.0,"gross":5.0,"linked":true,"listPrice":null,"regulationPrice":null}}', $data);
+    }
+
     public function testRequiresDefaultCurrency(): void
     {
         $e = null;
@@ -354,9 +365,9 @@ class PriceFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $data
+     * @param array<mixed>|PriceCollection $data
      */
-    private function encode(array $data): string
+    private function encode(array|PriceCollection $data): string
     {
         $field = new PriceField('test', 'test');
         $existence = new EntityExistence('test', ['someId' => true], true, false, false, []);

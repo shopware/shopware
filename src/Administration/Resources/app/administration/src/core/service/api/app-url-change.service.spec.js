@@ -26,39 +26,39 @@ describe('appUrlChangeService', () => {
         // Shopware.Service('appUrlChangeService')
         const { appUrlChangeService, clientMock } = createAppUrlChangeService();
 
-        clientMock.onGet('/app-system/app-url-change/strategies').reply(
-            200,
-            {
-                first: 'a',
-                second: 'b',
-                third: 'c',
-            },
-        );
+        clientMock.onGet('/app-system/app-url-change/strategies').reply(200, {
+            first: 'a',
+            second: 'b',
+            third: 'c',
+        });
 
         const strategies = await appUrlChangeService.fetchResolverStrategies();
 
-        expect(strategies).toEqual([{
-            name: 'first',
-            description: 'a',
-        }, {
-            name: 'second',
-            description: 'b',
-        }, {
-            name: 'third',
-            description: 'c',
-        }]);
+        expect(strategies).toEqual([
+            {
+                name: 'first',
+                description: 'a',
+            },
+            {
+                name: 'second',
+                description: 'b',
+            },
+            {
+                name: 'third',
+                description: 'c',
+            },
+        ]);
     });
 
     it('sends name of selected strategy', async () => {
         // Shopware.Service('appUrlChangeService')
         const { appUrlChangeService, clientMock } = createAppUrlChangeService();
 
-        clientMock.onPost(
-            'app-system/app-url-change/resolve',
-            {
+        clientMock
+            .onPost('app-system/app-url-change/resolve', {
                 strategy: 'selectedStrategy',
-            },
-        ).reply(204);
+            })
+            .reply(204);
 
         await appUrlChangeService.resolveUrlChange({
             name: 'selectedStrategy',
@@ -73,13 +73,10 @@ describe('appUrlChangeService', () => {
         // Shopware.Service('appUrlChangeService')
         const { appUrlChangeService, clientMock } = createAppUrlChangeService();
 
-        clientMock.onGet('app-system/app-url-change/url-difference').reply(
-            200,
-            {
-                oldUrl: 'http://old',
-                newUrl: 'http://new',
-            },
-        );
+        clientMock.onGet('app-system/app-url-change/url-difference').reply(200, {
+            oldUrl: 'http://old',
+            newUrl: 'http://new',
+        });
 
         const urlDiff = await appUrlChangeService.getUrlDiff();
 
@@ -93,9 +90,7 @@ describe('appUrlChangeService', () => {
         // Shopware.Service('appUrlChangeService')
         const { appUrlChangeService, clientMock } = createAppUrlChangeService();
 
-        clientMock.onGet('app-system/app-url-change/url-difference').reply(
-            204,
-        );
+        clientMock.onGet('app-system/app-url-change/url-difference').reply(204);
 
         const urlDiff = await appUrlChangeService.getUrlDiff();
 

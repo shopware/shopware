@@ -21,9 +21,9 @@ async function createWrapper(categoryType) {
         },
     });
 
-    Shopware.Store.unregister('cmsPageState');
+    Shopware.Store.unregister('cmsPage');
     Shopware.Store.register({
-        id: 'cmsPageState',
+        id: 'cmsPage',
         state: () => ({
             currentPage: undefined,
         }),
@@ -48,7 +48,10 @@ async function createWrapper(categoryType) {
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: ['route', 'title'],
+                    props: [
+                        'route',
+                        'title',
+                    ],
                 },
                 'router-view': {
                     template: '<div class="router-view"></div>',
@@ -58,7 +61,9 @@ async function createWrapper(categoryType) {
             mocks: {
                 placeholder: (entity, field, fallbackSnippet) => {
                     return {
-                        entity, field, fallbackSnippet,
+                        entity,
+                        field,
+                        fallbackSnippet,
                     };
                 },
             },

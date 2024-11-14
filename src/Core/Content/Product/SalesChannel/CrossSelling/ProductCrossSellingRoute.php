@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -87,8 +88,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     private function loadCrossSellings(string $productId, SalesChannelContext $context): ProductCrossSellingCollection
     {
         $criteria = new Criteria();
-        $criteria->setTitle('product-cross-selling-route');
         $criteria
+            ->setTitle('product-cross-selling-route')
             ->addAssociation('assignedProducts')
             ->addFilter(new EqualsFilter('product.id', $productId))
             ->addFilter(new EqualsFilter('active', 1))
@@ -117,6 +118,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         );
 
         $criteria->addFilter(...$filters)
+            ->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('product.id', $crossSelling->getProductId())]))
             ->setOffset(0)
             ->setLimit($crossSelling->getLimit())
             ->addSorting($crossSelling->getSorting());

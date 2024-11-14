@@ -6,11 +6,6 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Process\Process;
 
-if (\PHP_VERSION_ID < 70400) {
-    echo 'Your cli is running PHP version ' . \PHP_VERSION . ' but Shopware 6 requires at least PHP 7.4.0' . \PHP_EOL;
-    exit(1);
-}
-
 set_time_limit(0);
 
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
@@ -20,12 +15,16 @@ if (!class_exists(Application::class) || !class_exists(Dotenv::class)) {
 }
 
 $input = new ArgvInput();
-if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
-    putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
+if ($env = $input->getParameterOption(['--env', '-e'], null, true) !== null) {
+    $_ENV['APP_ENV'] = $env;
+    $_SERVER['APP_ENV'] = $env;
+    putenv('APP_ENV=' . $env);
 }
 
 if ($input->hasParameterOption('--no-debug', true)) {
-    putenv('APP_DEBUG=' . $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
+    $_ENV['APP_DEBUG'] = '0';
+    $_SERVER['APP_DEBUG'] = '0';
+    putenv('APP_DEBUG=0');
 }
 
 $projectRoot = dirname(__DIR__);
@@ -41,10 +40,10 @@ $cmd = escapeshellcmd($cmd);
 $args = array_map('escapeshellarg', $args);
 
 $command = $cmd . ' ' . implode(' ', $args);
-$process = Symfony\Component\Process\Process::fromShellCommandline($command);
+$process = Process::fromShellCommandline($command);
 $process->setTimeout(null);
 
-$isTty = (function () {
+$isTty = (static function () {
     $fd = defined('STDOUT') ? \STDOUT : fopen('php://stdout', 'wb');
 
     if (function_exists('stream_isatty')) {
@@ -57,13 +56,13 @@ $isTty = (function () {
 
     $stat = @fstat($fd);
 
-    return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
+    return $stat && ($stat['mode'] & 0170000) === 0020000;
 })();
 
 $process->setTty($isTty);
 $process->run(function ($type, $buffer): void {
     if ($type === Process::ERR) {
-        fwrite(\STDERR, "$buffer");
+        fwrite(\STDERR, (string) $buffer);
     } else {
         echo $buffer;
     }

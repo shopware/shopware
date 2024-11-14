@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDelete
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
 /**
@@ -25,9 +26,9 @@ class CurrencyRepositoryTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CurrencyCollection>
      */
-    private $currencyRepository;
+    private EntityRepository $currencyRepository;
 
     protected function setUp(): void
     {
@@ -115,10 +116,7 @@ class CurrencyRepositoryTest extends TestCase
 
         $this->currencyRepository->create($records, $context);
 
-        $deleteEvent = $this->currencyRepository->delete([['id' => $recordA]], $context);
-        static::assertNotNull($deleteEvent);
-
-        $deleteEventElement = $deleteEvent->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
+        $deleteEventElement = $this->currencyRepository->delete([['id' => $recordA]], $context)->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
 
         static::assertNotNull($deleteEventElement);
         static::assertEquals($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());

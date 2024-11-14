@@ -7,40 +7,48 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-media-compact-upload-v2', { sync: true }), {
-            props: {
-                uploadTag: 'my-upload',
-            },
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-context-button': true,
-                    'sw-context-menu-item': true,
-                    'sw-icon': true,
-                    'sw-button': true,
-                    'sw-media-url-form': true,
-                    'sw-media-preview-v2': true,
-                    'sw-context-menu-divider': true,
-                    'sw-button-group': true,
-                    'sw-media-modal-v2': true,
+        wrapper = mount(
+            await wrapTestComponent('sw-media-compact-upload-v2', {
+                sync: true,
+            }),
+            {
+                props: {
+                    uploadTag: 'my-upload',
                 },
-                provide: {
-                    repositoryFactory: {},
-                    configService: {
-                        getConfig: () => Promise.resolve({ settings: { enableUrlFeature: false } }),
+                global: {
+                    renderStubDefaultSlot: true,
+                    stubs: {
+                        'sw-context-button': true,
+                        'sw-context-menu-item': true,
+                        'sw-icon': true,
+                        'sw-button': true,
+                        'sw-media-url-form': true,
+                        'sw-media-preview-v2': true,
+                        'sw-context-menu-divider': true,
+                        'sw-button-group': true,
+                        'sw-media-modal-v2': true,
                     },
-                    mediaService: {
-                        addListener: () => {},
-                        removeByTag: () => {},
-                        removeListener: () => {},
+                    provide: {
+                        repositoryFactory: {},
+                        configService: {
+                            getConfig: () =>
+                                Promise.resolve({
+                                    settings: { enableUrlFeature: false },
+                                }),
+                        },
+                        mediaService: {
+                            addListener: () => {},
+                            removeByTag: () => {},
+                            removeListener: () => {},
+                        },
+                        fileValidationService: {},
                     },
-                    fileValidationService: {},
-                },
-                directives: {
-                    droppable: true,
+                    directives: {
+                        droppable: true,
+                    },
                 },
             },
-        });
+        );
     });
 
     it('should be a Vue.js component', async () => {
@@ -211,10 +219,12 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 value: true,
                 helpText: 'example',
             },
-            sourceMultiselect: [{
-                fileName: 'example',
-                fileExtension: 'jpg',
-            }],
+            sourceMultiselect: [
+                {
+                    fileName: 'example',
+                    fileExtension: 'jpg',
+                },
+            ],
         });
 
         expect(wrapper.find('.sw-context-menu-item__buttonRemove').attributes('disabled')).toBeTruthy();

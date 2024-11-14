@@ -16,8 +16,12 @@ async function createWrapper() {
                     props: ['disabled'],
                 },
                 'sw-switch-field': {
-                    template: '<input class="sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: ['value', 'disabled'],
+                    template:
+                        '<input class="sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
+                    props: [
+                        'value',
+                        'disabled',
+                    ],
                 },
                 'sw-text-editor': {
                     template: '<div class="sw-text-editor"></div>',
@@ -27,7 +31,9 @@ async function createWrapper() {
                     template: '<div class="sw-media-modal-v2"><button @click="onEmitSelection">Add media</button></div>',
                     methods: {
                         onEmitSelection() {
-                            this.$emit('media-modal-selection-change', [{ id: 'id' }]);
+                            this.$emit('media-modal-selection-change', [
+                                { id: 'id' },
+                            ]);
                         },
                     },
                 },

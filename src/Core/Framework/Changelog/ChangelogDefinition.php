@@ -15,12 +15,13 @@ class ChangelogDefinition
 {
     private const VIOLATION_MESSAGE_SECTION_SEPARATOR = 'You should use "___" to separate %s and %s section';
     private const VIOLATION_MESSAGE_STARTING_KEYWORD = "Changelog entry \"%s\" does not start with a valid keyword (%s).\nPlease have look at the handbook: https://handbook.shopware.com/Product/Guides/Development/WritingChangelog#changelog-entries";
+    private const SEPERATOR_REGEX = '/(```(?:[a-zA-Z]+)?[\s\S]*?```)|\n+#\s+(\w+)/';
 
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    #[Assert\NotBlank(message: 'The Jira ticket should not be blank')]
-    #[Assert\Regex(pattern: '/^NEXT-\d+$/', message: 'The Jira ticket has an invalid format')]
+    #[Assert\NotBlank(message: 'No issue was referenced')]
+    #[Assert\Regex(pattern: '/^(NEXT-|#)\d+$/', message: 'The issue has an invalid format')]
     private string $issue;
 
     private ?string $flag = null;
@@ -52,40 +53,27 @@ class ChangelogDefinition
         }
 
         if ($this->api) {
-            if (preg_match('/\n+#\s+(\w+)/', $this->api, $matches)) {
-                $this->buildViolationSectionSeparator($context, ChangelogSection::api, $matches[1]);
-            }
+            $this->checkSectionForSeparatorViolations($context, ChangelogSection::api, $this->api);
             $this->checkChangelogEntries($context, $this->api, ChangelogSection::api);
         }
 
         if ($this->storefront) {
-            if (preg_match('/\n+#\s+(\w+)/', $this->storefront, $matches)) {
-                $this->buildViolationSectionSeparator($context, ChangelogSection::storefront, $matches[1]);
-            }
+            $this->checkSectionForSeparatorViolations($context, ChangelogSection::storefront, $this->storefront);
             $this->checkChangelogEntries($context, $this->storefront, ChangelogSection::storefront);
         }
 
         if ($this->administration) {
-            if (preg_match('/\n+#\s+(\w+)/', $this->administration, $matches)) {
-                $this->buildViolationSectionSeparator($context, ChangelogSection::administration, $matches[1]);
-            }
+            $this->checkSectionForSeparatorViolations($context, ChangelogSection::administration, $this->administration);
             $this->checkChangelogEntries($context, $this->administration, ChangelogSection::administration);
         }
 
         if ($this->core) {
-            if (preg_match('/\n+#\s+(\w+)/', $this->core, $matches)) {
-                $this->buildViolationSectionSeparator($context, ChangelogSection::core, $matches[1]);
-            }
+            $this->checkSectionForSeparatorViolations($context, ChangelogSection::core, $this->core);
             $this->checkChangelogEntries($context, $this->core, ChangelogSection::core);
         }
 
-        if ($this->upgrade && preg_match('/\n+#\s+(\w+)/', $this->upgrade, $matches)) {
-            $this->buildViolationSectionSeparator($context, ChangelogSection::upgrade, $matches[1]);
-        }
-
-        if ($this->nextMajorVersionChanges && preg_match('/\n+#\s+(\w+)/', $this->nextMajorVersionChanges, $matches)) {
-            $this->buildViolationSectionSeparator($context, ChangelogSection::major, $matches[1]);
-        }
+        $this->checkSectionForSeparatorViolations($context, ChangelogSection::upgrade, $this->upgrade);
+        $this->checkSectionForSeparatorViolations($context, ChangelogSection::major, $this->nextMajorVersionChanges);
 
         if ($this->flag && !Feature::has($this->flag)) {
             $context->buildViolation(\sprintf('Unknown flag %s is assigned ', $this->flag))
@@ -287,6 +275,19 @@ EOD;
         $template = str_replace("\n\n", "\n", $template);
 
         return trim($template);
+    }
+
+    private function checkSectionForSeparatorViolations(ExecutionContextInterface $context, ChangelogSection $section, ?string $sectionContent): void
+    {
+        if ($sectionContent === null) {
+            return;
+        }
+
+        preg_match(self::SEPERATOR_REGEX, $sectionContent, $matches);
+
+        if (isset($matches[2])) {
+            $this->buildViolationSectionSeparator($context, $section, $matches[2]);
+        }
     }
 
     private function buildViolationSectionSeparator(ExecutionContextInterface $context, ChangelogSection $currentSection, string $nextSection): void

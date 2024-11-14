@@ -8,11 +8,12 @@ import 'src/app/directive/tooltip.directive';
 
 jest.useFakeTimers();
 
-const createWrapper = async (message, {
-    components = {},
-} = {
-    components: {},
-}) => {
+const createWrapper = async (
+    message,
+    { components = {} } = {
+        components: {},
+    },
+) => {
     const div = document.createElement('div');
     div.id = 'root';
     document.body.appendChild(div);

@@ -52,7 +52,13 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        $data->setValue($this->sanitize($this->sanitizer, $data, $field, $existence));
+        $sanitizedValue = $this->sanitize($this->sanitizer, $data, $field, $existence);
+
+        if ($sanitizedValue === '' && !$field->is(AllowEmptyString::class)) {
+            $data->setValue(null);
+        } else {
+            $data->setValue($sanitizedValue);
+        }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 

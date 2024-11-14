@@ -16,26 +16,36 @@ class VariantStruct extends StoreStruct
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $id;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $type;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $netPrice;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $trialPhaseIncluded = false;
 
     /**
      * @var DiscountCampaignStruct|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $discountCampaign;
 

@@ -10,6 +10,8 @@ class ReferencePrice extends ReferencePriceDefinition
 {
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 

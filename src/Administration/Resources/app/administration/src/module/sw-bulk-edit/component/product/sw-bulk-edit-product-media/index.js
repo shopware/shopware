@@ -56,7 +56,6 @@ export default {
 
             return criteria;
         },
-
     },
 
     created() {
@@ -75,7 +74,8 @@ export default {
         },
 
         getMediaDefaultFolderId() {
-            return this.mediaDefaultFolderRepository.search(this.mediaDefaultFolderCriteria, Context.api)
+            return this.mediaDefaultFolderRepository
+                .search(this.mediaDefaultFolderCriteria, Context.api)
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
                     if (defaultFolder === null) {

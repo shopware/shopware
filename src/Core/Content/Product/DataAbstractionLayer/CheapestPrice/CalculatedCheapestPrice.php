@@ -10,6 +10,8 @@ class CalculatedCheapestPrice extends CalculatedPrice
 {
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $hasRange = false;
 

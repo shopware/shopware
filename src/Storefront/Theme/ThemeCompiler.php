@@ -16,13 +16,13 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
-use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
@@ -37,6 +37,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      * @internal
      *
      * @param array<string, Package> $packages
+     * @param array<int, string> $customAllowedRegex
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
@@ -53,7 +54,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly MessageBusInterface $messageBus,
         private readonly int $themeFileDeleteDelay,
-        private readonly bool $autoPrefix = false
+        private readonly bool $autoPrefix = false,
+        private readonly array $customAllowedRegex = [],
+        private readonly bool $validate = false
     ) {
     }
 
@@ -70,7 +73,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
         } catch (\Throwable $e) {
-            throw new ThemeCompileException(
+            throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',
                 'Files could not be resolved with error: ' . $e->getMessage(),
                 $e
@@ -80,7 +83,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         try {
             $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
         } catch (\Throwable $e) {
-            throw new ThemeCompileException(
+            throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',
                 'Error while trying to concatenate Styles: ' . $e->getMessage(),
                 $e
@@ -111,7 +114,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         try {
             $assets = $this->collectCompiledFiles($themePrefix, $themeId, $compiled, $withAssets, $themeConfig, $configurationCollection);
         } catch (\Throwable $e) {
-            throw new ThemeCompileException(
+            throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',
                 'Error while trying to write compiled files: ' . $e->getMessage(),
                 $e
@@ -313,7 +316,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         try {
             $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $themeId, $salesChannelId, $context);
             $features = $this->getFeatureConfigScssMap();
-
             $resolveImportPath = $this->getResolveImportPathsCallback($resolveMappings);
 
             $importPaths = [];
@@ -337,7 +339,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $features . $variables . $concatenatedStyles
             );
         } catch (\Throwable $exception) {
-            throw new ThemeCompileException(
+            throw ThemeException::themeCompileException(
                 $configuration->getTechnicalName(),
                 $exception->getMessage(),
                 $exception
@@ -351,7 +353,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             /** @var string|false $cssOutput */
             $cssOutput = $autoPreFixer->compile($this->debug);
             if ($cssOutput === false) {
-                throw new ThemeCompileException(
+                throw ThemeException::themeCompileException(
                     $configuration->getTechnicalName(),
                     'CSS parser not initialized'
                 );
@@ -415,11 +417,29 @@ class ThemeCompiler implements ThemeCompilerInterface
         ];
 
         foreach ($config['fields'] ?? [] as $key => $data) {
-            if (!\is_array($data) || !$this->isDumpable($data)) {
+            if (
+                !\is_array($data)
+                || (\array_key_exists('scss', $data) && $data['scss'] === false)
+                || !isset($data['type'])
+            ) {
                 continue;
             }
 
-            if (\in_array($data['type'], ['media', 'textarea'], true) && \is_string($data['value'])) {
+            if ($this->validate) {
+                $data['value'] = SCSSValidator::validate($this->scssCompiler, $data, $this->customAllowedRegex, true);
+            }
+
+            if (!\array_key_exists('value', $data)) {
+                $variables[$key] = 0;
+                continue;
+            }
+
+            if (
+                \in_array($data['type'], ['media', 'textarea'], true)
+                && \is_string($data['value'])
+                && !\str_starts_with($data['value'], '\'')
+                && !\str_ends_with($data['value'], '\'')
+            ) {
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
                 $variables[$key] = (int) $data['value'];
@@ -447,40 +467,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         );
 
         $this->tempFilesystem->write('theme-variables.scss', $dump);
+        $this->tempFilesystem->write('theme-variables/' . $themeId . '.scss', $dump);
 
         return $dump;
-    }
-
-    /**
-     * @param array{value: string|array<mixed>|null, scss?: bool, type: string} $data
-     */
-    private function isDumpable(array $data): bool
-    {
-        if (!isset($data['value'])) {
-            return false;
-        }
-
-        // Do not include fields which have the scss option set to false
-        if (\array_key_exists('scss', $data) && $data['scss'] === false) {
-            return false;
-        }
-
-        // Do not include fields which haa an array as value
-        if (\is_array($data['value'])) {
-            return false;
-        }
-
-        // value must not be an empty string since because an empty value can not be compiled
-        if ($data['value'] === '') {
-            return false;
-        }
-
-        // if no type is set just use the value and continue
-        if (!isset($data['type'])) {
-            return false;
-        }
-
-        return true;
     }
 
     private function getVariableDumpTemplate(): string

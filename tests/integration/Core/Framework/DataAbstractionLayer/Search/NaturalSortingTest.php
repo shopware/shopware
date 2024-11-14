@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,14 +23,14 @@ class NaturalSortingTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PropertyGroupCollection>
      */
-    private $groupRepository;
+    private EntityRepository $groupRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PropertyGroupOptionCollection>
      */
-    private $optionRepository;
+    private EntityRepository $optionRepository;
 
     protected function setUp(): void
     {

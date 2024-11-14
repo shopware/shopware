@@ -39,12 +39,11 @@ describe('core/service/login.service.js', () => {
     it('should return the createdLog on export and start process', async () => {
         const { importExportService, clientMock } = importExportServiceFactory();
 
-        clientMock.onPost('/_action/import-export/prepare')
-            .reply(200, {
-                log: {
-                    id: 'createdLogId',
-                },
-            });
+        clientMock.onPost('/_action/import-export/prepare').reply(200, {
+            log: {
+                id: 'createdLogId',
+            },
+        });
 
         clientMock.onPost('/_action/import-export/process').reply(() => {
             return [204];
@@ -61,12 +60,11 @@ describe('core/service/login.service.js', () => {
     it('should return the createdLog on import and start process', async () => {
         const { importExportService, clientMock } = importExportServiceFactory();
 
-        clientMock.onPost('/_action/import-export/prepare')
-            .reply(200, {
-                log: {
-                    id: 'createdLogId',
-                },
-            });
+        clientMock.onPost('/_action/import-export/prepare').reply(200, {
+            log: {
+                id: 'createdLogId',
+            },
+        });
 
         clientMock.onPost('/_action/import-export/process').reply(() => {
             return [204];

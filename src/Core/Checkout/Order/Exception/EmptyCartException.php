@@ -2,25 +2,19 @@
 
 namespace Shopware\Core\Checkout\Order\Exception;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-class EmptyCartException extends ShopwareHttpException
+class EmptyCartException extends CartException
 {
     public function __construct()
     {
-        parent::__construct('Cart is empty');
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__CART_EMPTY';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_EMPTY,
+            'Cart is empty.',
+        );
     }
 }

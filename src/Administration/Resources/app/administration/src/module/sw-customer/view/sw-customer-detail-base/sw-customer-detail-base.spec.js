@@ -47,7 +47,6 @@ const customFields = [
     },
 ];
 
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-customer-detail-base', { sync: true }), {
         global: {
@@ -60,7 +59,6 @@ async function createWrapper() {
                         };
                     },
                 },
-
             },
 
             stubs: {
@@ -115,7 +113,14 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
 
         expect(formFields).toHaveLength(6);
 
-        const [first, second, third, fourth, fifth, sixth] = formFields;
+        const [
+            first,
+            second,
+            third,
+            fourth,
+            fifth,
+            sixth,
+        ] = formFields;
 
         expect(first.attributes('customfieldposition')).toBe('1');
         expect(second.attributes('customfieldposition')).toBe('4');

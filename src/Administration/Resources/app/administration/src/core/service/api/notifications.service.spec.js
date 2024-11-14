@@ -32,10 +32,7 @@ describe('notificationsService', () => {
     it('fetches notifications correctly', async () => {
         const { notificationsService, clientMock } = createNotificationsService();
 
-        clientMock.onGet('/notification/message').reply(
-            200,
-            [exampleNotification],
-        );
+        clientMock.onGet('/notification/message').reply(200, [exampleNotification]);
 
         const notifications = await notificationsService.fetchNotifications(2);
 

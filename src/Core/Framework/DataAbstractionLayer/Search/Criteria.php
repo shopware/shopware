@@ -45,76 +45,106 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @var list<FieldSorting>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $sorting = [];
 
     /**
      * @var array<array-key, Filter>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filters = [];
 
     /**
      * @var list<Filter>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $postFilters = [];
 
     /**
      * @var array<string, Aggregation>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $aggregations = [];
 
     /**
      * @var list<ScoreQuery>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $queries = [];
 
     /**
      * @var list<FieldGrouping>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $groupFields = [];
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $offset;
 
     /**
      * @var int|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $limit;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
 
     /**
      * @var array<string, Criteria>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $associations = [];
 
     /**
      * @var array<string>|array<int, array<string>>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $ids = [];
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $inherited = false;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $term;
 
     /**
      * @var array<string, array<string, string>>|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $includes;
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $title;
 
@@ -597,9 +627,11 @@ class Criteria extends Struct implements \Stringable
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
+
+        return $this;
     }
 
     /**

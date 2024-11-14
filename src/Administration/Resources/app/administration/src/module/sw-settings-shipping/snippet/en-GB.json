@@ -104,14 +104,15 @@
             "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
             "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
             "labelGrossNet": "(gross / net)",
-            "ruleAlreadyUsed": "This rule is already in use in a price matrix.",
+            "ruleAlreadyUsedOrRestricted": "This rule is already in use or contains conditions that can't be applied to advanced pricing.",
             "ruleAlreadyUsedInMatrix": "This rule is already in use in this price matrix.",
             "textOr": "or",
             "chooseOrCreateRule": "Choose or create a rule",
             "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
             "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
             "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix.",
-            "contextMenuModifyPrice": "Change price rule"
+            "contextMenuModifyPrice": "Change price rule",
+            "buttonLoadAllPrices": "Load all prices"
         },
         "sidebar": {
             "labelUseAsLogo": "Use as logo"

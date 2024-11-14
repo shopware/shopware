@@ -132,10 +132,12 @@ describe('src/app/init/tabs.init', () => {
 
         // Check if value was registered correctly
         expect(Shopware.State.get('tabs').tabItems).toHaveProperty('foo-position-id');
-        expect(Shopware.State.get('tabs').tabItems['foo-position-id']).toEqual([{
-            label: 'My tab item',
-            componentSectionId: 'foo-component-section-id',
-        }]);
+        expect(Shopware.State.get('tabs').tabItems['foo-position-id']).toEqual([
+            {
+                label: 'My tab item',
+                componentSectionId: 'foo-component-section-id',
+            },
+        ]);
     });
 
     it('should create correct route entry for tab item when route gets opened (dynamic route)', async () => {
@@ -152,12 +154,12 @@ describe('src/app/init/tabs.init', () => {
         await routerMock.push('/sw/category/index/eXaMpLeId/route-example-component-section-id');
 
         // Check if route was created correctly
-        expect(
-            routerMock.resolve('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1],
-        ).toEqual(expect.objectContaining({
-            name: 'sw.category.index.route-example-component-section-id',
-            path: '/sw/category/index/:id?/route-example-component-section-id',
-        }));
+        expect(routerMock.resolve('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1]).toEqual(
+            expect.objectContaining({
+                name: 'sw.category.index.route-example-component-section-id',
+                path: '/sw/category/index/:id?/route-example-component-section-id',
+            }),
+        );
     });
 
     it('should create correct route entry for tab item when route gets opened (static route)', async () => {
@@ -174,12 +176,12 @@ describe('src/app/init/tabs.init', () => {
         await routerMock.push('/sw/settings/usage/data/index/route-example-component-section-id');
 
         // Check if route was created correctly
-        expect(
-            routerMock.resolve('/sw/settings/usage/data/index/route-example-component-section-id').matched[1],
-        ).toEqual(expect.objectContaining({
-            name: 'sw.settings.usage.data.index.route-example-component-section-id',
-            path: '/sw/settings/usage/data/index/route-example-component-section-id',
-        }));
+        expect(routerMock.resolve('/sw/settings/usage/data/index/route-example-component-section-id').matched[1]).toEqual(
+            expect.objectContaining({
+                name: 'sw.settings.usage.data.index.route-example-component-section-id',
+                path: '/sw/settings/usage/data/index/route-example-component-section-id',
+            }),
+        );
     });
 
     it('should add the correct meta data to the route (dynamic)', async () => {
@@ -196,25 +198,25 @@ describe('src/app/init/tabs.init', () => {
         await routerMock.push('/sw/category/index/eXaMpLeId/route-example-component-section-id');
 
         // Check if route was created correctly
-        expect(
-            routerMock.resolve('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1],
-        ).toEqual(expect.objectContaining({
-            meta: expect.objectContaining({
-                parentPath: 'sw.category.index',
-                $module: expect.objectContaining({
-                    type: 'core',
-                    name: 'category',
-                    title: 'sw-category.general.mainMenuItemIndex',
-                    description: 'sw-category.general.descriptionTextModule',
-                    version: '1.0.0',
-                    targetVersion: '1.0.0',
-                    color: '#57D9A3',
-                    icon: 'regular-products',
-                    favicon: 'icon-module-products.png',
-                    entity: 'category',
+        expect(routerMock.resolve('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1]).toEqual(
+            expect.objectContaining({
+                meta: expect.objectContaining({
+                    parentPath: 'sw.category.index',
+                    $module: expect.objectContaining({
+                        type: 'core',
+                        name: 'category',
+                        title: 'sw-category.general.mainMenuItemIndex',
+                        description: 'sw-category.general.descriptionTextModule',
+                        version: '1.0.0',
+                        targetVersion: '1.0.0',
+                        color: '#57D9A3',
+                        icon: 'regular-products',
+                        favicon: 'icon-module-products.png',
+                        entity: 'category',
+                    }),
                 }),
             }),
-        }));
+        );
     });
 
     it('should add the correct meta data to the route (static)', async () => {
@@ -231,24 +233,24 @@ describe('src/app/init/tabs.init', () => {
         await routerMock.push('/sw/settings/usage/data/index/route-example-component-section-id');
 
         // Check if route was created correctly
-        expect(
-            routerMock.resolve('/sw/settings/usage/data/index/route-example-component-section-id').matched[1],
-        ).toEqual(expect.objectContaining({
-            meta: expect.objectContaining({
-                parentPath: 'sw.settings.usage.data.index',
-                $module: expect.objectContaining({
-                    type: 'core',
-                    name: 'usage-data',
-                    title: 'sw-settings-usage-data.general.mainMenuItemGeneral',
-                    description: 'sw-settings-usage-data.general.description',
-                    version: '1.0.0',
-                    targetVersion: '1.0.0',
-                    color: '#9AA8B5',
-                    icon: 'regular-cog',
-                    favicon: 'icon-module-settings.png',
-                    entity: 'store_settings',
+        expect(routerMock.resolve('/sw/settings/usage/data/index/route-example-component-section-id').matched[1]).toEqual(
+            expect.objectContaining({
+                meta: expect.objectContaining({
+                    parentPath: 'sw.settings.usage.data.index',
+                    $module: expect.objectContaining({
+                        type: 'core',
+                        name: 'usage-data',
+                        title: 'sw-settings-usage-data.general.mainMenuItemGeneral',
+                        description: 'sw-settings-usage-data.general.description',
+                        version: '1.0.0',
+                        targetVersion: '1.0.0',
+                        color: '#9AA8B5',
+                        icon: 'regular-cog',
+                        favicon: 'icon-module-settings.png',
+                        entity: 'store_settings',
+                    }),
                 }),
             }),
-        }));
+        );
     });
 });

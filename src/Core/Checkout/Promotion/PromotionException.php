@@ -35,7 +35,7 @@ class PromotionException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PROMOTION_CODE_ALREADY_REDEEMED,
-            'Promotion with code "{{ code }}" has already been marked as redeemed!',
+            'Promo code "{{ code }}" has already been marked as redeemed!',
             ['code' => $code]
         );
     }

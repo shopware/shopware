@@ -26,7 +26,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    data(): { showLinkToSettingsPage: boolean, showThankYouBanner: boolean } {
+    data(): { showLinkToSettingsPage: boolean; showThankYouBanner: boolean } {
         return {
             showLinkToSettingsPage: false,
             showThankYouBanner: false,

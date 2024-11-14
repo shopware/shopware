@@ -14,7 +14,12 @@ void import('src/core/shopware').then(async ({ ShopwareInstance }) => {
     window.Shopware = ShopwareInstance;
 
     // Take all keys out of Shopware.compatConfig but set them to true
-    const compatConfig = Object.fromEntries(Object.keys(ShopwareInstance.compatConfig).map(key => [key, true]));
+    const compatConfig = Object.fromEntries(
+        Object.keys(ShopwareInstance.compatConfig).map((key) => [
+            key,
+            true,
+        ]),
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     configureCompat(compatConfig);

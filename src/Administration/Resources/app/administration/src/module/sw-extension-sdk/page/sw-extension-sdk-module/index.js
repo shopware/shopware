@@ -30,7 +30,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
 
     computed: {
         module() {
-            return Shopware.State.get('extensionSdkModules').modules.find(module => module.id === this.id);
+            return Shopware.State.get('extensionSdkModules').modules.find((module) => module.id === this.id);
         },
 
         isLoading() {
@@ -50,8 +50,9 @@ Shopware.Component.register('sw-extension-sdk-module', {
         },
 
         smartBarButtons() {
-            return Shopware.State.get('extensionSdkModules').smartBarButtons
-                .filter(button => button.locationId === this.module?.locationId);
+            return Shopware.State.get('extensionSdkModules').smartBarButtons.filter(
+                (button) => button.locationId === this.module?.locationId,
+            );
         },
     },
 

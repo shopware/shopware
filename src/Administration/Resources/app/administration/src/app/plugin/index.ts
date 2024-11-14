@@ -8,7 +8,10 @@ export default ((): any[] => {
     if (window._features_.ADMIN_VITE) {
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-        const context = import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true, import: 'default' });
+        const context = import.meta.glob('./**/!(*.spec).{j,t}s', {
+            eager: true,
+            import: 'default',
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return Object.values(context);

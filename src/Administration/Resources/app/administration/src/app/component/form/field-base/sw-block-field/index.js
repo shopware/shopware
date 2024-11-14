@@ -20,9 +20,17 @@ Component.register('sw-block-field', {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['small', 'medium', 'default'],
+            validValues: [
+                'small',
+                'medium',
+                'default',
+            ],
             validator(val) {
-                return ['small', 'medium', 'default'].includes(val);
+                return [
+                    'small',
+                    'medium',
+                    'default',
+                ].includes(val);
             },
         },
     },

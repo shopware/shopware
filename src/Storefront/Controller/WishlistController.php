@@ -104,6 +104,7 @@ class WishlistController extends StorefrontController
     public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $criteria = new Criteria();
+        $criteria->setTitle('wishlist::list');
         $this->eventDispatcher->dispatch(new WishListPageProductCriteriaEvent($criteria, $context, $request));
 
         try {

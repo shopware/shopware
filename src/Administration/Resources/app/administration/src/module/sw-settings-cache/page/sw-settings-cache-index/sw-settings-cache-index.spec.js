@@ -76,7 +76,9 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         await flushPromises();
 
         const indexesSelectLabel = wrapper.find('.sw-settings-cache__indexers-select .sw-field__label label');
-        const indexSelectPlaceholder = wrapper.find('.sw-settings-cache__indexers-select .sw-settings-cache__indexers-placeholder .sw-label__caption');
+        const indexSelectPlaceholder = wrapper.find(
+            '.sw-settings-cache__indexers-select .sw-settings-cache__indexers-placeholder .sw-label__caption',
+        );
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesSkipSelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesSkipSelectPlaceholder');
@@ -130,6 +132,12 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         await flushPromises();
 
         expect(indexMock).toHaveBeenCalledTimes(2);
-        expect(indexMock).toHaveBeenCalledWith([], ['category.indexer', 'category.tree']);
+        expect(indexMock).toHaveBeenCalledWith(
+            [],
+            [
+                'category.indexer',
+                'category.tree',
+            ],
+        );
     });
 });

@@ -74,7 +74,10 @@ class MediaApiService extends ApiService {
         const tagListener = this.hasListeners(uploadTag) ? this.$listeners[uploadTag] : [];
         const defaultListeners = this.hasDefaultListeners() ? this.$listeners.default : [];
 
-        return [...tagListener, ...defaultListeners];
+        return [
+            ...tagListener,
+            ...defaultListeners,
+        ];
     }
 
     _createUploadEvent(action, uploadTag, payload) {
@@ -93,39 +96,33 @@ class MediaApiService extends ApiService {
         this.uploads.push(...tasks);
 
         this.getListenerForTag(uploadTag).forEach((listener) => {
-            listener(this._createUploadEvent(
-                UploadEvents.UPLOAD_ADDED,
-                uploadTag,
-                { data: tasks },
-            ));
+            listener(
+                this._createUploadEvent(UploadEvents.UPLOAD_ADDED, uploadTag, {
+                    data: tasks,
+                }),
+            );
         });
     }
 
     keepFile(uploadTag, uploadData) {
         const task = new UploadTask({ uploadTag, ...uploadData });
         this.getListenerForTag(uploadTag).forEach((listener) => {
-            listener(this._createUploadEvent(
-                UploadEvents.UPLOAD_FINISHED,
-                uploadTag,
-                {
+            listener(
+                this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, uploadTag, {
                     targetId: task.targetId,
                     successAmount: 0,
                     failureAmount: 0,
                     totalAmount: 0,
                     customMessage: 'global.sw-media-upload.notification.assigned.message',
-                },
-            ));
+                }),
+            );
         });
     }
 
     cancelUpload(uploadTag, uploadData) {
         const tasks = new UploadTask({ uploadTag, ...uploadData });
         this.getListenerForTag(uploadTag).forEach((listener) => {
-            listener(this._createUploadEvent(
-                UploadEvents.UPLOAD_CANCELED,
-                uploadTag,
-                { data: tasks },
-            ));
+            listener(this._createUploadEvent(UploadEvents.UPLOAD_CANCELED, uploadTag, { data: tasks }));
         });
     }
 
@@ -148,65 +145,52 @@ class MediaApiService extends ApiService {
         const totalUploads = affectedUploads.length;
         let successUploads = 0;
         let failureUploads = 0;
-        return Promise.all(affectedUploads.map((task) => {
-            if (task.running) {
-                return Promise.resolve();
-            }
+        return Promise.all(
+            affectedUploads.map((task) => {
+                if (task.running) {
+                    return Promise.resolve();
+                }
 
-            task.running = true;
-            return this._startUpload(task).then(() => {
-                task.running = false;
-                successUploads += 1;
-                affectedListeners.forEach((listener) => {
-                    listener(this._createUploadEvent(
-                        UploadEvents.UPLOAD_FINISHED,
-                        tag,
-                        {
-                            targetId: task.targetId,
-                            successAmount: successUploads,
-                            failureAmount: failureUploads,
-                            totalAmount: totalUploads,
-                        },
-                    ));
-                });
-            }).catch((cause) => {
-                task.error = cause;
-                task.running = false;
-                failureUploads += 1;
-                task.successAmount = successUploads;
-                task.failureAmount = failureUploads;
-                task.totalAmount = totalUploads;
-                affectedListeners.forEach((listener) => {
-                    listener(this._createUploadEvent(
-                        UploadEvents.UPLOAD_FAILED,
-                        tag,
-                        task,
-                    ));
-                });
-            });
-        }));
+                task.running = true;
+                return this._startUpload(task)
+                    .then(() => {
+                        task.running = false;
+                        successUploads += 1;
+                        affectedListeners.forEach((listener) => {
+                            listener(
+                                this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, tag, {
+                                    targetId: task.targetId,
+                                    successAmount: successUploads,
+                                    failureAmount: failureUploads,
+                                    totalAmount: totalUploads,
+                                }),
+                            );
+                        });
+                    })
+                    .catch((cause) => {
+                        task.error = cause;
+                        task.running = false;
+                        failureUploads += 1;
+                        task.successAmount = successUploads;
+                        task.failureAmount = failureUploads;
+                        task.totalAmount = totalUploads;
+                        affectedListeners.forEach((listener) => {
+                            listener(this._createUploadEvent(UploadEvents.UPLOAD_FAILED, tag, task));
+                        });
+                    });
+            }),
+        );
     }
 
     _startUpload(task) {
         if (task.src instanceof File) {
             return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
-                return this.uploadMediaById(
-                    task.targetId,
-                    task.src.type,
-                    buffer,
-                    task.extension,
-                    task.fileName,
-                );
+                return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName);
             });
         }
 
         if (task.src instanceof URL) {
-            return this.uploadMediaFromUrl(
-                task.targetId,
-                task.src.href,
-                task.extension,
-                task.fileName,
-            );
+            return this.uploadMediaFromUrl(task.targetId, task.src.href, task.extension, task.fileName);
         }
 
         return Promise.reject(new Error('src of upload must either be an instance of File or URL'));
@@ -230,18 +214,16 @@ class MediaApiService extends ApiService {
             fileName,
         };
 
-        return this.httpClient.post(
-            apiRoute,
-            data,
-            { params, headers },
-        ).then((response) => {
+        return this.httpClient.post(apiRoute, data, { params, headers }).then((response) => {
             return ApiService.handleResponse(response);
         });
     }
 
     uploadMediaFromUrl(id, url, extension, fileName = id) {
         const apiRoute = `/_action/${this.getApiBasePath(id)}/upload`;
-        const headers = this.getBasicHeaders({ 'Content-Type': 'application/json' });
+        const headers = this.getBasicHeaders({
+            'Content-Type': 'application/json',
+        });
         const params = {
             extension,
             fileName,
@@ -249,42 +231,39 @@ class MediaApiService extends ApiService {
 
         const body = JSON.stringify({ url });
 
-        return this.httpClient.post(
-            apiRoute,
-            body,
-            { params, headers },
-        ).then((response) => {
+        return this.httpClient.post(apiRoute, body, { params, headers }).then((response) => {
             return ApiService.handleResponse(response);
         });
     }
 
     renameMedia(id, fileName) {
         const apiRoute = `/_action/${this.getApiBasePath(id)}/rename`;
-        return this.httpClient.post(
-            apiRoute,
-            JSON.stringify({
-                fileName,
-            }),
-            {
-                params: {},
-                headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                JSON.stringify({
+                    fileName,
+                }),
+                {
+                    params: {},
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     provideName(fileName, extension, mediaId = null) {
         const apiRoute = `/_action/${this.getApiBasePath()}/provide-name`;
-        return this.httpClient.get(
-            apiRoute,
-            {
+        return this.httpClient
+            .get(apiRoute, {
                 params: { fileName, extension, mediaId },
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     async getDefaultFolderId(entity) {
@@ -294,8 +273,7 @@ class MediaApiService extends ApiService {
 
         const defaultFolderRepository = Shopware.Service('repositoryFactory').create('media_default_folder');
 
-        const criteria = new Criteria(1, 1)
-            .addFilter(Criteria.equals('entity', entity));
+        const criteria = new Criteria(1, 1).addFilter(Criteria.equals('entity', entity));
 
         const items = await defaultFolderRepository.search(criteria);
         if (items.length !== 1) {

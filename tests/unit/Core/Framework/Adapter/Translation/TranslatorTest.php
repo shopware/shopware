@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -84,8 +85,7 @@ class TranslatorTest extends TestCase
         );
 
         $item = new CacheItem();
-        $property = (new \ReflectionClass($item))->getProperty('isTaggable');
-        $property->setAccessible(true);
+        $property = ReflectionHelper::getProperty(CacheItem::class, 'isTaggable');
         $property->setValue($item, true);
 
         $cache->expects($expectedCacheKey ? static::once() : static::never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
@@ -98,8 +98,7 @@ class TranslatorTest extends TestCase
             $translator->injectSettings($injectSalesChannelId, Uuid::randomHex(), 'en-GB', Context::createDefaultContext());
         }
 
-        $snippetSetIdProp = (new \ReflectionClass($translator))->getProperty('snippetSetId');
-        $snippetSetIdProp->setAccessible(true);
+        $snippetSetIdProp = ReflectionHelper::getProperty(Translator::class, 'snippetSetId');
         $snippetSetIdProp->setValue($translator, $snippetSetId);
 
         // No snippet is added

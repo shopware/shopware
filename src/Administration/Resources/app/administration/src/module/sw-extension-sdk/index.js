@@ -26,12 +26,13 @@ Shopware.Module.register('sw-extension-sdk', {
         },
     },
 
-    navigation: [{
-        id: 'sw-extension-sdk',
-        label: 'sw-extension-sdk.general.mainMenuItemGeneral',
-        icon: 'regular-view-grid',
-        color: '#9AA8B5',
-        position: 110,
-    }],
+    navigation: [
+        {
+            id: 'sw-extension-sdk',
+            label: 'sw-extension-sdk.general.mainMenuItemGeneral',
+            icon: 'regular-view-grid',
+            color: '#9AA8B5',
+            position: 110,
+        },
+    ],
 });
-

@@ -38,19 +38,38 @@ class ChangelogCommandTest extends TestCase
                     '* Unknown flag _FLAG_ is assigned',
                     '[ERROR] You have 1 syntax errors in changelog files.',
                 ],
+                false,
             ],
             [
                 __DIR__ . '/_fixture/stage/command-invalid-issue-number',
                 [
-                    '* The Jira ticket has an invalid format',
+                    '* The issue has an invalid format',
                     '[ERROR] You have 1 syntax errors in changelog files.',
                 ],
+                false,
+            ],
+            [
+                __DIR__ . '/_fixture/stage/command-missing-separator',
+                [
+                    '* The issue has an invalid format',
+                    '[ERROR] You have 1 syntax errors in changelog files.',
+                    'You should use "___" to separate Storefront and Upgrade section',
+                ],
+                false,
+            ],
+            [
+                __DIR__ . '/_fixture/stage/command-header-in-codeblock',
+                [
+                    '[OK] Done',
+                ],
+                true,
             ],
             [
                 __DIR__ . '/_fixture/stage/command-valid',
                 [
                     '[OK] Done',
                 ],
+                true,
             ],
         ];
     }
@@ -166,18 +185,24 @@ class ChangelogCommandTest extends TestCase
      * @param list<string> $expectedOutputSnippets
      */
     #[DataProvider('provideCheckCommandFixtures')]
-    public function testChangelogCheckCommand(string $path, array $expectedOutputSnippets): void
+    public function testChangelogCheckCommand(string $path, array $expectedOutputSnippets, bool $expectedResult): void
     {
         self::getContainer()->get(ChangelogValidator::class)->setPlatformRoot($path);
         $cmd = self::getContainer()->get(ChangelogCheckCommand::class);
 
         $output = new BufferedOutput();
-        $cmd->run(new StringInput(''), $output);
+        $result = $cmd->run(new StringInput(''), $output);
 
         $outputContents = $output->fetch();
 
         foreach ($expectedOutputSnippets as $snippet) {
             static::assertStringContainsString($snippet, $outputContents);
+        }
+
+        if ($expectedResult) {
+            static::assertSame(0, $result);
+        } else {
+            static::assertGreaterThan(0, $result);
         }
     }
 

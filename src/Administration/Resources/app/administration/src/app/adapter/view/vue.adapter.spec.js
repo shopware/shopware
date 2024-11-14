@@ -67,10 +67,16 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.State.get('system').locales = ['en-GB', 'de-DE'];
+        Shopware.State.get('system').locales = [
+            'en-GB',
+            'de-DE',
+        ];
 
         Shopware.State.commit('setAdminLocale', {
-            locales: ['en-GB', 'de-DE'],
+            locales: [
+                'en-GB',
+                'de-DE',
+            ],
             locale: 'en-GB',
             languageId: '12345678',
         });
@@ -97,10 +103,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should call setLocaleFromuser', async () => {
-        application = createApplication()
-            .addFactory('locale', () => {
-                return LocaleFactory;
-            });
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
 
         // create vueAdapter with custom application
         vueAdapter = new VueAdapter(application);
@@ -144,10 +149,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should watch for user changes and recall the "setLocaleWithId"', async () => {
-        application = createApplication()
-            .addFactory('locale', () => {
-                return LocaleFactory;
-            });
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
 
         // Mock current user in state
         Shopware.State.get('session').currentUser = {
@@ -468,13 +472,17 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 lifecycleSpy();
             },
             methods: {
-                foo() { return 'foo'; },
+                foo() {
+                    return 'foo';
+                },
             },
         });
 
         Shopware.Mixin.register('second-mixin', {
             methods: {
-                bar() { return 'bar'; },
+                bar() {
+                    return 'bar';
+                },
             },
         });
 
@@ -487,7 +495,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['second-mixin', 'first-mixin'],
+            mixins: [
+                'second-mixin',
+                'first-mixin',
+            ],
         });
 
         Shopware.Component.markComponentAsSync('base-component');
@@ -507,11 +518,15 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'sw-foo',
 
             render() {
-                return h('div', {
-                    class: {
-                        'sw-foo': true,
+                return h(
+                    'div',
+                    {
+                        class: {
+                            'sw-foo': true,
+                        },
                     },
-                }, ['Some text']);
+                    ['Some text'],
+                );
             },
         };
 
@@ -623,11 +638,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             // create div with id app
             document.body.innerHTML = '<div id="app"></div>';
 
-            rootComponent = vueAdapter.init(
-                '#app',
-                router,
-                {},
-            );
+            rootComponent = vueAdapter.init('#app', router, {});
         });
 
         afterEach(() => {
@@ -651,18 +662,21 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should have correct working createTitle method', () => {
-            const result = rootComponent.config.globalProperties.$createTitle.call({
-                $root: {
-                    $tc: (v) => rootComponent.$tc(v),
-                },
-                $route: {
-                    meta: {
-                        $module: {
-                            title: 'global.my.mock.title',
+            const result = rootComponent.config.globalProperties.$createTitle.call(
+                {
+                    $root: {
+                        $tc: (v) => rootComponent.$tc(v),
+                    },
+                    $route: {
+                        meta: {
+                            $module: {
+                                title: 'global.my.mock.title',
+                            },
                         },
                     },
                 },
-            }, 'Test');
+                'Test',
+            );
 
             expect(result).toBe('Test | Mock title | Text Shopware Admin');
         });
@@ -729,7 +743,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             const expectedLocale = 'de-DE';
 
             Shopware.State.commit('setAdminLocale', {
-                locales: ['en-GB', 'de-DE'],
+                locales: [
+                    'en-GB',
+                    'de-DE',
+                ],
                 locale: expectedLocale,
                 languageId: '12345678',
             });

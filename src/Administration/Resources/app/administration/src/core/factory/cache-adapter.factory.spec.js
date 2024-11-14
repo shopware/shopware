@@ -13,10 +13,12 @@ describe('core/factory/cache-adapter.factory.js', () => {
         jest.useFakeTimers();
 
         requestCaches = {};
-        mockAdapter = jest.fn((config) => Promise.resolve({
-            request: config,
-            response: 'success',
-        }));
+        mockAdapter = jest.fn((config) =>
+            Promise.resolve({
+                request: config,
+                response: 'success',
+            }),
+        );
     });
 
     it('should cache the second request when its identical and happen shortly afterwards', async () => {

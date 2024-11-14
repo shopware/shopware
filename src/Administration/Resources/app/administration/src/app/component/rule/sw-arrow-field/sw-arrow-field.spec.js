@@ -5,9 +5,10 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-arrow-field';
 
 async function createWrapper(customOptions = {}) {
-    return mount(await Shopware.Component.build('sw-arrow-field'), { ...customOptions });
+    return mount(await Shopware.Component.build('sw-arrow-field'), {
+        ...customOptions,
+    });
 }
-
 
 describe('src/app/component/rule/sw-arrow-field', () => {
     it('should have enabled links', async () => {

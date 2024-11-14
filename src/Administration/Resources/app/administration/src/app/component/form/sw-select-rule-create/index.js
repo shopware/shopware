@@ -53,8 +53,7 @@ Component.register('sw-select-rule-create', {
             required: false,
             default() {
                 const criteria = new Criteria(1, 25);
-                criteria.addSorting(Criteria.sort('name', 'ASC', false))
-                    .addAssociation('conditions');
+                criteria.addSorting(Criteria.sort('name', 'ASC', false)).addAssociation('conditions');
 
                 return criteria;
             },
@@ -150,14 +149,10 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
-            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
-
-            const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
-                rule.conditions,
-                this.ruleAwareGroupKey,
+            return (
+                this.restrictedRuleIds.includes(rule.id) ||
+                this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey)
             );
-
-            return isRuleRestricted || insideRestrictedRuleIds;
         },
 
         getAdvancedSelectionParameters() {

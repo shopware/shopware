@@ -12,6 +12,8 @@ class CheckoutFinishPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var CheckoutFinishPage
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 

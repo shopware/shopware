@@ -1117,7 +1117,7 @@ Increased Node version to 18 and NPM to version 8 or 9.
 
 ## Removal of old icons:
 
-* Replace any old icon your integration uses with its successor. A mapping can be found here `src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js`.
+* Replace any old icon your integration uses with its successor. A mapping can be found [here](https://github.com/shopware/shopware/blob/v6.4.20.2/src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js).
 * The object keys of the json file are the legacy icons. The values the replacement.
 * In the next major, the icons will have no space around them by default. This could eventually lead to bigger looking icons in some places. If this is the case you need to adjust the styling with CSS so that it matches your wanted look.
 

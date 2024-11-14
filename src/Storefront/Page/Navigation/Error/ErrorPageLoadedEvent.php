@@ -12,6 +12,8 @@ class ErrorPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var ErrorPage
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $page;
 

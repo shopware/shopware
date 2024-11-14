@@ -13,7 +13,12 @@ Component.register('sw-data-grid-settings', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['change-compact-mode', 'change-preview-images', 'change-column-visibility', 'change-column-order'],
+    emits: [
+        'change-compact-mode',
+        'change-preview-images',
+        'change-column-visibility',
+        'change-column-order',
+    ],
 
     props: {
         columns: {

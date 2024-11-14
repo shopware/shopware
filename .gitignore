@@ -75,7 +75,8 @@ app/config/parameters.yml
 
 # tooling
 /dev-ops/docker/_volumes
-/docker-compose.override.yml
+/compose.override.yml
+/compose.override.yaml
 /.psh.yml
 /dev-ops/docker/containers/*/createuser.sh
 /dev-ops/docker/containers/php7/Dockerfile
@@ -132,7 +133,6 @@ custom
 !/custom/scripts/examples
 files/*
 install.lock
-docker-compose.override.yaml
 
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock

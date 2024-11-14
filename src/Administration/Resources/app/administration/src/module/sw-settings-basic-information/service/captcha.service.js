@@ -12,9 +12,7 @@ export default class CaptchaService {
     list(cb) {
         const headers = this.getAuthHeaders();
 
-        this.httpClient
-            .get('/_action/captcha_list', { headers })
-            .then(response => cb(response.data));
+        this.httpClient.get('/_action/captcha_list', { headers }).then((response) => cb(response.data));
     }
 
     getAuthHeaders() {

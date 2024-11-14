@@ -63,4 +63,11 @@ class PluginExceptionTest extends TestCase
 
         throw PluginException::projectDirNotInContainer();
     }
+
+    public function testCannotDeleteShopwareMigrations(): void
+    {
+        $e = PluginException::cannotDeleteShopwareMigrations();
+
+        static::assertEquals(PluginException::CANNOT_DELETE_SHOPWARE_MIGRATIONS, $e->getErrorCode());
+    }
 }

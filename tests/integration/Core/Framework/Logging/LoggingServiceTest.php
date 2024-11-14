@@ -24,10 +24,7 @@ class LoggingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    protected $context;
+    protected Context $context;
 
     protected function setUp(): void
     {

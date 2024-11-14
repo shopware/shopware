@@ -77,13 +77,12 @@ export default {
         },
 
         promotionCriteria() {
-            const criteria = (new Criteria(1, 1))
+            const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')
                 .addAssociation('discounts.discountRules')
                 .addAssociation('salesChannels');
 
-            criteria.getAssociation('discounts')
-                .addSorting(Criteria.sort('createdAt', 'ASC'));
+            criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
             criteria.getAssociation('individualCodes');
 
@@ -94,7 +93,6 @@ export default {
             if (!this.acl.can('promotion.editor')) {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('category.editor'),
                     showOnDisabledElements: true,
                 };
             }
@@ -160,7 +158,8 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.promotionRepository.get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
+            return this.promotionRepository
+                .get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
                 .then((promotion) => {
                     if (promotion === null) {
                         return;
@@ -173,10 +172,11 @@ export default {
                     }
 
                     // Needed to enrich the VueX state below
-                    this.promotion.hasOrders = (promotion.orderCount !== null) ? promotion.orderCount > 0 : false;
+                    this.promotion.hasOrders = promotion.orderCount !== null ? promotion.orderCount > 0 : false;
 
                     Shopware.State.commit('swPromotionDetail/setPromotion', this.promotion);
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -187,12 +187,17 @@ export default {
 
         onSave() {
             if (!this.promotionId) {
-                this.createPromotion();
+                this.savePromotion();
 
                 return;
             }
 
-            if (![this.cleanUpIndividualCodes, this.cleanUpFixedCode].some(check => check)) {
+            if (
+                ![
+                    this.cleanUpIndividualCodes,
+                    this.cleanUpFixedCode,
+                ].some((check) => check)
+            ) {
                 this.savePromotion();
 
                 return;
@@ -210,10 +215,11 @@ export default {
             this.showCodeTypeChangeModal = false;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed. Use `savePromotion` instead
+         */
         createPromotion() {
-            return this.savePromotion().then(() => {
-                this.$router.push({ name: 'sw.promotion.v2.detail', params: { id: this.promotion.id } });
-            });
+            return this.savePromotion();
         },
 
         async savePromotion() {
@@ -246,6 +252,13 @@ export default {
                 Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
                 this.isSaveSuccessful = true;
                 await this.loadEntityData();
+
+                if (this.isCreateMode) {
+                    this.$router.push({
+                        name: 'sw.promotion.v2.detail',
+                        params: { id: this.promotion.id },
+                    });
+                }
             } catch (e) {
                 this.isLoading = false;
                 this.createNotificationError({

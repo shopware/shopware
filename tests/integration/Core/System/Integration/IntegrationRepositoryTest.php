@@ -21,7 +21,7 @@ class IntegrationRepositoryTest extends TestCase
     /**
      * @var EntityRepository<IntegrationCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {

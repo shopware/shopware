@@ -105,13 +105,14 @@
       "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?",
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "labelGrossNet": "(Brutto / Netto)",
-      "ruleAlreadyUsed": "Diese Regel wird bereits für eine Preismatrix genutzt.",
+      "ruleAlreadyUsedOrRestricted": "Diese Regel wird bereits verwendet oder enthält Bedingungen, die nicht auf erweiterte Preise angewendet werden können.",
       "ruleAlreadyUsedInMatrix": "Diese Regel wird bereits in dieser Preismatrix genutzt.",
       "textOr": "oder",
       "chooseOrCreateRule": "Wähle oder erstelle eine Regel",
       "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
       "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
-      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden."
+      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden.",
+      "buttonLoadAllPrices": "Alle Preise laden"
     },
     "sidebar": {
       "labelUseAsLogo": "Als Logo verwenden"

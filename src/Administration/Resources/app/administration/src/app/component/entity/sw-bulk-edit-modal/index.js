@@ -29,7 +29,12 @@ Component.register('sw-bulk-edit-modal', {
             type: Array,
             required: false,
             default() {
-                return [200, 300, 400, 500];
+                return [
+                    200,
+                    300,
+                    400,
+                    500,
+                ];
             },
         },
 

@@ -12,13 +12,12 @@ describe('module/sw-product/component/sw-product-category-form', () => {
     const defaultSalesChannelData = {};
 
     async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity =
-            {
-                metaTitle: 'Product1',
-                id: 'productId1',
-                isNew: () => false,
-                ...productEntityOverride,
-            };
+        const productEntity = {
+            metaTitle: 'Product1',
+            id: 'productId1',
+            isNew: () => false,
+            ...productEntityOverride,
+        };
 
         const parentProduct = {
             id: 'productId',
@@ -93,10 +92,13 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     repositoryFactory: {
                         create: () => {
                             return {
-                                search: () => Promise.resolve([{
-                                    id: '98432def39fc4624b33213a56b8c944d',
-                                    name: 'Headless',
-                                }]),
+                                search: () =>
+                                    Promise.resolve([
+                                        {
+                                            id: '98432def39fc4624b33213a56b8c944d',
+                                            name: 'Headless',
+                                        },
+                                    ]),
                                 create: () => ({}),
                             };
                         },
@@ -124,7 +126,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
             '.sw-product-category-form__search-keyword-field',
         ];
 
-        structureFieldsClassName.forEach(item => {
+        structureFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
     });
@@ -149,7 +151,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
             '.sw-product-category-form__search-keyword-field',
         ];
 
-        structureFieldsClassName.forEach(item => {
+        structureFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(false);
         });
     });

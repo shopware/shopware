@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
@@ -45,7 +45,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testGenerateForNewCategories(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root'],
@@ -74,7 +74,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testSwitchNavigationId(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -114,7 +114,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testSwitchParentId(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -152,7 +152,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testUpdateName(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -191,7 +191,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testFooterMenu(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         /**
          * navigation
@@ -250,7 +250,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testServiceMenuNotInFooter(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         /**
          * navigation
@@ -308,7 +308,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testDuplicateUrl(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],

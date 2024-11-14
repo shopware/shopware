@@ -12,7 +12,6 @@ export default {
     getByName,
 };
 
-
 interface FilterRegistry extends Map<string, FilterTypes[keyof FilterTypes]> {
     get: <A extends keyof FilterTypes>(key: A) => FilterTypes[A];
 }
@@ -37,23 +36,14 @@ function getRegistry(): FilterRegistry {
 /**
  * @description Register a new filter
  */
-function register<A extends string>(
-    filterName: A,
-    filterFactoryMethod: FilterTypes[A],
-): boolean {
+function register<A extends string>(filterName: A, filterFactoryMethod: FilterTypes[A]): boolean {
     if (!filterName || !filterName.length) {
-        warn(
-            name,
-            'A filter always needs a name',
-        );
+        warn(name, 'A filter always needs a name');
         return false;
     }
 
     if (filterRegistry.has(filterName)) {
-        warn(
-            name,
-            `The filter "${filterName}" is already registered. Please select a unique name for your filter.`,
-        );
+        warn(name, `The filter "${filterName}" is already registered. Please select a unique name for your filter.`);
         return false;
     }
 

@@ -4,61 +4,63 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-search-view-live-search', {
-        sync: true,
-    }), {
-        props: {
-            currentSalesChannelId: null,
-            searchTerms: null,
-            searchResults: null,
-            isLoading: false,
-        },
-
-        global: {
-            renderStubDefaultSlot: true,
-
-            provide: {
-                repositoryFactory: {
-                    create: (name) => {
-                        if (name === 'product') {
-                            return {
-                                search: () => Promise.resolve([]),
-                            };
-                        }
-
-                        if (name === 'product_search_keyword') {
-                            return {
-                                search: () => Promise.resolve([]),
-                            };
-                        }
-
-                        return null;
-                    },
-                },
-                productIndexService: {},
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
-                    },
-                },
+    return mount(
+        await wrapTestComponent('sw-settings-search-view-live-search', {
+            sync: true,
+        }),
+        {
+            props: {
+                currentSalesChannelId: null,
+                searchTerms: null,
+                searchResults: null,
+                isLoading: false,
             },
 
-            stubs: {
-                'sw-settings-search-live-search': true,
-                'sw-settings-search-search-index': await wrapTestComponent('sw-settings-search-search-index'),
-                'sw-card': true,
-                'sw-button-process': true,
-                'sw-alert': true,
-                'sw-time-ago': true,
-                'sw-progress-bar': true,
+            global: {
+                renderStubDefaultSlot: true,
+
+                provide: {
+                    repositoryFactory: {
+                        create: (name) => {
+                            if (name === 'product') {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                };
+                            }
+
+                            if (name === 'product_search_keyword') {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                };
+                            }
+
+                            return null;
+                        },
+                    },
+                    productIndexService: {},
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                },
+
+                stubs: {
+                    'sw-settings-search-live-search': true,
+                    'sw-settings-search-search-index': await wrapTestComponent('sw-settings-search-search-index'),
+                    'sw-card': true,
+                    'sw-button-process': true,
+                    'sw-alert': true,
+                    'sw-time-ago': true,
+                    'sw-progress-bar': true,
+                },
             },
         },
-
-    });
+    );
 }
 
 describe('module/sw-settings-search/view/sw-settings-search-view-live-search', () => {

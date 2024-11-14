@@ -12,7 +12,11 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: ['buttons-update', 'frw-set-title', 'frw-redirect'],
+    emits: [
+        'buttons-update',
+        'frw-set-title',
+        'frw-redirect',
+    ],
 
     data() {
         return {

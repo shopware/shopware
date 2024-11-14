@@ -22,14 +22,23 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', {
+                    sync: true,
+                }),
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                 'sw-text-editor': {
                     props: ['value'],
-                    emits: ['blur', 'update:value', 'change'],
-                    template: '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
+                    emits: [
+                        'blur',
+                        'update:value',
+                        'change',
+                    ],
+                    template:
+                        '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
                 'sw-select-field': true,
                 'sw-icon': true,

@@ -1,6 +1,6 @@
 /**
  * @package buyers-experience
-*/
+ */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
@@ -44,47 +44,50 @@ const sliderItemsDataMock = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-image-slider', {
-        sync: true,
-    }), {
-        global: {
-            sync: false,
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-image-slider', {
+            sync: true,
+        }),
+        {
+            global: {
+                sync: false,
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-icon': true,
+                },
             },
-            stubs: {
-                'sw-icon': true,
+            props: {
+                element: {
+                    config: {},
+                    data: {},
+                },
+                defaultConfig: {
+                    sliderItems: {
+                        source: 'static',
+                        value: [],
+                    },
+                    navigationArrows: {
+                        source: 'static',
+                        value: 'outside',
+                    },
+                    navigationDots: {
+                        source: 'static',
+                        value: null,
+                    },
+                    displayMode: {
+                        source: 'static',
+                        value: 'standard',
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null,
+                    },
+                },
             },
         },
-        props: {
-            element: {
-                config: {},
-                data: {},
-            },
-            defaultConfig: {
-                sliderItems: {
-                    source: 'static',
-                    value: [],
-                },
-                navigationArrows: {
-                    source: 'static',
-                    value: 'outside',
-                },
-                navigationDots: {
-                    source: 'static',
-                    value: null,
-                },
-                displayMode: {
-                    source: 'static',
-                    value: 'standard',
-                },
-                verticalAlign: {
-                    source: 'static',
-                    value: null,
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/image-slider/component', () => {

@@ -49,6 +49,9 @@ class PaymentHandlerRegistry
 
         // @deprecated tag:v6.7.0 - all following can be removed
         foreach (\array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
+            if (isset($this->handlers[(string) $serviceId])) {
+                continue;
+            }
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
                 \sprintf('The tag `shopware.payment.method.sync` is deprecated for service %s and will be removed in 6.7.0. Use `shopware.payment.method` instead.', $serviceId),
@@ -58,6 +61,9 @@ class PaymentHandlerRegistry
         }
 
         foreach (\array_keys($asyncHandlers->getProvidedServices()) as $serviceId) {
+            if (isset($this->handlers[(string) $serviceId])) {
+                continue;
+            }
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
                 \sprintf('The tag `shopware.payment.method.async` is deprecated for service %s and will be removed in 6.7.0. Use `shopware.payment.method` instead.', $serviceId),
@@ -67,6 +73,9 @@ class PaymentHandlerRegistry
         }
 
         foreach (\array_keys($preparedHandlers->getProvidedServices()) as $serviceId) {
+            if (isset($this->handlers[(string) $serviceId])) {
+                continue;
+            }
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
                 \sprintf('The tag `shopware.payment.method.prepared` is deprecated for service %s and will be removed in 6.7.0. Use `shopware.payment.method` instead.', $serviceId),
@@ -76,6 +85,9 @@ class PaymentHandlerRegistry
         }
 
         foreach (\array_keys($refundHandlers->getProvidedServices()) as $serviceId) {
+            if (isset($this->handlers[(string) $serviceId])) {
+                continue;
+            }
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
                 \sprintf('The tag `shopware.payment.method.refund` is deprecated for service %s and will be removed in 6.7.0. Use `shopware.payment.method` instead.', $serviceId),
@@ -85,6 +97,9 @@ class PaymentHandlerRegistry
         }
 
         foreach (\array_keys($recurringHandlers->getProvidedServices()) as $serviceId) {
+            if (isset($this->handlers[(string) $serviceId])) {
+                continue;
+            }
             Feature::triggerDeprecationOrThrow(
                 'v6.7.0.0',
                 \sprintf('The tag `shopware.payment.method.recurring` is deprecated for service %s and will be removed in 6.7.0. Use `shopware.payment.method` instead.', $serviceId),

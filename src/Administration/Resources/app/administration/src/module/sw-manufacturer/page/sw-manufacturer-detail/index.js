@@ -5,7 +5,10 @@
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -15,7 +18,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -35,7 +41,6 @@ export default {
             default: null,
         },
     },
-
 
     data() {
         return {
@@ -75,9 +80,7 @@ export default {
 
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
-            criteria.addFilter(
-                Criteria.equals('relations.entityName', 'product_manufacturer'),
-            );
+            criteria.addFilter(Criteria.equals('relations.entityName', 'product_manufacturer'));
 
             return criteria;
         },
@@ -143,7 +146,10 @@ export default {
         async loadEntityData() {
             this.isLoading = true;
 
-            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
+            const [
+                manufacturerResponse,
+                customFieldResponse,
+            ] = await Promise.allSettled([
                 this.manufacturerRepository.get(this.manufacturerId),
                 this.customFieldSetRepository.search(this.customFieldSetCriteria),
             ]);
@@ -158,9 +164,7 @@ export default {
 
             if (manufacturerResponse.status === 'rejected' || customFieldResponse.status === 'rejected') {
                 this.createNotificationError({
-                    message: this.$tc(
-                        'global.notification.notificationLoadingDataErrorMessage',
-                    ),
+                    message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
                 });
             }
 
@@ -206,24 +210,28 @@ export default {
 
             this.isLoading = true;
 
-            this.manufacturerRepository.save(this.manufacturer).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-                if (this.manufacturerId === null) {
-                    this.$router.push({ name: 'sw.manufacturer.detail', params: { id: this.manufacturer.id } });
-                    return;
-                }
+            this.manufacturerRepository
+                .save(this.manufacturer)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                    if (this.manufacturerId === null) {
+                        this.$router.push({
+                            name: 'sw.manufacturer.detail',
+                            params: { id: this.manufacturer.id },
+                        });
+                        return;
+                    }
 
-                this.loadEntityData();
-            }).catch((exception) => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                    ),
+                    this.loadEntityData();
+                })
+                .catch((exception) => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    });
+                    throw exception;
                 });
-                throw exception;
-            });
         },
 
         onCancel() {

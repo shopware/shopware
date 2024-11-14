@@ -9,16 +9,40 @@ const { Module } = Shopware;
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-search', () => import('./page/sw-settings-search'));
 Shopware.Component.register('sw-settings-search-view-general', () => import('./view/sw-settings-search-view-general'));
-Shopware.Component.register('sw-settings-search-view-live-search', () => import('./view/sw-settings-search-view-live-search'));
-Shopware.Component.register('sw-settings-search-search-behaviour', () => import('./component/sw-settings-search-search-behaviour'));
-Shopware.Component.register('sw-settings-search-searchable-content', () => import('./component/sw-settings-search-searchable-content'));
-Shopware.Component.register('sw-settings-search-example-modal', () => import('./component/sw-settings-search-example-modal'));
-Shopware.Component.register('sw-settings-search-searchable-content-general', () => import('./component/sw-settings-search-searchable-content-general'));
-Shopware.Component.register('sw-settings-search-searchable-content-customfields', () => import('./component/sw-settings-search-searchable-content-customfields'));
-Shopware.Component.register('sw-settings-search-excluded-search-terms', () => import('./component/sw-settings-search-excluded-search-terms'));
+Shopware.Component.register(
+    'sw-settings-search-view-live-search',
+    () => import('./view/sw-settings-search-view-live-search'),
+);
+Shopware.Component.register(
+    'sw-settings-search-search-behaviour',
+    () => import('./component/sw-settings-search-search-behaviour'),
+);
+Shopware.Component.register(
+    'sw-settings-search-searchable-content',
+    () => import('./component/sw-settings-search-searchable-content'),
+);
+Shopware.Component.register(
+    'sw-settings-search-example-modal',
+    () => import('./component/sw-settings-search-example-modal'),
+);
+Shopware.Component.register(
+    'sw-settings-search-searchable-content-general',
+    () => import('./component/sw-settings-search-searchable-content-general'),
+);
+Shopware.Component.register(
+    'sw-settings-search-searchable-content-customfields',
+    () => import('./component/sw-settings-search-searchable-content-customfields'),
+);
+Shopware.Component.register(
+    'sw-settings-search-excluded-search-terms',
+    () => import('./component/sw-settings-search-excluded-search-terms'),
+);
 Shopware.Component.register('sw-settings-search-search-index', () => import('./component/sw-settings-search-search-index'));
 Shopware.Component.register('sw-settings-search-live-search', () => import('./component/sw-settings-search-live-search'));
-Shopware.Component.register('sw-settings-search-live-search-keyword', () => import('./component/sw-settings-search-live-search-keyword'));
+Shopware.Component.register(
+    'sw-settings-search-live-search-keyword',
+    () => import('./component/sw-settings-search-live-search-keyword'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

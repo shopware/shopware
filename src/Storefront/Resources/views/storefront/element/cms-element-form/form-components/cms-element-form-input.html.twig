@@ -9,12 +9,12 @@
         {% block cms_element_form_input_input %}
             <input name="{{ fieldName }}"
                    type="{{ type ?? 'text'}}"
-                   id="form-{{ fieldName }}"
+                   id="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}form-{{ fieldName }}"
                    {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
                    value="{{ data.get( fieldName ) }}"
                    placeholder="{{ placeholder|trans }}"
                    {% if required %}required="required"{% endif %}
-                   class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) %} is-invalid{% endif %}">
+                   class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) is not empty %} is-invalid{% endif %}">
 
             {% if formViolations.getViolations( '/' ~ fieldName ) is not empty %}
                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {

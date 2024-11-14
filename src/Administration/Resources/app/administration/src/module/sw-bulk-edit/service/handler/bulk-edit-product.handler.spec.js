@@ -43,29 +43,46 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
     it('should call buildBulkSyncPayload when using bulkEdit', async () => {
         const handler = getBulkEditProductHandler();
 
-        const bulkEditProductHandler = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve({
-            upsert: {
-                entity: 'order',
-            },
-        }));
+        const bulkEditProductHandler = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() =>
+            Promise.resolve({
+                upsert: {
+                    entity: 'order',
+                },
+            }),
+        );
 
-        const result = await handler.bulkEdit(['abc', 'xyz'], []);
+        const result = await handler.bulkEdit(
+            [
+                'abc',
+                'xyz',
+            ],
+            [],
+        );
 
         expect(bulkEditProductHandler).toHaveBeenCalledTimes(1);
         expect(bulkEditProductHandler).toHaveBeenCalledWith([]);
         expect(handler.entityName).toBe('product');
-        expect(handler.entityIds).toEqual(['abc', 'xyz']);
+        expect(handler.entityIds).toEqual([
+            'abc',
+            'xyz',
+        ]);
         expect(result).toBe(true);
     });
 
     it('should call syncService sync when using bulkEditProductHandler', async () => {
         const handler = getBulkEditProductHandler();
-        const payload = { product: { operation: 'upsert', entity: 'product', payload: [] } };
+        const payload = {
+            product: { operation: 'upsert', entity: 'product', payload: [] },
+        };
 
-        const buildBulkSyncPayloadMethod = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve(payload));
+        const buildBulkSyncPayloadMethod = jest
+            .spyOn(handler, 'buildBulkSyncPayload')
+            .mockImplementation(() => Promise.resolve(payload));
         const syncMethod = jest.spyOn(handler.syncService, 'sync').mockImplementation(() => Promise.resolve(true));
 
-        const changes = [{ type: 'overwrite', field: 'description', value: 'test' }];
+        const changes = [
+            { type: 'overwrite', field: 'description', value: 'test' },
+        ];
 
         const result = await handler.bulkEdit([], changes);
 
@@ -73,7 +90,14 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         expect(buildBulkSyncPayloadMethod).toHaveBeenCalledWith(changes);
 
         expect(syncMethod).toHaveBeenCalledTimes(1);
-        expect(syncMethod).toHaveBeenCalledWith(JSON.stringify(payload), {}, { 'single-operation': 1, 'sw-language-id': Shopware.Context.api.languageId });
+        expect(syncMethod).toHaveBeenCalledWith(
+            JSON.stringify(payload),
+            {},
+            {
+                'single-operation': 1,
+                'sw-language-id': Shopware.Context.api.languageId,
+            },
+        );
         expect(result).toBe(true);
     });
 
@@ -88,7 +112,10 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 delete: {},
             };
             handler.entityName = 'product';
-            handler.entityIds = ['product_1', 'product_2'];
+            handler.entityIds = [
+                'product_1',
+                'product_2',
+            ];
         });
 
         const cases = [
@@ -99,16 +126,29 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'invalid field',
-                [{ type: 'overwrite', field: 'invalid-field', value: 'test' }, {
-                    type: 'clear',
-                    field: 'invalid-field-2',
-                    value: 'test',
-                }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'invalid-field',
+                        value: 'test',
+                    },
+                    {
+                        type: 'clear',
+                        field: 'invalid-field-2',
+                        value: 'test',
+                    },
+                ],
                 {},
             ],
             [
                 'unsupported type',
-                [{ type: 'not-support-type', field: 'description', value: 'test' }],
+                [
+                    {
+                        type: 'not-support-type',
+                        field: 'description',
+                        value: 'test',
+                    },
+                ],
                 {},
             ],
             [
@@ -133,7 +173,15 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite custom field',
-                [{ type: 'overwrite', field: 'customFields', value: { custom_health_nostrum_facere_quo: 'lorem ipsum' } }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'customFields',
+                        value: {
+                            custom_health_nostrum_facere_quo: 'lorem ipsum',
+                        },
+                    },
+                ],
                 {
                     'upsert-product': {
                         action: 'upsert',
@@ -177,7 +225,10 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'clear multiple scalar fields',
-                [{ type: 'clear', field: 'description' }, { type: 'clear', field: 'stock' }],
+                [
+                    { type: 'clear', field: 'description' },
+                    { type: 'clear', field: 'stock' },
+                ],
                 {
                     'upsert-product': {
                         action: 'upsert',
@@ -199,11 +250,14 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite multiple fields',
-                [{ type: 'overwrite', field: 'description', value: 'test' }, {
-                    type: 'overwrite',
-                    field: 'stock',
-                    value: 10,
-                }],
+                [
+                    { type: 'overwrite', field: 'description', value: 'test' },
+                    {
+                        type: 'overwrite',
+                        field: 'stock',
+                        value: 10,
+                    },
+                ],
                 {
                     'upsert-product': {
                         action: 'upsert',
@@ -225,11 +279,15 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'changes with invalid field and unsupported type',
-                [{ type: 'overwrite', field: 'description', value: 'test' }, {
-                    type: 'overwrite',
-                    field: 'invalid-field',
-                    value: 10,
-                }, { type: 'un-support-type', field: 'name', value: 10 }],
+                [
+                    { type: 'overwrite', field: 'description', value: 'test' },
+                    {
+                        type: 'overwrite',
+                        field: 'invalid-field',
+                        value: 10,
+                    },
+                    { type: 'un-support-type', field: 'name', value: 10 },
+                ],
                 {
                     'upsert-product': {
                         action: 'upsert',
@@ -249,20 +307,30 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'change association with invalid field',
-                [{
-                    type: 'overwrite',
-                    field: 'invalidField',
-                    value: ['category_1', 'category_2'],
-                }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'invalidField',
+                        value: [
+                            'category_1',
+                            'category_2',
+                        ],
+                    },
+                ],
                 {},
             ],
             [
                 'overwrite an association with no duplicated',
-                [{
-                    type: 'overwrite',
-                    field: 'categories',
-                    value: [{ id: 'category_1' }, { id: 'category_2' }],
-                }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'categories',
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_category': {
                         action: 'upsert',
@@ -293,11 +361,16 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite an association with some duplicated',
-                [{
-                    type: 'overwrite',
-                    field: 'categories',
-                    value: [{ id: 'category_1' }, { id: 'category_2' }],
-                }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'categories',
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_category': {
                         action: 'upsert',
@@ -351,7 +424,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite an oneToMany association',
-                [{ type: 'overwrite', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'media',
+                        mappingReferenceField: 'mediaId',
+                        value: [
+                            { mediaId: 'media_1' },
+                            { mediaId: 'media_2' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_media': {
                         action: 'upsert',
@@ -399,7 +482,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite an oneToMany association with extra field',
-                [{ type: 'overwrite', field: 'visibilities', mappingReferenceField: 'salesChannelId', value: [{ salesChannelId: 'scn_1', visibility: 20 }, { salesChannelId: 'scn_2', visibility: 30 }] }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 20 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_visibility': {
                         action: 'upsert',
@@ -463,7 +556,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'add an oneToMany association with mapping reference field',
-                [{ type: 'add', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
+                [
+                    {
+                        type: 'add',
+                        field: 'media',
+                        mappingReferenceField: 'mediaId',
+                        value: [
+                            { mediaId: 'media_1' },
+                            { mediaId: 'media_2' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_media': {
                         action: 'upsert',
@@ -496,7 +599,16 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'add an oneToMany association without mapping reference field',
-                [{ type: 'add', field: 'productLocations', value: [{ name: 'location 2' }, { name: 'location 3' }] }],
+                [
+                    {
+                        type: 'add',
+                        field: 'productLocations',
+                        value: [
+                            { name: 'location 2' },
+                            { name: 'location 3' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_location': {
                         action: 'upsert',
@@ -533,7 +645,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'remove an oneToMany association',
-                [{ type: 'clear', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
+                [
+                    {
+                        type: 'clear',
+                        field: 'media',
+                        mappingReferenceField: 'mediaId',
+                        value: [
+                            { mediaId: 'media_1' },
+                            { mediaId: 'media_2' },
+                        ],
+                    },
+                ],
                 {
                     'delete-product_media': {
                         action: 'delete',
@@ -557,7 +679,13 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'clear an oneToMany association',
-                [{ type: 'clear', field: 'media', mappingReferenceField: 'mediaId' }],
+                [
+                    {
+                        type: 'clear',
+                        field: 'media',
+                        mappingReferenceField: 'mediaId',
+                    },
+                ],
                 {
                     'delete-product_media': {
                         action: 'delete',
@@ -589,11 +717,16 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite an association with all duplicated',
-                [{
-                    type: 'overwrite',
-                    field: 'categories',
-                    value: [{ id: 'category_1' }, { id: 'category_2' }],
-                }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'categories',
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                        ],
+                    },
+                ],
                 {},
                 {
                     product_category: [
@@ -618,11 +751,16 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'overwrite an association with duplicated',
-                [{
-                    type: 'overwrite',
-                    field: 'categories',
-                    value: [{ id: 'category_1' }, { id: 'category_2' }],
-                }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'categories',
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_category': {
                         action: 'upsert',
@@ -650,16 +788,21 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             categoryId: 'category_2',
                         },
                     ],
-
                 },
             ],
             [
                 'add an association',
-                [{
-                    type: 'add',
-                    field: 'categories',
-                    value: [{ id: 'category_1' }, { id: 'category_2' }, { id: 'category_3' }],
-                }],
+                [
+                    {
+                        type: 'add',
+                        field: 'categories',
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                            { id: 'category_3' },
+                        ],
+                    },
+                ],
                 {
                     'upsert-product_category': {
                         action: 'upsert',
@@ -703,11 +846,16 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'remove an association',
-                [{
-                    type: 'remove',
-                    field: 'categories',
-                    value: [{ id: 'category_1' }, { id: 'category_2' }],
-                }],
+                [
+                    {
+                        type: 'remove',
+                        field: 'categories',
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                        ],
+                    },
+                ],
                 {
                     'delete-product_category': {
                         action: 'delete',
@@ -742,11 +890,19 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 [
                     { type: 'overwrite', field: 'description', value: 'test' },
                     { type: 'clear', field: 'stock' },
-                    { type: 'remove', mappingReferenceField: 'mediaId', field: 'media', value: { mediaId: 'media_1' } },
+                    {
+                        type: 'remove',
+                        mappingReferenceField: 'mediaId',
+                        field: 'media',
+                        value: { mediaId: 'media_1' },
+                    },
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [{ id: 'category_1' }, { id: 'category_2' }],
+                        value: [
+                            { id: 'category_1' },
+                            { id: 'category_2' },
+                        ],
                     },
                 ],
                 {
@@ -820,44 +976,80 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'add more than 500 oneToMany association',
-                [{
-                    type: 'add',
-                    field: 'media',
-                    mappingReferenceField: 'mediaId',
-                    value: Array(highAssociationCount).fill(0).map((v, k) => ({ mediaId: `media_${k}` })),
-                }],
+                [
+                    {
+                        type: 'add',
+                        field: 'media',
+                        mappingReferenceField: 'mediaId',
+                        value: Array(highAssociationCount)
+                            .fill(0)
+                            .map((v, k) => ({ mediaId: `media_${k}` })),
+                    },
+                ],
                 {
                     'upsert-product_media': {
                         action: 'upsert',
                         entity: 'product_media',
-                        payload: Array(highAssociationCount).fill(0).map((v, k) => ({ productId: 'product_1', mediaId: `media_${k}` })),
+                        payload: Array(highAssociationCount)
+                            .fill(0)
+                            .map((v, k) => ({
+                                productId: 'product_1',
+                                mediaId: `media_${k}`,
+                            })),
                     },
                 },
                 {
-                    product_media: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `product_media_${k}`, productId: 'product_2', mediaId: `media_${k}` })),
+                    product_media: Array(highAssociationCount)
+                        .fill(0)
+                        .map((v, k) => ({
+                            id: `product_media_${k}`,
+                            productId: 'product_2',
+                            mediaId: `media_${k}`,
+                        })),
                 },
             ],
             [
                 'add more than 500 manyToMany association',
-                [{
-                    type: 'add',
-                    field: 'categories',
-                    value: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `category_${k}` })),
-                }],
+                [
+                    {
+                        type: 'add',
+                        field: 'categories',
+                        value: Array(highAssociationCount)
+                            .fill(0)
+                            .map((v, k) => ({ id: `category_${k}` })),
+                    },
+                ],
                 {
                     'upsert-product_category': {
                         action: 'upsert',
                         entity: 'product_category',
-                        payload: Array(highAssociationCount).fill(0).map((v, k) => ({ productId: 'product_1', categoryId: `category_${k}` })),
+                        payload: Array(highAssociationCount)
+                            .fill(0)
+                            .map((v, k) => ({
+                                productId: 'product_1',
+                                categoryId: `category_${k}`,
+                            })),
                     },
                 },
                 {
-                    product_category: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `product_category_${k}`, productId: 'product_2', categoryId: `category_${k}` })),
+                    product_category: Array(highAssociationCount)
+                        .fill(0)
+                        .map((v, k) => ({
+                            id: `product_category_${k}`,
+                            productId: 'product_2',
+                            categoryId: `category_${k}`,
+                        })),
                 },
             ],
             [
                 'overwrite an oneToOne association',
-                [{ type: 'overwrite', field: 'productAI', value: [{ name: 'ai 1' }] }],
+                [
+                    {
+                        type: 'overwrite',
+                        field: 'productAI',
+                        value: [{ name: 'ai 1' }],
+                    },
+                ],
                 {
                     'upsert-product_ai': {
                         action: 'upsert',
@@ -886,7 +1078,13 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'add an oneToOne association',
-                [{ type: 'add', field: 'productAI', value: [{ name: 'ai 1' }] }],
+                [
+                    {
+                        type: 'add',
+                        field: 'productAI',
+                        value: [{ name: 'ai 1' }],
+                    },
+                ],
                 {
                     'upsert-product_ai': {
                         action: 'upsert',
@@ -915,7 +1113,13 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ],
             [
                 'remove an oneToOne association',
-                [{ type: 'clear', field: 'productAI', value: [{ name: 'ai 1' }] }],
+                [
+                    {
+                        type: 'clear',
+                        field: 'productAI',
+                        value: [{ name: 'ai 1' }],
+                    },
+                ],
                 {
                     'delete-product_ai': {
                         action: 'delete',

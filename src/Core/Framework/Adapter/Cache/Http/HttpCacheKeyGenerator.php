@@ -98,7 +98,7 @@ class HttpCacheKeyGenerator
         if ($request->cookies->has(self::CONTEXT_CACHE_COOKIE)) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
-                $request->cookies->get(self::CONTEXT_CACHE_COOKIE)
+                $request->cookies->get(self::CONTEXT_CACHE_COOKIE, '')
             );
 
             return;
@@ -107,7 +107,7 @@ class HttpCacheKeyGenerator
         if ($request->cookies->has(self::CURRENCY_COOKIE)) {
             $event->add(
                 self::CURRENCY_COOKIE,
-                $request->cookies->get(self::CURRENCY_COOKIE)
+                $request->cookies->get(self::CURRENCY_COOKIE, '')
             );
 
             return;

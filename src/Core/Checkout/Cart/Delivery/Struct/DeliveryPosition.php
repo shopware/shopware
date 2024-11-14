@@ -12,26 +12,36 @@ class DeliveryPosition extends Struct
 {
     /**
      * @var LineItem
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $lineItem;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $quantity;
 
     /**
      * @var CalculatedPrice
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $price;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $identifier;
 
     /**
      * @var DeliveryDate
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $deliveryDate;
 

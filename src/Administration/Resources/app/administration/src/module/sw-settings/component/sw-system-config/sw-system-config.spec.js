@@ -109,37 +109,41 @@ async function createWrapper(defaultValues = {}) {
                     create: (entity) => ({
                         search: (criteria) => {
                             if (entity === 'sales_channel') {
-                                return Promise.resolve(createEntityCollection([
-                                    {
-                                        name: 'Storefront',
-                                        translated: { name: 'Storefront' },
-                                        id: uuid.get('storefront'),
-                                    },
-                                    {
-                                        name: 'Headless',
-                                        translated: { name: 'Headless' },
-                                        id: uuid.get('headless'),
-                                    },
-                                ]));
+                                return Promise.resolve(
+                                    createEntityCollection([
+                                        {
+                                            name: 'Storefront',
+                                            translated: { name: 'Storefront' },
+                                            id: uuid.get('storefront'),
+                                        },
+                                        {
+                                            name: 'Headless',
+                                            translated: { name: 'Headless' },
+                                            id: uuid.get('headless'),
+                                        },
+                                    ]),
+                                );
                             }
 
                             if (entity === 'product') {
-                                return Promise.resolve([
-                                    {
-                                        id: uuid.get('pullover'),
-                                        name: 'Pullover',
-                                    },
-                                    {
-                                        id: uuid.get('shirt'),
-                                        name: 'Shirt',
-                                    },
-                                ].filter(product => {
-                                    if (criteria.ids.length <= 0) {
-                                        return true;
-                                    }
+                                return Promise.resolve(
+                                    [
+                                        {
+                                            id: uuid.get('pullover'),
+                                            name: 'Pullover',
+                                        },
+                                        {
+                                            id: uuid.get('shirt'),
+                                            name: 'Shirt',
+                                        },
+                                    ].filter((product) => {
+                                        if (criteria.ids.length <= 0) {
+                                            return true;
+                                        }
 
-                                    return criteria.ids.includes(product.id);
-                                }));
+                                        return criteria.ids.includes(product.id);
+                                    }),
+                                );
                             }
                             if (entity === 'media') {
                                 return Promise.resolve([
@@ -570,8 +574,14 @@ function createConfig() {
                         expect(field.find(`.sw-select-selection-list__item-holder--${index}`).text()).toBe(value);
                     });
                 },
-                afterValue: ['blue', 'green'],
-                childValue: ['blue', 'green'],
+                afterValue: [
+                    'blue',
+                    'green',
+                ],
+                childValue: [
+                    'blue',
+                    'green',
+                ],
                 fallbackValue: [],
                 changeValueFunction: async (field) => {
                     // open select field
@@ -637,10 +647,7 @@ function createConfig() {
                     await flushPromises();
 
                     if (domValue.length > 0) {
-                        expect(
-                            field.find('.sw-media-base-item__name')
-                                .text(),
-                        ).toBe(domValue);
+                        expect(field.find('.sw-media-base-item__name').text()).toBe(domValue);
                     } else {
                         expect(field.find('.sw-media-base-item__name').exists()).toBe(false);
                     }
@@ -727,8 +734,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
 
         // open salesChannel switch field
-        await salesChannelSwitch.find('.sw-select__selection')
-            .trigger('click');
+        await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
         salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
@@ -761,12 +767,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(error).toBeInstanceOf(ShopwareError);
     });
 
-    createConfig()[0].elements.forEach(({
-        name,
-        type,
-        config,
-        _test,
-    }) => {
+    createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
         it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
             const afterValueDom = _test.afterValueDom || _test.afterValue;

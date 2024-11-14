@@ -56,6 +56,9 @@ abstract class AbstractElasticsearchDefinition
         return [];
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - will return BuilderInterface in the future
+     */
     abstract public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery;
 
     /**

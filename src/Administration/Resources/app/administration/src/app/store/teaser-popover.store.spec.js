@@ -1,11 +1,10 @@
-import teaserPopoverState from './teaser-popover.store';
+import './teaser-popover.store';
 
 describe('teaser-popover.store', () => {
-    Shopware.Store.register(teaserPopoverState);
     let store;
 
     beforeEach(() => {
-        store = Shopware.Store.get('teaserPopoverState');
+        store = Shopware.Store.get('teaserPopover');
     });
 
     afterEach(() => {
@@ -27,8 +26,8 @@ describe('teaser-popover.store', () => {
             },
         });
 
-        expect(JSON.stringify(store.identifier)).toBe(JSON.stringify(
-            {
+        expect(JSON.stringify(store.identifier)).toBe(
+            JSON.stringify({
                 positionId: {
                     positionId: 'positionId',
                     src: 'http://localhost:8080',
@@ -38,8 +37,8 @@ describe('teaser-popover.store', () => {
                         label: 'Ask AI Copilot',
                     },
                 },
-            },
-        ));
+            }),
+        );
     });
 
     it('can update teaser sales channel', () => {

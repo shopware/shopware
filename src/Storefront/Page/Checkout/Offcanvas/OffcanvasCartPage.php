@@ -12,11 +12,15 @@ class OffcanvasCartPage extends Page
 {
     /**
      * @var Cart
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $cart;
 
     /**
      * @var ShippingMethodCollection
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $shippingMethods;
 

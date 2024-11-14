@@ -10,11 +10,15 @@ class File extends Struct
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $filepath;
 
     /**
      * @var array<string, string>
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $resolveMapping;
 

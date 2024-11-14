@@ -1,9 +1,9 @@
 {% block cms_form_element_forward %}
     {% if forwardTo %}
-        <input type="hidden" name="forwardTo" value="{{ forwardTo }}">
+        <input type="hidden" id="{{ formPrefix }}-forwardTo" name="forwardTo" value="{{ forwardTo }}">
 
         {% if forwardParams %}
-            <input type="hidden" name="forwardParameters" value="{{ forwardParams }}">
+            <input type="hidden" id="{{ formPrefix }}-forwardParameters" name="forwardParameters" value="{{ forwardParams }}">
         {% endif %}
     {% endif %}
 {% endblock %}

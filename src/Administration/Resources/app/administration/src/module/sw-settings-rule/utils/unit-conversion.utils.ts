@@ -8,8 +8,8 @@ import round from 'lodash/round';
  */
 const conversions: {
     [key: string]: {
-       [key: string]: (value: number) => number;
-    }
+        [key: string]: (value: number) => number;
+    };
 } = {
     // weight units
     kg: {
@@ -111,37 +111,37 @@ const conversions: {
  */
 type Options =
     | {
-    from: 'kg',
-    to: 'g' | 'mg' | 'oz' | 'lb',
-}
+          from: 'kg';
+          to: 'g' | 'mg' | 'oz' | 'lb';
+      }
     | {
-    from: 'g' | 'mg' | 'oz' | 'lb',
-    to: 'kg',
-}
+          from: 'g' | 'mg' | 'oz' | 'lb';
+          to: 'kg';
+      }
     | {
-    from: 'mm',
-    to: 'cm' | 'm' | 'km' | 'in' | 'ft' | 'mi',
-}
+          from: 'mm';
+          to: 'cm' | 'm' | 'km' | 'in' | 'ft' | 'mi';
+      }
     | {
-    from: 'cm' | 'm' | 'km' | 'in' | 'ft' | 'mi',
-    to: 'mm',
-}
+          from: 'cm' | 'm' | 'km' | 'in' | 'ft' | 'mi';
+          to: 'mm';
+      }
     | {
-    from: 'm3',
-    to: 'cm3' | 'mm3' | 'in3' | 'ft3',
-}
+          from: 'm3';
+          to: 'cm3' | 'mm3' | 'in3' | 'ft3';
+      }
     | {
-    from: 'cm3' | 'mm3' | 'in3' | 'ft3',
-    to: 'm3',
-}
+          from: 'cm3' | 'mm3' | 'in3' | 'ft3';
+          to: 'm3';
+      }
     | {
-    from: 'd',
-    to: 'yr'|'mth'|'wk'|'hr'|'min',
-}
+          from: 'd';
+          to: 'yr' | 'mth' | 'wk' | 'hr' | 'min';
+      }
     | {
-    from: 'yr'|'mth'|'wk'|'hr'|'min',
-    to: 'd',
-}
+          from: 'yr' | 'mth' | 'wk' | 'hr' | 'min';
+          to: 'd';
+      };
 
 /**
  * @private

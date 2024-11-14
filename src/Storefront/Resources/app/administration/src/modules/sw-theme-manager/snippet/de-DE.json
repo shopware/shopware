@@ -73,6 +73,8 @@
       "save": "Speichern",
       "saveClean": "Bereinigen",
       "saveCleanToolTip": "Die aktuellen Werte werden komplett neu gespeichert. Zu nutzen, wenn Felder gelöscht wurden oder ihren Typ geändert haben.",
+      "validate": "Validieren",
+      "validateToolTip": "Die gesamte Konfiguration validieren. Die Änderungen werden noch nicht gespeichert!",
       "rename": "Umbenennen",
       "delete": "Löschen",
       "duplicate": "Duplikat erstellen",
@@ -88,6 +90,12 @@
       "inheritanceInfo": "Dieses Theme wird abgeleitet vom \"{parentThemeName}\" Theme.",
       "showFullError": "Kompletten Fehler anzeigen",
       "salesChannelHelpText": "Es ist nicht möglich, diese Zuordnungen hier zu entfernen. Wenn du das Theme eines Verkaufskanals ändern möchtest, besuche die Einstellungen des jeweiligen Verkaufskanals.",
+      "validate": {
+        "success": "Validierung erfolgreich",
+        "successMessage": "Die Konfiguration wurde erfolgreich validiert. Die Änderungen können nun gespeichert werden.",
+        "failed": "Validierung fehlgeschlagen",
+        "failedMessage": "Die Konfiguration ist fehlerhaft. Die Änderungen können so nicht gespeichert werden."
+      },
       "label": {
         "media": "Media",
         "colors": "Farben",

@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['save-and-reload', 'update-loading'],
+    emits: [
+        'save-and-reload',
+        'update-loading',
+    ],
 
     inject: {
         swOrderDetailOnSaveAndReload: {

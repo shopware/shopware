@@ -7,7 +7,9 @@ export default () => {
     if (window._features_.ADMIN_VITE) {
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-        const context = import.meta.glob<$TSFixMe>('./**/!(*.spec).{j,t}s', { eager: false });
+        const context = import.meta.glob<$TSFixMe>('./**/!(*.spec).{j,t}s', {
+            eager: false,
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return Object.values(context);

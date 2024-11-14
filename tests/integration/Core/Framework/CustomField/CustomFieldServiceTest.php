@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
@@ -26,14 +27,11 @@ class CustomFieldServiceTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomFieldCollection>
      */
-    private $attributeRepository;
+    private EntityRepository $attributeRepository;
 
-    /**
-     * @var CustomFieldService
-     */
-    private $attributeService;
+    private CustomFieldService $attributeService;
 
     protected function setUp(): void
     {

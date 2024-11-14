@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -35,15 +36,12 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepository
-     */
-    private $addressRepository;
-
-    /**
      * @internal
+     *
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
      */
     public function __construct(
-        EntityRepository $addressRepository,
+        private readonly EntityRepository $addressRepository,
         private readonly DataValidator $validator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
@@ -51,7 +49,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
     ) {
-        $this->addressRepository = $addressRepository;
     }
 
     public function getDecorated(): AbstractUpsertAddressRoute
@@ -59,8 +56,18 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/address', name: 'store-api.account.address.create', methods: ['POST'], defaults: ['addressId' => null, '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
-    #[Route(path: '/store-api/account/address/{addressId}', name: 'store-api.account.address.update', methods: ['PATCH'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/account/address',
+        name: 'store-api.account.address.create',
+        defaults: ['addressId' => null, '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['POST']
+    )]
+    #[Route(
+        path: '/store-api/account/address/{addressId}',
+        name: 'store-api.account.address.update',
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['PATCH']
+    )]
     public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
     {
         if (!$addressId) {

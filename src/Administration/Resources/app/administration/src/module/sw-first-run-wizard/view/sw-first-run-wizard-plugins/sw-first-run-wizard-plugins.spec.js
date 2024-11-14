@@ -5,76 +5,79 @@ import { mount } from '@vue/test-utils';
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-first-run-wizard-plugins', {
-            sync: true,
-        }), {
-            global: {
-                stubs: {
-                    'sw-label': await wrapTestComponent('sw-label'),
-                    'sw-container': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-plugin-card': true,
-                    'sw-loader': true,
-                    'sw-color-badge': true,
-                    'sw-icon': true,
-                },
-                provide: {
-                    recommendationsService: {
-                        getRecommendationRegions() {
-                            return Promise.resolve({
-                                items: [
-                                    {
-                                        name: 'asia',
-                                        label: 'Asia',
-                                        categories: [
-                                            {
-                                                name: 'payment',
-                                                label: 'Payment',
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        name: 'europe',
-                                        label: 'Europe',
-                                        categories: [
-                                            {
-                                                name: 'shipping',
-                                                label: 'Shipping',
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        name: 'oceania',
-                                        label: 'Oceania',
-                                        categories: [
-                                            {
-                                                name: 'other',
-                                                label: 'Other',
-                                            },
-                                        ],
-                                    },
-                                ],
-                            });
+        return mount(
+            await wrapTestComponent('sw-first-run-wizard-plugins', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'sw-label': await wrapTestComponent('sw-label'),
+                        'sw-container': {
+                            template: '<div><slot></slot></div>',
                         },
-                        getRecommendations() {
-                            return Promise.resolve({
-                                items: [
-                                    {
-                                        isCategoryLead: true,
-                                        name: 'payment-provider',
-                                        iconPath: '',
-                                        label: 'Payment provider',
-                                        manufacturer: 'Jon Doe Company',
-                                        shortDescription: 'Lorem ipsum',
-                                    },
-                                ],
-                            });
+                        'sw-plugin-card': true,
+                        'sw-loader': true,
+                        'sw-color-badge': true,
+                        'sw-icon': true,
+                    },
+                    provide: {
+                        recommendationsService: {
+                            getRecommendationRegions() {
+                                return Promise.resolve({
+                                    items: [
+                                        {
+                                            name: 'asia',
+                                            label: 'Asia',
+                                            categories: [
+                                                {
+                                                    name: 'payment',
+                                                    label: 'Payment',
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            name: 'europe',
+                                            label: 'Europe',
+                                            categories: [
+                                                {
+                                                    name: 'shipping',
+                                                    label: 'Shipping',
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            name: 'oceania',
+                                            label: 'Oceania',
+                                            categories: [
+                                                {
+                                                    name: 'other',
+                                                    label: 'Other',
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                });
+                            },
+                            getRecommendations() {
+                                return Promise.resolve({
+                                    items: [
+                                        {
+                                            isCategoryLead: true,
+                                            name: 'payment-provider',
+                                            iconPath: '',
+                                            label: 'Payment provider',
+                                            manufacturer: 'Jon Doe Company',
+                                            shortDescription: 'Lorem ipsum',
+                                        },
+                                    ],
+                                });
+                            },
                         },
                     },
                 },
             },
-        });
+        );
     }
 
     it('should be a Vue.js component', async () => {

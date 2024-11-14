@@ -97,40 +97,48 @@ export default {
                 criteria.resetSorting();
             }
 
-            return this.propertyRepository.search(criteria).then((items) => {
-                this.total = items.total;
-                this.propertyGroup = items;
-                this.isLoading = false;
+            return this.propertyRepository
+                .search(criteria)
+                .then((items) => {
+                    this.total = items.total;
+                    this.propertyGroup = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         getPropertyColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-property.list.columnName',
-                routerLink: 'sw.property.detail',
-                inlineEdit: 'string',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'options',
-                label: 'sw-property.list.columnOptions',
-                allowResize: true,
-            }, {
-                property: 'description',
-                label: 'sw-property.list.columnDescription',
-                allowResize: true,
-            }, {
-                property: 'filterable',
-                label: 'sw-property.list.columnFilterable',
-                inlineEdit: 'boolean',
-                allowResize: true,
-                align: 'center',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-property.list.columnName',
+                    routerLink: 'sw.property.detail',
+                    inlineEdit: 'string',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'options',
+                    label: 'sw-property.list.columnOptions',
+                    allowResize: true,
+                },
+                {
+                    property: 'description',
+                    label: 'sw-property.list.columnDescription',
+                    allowResize: true,
+                },
+                {
+                    property: 'filterable',
+                    label: 'sw-property.list.columnFilterable',
+                    inlineEdit: 'boolean',
+                    allowResize: true,
+                    align: 'center',
+                },
+            ];
         },
     },
 };

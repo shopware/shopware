@@ -25,11 +25,7 @@ describe('ruleConditionsConfigApiService', () => {
     it('is request send correctly', async () => {
         const { ruleConditionsConfigApiService, clientMock } = getRuleConditionsConfigApiService();
 
-        clientMock.onGet('/_info/rule-config')
-            .reply(
-                200,
-                ruleConditionsConfig,
-            );
+        clientMock.onGet('/_info/rule-config').reply(200, ruleConditionsConfig);
 
         await ruleConditionsConfigApiService.load();
 

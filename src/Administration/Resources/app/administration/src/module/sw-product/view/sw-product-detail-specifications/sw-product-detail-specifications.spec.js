@@ -15,39 +15,44 @@ const packagingItemClassName = [
 ];
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-product-detail-specifications', { sync: true }), {
-        global: {
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+    return mount(
+        await wrapTestComponent('sw-product-detail-specifications', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                stubs: {
+                    'sw-card': {
+                        template: '<div class="sw-card"><slot></slot></div>',
+                    },
+                    'sw-product-packaging-form': await wrapTestComponent('sw-product-packaging-form', { sync: true }),
+                    'sw-product-properties': true,
+                    'sw-product-feature-set-form': true,
+                    'sw-custom-field-set-renderer': true,
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                    'sw-number-field': true,
+                    'sw-text-field': true,
+                    'sw-text-editor': true,
+                    'sw-entity-single-select': true,
+                    'sw-skeleton': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
                 },
-                'sw-product-packaging-form': await wrapTestComponent('sw-product-packaging-form', { sync: true }),
-                'sw-product-properties': true,
-                'sw-product-feature-set-form': true,
-                'sw-custom-field-set-renderer': true,
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
-                'sw-number-field': true,
-                'sw-text-field': true,
-                'sw-text-editor': true,
-                'sw-entity-single-select': true,
-                'sw-skeleton': true,
-                'sw-help-text': true,
-                'sw-inheritance-switch': true,
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
@@ -123,7 +128,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const wrapper = await createWrapper();
 
         // expect the some item fields in Packaging is not hidden by css display none
-        packagingItemClassName.forEach(item => {
+        packagingItemClassName.forEach((item) => {
             const inheritedField = wrapper.find('.sw-inherit-wrapper');
 
             if (!inheritedField.find(item).exists()) {
@@ -149,7 +154,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         });
 
         // expect the some item fields in Packaging hidden by css display none
-        packagingItemClassName.forEach(item => {
+        packagingItemClassName.forEach((item) => {
             const inheritedField = wrapper.find('.sw-inherit-wrapper');
 
             if (!inheritedField.find(item).exists()) {
@@ -165,11 +170,12 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'measures_packaging'),
+            ...modeSettings.filter((item) => item !== 'measures_packaging'),
         ]);
 
-        expect(wrapper.find('.sw-product-detail-specification__measures-packaging')
-            .attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__measures-packaging').attributes().style).toBe(
+            'display: none;',
+        );
     });
 
     it('should show Properties card even advanced mode is off', async () => {
@@ -194,11 +200,10 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'properties'),
+            ...modeSettings.filter((item) => item !== 'properties'),
         ]);
 
-        expect(wrapper.find('sw-product-properties-stub')
-            .attributes().style).toBe('display: none;');
+        expect(wrapper.find('sw-product-properties-stub').attributes().style).toBe('display: none;');
     });
 
     it('should show Essential Characteristics card when advanced mode is on', async () => {
@@ -215,8 +220,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             },
         });
 
-        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics')
-            .attributes().style).toBeFalsy();
+        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').attributes().style).toBeFalsy();
     });
 
     it('should hide Essential Characteristics card when advanced mode is off', async () => {
@@ -233,8 +237,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             },
         });
 
-        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics')
-            .attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').attributes().style).toBe(
+            'display: none;',
+        );
     });
 
     it('should hide Essential Characteristics card when essential_characteristics mode is unchecked', async () => {
@@ -253,19 +258,23 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         });
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'essential_characteristics'),
+            ...modeSettings.filter((item) => item !== 'essential_characteristics'),
         ]);
 
-        expect(wrapper.find('sw-product-properties-stub')
-            .attributes().style).toBe('display: none;');
+        expect(wrapper.find('sw-product-properties-stub').attributes().style).toBe('display: none;');
     });
 
     it('should show Custom Fields card advanced mode is on and custom fields set length is greater than 0', async () => {
         const wrapper = await createWrapper();
 
-        await Shopware.State.commit('swProductDetail/setAttributeSet', [{
-            customFields: [1, 2],
-        }]);
+        await Shopware.State.commit('swProductDetail/setAttributeSet', [
+            {
+                customFields: [
+                    1,
+                    2,
+                ],
+            },
+        ]);
 
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -295,8 +304,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             },
         });
 
-        expect(wrapper.find('.sw-product-detail-specification__custom-fields')
-            .attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
     });
 
     it('should hide Custom Fields card when custom_fields mode is unchecked', async () => {
@@ -315,11 +323,10 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         });
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'custom_fields'),
+            ...modeSettings.filter((item) => item !== 'custom_fields'),
         ]);
 
-        expect(wrapper.find('.sw-product-detail-specification__custom-fields')
-            .attributes().style).toBe('display: none;');
+        expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
     });
 
     it('should not show Custom Fields card when custom fields length is smaller than 1', async () => {

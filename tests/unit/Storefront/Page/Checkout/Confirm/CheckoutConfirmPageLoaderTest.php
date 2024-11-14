@@ -330,13 +330,20 @@ class CheckoutConfirmPageLoaderTest extends TestCase
     {
         $eventDispatcher = new CollectingEventDispatcher();
 
+        $addressValidationMock = $this->createMock(AddressValidationFactory::class);
+
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $eventDispatcher,
             $this->createMock(StorefrontCartFacade::class),
             $this->createMock(CheckoutGatewayRoute::class),
             $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
+            $addressValidationMock,
             $this->createMock(DataValidator::class)
+        );
+
+        $addressValidationMock->expects(static::exactly(2))->method('create')->willReturnOnConsecutiveCalls(
+            new DataValidationDefinition('address.create'),
+            new DataValidationDefinition('address.update'),
         );
 
         $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
@@ -344,9 +351,9 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $events = $eventDispatcher->getEvents();
         static::assertCount(3, $events);
 
-        static::assertInstanceOf(BuildValidationEvent::class, $events[0]);
-        static::assertInstanceOf(BuildValidationEvent::class, $events[1]);
-        static::assertInstanceOf(CheckoutConfirmPageLoadedEvent::class, $events[2]);
+        static::assertInstanceOf(BuildValidationEvent::class, $events['framework.validation.address.create']);
+        static::assertInstanceOf(BuildValidationEvent::class, $events['framework.validation.address.update']);
+        static::assertInstanceOf(CheckoutConfirmPageLoadedEvent::class, $events[0]);
     }
 
     public function testCartServiceIsCalledTaxedAndWithNoCaching(): void

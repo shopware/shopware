@@ -76,9 +76,6 @@ export default class FormCmsHandler extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this.sendAjaxFormSubmit();
-
-        // Reset form after successful submission to clear form contents.
-        this.el.reset();
     }
 
     _handleResponse(res) {
@@ -93,6 +90,11 @@ export default class FormCmsHandler extends Plugin {
                     changeContent = false;
                 }
                 content += response[i].alert;
+            }
+
+            // Reset form after successful submission to clear form contents.
+            if (changeContent) {
+                this.el.reset();
             }
 
             this._createResponse(changeContent, content);

@@ -5,7 +5,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,11 +15,13 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -32,36 +36,33 @@ class CartTaxTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
+
+    private Connection $connection;
 
     /**
-     * @var Connection
+     * @var EntityRepository<ProductCollection>
      */
-    private $connection;
+    private EntityRepository $productRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $productRepository;
+    private EntityRepository $customerRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CountryCollection>
      */
-    private $customerRepository;
+    private EntityRepository $countryRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CurrencyCollection>
      */
-    private $countryRepository;
-
-    /**
-     * @var EntityRepository
-     */
-    private $currencyRepository;
+    private EntityRepository $currencyRepository;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');

@@ -128,7 +128,6 @@
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader">
             <argument type="service" id="theme.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">

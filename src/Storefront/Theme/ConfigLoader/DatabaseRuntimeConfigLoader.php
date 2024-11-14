@@ -4,7 +4,9 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -24,13 +26,27 @@ class DatabaseRuntimeConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $themeRepository,
-        private readonly Connection $connection,
     ) {
     }
 
-    // todo: cache in local variable, check if arrays are acceptable/or should introduce a new class
+    // todo: cache in local variable
     public function getThemes() {
-        return $this->connection->fetchAllAssociative('SELECT HEX(id) AS `id`, technical_name FROM theme WHERE active = 1');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFields(['id', 'technicalName']);
+
+        $themes = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        $result = [];
+        /** @var PartialEntity $theme */
+        foreach ($themes as $theme) {
+            $result[] = [
+                'id' => $theme->getId(),
+                'technicalName' => $theme->get('technicalName'),
+            ];
+        }
+
+        return $result;
     }
 
     // todo: cache or add registry/load all active themes in one run

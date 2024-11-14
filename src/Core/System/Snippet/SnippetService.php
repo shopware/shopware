@@ -17,7 +17,6 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -235,10 +234,10 @@ class SnippetService
     {
         $themes = $this->runtimeConfigLoader->getThemes();
         return array_values(array_map(
-            fn($theme) => $theme['technical_name'],
+            fn($theme) => $theme['technicalName'],
             array_filter(
                 $themes,
-                fn($theme) => !in_array($theme['technical_name'], $usingThemes, true)
+                fn($theme) => !in_array($theme['technicalName'], $usingThemes, true)
             )
         ));
     }

@@ -33,10 +33,13 @@ Shopware.Component.register('sw-license-violation', {
     },
 
     computed: {
-        ...mapState(Shopware.Store.get('licenseViolation'), [
-            'violations',
-            'warnings',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('licenseViolation'),
+            [
+                'violations',
+                'warnings',
+            ],
+        ),
 
         visible() {
             if (!this.showViolation) {

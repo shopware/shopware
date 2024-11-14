@@ -2,6 +2,7 @@
  * @package admin
  * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
+import useSystem from '../composables/use-system';
 
 const { Application } = Shopware;
 const debug = Shopware.Utils.debug;
@@ -48,18 +49,18 @@ export default {
     },
 
     actions: {
-        async setAdminLocale({ commit, rootState }, locale) {
-            const locales = rootState.system.locales;
+        async setAdminLocale({ commit }, locale) {
+            const { locales } = useSystem();
             const loginService = Shopware.Service('loginService');
 
             if (!loginService.isLoggedIn()) {
-                commit('setAdminLocale', { locales, locale, languageId: '' });
+                commit('setAdminLocale', { locales: locales.value, locale, languageId: '' });
                 return Promise.resolve();
             }
 
             const localeToLanguageService = Shopware.Service('localeToLanguageService');
             return localeToLanguageService.localeToLanguage(locale).then((languageId) => {
-                commit('setAdminLocale', { locales, locale, languageId });
+                commit('setAdminLocale', { locales: locales.value, locale, languageId });
             });
         },
     },
@@ -76,7 +77,7 @@ export default {
         },
 
         setAdminLocale(state, { locales, locale, languageId }) {
-            if (!locales.find((l) => l === locale)) {
+            if (!locales?.find?.((l) => l === locale)) {
                 debug.warn('SessionStore', `Locale ${locale} not registered at store`);
                 return;
             }

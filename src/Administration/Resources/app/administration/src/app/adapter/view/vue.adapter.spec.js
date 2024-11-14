@@ -67,7 +67,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.State.get('system').locales = [
+        Shopware.Store.get('system').locales = [
             'en-GB',
             'de-DE',
         ];

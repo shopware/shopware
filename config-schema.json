@@ -153,7 +153,7 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                        "enable_dispatch": {
+                        "dispatch_enabled": {
                             "type": "boolean"
                         },
                         "base_uri": {

@@ -145,7 +145,7 @@ export default Shopware.Mixin.register(
             },
 
             selection() {
-                Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.selection));
+                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.selection);
             },
 
             term(newValue) {

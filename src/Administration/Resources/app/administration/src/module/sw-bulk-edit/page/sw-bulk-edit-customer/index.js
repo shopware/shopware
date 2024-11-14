@@ -47,7 +47,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         customFieldSetRepository() {

@@ -125,7 +125,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('settingsItems').settingsGroups.shop = [];
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
 
-        Shopware.State.commit('shopwareApps/setApps', []);
+        Shopware.Store.get('shopwareApps').apps = [];
 
         wrapper = await createWrapper();
         await flushPromises();
@@ -346,7 +346,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
     describe('app menu entries', () => {
         it('renders apps under there parent navigation entry', async () => {
-            Shopware.State.commit('shopwareApps/setApps', testApps);
+            Shopware.Store.get('shopwareApps').apps = testApps;
             await flushPromises();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
@@ -366,7 +366,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         });
 
         it('renders app structure elements and their children', async () => {
-            Shopware.State.commit('shopwareApps/setApps', testApps);
+            Shopware.Store.get('shopwareApps').apps = testApps;
             await flushPromises();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');

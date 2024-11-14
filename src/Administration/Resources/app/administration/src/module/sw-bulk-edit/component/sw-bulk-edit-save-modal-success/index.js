@@ -52,7 +52,7 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         downloadOrderDocuments() {

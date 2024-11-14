@@ -42,7 +42,6 @@ import type { ShopwareExtensionsState } from './module/sw-extension/store/extens
 import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
 import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
-import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
@@ -102,6 +101,7 @@ import type { MarketingStore } from './app/store/marketing.store';
 import type { SdkLocation } from './app/store/sdk-location.store';
 import type { RuleConditionsConfig } from './app/store/rule-conditions-config.store';
 import type { SettingsItems } from './app/store/settings-item.store';
+import type { ShopwareApps } from './app/store/shopware-apps.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -337,7 +337,6 @@ declare global {
         menuItem: MenuItemState;
         modals: ModalsState;
         shopwareExtensions: ShopwareExtensionsState;
-        shopwareApps: ShopwareAppsState;
         usageData: UsageDataModuleState;
     }
 
@@ -361,6 +360,7 @@ declare global {
         sdkLocation: SdkLocation;
         ruleConditionsConfig: RuleConditionsConfig;
         settingsItems: SettingsItems;
+        shopwareApps: ShopwareApps;
     }
 
     /**

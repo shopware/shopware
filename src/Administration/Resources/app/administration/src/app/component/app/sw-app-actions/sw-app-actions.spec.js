@@ -104,9 +104,9 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
     });
 
     afterEach(() => {
@@ -215,12 +215,12 @@ describe('sw-app-actions', () => {
         expect(runActionsMock.mock.calls).toHaveLength(2);
         expect(runActionsMock.mock.calls[0]).toEqual([
             actionButtonData[0].id,
-            { ids: Shopware.State.get('shopwareApps').selectedIds },
+            { ids: Shopware.Store.get('shopwareApps').selectedIds },
         ]);
 
         expect(runActionsMock.mock.calls[1]).toEqual([
             actionButtonData[1].id,
-            { ids: Shopware.State.get('shopwareApps').selectedIds },
+            { ids: Shopware.Store.get('shopwareApps').selectedIds },
         ]);
     });
 

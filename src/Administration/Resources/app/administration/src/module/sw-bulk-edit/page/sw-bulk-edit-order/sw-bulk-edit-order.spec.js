@@ -344,7 +344,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [selectedOrderId]);
+        Shopware.Store.get('shopwareApps').selectedIds = [selectedOrderId];
     });
 
     it('should show all form fields', async () => {
@@ -528,7 +528,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', []);
+        Shopware.Store.get('shopwareApps').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });

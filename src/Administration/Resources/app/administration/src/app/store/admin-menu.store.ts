@@ -70,7 +70,7 @@ const adminMenuStore = Shopware.Store.register({
             const menuService = Shopware.Service('menuService') as MenuService;
             // eslint-disable-next-line no-warning-comments
             // TODO: Change this when `shopwareApps` store is converted to Pinia
-            const shopwareAppsState = Shopware.State.get('shopwareApps') as { apps: AppModuleDefinition[] };
+            const shopwareAppsState = Shopware.Store.get('shopwareApps') as { apps: AppModuleDefinition[] };
 
             return menuService?.getNavigationFromApps(shopwareAppsState.apps);
         },

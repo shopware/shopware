@@ -19,16 +19,13 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 #[CoversClass(MessageQueueSizeRestrictListener::class)]
 class MessageQueueSizeRestrictListenerTest extends TestCase
 {
-    public function testSyncTransportDoesNothing(): void
+    public function testSmallMessageSyncTransportNoException(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $serializer = new Serializer();
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $logger
-            ->expects(static::never())
-            ->method('critical');
-
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -37,16 +34,30 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $listener($event);
     }
 
-    public function testSmallMessageDoesNotLock(): void
+    public function testBigMessageSyncTransportNoException(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $serializer = new Serializer();
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $logger
-            ->expects(static::never())
-            ->method('critical');
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
+        $message = new \stdClass();
+        $message->a = str_repeat('a', 1024 * 256);
+        $envelope = new Envelope($message);
+
+        $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
+
+        $listener($event);
+    }
+
+    public function testSmallMessageAsyncTransportNoException(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $serializer = new Serializer();
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
 
         $envelope = new Envelope(new \stdClass());
 
@@ -55,44 +66,51 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $listener($event);
     }
 
-    public function testBigMessageLogsInsteadOfException(): void
+    public function testBigMessageAsyncTransportException(): void
     {
         $serializer = new Serializer();
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $logger
-            ->expects(static::once())
-            ->method('critical');
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), true);
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, false);
+        $message = new \stdClass();
+        $message->a = str_repeat('a', 1024 * 256);
+        $envelope = new Envelope($message);
 
-        $stdClass = new \stdClass();
-        $stdClass->a = str_repeat('a', 1024 * 256);
-        $envelope = new Envelope($stdClass);
+        $event = new SendMessageToTransportsEvent($envelope, []);
+
+        $this->expectExceptionObject(MessageQueueException::queueMessageSizeExceeded(\stdClass::class));
+
+        $listener($event);
+    }
+
+    public function testSmallMessageAsyncTransportNoExceptionWithDisabledEnforceLimit(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $serializer = new Serializer();
+
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false);
+
+        $envelope = new Envelope(new \stdClass());
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
         $listener($event);
     }
 
-    public function testBigMessageThrowsException(): void
+    public function testBigMessageAsyncTransportNoExceptionWithDisabledEnforceLimit(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $serializer = new Serializer();
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $logger
-            ->expects(static::never())
-            ->method('critical');
+        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), false);
 
-        $listener = new MessageQueueSizeRestrictListener(new MessageSizeCalculator($serializer), $logger, true);
-
-        $stdClass = new \stdClass();
-        $stdClass->a = str_repeat('a', 1024 * 256);
-        $envelope = new Envelope($stdClass);
+        $message = new \stdClass();
+        $message->a = str_repeat('a', 1024 * 256);
+        $envelope = new Envelope($message);
 
         $event = new SendMessageToTransportsEvent($envelope, []);
-
-        $this->expectExceptionObject(MessageQueueException::queueMessageSizeExceeded(\stdClass::class));
 
         $listener($event);
     }

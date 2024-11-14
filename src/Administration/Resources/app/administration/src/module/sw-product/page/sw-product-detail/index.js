@@ -543,9 +543,9 @@ export default {
         loadState() {
             Shopware.State.commit('swProductDetail/setLocalMode', false);
             Shopware.State.commit('swProductDetail/setProductId', this.productId);
-            Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Store.get('shopwareApps').selectedIds = [
                 this.productId,
-            ]);
+            ];
 
             return this.loadAll();
         },
@@ -562,7 +562,7 @@ export default {
         createState() {
             // set local mode
             Shopware.State.commit('swProductDetail/setLocalMode', true);
-            Shopware.State.commit('shopwareApps/setSelectedIds', []);
+            Shopware.Store.get('shopwareApps').selectedIds = [];
 
             Shopware.State.commit('swProductDetail/setLoading', [
                 'product',

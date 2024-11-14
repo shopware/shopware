@@ -219,7 +219,7 @@ export default {
 
             window.addEventListener('beforeunload', this.beforeDestroyComponent);
 
-            Shopware.State.commit('shopwareApps/setSelectedIds', this.orderId ? [this.orderId] : []);
+            Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
             this.createNewVersionId();
         },

@@ -84,7 +84,7 @@ Component.register('sw-app-actions', {
         },
 
         params() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         userConfigRepository() {

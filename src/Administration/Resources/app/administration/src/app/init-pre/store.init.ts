@@ -11,6 +11,7 @@ import 'src/app/store/marketing.store';
 import 'src/app/store/sdk-location.store';
 import 'src/app/store/rule-conditions-config.store';
 import 'src/app/store/settings-item.store';
+import 'src/app/store/shopware-apps.store';
 
 /**
  * @package admin

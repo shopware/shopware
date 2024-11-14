@@ -102,6 +102,7 @@ import type { SdkLocation } from './app/store/sdk-location.store';
 import type { RuleConditionsConfig } from './app/store/rule-conditions-config.store';
 import type { SettingsItems } from './app/store/settings-item.store';
 import type { ShopwareApps } from './app/store/shopware-apps.store';
+import type { System } from './app/store/system.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -361,6 +362,7 @@ declare global {
         ruleConditionsConfig: RuleConditionsConfig;
         settingsItems: SettingsItems;
         shopwareApps: ShopwareApps;
+        system: System;
     }
 
     /**

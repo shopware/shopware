@@ -4,7 +4,6 @@
 
 import notification from './notification.store';
 import session from './session.store';
-import system from './system.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import modals from './modals.store';
@@ -14,7 +13,6 @@ import usageData from './usage-data.store';
 export default {
     notification,
     session,
-    system,
     tabs,
     menuItem,
     modals,

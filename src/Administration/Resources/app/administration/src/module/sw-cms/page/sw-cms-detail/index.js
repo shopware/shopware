@@ -329,9 +329,9 @@ export default {
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
-                Shopware.State.commit('shopwareApps/setSelectedIds', [
+                Shopware.Store.get('shopwareApps').selectedIds = [
                     this.pageId,
-                ]);
+                ];
 
                 const criteria = new Criteria(1, 25);
                 criteria.addFilter(Criteria.equals('typeId', defaultStorefrontId));

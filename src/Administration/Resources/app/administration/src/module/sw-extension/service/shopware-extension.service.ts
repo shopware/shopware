@@ -198,7 +198,7 @@ export default class ShopwareExtensionService {
     private async updateModules() {
         const modules = await this.appModulesService.fetchAppModules();
 
-        Shopware.State.commit('shopwareApps/setApps', modules);
+        Shopware.Store.get('shopwareApps').apps = modules;
     }
 
     private async getLinkToTheme(extension: Extension) {
@@ -237,7 +237,7 @@ export default class ShopwareExtensionService {
     }
 
     private getAppFromStore(extensionName: string) {
-        return Shopware.State.get('shopwareApps').apps.find((innerApp) => {
+        return Shopware.Store.get('shopwareApps').apps.find((innerApp) => {
             return innerApp.name === extensionName;
         });
     }

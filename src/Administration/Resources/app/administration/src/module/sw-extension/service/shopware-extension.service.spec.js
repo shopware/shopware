@@ -77,14 +77,14 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         function expectUpdateModulesCalled() {
             expect(mockedModuleService.fetchAppModules).toHaveBeenCalledTimes(1);
 
-            expect(Shopware.State.get('shopwareApps').apps).toEqual([
+            expect(Shopware.Store.get('shopwareApps').apps).toEqual([
                 'new app modules',
             ]);
         }
 
         beforeEach(() => {
             Shopware.State.commit('shopwareExtensions/myExtensions', []);
-            Shopware.State.commit('shopwareApps/setApps', []);
+            Shopware.Store.get('shopwareApps').apps = [];
         });
 
         it.each([
@@ -367,7 +367,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it('returns valid open link for app with main module', async () => {
-            Shopware.State.commit('shopwareApps/setApps', appModulesFixtures);
+            Shopware.Store.get('shopwareApps').apps = appModulesFixtures;
 
             expect(
                 await shopwareExtensionService.getOpenLink({
@@ -384,7 +384,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it('returns no open link for app without main module', async () => {
-            Shopware.State.commit('shopwareApps/setApps', appModulesFixtures);
+            Shopware.Store.get('shopwareApps').apps = appModulesFixtures;
 
             expect(
                 await shopwareExtensionService.getOpenLink({
@@ -396,7 +396,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it('returns no open link if app can not be found', async () => {
-            Shopware.State.commit('shopwareApps/setApps', appModulesFixtures);
+            Shopware.Store.get('shopwareApps').apps = appModulesFixtures;
 
             expect(
                 await shopwareExtensionService.getOpenLink({

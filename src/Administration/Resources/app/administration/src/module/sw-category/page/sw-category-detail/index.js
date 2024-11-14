@@ -492,7 +492,7 @@ export default {
 
             try {
                 if (this.landingPageId === null) {
-                    Shopware.State.commit('shopwareApps/setSelectedIds', []);
+                    Shopware.Store.get('shopwareApps').selectedIds = [];
 
                     await Shopware.State.dispatch('swCategoryDetail/setActiveLandingPage', { landingPage: null });
                     this.cmsPageState.resetCmsPageState();
@@ -500,9 +500,9 @@ export default {
                     return;
                 }
 
-                Shopware.State.commit('shopwareApps/setSelectedIds', [
+                Shopware.Store.get('shopwareApps').selectedIds = [
                     this.landingPageId,
-                ]);
+                ];
                 await Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -527,7 +527,7 @@ export default {
             this.isLoading = true;
 
             if (this.categoryId === null) {
-                Shopware.State.commit('shopwareApps/setSelectedIds', []);
+                Shopware.Store.get('shopwareApps').selectedIds = [];
 
                 return Shopware.State.dispatch('swCategoryDetail/setActiveCategory', { category: null }).then(() => {
                     this.cmsPageState.resetCmsPageState();
@@ -535,9 +535,9 @@ export default {
                 });
             }
 
-            Shopware.State.commit('shopwareApps/setSelectedIds', [
+            Shopware.Store.get('shopwareApps').selectedIds = [
                 this.categoryId,
-            ]);
+            ];
             return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
                 repository: this.categoryRepository,
                 apiContext: Shopware.Context.api,

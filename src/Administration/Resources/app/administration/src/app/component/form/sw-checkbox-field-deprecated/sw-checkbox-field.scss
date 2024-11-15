@@ -82,6 +82,7 @@ $sw-field-color-inherited: $color-module-purple-900;
                     background: $sw-field-color-focus;
                     border-color: $sw-field-color-focus;
 
+                    /* stylelint-disable-next-line max-nesting-depth */
                     .sw-icon {
                         display: inline-block;
                     }

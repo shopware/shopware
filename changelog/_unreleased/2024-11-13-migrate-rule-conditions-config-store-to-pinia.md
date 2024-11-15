@@ -8,7 +8,7 @@ author_github: @Jannis Leifeld
 # Administration
 * Removed the `ruleConditionsConfig` store written in Vuex (replaced with a Pinia store)
 * Added a new `ruleConditionsConfig` store written in Pinia
-* ___
+___
 # Upgrade Information
 
 ## "ruleConditionsConfig" Vuex store moved to Pinia

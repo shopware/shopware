@@ -68,7 +68,7 @@ export default {
 
     computed: {
         currentUserId() {
-            return Shopware.State.get('session').currentUser.id;
+            return Shopware.Store.get('session').currentUser.id;
         },
 
         countryRepository() {

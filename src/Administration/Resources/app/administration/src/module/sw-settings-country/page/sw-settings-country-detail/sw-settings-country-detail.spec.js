@@ -176,7 +176,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
-        Shopware.State.get('session').currentUser = {};
+        Shopware.Store.get('session').setCurrentUser({});
     });
 
     it('should be a Vue.JS component', async () => {

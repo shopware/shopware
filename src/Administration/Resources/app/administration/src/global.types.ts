@@ -104,6 +104,7 @@ import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
 import type { UsageData } from './app/store/usage-data.store';
+import type { SessionStore } from './app/store/session.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -328,12 +329,6 @@ declare global {
     interface VuexRootState {
         paymentOverviewCardState: PaymentOverviewCardState;
         swOrder: SwOrderState;
-        session: {
-            currentUser: EntitySchema.Entities['user'];
-            userPending: boolean;
-            languageId: string;
-            currentLocale: string | null;
-        };
         swCategoryDetail: $TSFixMe;
         shopwareExtensions: ShopwareExtensionsState;
     }
@@ -365,6 +360,7 @@ declare global {
         notification: NotificationStore;
         tabs: TabsStore;
         usageData: UsageData;
+        session: SessionStore;
     }
 
     /**

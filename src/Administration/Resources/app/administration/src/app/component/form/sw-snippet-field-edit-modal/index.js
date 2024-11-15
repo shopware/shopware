@@ -82,7 +82,7 @@ Component.register('sw-snippet-field-edit-modal', {
         },
 
         currentAuthor() {
-            return `user/${Shopware.State.get('session').currentUser.username}`;
+            return `user/${Shopware.Store.get('session').currentUser.username}`;
         },
 
         snippetRepository() {

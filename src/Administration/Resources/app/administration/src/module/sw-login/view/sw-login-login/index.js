@@ -49,7 +49,7 @@ Component.register('sw-login-login', {
 
     created() {
         if (!localStorage.getItem('sw-admin-locale')) {
-            Shopware.State.dispatch('setAdminLocale', navigator.language);
+            Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
     },
 

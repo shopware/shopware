@@ -40,7 +40,7 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
         return privileges.includes(privilege);
     };
 
-    const aclService = new AclService(Shopware.State);
+    const aclService = new AclService();
 
     return mount(await wrapTestComponent('sw-admin-menu-item', { sync: true }), {
         props,

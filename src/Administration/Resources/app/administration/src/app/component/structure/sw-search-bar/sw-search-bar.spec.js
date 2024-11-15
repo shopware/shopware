@@ -311,9 +311,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: 'id',
-        };
+        });
         Module.getModuleRegistry().clear();
     });
 

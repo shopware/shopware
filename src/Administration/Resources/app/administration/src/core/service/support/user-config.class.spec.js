@@ -76,9 +76,9 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
     let service;
 
     beforeEach(() => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
-        };
+        });
 
         service = new UserConfigImplementation();
     });
@@ -151,7 +151,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
 
     it('createUserConfigEntity > entity has specific values', () => {
         const expectedValues = {
-            userId: Shopware.State.get('session').currentUser.id,
+            userId: Shopware.Store.get('session').currentUser.id,
             key: UserConfigImplementation.USER_CONFIG_KEY,
             value: [],
         };

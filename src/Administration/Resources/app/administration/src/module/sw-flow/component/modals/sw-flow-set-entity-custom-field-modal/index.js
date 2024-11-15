@@ -123,7 +123,7 @@ export default {
         },
 
         labelProperty() {
-            return `config.label.${Shopware.State.get('session').currentLocale}`;
+            return `config.label.${Shopware.Store.get('session').currentLocale}`;
         },
 
         ...mapState('swFlowState', [

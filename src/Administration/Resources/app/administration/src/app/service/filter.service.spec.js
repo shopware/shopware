@@ -56,11 +56,11 @@ describe('app/service/filter.service.js', () => {
             },
         ]);
 
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             currentUser: {
                 id: '123',
             },
-        };
+        });
 
         filterService = new FilterService({
             userConfigRepository: {

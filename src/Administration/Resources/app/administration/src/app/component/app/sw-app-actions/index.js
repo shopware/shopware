@@ -92,7 +92,7 @@ Component.register('sw-app-actions', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {

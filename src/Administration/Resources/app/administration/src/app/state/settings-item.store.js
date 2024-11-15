@@ -29,6 +29,10 @@ export default {
                 group = group();
             }
 
+            if (!group || typeof group !== 'string') {
+                throw new Error('Group is undefined or invalid');
+            }
+
             if (!hasOwnProperty(state.settingsGroups, group)) {
                 state.settingsGroups[group] = [];
             }

@@ -12,7 +12,10 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: ['acl', 'feature'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     metaInfo() {
         return {

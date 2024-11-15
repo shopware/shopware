@@ -18,14 +18,17 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_content_header %}
-                    <h1 class="sw-settings__content-header">
-                        {{ $tc('sw-settings.index.title') }}
-                    </h1>
+                <h1 class="sw-settings__content-header">
+                    {{ $tc('sw-settings.index.title') }}
+                </h1>
                 {% endblock %}
 
                 {% block sw_settings_content_card_content %}
                 <div class="sw-settings__content-grid" position-identifier="sw-settings-index-content">
-                    <div v-for="(settingsItems, settingsGroup) in settingsGroups" class="sw-settings__content-group">
+                    <div v-for="(settingsItems, settingsGroup) in settingsGroups"
+                         :key="settingsGroup"
+                         class="sw-settings__content-group"
+                    >
                         <h2>{{ getGroupLabel(settingsGroup) }}</h2>
 
                         <sw-settings-item

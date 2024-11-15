@@ -20,11 +20,16 @@ export default function initializeSettingItems(): void {
 
         // @deprecated tag:v6.7.0 - Remove condition and make allowedTabs constant
         if (!Feature.isActive('v6.7.0.0')) {
-            allowedTabs = ['shop', 'system', 'plugins'];
+            allowedTabs = [
+                'shop',
+                'system',
+                'plugins',
+            ];
         }
 
-        const extension = Object.values(Shopware.State.get('extensions'))
-            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
+        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+            ext.baseUrl.startsWith(additionalInformation._event_.origin),
+        );
 
         if (!extension) {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);

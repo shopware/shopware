@@ -432,7 +432,7 @@ export default {
         },
 
         readCustomFieldLabel(field) {
-            const language = Shopware.State.get('session').currentLocale;
+            const language = Shopware.Store.get('session').currentLocale;
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return field.config.label[language] || field.config.label[fallback];

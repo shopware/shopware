@@ -76,7 +76,7 @@ function _mergeNotificationUpdate(originalNotification: NotificationType, notifi
 }
 
 function _getStorageKey() {
-    const user = Shopware.State.get('session').currentUser;
+    const user = Shopware.Store.get('session').currentUser;
 
     if (!user) {
         return null;

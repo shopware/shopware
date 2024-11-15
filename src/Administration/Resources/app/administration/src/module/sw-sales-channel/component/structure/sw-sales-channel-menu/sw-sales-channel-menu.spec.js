@@ -219,7 +219,7 @@ Shopware.Application.addServiceProvider('salesChannelFavorites', () => {
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
     beforeEach(async () => {
         Shopware.Service('salesChannelFavorites').state.favorites = [];
-        Shopware.State.get('session').languageId = defaultAdminLanguageId;
+        Shopware.Store.get('session').languageId = defaultAdminLanguageId;
         global.repositoryFactoryMock.showError = false;
     });
 
@@ -315,7 +315,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
     it('takes first domain link if neither default language nor admin language exists', async () => {
         window.open = jest.fn();
-        Shopware.State.get('session').languageId = Shopware.Utils.createId();
+        Shopware.Store.get('session').languageId = Shopware.Utils.createId();
 
         const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 

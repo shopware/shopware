@@ -80,9 +80,9 @@ async function createWrapper() {
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
-        };
+        });
         global.repositoryFactoryMock.showError = false;
         global.activeAclRoles = [];
     });

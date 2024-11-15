@@ -104,7 +104,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
+        Shopware.Store.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
 
         Shopware.Module.getModuleRegistry().clear();
@@ -121,7 +121,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
 
-        Shopware.State.commit('setCurrentUser', null);
+        Shopware.Store.get('session').setCurrentUser(null);
         Shopware.Store.get('settingsItems').settingsGroups.shop = [];
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
 
@@ -136,7 +136,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should show the snippet for the admin title', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: true,
             title: 'Master of something',
             aclRoles: [],
@@ -150,7 +150,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should show the user title for the non admin user', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: 'Master of something',
             aclRoles: [],
@@ -163,7 +163,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should show no title when user has no title and no aclRoles defined', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
             aclRoles: [],
@@ -176,7 +176,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should use the name of the first acl role as a title when user has no title defined', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
             aclRoles: [

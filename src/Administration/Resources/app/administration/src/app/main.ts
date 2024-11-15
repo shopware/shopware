@@ -105,7 +105,7 @@ Application.addServiceProvider('feature', () => {
         return new PrivilegesService();
     })
     .addServiceProvider('acl', () => {
-        return new AclService(Shopware.State);
+        return new AclService();
     })
     .addServiceProvider('loginService', () => {
         const serviceContainer = Application.getContainer('service');

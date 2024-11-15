@@ -21,7 +21,6 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should initialized all state modules', () => {
-        expect(Shopware.State.get('session')).toBeDefined();
         expect(Shopware.Store.get('shopwareApps')).toBeDefined();
     });
 

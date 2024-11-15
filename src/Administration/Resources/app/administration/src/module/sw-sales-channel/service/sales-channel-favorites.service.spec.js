@@ -35,9 +35,9 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
     let service;
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
-        };
+        });
 
         service = new SalesChannelFavoritesService();
     });
@@ -110,7 +110,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
 
     it('createUserConfigEntity > entity has specific values', async () => {
         const expectedValues = {
-            userId: Shopware.State.get('session').currentUser.id,
+            userId: Shopware.Store.get('session').currentUser.id,
             key: SalesChannelFavoritesService.USER_CONFIG_KEY,
             value: [],
         };

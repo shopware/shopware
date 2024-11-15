@@ -3,12 +3,7 @@ import { POLL_BACKGROUND_INTERVAL } from '../../core/worker/worker-notification-
 
 describe('notifications.store', () => {
     beforeAll(() => {
-        Shopware.State.unregisterModule('session');
-        Shopware.State.registerModule('session', {
-            state() {
-                return { currentUser: { id: '1' } };
-            },
-        });
+        Shopware.Store.get('session').currentUser = { id: '1' } as EntitySchema.user;
     });
 
     beforeEach(() => {

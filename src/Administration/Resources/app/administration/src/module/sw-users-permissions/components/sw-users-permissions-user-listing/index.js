@@ -4,7 +4,7 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
-const { Data, Mixin, State } = Shopware;
+const { Data, Mixin } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -53,7 +53,7 @@ export default {
 
         currentUser: {
             get() {
-                return State.get('session').currentUser;
+                return Shopware.Store.get('session').currentUser;
             },
         },
 

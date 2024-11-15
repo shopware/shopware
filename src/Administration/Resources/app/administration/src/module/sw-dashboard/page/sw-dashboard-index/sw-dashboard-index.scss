@@ -145,6 +145,7 @@ $content-max-width: 960px;
     /* increase width smart-bar head-area on dashboard index */
     &.sw-page {
         .sw-page__head-area {
+            /* stylelint-disable-next-line max-line-length */
             grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-max-width) [header-content-end] 1fr [smart-bar-end];
         }
 

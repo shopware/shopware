@@ -37,6 +37,7 @@ $sw-file-input-background-color-highlighted: $color-shopware-brand-50;
             color: $sw-file-input-color-highlighted;
 
             .sw-file-input__upload-caption {
+                /* stylelint-disable-next-line max-nesting-depth */
                 .sw-icon {
                     color: $sw-file-input-color-highlighted;
                 }

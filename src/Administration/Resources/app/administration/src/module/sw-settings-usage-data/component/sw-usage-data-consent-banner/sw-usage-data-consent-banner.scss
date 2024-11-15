@@ -143,6 +143,7 @@
                 font-weight: $font-weight-medium;
                 line-height: $line-height-md;
 
+                /* stylelint-disable max-nesting-depth */
                 .sw-icon.icon--solid-check-circle {
                     flex-shrink: 0;
                     margin-top: 4px;
@@ -151,6 +152,7 @@
                 .sw-help-text {
                     cursor: help;
                 }
+                /* stylelint-enable max-nesting-depth */
             }
         }
 

@@ -30,6 +30,7 @@
             height: 40px;
         }
 
+        /* stylelint-disable-next-line max-line-length */
         &.sw-data-grid.sw-data-grid--plain-appearance .sw-data-grid__body .sw-data-grid__row:last-child .sw-data-grid__cell {
             border-bottom: 1px solid $color-gray-300;
         }

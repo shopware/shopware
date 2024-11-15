@@ -10,7 +10,7 @@ import type { Router, RouteRecordRaw } from 'vue-router';
  */
 export default function initializeTabs(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', async (componentConfig) => {
-        Shopware.State.commit('tabs/addTabItem', componentConfig);
+        Shopware.Store.get('tabs').addTabItem(componentConfig);
 
         // Reload current route if it does not exist
         const router = Shopware.Application.view?.router as Router;
@@ -33,7 +33,7 @@ export default function initializeTabs(): void {
             }
 
             // Get all tab routes
-            const tabRoutes = Object.values(Shopware.State.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
+            const tabRoutes = Object.values(Shopware.Store.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
                 acc = [
                     ...acc,
                     ...tabItems.map((tabItem) => tabItem.componentSectionId),

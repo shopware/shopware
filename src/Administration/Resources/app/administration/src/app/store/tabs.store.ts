@@ -1,8 +1,6 @@
 /**
  * @package admin
- * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
-import type { Module } from 'vuex';
 import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,31 +12,33 @@ interface TabsState {
     };
 }
 
-const TabsStore: Module<TabsState, VuexRootState> = {
-    namespaced: true,
+const tabsStore = Shopware.Store.register({
+    id: 'tabs',
 
     state: (): TabsState => ({
         tabItems: {},
     }),
 
-    mutations: {
-        addTabItem(state, { label, componentSectionId, positionId }: uiTabsAddTabItem) {
-            if (!state.tabItems[positionId]) {
-                state.tabItems[positionId] = [];
+    actions: {
+        addTabItem({ label, componentSectionId, positionId }: Omit<uiTabsAddTabItem, 'responseType'>): void {
+            if (!this.tabItems[positionId]) {
+                this.tabItems[positionId] = [];
             }
 
-            state.tabItems[positionId].push({
+            this.tabItems[positionId].push({
                 label,
                 componentSectionId,
             });
         },
     },
-};
+});
 
 /**
  * @private
  */
-export default TabsStore;
+export type TabsStore = ReturnType<typeof tabsStore>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type { TabsState };
+/**
+ * @private
+ */
+export default tabsStore;

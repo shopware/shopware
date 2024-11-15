@@ -217,12 +217,16 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Document\Exception\InvalidDocumentException:
             log_level: notice
+        # @deprecated tag:v6.7.0 - Exception will be deleted
         Shopware\Core\Checkout\Document\Exception\DocumentGenerationException:
             log_level: notice
+        # @deprecated tag:v6.7.0 - Exception will be deleted
         Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException:
             log_level: notice
+        # @deprecated tag:v6.7.0 - Exception will be deleted
         Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException:
             log_level: notice
+        # @deprecated tag:v6.7.0 - Exception will be deleted
         Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException:
             log_level: notice
         Shopware\Core\Content\Product\Exception\VariantNotFoundException:

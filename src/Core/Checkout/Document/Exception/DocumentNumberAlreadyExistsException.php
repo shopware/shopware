@@ -2,27 +2,29 @@
 
 namespace Shopware\Core\Checkout\Document\Exception;
 
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed, use DocumentException::documentAlreadyExists instead
+ */
 #[Package('checkout')]
-class DocumentNumberAlreadyExistsException extends ShopwareHttpException
+class DocumentNumberAlreadyExistsException extends DocumentException
 {
     public function __construct(?string $number)
     {
-        parent::__construct('Document number {{number}} has already been allocated.', [
-            'number' => $number,
-        ]);
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'DocumentException::documentAlreadyExists')
+        );
 
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'DOCUMENT__NUMBER_ALREADY_EXISTS';
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_NUMBER_ALREADY_EXISTS,
+            'Document number {{number}} has already been allocated.',
+            ['number' => $number]
+        );
     }
 }

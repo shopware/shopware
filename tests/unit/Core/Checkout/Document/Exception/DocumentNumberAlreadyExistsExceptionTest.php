@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(DocumentNumberAlreadyExistsException::class)]
 class DocumentNumberAlreadyExistsExceptionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConstruct(): void
     {
         $exception = new DocumentNumberAlreadyExistsException('test');

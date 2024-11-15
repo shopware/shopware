@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 final class RenderedDocument extends Struct
 {
-    private string $content;
+    private string $content = '';
 
     /**
      * @param array<string, mixed> $config

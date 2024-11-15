@@ -8,9 +8,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
@@ -28,6 +25,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @final
@@ -107,7 +105,9 @@ class DocumentGenerator
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
         }
 
-        $document->setContent($this->pdfRenderer->render($document));
+        if ($document->getFileExtension() === FileTypes::PDF) {
+            $document->setContent($this->pdfRenderer->render($document));
+        }
 
         return $document;
     }
@@ -120,7 +120,7 @@ class DocumentGenerator
         $documentTypeId = $this->getDocumentTypeByName($documentType);
 
         if ($documentTypeId === null) {
-            throw new InvalidDocumentRendererException($documentType);
+            throw DocumentException::invalidDocumentRendererType($documentType);
         }
 
         $rendered = $this->rendererRegistry->render($documentType, $operations, $context, new DocumentRendererConfig());
@@ -141,6 +141,10 @@ class DocumentGenerator
 
                 if (!($document instanceof RenderedDocument)) {
                     continue;
+                }
+
+                if ($document->getFileExtension() === FileTypes::PDF) {
+                    $document->setContent($this->pdfRenderer->render($document));
                 }
 
                 $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $operation->getDocumentId());
@@ -184,11 +188,11 @@ class DocumentGenerator
         }
 
         if ($document->getDocumentMediaFileId() !== null) {
-            throw new DocumentGenerationException('Document already exists');
+            throw DocumentException::legacyGenerationError('Document already exists', statusCode: Response::HTTP_BAD_REQUEST);
         }
 
         if ($document->isStatic() === false) {
-            throw new DocumentGenerationException('This document is dynamically generated and cannot be overwritten');
+            throw DocumentException::legacyGenerationError('This document is dynamically generated and cannot be overwritten', statusCode: Response::HTTP_BAD_REQUEST);
         }
 
         $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
@@ -196,7 +200,7 @@ class DocumentGenerator
         $fileName = (string) $uploadedFileRequest->query->get('fileName');
 
         if ($fileName === '') {
-            throw new DocumentGenerationException('Parameter "fileName" is missing');
+            throw DocumentException::legacyGenerationError('Parameter "fileName" is missing', statusCode: Response::HTTP_BAD_REQUEST);
         }
 
         $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
@@ -267,7 +271,7 @@ class DocumentGenerator
         $result = (bool) $statement->fetchOne();
 
         if ($result) {
-            throw new DocumentNumberAlreadyExistsException($documentNumber);
+            throw DocumentException::documentAlreadyExists($documentNumber);
         }
     }
 

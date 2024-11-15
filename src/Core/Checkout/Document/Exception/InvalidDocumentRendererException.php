@@ -2,26 +2,29 @@
 
 namespace Shopware\Core\Checkout\Document\Exception;
 
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed, use DocumentException::invalidDocumentRendererType instead
+ */
 #[Package('checkout')]
-class InvalidDocumentRendererException extends ShopwareHttpException
+class InvalidDocumentRendererException extends DocumentException
 {
     public function __construct(string $type)
     {
-        $message = \sprintf('Unable to find a document renderer with type "%s"', $type);
-        parent::__construct($message);
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'DocumentException::documentAlreadyExists')
+        );
 
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'DOCUMENT__INVALID_RENDERER_TYPE';
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_DOCUMENT_RENDERER_TYPE,
+            'Unable to find a document renderer with type "{{type}}"',
+            ['type' => $type]
+        );
     }
 }

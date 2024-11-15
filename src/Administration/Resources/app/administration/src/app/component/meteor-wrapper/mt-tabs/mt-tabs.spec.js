@@ -16,7 +16,7 @@ async function createWrapper() {
 describe('src/app/component/meteor-wrapper/mt-tabs', () => {
     beforeEach(() => {
         // reset store
-        Shopware.State.get('tabs').tabItems = {};
+        Shopware.Store.get('tabs').tabItems = {};
     });
 
     it('should be a Vue.js component', async () => {
@@ -45,7 +45,7 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         const wrapper = await createWrapper();
 
         // Set values in the extension store
-        Shopware.State.get('tabs').tabItems['jest-test-component'] = [
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
             { label: 'Tab 3', componentSectionId: 'tab3' },
             { label: 'Tab 4', componentSectionId: 'tab4' },
         ];

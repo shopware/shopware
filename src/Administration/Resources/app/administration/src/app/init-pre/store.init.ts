@@ -18,6 +18,7 @@ import 'src/app/store/modals.store';
 import 'src/app/store/menu-item.store';
 import 'src/app/store/tabs.store';
 import 'src/app/store/usage-data.store';
+import 'src/app/store/session.store';
 
 /**
  * @sw-package framework

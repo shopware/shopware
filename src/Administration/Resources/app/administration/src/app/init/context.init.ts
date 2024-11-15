@@ -5,6 +5,7 @@ import { watch } from 'vue';
 /* Is covered by E2E tests */
 import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
+import useSession from '../composables/use-session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -30,7 +31,7 @@ export default function initializeContext(): void {
     Shopware.ExtensionAPI.handle('contextLocale', () => {
         return {
             fallbackLocale: Shopware.Context.app.fallbackLocale ?? '',
-            locale: Shopware.State.get('session').currentLocale ?? '',
+            locale: Shopware.Store.get('session').currentLocale ?? '',
         };
     });
 
@@ -39,7 +40,7 @@ export default function initializeContext(): void {
     });
 
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
-        return Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+        return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
     });
 
     Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {
@@ -82,27 +83,27 @@ export default function initializeContext(): void {
             return Promise.reject(new Error(`Extension "${extension[0]}" does not have the permission to read users`));
         }
 
-        const currentUser = Shopware.State.get('session').currentUser;
+        const currentUser = Shopware.Store.get('session').currentUser;
 
         return Promise.resolve({
-            aclRoles: currentUser.aclRoles as unknown as Array<{
+            aclRoles: currentUser?.aclRoles as unknown as Array<{
                 name: string;
                 type: string;
                 id: string;
                 privileges: Array<string>;
             }>,
-            active: !!currentUser.active,
-            admin: !!currentUser.admin,
-            avatarId: currentUser.avatarId ?? '',
-            email: currentUser.email ?? '',
-            firstName: currentUser.firstName ?? '',
-            id: currentUser.id ?? '',
-            lastName: currentUser.lastName ?? '',
-            localeId: currentUser.localeId ?? '',
-            title: currentUser.title ?? '',
+            active: !!currentUser?.active,
+            admin: !!currentUser?.admin,
+            avatarId: currentUser?.avatarId ?? '',
+            email: currentUser?.email ?? '',
+            firstName: currentUser?.firstName ?? '',
+            id: currentUser?.id ?? '',
+            lastName: currentUser?.lastName ?? '',
+            localeId: currentUser?.localeId ?? '',
+            title: currentUser?.title ?? '',
             // @ts-expect-error - type is not defined in entity directly
-            type: (currentUser.type as unknown as string) ?? '',
-            username: currentUser.username ?? '',
+            type: (currentUser?.type as unknown as string) ?? '',
+            username: currentUser?.username ?? '',
         });
     });
 
@@ -164,29 +165,16 @@ export default function initializeContext(): void {
             }
 
             void publish('contextLocale', {
-                locale: Shopware.State.get('session').currentLocale ?? '',
+                locale: Shopware.Store.get('session').currentLocale ?? '',
                 fallbackLocale: fallbackLocale ?? '',
             });
         },
     );
 
-    // eslint-disable-next-line no-warning-comments
-    // TODO: Remove this watch when the session store is moved to Pinia
-    Shopware.State.watch(
-        (state) => {
-            return {
-                locale: state.session.currentLocale,
-            };
-        },
-        ({ locale }, { locale: oldLocale }) => {
-            if (locale === oldLocale) {
-                return;
-            }
-
-            void publish('contextLocale', {
-                locale: locale ?? '',
-                fallbackLocale: contextStore.app.fallbackLocale ?? '',
-            });
-        },
-    );
+    Shopware.Vue.watch(useSession().currentLocale, (locale) => {
+        void publish('contextLocale', {
+            locale: locale ?? '',
+            fallbackLocale: contextStore.app.fallbackLocale ?? '',
+        });
+    });
 }

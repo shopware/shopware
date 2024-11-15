@@ -149,7 +149,7 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         ...mapState('swFlowState', [

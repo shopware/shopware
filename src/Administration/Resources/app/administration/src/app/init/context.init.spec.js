@@ -79,14 +79,14 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should return user timezone', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             timeZone: 'Europe/Berlin',
         });
         await getUserTimezone().then((timezone) => {
             expect(timezone).toBe('Europe/Berlin');
         });
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             timeZone: undefined,
         });
         await getUserTimezone().then((timezone) => {
@@ -131,7 +131,7 @@ describe('src/app/init/context.init.ts', () => {
             active: true,
         });
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             aclRoles: [],
             active: true,
             admin: true,
@@ -175,7 +175,7 @@ describe('src/app/init/context.init.ts', () => {
             active: true,
         });
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             aclRoles: [],
             active: true,
             admin: true,
@@ -193,7 +193,7 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should not return user information when extension is not existing', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             aclRoles: [],
             active: true,
             admin: true,

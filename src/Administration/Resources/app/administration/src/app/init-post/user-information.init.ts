@@ -27,7 +27,7 @@ export default function initializeUserContext() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 delete data.password;
 
-                Shopware.State.commit('setCurrentUser', data);
+                Shopware.Store.get('session').setCurrentUser(data as EntitySchema.user);
                 initializeUserNotifications();
                 resolve();
             })

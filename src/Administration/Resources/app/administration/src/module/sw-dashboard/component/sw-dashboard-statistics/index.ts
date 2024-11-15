@@ -273,7 +273,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isSessionLoaded() {
-            return !Shopware.State.get('session')?.userPending;
+            return !Shopware.Store.get('session')?.userPending;
         },
 
         currencyFilter() {
@@ -363,7 +363,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const timezone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+            const timezone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
 
             return httpClient
                 .get<

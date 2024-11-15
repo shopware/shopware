@@ -5,6 +5,7 @@
  */
 import type { LoginService } from './login.service';
 import type { NotificationType } from '../../app/store/notification.store';
+import useSession from '../../app/composables/use-session';
 
 type UpdatedListResponse = {
     total: number;
@@ -67,15 +68,12 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
         });
     }
 
-    Shopware.State.watch(
-        (state) => state.session.currentUser,
-        (newValue, oldValue) => {
-            if (newValue === oldValue || newValue === null) {
-                return;
-            }
+    Shopware.Vue.watch(useSession().currentUser, (newValue) => {
+        if (!newValue) {
+            return;
+        }
 
-            // only check when user is given
-            checkForPluginUpdates(serviceContainer);
-        },
-    );
+        // only check when user is given
+        checkForPluginUpdates(serviceContainer);
+    });
 }

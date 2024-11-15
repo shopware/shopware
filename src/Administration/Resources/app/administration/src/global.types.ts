@@ -32,7 +32,6 @@ import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
 import type { ComponentConfig } from './core/factory/async-component.factory';
-import type { TabsState } from './app/state/tabs.store';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
@@ -104,6 +103,7 @@ import type { System } from './app/store/system.store';
 import type { ModalsStore } from './app/store/modals.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
+import type { TabsStore } from './app/store/tabs.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -326,7 +326,6 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
-        tabs: TabsState;
         paymentOverviewCardState: PaymentOverviewCardState;
         swOrder: SwOrderState;
         session: {
@@ -365,6 +364,7 @@ declare global {
         modals: ModalsStore;
         menuItem: MenuItemStore;
         notification: NotificationStore;
+        tabs: TabsStore;
     }
 
     /**

@@ -132,7 +132,6 @@ const missingTests = [
     'src/app/service/search-type.service.js',
     'src/app/service/shortcut.service.js',
     'src/app/state/index.js',
-    'src/app/state/tabs.store.ts',
     'src/core/adapter/view.adapter.ts',
     'src/core/data/ShopwareError.ts',
     'src/core/data/changeset-generator.data.js',

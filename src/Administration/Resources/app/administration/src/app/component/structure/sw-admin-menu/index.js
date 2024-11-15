@@ -65,7 +65,7 @@ Component.register('sw-admin-menu', {
 
     computed: {
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         isExpanded() {
@@ -93,7 +93,7 @@ Component.register('sw-admin-menu', {
         },
 
         currentLocale() {
-            return Shopware.State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         currentExpandedMenuEntries() {
@@ -305,7 +305,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const userData = response.data;
                 delete userData.password;
 
-                Shopware.State.commit('setCurrentUser', userData);
+                Shopware.Store.get('session').setCurrentUser(userData);
 
                 this.isUserLoading = false;
             });
@@ -398,7 +398,7 @@ The admin menu only supports up to three levels of nesting.`,
         onLogoutUser() {
             this.loginService.logout();
             this.adminMenuStore.clearExpandedMenuEntries();
-            Shopware.State.commit('removeCurrentUser');
+            Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.$router.push({

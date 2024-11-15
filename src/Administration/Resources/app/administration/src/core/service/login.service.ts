@@ -85,7 +85,7 @@ export default function createLoginService(
      */
     function verifyUserToken(password: string): Promise<string> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return verifyUserByUsername(Shopware.State.get('session').currentUser.username, password)
+        return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
                     return access;
@@ -425,7 +425,10 @@ export default function createLoginService(
                         // that contain urls to images from a different origin will throw a security error in Safari.
                     }
 
-                    sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
+                    sessionStorage.setItem(
+                        'lastKnownUser',
+                        Shopware.Store.get('session').currentUser?.username ?? '',
+                    );
 
                     window.processingInactivityLogout = true;
 

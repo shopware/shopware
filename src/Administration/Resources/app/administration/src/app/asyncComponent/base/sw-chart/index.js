@@ -239,7 +239,7 @@ export default {
         },
 
         defaultLocale() {
-            const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
+            const adminLocaleLanguage = Shopware.Store.get('session').adminLocaleLanguage;
 
             if (Object.keys(apexLocales).includes(adminLocaleLanguage)) {
                 return adminLocaleLanguage;

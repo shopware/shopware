@@ -21,7 +21,7 @@ export default Shopware.Mixin.register(
             },
 
             currentUser() {
-                return Shopware.State.get('session').currentUser;
+                return Shopware.Store.get('session').currentUser;
             },
         },
 
@@ -95,7 +95,7 @@ export default Shopware.Mixin.register(
                 }
 
                 if (!userId) {
-                    userId = this.currentUser?.id;
+                    userId = this.currentUser?.id ?? null;
                 }
 
                 let userSettings = await this.getUserSettingsEntity(identifier);
@@ -122,7 +122,7 @@ export default Shopware.Mixin.register(
              */
             userGridSettingsCriteria(identifier: string, userId: string | null = null) {
                 if (!userId) {
-                    userId = this.currentUser?.id;
+                    userId = this.currentUser?.id ?? '';
                 }
 
                 const criteria = new Shopware.Data.Criteria(1, 25);

@@ -111,7 +111,7 @@ describe('src/app/service/menu.service', () => {
 
         it('respects the current locale for apps', async () => {
             Shopware.Context.app.fallbackLocale = 'en-GB';
-            Shopware.State.get('session').currentLocale = 'de-DE';
+            Shopware.Store.get('session').currentLocale = 'de-DE';
 
             const navigation = menuService.getNavigationFromApps(testApps);
             expect(navigation).toEqual([
@@ -148,7 +148,7 @@ describe('src/app/service/menu.service', () => {
 
         it('uses fallback locale for apps if current locale is not translated', async () => {
             Shopware.Context.app.fallbackLocale = 'en-GB';
-            Shopware.State.get('session').currentLocale = 'ru-RU';
+            Shopware.Store.get('session').currentLocale = 'ru-RU';
 
             const navigation = menuService.getNavigationFromApps(testApps);
             expect(navigation).toEqual([

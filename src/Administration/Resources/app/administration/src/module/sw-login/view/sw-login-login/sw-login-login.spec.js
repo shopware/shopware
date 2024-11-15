@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import useSystem from '../../../../app/composables/use-system';
 
 async function createWrapper(loginSuccessfull) {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
@@ -90,6 +91,10 @@ async function createWrapper(loginSuccessfull) {
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     let wrapper;
+
+    beforeAll(() => {
+        useSystem().locales.value.push(navigator.language);
+    });
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper(false);

@@ -87,9 +87,9 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: 'userId',
-        };
+        });
     });
 
     it('should be a Vue.js component', async () => {

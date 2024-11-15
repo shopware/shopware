@@ -55,7 +55,7 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
 
     try {
         result = val.toLocaleString(
-            additionalOptions.language ?? Shopware.State.get('session').currentLocale ?? 'en-US',
+            additionalOptions.language ?? Shopware.Store.get('session').currentLocale ?? 'en-US',
             // @ts-expect-error - style "currency" is allowed in the options
             opts,
         );
@@ -75,7 +75,7 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
             delete opts.currency;
 
             result = val.toLocaleString(
-                additionalOptions.language ?? Shopware.State.get('session').currentLocale ?? 'en-US',
+                additionalOptions.language ?? Shopware.Store.get('session').currentLocale ?? 'en-US',
                 // @ts-expect-error - style "decimal" is allowed in the options
                 opts,
             );
@@ -115,7 +115,7 @@ export function date(val: string, options: DateFilterOptions = {}): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
+    const userTimeZone = Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
 
     const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
         timeZone: options.skipTimezoneConversion ? undefined : userTimeZone,
@@ -139,7 +139,7 @@ export function date(val: string, options: DateFilterOptions = {}): string {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+    const userTimeZone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
 
     // Language and options are set in order to re-create the date object
     const localizedDate = dateObj.toLocaleDateString('en-GB', {

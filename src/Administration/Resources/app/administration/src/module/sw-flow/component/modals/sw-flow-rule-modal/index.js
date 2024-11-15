@@ -139,7 +139,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.State.get('session').languageId,
+                languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria(1, 500);
 

@@ -56,7 +56,7 @@ async function createWrapper(props) {
  */
 describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
     beforeEach(() => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
+        Shopware.Store.get('session').currentLocale = 'en-GB';
         Shopware.Store.get('shopwareApps').apps = testApps;
     });
 

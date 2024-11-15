@@ -100,7 +100,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.State.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
             },
         },
     },

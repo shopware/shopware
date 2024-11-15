@@ -1,20 +1,11 @@
 /**
  * @package admin
  */
-
-import type { FullState } from '../../core/factory/state.factory';
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AclService {
-    state: FullState;
-
-    constructor(state: FullState) {
-        this.state = state;
-    }
-
     isAdmin(): boolean {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return !!this.state.get('session').currentUser && !!this.state.get('session').currentUser.admin;
+        return !!Shopware.Store.get('session').currentUser?.admin;
     }
 
     can(privilegeKey: string): boolean {
@@ -23,7 +14,7 @@ export default class AclService {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return (this.state.getters.userPrivileges as string[]).includes(privilegeKey);
+        return (Shopware.Store.get('session').userPrivileges as string[]).includes(privilegeKey);
     }
 
     hasAccessToRoute(path: string): boolean {
@@ -69,6 +60,6 @@ export default class AclService {
 
     get privileges(): string[] {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return this.state.getters.userPrivileges as string[];
+        return Shopware.Store.get('session').userPrivileges as string[];
     }
 }

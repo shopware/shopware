@@ -2,7 +2,7 @@ import type { AppModuleDefinition } from 'src/core/service/api/app-modules.servi
 import template from './sw-extension-app-module-page.html.twig';
 import './sw-extension-app-module-page.scss';
 
-const { State, Context } = Shopware;
+const { Context } = Shopware;
 
 /**
  * @package checkout
@@ -47,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         currentLocale(): string | null {
-            return State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         fallbackLocale(): string | null {

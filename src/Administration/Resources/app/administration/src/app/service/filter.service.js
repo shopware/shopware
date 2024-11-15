@@ -29,7 +29,7 @@ export default class FilterService {
             if (response.length) {
                 this._filterEntity = response.first();
             } else {
-                const currentUser = Shopware.State.get('session').currentUser;
+                const currentUser = Shopware.Store.get('session').currentUser;
 
                 this._filterEntity = this._userConfigRepository.create(Shopware.Context.api);
                 this._filterEntity.key = storeKey;
@@ -110,7 +110,7 @@ export default class FilterService {
     }
 
     _getUserConfigCriteria(storeKey) {
-        const currentUser = Shopware.State.get('session').currentUser;
+        const currentUser = Shopware.Store.get('session').currentUser;
         const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('key', storeKey));

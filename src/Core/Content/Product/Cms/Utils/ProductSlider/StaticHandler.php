@@ -1,0 +1,75 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\Cms\Utils\ProductSlider;
+
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+
+#[Package('buyers-experience')]
+class StaticHandler extends AbstractProductSliderHandler
+{
+    private const STATIC_SEARCH_KEY = 'product-slider';
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+    ) {
+    }
+
+    public function getSource(): string
+    {
+        return 'static';
+    }
+
+    public function collect(CmsSlotEntity $slot, FieldConfigCollection $config, ResolverContext $resolverContext): ?CriteriaCollection
+    {
+        $products = $config->get('products');
+
+        $criteria = new Criteria($products->getArrayValue());
+        if (!Feature::isActive('v6.7.0.0')) {
+            $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
+        }
+
+        $collection = new CriteriaCollection();
+        $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
+
+        return $collection;
+    }
+
+    public function enrich(CmsSlotEntity $slot, ElementDataCollection $result, ResolverContext $resolverContext): void
+    {
+        $key = self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier();
+        $searchResult = $result->get($key);
+
+        if (!$searchResult) {
+            return;
+        }
+
+        $products = $searchResult->getEntities();
+        if (!$products instanceof ProductCollection) {
+            return;
+        }
+
+        $context = $resolverContext->getSalesChannelContext();
+        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannel()->getId())) {
+            $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
+        }
+
+        $slider = new ProductSliderStruct();
+        $slider->setProducts($products);
+
+        $slot->setData($slider);
+    }
+}

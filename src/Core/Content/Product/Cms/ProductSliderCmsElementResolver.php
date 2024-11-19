@@ -14,12 +14,14 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,9 +33,18 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
     private const STATIC_SEARCH_KEY = 'product-slider';
     private const FALLBACK_LIMIT = 50;
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, as the associations will not be loaded in the collect method anymore
+     */
+    private const PRODUCT_ASSOCIATIONS = [
+        'options.group',
+        'manufacturer',
+    ];
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
@@ -59,9 +70,11 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         if ($products->isStatic() && $products->getValue()) {
             $criteria = new Criteria($products->getArrayValue());
-            $criteria->addAssociation('cover');
-            $criteria->addAssociation('options.group');
-            $criteria->addAssociation('manufacturer');
+
+            if (!Feature::isActive('v6.7.0.0')) {
+                $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
+            }
+
             $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
         }
 
@@ -87,7 +100,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $slot->setData($slider);
 
         $productConfig = $config->get('products');
-
         if ($productConfig === null) {
             return;
         }
@@ -116,25 +128,19 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            $finalProducts = $this->handleProductStream($streamResult, $resolverContext->getSalesChannelContext(), $entitySearchResult->getCriteria());
-            $slider->setProducts($finalProducts);
+            $slider->setProducts($this->handleProductStream($streamResult, $resolverContext->getSalesChannelContext(), $entitySearchResult->getCriteria()));
             $slider->setStreamId($productConfig->getStringValue());
         }
     }
 
     private function enrichFromSearch(ProductSliderStruct $slider, ElementDataCollection $result, string $searchKey, SalesChannelContext $saleschannelContext): void
     {
-        $searchResult = $result->get($searchKey);
-        if ($searchResult === null) {
-            return;
-        }
-
-        $products = $searchResult->getEntities();
+        $products = $result->get($searchKey)?->getEntities();
         if (!$products instanceof ProductCollection) {
             return;
         }
 
-        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $saleschannelContext->getSalesChannel()->getId())) {
+        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $saleschannelContext->getSalesChannelId())) {
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
@@ -155,18 +161,15 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private function collectByEntity(EntityResolverContext $resolverContext, FieldConfig $config): ?Criteria
     {
         $entityProducts = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
-        if ($entityProducts) {
+        if ($entityProducts !== null) {
             return null;
         }
 
         $criteria = $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
-        if ($criteria === null) {
-            return null;
-        }
 
-        $criteria->addAssociation('cover');
-        $criteria->addAssociation('options.group');
-        $criteria->addAssociation('manufacturer');
+        if (!Feature::isActive('v6.7.0.0')) {
+            $criteria?->addAssociations(self::PRODUCT_ASSOCIATIONS);
+        }
 
         return $criteria;
     }
@@ -178,29 +181,26 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             $resolverContext->getSalesChannelContext()->getContext()
         );
 
-        $sorting = 'name:' . FieldSorting::ASCENDING;
-        $productStreamSorting = $elementConfig->get('productStreamSorting');
-        if ($productStreamSorting !== null) {
-            $sorting = $productStreamSorting->getStringValue();
-        }
-        $limit = self::FALLBACK_LIMIT;
-        $productStreamLimit = $elementConfig->get('productStreamLimit');
-        if ($productStreamLimit !== null) {
-            $limit = $productStreamLimit->getIntValue();
-        }
-
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
-        $criteria->setLimit($limit);
-        $criteria->addAssociation('options.group');
-        $criteria->addAssociation('manufacturer');
-        $this->addGrouping($criteria);
+        $criteria->setLimit($elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT);
 
-        if ($sorting === 'random') {
-            return $this->addRandomSort($criteria);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $criteria->addAssociations(self::PRODUCT_ASSOCIATIONS);
         }
 
-        if ($sorting) {
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new EqualsFilter('displayGroup', null)]
+            )
+        );
+
+        $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
+        if ($sorting === 'random') {
+            $this->addRandomSort($criteria);
+        } else {
             $sorting = explode(':', $sorting);
             $field = $sorting[0];
             $direction = $sorting[1];
@@ -211,7 +211,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         return $criteria;
     }
 
-    private function addRandomSort(Criteria $criteria): Criteria
+    private function addRandomSort(Criteria $criteria): void
     {
         $fields = [
             'id',
@@ -229,17 +229,20 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         foreach ($fields as $field) {
             $criteria->addSorting(new FieldSorting($field, $direction));
         }
-
-        return $criteria;
     }
 
-    private function handleProductStream(ProductCollection $streamResult, SalesChannelContext $context, Criteria $criteria): ProductCollection
+    private function handleProductStream(ProductCollection $streamResult, SalesChannelContext $context, Criteria $originCriteria): ProductCollection
     {
         $finalProductIds = $this->collectFinalProductIds($streamResult);
+        if (\count($finalProductIds) === 0) {
+            return new ProductCollection();
+        }
 
-        $fetchedProducts = $this->fetchProductsByIds($finalProductIds, $context, $criteria);
+        $criteria = $originCriteria->cloneForRead($finalProductIds);
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
+        $products->sortByIdArray($finalProductIds);
 
-        return $this->buildFinalProductCollection($finalProductIds, $fetchedProducts);
+        return $products;
     }
 
     /**
@@ -248,70 +251,17 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private function collectFinalProductIds(ProductCollection $streamResult): array
     {
         $finalProductIds = [];
-
         foreach ($streamResult as $product) {
             $variantConfig = $product->getVariantListingConfig();
 
-            if (!$variantConfig) {
+            if ($variantConfig === null) {
                 $finalProductIds[] = $product->getId();
                 continue;
             }
 
-            $idToDisplay = $variantConfig->getDisplayParent() ? $product->getParentId() : $variantConfig->getMainVariantId();
-
-            if ($idToDisplay) {
-                $finalProductIds[] = $idToDisplay;
-            } else {
-                $finalProductIds[] = $product->getId();
-            }
+            $finalProductIds[] = ($variantConfig->getDisplayParent() ? $product->getParentId() : $variantConfig->getMainVariantId()) ?? $product->getId();
         }
 
         return array_unique($finalProductIds);
-    }
-
-    /**
-     * @param string[] $finalProductIds List of product ids
-     */
-    private function fetchProductsByIds(array $finalProductIds, SalesChannelContext $context, Criteria $origin): ProductCollection
-    {
-        if (empty($finalProductIds)) {
-            return new ProductCollection();
-        }
-
-        $criteria = $origin->cloneForRead($finalProductIds);
-
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($criteria, $context)->getEntities();
-
-        return $products;
-    }
-
-    /**
-     * @param string[] $finalProductIds List of product ids
-     */
-    private function buildFinalProductCollection(array $finalProductIds, ProductCollection $fetchedProducts): ProductCollection
-    {
-        $finalProducts = new ProductCollection();
-
-        foreach ($finalProductIds as $productId) {
-            $product = $fetchedProducts->get($productId);
-            if ($product instanceof ProductEntity && !$finalProducts->has($product->getId())) {
-                $finalProducts->add($product);
-            }
-        }
-
-        return $finalProducts;
-    }
-
-    private function addGrouping(Criteria $criteria): void
-    {
-        $criteria->addGroupField(new FieldGrouping('displayGroup'));
-
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
     }
 }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
@@ -51,6 +52,7 @@ class ThemeService implements ResetInterface
         private readonly SystemConfigService $configService,
         private readonly MessageBusInterface $messageBus,
         private readonly NotificationService $notificationService,
+        private readonly DatabaseRuntimeConfigLoader $runtimeConfigLoader,
     ) {
     }
 
@@ -197,6 +199,7 @@ class ThemeService implements ResetInterface
      */
     public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
     {
+        // todo: load themes here from runtime config loader (where they should be cached in local variable)
         $criteria = (new Criteria())
             ->setTitle('theme-service::load-config');
 
@@ -444,15 +447,11 @@ class ThemeService implements ResetInterface
      */
     private function mergeStaticConfig(ThemeEntity $theme): array
     {
-        $configuredTheme = [];
+        $themeJson = $theme->getThemeJson();
+        $configuredTheme = $themeJson['config'] ?? [];
 
-        $pluginConfig = null;
-        if ($theme->getTechnicalName()) {
-            $pluginConfig = $this->extensionRegistry->getConfigurations()->getByTechnicalName($theme->getTechnicalName());
-        }
-
-        if ($pluginConfig !== null) {
-            $configuredTheme = $pluginConfig->getThemeConfig();
+        if (\array_key_exists('configInheritance', $themeJson)) {
+            $configuredTheme['configInheritance'] = $themeJson['configInheritance'];
         }
 
         if ($theme->getBaseConfig() !== null) {

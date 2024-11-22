@@ -82,7 +82,7 @@ Component.register('sw-app-wrong-app-url-modal', {
         },
 
         removeAlertNotification() {
-            Shopware.State.commit('notification/removeNotification', this.notification);
+            Shopware.Store.get('notification').removeNotification(this.notification);
         },
     },
 });

@@ -4,6 +4,7 @@
  * @module core/service/plugin-updates-listener
  */
 import type { LoginService } from './login.service';
+import type { NotificationType } from '../../app/store/notification.store';
 
 type UpdatedListResponse = {
     total: number;
@@ -44,7 +45,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
             throw new Error('could not find applicationRoot');
         }
 
-        const notification = {
+        const notification: NotificationType = {
             title: root.$tc('global.notification-center.plugin-updates-listener.updatesAvailableTitle'),
             message: root.$tc('global.notification-center.plugin-updates-listener.updatesAvailableMessage'),
             variant: 'info',
@@ -52,7 +53,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
             system: true,
         };
 
-        void Shopware.State.dispatch('notification/createNotification', notification);
+        void Shopware.Store.get('notification').createNotification(notification);
     }
 
     function canUpdateExtensions(): boolean {

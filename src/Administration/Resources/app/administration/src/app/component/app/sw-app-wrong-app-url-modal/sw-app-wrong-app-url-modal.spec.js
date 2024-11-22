@@ -9,7 +9,7 @@ let stubs = {};
 
 describe('sw-app-wrong-app-url-modal', () => {
     let wrapper = null;
-    const deleteNotificationMock = jest.fn();
+    let removeNotificationSpy;
 
     async function createWrapper() {
         stubs = {
@@ -81,17 +81,8 @@ describe('sw-app-wrong-app-url-modal', () => {
                 },
             }),
         });
-        Shopware.State.unregisterModule('notification');
 
-        Shopware.State.registerModule('notification', {
-            namespaced: true,
-            mutations: {
-                removeNotification: deleteNotificationMock,
-            },
-            actions: {
-                createNotification: jest.fn(),
-            },
-        });
+        removeNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'removeNotification');
     });
 
     it('should be a Vue.js component', async () => {
@@ -109,7 +100,7 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
+        expect(removeNotificationSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should not show modal if APP_URL is reachable', async () => {
@@ -121,7 +112,7 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(deleteNotificationMock).toHaveBeenCalledTimes(1);
+        expect(removeNotificationSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should not show modal if no apps are require app url, but it should show notification', async () => {
@@ -133,7 +124,7 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
+        expect(removeNotificationSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should not show modal if it was shown, but it should show notification', async () => {
@@ -145,7 +136,7 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
+        expect(removeNotificationSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should create notification and set localstorage on close', async () => {
@@ -161,7 +152,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         modal.vm.$emit('modal-close');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
+        expect(removeNotificationSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should return filters from filter registry', async () => {

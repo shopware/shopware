@@ -7,22 +7,12 @@ import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import type { App } from 'vue';
-
-/** @private */
-export type NotificationConfig = {
-    isLoading?: boolean;
-    metadata: { size: number };
-    variant: string;
-    growl: boolean;
-    title: string;
-    message: string;
-    uuid?: string;
-};
+import type { NotificationType } from '../../app/store/notification.store';
 
 /** @private */
 export type NotificationService = {
-    create: (config: NotificationConfig) => Promise<string>;
-    update: (config: NotificationConfig) => Promise<void>;
+    create: (config: NotificationType) => Promise<string>;
+    update: (config: NotificationType) => Promise<void>;
 };
 
 /**

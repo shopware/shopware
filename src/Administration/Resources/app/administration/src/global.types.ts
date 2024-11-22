@@ -103,6 +103,7 @@ import type { ShopwareApps } from './app/store/shopware-apps.store';
 import type { System } from './app/store/system.store';
 import type { ModalsStore } from './app/store/modals.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
+import type { NotificationStore } from './app/store/notification.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -363,6 +364,7 @@ declare global {
         system: System;
         modals: ModalsStore;
         menuItem: MenuItemStore;
+        notification: NotificationStore;
     }
 
     /**

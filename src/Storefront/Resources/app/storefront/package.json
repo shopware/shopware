@@ -23,7 +23,6 @@
     "production": "NODE_ENV=production webpack --config webpack.config.js",
     "unit": "jest --config jest.config.js --ci",
     "unit-watch": "jest --config jest.config.js --watch",
-    "lighthouse": "node lighthouse-tests.js",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -67,7 +66,6 @@
     "@babel/plugin-proposal-decorators": "7.23.7",
     "@babel/preset-env": "7.23.7",
     "@babel/preset-typescript": "7.23.3",
-    "@lhci/cli": "0.13.0",
     "@types/three": "^0.155.0",
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "@typescript-eslint/parser": "5.62.0",
@@ -80,9 +78,7 @@
     "jest-junit": "6.3.0",
     "jest-plugin-clock": "2.9.0",
     "license-checker-rseidelsohn": "4.3.0",
-    "lighthouse": "9.5.0",
     "lodash.get": "4.4.2",
-    "puppeteer": "^13.1.2",
     "stylelint": "14.16.1",
     "stylelint-config-sass-guidelines": "9.0.1",
     "webpack-bundle-analyzer": "4.10.1",

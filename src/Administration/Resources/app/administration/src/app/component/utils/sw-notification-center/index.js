@@ -30,7 +30,7 @@ Component.register('sw-notification-center', {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.State.getters['notification/getNotificationsObject']).reverse();
+            return Object.values(Shopware.Store.get('notification').notifications).reverse();
         },
 
         additionalContextButtonClass() {
@@ -63,17 +63,17 @@ Component.register('sw-notification-center', {
 
     methods: {
         onContextMenuOpen() {
-            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_FOREGROUND_INTERVAL);
+            Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
         },
         onContextMenuClose() {
-            Shopware.State.dispatch('notification/setAllNotificationsVisited');
-            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
+            Shopware.Store.get('notification').setAllNotificationsVisited();
+            Shopware.Store.get('notification').workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
         },
         openDeleteModal() {
             this.showDeleteModal = true;
         },
         onConfirmDelete() {
-            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
+            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.showDeleteModal = false;
         },
         onCloseDeleteModal() {

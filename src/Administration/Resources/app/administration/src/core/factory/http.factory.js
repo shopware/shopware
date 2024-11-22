@@ -110,7 +110,7 @@ function globalErrorHandlingInterceptor(client) {
 
                 if (errors) {
                     errors.forEach((singleError) => {
-                        Shopware.State.dispatch('notification/createNotification', {
+                        Shopware.Store.get('notification').createNotification({
                             variant: 'error',
                             title: singleError.title,
                             message: singleError.detail,
@@ -176,7 +176,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 return `${message}<br>"${privilege}"`;
             }, '');
 
-            Shopware.State.dispatch('notification/createNotification', {
+            Shopware.Store.get('notification').createNotification({
                 variant: 'error',
                 system: true,
                 autoClose: false,
@@ -194,7 +194,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
             'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
         ].includes(errors[0]?.code)
     ) {
-        Shopware.State.dispatch('notification/createNotification', {
+        Shopware.Store.get('notification').createNotification({
             variant: 'warning',
             system: true,
             autoClose: false,
@@ -228,7 +228,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
             }, '');
 
-            Shopware.State.dispatch('notification/createNotification', {
+            Shopware.Store.get('notification').createNotification({
                 variant: 'error',
                 title: Shopware.Snippet.tc('global.default.error'),
                 message: `${Shopware.Snippet.tc('global.notification.messageDeleteFailed', 3, {
@@ -244,7 +244,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
         if (frameworkLanguageNotFound) {
             localStorage.removeItem('sw-admin-current-language');
 
-            Shopware.State.dispatch('notification/createNotification', {
+            Shopware.Store.get('notification').createNotification({
                 variant: 'error',
                 system: true,
                 autoClose: false,

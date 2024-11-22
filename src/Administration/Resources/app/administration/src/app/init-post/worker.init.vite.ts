@@ -7,12 +7,9 @@ import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/dat
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
 import type { ContextStore } from '../store/context.store';
-import type {
-    NotificationConfig,
-    NotificationService,
-    NotificationWorkerOptions,
-} from '../../core/factory/worker-notification.factory';
+import type { NotificationService, NotificationWorkerOptions } from '../../core/factory/worker-notification.factory';
 import type WorkerNotificationFactory from '../../core/factory/worker-notification.factory';
+import type { NotificationType } from '../store/notification.store';
 
 type ContextAppConfig = ContextStore['app']['config'];
 
@@ -466,7 +463,7 @@ function messageQueueNotification(
         entry.size *= multiplier;
     }
 
-    const config: NotificationConfig = {
+    const config: NotificationType = {
         title: $root.$tc(messages.title),
         message: $root.$tc(messages.message, entry.size),
         variant: 'info',

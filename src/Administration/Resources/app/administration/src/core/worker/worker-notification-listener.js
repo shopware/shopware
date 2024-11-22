@@ -46,9 +46,10 @@ class WorkerNotificationListener {
             return;
         }
 
-        Shopware.State.watch((state) => {
-            return state.notification.workerProcessPollInterval;
-        }, this._onPollIntervalChanged.bind(this));
+        Shopware.Vue.watch(
+            Shopware.Store.get('notification').workerProcessPollInterval,
+            this._onPollIntervalChanged.bind(this),
+        );
 
         this._isIntervalWatcherSetup = true;
     }
@@ -70,7 +71,7 @@ class WorkerNotificationListener {
             this.runNotificationMiddleware(res.data);
 
             if (this._isRunning) {
-                this._interval = Shopware.State.get('notification').workerProcessPollInterval;
+                this._interval = Shopware.Store.get('notification').workerProcessPollInterval;
                 this._timeoutId = setTimeout(this._checkQueue.bind(this), this._interval);
             }
         });
@@ -103,10 +104,10 @@ class WorkerNotificationListener {
             $root: appRoot,
             notification: {
                 create: (notification) => {
-                    return Shopware.State.dispatch('notification/createNotification', notification);
+                    return Shopware.Store.get('notification').createNotification(notification);
                 },
                 update: (notification) => {
-                    return Shopware.State.dispatch('notification/updateNotification', notification);
+                    return Shopware.Store.get('notification').updateNotification(notification);
                 },
             },
             queue,

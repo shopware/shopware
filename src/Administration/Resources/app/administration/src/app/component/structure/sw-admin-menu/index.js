@@ -399,9 +399,8 @@ The admin menu only supports up to three levels of nesting.`,
             this.loginService.logout();
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.State.commit('removeCurrentUser');
-            Shopware.State.commit('notification/setNotifications', {});
-            Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
-            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
+            Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
+            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.$router.push({
                 name: 'sw.login.index',
             });

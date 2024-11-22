@@ -80,7 +80,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         const expectedDate = currentTime.toString();
         expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
 
-        const notifications = Shopware.State.get('notification');
+        const notifications = Shopware.Store.get('notification');
         expect(notifications.notifications.jest.message).toBe(
             'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
         );

@@ -2,9 +2,9 @@
  * @package admin
  */
 import initializeUserContext from 'src/app/init-post/user-information.init';
-import { initializeUserNotifications } from 'src/app/state/notification.store';
+import { initializeUserNotifications } from 'src/app/store/notification.store';
 
-jest.mock('src/app/state/notification.store', () => ({
+jest.mock('src/app/store/notification.store', () => ({
     initializeUserNotifications: jest.fn(),
 }));
 

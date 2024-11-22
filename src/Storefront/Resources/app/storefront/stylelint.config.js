@@ -1,12 +1,19 @@
 module.exports = {
-    extends: 'stylelint-config-sass-guidelines',
-    plugins: ['./build/stylelint/shopware-object-fit-polyfill.js'],
-    customSyntax: 'postcss-html',
+    extends: 'stylelint-config-recommended-scss',
+    plugins: ['stylelint-prettier'],
     rules: {
-        indentation: 4,
-        'max-nesting-depth': 3,
-        'order/properties-alphabetical-order': null,
+        'prettier/prettier': [true, {
+            'printWidth': 100,
+            'tabWidth': 4,
+            'singleQuote': true,
+        }],
+        "max-nesting-depth": [3, {
+          "ignore": ["blockless-at-rules", "pseudo-classes"],
+          "severity": "warning"
+        }],
+        'no-descending-specificity': null,
         'scss/at-extend-no-missing-placeholder': null,
+        'scss/no-global-function-names': null,
         'at-rule-disallowed-list': 'always',
         'selector-class-pattern': [
             '^[a-z0-9\\-]+$',

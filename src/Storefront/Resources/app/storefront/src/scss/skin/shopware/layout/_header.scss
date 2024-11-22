@@ -7,7 +7,7 @@ The header contains the shop logo, the search form and various actions like the 
 
 .header-search-btn,
 .header-close-btn {
-    --#{$prefix}btn-focus-box-shadow:  #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-border-color: #{$input-border-color};
     --#{$prefix}btn-hover-color: #{$primary};
     --#{$prefix}btn-hover-border-color: #{$input-border-color};
@@ -41,7 +41,7 @@ The header contains the shop logo, the search form and various actions like the 
 }
 
 .header-actions-btn {
-    --#{$prefix}btn-focus-box-shadow:  #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-active-border-color: transparent;
     --#{$prefix}btn-active-bg: transparent;
     --#{$prefix}btn-hover-color: transparent;

@@ -2,10 +2,6 @@
     border-top: 1px solid $border-color;
 }
 
-.order-detail-content-header {
-    display: none;
-}
-
 .document-detail-content-header {
     display: block;
     border-bottom: 1px solid $border-color;
@@ -16,12 +12,6 @@
     display: block;
     border-bottom: 1px solid $border-color;
     padding-bottom: $spacer-sm;
-}
-
-.order-detail-content-header,
-.order-item-detail-footer {
-    padding-left: $order-grid-gutter-width / 2;
-    padding-right: $order-grid-gutter-width / 2;
 }
 
 .order-detail-content-body {
@@ -132,14 +122,14 @@
 }
 
 .order-item-detail-footer {
-    padding: $spacer;
-}
+    padding: $spacer ($order-grid-gutter-width / 2);
 
-.order-item-detail-footer dl {
-    dt.col,
-    dt[class*='col-'] {
-        margin-bottom: $spacer-sm;
-        padding-right: $spacer-sm;
+    dl {
+        dt.col,
+        dt[class*='col-'] {
+            margin-bottom: $spacer-sm;
+            padding-right: $spacer-sm;
+        }
     }
 }
 
@@ -152,6 +142,7 @@
 }
 
 .order-detail-content-header {
+    display: none;
     padding-left: 0;
     padding-right: 0;
 }
@@ -218,14 +209,11 @@
         display: block;
         padding-top: $spacer-sm;
         padding-bottom: $spacer-sm;
+        border-bottom: 1px solid $border-color;
     }
 
     .order-item-label {
         display: none;
-    }
-
-    .order-detail-content-header {
-        border-bottom: 1px solid $border-color;
     }
 
     .order-detail-content {

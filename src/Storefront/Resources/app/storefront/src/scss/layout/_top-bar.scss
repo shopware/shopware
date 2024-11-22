@@ -20,7 +20,7 @@ The top bar contains the language switcher, the currency switcher and the servic
         margin-right: $spacer;
 
         &:last-child {
-          margin-right: 0;
+            margin-right: 0;
         }
     }
 
@@ -46,7 +46,7 @@ The top bar contains the language switcher, the currency switcher and the servic
 
     @include media-breakpoint-up(md) {
         .top-bar-nav-text {
-             display: inline;
+            display: inline;
         }
     }
 }

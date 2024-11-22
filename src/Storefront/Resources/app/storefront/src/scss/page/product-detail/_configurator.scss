@@ -26,7 +26,9 @@
         cursor: pointer;
         border: 1px solid $dark;
         border-radius: $border-radius;
-        box-shadow: inset 3px 3px 0 $white, inset -3px -3px 0 $white;
+        box-shadow:
+            inset 3px 3px 0 $white,
+            inset -3px -3px 0 $white;
         background-color: $white;
         display: inline-flex;
         justify-content: center;
@@ -35,7 +37,9 @@
         opacity: 0.35;
         padding: 3px;
         margin-bottom: $spacer-sm;
-        transition: border-color 0.45s cubic-bezier(0.3, 0, 0.15, 1), background-color 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+        transition:
+            border-color 0.45s cubic-bezier(0.3, 0, 0.15, 1),
+            background-color 0.45s cubic-bezier(0.3, 0, 0.15, 1);
 
         &.is-display-text {
             box-shadow: none;

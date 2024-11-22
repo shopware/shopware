@@ -18,16 +18,7 @@ Component.register('sw-highlight-text', {
 
     compatConfig: Shopware.compatConfig,
 
-    render(createElement) {
-        // Vue2 syntax
-        if (typeof createElement === 'function') {
-            return createElement('div', {
-                class: 'sw-highlight-text',
-                domProps: { innerHTML: this.searchAndReplace() },
-            });
-        }
-
-        // Vue3 syntax
+    render() {
         return h('div', {
             class: 'sw-highlight-text',
             innerHTML: this.searchAndReplace(),

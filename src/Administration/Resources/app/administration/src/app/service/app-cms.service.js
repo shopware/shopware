@@ -138,7 +138,7 @@ export default class AppCmsService {
             name: componentName,
             compatConfig: Shopware.compatConfig,
 
-            render(createElement) {
+            render() {
                 const slotEntries = Object.entries(block.slots);
                 const hasPositions = slotEntries.every((entries) => !!entries[1].position);
 
@@ -146,21 +146,7 @@ export default class AppCmsService {
                     slotEntries.sort((a, b) => a[1].position - b[1].position);
                 }
 
-                // Vue2 syntax
-                if (typeof createElement === 'function') {
-                    const children = slotEntries.map(([slotName]) => this.$scopedSlots[slotName]());
-
-                    return createElement(
-                        'div',
-                        {
-                            class: componentName,
-                        },
-                        children,
-                    );
-                }
-
-                // Vue3 syntax
-                const children = slotEntries.map(([slotName]) => this.$slots[slotName]());
+                const children = slotEntries.map(([slotName]) => this.$slots[slotName]);
 
                 return h(
                     'div',

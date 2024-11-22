@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { initializeUserNotifications } from 'src/app/state/notification.store';
+import { initializeUserNotifications } from 'src/app/store/notification.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {

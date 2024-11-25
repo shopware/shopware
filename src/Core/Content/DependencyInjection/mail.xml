@@ -4,6 +4,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <!-- Template Entities -->
         <service id="Shopware\Core\Content\MailTemplate\MailTemplateDefinition">
             <tag name="shopware.entity.definition"  entity="mail_template"/>
         </service>
@@ -24,14 +25,13 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Service\MailSender" public="true">
-            <argument type="service" id="mailer.mailer"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument>%shopware.mail.max_body_length%</argument>
+        <!-- Header Footer Entities -->
+        <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition">
+            <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">
-            <argument type="service" id="validator"/>
+        <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!-- Controller -->
@@ -43,16 +43,24 @@
             </call>
         </service>
 
-        <!-- Header Footer Entities -->
-        <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition">
-            <tag name="shopware.entity.definition"/>
+        <!-- Sending -->
+        <service id="Shopware\Core\Content\Mail\Message\SendMailHandler">
+            <argument type="service" id="mailer.transports"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition">
-            <tag name="shopware.entity.definition"/>
+        <service id="Shopware\Core\Content\Mail\Service\MailSender" public="true">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.mail.max_body_length%</argument>
         </service>
 
-        <!-- Header Footer Repository -->
+        <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">
+            <argument type="service" id="validator"/>
+        </service>
+
         <service id="Shopware\Core\Content\Mail\Service\MailService">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />

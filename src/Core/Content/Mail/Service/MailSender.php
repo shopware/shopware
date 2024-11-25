@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Mail\MailException;
-use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
+use Shopware\Core\Content\Mail\Message\SendMailMessage;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Envelope;
-use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
 
 #[Package('services-settings')]
@@ -16,11 +19,14 @@ class MailSender extends AbstractMailSender
 {
     public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
 
+    private const BASE_FILE_SYSTEM_PATH = 'mail-data/';
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly MailerInterface $mailer,
+        private readonly MessageBusInterface $messageBus,
+        private readonly FilesystemOperator $filesystem,
         private readonly SystemConfigService $configService,
         private readonly int $maxContentLength,
     ) {
@@ -31,12 +37,11 @@ class MailSender extends AbstractMailSender
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @throws MailTransportFailedException
-     */
     public function send(Email $email, ?Envelope $envelope = null): void
     {
-        $failedRecipients = [];
+        if ($envelope) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $envelope is deprecated and will be removed.');
+        }
 
         $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
 
@@ -53,10 +58,12 @@ class MailSender extends AbstractMailSender
             throw MailException::mailBodyTooLong($this->maxContentLength);
         }
 
-        try {
-            $this->mailer->send($email, $envelope);
-        } catch (\Throwable $e) {
-            throw new MailTransportFailedException($failedRecipients, $e);
-        }
+        $mailDataPath = self::BASE_FILE_SYSTEM_PATH . Uuid::randomHex();
+
+        $mailData = serialize($email);
+
+        $this->filesystem->write($mailDataPath, $mailData);
+
+        $this->messageBus->dispatch(new SendMailMessage($mailDataPath));
     }
 }

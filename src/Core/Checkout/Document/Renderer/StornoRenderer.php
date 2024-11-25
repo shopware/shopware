@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -63,7 +63,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         $orders = new OrderCollection();
 
-        /** @var DocumentGenerateOperation $operation */
         foreach ($operations as $operation) {
             try {
                 $orderId = $operation->getOrderId();
@@ -76,7 +75,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
                 $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
-                $order = $this->getOrder($orderId, $invoice['orderVersionId'], $context, $rendererConfig->deepLinkCode);
+                $order = $this->getOrder($operation, $invoice['orderVersionId'], $context, $rendererConfig);
 
                 $orders->add($order);
                 $operation->setReferencedDocumentId($invoice['id']);
@@ -139,7 +138,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     continue;
                 }
 
-                /** @var LanguageEntity|null $language */
                 $language = $order->getLanguage();
                 if ($language === null) {
                     throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
@@ -172,19 +170,29 @@ final class StornoRenderer extends AbstractDocumentRenderer
         throw new DecorationPatternException(self::class);
     }
 
-    private function getOrder(string $orderId, string $versionId, Context $context, string $deepLinkCode = ''): OrderEntity
+    private function getOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
     {
+        $orderId = $operation->getOrderId();
+
         ['language_id' => $languageId] = $this->getOrdersLanguageId([$orderId], $versionId, $this->connection)[0];
 
-        // Get the correct order with versioning from reference invoice
+        // Get the order with the version from the reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
             'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
-        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $rendererConfig->deepLinkCode, self::TYPE);
+
+        $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
+            $criteria,
+            $context,
+            [$operation->getOrderId() => $operation],
+            $rendererConfig,
+            self::TYPE
+        ));
 
         $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
-        if (!$order) {
+        if ($order === null) {
             throw DocumentException::orderNotFound($orderId);
         }
 

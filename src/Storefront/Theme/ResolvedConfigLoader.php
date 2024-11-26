@@ -20,7 +20,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $repository,
-        private readonly ThemeService $service
+        private readonly RuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -31,7 +31,8 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        $config = $this->service->getThemeConfiguration($themeId, false, $context->getContext());
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfig($themeId);
+        $config = $runtimeConfig->resolvedConfig;
         $resolvedConfig = [];
         $mediaItems = [];
         if (!\array_key_exists('fields', $config)) {

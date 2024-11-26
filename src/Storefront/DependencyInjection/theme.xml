@@ -84,7 +84,7 @@
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
             <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\RuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoader" decorates="Shopware\Storefront\Theme\ResolvedConfigLoader" decoration-priority="-1000">

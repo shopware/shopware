@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -144,18 +143,25 @@ class DummyContext extends SalesChannelContext
         $source = new SalesChannelApiSource(TestDefaults::SALES_CHANNEL);
 
         parent::__construct(
-            new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true, CartPrice::TAX_STATE_GROSS),
+            $source,
             'token',
             'domain-id',
             (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]),
             (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY]),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
             new CashRoundingConfig(2, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
+            [],
+            [Defaults::LANGUAGE_SYSTEM],
+            Defaults::LIVE_VERSION,
+            1.0,
+            true,
+            CartPrice::TAX_STATE_GROSS,
             new CashRoundingConfig(2, 0.01, true),
             []
         );
@@ -180,21 +186,21 @@ class DummyContext extends SalesChannelContext
      */
     public function setLanguageChain(array $chain): self
     {
-        $this->context->assign(['languageIdChain' => $chain]);
+        $this->assign(['languageIdChain' => $chain]);
 
         return $this;
     }
 
     public function setVersionId(string $versionId): self
     {
-        $this->context->assign(['versionId' => $versionId]);
+        $this->assign(['versionId' => $versionId]);
 
         return $this;
     }
 
     public function setTaxStateFluent(string $taxState): self
     {
-        $this->context->setTaxState($taxState);
+        $this->setTaxState($taxState);
 
         return $this;
     }

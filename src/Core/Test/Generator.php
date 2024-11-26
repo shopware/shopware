@@ -142,19 +142,26 @@ class Generator extends TestCase
         }
 
         return new SalesChannelContext(
-            $baseContext,
+            $baseContext->getSource(),
             $token ?? Uuid::randomHex(),
             $domainId ?? Uuid::randomHex(),
             $salesChannel,
             $currency,
             $currentCustomerGroup,
             $taxes,
+            $customer,
             $paymentMethod,
             $shippingMethod,
             ShippingLocation::createFromAddress($shipping),
-            $customer,
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
+            $baseContext->getRuleIds(),
+            $baseContext->getLanguageIdChain(),
+            $baseContext->getVersionId(),
+            $baseContext->getCurrencyFactor(),
+            $baseContext->considerInheritance(),
+            $baseContext->getTaxState(),
+            $baseContext->getRounding(),
             []
         );
     }

@@ -41,8 +41,8 @@ class Context extends Struct
     protected $extensions = [];
 
     /**
-     * @param array<string> $languageIdChain
      * @param array<string> $ruleIds
+     * @param array<string> $languageIdChain
      */
     public function __construct(
         protected ContextSource $source,
@@ -52,9 +52,6 @@ class Context extends Struct
         protected string $versionId = Defaults::LIVE_VERSION,
         protected float $currencyFactor = 1.0,
         protected bool $considerInheritance = false,
-        /**
-         * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-         */
         protected string $taxState = CartPrice::TAX_STATE_GROSS,
         protected CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true)
     ) {

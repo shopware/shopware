@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -11,21 +12,18 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\StateAwareTrait;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
 use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
 
 #[Package('core')]
-class SalesChannelContext extends Struct
+class SalesChannelContext extends Context
 {
-    use StateAwareTrait;
-
     /**
      * Unique token for context, e.g. stored in session or provided in request headers
      *
@@ -36,11 +34,11 @@ class SalesChannelContext extends Struct
     protected $token;
 
     /**
-     * @var CustomerGroupEntity
+     * @var SalesChannelEntity
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $currentCustomerGroup;
+    protected $salesChannel;
 
     /**
      * @var CurrencyEntity
@@ -50,11 +48,11 @@ class SalesChannelContext extends Struct
     protected $currency;
 
     /**
-     * @var SalesChannelEntity
+     * @var CustomerGroupEntity
      *
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $salesChannel;
+    protected $currentCustomerGroup;
 
     /**
      * @var TaxCollection
@@ -115,42 +113,60 @@ class SalesChannelContext extends Struct
     /**
      * @var Context
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be removed, use the SalesChannelContext object directly
      */
     protected $context;
 
     /**
      * @internal
      *
+     * @param array<string> $ruleIds
+     * @param array<string> $languageIdChain
      * @param array<string, string[]> $areaRuleIds
      */
     public function __construct(
-        Context $baseContext,
+        ContextSource $source,
         string $token,
         private ?string $domainId,
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
         TaxCollection $taxRules,
+        ?CustomerEntity $customer,
         PaymentMethodEntity $paymentMethod,
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
-        ?CustomerEntity $customer,
         protected CashRoundingConfig $itemRounding,
         protected CashRoundingConfig $totalRounding,
+        array $ruleIds = [],
+        array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
+        string $versionId = Defaults::LIVE_VERSION,
+        float $currencyFactor = 1.0,
+        bool $considerInheritance = false,
+        string $taxState = CartPrice::TAX_STATE_GROSS,
+        CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true),
         protected array $areaRuleIds = []
     ) {
-        $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->currency = $currency;
+        parent::__construct(
+            $source,
+            $ruleIds,
+            $currency->getId(),
+            $languageIdChain,
+            $versionId,
+            $currencyFactor,
+            $considerInheritance,
+            $taxState,
+            $rounding
+        );
+        $this->token = $token;
         $this->salesChannel = $salesChannel;
+        $this->currency = $currency;
+        $this->currentCustomerGroup = $currentCustomerGroup;
         $this->taxRules = $taxRules;
         $this->customer = $customer;
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
-        $this->token = $token;
-        $this->context = $baseContext;
-        $this->imitatingUserId = null;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -181,7 +197,7 @@ class SalesChannelContext extends Struct
     {
         $tax = $this->taxRules->get($taxId);
 
-        if ($tax === null || $tax->getRules() === null) {
+        if ($tax?->getRules() === null) {
             throw new TaxNotFoundException($taxId);
         }
 
@@ -219,25 +235,12 @@ class SalesChannelContext extends Struct
         return $this->shippingLocation;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use the SalesChannelContext object directly
+     */
     public function getContext(): Context
     {
-        return $this->context;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getRuleIds(): array
-    {
-        return $this->getContext()->getRuleIds();
-    }
-
-    /**
-     * @param array<string> $ruleIds
-     */
-    public function setRuleIds(array $ruleIds): void
-    {
-        $this->getContext()->setRuleIds($ruleIds);
+        return $this;
     }
 
     /**
@@ -282,11 +285,6 @@ class SalesChannelContext extends Struct
         $this->areaRuleIds = $areaRuleIds;
     }
 
-    public function lockRules(): void
-    {
-        $this->getContext()->lockRules();
-    }
-
     public function lockPermissions(): void
     {
         $this->permisionsLocked = true;
@@ -297,19 +295,9 @@ class SalesChannelContext extends Struct
         return $this->token;
     }
 
-    public function getTaxState(): string
-    {
-        return $this->context->getTaxState();
-    }
-
-    public function setTaxState(string $taxState): void
-    {
-        $this->context->setTaxState($taxState);
-    }
-
     public function getTaxCalculationType(): string
     {
-        return $this->getSalesChannel()->getTaxCalculationType();
+        return $this->salesChannel->getTaxCalculationType();
     }
 
     /**
@@ -344,30 +332,7 @@ class SalesChannelContext extends Struct
 
     public function getSalesChannelId(): string
     {
-        return $this->getSalesChannel()->getId();
-    }
-
-    public function addState(string ...$states): void
-    {
-        $this->context->addState(...$states);
-    }
-
-    public function removeState(string $state): void
-    {
-        $this->context->removeState($state);
-    }
-
-    public function hasState(string ...$states): bool
-    {
-        return $this->context->hasState(...$states);
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getStates(): array
-    {
-        return $this->context->getStates();
+        return $this->salesChannel->getId();
     }
 
     public function getDomainId(): ?string
@@ -378,29 +343,6 @@ class SalesChannelContext extends Struct
     public function setDomainId(?string $domainId): void
     {
         $this->domainId = $domainId;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getLanguageIdChain(): array
-    {
-        return $this->context->getLanguageIdChain();
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->context->getLanguageId();
-    }
-
-    public function getVersionId(): string
-    {
-        return $this->context->getVersionId();
-    }
-
-    public function considerInheritance(): bool
-    {
-        return $this->context->considerInheritance();
     }
 
     public function getTotalRounding(): CashRoundingConfig
@@ -425,7 +367,7 @@ class SalesChannelContext extends Struct
 
     public function getCurrencyId(): string
     {
-        return $this->getCurrency()->getId();
+        return $this->currency->getId();
     }
 
     public function ensureLoggedIn(bool $allowGuest = true): void
@@ -454,6 +396,41 @@ class SalesChannelContext extends Struct
         $this->imitatingUserId = $imitatingUserId;
     }
 
+    public function createWithVersionId(string $versionId): self
+    {
+        $salesChannelContext = new self(
+            $this->source,
+            $this->token,
+            $this->domainId,
+            $this->salesChannel,
+            $this->currency,
+            $this->currentCustomerGroup,
+            $this->taxRules,
+            $this->customer,
+            $this->paymentMethod,
+            $this->shippingMethod,
+            $this->shippingLocation,
+            $this->itemRounding,
+            $this->totalRounding,
+            $this->ruleIds,
+            $this->languageIdChain,
+            $versionId,
+            $this->currencyFactor,
+            $this->considerInheritance,
+            $this->taxState,
+            $this->rounding,
+            $this->areaRuleIds
+        );
+
+        $salesChannelContext->scope = $this->scope;
+
+        foreach ($this->getExtensions() as $key => $extension) {
+            $salesChannelContext->addExtension($key, $extension);
+        }
+
+        return $salesChannelContext;
+    }
+
     /**
      * @template TReturn of mixed
      *
@@ -463,13 +440,13 @@ class SalesChannelContext extends Struct
      */
     public function live(callable $callback): mixed
     {
-        $before = $this->context;
+        $versionId = $this->versionId;
 
-        $this->context = $this->context->createWithVersionId(Defaults::LIVE_VERSION);
+        $this->versionId = Defaults::LIVE_VERSION;
 
         $result = $callback($this);
 
-        $this->context = $before;
+        $this->versionId = $versionId;
 
         return $result;
     }

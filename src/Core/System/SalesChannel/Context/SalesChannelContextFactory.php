@@ -91,32 +91,28 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         [$itemRounding, $totalRounding] = $this->getCashRounding($base, $shippingLocation);
 
-        $context = new Context(
-            $base->getContext()->getSource(),
-            [],
-            $base->getCurrencyId(),
-            $base->getContext()->getLanguageIdChain(),
-            $base->getContext()->getVersionId(),
-            $base->getCurrency()->getFactor(),
-            true,
-            CartPrice::TAX_STATE_GROSS,
-            $itemRounding
-        );
-
         $salesChannelContext = new SalesChannelContext(
-            $context,
+            $base->getContext()->getSource(),
             $token,
             $options[SalesChannelContextService::DOMAIN_ID] ?? null,
             $base->getSalesChannel(),
             $base->getCurrency(),
             $customerGroup,
             $taxRules,
+            $customer,
             $payment,
             $base->getShippingMethod(),
             $shippingLocation,
-            $customer,
             $itemRounding,
-            $totalRounding
+            $totalRounding,
+            [],
+            $base->getContext()->getLanguageIdChain(),
+            $base->getContext()->getVersionId(),
+            $base->getCurrency()->getFactor(),
+            true,
+            CartPrice::TAX_STATE_GROSS,
+            $itemRounding,
+            []
         );
 
         if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {

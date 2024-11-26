@@ -221,8 +221,10 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             'languageIdChain' => $languageIdChain,
         ]);
 
-        $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()], $rendererConfig->deepLinkCode, self::TYPE)
-            ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
+        $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()], $rendererConfig->deepLinkCode, self::TYPE);
+        $criteria->getAssociation('lineItems')->addFilter(
+            new EqualsFilter('type', LineItem::CREDIT_LINE_ITEM_TYPE)
+        );
 
         $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
             $criteria,

@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
+use Dompdf\Cpdf;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -16,7 +19,10 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -28,10 +34,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyFormatter;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -55,6 +63,8 @@ class InvoiceRendererTest extends TestCase
 
     private EntityRepository $productRepository;
 
+    private MockObject $templateRendererMock;
+
     private InvoiceRenderer $invoiceRenderer;
 
     private CartService $cartService;
@@ -69,7 +79,7 @@ class InvoiceRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -78,16 +88,28 @@ class InvoiceRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = static::getContainer()->get('product.repository');
-        $this->invoiceRenderer = static::getContainer()->get(InvoiceRenderer::class);
-        $this->cartService = static::getContainer()->get(CartService::class);
+
+        $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->cartService = $this->getContainer()->get(CartService::class);
         self::$deLanguageId = $this->getDeDeLanguageId();
+
+        $this->invoiceRenderer = new InvoiceRenderer(
+            $this->getContainer()->get('order.repository'),
+            $this->getContainer()->get(DocumentConfigLoader::class),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->templateRendererMock,
+            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(PdfRenderer::class),
+        );
     }
 
     protected function tearDown(): void
     {
         if (self::$callback instanceof \Closure) {
-            static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
+            $this->getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
     }
 
@@ -104,15 +126,17 @@ class InvoiceRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
+        $this->getContainer()->get('event_dispatcher')
             ->addListener(InvoiceOrdersEvent::class, function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
         if ($beforeRenderHook instanceof \Closure) {
-            $beforeRenderHook($operationInvoice, static::getContainer());
+            $beforeRenderHook($operationInvoice, $this->getContainer());
         }
 
+        $html = '';
+        $this->renderedHtml($html);
         $processedTemplate = $this->invoiceRenderer->render(
             [$orderId => $operationInvoice],
             $this->context,
@@ -135,12 +159,18 @@ class InvoiceRendererTest extends TestCase
             static::assertInstanceOf(OrderLineItemCollection::class, $lineItems = $order->getLineItems());
             static::assertInstanceOf(OrderLineItemEntity::class, $firstLineItem = $lineItems->first());
             static::assertInstanceOf(OrderLineItemEntity::class, $lastLineItem = $lineItems->last());
-            static::assertStringContainsString('<html>', $rendered->getHtml());
-            static::assertStringContainsString('</html>', $rendered->getHtml());
-            static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
-            static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());
 
-            $assertionCallback($rendered, $order, static::getContainer());
+            static::assertStringContainsString('<html>', $html);
+            static::assertStringContainsString('</html>', $html);
+            static::assertStringContainsString($firstLineItem->getLabel(), $html);
+            static::assertStringContainsString($lastLineItem->getLabel(), $html);
+
+            if (Feature::isActive('v6.7.0.0')) {
+                $pdfVersion = Cpdf::PDF_VERSION;
+                static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $rendered->getContent());
+            }
+
+            $assertionCallback($rendered, $html, $order, $this->getContainer());
         } else {
             $assertionCallback($order->getId(), $processedTemplate->getErrors());
         }
@@ -161,7 +191,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -171,7 +201,7 @@ class InvoiceRendererTest extends TestCase
                         Context::createDefaultContext()->getLanguageId(),
                         Context::createDefaultContext(),
                     ),
-                    $rendered->getHtml()
+                    $html
                 );
 
                 static::assertNotNull($order->getLanguage());
@@ -182,7 +212,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
                     \sprintf('Date %s', $formattedDate),
-                    $rendered->getHtml()
+                    $html
                 );
             },
         ];
@@ -222,7 +252,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -232,9 +262,9 @@ class InvoiceRendererTest extends TestCase
                         self::$deLanguageId,
                         Context::createDefaultContext(),
                     )) ?? '',
-                    preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
+                    preg_replace('/\xc2\xa0/', ' ', $html) ?? ''
                 );
-                static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
+                static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $html) ?? 'DE express');
 
                 static::assertNotNull($order->getLanguage());
                 static::assertNotNull($locale = $order->getLanguage()->getLocale());
@@ -244,7 +274,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
                     \sprintf('Datum %s', $formattedDate),
-                    $rendered->getHtml()
+                    $html
                 );
             },
         ];
@@ -281,11 +311,11 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered): void {
+            function (RenderedDocument $rendered, string $html): void {
                 foreach ([7, 19, 22] as $possibleTax) {
                     static::assertStringContainsString(
                         \sprintf('plus %d%% VAT', $possibleTax),
-                        $rendered->getHtml()
+                        $html
                     );
                 }
             },
@@ -330,22 +360,19 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order): void {
                 static::assertNotNull($orderDeliveries = $order->getDeliveries());
                 $shippingAddress = $orderDeliveries->getShippingAddress()->first();
                 static::assertNotNull($shippingAddress);
-
-                $rendered = $rendered->getHtml();
-
                 static::assertNotNull($shippingAddress->getZipcode());
 
-                static::assertStringContainsString('Shipping address', $rendered);
-                static::assertStringContainsString($shippingAddress->getStreet(), $rendered);
-                static::assertStringContainsString($shippingAddress->getCity(), $rendered);
-                static::assertStringContainsString($shippingAddress->getFirstName(), $rendered);
-                static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
-                static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
-                static::assertStringContainsString('123123123', $rendered);
+                static::assertStringContainsString('Shipping address', $html);
+                static::assertStringContainsString($shippingAddress->getStreet(), $html);
+                static::assertStringContainsString($shippingAddress->getCity(), $html);
+                static::assertStringContainsString($shippingAddress->getFirstName(), $html);
+                static::assertStringContainsString($shippingAddress->getLastName(), $html);
+                static::assertStringContainsString($shippingAddress->getZipcode(), $html);
+                static::assertStringContainsString('123123123', $html);
             },
         ];
 
@@ -373,12 +400,11 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
 
                 /** @var OrderAddressEntity $orderAddress */
                 $orderAddress = $order->getAddresses()->first();
-                $rendered = $rendered->getHtml();
 
                 static::assertNotNull($orderAddress->getSalutation());
                 static::assertNotNull($orderAddress->getCountry());
@@ -387,10 +413,10 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($orderAddress->getSalutation()->getDisplayName());
                 static::assertNotNull($orderAddress->getZipcode());
 
-                static::assertStringContainsString($orderAddress->getStreet(), $rendered);
-                static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
-                static::assertStringContainsString($orderAddress->getCity(), $rendered);
-                static::assertStringContainsString($orderAddress->getCountry()->getName(), $rendered);
+                static::assertStringContainsString($orderAddress->getStreet(), $html);
+                static::assertStringContainsString($orderAddress->getZipcode(), $html);
+                static::assertStringContainsString($orderAddress->getCity(), $html);
+                static::assertStringContainsString($orderAddress->getCountry()->getName(), $html);
             },
         ];
 
@@ -427,20 +453,19 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
                 /** @var CustomerEntity $customer */
                 $customer = $order->getOrderCustomer()->getCustomer();
-                $rendered = $rendered->getHtml();
 
                 static::assertNotNull($customer);
                 static::assertNotNull($customer->getVatIds());
 
                 $vatId = $customer->getVatIds()[0];
 
-                static::assertStringContainsString("VAT Reg.No: $vatId", $rendered);
+                static::assertStringContainsString("VAT Reg.No: $vatId", $html);
             },
         ];
 
@@ -478,18 +503,17 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
                 /** @var CustomerEntity $customer */
                 $customer = $order->getOrderCustomer()->getCustomer();
-                $rendered = $rendered->getHtml();
 
                 static::assertNotNull($customer);
                 static::assertNotNull($customer->getVatIds());
 
-                static::assertStringNotContainsString('VAT Reg.No:', $rendered);
+                static::assertStringNotContainsString('VAT Reg.No:', $html);
             },
         ];
 
@@ -527,18 +551,17 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, string $html, OrderEntity $order): void {
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
                 /** @var CustomerEntity $customer */
                 $customer = $order->getOrderCustomer()->getCustomer();
-                $rendered = $rendered->getHtml();
 
                 static::assertNotNull($customer);
                 static::assertEmpty($customer->getVatIds());
 
-                static::assertStringNotContainsString('VAT Reg.No:', $rendered);
+                static::assertStringNotContainsString('VAT Reg.No:', $html);
             },
         ];
     }
@@ -550,16 +573,13 @@ class InvoiceRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertEquals(Defaults::LIVE_VERSION, $operationInvoice->getOrderVersionId());
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
 
-        $this->invoiceRenderer->render(
-            [$orderId => $operationInvoice],
-            $this->context,
-            new DocumentRendererConfig()
-        );
+        $this->getContainer()->get(InvoiceRenderer::class)
+            ->render([$orderId => $operationInvoice], $this->context, new DocumentRendererConfig());
 
-        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertNotEquals(Defaults::LIVE_VERSION, $operationInvoice->getOrderVersionId());
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
     }
 
@@ -580,7 +600,7 @@ class InvoiceRendererTest extends TestCase
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
-        $order = static::getContainer()->get('order.repository')
+        $order = $this->getContainer()->get('order.repository')
             ->search($criteria, Context::createDefaultContext())->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -597,19 +617,20 @@ class InvoiceRendererTest extends TestCase
             $this->updateCountrySettings($order);
         }
 
+        $html = '';
+        $this->renderedHtml($html);
         $rendered = $this->invoiceRenderer->render(
             [$orderId => $invoice],
             $this->context,
             new DocumentRendererConfig()
-        );
+        )->getOrderSuccess($orderId);
 
-        $data = $rendered->getSuccess();
-        static::assertNotEmpty($data);
+        static::assertNotNull($rendered);
 
         if ($expectedOutput) {
-            static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getHtml());
+            static::assertStringContainsString('Intra-community delivery (EU)', $html);
         } else {
-            static::assertStringNotContainsString('Intra-community delivery (EU)', $data[$orderId]->getHtml());
+            static::assertStringNotContainsString('Intra-community delivery (EU)', $html);
         }
     }
 
@@ -622,7 +643,7 @@ class InvoiceRendererTest extends TestCase
             'expectedOutput' => false,
         ];
 
-        yield 'shall be displayed cause all neccessary options are set' => [
+        yield 'shall be displayed cause all necessary options are set' => [
             'customerSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             ],
@@ -706,7 +727,7 @@ class InvoiceRendererTest extends TestCase
      */
     private function updateCustomer(OrderEntity $order, array $config): void
     {
-        static::getContainer()->get('customer.repository')->update([[
+        $this->getContainer()->get('customer.repository')->update([[
             'id' => $order->getOrderCustomer()?->getCustomerId(),
             'accountType' => $config['accountType'],
         ]], Context::createDefaultContext());
@@ -726,7 +747,7 @@ class InvoiceRendererTest extends TestCase
 
     private function updateCountryMemberState(OrderEntity $order, bool $isEu): void
     {
-        static::getContainer()->get('country.repository')->upsert([[
+        $this->getContainer()->get('country.repository')->upsert([[
             'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
             'isEu' => $isEu,
         ]], Context::createDefaultContext());
@@ -734,9 +755,22 @@ class InvoiceRendererTest extends TestCase
 
     private function updateCountrySettings(OrderEntity $order): void
     {
-        static::getContainer()->get('country.repository')->upsert([[
+        $this->getContainer()->get('country.repository')->upsert([[
             'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
             'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
         ]], Context::createDefaultContext());
+    }
+
+    private function renderedHtml(string &$html): void
+    {
+        $this->templateRendererMock
+            ->method('render')
+            ->willReturnCallback(function () use (&$html) {
+                $html = $this->getContainer()
+                    ->get(DocumentTemplateRenderer::class)
+                    ->render(...\func_get_args());
+
+                return $html;
+            });
     }
 }

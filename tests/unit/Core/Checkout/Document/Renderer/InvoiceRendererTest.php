@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -34,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -103,6 +105,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             '',
             $connectionMock,
+            new PdfRenderer([], new ExtensionDispatcher($this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class)))
         );
 
         $operations = [
@@ -188,6 +191,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             '',
             $connectionMock,
+            new PdfRenderer([], new ExtensionDispatcher($this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class)))
         );
 
         $operations = [
@@ -246,6 +250,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             '',
             $connectionMock,
+            new PdfRenderer([], new ExtensionDispatcher($this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class)))
         );
 
         $operations = [

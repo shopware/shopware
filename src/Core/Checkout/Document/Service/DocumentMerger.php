@@ -69,7 +69,7 @@ final class DocumentMerger
 
             $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
 
-            $renderedDocument = new RenderedDocument('', '', $fileName);
+            $renderedDocument = new RenderedDocument(name: $fileName);
             $renderedDocument->setContent($fileBlob);
 
             return $renderedDocument;
@@ -105,7 +105,7 @@ final class DocumentMerger
             return null;
         }
 
-        $renderedDocument = new RenderedDocument('', '', $fileName);
+        $renderedDocument = new RenderedDocument(name: $fileName);
 
         $renderedDocument->setContent($this->fpdi->Output($fileName, 'S'));
         $renderedDocument->setContentType(PdfRenderer::FILE_CONTENT_TYPE);

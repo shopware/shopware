@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,6 +75,10 @@ class DocumentGeneratorTest extends TestCase
         $generator->preview('invoice', $operation, 'deepLinkCode', $context);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - pdf renderer must be called in AbstractDocumentRenderer manually
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testPreviewPDF(): void
     {
         $orderId = Uuid::randomHex();

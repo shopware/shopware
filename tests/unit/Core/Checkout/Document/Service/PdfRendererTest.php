@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -42,9 +43,10 @@ class PdfRendererTest extends TestCase
         $post->expects(static::once())->method('__invoke');
         $dispatcher->addListener(PdfRendererExtension::NAME . '.post', $post);
 
-        $renderer->render($rendered);
+        $renderer->render($rendered, 'html');
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testRender(): void
     {
         $html = '
@@ -81,7 +83,7 @@ class PdfRendererTest extends TestCase
             'isHtml5ParserEnabled' => true,
         ], new ExtensionDispatcher(new EventDispatcher()));
 
-        $generatorOutput = $pdfRenderer->render($rendered);
+        $generatorOutput = $pdfRenderer->render($rendered, $html);
         static::assertNotEmpty($generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);

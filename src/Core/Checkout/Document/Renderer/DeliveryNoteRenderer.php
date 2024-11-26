@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -13,6 +15,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -35,7 +38,8 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly string $rootDir,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly PdfRenderer $pdfRenderer
     ) {
     }
 
@@ -109,7 +113,8 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     ]);
 
                     if ($operation->isStatic()) {
-                        $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                        // @deprecated tag:v6.7.0 - html argument will be removed
+                        $doc = new RenderedDocument('', $number, $config->buildName(), Feature::isActive('v6.7.0.0') ? FileTypes::PDF : $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
                         continue;
@@ -145,12 +150,16 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     );
 
                     $doc = new RenderedDocument(
-                        $html,
+                        $html, // @deprecated tag:v6.7.0 - html argument will be removed
                         $number,
                         $config->buildName(),
-                        $operation->getFileType(),
+                        Feature::isActive('v6.7.0.0') ? FileTypes::PDF : $operation->getFileType(),
                         $config->jsonSerialize(),
                     );
+
+                    if (Feature::isActive('v6.7.0.0')) {
+                        $doc->setContent($this->pdfRenderer->render($doc, $html));
+                    }
 
                     $result->addSuccess($orderId, $doc);
                 } catch (\Throwable $exception) {

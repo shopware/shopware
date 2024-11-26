@@ -63,6 +63,7 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
 
             <tag name="document.renderer"/>
         </service>
@@ -75,6 +76,7 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
 
             <tag name="document.renderer"/>
         </service>
@@ -88,6 +90,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
 
             <tag name="document.renderer"/>
         </service>
@@ -101,6 +104,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
 
             <tag name="document.renderer"/>
         </service>

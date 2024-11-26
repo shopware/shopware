@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
+use Dompdf\Cpdf;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
@@ -10,12 +13,17 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,6 +42,8 @@ class DeliveryNoteRendererTest extends TestCase
 
     private Context $context;
 
+    private MockObject $templateRendererMock;
+
     private DeliveryNoteRenderer $deliveryNoteRenderer;
 
     private CartService $cartService;
@@ -46,7 +56,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -55,8 +65,19 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->deliveryNoteRenderer = static::getContainer()->get(DeliveryNoteRenderer::class);
-        $this->cartService = static::getContainer()->get(CartService::class);
+
+        $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
+        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->deliveryNoteRenderer = new DeliveryNoteRenderer(
+            $this->getContainer()->get('order.repository'),
+            $this->getContainer()->get(DocumentConfigLoader::class),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->templateRendererMock,
+            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(PdfRenderer::class)
+        );
     }
 
     #[DataProvider('deliveryNoteRendererDataProvider')]
@@ -73,11 +94,13 @@ class DeliveryNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
+        $this->getContainer()->get('event_dispatcher')
             ->addListener(DeliveryNoteOrdersEvent::class, function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
+        $html = '';
+        $this->renderedHtml($html);
         $processedTemplate = $this->deliveryNoteRenderer->render(
             [$orderId => $operation],
             $this->context,
@@ -95,20 +118,30 @@ class DeliveryNoteRendererTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $rendered);
         static::assertCount(1, $caughtEvent->getOrders());
-        static::assertStringContainsString('<html>', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
 
-        $assertionCallback($deliveryNoteNumber, $order->getOrderNumber(), $rendered);
+        static::assertStringContainsString('<html>', $html);
+        static::assertStringContainsString('</html>', $html);
+
+        if (Feature::isActive('v6.7.0.0')) {
+            $pdfVersion = Cpdf::PDF_VERSION;
+            static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $rendered->getContent());
+        }
+
+        $assertionCallback($deliveryNoteNumber, $html, $order->getOrderNumber(), $rendered);
     }
 
     public static function deliveryNoteRendererDataProvider(): \Generator
     {
         yield 'render delivery_note successfully' => [
             '2000',
-            function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
-                $html = $rendered->getHtml();
+            function (string $deliveryNoteNumber, string $html, string $orderNumber, RenderedDocument $rendered): void {
                 static::assertStringContainsString('<html>', $html);
                 static::assertStringContainsString('</html>', $html);
+
+                if (Feature::isActive('v6.7.0.0')) {
+                    $pdfVersion = Cpdf::PDF_VERSION;
+                    static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $rendered->getContent());
+                }
 
                 static::assertStringContainsString('Delivery note ' . $deliveryNoteNumber, $html);
                 static::assertStringContainsString(\sprintf('Delivery note %s for Order %s ', $deliveryNoteNumber, $orderNumber), $html);
@@ -117,12 +150,12 @@ class DeliveryNoteRendererTest extends TestCase
 
         yield 'render delivery_note with document number' => [
             'DELIVERY_NOTE_9999',
-            function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
+            function (string $deliveryNoteNumber, string $html, string $orderNumber, RenderedDocument $rendered): void {
                 static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 
-                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getHtml());
-                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getHtml());
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $html);
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $html);
             },
         ];
     }
@@ -134,7 +167,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $operationDelivery = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertEquals(Defaults::LIVE_VERSION, $operationDelivery->getOrderVersionId());
 
         $this->deliveryNoteRenderer->render(
             [$orderId => $operationDelivery],
@@ -142,6 +175,19 @@ class DeliveryNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertEquals(Defaults::LIVE_VERSION, $operationDelivery->getOrderVersionId());
+    }
+
+    private function renderedHtml(string &$html): void
+    {
+        $this->templateRendererMock
+            ->method('render')
+            ->willReturnCallback(function () use (&$html) {
+                $html = $this->getContainer()
+                    ->get(DocumentTemplateRenderer::class)
+                    ->render(...\func_get_args());
+
+                return $html;
+            });
     }
 }

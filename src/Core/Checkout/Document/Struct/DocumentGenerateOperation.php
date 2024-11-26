@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Struct;
 
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -16,6 +17,8 @@ final class DocumentGenerateOperation extends Struct
 
     /**
      * @param array<string, mixed> $config
+     *
+     * @deprecated tag:v6.7.0 - reason:parameter-change - fileType argument will be removed
      */
     public function __construct(
         protected string $orderId,
@@ -32,8 +35,13 @@ final class DocumentGenerateOperation extends Struct
         return $this->orderId;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getFileType(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property and method will be removed');
+
         return $this->fileType;
     }
 

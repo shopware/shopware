@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -29,8 +30,11 @@ class DocumentGenerateOperationTest extends TestCase
             true,
         );
 
+        if (!Feature::isActive('v6.7.0.0')) {
+            static::assertSame('xml', $operation->getFileType());
+        }
+
         static::assertSame($ids->get('order-id'), $operation->getOrderId());
-        static::assertSame('xml', $operation->getFileType());
         static::assertSame(['foo' => 'bar'], $operation->getConfig());
         static::assertTrue($operation->isStatic());
         static::assertSame($ids->get('reference-id'), $operation->getReferencedDocumentId());

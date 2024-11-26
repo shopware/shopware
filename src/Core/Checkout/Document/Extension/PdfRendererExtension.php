@@ -27,7 +27,9 @@ final class PdfRendererExtension extends Extension
     /**
      * @internal shopware owns the __constructor, but the properties are public API
      */
-    public function __construct(public readonly RenderedDocument $document)
-    {
+    public function __construct(
+        public readonly RenderedDocument $document,
+        public readonly string $html
+    ) {
     }
 }

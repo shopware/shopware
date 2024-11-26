@@ -2,111 +2,108 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
+use Dompdf\Cpdf;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
-use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
-use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
-use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(PdfRenderer::class)]
 class PdfRendererTest extends TestCase
 {
-    use DocumentTrait;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private Context $context;
-
-    private DeliveryNoteRenderer $deliveryNoteRenderer;
-
-    private DocumentGenerator $documentGenerator;
-
-    private PdfRenderer $pdfRenderer;
-
-    protected function setUp(): void
+    public function testGetContentType(): void
     {
-        parent::setUp();
+        $pdfRenderer = new PdfRenderer([], new ExtensionDispatcher(new EventDispatcher()));
 
-        $this->context = Context::createDefaultContext();
-        $priceRuleId = Uuid::randomHex();
+        static::assertEquals('application/pdf', $pdfRenderer->getContentType());
+    }
 
-        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
-            ]
-        );
+    public function testExtensionIsDispatched(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $renderer = new PdfRenderer([], new ExtensionDispatcher($dispatcher));
+        $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
 
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->deliveryNoteRenderer = static::getContainer()->get(DeliveryNoteRenderer::class);
-        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
-        $this->pdfRenderer = static::getContainer()->get(PdfRenderer::class);
+        $pre = $this->createMock(CallableClass::class);
+        $pre->expects(static::once())->method('__invoke');
+        $dispatcher->addListener(PdfRendererExtension::NAME . '.pre', $pre);
+
+        $post = $this->createMock(CallableClass::class);
+        $post->expects(static::once())->method('__invoke');
+        $dispatcher->addListener(PdfRendererExtension::NAME . '.post', $post);
+
+        $renderer->render($rendered, 'html');
     }
 
     public function testRender(): void
     {
-        // generates one line item for each tax
-        $cart = $this->generateDemoCart(3);
+        if (Feature::isActive('v6.7.0.0')) {
+            static::markTestSkipped('Skipping feature test for flag  "v6.7.0.0". Replaced by "testHtmlRender"');
+        }
 
-        // generates credit items for each price
-        $orderId = $this->persistCart($cart);
+        $html = '
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                    <title>Delivery note 1000 for Order 10000</title>
+                </head>
+                <body>
+                    <footer>
+                        <div class="page-count">
+                            Page <span class="pagenum"></span> / DOMPDF_PAGE_COUNT_PLACEHOLDER
+                        </div>
+                    </footer>
+                </body>
+            </html>
+        ';
 
-        $invoiceConfig = new DocumentConfiguration();
-        $invoiceConfig->setDocumentNumber('1001');
-
-        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
-
-        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
-        static::assertNotNull($invoice);
-        $invoiceId = $invoice->getId();
-
-        $operation = new DocumentGenerateOperation(
-            $orderId,
+        $rendered = new RenderedDocument(
+            $html,
+            '1001',
+            InvoiceRenderer::TYPE,
             FileTypes::PDF,
-            [
-                'displayLineItems' => true,
-                'itemsPerPage' => 10,
-                'displayFooter' => true,
-                'displayHeader' => true,
-            ],
-            $invoiceId
+            ['displayFooter' => true]
         );
-
-        $processedTemplate = $this->deliveryNoteRenderer->render(
-            [$orderId => $operation],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate->getSuccess()[$orderId]);
-
-        $rendered = $processedTemplate->getSuccess()[$orderId];
 
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
+        static::assertStringContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $rendered->getHtml());
 
-        $generatorOutput = $this->pdfRenderer->render($rendered);
+        $pdfRenderer = new PdfRenderer([
+            'isRemoteEnabled' => true,
+            'isHtml5ParserEnabled' => true,
+        ], new ExtensionDispatcher(new EventDispatcher()));
+
+        $generatorOutput = $pdfRenderer->render($rendered);
         static::assertNotEmpty($generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+    }
+
+    public function testHtmlRender(): void
+    {
+        $pdfRenderer = new PdfRenderer([], new ExtensionDispatcher(new EventDispatcher()));
+
+        $content = $pdfRenderer->render(new RenderedDocument(), '<html><h1>Hello World</h1></html>');
+
+        $pdfVersion = Cpdf::PDF_VERSION;
+        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
+
+        static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $content);
+        static::assertEquals('application/pdf', $finfo->buffer($content));
     }
 }

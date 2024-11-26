@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
+use Dompdf\Cpdf;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
@@ -16,17 +19,22 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\Currency\CurrencyFormatter;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,6 +54,8 @@ class StornoRendererTest extends TestCase
 
     private Context $context;
 
+    private MockObject $templateRendererMock;
+
     private EntityRepository $productRepository;
 
     private StornoRenderer $stornoRenderer;
@@ -62,7 +72,7 @@ class StornoRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -71,10 +81,22 @@ class StornoRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = static::getContainer()->get('product.repository');
-        $this->stornoRenderer = static::getContainer()->get(StornoRenderer::class);
-        $this->cartService = static::getContainer()->get(CartService::class);
-        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+
+        $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->stornoRenderer = new StornoRenderer(
+            $this->getContainer()->get('order.repository'),
+            $this->getContainer()->get(DocumentConfigLoader::class),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->templateRendererMock,
+            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            $this->getContainer()->get(ReferenceInvoiceLoader::class),
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(PdfRenderer::class)
+        );
     }
 
     /**
@@ -115,11 +137,13 @@ class StornoRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
+        $this->getContainer()->get('event_dispatcher')
             ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
+        $html = '';
+        $this->renderedHtml($html);
         $processedTemplate = $this->stornoRenderer->render(
             [$orderId => $operation],
             $this->context,
@@ -135,11 +159,16 @@ class StornoRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
         $rendered = $processedTemplate->getSuccess()[$orderId];
         static::assertInstanceOf(RenderedDocument::class, $rendered);
-        static::assertStringContainsString('<html>', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
 
-        $localeProvider = static::createMock(LanguageLocaleCodeProvider::class);
-        $formatter = new CurrencyFormatter($localeProvider);
+        static::assertStringContainsString('<html>', $html);
+        static::assertStringContainsString('</html>', $html);
+
+        if (Feature::isActive('v6.7.0.0')) {
+            $pdfVersion = Cpdf::PDF_VERSION;
+            static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $rendered->getContent());
+        }
+
+        $formatter = $this->getContainer()->get(CurrencyFormatter::class);
         $orderCurrency = $order->getCurrency();
         if ($orderCurrency !== null) {
             $orderAmounts = [
@@ -155,10 +184,10 @@ class StornoRendererTest extends TestCase
                     $this->context->getLanguageId(),
                     $this->context,
                 );
-                static::assertStringContainsString($formattedValue, $rendered->getHtml());
+                static::assertStringContainsString($formattedValue, $html);
             }
         }
-        $assertionCallback($rendered);
+        $assertionCallback($rendered, $html);
     }
 
     public function testRenderWithoutInvoice(): void
@@ -194,10 +223,9 @@ class StornoRendererTest extends TestCase
                     'invoiceNumber' => '1001',
                 ],
             ],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
-                static::assertStringContainsString('Cancellation no. 1000', $rendered->getHtml());
-                static::assertStringContainsString('Cancellation 1000 for Invoice 1001', $rendered->getHtml());
+            function (RenderedDocument $rendered, string $html): void {
+                static::assertStringContainsString('Cancellation no. 1000', $html);
+                static::assertStringContainsString('Cancellation 1000 for Invoice 1001', $html);
             },
         ];
 
@@ -205,8 +233,7 @@ class StornoRendererTest extends TestCase
             [
                 'documentNumber' => 'STORNO_9999',
             ],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
+            function (RenderedDocument $rendered): void {
                 static::assertEquals('STORNO_9999', $rendered->getNumber());
                 static::assertEquals('cancellation_invoice_STORNO_9999', $rendered->getName());
             },
@@ -228,7 +255,7 @@ class StornoRendererTest extends TestCase
 
         $operationStorno = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationStorno->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertEquals(Defaults::LIVE_VERSION, $operationStorno->getOrderVersionId());
         static::assertTrue($this->orderVersionExists($orderId, $operationStorno->getOrderVersionId()));
 
         $this->stornoRenderer->render(
@@ -283,5 +310,18 @@ class StornoRendererTest extends TestCase
         $this->productRepository->create($products, Context::createDefaultContext());
 
         return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
+    }
+
+    private function renderedHtml(string &$html): void
+    {
+        $this->templateRendererMock
+            ->method('render')
+            ->willReturnCallback(function () use (&$html) {
+                $html = $this->getContainer()
+                    ->get(DocumentTemplateRenderer::class)
+                    ->render(...\func_get_args());
+
+                return $html;
+            });
     }
 }

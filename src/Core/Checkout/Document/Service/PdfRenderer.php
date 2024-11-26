@@ -8,6 +8,7 @@ use Dompdf\Options;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -33,16 +34,25 @@ final class PdfRenderer
         return self::FILE_CONTENT_TYPE;
     }
 
-    public function render(RenderedDocument $document): string
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-change - $html will be required string
+     */
+    public function render(RenderedDocument $document, ?string $html = null): string
     {
+        if ($html === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Optional argument `html` will be required');
+
+            $html = $document->getHtml();
+        }
+
         return $this->extensions->publish(
             name: PdfRendererExtension::NAME,
-            extension: new PdfRendererExtension($document),
+            extension: new PdfRendererExtension($document, $html),
             function: $this->_render(...)
         );
     }
 
-    private function _render(RenderedDocument $document): string
+    private function _render(RenderedDocument $document, string $html): string
     {
         $dompdf = new Dompdf();
 
@@ -50,7 +60,7 @@ final class PdfRenderer
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());
-        $dompdf->loadHtml($document->getHtml());
+        $dompdf->loadHtml($html);
 
         /*
          * Dompdf creates and destroys a lot of objects. The garbage collector slows the process down by ~50% for

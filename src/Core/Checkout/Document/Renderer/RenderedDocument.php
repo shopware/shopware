@@ -3,16 +3,17 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('checkout')]
 final class RenderedDocument extends Struct
 {
-    private string $content = '';
-
     /**
      * @param array<string, mixed> $config
+     *
+     * @deprecated tag:v6.7.0 - reason:parameter-change - html argument will be removed
      */
     public function __construct(
         private readonly string $html = '',
@@ -20,7 +21,8 @@ final class RenderedDocument extends Struct
         private string $name = '',
         private readonly string $fileExtension = FileTypes::PDF,
         private readonly array $config = [],
-        private ?string $contentType = 'application/pdf'
+        private ?string $contentType = 'application/pdf',
+        private string $content = ''
     ) {
     }
 
@@ -39,8 +41,13 @@ final class RenderedDocument extends Struct
         $this->name = $name;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed - use content property for the rendered value instead
+     */
     public function getHtml(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property and method will be removed. Use `content` property for the rendered value');
+
         return $this->html;
     }
 

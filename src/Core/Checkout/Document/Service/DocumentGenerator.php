@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -105,8 +106,11 @@ class DocumentGenerator
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
         }
 
-        if ($document->getFileExtension() === FileTypes::PDF) {
-            $document->setContent($this->pdfRenderer->render($document));
+        if (!Feature::isActive('v6.7.0.0')) {
+            if ($document->getFileExtension() === FileTypes::PDF) {
+                $document->setContent($this->pdfRenderer->render($document));
+            }
+            $this->rendererRegistry->finalize($documentType, [$operation->getOrderId() => $operation], $context, $config, $rendered);
         }
 
         return $document;
@@ -143,8 +147,11 @@ class DocumentGenerator
                     continue;
                 }
 
-                if ($document->getFileExtension() === FileTypes::PDF) {
-                    $document->setContent($this->pdfRenderer->render($document));
+                if (!Feature::isActive('v6.7.0.0')) {
+                    if ($document->getFileExtension() === FileTypes::PDF) {
+                        $document->setContent($this->pdfRenderer->render($document));
+                    }
+                    $this->rendererRegistry->finalize($documentType, [$operation->getOrderId() => $operation], $context, new DocumentRendererConfig(), $rendered);
                 }
 
                 $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $operation->getDocumentId());
@@ -157,7 +164,7 @@ class DocumentGenerator
                 $records[] = [
                     'id' => $id,
                     'documentTypeId' => $documentTypeId,
-                    'fileType' => $operation->getFileType(),
+                    'fileType' => Feature::isActive('v6.7.0.0') ? $document->getFileExtension() : $operation->getFileType(),
                     'orderId' => $orderId,
                     'orderVersionId' => $operation->getOrderVersionId(),
                     'static' => $operation->isStatic(),
@@ -326,9 +333,9 @@ class DocumentGenerator
         }
 
         return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveFile(
-            $this->pdfRenderer->render($document),
+            $document->getContent(),
             $document->getFileExtension(),
-            $this->pdfRenderer->getContentType(),
+            $document->getContentType(),
             $document->getName(),
             $context,
             'document'

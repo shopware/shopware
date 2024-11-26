@@ -47,7 +47,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
             $orderId,
             'cancel',
             new ParameterBag(),
-            $context->getContext()
+            $context
         );
 
         return new CancelOrderRouteResponse($newState);
@@ -62,7 +62,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         $criteria = new Criteria([$orderId]);
         $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomer()->getId()));
 
-        if ($this->orderRepository->searchIds($criteria, $context->getContext())->firstId() === null) {
+        if ($this->orderRepository->searchIds($criteria, $context)->firstId() === null) {
             throw OrderException::orderNotFound($orderId);
         }
     }

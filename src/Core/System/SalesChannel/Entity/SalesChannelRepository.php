@@ -96,7 +96,7 @@ class SalesChannelRepository
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $entities = $this->read($criteria, $salesChannelContext);
 
-            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
+            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $salesChannelContext);
         }
 
         $ids = $this->doSearch($criteria, $salesChannelContext);
@@ -105,7 +105,7 @@ class SalesChannelRepository
             /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
-            return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
+            return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext);
         }
 
         $readCriteria = $criteria->cloneForRead($ids->getIds());
@@ -129,7 +129,7 @@ class SalesChannelRepository
             $element->addExtension('search', new ArrayEntity($data));
         }
 
-        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
+        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext);
         $result->addState(...$ids->getStates());
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
@@ -147,9 +147,9 @@ class SalesChannelRepository
 
         $this->processCriteria($criteria, $salesChannelContext);
 
-        $result = $this->aggregator->aggregate($this->definition, $criteria, $salesChannelContext->getContext());
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $salesChannelContext);
 
-        $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $salesChannelContext->getContext());
+        $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $salesChannelContext);
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
@@ -172,7 +172,7 @@ class SalesChannelRepository
         $criteria = clone $criteria;
 
         /** @var TEntityCollection $entities */
-        $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
+        $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext);
 
         if ($criteria->getFields() === []) {
             $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);
@@ -189,7 +189,7 @@ class SalesChannelRepository
 
     private function doSearch(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        $result = $this->searcher->search($this->definition, $criteria, $salesChannelContext->getContext());
+        $result = $this->searcher->search($this->definition, $criteria, $salesChannelContext);
 
         $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $salesChannelContext);
         $this->eventDispatcher->dispatch($event, $event->getName());

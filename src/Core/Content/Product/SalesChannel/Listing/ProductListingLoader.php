@@ -85,7 +85,7 @@ class ProductListingLoader
                 new ProductCollection(),
                 $aggregations,
                 $criteria,
-                $context->getContext()
+                $context
             );
         }
 
@@ -95,7 +95,7 @@ class ProductListingLoader
 
         $this->addExtensions($idResult, $searchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $searchResult->getEntities(), $aggregations, $criteria, $context->getContext());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $searchResult->getEntities(), $aggregations, $criteria, $context);
         $result->addState(...$idResult->getStates());
 
         return $result;
@@ -174,7 +174,7 @@ class ProductListingLoader
              AND child.id IN (:ids)',
             [
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
-                'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
             ['ids' => ArrayParameterType::BINARY]
         );

@@ -76,7 +76,7 @@ class WishlistPageTest extends TestCase
         static::assertInstanceOf(PageLoadedEvent::class, $event);
 
         static::assertSame(1, $page->getWishlist()->getProductListing()->getTotal());
-        static::assertSame($context->getContext(), $page->getWishlist()->getProductListing()->getContext());
+        static::assertSame($context, $page->getWishlist()->getProductListing()->getContext());
         self::assertPageEvent(WishlistPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

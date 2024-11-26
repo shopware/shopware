@@ -64,7 +64,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var LandingPageEntity $landingPage */
-        $landingPage = $this->landingPageRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $landingPage = $this->landingPageRepository->search($criteria, $salesChannelContext)->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $landingPage->getSeoUrls());
 
@@ -93,7 +93,7 @@ class SeoUrlTest extends TestCase
                     'url' => 'newUrl',
                 ],
             ],
-            $salesChannelContext->getContext()
+            $salesChannelContext
         );
 
         $criteria = new Criteria([$id]);
@@ -143,7 +143,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext)->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -171,7 +171,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext)->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -183,7 +183,7 @@ class SeoUrlTest extends TestCase
     public function testSearchCategory(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $context = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $categoryRepository = $this->getContainer()->get('category.repository');
 
@@ -209,8 +209,6 @@ class SeoUrlTest extends TestCase
         ]], Context::createDefaultContext());
         $this->runWorker();
 
-        $context = $salesChannelContext->getContext();
-
         $cases = [
             ['expected' => null, 'categoryId' => $childAId],
             ['expected' => null, 'categoryId' => $childA1Id],
@@ -222,7 +220,7 @@ class SeoUrlTest extends TestCase
     public function testSearchCategoryWithLink(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $context = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $categoryRepository = $this->getContainer()->get('category.repository');
 
@@ -248,8 +246,6 @@ class SeoUrlTest extends TestCase
         $categoryRepository->create($categories, Context::createDefaultContext());
         $this->runWorker();
 
-        $context = $salesChannelContext->getContext();
-
         $cases = [
             ['expected' => null, 'categoryId' => $categoryPageId],
             ['expected' => null, 'categoryId' => $categoryLinkId],
@@ -261,7 +257,7 @@ class SeoUrlTest extends TestCase
     public function testSearchCategoryWithSalesChannelEntryPoint(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext(
+        $context = $this->createStorefrontSalesChannelContext(
             $salesChannelId,
             'test'
         );
@@ -299,8 +295,6 @@ class SeoUrlTest extends TestCase
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $childAId);
         $this->runWorker();
 
-        $context = $salesChannelContext->getContext();
-
         $cases = [
             ['expected' => '1/', 'categoryId' => $childA1Id],
             ['expected' => '1/z/', 'categoryId' => $childA1ZId],
@@ -312,7 +306,7 @@ class SeoUrlTest extends TestCase
     public function testSearchCategoryWithComplexHierarchy(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext(
+        $context = $this->createStorefrontSalesChannelContext(
             $salesChannelId,
             'test'
         );
@@ -365,8 +359,6 @@ class SeoUrlTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
-
-        $context = $salesChannelContext->getContext();
 
         // We are updating the sales channel entry point without running a worker task. We expect the root category url
         // to change, while all other urls will be recreated in an asynch worker task.

@@ -83,7 +83,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
-        $this->dispatchValidationEvent($validation, $data, $context->getContext());
+        $this->dispatchValidationEvent($validation, $data, $context);
 
         $this->validator->validate($data->all(), $validation);
 
@@ -110,14 +110,14 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             );
         }
 
-        $mappingEvent = new DataMappingEvent($data, $customerData, $context->getContext());
+        $mappingEvent = new DataMappingEvent($data, $customerData, $context);
         $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_CUSTOMER_PROFILE_SAVE);
 
         $customerData = $mappingEvent->getOutput();
 
         $customerData['id'] = $customer->getId();
 
-        $this->customerRepository->update([$customerData], $context->getContext());
+        $this->customerRepository->update([$customerData], $context);
 
         return new SuccessResponse();
     }
@@ -174,7 +174,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         );
 
         /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
+        $ids = $this->salutationRepository->searchIds($criteria, $context)->getIds();
 
         return $ids[0] ?? null;
     }

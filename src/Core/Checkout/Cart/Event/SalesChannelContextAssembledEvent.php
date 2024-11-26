@@ -31,7 +31,7 @@ class SalesChannelContextAssembledEvent extends Event implements ShopwareSalesCh
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

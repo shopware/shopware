@@ -49,7 +49,7 @@ class MainCategoryExtensionTest extends TestCase
         $criteria->addAssociation('mainCategories');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext)->first();
 
         static::assertNotNull($product->getMainCategories());
         static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
@@ -70,7 +70,7 @@ class MainCategoryExtensionTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())
+        $product = $this->productRepository->search($criteria, $salesChannelContext)
             ->getEntities()
             ->first();
         static::assertNotNull($product);

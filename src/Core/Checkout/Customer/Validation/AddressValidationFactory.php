@@ -37,14 +37,14 @@ class AddressValidationFactory implements DataValidationFactoryInterface
         $definition = new DataValidationDefinition('address.update');
 
         $this->buildCommonValidation($definition, $context)
-            ->add('id', new NotBlank(), new EntityExists(['context' => $context->getContext(), 'entity' => 'customer_address']));
+            ->add('id', new NotBlank(), new EntityExists(['context' => $context, 'entity' => 'customer_address']));
 
         return $definition;
     }
 
     private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext $context): DataValidationDefinition
     {
-        $frameworkContext = $context->getContext();
+        $frameworkContext = $context;
         $salesChannelId = $context->getSalesChannel()->getId();
 
         $definition

@@ -21,7 +21,7 @@ class CartTransformer
     {
         $currency = $context->getCurrency();
         $userId = null;
-        $source = $context->getContext()->getSource();
+        $source = $context->getSource();
 
         if ($source instanceof AdminSalesChannelApiSource) {
             $originalContextSource = $source->getOriginalContext()->getSource();

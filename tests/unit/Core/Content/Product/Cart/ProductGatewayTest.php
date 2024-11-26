@@ -36,7 +36,7 @@ class ProductGatewayTest extends TestCase
             new ProductCollection(),
             null,
             new Criteria(),
-            $context->getContext()
+            $context
         );
         $repository->method('search')->willReturn($emptySearchResult);
 

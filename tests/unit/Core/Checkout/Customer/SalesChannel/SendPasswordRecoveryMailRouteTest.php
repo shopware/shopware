@@ -100,7 +100,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
                     return true;
                 }),
-                $this->context->getContext()
+                $this->context
             );
 
         $customerRecovery = new CustomerRecoveryEntity();

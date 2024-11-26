@@ -112,7 +112,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $this->salesChannelContext = $this->createSalesChannelContext();
 
-        $this->categoryRepository->create([self::$category], $this->salesChannelContext->getContext());
+        $this->categoryRepository->create([self::$category], $this->salesChannelContext);
     }
 
     public function testSlotOverwrite(): void
@@ -261,7 +261,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $criteria = new Criteria([self::$categoryId]);
         $criteria->addAssociation('media');
 
-        $category = $this->categoryRepository->search($criteria, $salesChannelContextDe->getContext())->getEntities()->get(self::$categoryId);
+        $category = $this->categoryRepository->search($criteria, $salesChannelContextDe)->getEntities()->get(self::$categoryId);
         static::assertNotNull($category);
 
         $pages = $this->salesChannelCmsPageLoader->load(

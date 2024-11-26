@@ -63,7 +63,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $categoryCriteria->setLimit(1);
 
         /** @var PartialEntity|null $category */
-        $category = $this->categoryRepository->search($categoryCriteria, $context->getContext())->first();
+        $category = $this->categoryRepository->search($categoryCriteria, $context)->first();
         if (!$category) {
             throw ProductException::categoryNotFound($categoryId);
         }
@@ -96,7 +96,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         if ($hasProductStream) {
             $filters = $this->productStreamBuilder->buildFilters(
                 $category->get('productStreamId'),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             );
             $criteria->addFilter(...$filters);
 

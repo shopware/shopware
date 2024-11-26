@@ -64,7 +64,7 @@ class CustomerGroupRegistrationActionController
 
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setLimit(1);
-            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext)->first();
 
             if ($customerRequestedGroup === null) {
                 throw CustomerException::customerGroupNotFound($customer->getGroupId());
@@ -73,7 +73,7 @@ class CustomerGroupRegistrationActionController
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
                 $customer,
                 $customerRequestedGroup,
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ));
         }
 
@@ -111,7 +111,7 @@ class CustomerGroupRegistrationActionController
 
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setLimit(1);
-            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext)->first();
 
             if ($customerRequestedGroup === null) {
                 throw CustomerException::customerGroupNotFound($customer->getGroupId());
@@ -120,7 +120,7 @@ class CustomerGroupRegistrationActionController
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
                 $customerRequestedGroup,
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ));
         }
 

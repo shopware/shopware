@@ -96,14 +96,14 @@ class CreditLineItemFactoryTest extends TestCase
             new EntityCollection([$mediaEntity]),
             null,
             $expectedCriteria,
-            $context->getContext()
+            $context
         );
 
         $mediaRepo = $this->createMock(EntityRepository::class);
         $mediaRepo
             ->expects(static::once())
             ->method('search')
-            ->with(static::equalTo($expectedCriteria), $context->getContext())
+            ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
         $factory = new CreditLineItemFactory(
@@ -143,7 +143,7 @@ class CreditLineItemFactoryTest extends TestCase
             ->expects(static::once())
             ->method('factory')
             ->with(
-                static::equalTo($context->getContext()),
+                static::equalTo($context),
                 static::equalTo($data['priceDefinition']),
                 static::equalTo('credit')
             )

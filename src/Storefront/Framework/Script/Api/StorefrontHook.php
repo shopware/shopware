@@ -45,7 +45,7 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
         private readonly Page $page,
         private readonly SalesChannelContext $salesChannelContext
     ) {
-        parent::__construct($salesChannelContext->getContext());
+        parent::__construct($salesChannelContext);
     }
 
     /**

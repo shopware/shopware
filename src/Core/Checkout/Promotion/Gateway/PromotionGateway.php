@@ -40,6 +40,6 @@ class PromotionGateway implements PromotionGatewayInterface
             new FieldSorting('priority', FieldSorting::DESCENDING)
         );
 
-        return $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
+        return $this->promotionRepository->search($criteria, $context)->getEntities();
     }
 }

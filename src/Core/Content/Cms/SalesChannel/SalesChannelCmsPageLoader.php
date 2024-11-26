@@ -56,7 +56,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         $criteria->addAssociation('sections.blocks.slots');
 
         // step 1, load cms pages with blocks and slots
-        $result = $this->cmsPageRepository->search($criteria, $context->getContext());
+        $result = $this->cmsPageRepository->search($criteria, $context);
         $pages = $result->getEntities();
 
         foreach ($pages as $page) {

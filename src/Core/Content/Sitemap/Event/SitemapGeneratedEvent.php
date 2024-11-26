@@ -22,6 +22,6 @@ class SitemapGeneratedEvent extends Event implements ShopwareEvent
 
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->context;
     }
 }

@@ -11,8 +11,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -42,19 +40,17 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
         $this->salesChannelEntity = new SalesChannelEntity();
         $this->salesChannelEntity->setId(Uuid::randomHex());
         $this->context = new SalesChannelContext(
-            new Context(new SalesChannelApiSource(Uuid::randomHex())),
+            new SalesChannelApiSource(Uuid::randomHex()),
             Uuid::randomHex(),
             null,
             $this->salesChannelEntity,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(1, 1.1, true),
-            new CashRoundingConfig(1, 1.1, true)
+            new ShippingLocation(new CountryEntity(), null, null)
         );
 
         $this->defaultEvent = new StoreApiRouteCacheKeyEvent([], $this->request, $this->context, null);

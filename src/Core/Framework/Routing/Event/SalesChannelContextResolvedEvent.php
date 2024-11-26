@@ -24,7 +24,7 @@ class SalesChannelContextResolvedEvent extends Event implements ShopwareSalesCha
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getUsedToken(): string

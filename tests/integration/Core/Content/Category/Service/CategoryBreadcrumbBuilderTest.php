@@ -626,7 +626,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $products[0] = array_merge($basicPayload, $products[0]);
         }
 
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->create($products, $this->salesChannelContext);
     }
 
     private function createProductStreams(): void
@@ -647,7 +647,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         ];
 
         $productStreamsRepository = $this->getContainer()->get('product_stream.repository');
-        $productStreamsRepository->create([$stream], $this->salesChannelContext->getContext());
+        $productStreamsRepository->create([$stream], $this->salesChannelContext);
     }
 
     private function createCategoryStreams(): string

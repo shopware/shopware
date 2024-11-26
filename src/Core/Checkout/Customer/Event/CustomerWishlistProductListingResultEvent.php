@@ -85,6 +85,6 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
 
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->context;
     }
 }

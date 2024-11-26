@@ -242,7 +242,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $criteria->addAssociation('lineItems.downloads');
         $criteria->addAssociation('deliveries');
 
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItems = $order->getLineItems();
@@ -291,7 +291,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems.downloads.media');
 
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItems = $order->getLineItems();
@@ -389,7 +389,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 ->build();
         }
 
-        $this->salesChannelContext->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($products): void {
+        $this->salesChannelContext->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($products): void {
             $this->productRepository->create($products, $context);
             $downloads = array_merge(...array_column($products, 'downloads'));
 
@@ -415,11 +415,11 @@ class GrantDownloadAccessActionTest extends TestCase
                 (new Criteria())
                     ->addFilter(new EqualsFilter('orderId', $orderId))
                     ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING)),
-                $this->salesChannelContext->getContext()
+                $this->salesChannelContext
             )->first();
         static::assertInstanceOf(OrderTransactionEntity::class, $transaction);
 
-        $this->orderTransactionStateHandler->paid($transaction->getId(), $this->salesChannelContext->getContext());
+        $this->orderTransactionStateHandler->paid($transaction->getId(), $this->salesChannelContext);
     }
 
     private function cloneDefaultFlow(): void
@@ -428,14 +428,14 @@ class GrantDownloadAccessActionTest extends TestCase
             ->searchIds(
                 (new Criteria())
                     ->addFilter(new EqualsFilter('name', 'Deliver ordered product downloads')),
-                $this->salesChannelContext->getContext()
+                $this->salesChannelContext
             )->firstId();
         static::assertNotNull($flowId);
 
         $behavior = new CloneBehavior([
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
         ]);
-        $this->flowRepository->clone($flowId, $this->salesChannelContext->getContext(), null, $behavior);
+        $this->flowRepository->clone($flowId, $this->salesChannelContext, null, $behavior);
     }
 
     private function addProduct(string $productId, int $quantity, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart

@@ -38,7 +38,7 @@ class CountryStateCriteriaEvent extends Event implements ShopwareSalesChannelEve
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

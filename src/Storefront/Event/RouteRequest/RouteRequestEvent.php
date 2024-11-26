@@ -41,7 +41,7 @@ abstract class RouteRequestEvent extends NestedEvent implements ShopwareSalesCha
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getCriteria(): Criteria

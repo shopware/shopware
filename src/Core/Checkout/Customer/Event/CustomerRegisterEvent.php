@@ -47,7 +47,7 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public static function getAvailableData(): EventDataCollection

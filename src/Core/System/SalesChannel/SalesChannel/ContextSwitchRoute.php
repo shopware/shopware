@@ -118,14 +118,14 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         );
 
         $definition
-            ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $context->getContext(), 'criteria' => $languageCriteria]))
-            ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $context->getContext(), 'criteria' => $currencyCriteria]))
-            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $context->getContext(), 'criteria' => $shippingMethodCriteria]))
-            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $context->getContext(), 'criteria' => $paymentMethodCriteria]))
-            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
-            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
-            ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $context->getContext()]))
-            ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $context->getContext()]))
+            ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $context, 'criteria' => $languageCriteria]))
+            ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $context, 'criteria' => $currencyCriteria]))
+            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $context, 'criteria' => $shippingMethodCriteria]))
+            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $context, 'criteria' => $paymentMethodCriteria]))
+            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context, 'criteria' => $addressCriteria]))
+            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context, 'criteria' => $addressCriteria]))
+            ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $context]))
+            ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $context]))
         ;
 
         $event = new SwitchContextEvent($data, $context, $definition, $parameters);

@@ -95,7 +95,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -106,11 +106,11 @@ class OrderServiceTest extends TestCase
             $orderDeliveryId,
             'ship',
             new RequestDataBag(),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         $deliveries = $updatedOrder->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -140,7 +140,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -168,7 +168,7 @@ class OrderServiceTest extends TestCase
             $orderDeliveryId,
             'cancel',
             new RequestDataBag(),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -195,7 +195,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -218,14 +218,14 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->salesChannelContext
-            ->getContext()
+            
             ->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
             'cancel',
             new RequestDataBag(['sendMail' => false]),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -262,7 +262,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -311,7 +311,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('transactions.stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -320,11 +320,11 @@ class OrderServiceTest extends TestCase
             $orderTransactionId,
             'remind',
             new RequestDataBag(),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertNotNull($transactions = $updatedOrder->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         static::assertNotNull($transaction->getStateMachineState());
@@ -351,7 +351,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -377,7 +377,7 @@ class OrderServiceTest extends TestCase
             $orderTransactionId,
             'pay_partially',
             new RequestDataBag(),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -403,7 +403,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -426,14 +426,14 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->salesChannelContext
-            ->getContext()
+            
             ->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
             'pay_partially',
             new RequestDataBag(['sendMail' => false]),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -453,7 +453,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -485,7 +485,7 @@ class OrderServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -528,14 +528,14 @@ class OrderServiceTest extends TestCase
     {
         $orderId = $this->performOrder();
 
-        $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
+        $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext);
 
         $criteria = new Criteria([$orderId]);
 
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $cancelledOrder */
-        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
         $state = $cancelledOrder->getStateMachineState();
 
         static::assertNotNull($state);
@@ -562,7 +562,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext)->first();
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
@@ -575,7 +575,7 @@ class OrderServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
+        $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext);
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -608,7 +608,7 @@ class OrderServiceTest extends TestCase
             )
         );
 
-        $languageId = $languageRepository->searchIds($criteria, $this->salesChannelContext->getContext())->firstId();
+        $languageId = $languageRepository->searchIds($criteria, $this->salesChannelContext)->firstId();
         static::assertNotNull($languageId);
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
@@ -786,7 +786,7 @@ class OrderServiceTest extends TestCase
             ]],
         ];
 
-        $salesChannelRepository->update([$data], $this->salesChannelContext->getContext());
+        $salesChannelRepository->update([$data], $this->salesChannelContext);
     }
 
     private function cleanDefaultSalesChannelDomain(): void

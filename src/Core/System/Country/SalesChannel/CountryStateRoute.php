@@ -54,7 +54,7 @@ class CountryStateRoute extends AbstractCountryStateRoute
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
         $this->dispatcher->dispatch(new CountryStateCriteriaEvent($countryId, $request, $criteria, $context));
-        $countryStates = $this->countryStateRepository->search($criteria, $context->getContext());
+        $countryStates = $this->countryStateRepository->search($criteria, $context);
 
         return new CountryStateRouteResponse($countryStates);
     }

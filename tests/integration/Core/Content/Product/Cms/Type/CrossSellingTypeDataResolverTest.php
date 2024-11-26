@@ -107,7 +107,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
             new ProductCollection(),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();

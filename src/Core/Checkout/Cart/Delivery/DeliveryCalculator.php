@@ -205,7 +205,7 @@ class DeliveryCalculator
         $value = $this->getPriceForTaxState($price, $context);
 
         if ($price->getCurrencyId() === Defaults::CURRENCY) {
-            $value *= $context->getContext()->getCurrencyFactor();
+            $value *= $context->getCurrencyFactor();
         }
 
         return $value;

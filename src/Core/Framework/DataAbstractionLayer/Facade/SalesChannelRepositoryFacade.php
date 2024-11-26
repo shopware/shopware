@@ -95,7 +95,7 @@ class SalesChannelRepositoryFacade
         $definition = $this->registry->getByEntityName($entityName);
         $criteriaObject = new Criteria();
 
-        $this->criteriaBuilder->fromArray($criteria, $criteriaObject, $definition, $this->context->getContext());
+        $this->criteriaBuilder->fromArray($criteria, $criteriaObject, $definition, $this->context);
 
         return $criteriaObject;
     }

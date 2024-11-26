@@ -29,7 +29,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
     #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
-        $this->customerRepository->delete([['id' => $customer->getId()]], $context->getContext());
+        $this->customerRepository->delete([['id' => $customer->getId()]], $context);
 
         return new NoContentResponse();
     }

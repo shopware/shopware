@@ -203,7 +203,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
             new ProductCollection([$product]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();

@@ -30,7 +30,7 @@ class SalesChannelTestHook extends Hook implements SalesChannelContextAware
         array $data = [],
         array $serviceIds = []
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
         self::$serviceIds = $serviceIds;
 

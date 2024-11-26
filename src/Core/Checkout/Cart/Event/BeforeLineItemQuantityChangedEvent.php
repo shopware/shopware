@@ -34,7 +34,7 @@ if (Feature::isActive('v6.7.0.0')) {
 
         public function getContext(): Context
         {
-            return $this->salesChannelContext->getContext();
+            return $this->salesChannelContext;
         }
 
         public function getSalesChannelContext(): SalesChannelContext
@@ -99,7 +99,7 @@ if (Feature::isActive('v6.7.0.0')) {
 
         public function getContext(): Context
         {
-            return $this->salesChannelContext->getContext();
+            return $this->salesChannelContext;
         }
 
         public function getSalesChannelContext(): SalesChannelContext

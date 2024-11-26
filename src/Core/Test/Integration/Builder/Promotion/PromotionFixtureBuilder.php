@@ -114,16 +114,16 @@ class PromotionFixtureBuilder
         }
 
         // save the promotion
-        $this->promotionRepository->create([$data], $this->context->getContext());
+        $this->promotionRepository->create([$data], $this->context);
 
         // save our defined set groups
         if (\count($this->dataSetGroups) > 0) {
-            $this->promotionSetgroupRepository->create($this->dataSetGroups, $this->context->getContext());
+            $this->promotionSetgroupRepository->create($this->dataSetGroups, $this->context);
         }
 
         // save our added discounts
         if (\count($this->dataDiscounts) > 0) {
-            $this->promotionDiscountRepository->create($this->dataDiscounts, $this->context->getContext());
+            $this->promotionDiscountRepository->create($this->dataDiscounts, $this->context);
         }
     }
 }

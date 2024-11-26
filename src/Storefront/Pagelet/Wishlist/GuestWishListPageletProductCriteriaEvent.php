@@ -27,7 +27,7 @@ class GuestWishListPageletProductCriteriaEvent extends NestedEvent implements Sh
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

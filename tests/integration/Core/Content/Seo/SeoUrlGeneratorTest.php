@@ -100,7 +100,7 @@ class SeoUrlGeneratorTest extends TestCase
             [$id],
             $template,
             $route,
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $this->salesChannelContext->getSalesChannel()
         );
 
@@ -128,7 +128,7 @@ class SeoUrlGeneratorTest extends TestCase
             [$id],
             $template,
             $route,
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $this->salesChannelContext->getSalesChannel()
         );
 
@@ -326,7 +326,7 @@ class SeoUrlGeneratorTest extends TestCase
             $categoryIds,
             'template first run',
             $seoRoute,
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $this->salesChannelContext->getSalesChannel()
         );
         /** @var \Generator<SeoUrlEntity> $secondRun */
@@ -334,7 +334,7 @@ class SeoUrlGeneratorTest extends TestCase
             $categoryIds,
             'template second run',
             $seoRoute,
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $this->salesChannelContext->getSalesChannel()
         );
 
@@ -390,7 +390,7 @@ class SeoUrlGeneratorTest extends TestCase
             // broken twig template
             '{% for part in category.seoBreadcrumb %}{{ part }}/',
             $seoRoute,
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $this->salesChannelContext->getSalesChannel()
         );
 
@@ -408,7 +408,7 @@ class SeoUrlGeneratorTest extends TestCase
             // invalid twig context
             '{{ product.id }}',
             $seoRoute,
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $this->salesChannelContext->getSalesChannel()
         );
 

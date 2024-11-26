@@ -146,7 +146,7 @@ class ProductFeatureBuilder
 
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('name', $required));
 
-        $customFields = $this->customFieldRepository->search($criteria, $context->getContext())->getEntities();
+        $customFields = $this->customFieldRepository->search($criteria, $context)->getEntities();
         foreach ($customFields as $field) {
             $key = 'custom-field-' . $field->getName();
             $data->set($key, $field);

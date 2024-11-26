@@ -75,7 +75,7 @@ class PaymentService
         $criteria->setTitle('payment-service::load-order');
         /** @var OrderEntity $order */
         $order = $this->orderRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context)
             ->first();
 
         if ($order === null) {
@@ -87,7 +87,7 @@ class PaymentService
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $context->getToken(),
-                    $context->getContext()->getLanguageId(),
+                    $context->getLanguageId(),
                     $order->getCurrencyId()
                 )
             );
@@ -99,7 +99,7 @@ class PaymentService
             $transactionId = $e->getOrderTransactionId();
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
             if ($transactionId !== null) {
-                $this->transactionStateHandler->fail($transactionId, $context->getContext());
+                $this->transactionStateHandler->fail($transactionId, $context);
             }
             if ($errorUrl !== null) {
                 $errorUrl .= (parse_url($errorUrl, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $e->getErrorCode();
@@ -147,10 +147,10 @@ class PaymentService
             $paymentHandler->finalize($transaction, $request, $context);
         } catch (PaymentException $e) {
             if ($e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
-                $this->transactionStateHandler->cancel($transactionId, $context->getContext());
+                $this->transactionStateHandler->cancel($transactionId, $context);
             } else {
                 $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
-                $this->transactionStateHandler->fail($transactionId, $context->getContext());
+                $this->transactionStateHandler->fail($transactionId, $context);
             }
             $token->setException($e);
         } finally {
@@ -183,7 +183,7 @@ class PaymentService
         $this->eventDispatcher->dispatch(new FinalizePaymentOrderTransactionCriteriaEvent($orderTransactionId, $criteria, $context));
 
         /** @var OrderTransactionEntity|null $orderTransaction */
-        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context->getContext())->first();
+        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         if ($orderTransaction === null || $orderTransaction->getOrder() === null) {
             throw PaymentException::invalidTransaction($orderTransactionId);

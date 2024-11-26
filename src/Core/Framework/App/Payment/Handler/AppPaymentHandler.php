@@ -107,7 +107,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $app = $this->getApp($appPaymentMethod);
 
         $payload = $this->buildValidatePayload($cart, $dataBag, $context);
-        $response = $this->requestAppServer($validateUrl, ValidateResponse::class, $payload, $app, $context->getContext());
+        $response = $this->requestAppServer($validateUrl, ValidateResponse::class, $payload, $app, $context);
 
         return new ArrayStruct($response->getPreOrderPayment());
     }
@@ -237,7 +237,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
             'Capture payments are no longer supported, use `pay` instead'
         );
 
-        $orderTransaction = $this->getOrderTransaction($transaction->getOrderTransaction()->getId(), $context->getContext());
+        $orderTransaction = $this->getOrderTransaction($transaction->getOrderTransaction()->getId(), $context);
         $appPaymentMethod = $this->getAppPaymentMethod($orderTransaction);
         $app = $this->getApp($appPaymentMethod);
 
@@ -245,8 +245,8 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
 
         $captureUrl = $appPaymentMethod->getCaptureUrl();
         if ($captureUrl) {
-            $response = $this->requestAppServer($captureUrl, CaptureResponse::class, $payload, $app, $context->getContext());
-            $this->transitionState($orderTransaction->getId(), $response, $context->getContext());
+            $response = $this->requestAppServer($captureUrl, CaptureResponse::class, $payload, $app, $context);
+            $this->transitionState($orderTransaction->getId(), $response, $context);
         }
     }
 

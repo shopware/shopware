@@ -66,7 +66,7 @@ class OrderService
 
         $this->validateOrderData($data, $context, $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
 
-        $this->validateCart($cart, $context->getContext());
+        $this->validateCart($cart, $context);
 
         return $this->cartService->order($cart, $context, $data->toRequestDataBag());
     }
@@ -226,7 +226,7 @@ class OrderService
             $validation->add('revocation', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

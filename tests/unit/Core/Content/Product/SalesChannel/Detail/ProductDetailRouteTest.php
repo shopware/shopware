@@ -104,7 +104,7 @@ class ProductDetailRouteTest extends TestCase
                     new ProductCollection([$productEntity]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 
@@ -131,7 +131,7 @@ class ProductDetailRouteTest extends TestCase
                 ],
             ],
             new Criteria(),
-            $this->context->getContext()
+            $this->context
         );
         $this->productRepository->method('searchIds')
             ->willReturn(
@@ -140,7 +140,7 @@ class ProductDetailRouteTest extends TestCase
         $this->productRepository->expects(static::once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
+                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context)
             );
 
         $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
@@ -175,7 +175,7 @@ class ProductDetailRouteTest extends TestCase
                     new ProductCollection([$productEntity]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 
@@ -221,7 +221,7 @@ class ProductDetailRouteTest extends TestCase
                     new ProductCollection([$productEntity]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 
@@ -256,7 +256,7 @@ class ProductDetailRouteTest extends TestCase
             ->expects(static::once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
+                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context)
             );
 
         $this->systemConfig->method('get')->willReturn(true);

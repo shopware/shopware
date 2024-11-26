@@ -121,7 +121,7 @@ class LandingPageUrlProviderTest extends TestCase
                     ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
                 ],
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $landingPageUrlProvider = new LandingPageUrlProvider(
             $configHandler,
@@ -150,7 +150,7 @@ class LandingPageUrlProviderTest extends TestCase
                     ['id' => $this->salesChannelContext->getSalesChannel()->getId()],
                 ],
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         // we delete the seo url to test the fallback
         $criteria = new Criteria();
@@ -160,7 +160,7 @@ class LandingPageUrlProviderTest extends TestCase
         $seuUrlRepository = $this->getContainer()->get('seo_url.repository');
 
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext)->first();
 
         static::assertNotNull($seoUrl);
 
@@ -168,7 +168,7 @@ class LandingPageUrlProviderTest extends TestCase
             [
                 'id' => $seoUrl->getId(),
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 20);
         [$firstUrl] = $urlResult->getUrls();
@@ -187,7 +187,7 @@ class LandingPageUrlProviderTest extends TestCase
                 'isCanonical' => true,
                 'isModified' => true,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 20);
         [$firstUrl] = $urlResult->getUrls();
@@ -232,7 +232,7 @@ class LandingPageUrlProviderTest extends TestCase
 
         $this->landingPageRepository->upsert(
             $validLandingPages,
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $newSalesChannelContext = $this->createStorefrontSalesChannelContext(

@@ -101,7 +101,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId OR seo_url.sales_channel_id IS NULL');
         $query->andWhere('seo_url.is_deleted = 0');
         $query->setParameter('pathInfo', $mapping, ArrayParameterType::STRING);
-        $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
+        $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
         $seoUrls = $query->executeQuery()->fetchAllAssociative();

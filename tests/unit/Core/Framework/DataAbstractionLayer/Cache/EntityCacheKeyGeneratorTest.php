@@ -153,17 +153,7 @@ class DummyContext extends SalesChannelContext
             new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            [],
-            [Defaults::LANGUAGE_SYSTEM],
-            Defaults::LIVE_VERSION,
-            1.0,
-            true,
-            CartPrice::TAX_STATE_GROSS,
-            new CashRoundingConfig(2, 0.01, true),
-            []
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 

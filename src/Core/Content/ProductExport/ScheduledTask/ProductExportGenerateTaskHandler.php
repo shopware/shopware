@@ -113,7 +113,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         /**
          * @var array<ProductExportEntity>
          */
-        return $this->productExportRepository->search($criteria, $salesChannelContext->getContext())->getElements();
+        return $this->productExportRepository->search($criteria, $salesChannelContext)->getElements();
     }
 
     private function shouldBeRun(ProductExportEntity $productExport, \DateTimeImmutable $now): bool

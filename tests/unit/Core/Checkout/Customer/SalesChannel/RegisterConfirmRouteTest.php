@@ -85,7 +85,7 @@ class RegisterConfirmRouteTest extends TestCase
                     new CustomerCollection([$customer]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 
@@ -108,7 +108,7 @@ class RegisterConfirmRouteTest extends TestCase
                     new CustomerCollection([$customer]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 
@@ -143,7 +143,7 @@ class RegisterConfirmRouteTest extends TestCase
                     new CustomerCollection([$customer]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 
@@ -165,7 +165,7 @@ class RegisterConfirmRouteTest extends TestCase
                     new CustomerCollection([$customer]),
                     null,
                     new Criteria(),
-                    $this->context->getContext()
+                    $this->context
                 )
             );
 

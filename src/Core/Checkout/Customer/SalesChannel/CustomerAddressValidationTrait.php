@@ -17,7 +17,7 @@ trait CustomerAddressValidationTrait
         $criteria = new Criteria([$id]);
         $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
-        if (\count($this->addressRepository->searchIds($criteria, $context->getContext())->getIds())) {
+        if (\count($this->addressRepository->searchIds($criteria, $context)->getIds())) {
             return;
         }
 

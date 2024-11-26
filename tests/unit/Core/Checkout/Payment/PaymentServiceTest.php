@@ -61,7 +61,7 @@ class PaymentServiceTest extends TestCase
             static::assertTrue($criteria->hasAssociation('paymentMethod'));
 
             return true;
-        }))->willReturn(new EntitySearchResult('order_transaction', 1, new OrderTransactionCollection([$transaction]), null, new Criteria(), $context->getContext()));
+        }))->willReturn(new EntitySearchResult('order_transaction', 1, new OrderTransactionCollection([$transaction]), null, new Criteria(), $context));
 
         $struct = new AsyncPaymentTransactionStruct($transaction, $order, '');
         $paymentStructFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class);

@@ -337,7 +337,7 @@ class CreditNoteRendererTest extends TestCase
                 'id' => $this->salesChannelContext->getCustomer()->getId(),
                 'groupId' => $groupNet ? $this->createNetCustomerGroup() : $this->createGrossCustomerGroup(),
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $cart = $this->generateDemoCart($possibleTaxes);
         $cart = $this->generateCreditItems($cart, $creditPrices);

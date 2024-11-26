@@ -128,7 +128,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             }
             $criteria = new Criteria([$defaultSortingValue]);
 
-            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context)->first()?->get('key'));
 
             return;
         }
@@ -155,7 +155,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
             $criteria = new Criteria([$sortingId]);
 
-            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context)->first()?->get('key'));
         }
     }
 

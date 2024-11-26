@@ -86,7 +86,7 @@ class TaxProviderProcessor
             );
 
         /** @var TaxProviderCollection $providers */
-        $providers = $this->taxProviderRepository->search($criteria, $context->getContext())->getEntities();
+        $providers = $this->taxProviderRepository->search($criteria, $context)->getEntities();
 
         // we can safely sort the providers in php, as we do not expect more than a couple of providers
         // otherwise we would need to sort them in the database with an index many fields to be performant
@@ -146,7 +146,7 @@ class TaxProviderProcessor
             $processUrl,
             new TaxProviderPayload($cart, $context),
             $app,
-            $context->getContext()
+            $context
         );
     }
 }

@@ -44,7 +44,7 @@ class NavigationPageTest extends TestCase
         $repository->update([[
             'id' => $categoryId,
             'active' => false,
-        ]], $context->getContext());
+        ]], $context);
 
         $request = new Request([], [], ['navigationId' => $categoryId]);
 

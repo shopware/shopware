@@ -55,7 +55,7 @@ class AccountServiceTest extends TestCase
                 new CustomerCollection([$customer]),
                 null,
                 new Criteria(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ),
         ]);
 
@@ -128,7 +128,7 @@ class AccountServiceTest extends TestCase
                 new CustomerCollection([$customer]),
                 null,
                 new Criteria(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ));
 
         $cartRestorer = $this->createMock(CartRestorer::class);
@@ -172,7 +172,7 @@ class AccountServiceTest extends TestCase
                 new CustomerCollection([$customer]),
                 null,
                 new Criteria(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ));
 
         $exception = new WriteConstraintViolationException(new ConstraintViolationList([new ConstraintViolation('', '', [], '', '/password', '')]), '/');
@@ -186,7 +186,7 @@ class AccountServiceTest extends TestCase
                 'password' => 'password',
                 'legacyPassword' => null,
                 'legacyEncoder' => null,
-            ]], $salesChannelContext->getContext())
+            ]], $salesChannelContext)
             ->willThrowException($writeException);
 
         $accountService = new AccountService(
@@ -227,7 +227,7 @@ class AccountServiceTest extends TestCase
                 new CustomerCollection([$customer]),
                 null,
                 new Criteria(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ));
 
         $exception = CustomerException::badCredentials();
@@ -241,7 +241,7 @@ class AccountServiceTest extends TestCase
                 'password' => 'password',
                 'legacyPassword' => null,
                 'legacyEncoder' => null,
-            ]], $salesChannelContext->getContext())
+            ]], $salesChannelContext)
             ->willThrowException($writeException);
 
         $accountService = new AccountService(

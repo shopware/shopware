@@ -37,6 +37,6 @@ class CustomerWishlistLoaderCriteriaEvent extends NestedEvent implements Shopwar
 
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->context;
     }
 }

@@ -29,7 +29,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        $config = $this->service->getThemeConfiguration($themeId, false, $context->getContext());
+        $config = $this->service->getThemeConfiguration($themeId, false, $context);
         $resolvedConfig = [];
         $mediaItems = [];
         if (!\array_key_exists('fields', $config)) {
@@ -50,7 +50,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         if (!empty($mediaIds)) {
             $criteria = new Criteria($mediaIds);
             $criteria->setTitle('theme-service::resolve-media');
-            $result = $this->repository->search($criteria, $context->getContext());
+            $result = $this->repository->search($criteria, $context);
         }
 
         foreach ($result as $media) {

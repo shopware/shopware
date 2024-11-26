@@ -20,6 +20,6 @@ class CheckoutRuleScopeTest extends TestCase
         $scope = new CheckoutRuleScope($context = Generator::createSalesChannelContext());
 
         static::assertSame($context, $scope->getSalesChannelContext());
-        static::assertSame($context->getContext(), $scope->getContext());
+        static::assertSame($context, $scope->getContext());
     }
 }

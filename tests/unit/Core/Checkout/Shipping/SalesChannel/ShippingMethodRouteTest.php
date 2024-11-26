@@ -55,7 +55,7 @@ class ShippingMethodRouteTest extends TestCase
             $entities = new ShippingMethodCollection([$shippingMethod]),
             null,
             $expectedCriteria,
-            $context->getContext()
+            $context
         );
 
         $repo = $this->createMock(SalesChannelRepository::class);

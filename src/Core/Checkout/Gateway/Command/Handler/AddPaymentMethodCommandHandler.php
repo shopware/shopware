@@ -46,7 +46,7 @@ class AddPaymentMethodCommandHandler extends AbstractCheckoutGatewayCommandHandl
         $criteria->addAssociation('appPaymentMethod.app');
 
         /** @var PaymentMethodEntity|null $paymentMethod */
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->first();
+        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context)->first();
 
         if (!$paymentMethod) {
             $this->logger->logOrThrowException(

@@ -61,7 +61,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
             'customerId' => $customer->getId(),
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'products' => $upsertData,
-        ]], $context->getContext());
+        ]], $context);
 
         $this->eventDispatcher->dispatch(new WishlistMergedEvent($upsertData, $context));
 
@@ -77,7 +77,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
             new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
         ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
+        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context);
 
         return $wishlistIds->firstId() ?? Uuid::randomHex();
     }

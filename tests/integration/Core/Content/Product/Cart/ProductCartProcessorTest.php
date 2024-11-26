@@ -113,7 +113,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('test', $lineItem->getLabel());
 
         $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
-        $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
+        $this->getContainer()->get('product.repository')->upsert([$update], $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 
@@ -763,7 +763,7 @@ class ProductCartProcessorTest extends TestCase
         $this->getProductCart();
 
         $update = ['id' => $this->ids->get('product'), 'active' => false];
-        $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
+        $this->getContainer()->get('product.repository')->upsert([$update], $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 
@@ -777,7 +777,7 @@ class ProductCartProcessorTest extends TestCase
         $this->createProduct();
         $this->getProductCart();
 
-        $this->getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context->getContext());
+        $this->getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 

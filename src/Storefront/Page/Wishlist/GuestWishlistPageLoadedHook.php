@@ -27,7 +27,7 @@ class GuestWishlistPageLoadedHook extends PageLoadedHook
         private readonly GuestWishlistPage $page,
         SalesChannelContext $context
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

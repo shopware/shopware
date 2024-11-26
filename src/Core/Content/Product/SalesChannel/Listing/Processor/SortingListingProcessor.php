@@ -46,7 +46,7 @@ class SortingListingProcessor extends AbstractListingProcessor
 
         /** @var ProductSortingCollection $sortings */
         $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
-        $sortings->merge($this->getAvailableSortings($request, $context->getContext()));
+        $sortings->merge($this->getAvailableSortings($request, $context));
 
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
@@ -155,6 +155,6 @@ class SortingListingProcessor extends AbstractListingProcessor
 
         $criteria = new Criteria([$id]);
 
-        return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
+        return $this->sortingRepository->search($criteria, $context)->first()?->get('key');
     }
 }

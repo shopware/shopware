@@ -52,14 +52,14 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'customer has no default payment method anymore');
 
-        $this->validatePaymentMethodId($paymentMethodId, $context->getContext());
+        $this->validatePaymentMethodId($paymentMethodId, $context);
 
         $this->customerRepository->update([
             [
                 'id' => $customer->getId(),
                 'defaultPaymentMethodId' => $paymentMethodId,
             ],
-        ], $context->getContext());
+        ], $context);
 
         $event = new CustomerChangedPaymentMethodEvent($context, $customer, $requestDataBag);
         $this->eventDispatcher->dispatch($event);

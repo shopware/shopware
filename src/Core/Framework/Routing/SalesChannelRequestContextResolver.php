@@ -76,7 +76,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $this->validateLogin($request, $context);
 
         // Update attributes and headers of the current request
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
@@ -101,7 +101,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $context = $this->contextService
             ->get(new SalesChannelContextServiceParameters($salesChannelId, $contextToken, $language, $currencyId));
 
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 

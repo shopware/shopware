@@ -103,7 +103,7 @@ final class ProductExportPartialGenerationHandler
             throw new SalesChannelNotFoundException();
         }
 
-        return $context->getContext();
+        return $context;
     }
 
     private function fetchProductExport(
@@ -173,7 +173,7 @@ final class ProductExportPartialGenerationHandler
             $productExport->getStorefrontSalesChannelId(),
             $productExport->getSalesChannelDomain()->getLanguageId(),
             $this->languageLocaleProvider->getLocaleForLanguageId($productExport->getSalesChannelDomain()->getLanguageId()),
-            $context->getContext()
+            $context
         );
 
         $headerContent = $this->productExportRender->renderHeader($productExport, $context);
@@ -203,7 +203,7 @@ final class ProductExportPartialGenerationHandler
                     'isRunning' => false,
                 ],
             ],
-            $context->getContext()
+            $context
         );
     }
 }

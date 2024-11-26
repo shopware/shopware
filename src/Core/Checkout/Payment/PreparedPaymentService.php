@@ -147,7 +147,7 @@ class PreparedPaymentService
         $criteria->addFilter(new EqualsFilter('paymentMethodId', $paymentMethod->getId()));
 
         /** @var AppPaymentMethodEntity $appPaymentMethod */
-        $appPaymentMethod = $this->appPaymentMethodRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $appPaymentMethod = $this->appPaymentMethodRepository->search($criteria, $salesChannelContext)->first();
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
         return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());

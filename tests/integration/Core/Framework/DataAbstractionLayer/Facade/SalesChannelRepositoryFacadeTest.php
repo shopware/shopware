@@ -378,7 +378,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             $product1->build(),
             $product2->build(),
             $product3->build(),
-        ], $this->context->getContext());
+        ], $this->context);
     }
 
     private function installApp(string $appDir): string
@@ -399,7 +399,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Standard rate'));
 
-        $taxId = $taxRepository->searchIds($criteria, $this->context->getContext())->firstId();
+        $taxId = $taxRepository->searchIds($criteria, $this->context)->firstId();
         static::assertIsString($taxId);
 
         return $taxId;

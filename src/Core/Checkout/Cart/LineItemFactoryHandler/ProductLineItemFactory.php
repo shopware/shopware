@@ -64,7 +64,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
 
         if (isset($data['priceDefinition'])) {
             $lineItem->addExtension(ProductCartProcessor::CUSTOM_PRICE, new ArrayEntity());
-            $lineItem->setPriceDefinition($this->priceDefinitionFactory->factory($context->getContext(), $data['priceDefinition'], $data['type']));
+            $lineItem->setPriceDefinition($this->priceDefinitionFactory->factory($context, $data['priceDefinition'], $data['type']));
         }
     }
 }

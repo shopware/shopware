@@ -61,7 +61,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         $criteria->setLimit(1);
 
         $customer = $this->customerRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context)
             ->first();
 
         if (!$customer instanceof CustomerEntity) {
@@ -84,7 +84,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             'id' => $customer->getId(),
             'doubleOptInConfirmDate' => new \DateTimeImmutable(),
         ];
-        $this->customerRepository->update([$customerUpdate], $context->getContext());
+        $this->customerRepository->update([$customerUpdate], $context);
 
         $newToken = $this->contextPersister->replace($context->getToken(), $context);
 
@@ -106,7 +106,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
                 $context->getDomainId(),
-                $context->getContext(),
+                $context,
                 $customer->getId()
             )
         );
@@ -125,7 +125,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         $criteria->setLimit(1);
 
         $customer = $this->customerRepository
-            ->search($criteria, $new->getContext())
+            ->search($criteria, $new)
             ->first();
 
         \assert($customer instanceof CustomerEntity);

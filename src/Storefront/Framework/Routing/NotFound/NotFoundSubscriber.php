@@ -120,7 +120,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
             /** @var Response $response */
             $response = $this->cacheTracer->trace($name, function () use ($event, $request, $context) {
-                return $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
+                return $this->renderErrorPage($request, $event->getThrowable(), $context);
             });
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));

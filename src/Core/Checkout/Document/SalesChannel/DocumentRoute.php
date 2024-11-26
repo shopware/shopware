@@ -38,7 +38,7 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $download = $request->query->getBoolean('download');
 
-        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode);
+        $document = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode);
 
         if ($document === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

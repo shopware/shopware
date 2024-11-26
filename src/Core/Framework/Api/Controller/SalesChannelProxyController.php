@@ -358,7 +358,7 @@ class SalesChannelProxyController extends AbstractController
         $customerCriteria->addFilter(new EqualsFilter('customer.id', $parameters[self::CUSTOMER_ID]));
 
         $definition
-            ->add(self::CUSTOMER_ID, new EntityExists(['entity' => 'customer', 'context' => $context->getContext(), 'criteria' => $customerCriteria]))
+            ->add(self::CUSTOMER_ID, new EntityExists(['entity' => 'customer', 'context' => $context, 'criteria' => $customerCriteria]))
         ;
 
         $this->validator->validate($parameters, $definition);

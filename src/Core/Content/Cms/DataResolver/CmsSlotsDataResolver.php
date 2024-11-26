@@ -162,7 +162,7 @@ class CmsSlotsDataResolver
                 $entities[$definitionClass] = $repository->search(new Criteria($ids), $context);
             } else {
                 $repository = $this->getApiRepository($definition);
-                $entities[$definitionClass] = $repository->search(new Criteria($ids), $context->getContext());
+                $entities[$definitionClass] = $repository->search(new Criteria($ids), $context);
             }
         }
 
@@ -188,7 +188,7 @@ class CmsSlotsDataResolver
                     $result = $repository->search($criteria, $context);
                 } else {
                     $repository = $this->getApiRepository($definition);
-                    $result = $repository->search($criteria, $context->getContext());
+                    $result = $repository->search($criteria, $context);
                 }
 
                 $searchResults[$criteriaHash] = $result;

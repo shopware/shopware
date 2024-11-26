@@ -27,7 +27,7 @@ class NavigationPageLoadedHook extends PageLoadedHook
         private readonly NavigationPage $page,
         SalesChannelContext $context
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

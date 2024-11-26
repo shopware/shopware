@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -116,23 +116,21 @@ class PaymentMethodValidatorTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setPaymentMethodIds(['payment-method-id']);
 
-        $base = Context::createDefaultContext();
-        $base->setRuleIds(['payment-method-availability-rule-id']);
-
         return new SalesChannelContext(
-            $base,
+            new SystemSource(),
             'token',
             null,
             $salesChannel,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            null,
             $paymentMethod,
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            null,
             new CashRoundingConfig(2, 3, true),
             new CashRoundingConfig(2, 3, true),
+            ['payment-method-availability-rule-id']
         );
     }
 }

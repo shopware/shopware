@@ -68,7 +68,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
     {
         $reviewCriteria = $this->createReviewCriteria($context, $product->getParentId() ?? $product->getId());
 
-        $aggregation = $this->repository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
+        $aggregation = $this->repository->aggregate($reviewCriteria, $context)->get('review-count');
 
         return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }

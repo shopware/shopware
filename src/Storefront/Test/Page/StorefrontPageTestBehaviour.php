@@ -56,7 +56,7 @@ trait StorefrontPageTestBehaviour
     ): void {
         TestCase::assertInstanceOf($expectedClass, $event);
         TestCase::assertSame($salesChannelContext, $event->getSalesChannelContext());
-        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
+        TestCase::assertSame($salesChannelContext, $event->getContext());
         TestCase::assertSame($request, $event->getRequest());
         TestCase::assertSame($page, $event->getPage());
     }
@@ -76,7 +76,7 @@ trait StorefrontPageTestBehaviour
     ): void {
         TestCase::assertInstanceOf($expectedClass, $event);
         TestCase::assertSame($salesChannelContext, $event->getSalesChannelContext());
-        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
+        TestCase::assertSame($salesChannelContext, $event->getContext());
         TestCase::assertSame($request, $event->getRequest());
         TestCase::assertSame($page, $event->getPagelet());
     }
@@ -133,7 +133,7 @@ trait StorefrontPageTestBehaviour
 
         $data = array_merge_recursive($data, $config);
 
-        $productRepository->create([$data], $context->getContext());
+        $productRepository->create([$data], $context);
         $this->addTaxDataToSalesChannel($context, $data['tax']);
 
         /** @var SalesChannelRepository<ProductCollection> $storefrontProductRepository */

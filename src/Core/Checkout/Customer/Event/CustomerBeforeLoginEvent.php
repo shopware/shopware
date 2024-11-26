@@ -55,7 +55,7 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelId(): string

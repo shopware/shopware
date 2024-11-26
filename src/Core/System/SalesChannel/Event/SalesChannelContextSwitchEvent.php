@@ -20,7 +20,7 @@ class SalesChannelContextSwitchEvent extends NestedEvent implements ShopwareSale
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getRequestDataBag(): DataBag

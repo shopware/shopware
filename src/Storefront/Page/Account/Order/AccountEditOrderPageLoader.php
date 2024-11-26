@@ -167,8 +167,8 @@ class AccountEditOrderPageLoader
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $cart = $this->orderConverter->convertToCart($order, $context->getContext());
-        $orderContext = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
+        $cart = $this->orderConverter->convertToCart($order, $context);
+        $orderContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
 
         $cart->setToken($orderContext->getToken());
         $this->cartService->setCart($cart);

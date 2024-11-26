@@ -385,7 +385,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
             ->addAssociation('addresses.country')
             ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($order);
 
         return $order;

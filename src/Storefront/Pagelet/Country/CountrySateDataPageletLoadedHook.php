@@ -34,7 +34,7 @@ class CountrySateDataPageletLoadedHook extends PageLoadedHook
             'v6.7.0.0',
             'Use CountryStateDataPageletLoadedHook instead of CountrySateDataPageletLoadedHook'
         );
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

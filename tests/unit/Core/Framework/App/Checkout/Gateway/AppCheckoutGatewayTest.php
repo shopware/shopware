@@ -88,7 +88,7 @@ class AppCheckoutGatewayTest extends TestCase
             new AppCollection([$app]),
             null,
             $criteria,
-            $context->getContext()
+            $context
         );
 
         $appRepo = $this->createMock(EntityRepository::class);

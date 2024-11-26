@@ -67,7 +67,7 @@ class SeoUrlIndexerTest extends TestCase
         $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1'], $salesChannelId);
 
-        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
         static::assertNotNull($product);
@@ -102,7 +102,7 @@ class SeoUrlIndexerTest extends TestCase
 
         $product = $this->productRepository->search(
             $this->getCriteria($id, $salesChannelId),
-            $salesChannelContext->getContext()
+            $salesChannelContext
         )
             ->getEntities()
             ->first();
@@ -137,7 +137,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1'], $salesChannelId);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v3', 'productNumber' => 'P1'], $salesChannelId);
 
-        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
         static::assertNotNull($product);
@@ -173,7 +173,7 @@ class SeoUrlIndexerTest extends TestCase
 
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product'], $salesChannelId);
 
-        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
         static::assertNotNull($first);
@@ -205,7 +205,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product'], $salesChannelId);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'should not matter'], $salesChannelId);
 
-        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
         static::assertNotNull($first);
@@ -246,7 +246,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved'], $salesChannelId);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved again'], $salesChannelId);
 
-        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
         static::assertNotNull($first);
@@ -292,7 +292,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved'], $salesChannelId);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved'], $salesChannelId);
 
-        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
 
@@ -334,7 +334,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1'], $salesChannelId);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1'], $salesChannelId);
 
-        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext)
             ->getEntities()
             ->first();
 
@@ -348,7 +348,7 @@ class SeoUrlIndexerTest extends TestCase
         static::assertSame('awesome-product-v2/P1', $seoUrl->getSeoPathInfo());
         static::assertFalse($seoUrl->getIsDeleted());
 
-        $this->productRepository->delete([['id' => $id]], $salesChannelContext->getContext());
+        $this->productRepository->delete([['id' => $id]], $salesChannelContext);
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
         static::assertCount(2, $seoUrls);
@@ -359,7 +359,7 @@ class SeoUrlIndexerTest extends TestCase
     public function testAutoSlugify(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $context = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $this->upsertTemplate([
             'id' => Uuid::randomHex(),
@@ -369,8 +369,6 @@ class SeoUrlIndexerTest extends TestCase
 
         $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'foo bar'], $salesChannelId);
-
-        $context = $salesChannelContext->getContext();
 
         $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $context)
             ->getEntities()
@@ -388,7 +386,7 @@ class SeoUrlIndexerTest extends TestCase
     public function testEntityIsSkippedOnRuntimeError(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $context = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $this->upsertTemplate([
             'id' => Uuid::randomHex(),
@@ -401,8 +399,6 @@ class SeoUrlIndexerTest extends TestCase
             'id' => $id,
             'name' => 'foo',
         ], $salesChannelId);
-
-        $context = $salesChannelContext->getContext();
 
         $criteria = (new Criteria([$id]))->addAssociation('seoUrls');
         $product = $this->productRepository->search($criteria, $context)

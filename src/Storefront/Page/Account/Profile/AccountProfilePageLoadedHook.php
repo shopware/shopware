@@ -27,7 +27,7 @@ class AccountProfilePageLoadedHook extends PageLoadedHook
         private readonly AccountProfilePage $page,
         SalesChannelContext $context
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

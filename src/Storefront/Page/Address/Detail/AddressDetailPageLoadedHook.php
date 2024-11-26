@@ -27,7 +27,7 @@ class AddressDetailPageLoadedHook extends PageLoadedHook
         private readonly AddressDetailPage $page,
         SalesChannelContext $context
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

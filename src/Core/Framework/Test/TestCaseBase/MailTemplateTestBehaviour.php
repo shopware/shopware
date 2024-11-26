@@ -22,7 +22,7 @@ trait MailTemplateTestBehaviour
         SalesChannelContext $salesChannelContext
     ): void {
         TestCase::assertInstanceOf($expectedClass, $event);
-        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
+        TestCase::assertSame($salesChannelContext, $event->getContext());
     }
 
     public static function assertMailRecipientStructEvent(MailRecipientStruct $expectedStruct, MailAware $event): void

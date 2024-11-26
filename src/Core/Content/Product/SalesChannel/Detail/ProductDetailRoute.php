@@ -157,7 +157,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             AND version_id = :versionId',
             [
                 'id' => Uuid::fromHexToBytes($productId),
-                'versionId' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ]
         );
 

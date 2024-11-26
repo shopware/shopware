@@ -43,7 +43,7 @@ class HomeUrlProviderTest extends TestCase
     {
         $criteria = new Criteria();
         $criteria->addAssociation('locale');
-        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext->getContext())
+        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext)
             ->getEntities();
 
         $domain = new SalesChannelDomainEntity();
@@ -76,7 +76,7 @@ class HomeUrlProviderTest extends TestCase
     {
         $criteria = new Criteria();
         $criteria->addAssociation('locale');
-        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext->getContext())
+        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext)
             ->getEntities();
 
         $languageId = $this->salesChannelContext->getLanguageId();

@@ -145,7 +145,7 @@ class AccountServiceEventTest extends TestCase
 
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         )->first();
 
         $this->salesChannelContext->assign(['customer' => $customer]);
@@ -177,7 +177,7 @@ class AccountServiceEventTest extends TestCase
 
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         )->getEntities()->first();
 
         $this->salesChannelContext->assign(['customer' => $customer]);

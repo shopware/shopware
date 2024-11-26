@@ -53,7 +53,7 @@ class AuthMiddlewareTest extends TestCase
         $middleware = new AuthMiddleware('6.4', $this->getContainer()->get(AppLocaleProvider::class));
         $request = new Request('POST', 'https://example.local');
 
-        $request = $middleware->getDefaultHeaderRequest($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $this->salesChannelContext->getContext()]);
+        $request = $middleware->getDefaultHeaderRequest($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $this->salesChannelContext]);
 
         static::assertArrayHasKey('sw-version', $request->getHeaders());
         static::assertSame('6.4', $request->getHeader('sw-version')[0]);

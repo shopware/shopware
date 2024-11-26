@@ -53,7 +53,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
             [
                 'id' => $wishlistProductId,
             ],
-        ], $context->getContext());
+        ], $context);
 
         $this->eventDispatcher->dispatch(new WishlistProductRemovedEvent($wishlistId, $productId, $context));
 
@@ -69,7 +69,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
             new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
         ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
+        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context);
 
         if ($wishlistIds->firstId() === null) {
             throw CustomerException::customerWishlistNotFound();
@@ -87,7 +87,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
             new EqualsFilter('productId', $productId),
             new EqualsFilter('productVersionId', Defaults::LIVE_VERSION),
         ]));
-        $wishlistProductIds = $this->productRepository->searchIds($criteria, $context->getContext());
+        $wishlistProductIds = $this->productRepository->searchIds($criteria, $context);
 
         if ($wishlistProductIds->firstId() === null) {
             throw CustomerException::wishlistProductNotFound($productId);

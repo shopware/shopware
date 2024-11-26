@@ -33,7 +33,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     {
         $combinations = $this->getCombinations(
             $productId,
-            $salesChannelContext->getContext(),
+            $salesChannelContext,
             $salesChannelContext->getSalesChannel()->getId()
         );
 

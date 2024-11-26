@@ -139,7 +139,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $this->createOrder($ids);
 
         $saleChanelContext = $this->contextRestorer->restoreByCustomer($this->createCustomer()->getId(), $context);
-        static::assertTrue($saleChanelContext->getContext()->hasState('foo'));
+        static::assertTrue($saleChanelContext->hasState('foo'));
     }
 
     public function testOrderCriteriaEventIsFired(): void

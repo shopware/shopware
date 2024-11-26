@@ -244,7 +244,7 @@ class PromotionCalculatorTest extends TestCase
             [
                 $promotionData,
             ],
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         return $promotionId;

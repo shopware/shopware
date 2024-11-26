@@ -44,7 +44,7 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChanne
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelId(): string

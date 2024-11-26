@@ -149,7 +149,7 @@ class AccountService
                 throw CustomerException::badCredentials();
             }
 
-            $this->updatePasswordHash($password, $customer, $context->getContext());
+            $this->updatePasswordHash($password, $customer, $context);
 
             return $customer;
         }
@@ -179,7 +179,7 @@ class AccountService
                 'id' => $customer->getId(),
                 'lastLogin' => new \DateTimeImmutable(),
             ],
-        ], $context->getContext());
+        ], $context);
 
         $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
@@ -219,7 +219,7 @@ class AccountService
     {
         $criteria->setTitle('account-service::fetchCustomer');
 
-        $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
+        $result = $this->customerRepository->search($criteria, $context)->getEntities();
         $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
             // Skip not active users
             if (!$customer->getActive()) {

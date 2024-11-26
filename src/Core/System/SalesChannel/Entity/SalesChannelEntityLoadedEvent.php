@@ -22,7 +22,7 @@ class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements Shopwar
         array $entities,
         SalesChannelContext $context
     ) {
-        parent::__construct($definition, $entities, $context->getContext());
+        parent::__construct($definition, $entities, $context);
         $this->salesChannelContext = $context;
     }
 

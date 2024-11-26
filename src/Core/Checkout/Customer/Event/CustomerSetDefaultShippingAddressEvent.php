@@ -44,7 +44,7 @@ class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChann
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelId(): string

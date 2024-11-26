@@ -50,7 +50,7 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
     #[Route(path: '/store-api/account/login/imitate-customer', name: 'store-api.account.imitate-customer-login', methods: ['POST'])]
     public function imitateCustomerLogin(RequestDataBag $requestDataBag, SalesChannelContext $context): ContextTokenResponse
     {
-        $this->validateRequestDataFields($requestDataBag, $context->getContext());
+        $this->validateRequestDataFields($requestDataBag, $context);
 
         $customerId = $requestDataBag->getString(self::CUSTOMER_ID);
 

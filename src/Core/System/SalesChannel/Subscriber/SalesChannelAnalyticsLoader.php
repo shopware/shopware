@@ -33,7 +33,7 @@ class SalesChannelAnalyticsLoader
         $criteria->setTitle('sales-channel::load-analytics');
 
         /** @var SalesChannelAnalyticsEntity|null $analytics */
-        $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $salesChannelContext)->first();
 
         $event->setParameter('storefrontAnalytics', $analytics);
     }

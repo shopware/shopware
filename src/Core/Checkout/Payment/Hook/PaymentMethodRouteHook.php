@@ -32,7 +32,7 @@ class PaymentMethodRouteHook extends StoreApiRequestHook
         private readonly bool $onlyAvailable,
         protected SalesChannelContext $salesChannelContext
     ) {
-        parent::__construct($salesChannelContext->getContext());
+        parent::__construct($salesChannelContext);
     }
 
     public function getName(): string

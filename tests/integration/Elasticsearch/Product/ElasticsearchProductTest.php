@@ -3216,7 +3216,7 @@ class ElasticsearchProductTest extends TestCase
         );
 
         $searcher = $this->createEntitySearcher();
-        $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
+        $result = $searcher->search($this->productDefinition, $criteria, $context);
 
         $expected = $case['ids'];
         if ($direction === FieldSorting::DESCENDING) {

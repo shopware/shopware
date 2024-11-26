@@ -44,7 +44,7 @@ class FlowRuleScopeBuilder implements ResetInterface
         }
 
         $context = $this->orderConverter->assembleSalesChannelContext($order, $context);
-        $cart = $this->orderConverter->convertToCart($order, $context->getContext());
+        $cart = $this->orderConverter->convertToCart($order, $context);
         $behavior = new CartBehavior($context->getPermissions());
 
         foreach ($this->collectors as $collector) {

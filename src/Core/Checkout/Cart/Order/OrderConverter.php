@@ -141,7 +141,7 @@ class OrderConverter
                 $cart->getDeliveries(),
                 $convertedLineItems,
                 $this->initialStateIdLoader->get(OrderDeliveryStates::STATE_MACHINE),
-                $context->getContext(),
+                $context,
                 $shippingAddresses
             );
         }
@@ -172,13 +172,13 @@ class OrderConverter
             $data['transactions'] = TransactionTransformer::transformCollection(
                 $cart->getTransactions(),
                 $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE),
-                $context->getContext()
+                $context
             );
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
 
-        foreach ($this->downloadLoader->load($data['lineItems'], $context->getContext()) as $key => $downloads) {
+        foreach ($this->downloadLoader->load($data['lineItems'], $context) as $key => $downloads) {
             if (!\array_key_exists($key, $data['lineItems'])) {
                 continue;
             }
@@ -195,7 +195,7 @@ class OrderConverter
         } else {
             $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
                 $this->orderDefinition->getEntityName(),
-                $context->getContext(),
+                $context,
                 $context->getSalesChannel()->getId()
             );
         }
@@ -311,12 +311,12 @@ class OrderConverter
         $options = array_merge($options, $overrideOptions);
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
-        $salesChannelContext->getContext()->addExtensions($context->getExtensions());
+        $salesChannelContext->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
         $salesChannelContext->setTaxState($order->getTaxStatus());
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
-            $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
+            $salesChannelContext->addState(Context::SKIP_TRIGGER_FLOW);
         }
 
         if ($order->getItemRounding() !== null) {

@@ -43,7 +43,7 @@ class OrderDetailPageTest extends TestCase
         static::assertInstanceOf(OrderRouteRequestEvent::class, $orderRequestEvent);
         static::assertSame($request, $orderRequestEvent->getStorefrontRequest());
         static::assertSame($context, $orderRequestEvent->getSalesChannelContext());
-        static::assertSame($context->getContext(), $orderRequestEvent->getContext());
+        static::assertSame($context, $orderRequestEvent->getContext());
     }
 
     public function testMissingOrderIdThrowsException(): void

@@ -46,7 +46,7 @@ class AddShippingMethodCommandHandler extends AbstractCheckoutGatewayCommandHand
         $criteria->addAssociation('appShippingMethod.app');
 
         /** @var ShippingMethodEntity|null $shippingMethod */
-        $shippingMethod = $this->shippingMethodRepository->search($criteria, $context->getContext())->first();
+        $shippingMethod = $this->shippingMethodRepository->search($criteria, $context)->first();
 
         if (!$shippingMethod) {
             $this->logger->logOrThrowException(

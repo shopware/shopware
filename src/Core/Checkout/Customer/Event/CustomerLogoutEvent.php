@@ -45,7 +45,7 @@ class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSa
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelId(): string

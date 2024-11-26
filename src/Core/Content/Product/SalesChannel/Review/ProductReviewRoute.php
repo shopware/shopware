@@ -62,7 +62,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
             ])
         );
 
-        $result = $this->productReviewRepository->search($criteria, $context->getContext());
+        $result = $this->productReviewRepository->search($criteria, $context);
 
         return new ProductReviewRouteResponse($result);
     }

@@ -74,7 +74,7 @@ class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChan
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', CoreProductReviewsLoadedEvent::class));
 
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getRequest(): Request

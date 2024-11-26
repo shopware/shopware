@@ -31,7 +31,7 @@ class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEven
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getCart(): Cart

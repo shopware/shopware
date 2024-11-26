@@ -226,14 +226,14 @@ class ProductStreamUpdaterTest extends TestCase
         // Create all (4) products at once (fastest)
         $this->productRepository->create(
             $products,
-            $this->salesChannel->getContext()
+            $this->salesChannel
         );
 
         // Index both active & inactive product_stream
         $this->productStreamUpdater->handle(new ProductStreamMappingIndexingMessage(
             [$activeStreamId, $inActiveStreamId],
             null,
-            $this->salesChannel->getContext()
+            $this->salesChannel
         ));
 
         $productIds = array_keys($variantIds);
@@ -244,7 +244,7 @@ class ProductStreamUpdaterTest extends TestCase
             (new Criteria($productIds))
                 ->addFilter(new EqualsFilter('streams.id', $activeStreamId))
                 ->addAssociation('streams'),
-            $this->salesChannel->getContext()
+            $this->salesChannel
         )->getEntities();
         // Check product & stream count is correct
         static::assertEquals(3, $activeProducts->count());
@@ -279,7 +279,7 @@ class ProductStreamUpdaterTest extends TestCase
             (new Criteria($productIds))
                 ->addFilter(new EqualsFilter('streams.id', $inActiveStreamId))
                 ->addAssociation('streams'),
-            $this->salesChannel->getContext()
+            $this->salesChannel
         )->getEntities();
         // Check product & stream count is correct
         static::assertEquals(1, $inActiveProducts->count());
@@ -316,7 +316,7 @@ class ProductStreamUpdaterTest extends TestCase
             [
                 $this->getProductData($productId),
             ],
-            $this->salesChannel->getContext()
+            $this->salesChannel
         );
     }
 

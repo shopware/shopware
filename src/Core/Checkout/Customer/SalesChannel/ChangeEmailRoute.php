@@ -57,7 +57,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             'email' => $requestDataBag->get('email'),
         ];
 
-        $this->customerRepository->update([$customerData], $context->getContext());
+        $this->customerRepository->update([$customerData], $context);
 
         return new SuccessResponse();
     }
@@ -66,7 +66,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
-        $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
+        $options = ['context' => $context, 'salesChannelContext' => $context];
 
         $validation
             ->add(
@@ -77,7 +77,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             )
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 
-        $this->dispatchValidationEvent($validation, $data, $context->getContext());
+        $this->dispatchValidationEvent($validation, $data, $context);
 
         $this->validator->validate($data->all(), $validation);
 

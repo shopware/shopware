@@ -178,7 +178,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     {
         $filters = $this->productStreamBuilder->buildFilters(
             $config->getStringValue(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         );
 
         $criteria = new Criteria();

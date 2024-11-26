@@ -14,9 +14,9 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -142,20 +142,17 @@ class CategorySubscriberTest extends TestCase
         $salesChannelEntity->setId($salesChanelId);
 
         return new SalesChannelContext(
-            Context::createDefaultContext(),
+            new SystemSource(),
             'foo',
             'bar',
             $salesChannelEntity,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 }

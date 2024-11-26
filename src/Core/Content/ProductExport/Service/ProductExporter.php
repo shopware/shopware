@@ -55,11 +55,11 @@ class ProductExporter implements ProductExporterInterface
         }
 
         /** @var ProductExportCollection $productExports */
-        $productExports = $this->productExportRepository->search($criteria, $context->getContext())->getEntities();
+        $productExports = $this->productExportRepository->search($criteria, $context)->getEntities();
 
         if ($productExports->count() === 0) {
             $exportNotFoundException = new ExportNotFoundException($productExportId);
-            $this->logException($context->getContext(), $exportNotFoundException);
+            $this->logException($context, $exportNotFoundException);
 
             throw $exportNotFoundException;
         }
@@ -86,14 +86,14 @@ class ProductExporter implements ProductExporterInterface
         $result = $this->productExportGenerator->generate($productExport, $exportBehavior);
         if (!$result instanceof ProductExportResult) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
-            $this->logException($context->getContext(), $exportNotGeneratedException);
+            $this->logException($context, $exportNotGeneratedException);
 
             throw $exportNotGeneratedException;
         }
 
         if ($result->hasErrors()) {
             $exportInvalidException = new ExportInvalidException($productExport, $result->getErrors());
-            $this->logException($context->getContext(), $exportInvalidException);
+            $this->logException($context, $exportInvalidException);
 
             throw $exportInvalidException;
         }
@@ -114,7 +114,7 @@ class ProductExporter implements ProductExporterInterface
                     'generatedAt' => new \DateTime(),
                 ],
             ],
-            $context->getContext()
+            $context
         );
     }
 

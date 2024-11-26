@@ -9,8 +9,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -56,19 +55,17 @@ class SalesChannelContextTest extends TestCase
     private function getSalesChannelContext(): SalesChannelContext
     {
         return new SalesChannelContext(
-            Context::createDefaultContext(),
+            new SystemSource(),
             'foo',
             'bar',
             new SalesChannelEntity(),
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true)
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 }

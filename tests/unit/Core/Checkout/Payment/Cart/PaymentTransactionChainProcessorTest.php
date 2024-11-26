@@ -177,7 +177,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $eventDispatcher->expects(static::once())->method('dispatch')->with(static::isInstanceOf(PayPaymentOrderCriteriaEvent::class));
 
         $orderRepository = $this->createMock(EntityRepository::class);
-        $orderRepository->expects(static::once())->method('search')->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context->getContext()));
+        $orderRepository->expects(static::once())->method('search')->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $context));
 
         $struct = new SyncPaymentTransactionStruct($transaction, $order);
         $paymentStructFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class);

@@ -76,7 +76,7 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
                 break;
         }
 
-        $this->customerRepository->update([$data], $context->getContext());
+        $this->customerRepository->update([$data], $context);
 
         return new NoContentResponse();
     }

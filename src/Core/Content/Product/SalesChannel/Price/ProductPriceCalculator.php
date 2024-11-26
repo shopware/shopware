@@ -191,7 +191,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $value = $this->getPriceForTaxState($currency, $context);
 
         if ($currency->getCurrencyId() !== $context->getCurrency()->getId()) {
-            $value *= $context->getContext()->getCurrencyFactor();
+            $value *= $context->getCurrencyFactor();
         }
 
         return $value;
@@ -216,7 +216,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $value = $this->getPriceForTaxState($price->getListPrice(), $context);
 
         if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
-            $value *= $context->getContext()->getCurrencyFactor();
+            $value *= $context->getCurrencyFactor();
         }
 
         return $value;
@@ -236,7 +236,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
 
         if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
-            $value *= $context->getContext()->getCurrencyFactor();
+            $value *= $context->getCurrencyFactor();
         }
 
         return $value;
@@ -291,7 +291,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
         /** @var UnitCollection $units */
         $units = $this->unitRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context)
             ->getEntities();
 
         return $this->units = $units;

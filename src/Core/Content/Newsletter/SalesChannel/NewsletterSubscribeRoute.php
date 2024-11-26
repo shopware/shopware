@@ -138,7 +138,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
         if (isset($recipientId)) {
             /** @var NewsletterRecipientEntity $recipient */
-            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->first();
+            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context)->first();
 
             // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`
             // will still be set. So we need to check for the status as well.
@@ -155,12 +155,12 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             );
         }
 
-        $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
+        $this->newsletterRecipientRepository->upsert([$data], $context);
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context);
 
         if (!$this->isNewsletterDoi($context)) {
-            $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+            $event = new NewsletterConfirmEvent($context, $recipient, $context->getSalesChannel()->getId());
             $this->eventDispatcher->dispatch($event);
 
             return new NoContentResponse();
@@ -169,7 +169,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $hashedEmail = Hasher::hash($data['email'], 'sha1');
         $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
 
-        $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
+        $event = new NewsletterRegisterEvent($context, $recipient, $url, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
@@ -209,7 +209,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
                 ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
         }
 
-        $validationEvent = new BuildValidationEvent($definition, $dataBag, $context->getContext());
+        $validationEvent = new BuildValidationEvent($definition, $dataBag, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $definition;
@@ -225,7 +225,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $id = $this->getNewsletterRecipientId($data['email'], $context);
 
         $data['id'] = $id ?: Uuid::randomHex();
-        $data['languageId'] = $context->getContext()->getLanguageId();
+        $data['languageId'] = $context->getLanguageId();
         $data['salesChannelId'] = $context->getSalesChannel()->getId();
         $data['status'] = $this->getOptionSelection($context)[$data['option']];
         $data['hash'] = Uuid::randomHex();
@@ -245,7 +245,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $criteria->setLimit(1);
 
         return $this->newsletterRecipientRepository
-            ->searchIds($criteria, $context->getContext())
+            ->searchIds($criteria, $context)
             ->firstId();
     }
 
@@ -271,7 +271,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $criteria->setLimit(1);
 
         /** @var NewsletterRecipientEntity|null $newsletterRecipient */
-        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$newsletterRecipient) {
             throw NewsletterException::recipientNotFound($identifier, $value);

@@ -105,7 +105,7 @@ class DownloadResponseGenerator
 
     private function createStreamedResponse(MediaEntity $media, SalesChannelContext $context): StreamedResponse
     {
-        $stream = $context->getContext()->scope(
+        $stream = $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
         );

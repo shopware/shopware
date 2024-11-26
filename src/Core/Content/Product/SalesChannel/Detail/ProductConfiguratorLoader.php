@@ -89,7 +89,7 @@ class ProductConfiguratorLoader
             ->addAssociation('media');
 
         $settings = $this->configuratorRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context)
             ->getEntities();
 
         if ($settings->count() <= 0) {

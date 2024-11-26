@@ -72,8 +72,8 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $eventDidRun = false;
         $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
             $eventDidRun = true;
-            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            $phpunit->assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getCurrencyId());
+            $phpunit->assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getSource());
         };
 
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
@@ -96,7 +96,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             new SalesChannelContextServiceParameters($this->ids->get('sales-channel'), $this->ids->get('token'), Defaults::LANGUAGE_SYSTEM, $currencyId)
         );
 
-        static::assertSame($expectedCurrencyId, $context->getContext()->getCurrencyId());
+        static::assertSame($expectedCurrencyId, $context->getCurrencyId());
     }
 
     /**

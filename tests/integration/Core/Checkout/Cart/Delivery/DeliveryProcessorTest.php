@@ -100,7 +100,7 @@ class DeliveryProcessorTest extends TestCase
     public function testMultiProcessWhenShippingCostEditedWithCurrencyFactor(): void
     {
         $factor = 1.1;
-        $this->salesChannelContext->getContext()->assign(['currencyFactor' => $factor]);
+        $this->salesChannelContext->assign(['currencyFactor' => $factor]);
         $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();

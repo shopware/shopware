@@ -47,7 +47,7 @@ abstract class PageLoadedEvent extends NestedEvent implements ShopwareSalesChann
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getRequest(): Request

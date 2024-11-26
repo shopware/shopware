@@ -63,7 +63,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
                     ],
                 ],
             ],
-        ], $context->getContext());
+        ], $context);
 
         $this->eventDispatcher->dispatch(new WishlistProductAddedEvent($wishlistId, $productId, $context));
 
@@ -79,7 +79,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
             new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
         ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
+        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context);
 
         if ($wishlistIds->firstId() === null) {
             return Uuid::randomHex();

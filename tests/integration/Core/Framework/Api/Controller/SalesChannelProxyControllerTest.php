@@ -1503,7 +1503,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ];
         }
 
-        $this->customerRepository->create([$customer], $salesChannelContext->getContext());
+        $this->customerRepository->create([$customer], $salesChannelContext);
 
         return $customerId;
     }

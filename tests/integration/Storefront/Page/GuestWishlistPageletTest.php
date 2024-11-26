@@ -90,7 +90,7 @@ class GuestWishlistPageletTest extends TestCase
                 new ProductCollection([$product1, $product2, $product3]),
                 null,
                 $criteria,
-                $context->getContext()
+                $context
             );
 
             return new ProductListResponse($searchResult);

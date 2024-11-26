@@ -38,7 +38,7 @@ class CustomerConfirmRegisterUrlEvent extends Event implements ShopwareSalesChan
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelId(): string

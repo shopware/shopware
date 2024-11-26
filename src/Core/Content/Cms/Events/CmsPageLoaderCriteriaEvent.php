@@ -56,7 +56,7 @@ class CmsPageLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesCha
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

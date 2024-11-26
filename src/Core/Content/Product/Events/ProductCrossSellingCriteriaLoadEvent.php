@@ -25,7 +25,7 @@ class ProductCrossSellingCriteriaLoadEvent extends Event implements ShopwareSale
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

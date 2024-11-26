@@ -41,7 +41,7 @@ class StorefrontSearchBench extends AbstractBenchCase
         }
 
         $this->getContainer()->get('rule.repository')
-            ->create($rulePayload, $this->context->getContext());
+            ->create($rulePayload, $this->context);
 
         // this will update the rule ids inside the context
         $this->getContainer()->get(CartRuleLoader::class)->loadByToken($this->context, 'bench');

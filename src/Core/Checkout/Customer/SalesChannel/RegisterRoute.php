@@ -134,7 +134,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $customer = $this->mapCustomerData($data, $isGuest, $context);
 
         if ($billing instanceof DataBag) {
-            $billingAddress = $this->mapAddressData($billing, $context->getContext(), CustomerEvents::MAPPING_REGISTER_ADDRESS_BILLING);
+            $billingAddress = $this->mapAddressData($billing, $context, CustomerEvents::MAPPING_REGISTER_ADDRESS_BILLING);
             $billingAddress['id'] = Uuid::randomHex();
             $billingAddress['customerId'] = $customer['id'];
             $customer['defaultBillingAddressId'] = $billingAddress['id'];
@@ -146,7 +146,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($shipping instanceof DataBag) {
-            $shippingAddress = $this->mapAddressData($shipping, $context->getContext(), CustomerEvents::MAPPING_REGISTER_ADDRESS_SHIPPING);
+            $shippingAddress = $this->mapAddressData($shipping, $context, CustomerEvents::MAPPING_REGISTER_ADDRESS_SHIPPING);
             $shippingAddress['id'] = Uuid::randomHex();
             $shippingAddress['customerId'] = $customer['id'];
 
@@ -187,7 +187,7 @@ class RegisterRoute extends AbstractRegisterRoute
             return $value;
         }, $customer);
 
-        $writeContext = clone $context->getContext();
+        $writeContext = clone $context;
         $writeContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $this->customerRepository->create([$customer], $writeContext);
@@ -206,7 +206,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         /** @var CustomerEntity $customerEntity */
-        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+        $customerEntity = $this->customerRepository->search($criteria, $context)->first();
 
         if ($customerEntity->getDoubleOptInRegistration()) {
             $this->eventDispatcher->dispatch(
@@ -427,11 +427,11 @@ class RegisterRoute extends AbstractRegisterRoute
         $customer = [
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
                 $this->customerRepository->getDefinition()->getEntityName(),
-                $context->getContext(),
+                $context,
                 $context->getSalesChannel()->getId()
             ),
             'salesChannelId' => $context->getSalesChannel()->getId(),
-            'languageId' => $context->getContext()->getLanguageId(),
+            'languageId' => $context->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
             'salutationId' => $data->get('salutationId'),
@@ -456,7 +456,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['password'] = $data->get('password');
         }
 
-        $event = new DataMappingEvent($data, $customer, $context->getContext());
+        $event = new DataMappingEvent($data, $customer, $context);
         $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_CUSTOMER);
 
         $customer = $event->getOutput();
@@ -477,7 +477,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
         $validation->add('zipcode', new Length(['max' => 50]));
 
-        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
@@ -492,18 +492,18 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $validation->add('requestedGroupId', new EntityExists([
             'entity' => 'customer_group',
-            'context' => $context->getContext(),
+            'context' => $context,
             'criteria' => $criteria,
         ]));
 
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
-            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
+            $options = ['context' => $context, 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
@@ -623,6 +623,6 @@ class RegisterRoute extends AbstractRegisterRoute
             new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
         );
 
-        return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
+        return $this->salutationRepository->searchIds($criteria, $context)->firstId();
     }
 }

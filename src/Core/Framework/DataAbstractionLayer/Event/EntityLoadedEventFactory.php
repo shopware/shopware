@@ -62,13 +62,13 @@ class EntityLoadedEventFactory
 
         $this->recursion($entities, $mapping);
 
-        $generator = fn (EntityDefinition $definition, array $entities) => new EntityLoadedEvent($definition, $entities, $context->getContext());
+        $generator = fn (EntityDefinition $definition, array $entities) => new EntityLoadedEvent($definition, $entities, $context);
 
         $salesGenerator = fn (EntityDefinition $definition, array $entities) => new SalesChannelEntityLoadedEvent($definition, $entities, $context);
 
         return [
-            $this->buildEvents($mapping, $generator, $context->getContext()),
-            $this->buildEvents($mapping, $salesGenerator, $context->getContext()),
+            $this->buildEvents($mapping, $generator, $context),
+            $this->buildEvents($mapping, $salesGenerator, $context),
         ];
     }
 
@@ -83,13 +83,13 @@ class EntityLoadedEventFactory
 
         $this->recursion($entities, $mapping);
 
-        $generator = fn (EntityDefinition $definition, array $entities) => new PartialEntityLoadedEvent($definition, $entities, $context->getContext());
+        $generator = fn (EntityDefinition $definition, array $entities) => new PartialEntityLoadedEvent($definition, $entities, $context);
 
         $salesGenerator = fn (EntityDefinition $definition, array $entities) => new PartialSalesChannelEntityLoadedEvent($definition, $entities, $context);
 
         return [
-            $this->buildEvents($mapping, $generator, $context->getContext()),
-            $this->buildEvents($mapping, $salesGenerator, $context->getContext()),
+            $this->buildEvents($mapping, $generator, $context),
+            $this->buildEvents($mapping, $salesGenerator, $context),
         ];
     }
 

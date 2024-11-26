@@ -71,13 +71,13 @@ class CreditLineItemFactory implements LineItemFactoryInterface
         }
 
         if (isset($data['coverId'])) {
-            $cover = $this->mediaRepository->search(new Criteria([$data['coverId']]), $context->getContext())->first();
+            $cover = $this->mediaRepository->search(new Criteria([$data['coverId']]), $context)->first();
 
             $lineItem->setCover($cover);
         }
 
         if (isset($data['priceDefinition'])) {
-            $lineItem->setPriceDefinition($this->priceDefinitionFactory->factory($context->getContext(), $data['priceDefinition'], $data['type']));
+            $lineItem->setPriceDefinition($this->priceDefinitionFactory->factory($context, $data['priceDefinition'], $data['type']));
         }
     }
 }

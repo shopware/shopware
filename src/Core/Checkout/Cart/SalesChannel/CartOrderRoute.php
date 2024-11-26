@@ -105,14 +105,14 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
         /** @var OrderEntity|null $orderEntity */
-        $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context->getContext())->first());
+        $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context)->first());
 
         if (!$orderEntity) {
             throw CartException::invalidPaymentOrderNotStored($orderId);
         }
 
         $event = new CheckoutOrderPlacedEvent(
-            $context->getContext(),
+            $context,
             $orderEntity,
             $context->getSalesChannel()->getId()
         );

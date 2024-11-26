@@ -24,6 +24,6 @@ class SalesChannelContextAssembledEventTest extends TestCase
         $event = new SalesChannelContextAssembledEvent($order, $context);
 
         static::assertSame($order, $event->getOrder());
-        static::assertSame($context->getContext(), $event->getContext());
+        static::assertSame($context, $event->getContext());
     }
 }

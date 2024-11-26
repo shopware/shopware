@@ -28,7 +28,7 @@ class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChan
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getUsedToken(): string

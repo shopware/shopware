@@ -286,7 +286,7 @@ class CartServiceTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create([$product], $context->getContext());
+            ->create([$product], $context);
         $this->addTaxDataToSalesChannel($context, $product['tax']);
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $context);
@@ -344,7 +344,7 @@ class CartServiceTest extends TestCase
         }
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $context->getContext());
+            ->create($products, $context);
 
         $lineItems = [];
         foreach ($products as $product) {
@@ -394,7 +394,7 @@ class CartServiceTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create([$product], $context->getContext());
+            ->create([$product], $context);
         $this->addTaxDataToSalesChannel($context, $product['tax']);
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $context);
@@ -432,7 +432,7 @@ class CartServiceTest extends TestCase
         $mail = 'test@shopware.com';
         $password = 'shopware';
 
-        $this->createCustomer($addressId, $mail, $password, $context->getContext());
+        $this->createCustomer($addressId, $mail, $password, $context);
 
         $newtoken = $this->accountService->loginByCredentials($mail, $password, $context);
 

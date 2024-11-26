@@ -88,12 +88,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $productExport->getStorefrontSalesChannelId(),
             $productExport->getSalesChannelDomain()->getLanguageId(),
             $this->languageLocaleProvider->getLocaleForLanguageId($productExport->getSalesChannelDomain()->getLanguageId()),
-            $context->getContext()
+            $context
         );
 
         $filters = $this->productStreamBuilder->buildFilters(
             $productExport->getProductStreamId(),
-            $context->getContext()
+            $context
         );
 
         $associations = $this->getAssociations($productExport, $context);
@@ -120,7 +120,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $exception = ProductExportException::productExportNotFound($productExport->getId());
 
             $loggingEvent = new ProductExportLoggingEvent(
-                $context->getContext(),
+                $context,
                 $exception->getMessage(),
                 Level::Warning,
                 $exception
@@ -203,7 +203,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } catch (\Exception $e) {
             $e = ProductExportException::renderProductException($e->getMessage());
 
-            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Warning, $e);
+            $loggingEvent = new ProductExportLoggingEvent($context, $e->getMessage(), Level::Warning, $e);
 
             $this->eventDispatcher->dispatch($loggingEvent);
 

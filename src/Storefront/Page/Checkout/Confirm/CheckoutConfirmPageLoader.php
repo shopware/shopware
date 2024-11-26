@@ -126,7 +126,7 @@ class CheckoutConfirmPageLoader
             $validation->set('zipcode', new CustomerZipCode(['countryId' => $billingAddress->getCountryId()]));
         }
 
-        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($billingAddress === null) {
@@ -151,7 +151,7 @@ class CheckoutConfirmPageLoader
             $validation->set('zipcode', new CustomerZipCode(['countryId' => $shippingAddress->getCountryId()]));
         }
 
-        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($shippingAddress === null) {

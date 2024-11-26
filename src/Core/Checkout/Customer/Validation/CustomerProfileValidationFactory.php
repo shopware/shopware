@@ -56,7 +56,7 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
     private function addConstraints(DataValidationDefinition $definition, $context): void
     {
         if ($context instanceof SalesChannelContext) {
-            $frameworkContext = $context->getContext();
+            $frameworkContext = $context;
             $salesChannelId = $context->getSalesChannel()->getId();
         } else {
             $frameworkContext = $context;

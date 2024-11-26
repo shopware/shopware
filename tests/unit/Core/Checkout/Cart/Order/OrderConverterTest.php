@@ -681,7 +681,7 @@ class OrderConverterTest extends TestCase
                 $addresses,
                 null,
                 new Criteria(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ));
 
         /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
@@ -699,7 +699,7 @@ class OrderConverterTest extends TestCase
             $ruleRepository,
         );
 
-        $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
+        $converter->assembleSalesChannelContext($order, $salesChannelContext);
     }
 
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject&SalesChannelContext

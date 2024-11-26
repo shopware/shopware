@@ -53,7 +53,7 @@ class ConfirmPageTest extends TestCase
 
         /** @var EntityRepository<ShippingMethodCollection> $shippingMethodRepository */
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
-        $shippingMethods = $shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
+        $shippingMethods = $shippingMethodRepository->search(new Criteria(), $context)->getEntities();
 
         $updates = [];
 
@@ -67,7 +67,7 @@ class ConfirmPageTest extends TestCase
             ];
         }
 
-        $shippingMethodRepository->update($updates, $context->getContext());
+        $shippingMethodRepository->update($updates, $context);
 
         $event = null;
         $this->catchEvent(CheckoutConfirmPageLoadedEvent::class, $event);
@@ -86,14 +86,14 @@ class ConfirmPageTest extends TestCase
         /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
-        $paymentMethod = $paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $paymentMethod = $paymentMethodRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($paymentMethod);
 
         $paymentMethodRepository->update(
             [
                 ['id' => $paymentMethod->getId(), 'availabilityRule' => ['name' => 'invalid', 'priority' => 0]],
             ],
-            $context->getContext()
+            $context
         );
 
         $event = null;

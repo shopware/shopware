@@ -35,12 +35,7 @@ class CurrencyFilter extends AbstractExtension
      */
     public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null, ?int $decimals = null)
     {
-        if (!\array_key_exists('context', $twigContext)
-            || (
-                !$twigContext['context'] instanceof Context
-                && !$twigContext['context'] instanceof SalesChannelContext
-            )
-        ) {
+        if (!\array_key_exists('context', $twigContext) || !$twigContext['context'] instanceof Context) {
             if (isset($twigContext['testMode']) && $twigContext['testMode'] === true) {
                 return $price;
             }
@@ -60,11 +55,7 @@ class CurrencyFilter extends AbstractExtension
             throw new \InvalidArgumentException('Error while processing Twig currency filter. Could not resolve currencyIsoCode.');
         }
 
-        if ($twigContext['context'] instanceof Context) {
-            $context = $twigContext['context'];
-        } else {
-            $context = $twigContext['context']->getContext();
-        }
+        $context = $twigContext['context'];
 
         if ($languageId === null) {
             $languageId = $context->getLanguageId();

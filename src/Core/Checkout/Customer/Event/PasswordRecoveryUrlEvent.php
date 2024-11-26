@@ -38,7 +38,7 @@ class PasswordRecoveryUrlEvent extends Event implements ShopwareSalesChannelEven
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelId(): string

@@ -81,14 +81,14 @@ class PromotionRedemptionUpdaterTest extends TestCase
         /** @var OrderEntity|null $order */
         $order = $this->getContainer()
             ->get('order.repository')
-            ->search($criteria, $this->salesChannelContext->getContext())
+            ->search($criteria, $this->salesChannelContext)
             ->first();
 
         static::assertNotNull($order);
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         $dispatcher->dispatch(new CheckoutOrderPlacedEvent(
-            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext,
             $order,
             $this->salesChannelContext->getSalesChannelId()
         ));
@@ -215,7 +215,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             $voucherD,
             'test-FABPB-test',
             $promotionIndividualCodeRepository,
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $this->ids->set('customer', $this->createCustomer('johndoe@example.com'));

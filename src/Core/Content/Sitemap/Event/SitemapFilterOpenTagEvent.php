@@ -31,7 +31,7 @@ class SitemapFilterOpenTagEvent extends Event implements ShopwareEvent
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getOpenTag(): string

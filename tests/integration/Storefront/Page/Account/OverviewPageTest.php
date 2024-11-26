@@ -37,7 +37,7 @@ class OverviewPageTest extends TestCase
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, OrderTransactionStates::STATE_OPEN),
             ],
-        ], $context->getContext());
+        ], $context);
 
         $event = null;
         $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);
@@ -67,7 +67,7 @@ class OverviewPageTest extends TestCase
                 'id' => $order,
                 'salesChannelId' => $testContext->getSalesChannel()->getId(),
             ],
-        ], $context->getContext());
+        ], $context);
 
         $event = null;
         $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);

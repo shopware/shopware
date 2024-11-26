@@ -50,13 +50,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
             $content = $this->templateRenderer->render(
                 $productExport->getHeaderTemplate(),
                 $headerContext->getContext(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ) . \PHP_EOL;
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
-            $this->logException($salesChannelContext->getContext(), $renderHeaderException);
+            $this->logException($salesChannelContext, $renderHeaderException);
 
             throw $renderHeaderException;
         }
@@ -83,13 +83,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
             $content = $this->templateRenderer->render(
                 $productExport->getFooterTemplate(),
                 $footerContext->getContext(),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ) . \PHP_EOL;
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderFooterException = ProductExportException::renderFooterException($exception->getMessage());
-            $this->logException($salesChannelContext->getContext(), $renderFooterException);
+            $this->logException($salesChannelContext, $renderFooterException);
 
             throw $renderFooterException;
         }
@@ -112,13 +112,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
             $content = $this->templateRenderer->render(
                 $bodyTemplate,
                 $data,
-                $salesChannelContext->getContext()
+                $salesChannelContext
             ) . \PHP_EOL;
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderProductException = ProductExportException::renderProductException($exception->getMessage());
-            $this->logException($salesChannelContext->getContext(), $renderProductException);
+            $this->logException($salesChannelContext, $renderProductException);
 
             throw $renderProductException;
         }

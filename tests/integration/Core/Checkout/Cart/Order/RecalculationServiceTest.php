@@ -1518,7 +1518,7 @@ class RecalculationServiceTest extends TestCase
     private function persistCart(Cart $cart, ?string $languageId = null): array
     {
         if ($languageId !== null) {
-            $context = $this->salesChannelContext->getContext();
+            $context = $this->salesChannelContext;
             $context->assign([
                 'languageIdChain' => array_merge([$languageId], $context->getLanguageIdChain()),
             ]);
@@ -1527,7 +1527,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->salesChannelContext)->get($orderId);
 
         return ['orderId' => $orderId, 'total' => $order->getPrice()->getTotalPrice(), 'orderDateTime' => $order->getOrderDateTime(), 'stateId' => $order->getStateId()];
     }

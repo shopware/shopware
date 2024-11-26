@@ -66,7 +66,7 @@ class CustomerChangedPaymentMethodEvent extends Event implements SalesChannelAwa
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'customer has no default payment method anymore');
 
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getRequestDataBag(): RequestDataBag

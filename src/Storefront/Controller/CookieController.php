@@ -88,7 +88,7 @@ class CookieController extends StorefrontController
             $criteria->setTitle('cookie-controller::load-analytics');
 
             $salesChannel->setAnalytics(
-                $this->salesChannelAnalyticsRepository->search($criteria, $context->getContext())->getEntities()->first()
+                $this->salesChannelAnalyticsRepository->search($criteria, $context)->getEntities()->first()
             );
         }
 

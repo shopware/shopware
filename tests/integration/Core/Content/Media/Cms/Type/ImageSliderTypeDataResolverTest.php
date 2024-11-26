@@ -184,7 +184,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
             new MediaCollection([$media]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $medias = [
@@ -373,7 +373,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
             $productMediaCollection->getMedia(),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         return $result;

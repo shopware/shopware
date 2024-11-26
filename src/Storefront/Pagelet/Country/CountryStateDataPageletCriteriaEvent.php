@@ -27,7 +27,7 @@ class CountryStateDataPageletCriteriaEvent extends NestedEvent implements Shopwa
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

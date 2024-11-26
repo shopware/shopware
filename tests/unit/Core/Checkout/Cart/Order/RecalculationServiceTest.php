@@ -33,12 +33,12 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -77,20 +77,17 @@ class RecalculationServiceTest extends TestCase
                 $salesChannel->setId(Uuid::randomHex());
 
                 return new SalesChannelContext(
-                    Context::createDefaultContext(),
+                    new SystemSource(),
                     'foo',
                     'bar',
                     $salesChannel,
                     new CurrencyEntity(),
                     new CustomerGroupEntity(),
                     new TaxCollection(),
+                    new CustomerEntity(),
                     new PaymentMethodEntity(),
                     new ShippingMethodEntity(),
-                    new ShippingLocation(new CountryEntity(), null, null),
-                    new CustomerEntity(),
-                    new CashRoundingConfig(2, 0.01, true),
-                    new CashRoundingConfig(2, 0.01, true),
-                    []
+                    new ShippingLocation(new CountryEntity(), null, null)
                 );
             });
 
@@ -115,7 +112,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$orderEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$orderEntity]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository
@@ -204,7 +201,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository
@@ -254,7 +251,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository
@@ -297,7 +294,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository
@@ -351,7 +348,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository
@@ -387,7 +384,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository
@@ -423,7 +420,7 @@ class RecalculationServiceTest extends TestCase
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('order', 1, new OrderCollection([$orderEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('order', 1, new OrderCollection([$orderEntity]), null, new Criteria(), $this->salesChannelContext),
         );
 
         $entityRepository

@@ -67,7 +67,7 @@ class WishlistPageLoader
                         new ProductCollection(),
                         null,
                         $criteria,
-                        $context->getContext()
+                        $context
                     )
                 )
             );

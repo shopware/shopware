@@ -110,19 +110,19 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             );
         }
 
-        $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());
+        $mappingEvent = new DataMappingEvent($data, $addressData, $context);
         $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_ADDRESS_CREATE);
 
         $addressData = $mappingEvent->getOutput();
         $addressData['id'] = $addressId;
         $addressData['customerId'] = $customer->getId();
 
-        $this->addressRepository->upsert([$addressData], $context->getContext());
+        $this->addressRepository->upsert([$addressData], $context);
 
         $criteria = new Criteria([$addressId]);
 
         /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search($criteria, $context->getContext())->first();
+        $address = $this->addressRepository->search($criteria, $context)->first();
 
         return new UpsertAddressRouteResponse($address);
     }
@@ -141,7 +141,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $validation->set('zipcode', new CustomerZipCode(['countryId' => $data->get('countryId')]));
 
-        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
@@ -156,7 +156,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         );
 
         /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
+        $ids = $this->salutationRepository->searchIds($criteria, $context)->getIds();
 
         return $ids[0] ?? null;
     }

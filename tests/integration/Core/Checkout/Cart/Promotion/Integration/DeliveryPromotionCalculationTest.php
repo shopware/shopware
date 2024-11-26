@@ -625,7 +625,7 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
      */
     private function deletePromotions(): void
     {
-        $idSearchResult = $this->promotionRepository->searchIds(new Criteria(), $this->context->getContext());
+        $idSearchResult = $this->promotionRepository->searchIds(new Criteria(), $this->context);
         $data = [];
         foreach ($idSearchResult->getIds() as $id) {
             $data[]['id'] = $id;
@@ -634,6 +634,6 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
         if (\count($data) === 0) {
             return;
         }
-        $this->promotionRepository->delete($data, $this->context->getContext());
+        $this->promotionRepository->delete($data, $this->context);
     }
 }

@@ -55,7 +55,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
         /** @var CustomerRecoveryEntity|null $customerRecovery */
         $customerRecovery = $this->customerRecoveryRepository->search(
             $customerHashCriteria,
-            $context->getContext()
+            $context
         )->first();
 
         if (!$customerRecovery instanceof CustomerRecoveryEntity) {
@@ -76,7 +76,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
 
         $definition->add('hash', new NotBlank(), new Type('string'), new Length($hashLength));
 
-        $this->dispatchValidationEvent($definition, $data, $context->getContext());
+        $this->dispatchValidationEvent($definition, $data, $context);
 
         $this->validator->validate($data->all(), $definition);
     }

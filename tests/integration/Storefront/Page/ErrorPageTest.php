@@ -87,7 +87,7 @@ class ErrorPageTest extends TestCase
             ],
         ];
 
-        $this->cmsPageRepository->create([$page], $this->salesChannelContext->getContext());
+        $this->cmsPageRepository->create([$page], $this->salesChannelContext);
 
         return $page['id'];
     }

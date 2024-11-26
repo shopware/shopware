@@ -59,7 +59,7 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getContextToken(): string

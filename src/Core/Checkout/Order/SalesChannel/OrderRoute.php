@@ -77,7 +77,7 @@ class OrderRoute extends AbstractOrderRoute
 
         $this->eventDispatcher->dispatch(new OrderCriteriaEvent($criteria, $context));
 
-        $orderResult = $this->orderRepository->search($criteria, $context->getContext());
+        $orderResult = $this->orderRepository->search($criteria, $context);
         $orders = $orderResult->getEntities();
 
         // remove old orders only if there is a deeplink filter
@@ -136,7 +136,7 @@ class OrderRoute extends AbstractOrderRoute
         if (!empty($promotionIds)) {
             $criteria = new Criteria($promotionIds);
             $criteria->addAssociation('cartRules');
-            $promotions = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
+            $promotions = $this->promotionRepository->search($criteria, $context)->getEntities();
         }
 
         return $promotions;

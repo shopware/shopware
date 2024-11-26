@@ -133,7 +133,7 @@ class ProductUrlProviderTest extends TestCase
                 'name' => 'test variant 2',
             ], $this->getBasicProductData()),
         ];
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->create($products, $this->salesChannelContext);
 
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 3);
         $host = $this->getHost($this->salesChannelContext);
@@ -178,10 +178,10 @@ class ProductUrlProviderTest extends TestCase
                 'name' => 'test variant 4',
             ], $this->getBasicProductData()),
         ];
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->create($products, $this->salesChannelContext);
         $this->productRepository->update(
             [['id' => $parentId, 'canonicalProductId' => $canonicalProductId]],
-            $this->salesChannelContext->getContext()
+            $this->salesChannelContext
         );
 
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 4);
@@ -253,7 +253,7 @@ class ProductUrlProviderTest extends TestCase
     {
         $products = $this->getProductTestData();
 
-        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
+        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext);
 
         return $products;
     }
@@ -355,7 +355,7 @@ class ProductUrlProviderTest extends TestCase
                 'stock' => 0,
             ]),
         ];
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->create($products, $this->salesChannelContext);
     }
 
     private function createHiddenVisibilityProduct(): void
@@ -373,6 +373,6 @@ class ProductUrlProviderTest extends TestCase
                 ],
             ]),
         ];
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->create($products, $this->salesChannelContext);
     }
 }

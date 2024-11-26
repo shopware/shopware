@@ -203,7 +203,7 @@ class RegisterController extends StorefrontController
         }
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->first();
 
         if ($customer->getGuest()) {
             $this->addFlash(self::SUCCESS, $this->trans('account.doubleOptInMailConfirmationSuccessfully'));
@@ -311,7 +311,7 @@ class RegisterController extends StorefrontController
 
         /** @var SalesChannelDomainEntity|null $domain */
         $domain = $this->domainRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context)
             ->first();
 
         if (!$domain) {

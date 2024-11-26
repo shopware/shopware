@@ -76,12 +76,12 @@ class CheckoutGatewayRouteTest extends TestCase
                 new PaymentMethodCollection([$paymentMethod]),
                 null,
                 new Criteria(),
-                $context->getContext()
+                $context
             )
         );
 
         $ruleId = Uuid::randomHex();
-        $context->getContext()->setRuleIds([$ruleId]);
+        $context->setRuleIds([$ruleId]);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
@@ -94,7 +94,7 @@ class CheckoutGatewayRouteTest extends TestCase
                 new ShippingMethodCollection([$shippingMethod]),
                 null,
                 new Criteria(),
-                $context->getContext()
+                $context
             )
         );
 
@@ -158,12 +158,12 @@ class CheckoutGatewayRouteTest extends TestCase
                 new PaymentMethodCollection([$paymentMethod]),
                 null,
                 new Criteria(),
-                $context->getContext()
+                $context
             )
         );
 
         $ruleId = Uuid::randomHex();
-        $context->getContext()->setRuleIds([$ruleId]);
+        $context->setRuleIds([$ruleId]);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
@@ -176,7 +176,7 @@ class CheckoutGatewayRouteTest extends TestCase
                 new ShippingMethodCollection([$shippingMethod]),
                 null,
                 new Criteria(),
-                $context->getContext()
+                $context
             )
         );
 
@@ -257,7 +257,7 @@ class CheckoutGatewayRouteTest extends TestCase
                 new PaymentMethodCollection(),
                 null,
                 new Criteria(),
-                $context->getContext()
+                $context
             )
         );
 
@@ -268,7 +268,7 @@ class CheckoutGatewayRouteTest extends TestCase
                 new ShippingMethodCollection(),
                 null,
                 new Criteria(),
-                $context->getContext()
+                $context
             )
         );
 

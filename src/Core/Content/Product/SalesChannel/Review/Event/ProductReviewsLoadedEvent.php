@@ -22,7 +22,7 @@ final class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSal
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

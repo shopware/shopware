@@ -50,7 +50,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
         static::assertSame($context, $event->getSalesChannelContext());
         static::assertSame($customer, $event->getCustomer());
         static::assertSame($context->getSalesChannelId(), $event->getSalesChannelId());
-        static::assertSame($context->getContext(), $event->getContext());
+        static::assertSame($context, $event->getContext());
         static::assertSame('test-id', $event->getCustomerId());
     }
 }

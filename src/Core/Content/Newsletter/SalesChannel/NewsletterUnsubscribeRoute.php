@@ -56,9 +56,9 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         $validator = $this->getOptOutValidation();
         $this->validator->validate($data, $validator);
 
-        $this->newsletterRecipientRepository->update([$data], $context->getContext());
+        $this->newsletterRecipientRepository->update([$data], $context);
 
-        $event = new NewsletterUnsubscribeEvent($context->getContext(), $recipient, $context->getSalesChannelId());
+        $event = new NewsletterUnsubscribeEvent($context, $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
@@ -76,7 +76,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 
         $newsletterRecipient = $this->newsletterRecipientRepository->search(
             $criteria,
-            $context->getContext()
+            $context
         )->getEntities()->first();
 
         if (!$newsletterRecipient instanceof NewsletterRecipientEntity) {

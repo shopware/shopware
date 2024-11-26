@@ -431,7 +431,7 @@ class PromotionExtensionCodesTest extends TestCase
                 'name' => 'Cart >= 200',
                 'priority' => 1,
             ],
-        ], $this->context->getContext());
+        ], $this->context);
 
         $conditionRepository->create([
             [
@@ -443,7 +443,7 @@ class PromotionExtensionCodesTest extends TestCase
                     'amount' => 200,
                 ],
             ],
-        ], $this->context->getContext());
+        ], $this->context);
 
         $this->createCustomPercentagePromotion($promotion1, 'Promo 1', null, 10, null, [
             'cartRules' => [

@@ -51,7 +51,7 @@ readonly class ResolveListingExample implements EventSubscriberInterface
 
         $criteria = new Criteria($data['ids']);
 
-        $event->result = $this->repository->search($criteria, $event->context->getContext());
+        $event->result = $this->repository->search($criteria, $event->context);
 
         // stop the event propagation, so the core function will not be executed
         $event->stopPropagation();

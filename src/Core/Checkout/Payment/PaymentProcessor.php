@@ -63,7 +63,7 @@ class PaymentProcessor
         ?string $finishUrl = null,
         ?string $errorUrl = null,
     ): ?RedirectResponse {
-        $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext->getContext());
+        $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext);
         if (!$transaction) {
             return null;
         }
@@ -86,10 +86,10 @@ class PaymentProcessor
                 return $result;
             }
 
-            $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
+            $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext, $returnUrl);
             $validationStruct = $transaction->getValidationData() ? new ArrayStruct($transaction->getValidationData()) : null;
 
-            $response = $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validationStruct);
+            $response = $paymentHandler->pay($request, $transactionStruct, $salesChannelContext, $validationStruct);
             if ($response instanceof RedirectResponse) {
                 $token = null;
             }
@@ -97,7 +97,7 @@ class PaymentProcessor
             return $response;
         } catch (\Throwable $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
-            $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
+            $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext);
             if ($errorUrl !== null) {
                 $errorCode = $e instanceof HttpException ? $e->getErrorCode() : PaymentException::PAYMENT_PROCESS_ERROR;
 
@@ -145,14 +145,14 @@ class PaymentProcessor
         }
 
         try {
-            $transactionStruct = $this->paymentTransactionStructFactory->build($token->getTransactionId(), $context->getContext());
-            $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
+            $transactionStruct = $this->paymentTransactionStructFactory->build($token->getTransactionId(), $context);
+            $paymentHandler->finalize($request, $transactionStruct, $context);
         } catch (\Throwable $e) {
             if ($e instanceof PaymentException && $e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
-                $this->transactionStateHandler->cancel($token->getTransactionId(), $context->getContext());
+                $this->transactionStateHandler->cancel($token->getTransactionId(), $context);
             } else {
                 $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $token->getTransactionId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
-                $this->transactionStateHandler->fail($token->getTransactionId(), $context->getContext());
+                $this->transactionStateHandler->fail($token->getTransactionId(), $context);
             }
 
             // @deprecated tag:v6.7.0 - remove, $token will accept Throwable

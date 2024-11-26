@@ -391,7 +391,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
             new ProductCollection([$product]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();
@@ -604,7 +604,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
                     new ProductCollection($filteredProducts),
                     null,
                     $criteria,
-                    Generator::createSalesChannelContext()->getContext()
+                    Generator::createSalesChannelContext()
                 );
             });
     }

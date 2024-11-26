@@ -90,7 +90,7 @@ class ProductExportRendererTest extends TestCase
             ]
         );
         $loggingEvent = new ProductExportLoggingEvent(
-            $this->context->getContext(),
+            $this->context,
             'error',
             Level::Warning,
             ProductExportException::renderHeaderException('error')
@@ -204,7 +204,7 @@ class ProductExportRendererTest extends TestCase
             ]
         );
         $loggingEvent = new ProductExportLoggingEvent(
-            $this->context->getContext(),
+            $this->context,
             'error',
             Level::Warning,
             ProductExportException::renderProductException('error')
@@ -261,7 +261,7 @@ class ProductExportRendererTest extends TestCase
         $productExport->setBodyTemplate('content');
 
         $loggingEvent = new ProductExportLoggingEvent(
-            $this->context->getContext(),
+            $this->context,
             'error',
             Level::Warning,
             ProductExportException::renderProductException('error')

@@ -41,7 +41,7 @@ class MediaRoute extends AbstractMediaRoute
             throw MediaException::emptyMediaId();
         }
 
-        return new MediaRouteResponse($this->findMediaByIds($ids, $context->getContext()));
+        return new MediaRouteResponse($this->findMediaByIds($ids, $context));
     }
 
     /**

@@ -89,7 +89,7 @@ class ProductLineItemFactoryTest extends TestCase
             ->expects(static::once())
             ->method('factory')
             ->with(
-                static::equalTo($context->getContext()),
+                static::equalTo($context),
                 static::equalTo($data['priceDefinition']),
                 static::equalTo('product')
             )

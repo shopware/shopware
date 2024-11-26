@@ -23,7 +23,7 @@ class SalesChannelContextRestoredEvent extends NestedEvent
 
     public function getContext(): Context
     {
-        return $this->restoredContext->getContext();
+        return $this->restoredContext;
     }
 
     public function getCurrentSalesChannelContext(): SalesChannelContext

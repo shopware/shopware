@@ -46,7 +46,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $salesChannelContext2 = $this->createSalesChannelContext($salesChannelParameters);
 
         $constraint = new CustomerEmailUnique([
-            'context' => $salesChannelContext2->getContext(),
+            'context' => $salesChannelContext2,
             'salesChannelContext' => $salesChannelContext2,
         ]);
 
@@ -65,7 +65,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannel()->getId(), $email);
 
         $constraint = new CustomerEmailUnique([
-            'context' => $salesChannelContext1->getContext(),
+            'context' => $salesChannelContext1,
             'salesChannelContext' => $salesChannelContext1,
         ]);
 
@@ -99,7 +99,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $this->createCustomerOfSalesChannel($salesChannelContext1->getSalesChannel()->getId(), $email);
 
         $constraint = new CustomerEmailUnique([
-            'context' => $salesChannelContext1->getContext(),
+            'context' => $salesChannelContext1,
             'salesChannelContext' => $salesChannelContext1,
         ]);
 

@@ -36,7 +36,7 @@ class RuleAreaUpdaterBench extends AbstractBenchCase
             ];
         }
 
-        $context = $this->context->getContext();
+        $context = $this->context;
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $this->getContainer()->get('rule.repository')->create($rulePayload, $context);

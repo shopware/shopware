@@ -90,7 +90,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
             new MediaCollection([$media]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();

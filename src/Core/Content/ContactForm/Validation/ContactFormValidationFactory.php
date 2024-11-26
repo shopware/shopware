@@ -47,7 +47,7 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
         $definition = new DataValidationDefinition($validationName);
 
         $definition
-            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
+            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context]))
             ->add('email', new NotBlank(), new Email())
             ->add('subject', new NotBlank())
             ->add('comment', new NotBlank())
@@ -75,7 +75,7 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
             $definition->add('phone', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($definition, new DataBag(), $context->getContext());
+        $validationEvent = new BuildValidationEvent($definition, new DataBag(), $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $definition;

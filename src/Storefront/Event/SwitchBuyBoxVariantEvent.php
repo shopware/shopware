@@ -50,6 +50,6 @@ class SwitchBuyBoxVariantEvent extends Event implements ShopwareSalesChannelEven
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 }

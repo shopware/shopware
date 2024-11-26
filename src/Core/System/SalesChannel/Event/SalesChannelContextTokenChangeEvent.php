@@ -49,7 +49,7 @@ class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSales
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getPreviousToken(): string

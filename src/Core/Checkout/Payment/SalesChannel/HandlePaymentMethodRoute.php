@@ -49,14 +49,14 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         $data = [...$request->query->all(), ...$request->request->all()];
         $this->dataValidator->validate($data, $this->createDataValidation());
         /** @var array{orderId: string, finishUrl: ?string, errorUrl: ?string} $data */
-        $orderCurrencyId = $this->getCurrencyFromOrder($data['orderId'], $context->getContext());
+        $orderCurrencyId = $this->getCurrencyFromOrder($data['orderId'], $context);
 
         if ($context->getCurrency()->getId() !== $orderCurrencyId) {
             $context = $this->contextService->get(
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $context->getToken(),
-                    $context->getContext()->getLanguageId(),
+                    $context->getLanguageId(),
                     $orderCurrencyId,
                 )
             );

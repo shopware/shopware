@@ -196,7 +196,7 @@ class ProductPageTest extends TestCase
             ],
         ];
 
-        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, fn (): ProductEntity => $this->getRandomProduct($context, 10, false, $productCmsPageData));
+        $product = $context->scope(Context::SYSTEM_SCOPE, fn (): ProductEntity => $this->getRandomProduct($context, 10, false, $productCmsPageData));
 
         static::assertEquals($cmsPageId, $product->getCmsPageId());
         $request = new Request([], [], ['productId' => $product->getId()]);

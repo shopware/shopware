@@ -36,7 +36,7 @@ class CartSavedEvent extends Event implements ShopwareSalesChannelEvent, CartEve
 
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->context;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

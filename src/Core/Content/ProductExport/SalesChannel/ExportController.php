@@ -73,7 +73,7 @@ class ExportController
 
         if (!$this->fileSystem->fileExists($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
-            $this->logException($context->getContext(), $exportNotGeneratedException);
+            $this->logException($context, $exportNotGeneratedException);
 
             throw $exportNotGeneratedException;
         }

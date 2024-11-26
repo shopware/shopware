@@ -55,7 +55,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             'password' => $requestDataBag->get('newPassword'),
         ];
 
-        $this->customerRepository->update([$customerData], $context->getContext());
+        $this->customerRepository->update([$customerData], $context);
 
         return new ContextTokenResponse($context->getToken());
     }
@@ -79,7 +79,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 
-        $this->dispatchValidationEvent($definition, $data, $context->getContext());
+        $this->dispatchValidationEvent($definition, $data, $context);
 
         $this->validator->validate($data->all(), $definition);
 

@@ -122,7 +122,7 @@ class ProductListingLoaderTest extends TestCase
         $this->productRepository->update([[
             'id' => $this->mainVariantId,
             'active' => false,
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $listing = $this->fetchListing();
 
@@ -142,7 +142,7 @@ class ProductListingLoaderTest extends TestCase
     {
         $this->createProduct([], true);
 
-        $this->productRepository->delete([['id' => $this->mainVariantId]], $this->salesChannelContext->getContext());
+        $this->productRepository->delete([['id' => $this->mainVariantId]], $this->salesChannelContext);
 
         $listing = $this->fetchListing();
 
@@ -173,7 +173,7 @@ class ProductListingLoaderTest extends TestCase
             'id' => $this->mainVariantId,
             'stock' => 0,
             'isCloseout' => true,
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $listing = $this->fetchListing();
 
@@ -202,7 +202,7 @@ class ProductListingLoaderTest extends TestCase
                 'mainVariantId' => $this->mainVariantId,
                 'configuratorGroupConfig' => [],
             ],
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $listing = $this->fetchListing();
 
@@ -235,7 +235,7 @@ class ProductListingLoaderTest extends TestCase
                     'configuratorGroupConfig' => [],
                 ],
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $listing = $this->fetchListing();
 
@@ -266,11 +266,11 @@ class ProductListingLoaderTest extends TestCase
             'mainVariantId' => $this->mainVariantId,
             'configuratorGroupConfig' => [],
             'isCloseout' => true,
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'stock' => 0], $this->variantIds));
 
-        $this->productRepository->update($variants, $this->salesChannelContext->getContext());
+        $this->productRepository->update($variants, $this->salesChannelContext);
 
         $listing = $this->fetchListing();
         static::assertEquals(0, $listing->getTotal());
@@ -285,11 +285,11 @@ class ProductListingLoaderTest extends TestCase
             'displayParent' => true,
             'mainVariantId' => $this->mainVariantId,
             'configuratorGroupConfig' => [],
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'active' => false], $this->variantIds));
 
-        $this->productRepository->update($variants, $this->salesChannelContext->getContext());
+        $this->productRepository->update($variants, $this->salesChannelContext);
 
         $listing = $this->fetchListing();
         static::assertEquals(0, $listing->getTotal());
@@ -304,7 +304,7 @@ class ProductListingLoaderTest extends TestCase
             'displayParent' => null,
             'mainVariantId' => null,
             'configuratorGroupConfig' => null,
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $firstVariant = $this->fetchListing()->getEntities()->first();
         static::assertNotNull($firstVariant);
@@ -325,7 +325,7 @@ class ProductListingLoaderTest extends TestCase
                 'mainVariantId' => null,
                 'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
             ],
-        ]], $this->salesChannelContext->getContext());
+        ]], $this->salesChannelContext);
 
         $listing = $this->fetchListing();
 
@@ -609,7 +609,7 @@ class ProductListingLoaderTest extends TestCase
 
         $this->addTaxDataToSalesChannel($this->salesChannelContext, $tax);
 
-        $this->productRepository->create($data, $this->salesChannelContext->getContext());
+        $this->productRepository->create($data, $this->salesChannelContext);
 
         if ($hasMainVariant) {
             // Update parent product, configure to use selected mainVariantId in listing config
@@ -622,7 +622,7 @@ class ProductListingLoaderTest extends TestCase
                         'configuratorGroupConfig' => $config,
                     ],
                 ],
-            ], $this->salesChannelContext->getContext());
+            ], $this->salesChannelContext);
         }
     }
 

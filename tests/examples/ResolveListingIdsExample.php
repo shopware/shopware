@@ -49,7 +49,7 @@ readonly class ResolveListingIdsExample
         $result = IdSearchResult::fromIds(
             $data['ids'],
             $event->criteria,
-            $event->context->getContext(),
+            $event->context,
             $data['total']
         );
 

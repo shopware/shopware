@@ -92,11 +92,11 @@ class SalesChannelContextRestorer
             $options
         );
 
-        $salesChannelContext->getContext()->addExtensions($context->getExtensions());
+        $salesChannelContext->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
-            $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
+            $salesChannelContext->addState(Context::SKIP_TRIGGER_FLOW);
         }
 
         if ($order->getItemRounding() !== null) {
@@ -107,7 +107,7 @@ class SalesChannelContextRestorer
             $salesChannelContext->setTotalRounding($order->getTotalRounding());
         }
 
-        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext);
         $this->cartRuleLoader->loadByCart(
             $salesChannelContext,
             $cart,
@@ -159,7 +159,7 @@ class SalesChannelContextRestorer
         );
 
         $this->cartRuleLoader->loadByToken($salesChannelContext, $token);
-        $salesChannelContext->getContext()->addState(...$context->getStates());
+        $salesChannelContext->addState(...$context->getStates());
 
         return $salesChannelContext;
     }

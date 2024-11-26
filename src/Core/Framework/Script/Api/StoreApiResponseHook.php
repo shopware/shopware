@@ -43,7 +43,7 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
         private readonly array $query,
         private readonly SalesChannelContext $salesChannelContext
     ) {
-        parent::__construct($salesChannelContext->getContext());
+        parent::__construct($salesChannelContext);
     }
 
     /**

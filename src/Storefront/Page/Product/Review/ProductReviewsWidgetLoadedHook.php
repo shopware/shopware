@@ -33,7 +33,7 @@ class ProductReviewsWidgetLoadedHook extends PageLoadedHook implements Deprecate
     ) {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', CoreProductReviewsWidgetLoadedHook::class));
 
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

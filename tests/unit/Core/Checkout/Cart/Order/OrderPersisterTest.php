@@ -49,7 +49,7 @@ class OrderPersisterTest extends TestCase
         $repo
             ->expects(static::once())
             ->method('create')
-            ->with([['id' => $order->getId()]], $context->getContext());
+            ->with([['id' => $order->getId()]], $context);
 
         $persister = new OrderPersister($repo, $orderConverter, $this->createMock(CartSerializationCleaner::class));
         $id = $persister->persist($cart, $context);

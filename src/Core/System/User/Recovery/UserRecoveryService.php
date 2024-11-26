@@ -104,7 +104,7 @@ class UserRecoveryService
         );
 
         $this->dispatcher->dispatch(
-            new UserRecoveryRequestEvent($recovery, $recoveryUrl, $salesChannelContext->getContext()),
+            new UserRecoveryRequestEvent($recovery, $recoveryUrl, $salesChannelContext),
             UserRecoveryRequestEvent::EVENT_NAME
         );
     }

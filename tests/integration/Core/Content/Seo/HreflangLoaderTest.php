@@ -63,7 +63,7 @@ class HreflangLoaderTest extends TestCase
 
     public function testDisable(): void
     {
-        $randomProduct = $this->getContainer()->get('product.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext());
+        $randomProduct = $this->getContainer()->get('product.repository')->searchIds(new Criteria(), $this->salesChannelContext);
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(false);
 
         $randomId = $randomProduct->firstId();
@@ -77,7 +77,7 @@ class HreflangLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $languageId = $this->languageRepository->searchIds(new Criteria(), $this->salesChannelContext->getContext())->firstId();
+        $languageId = $this->languageRepository->searchIds(new Criteria(), $this->salesChannelContext)->firstId();
         static::assertNotNull($languageId);
 
         $domain = new SalesChannelDomainEntity();
@@ -101,7 +101,7 @@ class HreflangLoaderTest extends TestCase
                 'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => '/test-path',
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
         static::assertEquals(0, $links->count());
@@ -132,7 +132,7 @@ class HreflangLoaderTest extends TestCase
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $this->seoUrlRepository->create([
             [
@@ -153,7 +153,7 @@ class HreflangLoaderTest extends TestCase
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
@@ -207,7 +207,7 @@ class HreflangLoaderTest extends TestCase
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $this->seoUrlRepository->create([
             [
@@ -228,7 +228,7 @@ class HreflangLoaderTest extends TestCase
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
@@ -288,7 +288,7 @@ class HreflangLoaderTest extends TestCase
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $this->seoUrlRepository->create([
             [
@@ -309,7 +309,7 @@ class HreflangLoaderTest extends TestCase
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
@@ -358,7 +358,7 @@ class HreflangLoaderTest extends TestCase
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $links = $this->hreflangLoader->load(
             new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
@@ -412,7 +412,7 @@ class HreflangLoaderTest extends TestCase
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $links = $this->hreflangLoader->load(
             new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
@@ -464,7 +464,7 @@ class HreflangLoaderTest extends TestCase
     {
         $products = $this->getProductTestData($this->salesChannelContext);
 
-        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
+        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext);
     }
 
     /**
@@ -550,7 +550,7 @@ class HreflangLoaderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('locale');
 
-        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext)->getEntities();
 
         $first = $languages->first();
         static::assertInstanceOf(LanguageEntity::class, $first);

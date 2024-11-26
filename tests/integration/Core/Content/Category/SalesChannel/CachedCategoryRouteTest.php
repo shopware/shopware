@@ -128,7 +128,7 @@ class CachedCategoryRouteTest extends TestCase
                     ->build();
 
                 $container->get('product.repository')
-                    ->create([$product], $context->getContext());
+                    ->create([$product], $context);
             },
             2,
         ];
@@ -141,7 +141,7 @@ class CachedCategoryRouteTest extends TestCase
                     'name' => 'test',
                 ];
                 $container->get('product.repository')
-                    ->update([$update], $context->getContext());
+                    ->update([$update], $context);
             },
             2,
         ];
@@ -155,7 +155,7 @@ class CachedCategoryRouteTest extends TestCase
                 ];
 
                 $container->get('product_category.repository')
-                    ->delete([$mapping], $context->getContext());
+                    ->delete([$mapping], $context);
             },
             2,
         ];
@@ -164,7 +164,7 @@ class CachedCategoryRouteTest extends TestCase
             $ids,
             function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $container->get('product.repository')
-                    ->delete([['id' => $ids->get('listing-delete')]], $context->getContext());
+                    ->delete([['id' => $ids->get('listing-delete')]], $context);
             },
             2,
         ];
@@ -176,7 +176,7 @@ class CachedCategoryRouteTest extends TestCase
                     'id' => $ids->get('navigation'),
                     'name' => 'update',
                 ];
-                $container->get('category.repository')->update([$update], $context->getContext());
+                $container->get('category.repository')->update([$update], $context);
             },
             2,
         ];
@@ -188,7 +188,7 @@ class CachedCategoryRouteTest extends TestCase
                     'id' => $ids->get('layout'),
                     'name' => 'update',
                 ];
-                $container->get('cms_page.repository')->update([$update], $context->getContext());
+                $container->get('cms_page.repository')->update([$update], $context);
             },
             2,
         ];
@@ -201,7 +201,7 @@ class CachedCategoryRouteTest extends TestCase
                     'name' => 'test',
                 ];
                 $container->get('product.repository')
-                    ->update([$update], $context->getContext());
+                    ->update([$update], $context);
             },
             2,
         ];
@@ -210,7 +210,7 @@ class CachedCategoryRouteTest extends TestCase
             $ids,
             function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $container->get('product.repository')
-                    ->delete([['id' => $ids->get('slider-delete')]], $context->getContext());
+                    ->delete([['id' => $ids->get('slider-delete')]], $context);
             },
             2,
         ];
@@ -223,7 +223,7 @@ class CachedCategoryRouteTest extends TestCase
                     'name' => 'test',
                 ];
                 $container->get('product.repository')
-                    ->update([$update], $context->getContext());
+                    ->update([$update], $context);
             },
             2,
         ];
@@ -232,7 +232,7 @@ class CachedCategoryRouteTest extends TestCase
             $ids,
             function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $container->get('product.repository')
-                    ->delete([['id' => $ids->get('box-delete')]], $context->getContext());
+                    ->delete([['id' => $ids->get('box-delete')]], $context);
             },
             2,
         ];
@@ -245,7 +245,7 @@ class CachedCategoryRouteTest extends TestCase
                     'name' => 'test',
                 ];
                 $container->get('product.repository')
-                    ->update([$update], $context->getContext());
+                    ->update([$update], $context);
             },
             1,
         ];
@@ -254,7 +254,7 @@ class CachedCategoryRouteTest extends TestCase
             $ids,
             function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
                 $container->get('product.repository')
-                    ->delete([['id' => $ids->get('not-assigned-delete')]], $context->getContext());
+                    ->delete([['id' => $ids->get('not-assigned-delete')]], $context);
             },
             1,
         ];
@@ -269,7 +269,7 @@ class CachedCategoryRouteTest extends TestCase
                     ->build();
 
                 $container->get('product.repository')
-                    ->create([$product], $context->getContext());
+                    ->create([$product], $context);
             },
             2,
         ];

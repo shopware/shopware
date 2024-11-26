@@ -19,9 +19,8 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -164,11 +163,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $this->getConnectionMock()
         );
 
-        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext->getContext());
+        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext);
         if ($category === null) {
             static::fail('Category is null');
         }
-        $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext->getContext(), $this->salesChannelContext->getSalesChannel());
+        $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext, $this->salesChannelContext->getSalesChannel());
         $firstBreadcrumb = $result[0];
 
         static::assertArrayHasKey('0', $result);
@@ -200,11 +199,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $this->getConnectionMock()
         );
 
-        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c02', $this->salesChannelContext->getContext());
+        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c02', $this->salesChannelContext);
         if ($category === null) {
             static::fail('Category is null');
         }
-        $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext->getContext(), $this->salesChannelContext->getSalesChannel());
+        $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext, $this->salesChannelContext->getSalesChannel());
         $firstBreadcrumb = $result[0];
 
         static::assertArrayHasKey('0', $result);
@@ -236,11 +235,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $this->getConnectionMock()
         );
 
-        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c03', $this->salesChannelContext->getContext());
+        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c03', $this->salesChannelContext);
         if ($category === null) {
             static::fail('Category is null');
         }
-        $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext->getContext(), $this->salesChannelContext->getSalesChannel());
+        $result = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls($category, $this->salesChannelContext, $this->salesChannelContext->getSalesChannel());
         $firstBreadcrumb = $result[0];
 
         static::assertArrayHasKey('0', $result);
@@ -359,8 +358,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
-            new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->salesChannelContext),
+            new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->salesChannelContext),
         );
 
         return $categoryRepositoryMock;
@@ -374,8 +373,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $productRepositoryMock = $this->createMock(SalesChannelRepository::class);
         $productRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
-            new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
+            new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection1), null, new Criteria(), $this->salesChannelContext),
+            new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection2), null, new Criteria(), $this->salesChannelContext),
         );
 
         return $productRepositoryMock;
@@ -405,20 +404,17 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $salesChannelEntity->setFooterCategoryId('footerCategoryId');
 
         return new SalesChannelContext(
-            Context::createDefaultContext(),
+            new SystemSource(),
             'foo',
             'bar',
             $salesChannelEntity,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 }

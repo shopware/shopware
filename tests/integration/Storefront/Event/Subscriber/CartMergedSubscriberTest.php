@@ -52,8 +52,8 @@ class CartMergedSubscriberTest extends TestCase
         // Create Guest cart
         $previousCart = new Cart($currentContextToken);
 
-        $productId1 = $this->createProduct($currentContext->getContext());
-        $productId2 = $this->createProduct($currentContext->getContext());
+        $productId1 = $this->createProduct($currentContext);
+        $productId2 = $this->createProduct($currentContext);
 
         $productLineItem1 = new LineItem($productId1, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId1);
         $productLineItem2 = new LineItem($productId2, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId2);

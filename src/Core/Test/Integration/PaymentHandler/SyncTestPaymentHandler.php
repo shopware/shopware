@@ -22,7 +22,7 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
     {
     }
 
-    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
+    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $context): void
     {
         $transactionId = $transaction->getOrderTransaction()->getId();
         $order = $transaction->getOrder();
@@ -37,7 +37,6 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
             throw PaymentException::syncProcessInterrupted($transactionId, 'customer is null');
         }
 
-        $context = $salesChannelContext->getContext();
         $this->transactionStateHandler->process($transactionId, $context);
     }
 }

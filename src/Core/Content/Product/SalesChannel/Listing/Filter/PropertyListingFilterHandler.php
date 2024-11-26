@@ -76,7 +76,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $mergedOptions = new PropertyGroupOptionCollection();
 
-        $repositoryIterator = new RepositoryIterator($this->repository, $context->getContext(), $criteria);
+        $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
         while (($loop = $repositoryIterator->fetch()) !== null) {
             $entities = $loop->getEntities();
 

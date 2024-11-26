@@ -59,7 +59,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $hash = $data->get('hash');
 
-        if (!$this->checkHash($hash, $context->getContext())) {
+        if (!$this->checkHash($hash, $context)) {
             throw CustomerException::customerRecoveryHashExpired($hash);
         }
 
@@ -67,7 +67,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
         $customerHashCriteria->addAssociation('customer');
 
-        $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context->getContext())->first();
+        $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context)->first();
 
         if (!$customerRecovery instanceof CustomerRecoveryEntity) {
             throw CustomerException::customerNotFoundByHash($hash);
@@ -94,8 +94,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             'legacyEncoder' => null,
         ];
 
-        $this->customerRepository->update([$customerData], $context->getContext());
-        $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());
+        $this->customerRepository->update([$customerData], $context);
+        $this->deleteRecoveryForCustomer($customerRecovery, $context);
 
         return new SuccessResponse();
     }
@@ -111,7 +111,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
 
-        $this->dispatchValidationEvent($definition, $data, $context->getContext());
+        $this->dispatchValidationEvent($definition, $data, $context);
 
         $this->validator->validate($data->all(), $definition);
 

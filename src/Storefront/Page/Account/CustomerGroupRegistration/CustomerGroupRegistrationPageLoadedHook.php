@@ -27,7 +27,7 @@ class CustomerGroupRegistrationPageLoadedHook extends PageLoadedHook
         private readonly CustomerGroupRegistrationPage $page,
         SalesChannelContext $context
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

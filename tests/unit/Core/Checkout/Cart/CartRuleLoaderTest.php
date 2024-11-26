@@ -122,7 +122,7 @@ class CartRuleLoaderTest extends TestCase
         $ruleLoader
             ->expects(static::once())
             ->method('load')
-            ->with($salesChannelContext->getContext())
+            ->with($salesChannelContext)
             ->willReturn(new RuleCollection([$rule1, $rule2, $rule3]))
         ;
 

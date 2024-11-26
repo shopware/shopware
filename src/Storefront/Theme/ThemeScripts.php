@@ -60,7 +60,7 @@ readonly class ThemeScripts
         }
 
         return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeId, $salesChannelContext) {
-            $themeConfig = $this->configLoader->load($themeId, $salesChannelContext->getContext());
+            $themeConfig = $this->configLoader->load($themeId, $salesChannelContext);
 
             $resolvedFiles = $this->themeFileResolver->resolveFiles(
                 $themeConfig,

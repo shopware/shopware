@@ -27,7 +27,7 @@ class SalesChannelContextPermissionsChangedEvent extends NestedEvent implements 
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

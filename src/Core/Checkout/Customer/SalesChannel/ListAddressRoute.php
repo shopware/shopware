@@ -45,6 +45,6 @@ class ListAddressRoute extends AbstractListAddressRoute
 
         $this->eventDispatcher->dispatch(new AddressListingCriteriaEvent($criteria, $context));
 
-        return new ListAddressRouteResponse($this->addressRepository->search($criteria, $context->getContext()));
+        return new ListAddressRouteResponse($this->addressRepository->search($criteria, $context));
     }
 }

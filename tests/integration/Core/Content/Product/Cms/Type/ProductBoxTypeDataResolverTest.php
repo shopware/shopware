@@ -150,7 +150,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             new ProductCollection([clone $product]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $slot = $this->enrichProductWithCmsConfig($product);
@@ -198,7 +198,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             new ProductCollection(),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();

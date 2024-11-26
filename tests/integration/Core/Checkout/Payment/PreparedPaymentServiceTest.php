@@ -130,8 +130,8 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
-        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
+        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
 
@@ -145,8 +145,8 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
-        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
+        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext);
 
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, null);
@@ -158,8 +158,8 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
-        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
+        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
         PreparedTestPaymentHandler::$fail = true;
@@ -175,8 +175,8 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context, Uuid::randomHex());
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
-        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
+        $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
 
@@ -190,7 +190,7 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
 
@@ -203,7 +203,7 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext, false);
         $struct = new ArrayStruct(['testStruct']);
 
@@ -217,9 +217,9 @@ class PreparedPaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext->getContext());
-        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext->getContext());
-        $this->orderTransactionStateHandler->process($transactionId, $salesChannelContext->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $salesChannelContext);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $salesChannelContext);
+        $this->orderTransactionStateHandler->process($transactionId, $salesChannelContext);
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
 
@@ -392,7 +392,7 @@ class PreparedPaymentServiceTest extends TestCase
                 ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         }
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($order);
 
         return $order;

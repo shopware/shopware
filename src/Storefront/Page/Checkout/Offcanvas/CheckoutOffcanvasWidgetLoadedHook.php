@@ -29,7 +29,7 @@ class CheckoutOffcanvasWidgetLoadedHook extends PageLoadedHook implements CartAw
         private readonly OffcanvasCartPage $page,
         SalesChannelContext $context
     ) {
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

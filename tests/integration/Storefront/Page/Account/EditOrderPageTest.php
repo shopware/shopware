@@ -81,14 +81,14 @@ class EditOrderPageTest extends TestCase
 
         // set Payment active to false and assert it will not be loaded
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($paymentMethod);
 
         $this->paymentMethodRepository->update(
             [
                 ['id' => $paymentMethod->getId(), 'active' => false],
             ],
-            $context->getContext()
+            $context
         );
 
         $request->request->set('orderId', $orderId);
@@ -125,7 +125,7 @@ class EditOrderPageTest extends TestCase
         /** @var EntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = $this->getContainer()->get('rule.repository');
 
-        $ruleId = $ruleRepository->search($ruleCriteria, $context->getContext())->getEntities()->first()?->getId();
+        $ruleId = $ruleRepository->search($ruleCriteria, $context)->getEntities()->first()?->getId();
         static::assertNotNull($ruleId);
 
         $this->createCustomPaymentWithRule($context, $ruleId);
@@ -214,7 +214,7 @@ class EditOrderPageTest extends TestCase
                 $transactionState,
                 'stateId'
             ),
-            $context->getContext()
+            $context
         );
     }
 
@@ -226,7 +226,7 @@ class EditOrderPageTest extends TestCase
 
         $criteria->addAssociations(['stateMachineState', 'transactions.stateMachineState']);
 
-        $order = $orderRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $order = $orderRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($order);
 
         return $order;
@@ -251,7 +251,7 @@ class EditOrderPageTest extends TestCase
                     ],
                 ],
             ],
-        ], $context->getContext());
+        ], $context);
 
         return $paymentId;
     }
@@ -280,9 +280,9 @@ class EditOrderPageTest extends TestCase
             $options
         );
 
-        $this->paymentMethodRepository->create([$data], $context->getContext());
+        $this->paymentMethodRepository->create([$data], $context);
 
-        $paymentMethod = $this->paymentMethodRepository->search(new Criteria([$paymentId]), $context->getContext())->getEntities()->first();
+        $paymentMethod = $this->paymentMethodRepository->search(new Criteria([$paymentId]), $context)->getEntities()->first();
         static::assertNotNull($paymentMethod);
 
         return $paymentMethod;

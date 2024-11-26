@@ -43,7 +43,7 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
         private readonly array $query,
         private readonly SalesChannelContext $salesChannelContext
     ) {
-        parent::__construct($salesChannelContext->getContext());
+        parent::__construct($salesChannelContext);
     }
 
     /**

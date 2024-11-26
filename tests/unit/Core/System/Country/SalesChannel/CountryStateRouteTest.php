@@ -11,9 +11,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -44,19 +42,17 @@ class CountryStateRouteTest extends TestCase
         $salesChannel->setId(Uuid::randomHex());
 
         $this->salesChannelContext = new SalesChannelContext(
-            new Context(new SalesChannelApiSource(Uuid::randomHex())),
+            new SalesChannelApiSource(Uuid::randomHex()),
             Uuid::randomHex(),
             null,
             $salesChannel,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(1, 1.1, true),
-            new CashRoundingConfig(1, 1.1, true)
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 
@@ -92,7 +88,7 @@ class CountryStateRouteTest extends TestCase
                 new CountryStateCollection(),
                 null,
                 new Criteria(),
-                $this->salesChannelContext->getContext(),
+                $this->salesChannelContext,
             ));
 
         $route = new CountryStateRoute($countryStateRepository, $dispatcher);

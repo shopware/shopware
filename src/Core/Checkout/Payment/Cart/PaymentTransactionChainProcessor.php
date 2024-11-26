@@ -77,7 +77,7 @@ class PaymentTransactionChainProcessor
         $this->eventDispatcher->dispatch(new PayPaymentOrderCriteriaEvent($orderId, $criteria, $salesChannelContext));
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $salesChannelContext)->first();
 
         if (!$order) {
             throw PaymentException::invalidOrder($orderId);

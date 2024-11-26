@@ -44,7 +44,7 @@ class OrderPageTest extends TestCase
                 'id' => $order,
                 'salesChannelId' => $testContext->getSalesChannel()->getId(),
             ],
-        ], $context->getContext());
+        ], $context);
 
         $event = null;
         $this->catchEvent(AccountOrderPageLoadedEvent::class, $event);

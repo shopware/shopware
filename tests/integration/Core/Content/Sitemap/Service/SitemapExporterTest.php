@@ -162,7 +162,7 @@ class SitemapExporterTest extends TestCase
     {
         $salesChannel = $this->salesChannelRepository->search(
             $this->storefrontSalesChannelCriteria([$this->context->getSalesChannelId()]),
-            $this->context->getContext()
+            $this->context
         )->getEntities()->first();
         static::assertNotNull($salesChannel);
 
@@ -182,11 +182,11 @@ class SitemapExporterTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->context->getContext());
+        ], $this->context);
 
         $salesChannel = $this->salesChannelRepository->search(
             $this->storefrontSalesChannelCriteria([$this->context->getSalesChannelId()]),
-            $this->context->getContext()
+            $this->context
         )->getEntities()->first();
         static::assertNotNull($salesChannel);
 

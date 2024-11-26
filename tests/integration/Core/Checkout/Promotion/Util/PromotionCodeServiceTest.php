@@ -132,13 +132,12 @@ class PromotionCodeServiceTest extends TestCase
     {
         $promotionRepository = $this->getContainer()->get('promotion.repository');
         $codeRepository = $this->getContainer()->get('promotion_individual_code.repository');
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $context = $salesChannelContext->getContext();
 
         $id = Uuid::randomHex();
         $codes = ['myIndividualCode_00A', 'myIndividualCode_11B'];
-        $this->createPromotion($id, null, $promotionRepository, $salesChannelContext);
+        $this->createPromotion($id, null, $promotionRepository, $context);
         $this->createIndividualCode($id, $codes[0], $codeRepository, $context);
         $this->createIndividualCode($id, $codes[1], $codeRepository, $context);
 

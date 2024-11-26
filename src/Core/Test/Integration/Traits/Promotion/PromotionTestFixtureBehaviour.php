@@ -82,7 +82,7 @@ trait PromotionTestFixtureBehaviour
                     ],
                 ],
             ],
-            $context->getContext()
+            $context
         );
 
         $this->addTaxDataToSalesChannel($context, $tax);
@@ -241,7 +241,7 @@ trait PromotionTestFixtureBehaviour
             $data['maxValue'] = $maxValue;
         }
 
-        $discountRepository->create([$data], $context->getContext());
+        $discountRepository->create([$data], $context);
 
         return $discountId;
     }
@@ -279,7 +279,7 @@ trait PromotionTestFixtureBehaviour
             ],
         ], $data);
 
-        return $promotionRepository->create([$data], $context->getContext());
+        return $promotionRepository->create([$data], $context);
     }
 
     /**
@@ -314,7 +314,7 @@ trait PromotionTestFixtureBehaviour
             $data['useCodes'] = true;
         }
 
-        $promotionRepository->create([$data], $context->getContext());
+        $promotionRepository->create([$data], $context);
     }
 
     /**

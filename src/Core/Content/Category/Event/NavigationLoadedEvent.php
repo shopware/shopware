@@ -36,7 +36,7 @@ class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelE
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getNavigation(): Tree

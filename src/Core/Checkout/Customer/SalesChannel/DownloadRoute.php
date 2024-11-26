@@ -61,7 +61,7 @@ class DownloadRoute extends AbstractDownloadRoute
             ]
         ));
 
-        $download = $this->downloadRepository->search($criteria, $context->getContext())->first();
+        $download = $this->downloadRepository->search($criteria, $context)->first();
 
         if (!$download instanceof OrderLineItemDownloadEntity || !$download->getMedia()) {
             throw CustomerException::downloadFileNotFound($downloadId);

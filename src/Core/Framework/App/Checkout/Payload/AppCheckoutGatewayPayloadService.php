@@ -32,7 +32,7 @@ class AppCheckoutGatewayPayloadService
 
     public function request(string $url, AppCheckoutGatewayPayload $payload, AppEntity $app): ?AppCheckoutGatewayResponse
     {
-        $optionRequest = $this->getRequestOptions($payload, $app, $payload->getSalesChannelContext()->getContext());
+        $optionRequest = $this->getRequestOptions($payload, $app, $payload->getSalesChannelContext());
 
         try {
             $response = $this->client->post($url, $optionRequest);

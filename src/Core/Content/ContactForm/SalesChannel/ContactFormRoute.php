@@ -68,7 +68,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         $mailConfigs = $this->getMailConfigs($context, $data->get('slotId'), $data->get('navigationId'), $data->get('entityName'));
 
         $salutationCriteria = new Criteria([$data->get('salutationId')]);
-        $salutationSearchResult = $this->salutationRepository->search($salutationCriteria, $context->getContext());
+        $salutationSearchResult = $this->salutationRepository->search($salutationCriteria, $context);
 
         if ($salutationSearchResult->count() !== 0) {
             $data->set('salutation', $salutationSearchResult->first());
@@ -85,7 +85,7 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         /** @var array<string, mixed> $recipientStructs */
         $event = new ContactFormEvent(
-            $context->getContext(),
+            $context,
             $context->getSalesChannel()->getId(),
             new MailRecipientStruct($recipientStructs),
             $data
@@ -127,9 +127,9 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         /** @var CategoryEntity|ProductEntity|LandingPageEntity $entity */
         $entity = match ($entityName) {
-            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->first(),
-            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->first(),
-            default => $this->categoryRepository->search($criteria, $context->getContext())->first(),
+            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context)->first(),
+            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context)->first(),
+            default => $this->categoryRepository->search($criteria, $context)->first(),
         };
 
         if (!$entity) {
@@ -169,7 +169,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         $criteria = new Criteria([$slotId]);
 
         /** @var CmsSlotEntity|null $slot */
-        $slot = $this->cmsSlotRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $slot = $this->cmsSlotRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$slot) {
             return $mailConfigs;

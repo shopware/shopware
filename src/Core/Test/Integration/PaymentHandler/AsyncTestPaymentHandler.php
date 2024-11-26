@@ -26,10 +26,8 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
     {
     }
 
-    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
+    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $context): RedirectResponse
     {
-        $context = $salesChannelContext->getContext();
-
         $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $context);
 
         return new RedirectResponse(self::REDIRECT_URL);
@@ -38,10 +36,8 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
     public function finalize(
         AsyncPaymentTransactionStruct $transaction,
         Request $request,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $context
     ): void {
-        $context = $salesChannelContext->getContext();
-
         if ($request->query->getBoolean('cancel')) {
             throw PaymentException::customerCanceled(
                 $transaction->getOrderTransaction()->getId(),

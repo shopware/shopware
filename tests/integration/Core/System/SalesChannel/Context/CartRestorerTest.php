@@ -206,7 +206,7 @@ class CartRestorerTest extends TestCase
 
         $this->getContainer()->get('product.repository')->delete([[
             'id' => $productLineItem->getReferencedId(),
-        ]], $customerContext->getContext());
+        ]], $customerContext);
 
         $guestContext = $this->createSalesChannelContext('123123');
 
@@ -258,7 +258,7 @@ class CartRestorerTest extends TestCase
         // Delete 1 saved item
         $this->getContainer()->get('product.repository')->delete([[
             'id' => $productLineItem3->getReferencedId(),
-        ]], $customerContext->getContext());
+        ]], $customerContext);
 
         $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
 
@@ -464,7 +464,7 @@ class CartRestorerTest extends TestCase
         SalesChannelContext $context,
         ?int $quantity = null
     ): LineItem {
-        $productId = $this->createProduct($context->getContext());
+        $productId = $this->createProduct($context);
 
         $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
         $productLineItem->setStackable(true);

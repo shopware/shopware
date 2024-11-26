@@ -66,7 +66,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            $salesChannelContext->getContext()
+            $salesChannelContext
         );
 
         $criteria = new Criteria([$canonicalId, $oldId]);
@@ -111,7 +111,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
                     'isCanonical' => true,
                 ],
             ],
-            $salesChannelContext->getContext()
+            $salesChannelContext
         );
 
         $criteria = new Criteria([$deId, $enId]);
@@ -157,7 +157,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
                     'isCanonical' => true,
                 ],
             ],
-            $salesChannelContext->getContext()
+            $salesChannelContext
         );
 
         $criteria = new Criteria([$expectedId, $otherId]);
@@ -203,7 +203,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
                     'isCanonical' => true,
                 ],
             ],
-            $salesChannelContext->getContext()
+            $salesChannelContext
         );
 
         $criteria = new Criteria([$expectedId, $otherId]);
@@ -260,7 +260,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
                     'isCanonical' => true,
                 ],
             ],
-            $salesChannelContext->getContext()
+            $salesChannelContext
         );
 
         $criteria = new Criteria([$expectedId, $expectedFallbackId, $otherId]);

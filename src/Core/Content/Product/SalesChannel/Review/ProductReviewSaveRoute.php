@@ -61,7 +61,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $customer = $context->getCustomer();
         \assert($customer instanceof CustomerEntity);
 
-        $languageId = $context->getContext()->getLanguageId();
+        $languageId = $context->getLanguageId();
         $salesChannelId = $context->getSalesChannel()->getId();
 
         $customerId = $customer->getId();
@@ -80,7 +80,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
         $data->set('customerId', $customerId);
         $data->set('productId', $productId);
-        $this->validate($data, $context->getContext());
+        $this->validate($data, $context);
 
         $review = [
             'productId' => $productId,
@@ -99,12 +99,12 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             $review['id'] = $data->get('id');
         }
 
-        $this->repository->upsert([$review], $context->getContext());
+        $this->repository->upsert([$review], $context);
 
         $mail = $review['externalEmail'];
         $mail = \is_string($mail) ? $mail : '';
         $event = new ReviewFormEvent(
-            $context->getContext(),
+            $context,
             $context->getSalesChannel()->getId(),
             new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,

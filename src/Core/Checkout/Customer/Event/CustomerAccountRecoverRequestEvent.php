@@ -68,7 +68,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public static function getAvailableData(): EventDataCollection

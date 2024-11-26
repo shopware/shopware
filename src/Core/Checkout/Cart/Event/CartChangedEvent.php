@@ -27,7 +27,7 @@ if (Feature::isActive('v6.7.0.0')) {
 
         public function getContext(): Context
         {
-            return $this->getSalesChannelContext()->getContext();
+            return $this->getSalesChannelContext();
         }
 
         public function getSalesChannelContext(): SalesChannelContext

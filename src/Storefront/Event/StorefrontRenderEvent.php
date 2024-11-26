@@ -67,7 +67,7 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
 
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->context;
     }
 
     public function getView(): string

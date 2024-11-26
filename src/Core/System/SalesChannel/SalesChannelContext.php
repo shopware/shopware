@@ -15,6 +15,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
@@ -136,8 +137,8 @@ class SalesChannelContext extends Context
         PaymentMethodEntity $paymentMethod,
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
-        protected CashRoundingConfig $itemRounding,
-        protected CashRoundingConfig $totalRounding,
+        protected CashRoundingConfig $itemRounding = new CashRoundingConfig(2, 0.01, true),
+        protected CashRoundingConfig $totalRounding = new CashRoundingConfig(2, 0.01, true),
         array $ruleIds = [],
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
@@ -240,6 +241,8 @@ class SalesChannelContext extends Context
      */
     public function getContext(): Context
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The "context" property is deprecated and will be removed. Use the SalesChannelContext object directly.');
+
         return $this;
     }
 

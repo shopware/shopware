@@ -32,7 +32,7 @@ class AccountPaymentMethodPageLoadedHook extends PageLoadedHook
         SalesChannelContext $context
     ) {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method will be removed and the last used payment method is prioritized.');
-        parent::__construct($context->getContext());
+        parent::__construct($context);
         $this->salesChannelContext = $context;
     }
 

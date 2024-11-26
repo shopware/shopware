@@ -52,7 +52,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             $request,
             $criteria,
             $this->registry->getByEntityName('product'),
-            $context->getContext()
+            $context
         );
 
         // will be handled via processor in next line

@@ -91,11 +91,11 @@ class FlowExecutorTest extends TestCase
                     ['id' => $ids->get('tag-1')],
                 ],
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $this->productRepository->update([
             (new ProductBuilder($ids, 'product'))->price(50)->build(),
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         $this->changeTransactionStateToPaid($ids->get('order'));
 
@@ -103,7 +103,7 @@ class FlowExecutorTest extends TestCase
         $criteria->addAssociation('tags');
 
         $order = $this->orderRepository
-            ->search($criteria, $this->salesChannelContext->getContext())
+            ->search($criteria, $this->salesChannelContext)
             ->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
@@ -134,7 +134,7 @@ class FlowExecutorTest extends TestCase
                 ->add('width', 3000)
                 ->add('length', 3000)
                 ->build(),
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         return $this->addProductToCart($ids->get('product'), 1, $cart, $this->cartService, $this->salesChannelContext);
     }
@@ -146,11 +146,11 @@ class FlowExecutorTest extends TestCase
                 (new Criteria())
                     ->addFilter(new EqualsFilter('orderId', $orderId))
                     ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING)),
-                $this->salesChannelContext->getContext()
+                $this->salesChannelContext
             )->first();
         static::assertInstanceOf(OrderTransactionEntity::class, $transaction);
 
-        $this->orderTransactionStateHandler->paid($transaction->getId(), $this->salesChannelContext->getContext());
+        $this->orderTransactionStateHandler->paid($transaction->getId(), $this->salesChannelContext);
     }
 
     private function createTags(IdsCollection $idsCollection): void
@@ -166,7 +166,7 @@ class FlowExecutorTest extends TestCase
             ],
         ];
 
-        $this->tagRepository->create($tags, $this->salesChannelContext->getContext());
+        $this->tagRepository->create($tags, $this->salesChannelContext);
     }
 
     private function createFlow(IdsCollection $idsCollection): void
@@ -295,7 +295,7 @@ class FlowExecutorTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
     }
 
     private function addProductToCart(string $productId, int $quantity, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart

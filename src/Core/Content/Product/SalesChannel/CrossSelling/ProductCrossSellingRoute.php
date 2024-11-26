@@ -101,7 +101,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         /** @var ProductCrossSellingCollection $crossSellings */
         $crossSellings = $this->crossSellingRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context)
             ->getEntities();
 
         return $crossSellings;
@@ -114,7 +114,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $filters = $this->productStreamBuilder->buildFilters(
             $productStreamId,
-            $context->getContext()
+            $context
         );
 
         $criteria->addFilter(...$filters)

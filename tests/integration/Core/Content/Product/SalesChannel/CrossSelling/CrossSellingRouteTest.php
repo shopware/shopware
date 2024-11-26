@@ -84,7 +84,7 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
         $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
             ->getResult();
@@ -119,9 +119,9 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -159,9 +159,9 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(true),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -199,9 +199,9 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(true),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -239,9 +239,9 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(true, true),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -267,9 +267,9 @@ class CrossSellingRouteTest extends TestCase
             'assignedProducts' => $this->createAssignedProducts(true, true),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -335,9 +335,9 @@ class CrossSellingRouteTest extends TestCase
             'assignedProducts' => $this->createAssignedProducts(true, true),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -376,7 +376,7 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
         $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -437,8 +437,8 @@ class CrossSellingRouteTest extends TestCase
             ],
         ]];
 
-        $this->salesChannelContext->getContext()->setConsiderInheritance(true);
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->salesChannelContext->setConsiderInheritance(true);
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
         $result = $this->route->load($variantId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
@@ -488,10 +488,10 @@ class CrossSellingRouteTest extends TestCase
             'assignedProducts' => $this->createAssignedProducts(true, false, true),
         ]];
 
-        $this->salesChannelContext->getContext()->setConsiderInheritance(true);
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->salesChannelContext->setConsiderInheritance(true);
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext)->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
         static::assertCount(1, $result);
@@ -516,7 +516,7 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $this->createProductStream(false, false, $productId),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], $this->salesChannelContext);
 
         $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
             ->getResult();
@@ -549,7 +549,7 @@ class CrossSellingRouteTest extends TestCase
                 ],
                 'name' => 'testStream',
             ],
-        ], $this->salesChannelContext->getContext());
+        ], $this->salesChannelContext);
 
         return $id;
     }
@@ -597,7 +597,7 @@ class CrossSellingRouteTest extends TestCase
             }
         }
 
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+        $this->productRepository->create($products, $this->salesChannelContext);
         $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
 
         return $products;

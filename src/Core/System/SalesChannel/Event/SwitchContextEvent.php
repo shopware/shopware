@@ -38,7 +38,7 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getDataValidationDefinition(): DataValidationDefinition

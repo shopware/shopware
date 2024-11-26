@@ -52,7 +52,7 @@ class GuestWishlistPageletLoader
                 new ProductCollection(),
                 null,
                 $criteria,
-                $context->getContext()
+                $context
             ));
         }
 

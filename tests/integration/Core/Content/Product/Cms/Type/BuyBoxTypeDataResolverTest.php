@@ -137,7 +137,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
             new ProductCollection([$product]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();
@@ -200,7 +200,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
             new ProductCollection([$product]),
             null,
             new Criteria(),
-            $resolverContext->getSalesChannelContext()->getContext()
+            $resolverContext->getSalesChannelContext()
         ));
 
         $buyBoxResolver = $this->getContainer()->get(BuyBoxCmsElementResolver::class);

@@ -29,8 +29,8 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -146,20 +146,17 @@ class ProductPageLoaderTest extends TestCase
         $salesChannelEntity->setId('salesChannelId');
 
         return new SalesChannelContext(
-            Context::createDefaultContext(),
+            new SystemSource(),
             'foo',
             'bar',
             $salesChannelEntity,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 

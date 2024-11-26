@@ -25,7 +25,7 @@ if (Feature::isActive('v6.7.0.0')) {
     {
         public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
         {
-            $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
+            $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $salesChannelContext);
         }
     }
 }

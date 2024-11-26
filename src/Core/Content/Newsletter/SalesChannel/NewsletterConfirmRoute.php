@@ -44,7 +44,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {
-        $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());
+        $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context);
 
         $data = [
             'id' => $recipient->getId(),
@@ -58,9 +58,9 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_IN;
         $data['confirmedAt'] = new \DateTime();
 
-        $this->newsletterRecipientRepository->update([$data], $context->getContext());
+        $this->newsletterRecipientRepository->update([$data], $context);
 
-        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        $event = new NewsletterConfirmEvent($context, $recipient, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();

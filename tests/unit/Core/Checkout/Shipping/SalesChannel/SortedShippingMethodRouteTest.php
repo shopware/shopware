@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -55,19 +54,17 @@ class SortedShippingMethodRouteTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId($salesChannel->getShippingMethodId());
         $this->context = new SalesChannelContext(
-            new Context(new SalesChannelApiSource(Uuid::randomHex())),
+            new SalesChannelApiSource(Uuid::randomHex()),
             Uuid::randomHex(),
             null,
             $salesChannel,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            new CustomerEntity(),
             new PaymentMethodEntity(),
             $shippingMethod,
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(1, 1.1, true),
-            new CashRoundingConfig(1, 1.1, true),
+            new ShippingLocation(new CountryEntity(), null, null)
         );
         $this->response = new ShippingMethodRouteResponse(
             new EntitySearchResult(

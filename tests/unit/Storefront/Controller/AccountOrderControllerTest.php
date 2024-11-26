@@ -230,7 +230,7 @@ class AccountOrderControllerTest extends TestCase
                 $orders,
                 null,
                 $criteria,
-                $salesChannelContext->getContext()
+                $salesChannelContext
             )
         );
 

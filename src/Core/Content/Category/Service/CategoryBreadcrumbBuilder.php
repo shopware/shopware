@@ -60,7 +60,7 @@ class CategoryBreadcrumbBuilder
 
         return $this->getCategoryBreadcrumbUrls(
             $category,
-            $salesChannelContext->getContext(),
+            $salesChannelContext,
             $salesChannelContext->getSalesChannel()
         );
     }
@@ -110,7 +110,7 @@ class CategoryBreadcrumbBuilder
 
         $criteria->addFilter($this->getSalesChannelFilter($context->getSalesChannel()));
 
-        $categories = $this->categoryRepository->search($criteria, $context->getContext());
+        $categories = $this->categoryRepository->search($criteria, $context);
 
         if ($categories->count() > 0) {
             /** @var CategoryEntity|null $category */
@@ -204,7 +204,7 @@ class CategoryBreadcrumbBuilder
     ): ?CategoryEntity {
         $categoryIds = $product->getCategoryIds();
         if ($categoryIds !== null && \in_array($referrerCategoryId, $categoryIds, true)) {
-            return $this->loadCategory($referrerCategoryId, $salesChannelContext->getContext());
+            return $this->loadCategory($referrerCategoryId, $salesChannelContext);
         }
 
         return $this->getProductSeoCategory($product, $salesChannelContext);
@@ -222,7 +222,7 @@ class CategoryBreadcrumbBuilder
             $criteria->addFilter($this->getMainCategoryFilter($product->getId(), $context));
         }
 
-        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
+        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
         if ($categories->count() <= 0) {
             return null;
         }

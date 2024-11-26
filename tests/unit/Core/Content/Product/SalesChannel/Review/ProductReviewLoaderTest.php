@@ -15,8 +15,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -282,20 +282,17 @@ class ProductReviewLoaderTest extends TestCase
         }
 
         return new SalesChannelContext(
-            Context::createDefaultContext(),
+            new SystemSource(),
             'foo',
             'bar',
             $salesChannelEntity,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
+            $customer,
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            $customer,
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+            new ShippingLocation(new CountryEntity(), null, null)
         );
     }
 
@@ -319,7 +316,7 @@ class ProductReviewLoaderTest extends TestCase
 
         if ($request->get('language') === 'filter-language') {
             $criteria->addPostFilter(
-                new EqualsFilter('languageId', $context->getContext()->getLanguageId())
+                new EqualsFilter('languageId', $context->getLanguageId())
             );
         } else {
             $criteria->addAssociation('language.translationCode.code');
@@ -343,7 +340,7 @@ class ProductReviewLoaderTest extends TestCase
                 'language-filter',
                 new TermsAggregation('languageMatrix', 'languageId'),
                 [
-                    new EqualsFilter('languageId', $context->getContext()->getLanguageId()),
+                    new EqualsFilter('languageId', $context->getLanguageId()),
                     new MultiFilter(MultiFilter::CONNECTION_OR, $reviewFilters),
                 ]
             )

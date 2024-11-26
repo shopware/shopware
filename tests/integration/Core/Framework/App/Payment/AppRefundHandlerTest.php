@@ -31,7 +31,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
+        $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext);
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -77,7 +77,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         try {
-            $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
+            $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext);
         } catch (\Throwable $e) {
             static::assertInstanceOf(AppException::class, $e);
             static::assertSame('The app payment process was interrupted due to the following error:
@@ -108,7 +108,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         $context = $this->getSalesChannelContext($paymentMethodId);
 
         try {
-            $this->paymentRefundProcessor->processRefund($refundId, $context->getContext());
+            $this->paymentRefundProcessor->processRefund($refundId, $context);
         } catch (\Throwable $e) {
             static::assertInstanceOf(ServerException::class, $e);
             static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
@@ -138,7 +138,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         $context = $this->getSalesChannelContext($paymentMethodId);
 
         try {
-            $this->paymentRefundProcessor->processRefund($refundId, $context->getContext());
+            $this->paymentRefundProcessor->processRefund($refundId, $context);
         } catch (\Throwable $e) {
             static::assertInstanceOf(ServerException::class, $e);
             static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
@@ -170,6 +170,6 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         static::expectException(PaymentException::class);
         static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund handler for refund id ' . $refundId . '.');
 
-        $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
+        $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext);
     }
 }

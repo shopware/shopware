@@ -49,7 +49,7 @@ class CartContextHashEventTest extends TestCase
     public function testReturnsCorrectProperties(): void
     {
         static::assertSame($this->salesChannelContext, $this->event->getSalesChannelContext());
-        static::assertSame($this->salesChannelContext->getContext(), $this->event->getContext());
+        static::assertSame($this->salesChannelContext, $this->event->getContext());
         static::assertSame($this->cart, $this->event->getCart());
         static::assertSame($this->hashStruct, $this->event->getHashStruct());
     }

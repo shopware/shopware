@@ -59,7 +59,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             throw CustomerException::cannotDeleteActiveAddress($addressId);
         }
 
-        $this->addressRepository->delete([['id' => $addressId]], $context->getContext());
+        $this->addressRepository->delete([['id' => $addressId]], $context);
 
         return new NoContentResponse();
     }

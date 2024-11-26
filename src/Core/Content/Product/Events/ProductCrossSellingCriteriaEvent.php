@@ -32,7 +32,7 @@ abstract class ProductCrossSellingCriteriaEvent extends Event implements Shopwar
 
     public function getContext(): Context
     {
-        return $this->salesChannelContext->getContext();
+        return $this->salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

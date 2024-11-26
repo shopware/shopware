@@ -67,7 +67,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $context = $this->orderConverter->assembleSalesChannelContext(
             $order,
-            $context->getContext(),
+            $context,
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
@@ -80,10 +80,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         return new SetPaymentOrderRouteResponse();
     }
 
-    private function setPaymentMethod(string $paymentMethodId, OrderEntity $order, SalesChannelContext $salesChannelContext): void
+    private function setPaymentMethod(string $paymentMethodId, OrderEntity $order, SalesChannelContext $context): void
     {
-        $context = $salesChannelContext->getContext();
-
         if ($this->tryTransition($order, $paymentMethodId, $context)) {
             return;
         }
@@ -108,7 +106,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                     'amount' => $transactionAmount,
                 ],
             ],
-            'ruleIds' => $this->getOrderRules($order, $salesChannelContext),
+            'ruleIds' => $this->getOrderRules($order, $context),
         ];
 
         $context->scope(
@@ -118,7 +116,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             }
         );
 
-        $changedOrder = $this->loadOrder($order->getId(), $salesChannelContext);
+        $changedOrder = $this->loadOrder($order->getId(), $context);
         $transactions = $changedOrder->getTransactions();
         if ($transactions === null || ($transaction = $transactions->get($transactionId)) === null) {
             throw OrderException::orderTransactionNotFound($transactionId);
@@ -128,7 +126,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             $changedOrder,
             $transaction,
             $context,
-            $salesChannelContext->getSalesChannelId()
+            $context->getSalesChannelId()
         );
         $this->eventDispatcher->dispatch($event);
     }
@@ -205,7 +203,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      */
     private function getOrderRules(OrderEntity $order, SalesChannelContext $salesChannelContext): array
     {
-        $convertedCart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $convertedCart = $this->orderConverter->convertToCart($order, $salesChannelContext);
         $ruleIds = $this->cartRuleLoader->loadByCart(
             $salesChannelContext,
             $convertedCart,
@@ -243,7 +241,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context)->first();
 
         if ($order === null) {
             throw new EntityNotFoundException('order', $orderId);

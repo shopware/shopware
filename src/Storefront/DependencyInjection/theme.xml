@@ -54,6 +54,7 @@
             <argument type="service" id="theme_child.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory" on-invalid="null"/>
+            <argument type="service" id="Shopware\Storefront\Theme\RuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
@@ -130,6 +131,14 @@
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader">
             <argument type="service" id="theme.repository"/>
         </service>
+
+        <service id="Shopware\Storefront\Theme\RuntimeConfigService">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
 
         <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

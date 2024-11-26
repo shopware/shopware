@@ -50,7 +50,8 @@ class ThemeLifecycleService
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
-        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly RuntimeConfigService $runtimeConfigFactory,
     ) {
     }
 
@@ -115,6 +116,8 @@ class ThemeLifecycleService
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
+
+        $this->runtimeConfigFactory->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context);
     }
 
     public function removeTheme(string $technicalName, Context $context): void

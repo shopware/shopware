@@ -53,9 +53,8 @@ class AvailableCombinationLoaderTest extends TestCase
 
     public function testCombinationsAreInResult(): void
     {
-        $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
-        $productId = $this->createProduct($context);
+        $salesChanelContext = Generator::createSalesChannelContext();
+        $productId = $this->createProduct($salesChanelContext);
         $result = $this->loader->loadCombinations($productId, $salesChanelContext);
 
         foreach ($result->getCombinations() as $combinationHash => $combination) {
@@ -101,8 +100,7 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
 
-        $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::createSalesChannelContext();
         $result = $this->loader->loadCombinations($this->ids->get('a.0'), $salesChanelContext);
 
         foreach ($result->getCombinations() as $combination) {

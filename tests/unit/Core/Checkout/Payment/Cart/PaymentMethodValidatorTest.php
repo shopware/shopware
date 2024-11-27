@@ -5,19 +5,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -116,21 +110,12 @@ class PaymentMethodValidatorTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setPaymentMethodIds(['payment-method-id']);
 
-        return new SalesChannelContext(
-            new SystemSource(),
-            'token',
-            null,
-            $salesChannel,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            null,
-            $paymentMethod,
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CashRoundingConfig(2, 3, true),
-            new CashRoundingConfig(2, 3, true),
-            ['payment-method-availability-rule-id']
+        return Generator::createSalesChannelContext(
+            salesChannel: $salesChannel,
+            paymentMethod: $paymentMethod,
+            itemRounding: new CashRoundingConfig(2, 3, true),
+            totalRounding: new CashRoundingConfig(2, 3, true),
+            ruleIds: ['payment-method-availability-rule-id']
         );
     }
 }

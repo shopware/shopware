@@ -82,7 +82,6 @@ class ProductSuggestRouteTest extends TestCase
             ));
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSuggestRoute()->load(
             $request,

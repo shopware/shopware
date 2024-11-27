@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -48,15 +47,7 @@ class CartRuleLoaderTest extends TestCase
             ->with('test')
             ->willThrowException(CartException::tokenNotFound('test'));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->expects(static::once())
-            ->method('getToken')
-            ->willReturn('test');
-        $salesChannelContext
-            ->expects(static::exactly(2))
-            ->method('getContext')
-            ->willReturn(Context::createDefaultContext());
+        $salesChannelContext = Generator::createSalesChannelContext(token: 'test');
 
         $calculatedCart = new Cart('calculated');
         $processor = $this->createMock(Processor::class);
@@ -70,7 +61,7 @@ class CartRuleLoaderTest extends TestCase
         $ruleLoader
             ->expects(static::once())
             ->method('load')
-            ->with($salesChannelContext->getContext())
+            ->with($salesChannelContext)
             ->willReturn(new RuleCollection());
 
         $cartRuleLoader = new CartRuleLoader(

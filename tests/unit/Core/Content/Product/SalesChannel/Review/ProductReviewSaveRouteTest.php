@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -68,7 +67,6 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = Context::createDefaultContext();
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
         $customer->setFirstName('Max');
@@ -79,7 +77,6 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn($customer);
         $salesChannelContext->expects(static::exactly(3))->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->expects(static::exactly(4))->method('getContext')->willReturn($context);
 
         $this->validator->expects(static::once())->method('getViolations')->willReturn(new ConstraintViolationList());
 
@@ -91,7 +88,7 @@ class ProductReviewSaveRouteTest extends TestCase
                     'productId' => $productId,
                     'customerId' => $customer->getId(),
                     'salesChannelId' => $salesChannel->getId(),
-                    'languageId' => $context->getLanguageId(),
+                    'languageId' => $salesChannelContext->getLanguageId(),
                     'externalUser' => $customer->getFirstName(),
                     'externalEmail' => $customer->getEmail(),
                     'title' => $data->get('title'),
@@ -100,10 +97,10 @@ class ProductReviewSaveRouteTest extends TestCase
                     'status' => false,
                     'id' => $data->get('id'),
                 ],
-            ], $context);
+            ], $salesChannelContext);
 
         $event = new ReviewFormEvent(
-            $context,
+            $salesChannelContext,
             $salesChannel->getId(),
             new MailRecipientStruct(['foo@example.com' => 'Max Mustermann']),
             new RequestDataBag([

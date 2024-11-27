@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -20,20 +19,15 @@ use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -43,11 +37,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -62,11 +54,9 @@ class RecalculationServiceTest extends TestCase
 
     private CartRuleLoader&MockObject $cartRuleLoader;
 
-    private Context $context;
-
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->salesChannelContext = Generator::createSalesChannelContext();
         $this->orderConverter = $this->createMock(OrderConverter::class);
         $this->orderConverter
             ->method('assembleSalesChannelContext')
@@ -76,23 +66,10 @@ class RecalculationServiceTest extends TestCase
                 $salesChannel = new SalesChannelEntity();
                 $salesChannel->setId(Uuid::randomHex());
 
-                return new SalesChannelContext(
-                    new SystemSource(),
-                    'foo',
-                    'bar',
-                    $salesChannel,
-                    new CurrencyEntity(),
-                    new CustomerGroupEntity(),
-                    new TaxCollection(),
-                    new CustomerEntity(),
-                    new PaymentMethodEntity(),
-                    new ShippingMethodEntity(),
-                    new ShippingLocation(new CountryEntity(), null, null)
-                );
+                return Generator::createSalesChannelContext(salesChannel: $salesChannel);
             });
 
         $this->cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $this->context = Context::createDefaultContext();
     }
 
     public function testRecalculateOrderWithTaxStatus(): void
@@ -150,9 +127,7 @@ class RecalculationServiceTest extends TestCase
             ->expects(static::once())
             ->method('convertToOrder')
             ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
-                $salesChannelContext = $this->createMock(SalesChannelContext::class);
-                $salesChannelContext->method('getTaxState')
-                    ->willReturn(CartPrice::TAX_STATE_FREE);
+                $salesChannelContext = Generator::createSalesChannelContext(taxState: CartPrice::TAX_STATE_FREE);
 
                 return CartTransformer::transform(
                     $cart,
@@ -185,7 +160,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->recalculateOrder($orderEntity->getId(), $this->context);
+        $recalculationService->recalculateOrder($orderEntity->getId(), $this->salesChannelContext);
     }
 
     public function testAddProductToOrder(): void
@@ -214,7 +189,7 @@ class RecalculationServiceTest extends TestCase
                 static::assertSame($data[0]['deliveries'][0]['stateId'], $order->getDeliveries()?->first()?->getStateId());
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->context),
+                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->salesChannelContext),
                 ]), []);
             });
 
@@ -238,7 +213,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->addProductToOrder($order->getId(), $productEntity->getId(), 1, $this->context);
+        $recalculationService->addProductToOrder($order->getId(), $productEntity->getId(), 1, $this->salesChannelContext);
     }
 
     public function testAddCustomLineItem(): void
@@ -261,7 +236,7 @@ class RecalculationServiceTest extends TestCase
                 static::assertSame($data[0]['stateId'], $order->getStateId());
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->context),
+                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->salesChannelContext),
                 ]), []);
             });
 
@@ -278,7 +253,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->addCustomLineItem($order->getId(), $lineItem, $this->context);
+        $recalculationService->addCustomLineItem($order->getId(), $lineItem, $this->salesChannelContext);
     }
 
     public function testAssertProcessorsCalledWithLiveVersion(): void
@@ -307,7 +282,7 @@ class RecalculationServiceTest extends TestCase
                 static::assertSame($data[0]['deliveries'][0]['stateId'], $order->getDeliveries()?->first()?->getStateId());
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->context),
+                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->salesChannelContext),
                 ]), []);
             });
 
@@ -333,7 +308,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->addProductToOrder($order->getId(), $productEntity->getId(), 1, $this->context);
+        $recalculationService->addProductToOrder($order->getId(), $productEntity->getId(), 1, $this->salesChannelContext);
 
         static::assertEquals(Defaults::LIVE_VERSION, $processor->versionId);
     }
@@ -358,7 +333,7 @@ class RecalculationServiceTest extends TestCase
                 static::assertSame($data[0]['stateId'], $order->getStateId());
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->context),
+                    new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->salesChannelContext),
                 ]), []);
             });
 
@@ -375,7 +350,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->addPromotionLineItem($order->getId(), '', $this->context);
+        $recalculationService->addPromotionLineItem($order->getId(), '', $this->salesChannelContext);
     }
 
     public function testToggleAutomaticPromotion(): void
@@ -411,7 +386,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->toggleAutomaticPromotion($order->getId(), $this->context, false);
+        $recalculationService->toggleAutomaticPromotion($order->getId(), $this->salesChannelContext, false);
     }
 
     public function testRecalculateOrderWithEmptyLineItems(): void
@@ -439,9 +414,7 @@ class RecalculationServiceTest extends TestCase
             ->expects(static::once())
             ->method('convertToOrder')
             ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
-                $salesChannelContext = $this->createMock(SalesChannelContext::class);
-                $salesChannelContext->method('getTaxState')
-                    ->willReturn(CartPrice::TAX_STATE_FREE);
+                $salesChannelContext = Generator::createSalesChannelContext(taxState: CartPrice::TAX_STATE_FREE);
 
                 return CartTransformer::transform(
                     $cart,
@@ -464,7 +437,7 @@ class RecalculationServiceTest extends TestCase
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->recalculateOrder($orderEntity->getId(), $this->context);
+        $recalculationService->recalculateOrder($orderEntity->getId(), $this->salesChannelContext);
     }
 
     private function orderEntity(): OrderEntity

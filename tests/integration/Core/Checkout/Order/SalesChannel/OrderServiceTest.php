@@ -217,9 +217,10 @@ class OrderServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $this->salesChannelContext
-            
-            ->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+        $this->salesChannelContext->addExtension(
+            SendMailAction::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(true, [], [])
+        );
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -425,9 +426,10 @@ class OrderServiceTest extends TestCase
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
-        $this->salesChannelContext
-            
-            ->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+        $this->salesChannelContext->addExtension(
+            SendMailAction::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(true, [], [])
+        );
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,

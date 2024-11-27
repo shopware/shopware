@@ -4,8 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundPageCacheKeyEvent;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,13 +17,12 @@ class NotFoundPageCacheKeyEventTest extends TestCase
     public function testEvent(): void
     {
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context = Generator::createSalesChannelContext();
 
         $event = new NotFoundPageCacheKeyEvent('test', $request, $context);
 
         static::assertSame('test', $event->getKey());
-        static::assertSame($context->getContext(), $event->getContext());
+        static::assertSame($context, $event->getContext());
         static::assertSame($context, $event->getSalesChannelContext());
         static::assertSame($request, $event->getRequest());
 

@@ -9,7 +9,6 @@ use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,9 +38,7 @@ class ProductExportGenerateCommandTest extends TestCase
     public function testExecutionWithInvalidSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getContext')->willReturn($context);
 
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChannelId);
@@ -61,9 +58,7 @@ class ProductExportGenerateCommandTest extends TestCase
     public function testExecuteWithValidData(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getContext')->willReturn($context);
 
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChannelId);

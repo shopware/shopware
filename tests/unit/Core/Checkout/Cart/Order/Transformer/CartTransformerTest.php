@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -21,11 +20,12 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -67,8 +67,18 @@ class CartTransformerTest extends TestCase
             'campaignCode' => 'campaignCodeTest',
             'source' => 'sourceTest',
             'createdById' => $adminUserId,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => [
+                'extensions' => [],
+                'decimals' => 2,
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+            'totalRounding' => [
+                'extensions' => [],
+                'decimals' => 2,
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
         ];
 
         static::assertIsString($cartTransformer['deepLinkCode']);
@@ -116,27 +126,23 @@ class CartTransformerTest extends TestCase
         return $cart;
     }
 
-    public function createSalesChannelMock(string $adminUserId): SalesChannelContext&MockObject
+    public function createSalesChannelMock(string $adminUserId): SalesChannelContext
     {
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $contextSourceMock = $this->createMock(AdminSalesChannelApiSource::class);
-        $sourceTest = $this->createMock(AdminApiSource::class);
+        $salesChannelId = '12345';
 
-        $contextMockAdminSales = new Context($contextSourceMock);
-        $contextMockAdminApi = new Context($sourceTest);
+        $adminSalesChannelApiSource = new AdminSalesChannelApiSource(
+            $salesChannelId,
+            new Context(new AdminApiSource($adminUserId))
+        );
 
-        $contextSourceMock->method('getOriginalContext')->willReturn($contextMockAdminApi);
-        $sourceTest->method('getUserId')->willReturn($adminUserId);
-        $salesChannelContextMock->method('getContext')->willReturn($contextMockAdminSales);
-        $currency = new CurrencyEntity();
-        $currency->setId('12345');
-        $currency->setFactor(1);
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
 
-        $salesChannelContextMock->method('getCurrency')->willReturn($currency);
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId('123');
-        $salesChannelContextMock->method('getSalesChannel')->willReturn($salesChannelEntity);
-
-        return $salesChannelContextMock;
+        return Generator::createSalesChannelContext(
+            source: $adminSalesChannelApiSource,
+            salesChannel: $salesChannel,
+            itemRounding: new CashRoundingConfig(2, 0.01, true),
+            totalRounding: new CashRoundingConfig(2, 0.01, true)
+        );
     }
 }

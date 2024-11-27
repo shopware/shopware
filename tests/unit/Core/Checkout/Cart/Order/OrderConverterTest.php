@@ -710,7 +710,6 @@ class OrderConverterTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         if ($loginCustomer) {
             $salesChannelContext->method('getCustomer')->willReturn($this->getCustomer($customerWithoutBillingAddress));
         }

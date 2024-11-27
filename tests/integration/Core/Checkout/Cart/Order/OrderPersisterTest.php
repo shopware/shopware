@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use Faker\Factory;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -32,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -156,19 +156,15 @@ class OrderPersisterTest extends TestCase
         return $customer;
     }
 
-    private function getSalesChannelContext(): MockObject&SalesChannelContext
+    private function getSalesChannelContext(): SalesChannelContext
     {
-        $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
-
-        $context = Context::createDefaultContext();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->method('getContext')->willReturn($context);
 
-        return $salesChannelContext;
+        return Generator::createSalesChannelContext(
+            customer: $this->getCustomer(),
+            salesChannel: $salesChannel
+        );
     }
 }

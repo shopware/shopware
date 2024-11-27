@@ -214,7 +214,6 @@ class PropertyFilterHandlerTest extends TestCase
         $request->setMethod(Request::METHOD_POST);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         new StaticDefinitionInstanceRegistry(
             [$definition = new PropertyGroupOptionDefinition()],

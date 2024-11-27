@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -48,9 +47,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $this->promotion->setUseSetGroups(false);
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
-
-        $this->salesChannelContext->method('getContext')->willReturn($context);
     }
 
     /**

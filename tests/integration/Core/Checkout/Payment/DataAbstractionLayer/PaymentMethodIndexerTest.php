@@ -190,7 +190,7 @@ class PaymentMethodIndexerTest extends TestCase
         // Setup payment method(s)
         /** @var EntityRepository $paymentRepository */
         $paymentRepository = $this->getContainer()->get('payment_method.repository');
-        $context = Context::createFrom($this->context);
+        $context = clone $this->context;
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
         $paymentMethodId = Uuid::randomHex();
         $paymentRepository->create(
@@ -223,7 +223,7 @@ class PaymentMethodIndexerTest extends TestCase
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
         $messageBus->reset();
         $ids = [$paymentMethodId];
-        $contextWithQueue = Context::createFrom($this->context);
+        $contextWithQueue = clone $this->context;
         $contextWithQueue->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
         $message = new PaymentMethodIndexingMessage($ids, null, $contextWithQueue);
         $this->indexer->handle($message);

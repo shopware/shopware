@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Subscriber\ActiveRulesDataCollectorSubscriber;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -38,9 +37,9 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = new Context(new SystemSource(), [$ruleId]);
-        $salesChannelContext->method('getContext')->willReturn($context);
+        $salesChannelContext = Generator::createSalesChannelContext(
+            ruleIds: [$ruleId]
+        );
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());
 
         $activeRule = new RuleEntity();
@@ -81,9 +80,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
     public function testEmptyRuleIds(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = new Context(new SystemSource(), []);
-        $salesChannelContext->method('getContext')->willReturn($context);
+        $salesChannelContext = Generator::createSalesChannelContext();
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());
 
         $ruleRepository = $this->createMock(EntityRepository::class);

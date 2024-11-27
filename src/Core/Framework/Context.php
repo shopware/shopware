@@ -41,8 +41,8 @@ class Context extends Struct
     protected $extensions = [];
 
     /**
-     * @param array<string> $ruleIds
-     * @param array<string> $languageIdChain
+     * @param string[] $ruleIds
+     * @param string[] $languageIdChain
      */
     public function __construct(
         protected ContextSource $source,

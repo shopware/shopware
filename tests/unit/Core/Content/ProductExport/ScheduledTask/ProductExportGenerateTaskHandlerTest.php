@@ -124,7 +124,6 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     private function getSalesChannelContextFactoryMock(): SalesChannelContextFactory
     {
         $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $salesChannelContextMock->method('getContext')->willReturn(Context::createDefaultContext());
 
         $salesChannelContextFactoryMock = $this->createMock(SalesChannelContextFactory::class);
         $salesChannelContextFactoryMock->method('create')->willReturn($salesChannelContextMock);

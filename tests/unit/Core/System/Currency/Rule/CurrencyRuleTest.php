@@ -7,12 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -174,13 +174,10 @@ class CurrencyRuleTest extends TestCase
 
     private function getCartRuleScope(string $currencyId): CartRuleScope
     {
-        $context = Context::createDefaultContext();
-        $context->assign(['currencyId' => $currencyId]);
+        $currency = new CurrencyEntity();
+        $currency->setId($currencyId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->method('getContext')
-            ->willReturn($context);
+        $salesChannelContext = Generator::createSalesChannelContext(currency: $currency);
 
         $cart = new Cart('bar');
 

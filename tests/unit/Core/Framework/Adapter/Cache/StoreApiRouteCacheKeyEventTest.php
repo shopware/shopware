@@ -4,20 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,20 +32,10 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
         $this->request = new Request();
         $this->salesChannelEntity = new SalesChannelEntity();
         $this->salesChannelEntity->setId(Uuid::randomHex());
-        $this->context = new SalesChannelContext(
-            new SalesChannelApiSource(Uuid::randomHex()),
-            Uuid::randomHex(),
-            null,
-            $this->salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new CustomerEntity(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null)
+        $this->context = Generator::createSalesChannelContext(
+            source: new SalesChannelApiSource(Uuid::randomHex()),
+            salesChannel: $this->salesChannelEntity
         );
-
         $this->defaultEvent = new StoreApiRouteCacheKeyEvent([], $this->request, $this->context, null);
     }
 

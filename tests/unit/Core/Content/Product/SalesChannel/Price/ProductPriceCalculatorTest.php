@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -26,15 +24,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -62,9 +65,7 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('priceWillBeCalculated')]
     public function testPriceWillBeCalculated(Entity $entity, ?PriceAssertion $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context = $this->createSalesChannelContextWithTax($entity->get('taxId'));
 
         $this->calculator->calculate([$entity], $context);
 
@@ -88,12 +89,8 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('taxStateWillBeUsedProvider')]
     public function testTaxStateWillBeUsed(Entity $product, string $state, float $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
-        $context->method('getTaxState')->willReturn($state);
-        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(10)]));
-        $context->method('getItemRounding')->willreturn(new CashRoundingConfig(2, 0.01, true));
+        $context = $this->createSalesChannelContextWithTax($product->get('taxId'), 10);
+        $context->setTaxState($state);
 
         $this->calculator->calculate([$product], $context);
 
@@ -236,11 +233,7 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('advancedPricesWillBeCalculatedProvider')]
     public function testAdvancedPricesWillBeCalculated(Entity $product, array $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
-        $context->method('getRuleIds')->willReturn([Defaults::CURRENCY]);
-        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+        $context = $this->createSalesChannelContextWithTax($product->get('taxId'));
 
         $this->calculator->calculate([$product], $context);
 
@@ -329,9 +322,7 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('cheapestPriceWillBeCalculatedProvider')]
     public function testCheapestPriceWillBeCalculated(Entity $entity, ?PriceAssertion $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context = $this->createSalesChannelContextWithTax($entity->get('taxId'));
 
         $this->calculator->calculate([$entity], $context);
 
@@ -380,6 +371,30 @@ class ProductPriceCalculatorTest extends TestCase
             ]),
             new PriceAssertion(20.0, 30.0, null, 40.0),
         ];
+    }
+
+    private function createSalesChannelContextWithTax(?string $taxId, float $taxRate = 19): SalesChannelContext
+    {
+        $currency = new CurrencyEntity();
+        $currency->setId(Defaults::CURRENCY);
+
+        $overrides = [];
+
+        if ($taxId) {
+            $taxRule = new TaxRuleEntity();
+            $taxRule->setId(Uuid::randomHex());
+            $taxRule->setTaxRate($taxRate);
+            $tax = new TaxEntity();
+            $tax->setId($taxId);
+            $tax->setRules(new TaxRuleCollection([$taxRule]));
+            $overrides['taxRules'] = new TaxCollection([$tax]);
+        }
+
+        return Generator::createSalesChannelContext(
+            currency: $currency,
+            overrides: $overrides,
+            ruleIds: [Defaults::CURRENCY]
+        );
     }
 }
 

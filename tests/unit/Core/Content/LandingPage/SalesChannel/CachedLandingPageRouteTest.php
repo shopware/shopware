@@ -5,11 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\LandingPage\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\LandingPage\Event\LandingPageRouteCacheKeyEvent;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
@@ -22,11 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -60,18 +53,9 @@ class CachedLandingPageRouteTest extends TestCase
         $this->eventDispatcher = new EventDispatcher();
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
-        $this->context = new SalesChannelContext(
-            new SalesChannelApiSource(Uuid::randomHex()),
-            Uuid::randomHex(),
-            null,
-            $salesChannel,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new CustomerEntity(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null)
+        $this->context = Generator::createSalesChannelContext(
+            source: new SalesChannelApiSource(Uuid::randomHex()),
+            salesChannel: $salesChannel
         );
         $this->response = new LandingPageRouteResponse(
             new LandingPageEntity()

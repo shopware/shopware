@@ -33,16 +33,15 @@ use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxProvider;
@@ -75,10 +74,7 @@ class TaxProviderProcessorTest extends TestCase
     public function testProcess(): void
     {
         $cart = $this->createCart();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->method('getTotalRounding')
-            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $taxProvider = new TaxProviderEntity();
         $taxProvider->setId(Uuid::randomHex());
@@ -146,10 +142,7 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderStruct = new TaxProviderResult();
 
         $cart = new Cart('foo');
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->method('getTotalRounding')
-            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $testProvider = $this->createMock(TestEmptyTaxProvider::class);
         $testProvider
@@ -214,10 +207,7 @@ class TaxProviderProcessorTest extends TestCase
     {
         $cart = $this->createCart();
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->method('getTotalRounding')
-            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $registry = new TaxProviderRegistry(
             [
@@ -314,14 +304,14 @@ class TaxProviderProcessorTest extends TestCase
         $this->expectException(TaxProviderExceptions::class);
         $this->expectExceptionMessage('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'foo_bar\' threw an exception: No tax provider found for identifier foo_bar');
 
-        $processor->process(new Cart('foo'), $this->createMock(SalesChannelContext::class));
+        $processor->process(new Cart('foo'), Generator::createSalesChannelContext());
     }
 
     public function testNoProvidersAvailableWillDoNothing(): void
     {
         $cart = new Cart('foo');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $registry = new TaxProviderRegistry([]);
         $collection = new TaxProviderCollection([]);
@@ -332,7 +322,7 @@ class TaxProviderProcessorTest extends TestCase
             $collection,
             null,
             new Criteria(),
-            Context::createDefaultContext()
+            $salesChannelContext
         );
 
         $repo = $this->createMock(EntityRepository::class);
@@ -358,7 +348,7 @@ class TaxProviderProcessorTest extends TestCase
     {
         $cart = new Cart('foo');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $registry = $this->createMock(TaxProviderRegistry::class);
         $registry
@@ -386,7 +376,7 @@ class TaxProviderProcessorTest extends TestCase
             $collection,
             null,
             new Criteria(),
-            Context::createDefaultContext()
+            $salesChannelContext
         );
 
         $repo = $this->createMock(EntityRepository::class);
@@ -417,10 +407,7 @@ class TaxProviderProcessorTest extends TestCase
     public function testAppProviderIsCalled(): void
     {
         $cart = $this->createCart();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->method('getTotalRounding')
-            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $taxProvider = new TaxProviderEntity();
         $taxProvider->setId(Uuid::randomHex());
@@ -438,7 +425,7 @@ class TaxProviderProcessorTest extends TestCase
             $collection,
             null,
             new Criteria(),
-            Context::createDefaultContext()
+            $salesChannelContext
         );
 
         $taxProviderRegistry = new TaxProviderRegistry([
@@ -460,7 +447,7 @@ class TaxProviderProcessorTest extends TestCase
                 'https://example.com',
                 static::isInstanceOf(TaxProviderPayload::class),
                 static::isInstanceOf(AppEntity::class),
-                $salesChannelContext->getContext()
+                $salesChannelContext
             )
             ->willReturn(new TaxProviderResult([$this->ids->get('line-item-1') => $taxes]));
 
@@ -511,10 +498,7 @@ class TaxProviderProcessorTest extends TestCase
         );
 
         $cart = new Cart('foo');
-        $context = $this->createMock(SalesChannelContext::class);
-        $context
-            ->method('getTaxState')
-            ->willReturn(CartPrice::TAX_STATE_FREE);
+        $context = Generator::createSalesChannelContext(taxState: CartPrice::TAX_STATE_FREE);
 
         $processor->process($cart, $context);
     }

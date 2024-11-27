@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeExcep
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -49,9 +48,6 @@ class PromotionItemBuilderTest extends TestCase
         $this->promotion->setUseSetGroups(false);
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
-
-        $this->salesChannelContext->method('getContext')->willReturn($context);
     }
 
     /**

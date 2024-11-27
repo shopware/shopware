@@ -29,7 +29,6 @@ class ProductSearchBuilderTest extends TestCase
         );
 
         $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
-        $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $criteria = new Criteria();
         $request = new Request();

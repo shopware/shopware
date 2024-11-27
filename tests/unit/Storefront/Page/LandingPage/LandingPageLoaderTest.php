@@ -4,11 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Page\LandingPage;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -21,15 +16,11 @@ use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -54,7 +45,7 @@ class LandingPageLoaderTest extends TestCase
         );
 
         $request = new Request([], [], []);
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         static::expectExceptionObject(RoutingException::missingRequestParameter('landingPageId', '/landingPageId'));
         $landingPageLoader->load($request, $salesChannelContext);
@@ -73,7 +64,7 @@ class LandingPageLoaderTest extends TestCase
 
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         static::expectExceptionObject(new PageNotFoundException($landingPageId));
         $landingPageLoader->load($request, $salesChannelContext);
@@ -84,7 +75,7 @@ class LandingPageLoaderTest extends TestCase
         $productId = Uuid::randomHex();
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = Generator::createSalesChannelContext();
 
         $product = $this->getProduct($productId);
         $cmsPage = $this->getCmsPage($product);
@@ -124,26 +115,6 @@ class LandingPageLoaderTest extends TestCase
         $product->setId($productId);
 
         return $product;
-    }
-
-    private function getSalesChannelContext(): SalesChannelContext
-    {
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId('salesChannelId');
-
-        return new SalesChannelContext(
-            new SystemSource(),
-            'foo',
-            'bar',
-            $salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new CustomerEntity(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null)
-        );
     }
 
     private function getCmsPage(SalesChannelProductEntity $productEntity): CmsPageEntity

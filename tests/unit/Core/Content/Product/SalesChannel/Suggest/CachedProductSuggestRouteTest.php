@@ -5,11 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Suggest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
@@ -22,11 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -55,18 +47,8 @@ class CachedProductSuggestRouteTest extends TestCase
         $this->decorated = $this->createMock(AbstractProductSuggestRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);
         $this->eventDispatcher = new EventDispatcher();
-        $this->context = new SalesChannelContext(
-            new SalesChannelApiSource(Uuid::randomHex()),
-            Uuid::randomHex(),
-            null,
-            new SalesChannelEntity(),
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new CustomerEntity(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null)
+        $this->context = Generator::createSalesChannelContext(
+            source: new SalesChannelApiSource(Uuid::randomHex())
         );
 
         $this->cachedRout = new CachedProductSuggestRoute(

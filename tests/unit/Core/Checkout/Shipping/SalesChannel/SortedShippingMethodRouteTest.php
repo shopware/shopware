@@ -5,10 +5,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
@@ -21,11 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -53,18 +47,9 @@ class SortedShippingMethodRouteTest extends TestCase
         $salesChannel->setShippingMethodId(Uuid::randomHex());
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId($salesChannel->getShippingMethodId());
-        $this->context = new SalesChannelContext(
-            new SalesChannelApiSource(Uuid::randomHex()),
-            Uuid::randomHex(),
-            null,
-            $salesChannel,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new CustomerEntity(),
-            new PaymentMethodEntity(),
-            $shippingMethod,
-            new ShippingLocation(new CountryEntity(), null, null)
+        $this->context = Generator::createSalesChannelContext(
+            source: new SalesChannelApiSource(Uuid::randomHex()),
+            salesChannel: $salesChannel
         );
         $this->response = new ShippingMethodRouteResponse(
             new EntitySearchResult(

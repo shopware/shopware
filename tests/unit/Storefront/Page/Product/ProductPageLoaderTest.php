@@ -4,11 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -29,17 +24,13 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -59,7 +50,7 @@ class ProductPageLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = Generator::createSalesChannelContext();
         $reviews = $this->getCmsSlotConfig();
 
         $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews, $request, $salesChannelContext);
@@ -138,26 +129,6 @@ class ProductPageLoaderTest extends TestCase
         $product->setTranslated($reviews);
 
         return $product;
-    }
-
-    private function getSalesChannelContext(): SalesChannelContext
-    {
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId('salesChannelId');
-
-        return new SalesChannelContext(
-            new SystemSource(),
-            'foo',
-            'bar',
-            $salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new CustomerEntity(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null)
-        );
     }
 
     private function getCmsPage(SalesChannelProductEntity $productEntity): CmsPageEntity

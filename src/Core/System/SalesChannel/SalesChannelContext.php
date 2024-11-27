@@ -121,8 +121,8 @@ class SalesChannelContext extends Context
     /**
      * @internal
      *
-     * @param array<string> $ruleIds
-     * @param array<string> $languageIdChain
+     * @param string[] $ruleIds
+     * @param string[] $languageIdChain
      * @param array<string, string[]> $areaRuleIds
      */
     public function __construct(

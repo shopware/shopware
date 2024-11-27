@@ -47,10 +47,6 @@ class MediaRouteTest extends TestCase
         $mediaEntity2->setPath('testPath2');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->expects(static::once())
-            ->method('getContext')
-            ->willReturn(Context::createDefaultContext());
 
         $request = new Request([], ['ids' => $ids]);
 
@@ -84,10 +80,6 @@ class MediaRouteTest extends TestCase
         $this->expectExceptionMessage('A media id must be provided.');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->expects(static::never())
-            ->method('getContext')
-            ->willReturn(Context::createDefaultContext());
 
         $request = new Request([], ['ids' => '']);
 

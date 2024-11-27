@@ -15,11 +15,11 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +38,7 @@ class DownloadResponseGeneratorTest extends TestCase
 
     private DownloadResponseGenerator $downloadResponseGenerator;
 
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -54,8 +54,7 @@ class DownloadResponseGeneratorTest extends TestCase
             $this->createMock(AbstractMediaUrlGenerator::class)
         );
 
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $this->salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $this->salesChannelContext = Generator::createSalesChannelContext();
     }
 
     public function testThrowsExceptionWithoutFilesystemAdapter(): void

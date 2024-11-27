@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,8 +29,7 @@ class AvailableCombinationLoaderTest extends TestCase
 
     public function testLoadCombinationsReturnsAvailableCombinationResult(): void
     {
-        $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::createSalesChannelContext();
         $loader = $this->getAvailableCombinationLoader();
         $result = $loader->loadCombinations(
             Uuid::randomHex(),
@@ -52,8 +50,7 @@ class AvailableCombinationLoaderTest extends TestCase
 
     public function testLoadCombinationsReturnsAvailableCombinationResultWithAvailabilityFromStockStorage(): void
     {
-        $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::createSalesChannelContext();
 
         $stockStorage = $this->createMock(AbstractStockStorage::class);
         $stockStorage->expects(static::once())

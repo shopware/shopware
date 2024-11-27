@@ -5,13 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Payload;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -56,11 +54,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testEncode(): void
     {
-        $context = new Context(new SystemSource());
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->method('getContext')
-            ->willReturn($context);
 
         $cart = new Cart($this->ids->get('cart'));
         $source = new Source('https://shopware.com', $this->ids->get('shop-id'), '1.0.0');

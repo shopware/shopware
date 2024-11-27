@@ -19,8 +19,8 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
      * @param EntityRepository<MediaCollection> $repository
      */
     public function __construct(
-        private readonly EntityRepository $repository,
-        private readonly RuntimeConfigService $runtimeConfigService,
+        private readonly EntityRepository          $repository,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 

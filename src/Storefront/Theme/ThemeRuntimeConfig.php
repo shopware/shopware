@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('storefront')]
-class RuntimeConfig
+class ThemeRuntimeConfig
 {
     public function __construct(
         public readonly string $themeId,

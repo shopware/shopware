@@ -11,7 +11,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
 #[Package('storefront')]
-class RuntimeConfigService
+class ThemeRuntimeConfigService
 {
     public function __construct(
         private ThemeFileResolver $themeFileResolver,
@@ -21,7 +21,7 @@ class RuntimeConfigService
     ) {
     }
 
-    public function getRuntimeConfig(string $themeId): ?RuntimeConfig
+    public function getRuntimeConfig(string $themeId): ?ThemeRuntimeConfig
     {
         $resolvedTheme = $this->connection->fetchAssociative(
             <<<'SQL'
@@ -42,7 +42,7 @@ class RuntimeConfigService
             return null;
         }
 
-        return RuntimeConfig::fromArray([
+        return ThemeRuntimeConfig::fromArray([
             'themeId' => Uuid::fromBytesToHex($resolvedTheme['themeId']),
             'resolvedConfig' => json_decode($resolvedTheme['resolvedConfig'], true, 512, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_decode($resolvedTheme['scriptFiles'], true, 512, \JSON_THROW_ON_ERROR),
@@ -52,7 +52,7 @@ class RuntimeConfigService
         ]);
     }
 
-    public function storeRuntimeConfig(RuntimeConfig $config): void
+    public function saveRuntimeConfig(ThemeRuntimeConfig $config): void
     {
         $this->connection->executeStatement(<<<'SQL'
             REPLACE INTO `theme_runtime_config` (theme_id, resolved_config, script_files, style_files, icon_sets, updated_at)
@@ -74,7 +74,7 @@ class RuntimeConfigService
 
         $resolvedFiles = $this->resolveThemeFiles($themeConfig, $configCollection);
 
-        $runtimeConfig = new RuntimeConfig(
+        $runtimeConfig = new ThemeRuntimeConfig(
             $themeId,
             $this->themeService->getThemeConfiguration($themeId, false, $context),
             $resolvedFiles['js'],
@@ -83,7 +83,7 @@ class RuntimeConfigService
             new \DateTime(),
         );
 
-        $this->storeRuntimeConfig($runtimeConfig);
+        $this->saveRuntimeConfig($runtimeConfig);
     }
 
     private function prepareThemeIconSets(StorefrontPluginConfiguration $themeConfig): array

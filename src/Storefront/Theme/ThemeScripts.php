@@ -23,7 +23,7 @@ readonly class ThemeScripts
         private RequestStack $requestStack,
         private AbstractThemePathBuilder $themePathBuilder,
         private CacheInterface $cache,
-        private RuntimeConfigService $runtimeConfigService,
+        private ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 

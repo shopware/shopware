@@ -54,7 +54,7 @@
             <argument type="service" id="theme_child.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory" on-invalid="null"/>
-            <argument type="service" id="Shopware\Storefront\Theme\RuntimeConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
@@ -65,7 +65,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Storefront\Theme\RuntimeConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
@@ -84,7 +84,7 @@
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
             <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Storefront\Theme\RuntimeConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoader" decorates="Shopware\Storefront\Theme\ResolvedConfigLoader" decoration-priority="-1000">
@@ -130,7 +130,7 @@
             <argument type="service" id="theme.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\RuntimeConfigService">
+        <service id="Shopware\Storefront\Theme\ThemeRuntimeConfigService">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>

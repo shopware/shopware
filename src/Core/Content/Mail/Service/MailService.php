@@ -81,7 +81,7 @@ class MailService extends AbstractMailService
         $salesChannel = null;
         $containsValidSalesChannel = $this->templateDataContainsSalesChannel($templateData);
 
-        if (($salesChannelId !== null && !$containsValidSalesChannel) || $this->isTestMode($data)) {
+        if ($salesChannelId !== null && (!$containsValidSalesChannel || $this->isTestMode($data))) {
             $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
 
             $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);

@@ -11,7 +11,6 @@ class ThemeRuntimeConfig
         public readonly string $themeId,
         public readonly array $resolvedConfig,
         public readonly array $scriptFiles,
-        public readonly array $styleFiles,
         public readonly array $iconSets,
         public readonly \DateTimeInterface $updatedAt
     ) {
@@ -23,7 +22,6 @@ class ThemeRuntimeConfig
             $data['themeId'],
             $data['resolvedConfig'],
             $data['scriptFiles'],
-            $data['styleFiles'],
             $data['iconSets'],
             $data['updatedAt'],
         );

@@ -29,7 +29,6 @@ class ThemeRuntimeConfigService
                 `theme_id` as `themeId`,
                 `resolved_config` as `resolvedConfig`,
                 `script_files` as `scriptFiles`,
-                `style_files` as `styleFiles`,
                 `icon_sets` as `iconSets`,
                 `updated_at` as `updatedAt`
                 FROM `theme_runtime_config`
@@ -46,7 +45,6 @@ class ThemeRuntimeConfigService
             'themeId' => Uuid::fromBytesToHex($resolvedTheme['themeId']),
             'resolvedConfig' => json_decode($resolvedTheme['resolvedConfig'], true, 512, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_decode($resolvedTheme['scriptFiles'], true, 512, \JSON_THROW_ON_ERROR),
-            'styleFiles' => json_decode($resolvedTheme['styleFiles'], true, 512, \JSON_THROW_ON_ERROR),
             'iconSets' => json_decode($resolvedTheme['iconSets'], true, 512, \JSON_THROW_ON_ERROR),
             'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $resolvedTheme['updatedAt']),
         ]);
@@ -55,13 +53,12 @@ class ThemeRuntimeConfigService
     public function saveRuntimeConfig(ThemeRuntimeConfig $config): void
     {
         $this->connection->executeStatement(<<<'SQL'
-            REPLACE INTO `theme_runtime_config` (theme_id, resolved_config, script_files, style_files, icon_sets, updated_at)
-            VALUES (:themeId, :resolvedConfig, :scriptFiles, :styleFiles, :iconSets, :updatedAt)
+            REPLACE INTO `theme_runtime_config` (theme_id, resolved_config, script_files, icon_sets, updated_at)
+            VALUES (:themeId, :resolvedConfig, :scriptFiles, :iconSets, :updatedAt)
             SQL, [
             'themeId' => Uuid::fromHexToBytes($config->themeId),
             'resolvedConfig' => json_encode($config->resolvedConfig, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_encode($config->scriptFiles, \JSON_THROW_ON_ERROR),
-            'styleFiles' => json_encode($config->styleFiles, \JSON_THROW_ON_ERROR),
             'iconSets' => json_encode($config->iconSets, \JSON_THROW_ON_ERROR),
             'updatedAt' => $config->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
@@ -78,7 +75,6 @@ class ThemeRuntimeConfigService
             $themeId,
             $this->themeService->getThemeConfiguration($themeId, false, $context),
             $resolvedFiles['js'],
-            $resolvedFiles['css'],
             $this->prepareThemeIconSets($themeConfig),
             new \DateTime(),
         );

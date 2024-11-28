@@ -237,11 +237,11 @@ class SalesChannelContext extends Context
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use the SalesChannelContext object directly
+     * @deprecated tag:v6.7.0 - Will be removed, use the SalesChannelContext object directly
      */
     public function getContext(): Context
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The "context" property is deprecated and will be removed. Use the SalesChannelContext object directly.');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The "context" property is deprecated and will be removed. Use the SalesChannelContext object directly.');
 
         return $this;
     }

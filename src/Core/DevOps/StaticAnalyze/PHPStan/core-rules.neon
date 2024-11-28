@@ -13,6 +13,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ExtensionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoContextInstanceOfSalesChannelContextRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNewRequestInStorefrontRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule

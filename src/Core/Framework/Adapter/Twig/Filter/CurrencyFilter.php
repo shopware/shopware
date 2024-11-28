@@ -43,6 +43,7 @@ class CurrencyFilter extends AbstractExtension
             throw new \InvalidArgumentException('Error while processing Twig currency filter. No context or locale given.');
         }
 
+        // @phpstan-ignore shopware.noContextInstanceOfSalesChannelContext
         if (!$currencyIsoCode && $twigContext['context'] instanceof SalesChannelContext) {
             $currencyIsoCode = $twigContext['context']->getCurrency()->getIsoCode();
         }

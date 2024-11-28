@@ -34,6 +34,7 @@ class CustomerEmailUnique extends Constraint
             throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
 
+        // @phpstan-ignore shopware.noContextInstanceOfSalesChannelContext (Because of the type annotation phpstan thinks that $options['salesChannelContext'] is always an instance of SalesChannelContext)
         if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
             throw new MissingOptionsException(\sprintf('Option "salesChannelContext" must be given for constraint %s', self::class), ['salesChannelContext']);
         }

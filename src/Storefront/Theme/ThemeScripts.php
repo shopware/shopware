@@ -58,7 +58,7 @@ readonly class ThemeScripts
 
         return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeId, $salesChannelContext) {
 
-            $config = $this->runtimeConfigService->getRuntimeConfig($themeId);
+            $config = $this->runtimeConfigService->getResolvedRuntimeConfig($themeId);
             // todo: check what to do if config is null
             return $config->scriptFiles;
         });

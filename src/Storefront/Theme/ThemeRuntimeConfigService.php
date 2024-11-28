@@ -21,16 +21,33 @@ class ThemeRuntimeConfigService
     ) {
     }
 
+    // todo: refactor separating db operations and runtime config resolving/enriching
+    public function getResolvedRuntimeConfig(string $themeId): ?ThemeRuntimeConfig
+    {
+        $runtimeConfig = $this->getRuntimeConfig($themeId);
+
+        if ($runtimeConfig === null) {
+            return null;
+        }
+
+        if ($runtimeConfig->scriptFiles === null) {
+            $runtimeConfig = $this->updateRuntimeConfig($runtimeConfig->themeId, $runtimeConfig->technicalName, Context::createDefaultContext(), true);
+        }
+
+        return $runtimeConfig;
+    }
+
     public function getRuntimeConfig(string $themeId): ?ThemeRuntimeConfig
     {
         $resolvedTheme = $this->connection->fetchAssociative(
             <<<'SQL'
                 SELECT
-                `theme_id` as `themeId`,
-                `resolved_config` as `resolvedConfig`,
-                `script_files` as `scriptFiles`,
-                `icon_sets` as `iconSets`,
-                `updated_at` as `updatedAt`
+                `theme_id`,
+                `technical_name`,
+                `resolved_config`,
+                `script_files`,
+                `icon_sets`,
+                `updated_at`
                 FROM `theme_runtime_config`
                 WHERE `theme_id` = :themeId
             SQL,
@@ -42,21 +59,23 @@ class ThemeRuntimeConfigService
         }
 
         return ThemeRuntimeConfig::fromArray([
-            'themeId' => Uuid::fromBytesToHex($resolvedTheme['themeId']),
-            'resolvedConfig' => json_decode($resolvedTheme['resolvedConfig'], true, 512, \JSON_THROW_ON_ERROR),
-            'scriptFiles' => json_decode($resolvedTheme['scriptFiles'], true, 512, \JSON_THROW_ON_ERROR),
-            'iconSets' => json_decode($resolvedTheme['iconSets'], true, 512, \JSON_THROW_ON_ERROR),
-            'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $resolvedTheme['updatedAt']),
+            'themeId' => Uuid::fromBytesToHex($resolvedTheme['theme_id']),
+            'technicalName' => $resolvedTheme['technical_name'],
+            'resolvedConfig' => json_decode($resolvedTheme['resolved_config'], true, 512, \JSON_THROW_ON_ERROR),
+            'scriptFiles' => json_decode($resolvedTheme['script_files'], true, 512, \JSON_THROW_ON_ERROR),
+            'iconSets' => json_decode($resolvedTheme['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
+            'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $resolvedTheme['updated_at']),
         ]);
     }
 
     public function saveRuntimeConfig(ThemeRuntimeConfig $config): void
     {
         $this->connection->executeStatement(<<<'SQL'
-            REPLACE INTO `theme_runtime_config` (theme_id, resolved_config, script_files, icon_sets, updated_at)
-            VALUES (:themeId, :resolvedConfig, :scriptFiles, :iconSets, :updatedAt)
+            REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, script_files, icon_sets, updated_at)
+            VALUES (:themeId, :technicalName, :resolvedConfig, :scriptFiles, :iconSets, :updatedAt)
             SQL, [
             'themeId' => Uuid::fromHexToBytes($config->themeId),
+            'technicalName' => $config->technicalName,
             'resolvedConfig' => json_encode($config->resolvedConfig, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_encode($config->scriptFiles, \JSON_THROW_ON_ERROR),
             'iconSets' => json_encode($config->iconSets, \JSON_THROW_ON_ERROR),
@@ -64,22 +83,22 @@ class ThemeRuntimeConfigService
         ]);
     }
 
-    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context): void
+    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles = false): ThemeRuntimeConfig
     {
         $configCollection = $this->pluginRegistry->getConfigurations();
         $themeConfig = $configCollection->getByTechnicalName($themeTechnicalName);
-
-        $resolvedFiles = $this->resolveThemeFiles($themeConfig, $configCollection);
-
-        $runtimeConfig = new ThemeRuntimeConfig(
-            $themeId,
-            $this->themeService->getThemeConfiguration($themeId, false, $context),
-            $resolvedFiles['js'],
-            $this->prepareThemeIconSets($themeConfig),
-            new \DateTime(),
-        );
+        $runtimeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => $themeId,
+            'technicalName' => $themeTechnicalName,
+            'resolvedConfig' => $this->themeService->getThemeConfiguration($themeId, false, $context),
+            'scriptFiles' => $resolveFiles ? $this->resolveThemeJs($themeConfig, $configCollection) : null,
+            'iconSets' => $this->prepareThemeIconSets($themeConfig),
+            'updatedAt' => new \DateTime(),
+        ]);
 
         $this->saveRuntimeConfig($runtimeConfig);
+
+        return $runtimeConfig;
     }
 
     private function prepareThemeIconSets(StorefrontPluginConfiguration $themeConfig): array
@@ -95,13 +114,10 @@ class ThemeRuntimeConfigService
         return $iconConfig;
     }
 
-    private function resolveThemeFiles(StorefrontPluginConfiguration $themeConfig, StorefrontPluginConfigurationCollection $configCollection): array
+    private function resolveThemeJs(StorefrontPluginConfiguration $themeConfig, StorefrontPluginConfigurationCollection $configCollection): array
     {
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configCollection, false);
 
-        return [
-            'css' => [],
-            'js' => $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js'),
-        ];
+        return $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
     }
 }

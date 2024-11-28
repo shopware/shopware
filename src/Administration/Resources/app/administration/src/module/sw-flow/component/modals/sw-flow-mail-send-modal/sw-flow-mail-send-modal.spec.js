@@ -141,6 +141,7 @@ async function createWrapper(sequence = {}) {
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
                 'sw-field-copyable': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 repositoryFactory: {

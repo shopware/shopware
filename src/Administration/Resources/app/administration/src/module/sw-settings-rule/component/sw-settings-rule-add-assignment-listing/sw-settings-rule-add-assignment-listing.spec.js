@@ -107,6 +107,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
             },
         },

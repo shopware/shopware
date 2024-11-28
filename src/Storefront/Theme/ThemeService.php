@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
-use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
@@ -52,7 +51,6 @@ class ThemeService implements ResetInterface
         private readonly SystemConfigService $configService,
         private readonly MessageBusInterface $messageBus,
         private readonly NotificationService $notificationService,
-        private readonly DatabaseRuntimeConfigLoader $runtimeConfigLoader,
     ) {
     }
 

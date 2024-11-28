@@ -79,7 +79,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">

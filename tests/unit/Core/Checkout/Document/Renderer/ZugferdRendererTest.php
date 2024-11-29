@@ -63,7 +63,7 @@ class ZugferdRendererTest extends TestCase
             '0192b305fddb7347be83a311a82f0649' => new DocumentGenerateOperation('0192b305fddb7347be83a311a82f0649'),
         ];
 
-        $document = new ZugferdDocument($order, $operations['0192b305fddb7347be83a311a82f0649'], ZugferdDocumentBuilder::CreateNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document = new ZugferdDocument($order, $operations['0192b305fddb7347be83a311a82f0649'], ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder
             ->expects(static::once())

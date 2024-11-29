@@ -19,7 +19,8 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
      */
     public function __construct(
         protected AbstractDocumentRenderer $invoiceRenderer,
-        protected AbstractDocumentRenderer $electronicRenderer
+        protected AbstractDocumentRenderer $electronicRenderer,
+        protected string $shopwareVersion
     ) {
     }
 
@@ -69,7 +70,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
 
             try {
                 $combined = (new ZugferdDocumentPdfMerger($electronicDoc->getContent(), $invoiceDocument->getContent()))
-                    ->setAdditionalCreatorTool('Shopware') // TODO: and version?
+                    ->setAdditionalCreatorTool('Shopware@' . $this->shopwareVersion)
                     ->generateDocument()
                     ->downloadString('');
 
@@ -82,12 +83,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
             }
         }
 
-        foreach ($invoice->getErrors() as $orderId => $invoiceDocument) {
-            $renderResult->addError($orderId, $invoiceDocument);
-        }
-        foreach ($electronicInvoice->getErrors() as $orderId => $invoiceDocument) {
-            $renderResult->addError($orderId, $invoiceDocument);
-        }
+        $renderResult->assign(['errors' => \array_merge($invoice->getErrors(), $electronicInvoice->getErrors(), $renderResult->getErrors())]);
 
         return $renderResult;
     }

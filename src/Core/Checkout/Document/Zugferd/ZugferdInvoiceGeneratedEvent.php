@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class ZugferdInvoiceFinished extends Event
+class ZugferdInvoiceGeneratedEvent extends Event
 {
     public function __construct(
         public readonly ZugferdDocument $document,

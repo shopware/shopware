@@ -126,6 +126,7 @@
         <service id="Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer">
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer"/>
+            <argument>%kernel.shopware_version%</argument>
 
             <tag name="document.renderer"/>
         </service>

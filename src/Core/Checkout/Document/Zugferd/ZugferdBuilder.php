@@ -51,7 +51,7 @@ class ZugferdBuilder
             default => throw DocumentException::generationError('Unsupported tax status'),
         };
 
-        $this->document = new ZugferdDocument($order, $operation, ZugferdDocumentBuilder::CreateNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
+        $this->document = new ZugferdDocument($order, $operation, ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
 
         return $this;
     }

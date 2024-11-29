@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
-use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceFinished;
+use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceGeneratedEvent;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -59,13 +59,13 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode);
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode);
             $criteria->addAssociations([
                 'lineItems.product.manufacturer',
             ]);
 
             $context->assign([
-                'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$languageIdChain]))),
+                'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
             ]);
 
             /** @var OrderCollection $orders */
@@ -98,7 +98,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         $document = $this->documentBuilder->buildDocument($order, $operation, $context);
 
-        $this->eventDispatcher->dispatch(new ZugferdInvoiceFinished($document, $order, $context));
+        $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $context));
 
         $doc = new RenderedDocument(
             '', // @deprecated tag:v6.7.0 - will be removed
@@ -115,6 +115,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
     private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string
     {
+        // TODO: Need to be defined. Use number range from normal invoice?
         return $this->numberRangeValueGenerator->getValue(
             'document_' . self::TYPE,
             $context,

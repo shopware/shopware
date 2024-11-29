@@ -27,6 +27,7 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
+            'random-version'
         );
 
         static::assertEquals('zugferd_embedded_invoice', $renderer->supports());
@@ -59,7 +60,7 @@ class ZugferdEmbeddedRendererTest extends TestCase
             ->method('render')
             ->willReturn($zugferdResult);
 
-        $embeddedRenderer = new ZugferdEmbeddedRenderer($invoiceRenderer, $zugferdRenderer);
+        $embeddedRenderer = new ZugferdEmbeddedRenderer($invoiceRenderer, $zugferdRenderer, 'random-version');
 
         $result = $embeddedRenderer->render([
             'success' => new DocumentGenerateOperation('success'),

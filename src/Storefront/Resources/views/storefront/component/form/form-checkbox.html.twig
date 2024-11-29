@@ -1,0 +1,76 @@
+{#
+    -- Checkbox Form Field Component --
+
+    This component makes it easier to use checkbox fields in a form.
+    It will implement all necessary accessibility best-practices and field validation for you.
+
+    Properties:
+
+    * id (required) - The id attriute of the input field.
+    * name (required) - The name attribute of the input field.
+    * label (optional) - The text content of the field label.
+    * value (optional) - The value of the field.
+    * checked (optional) - The checked state of the checkbox.
+    * disabled (optional) - The disabled attribute of the input field.
+    * validationRules (optional) - A comma-separated list of rules the field should be validated against via client validation.
+    * violationPath (optional) - The key under which validation errors are stored within the response of a server validation.
+    * additionalClass (optional) - Additional css class names that are added to the form-group wrapper element.
+    * additionalInputClass (optional) - Additional css class names that are added to the input element.
+    * attributes (optional) - Additional attributes that are added to the input element.
+#}
+{% block component_form_checkbox %}
+    {% if not value %}
+        {% set value = '1' %}
+    {% endif %}
+
+    {% set feedbackId = "#{id}-feedback" %}
+
+    <div class="form-group form-check{% if additionalClass is not empty %} {{ additionalClass }}{% endif %}">
+
+        {% block component_form_checkbox_input %}
+            {% set cssClass = "form-check-input" %}
+
+            {% if additionalInputClass is not empty %}
+                {% set cssClass = "#{cssClass} #{additionalInputClass}" %}
+            {% endif %}
+
+            {% if violationPath is not empty and formViolations.getViolations(violationPath) is not empty %}
+                {% set cssClass = "#{cssClass} is-invalid" %}
+            {% endif %}
+
+            <input type="checkbox"
+                   class="{{ cssClass }}"
+                   id="{{ id }}"
+                   name="{{ name }}"
+                   value="{{ value }}"
+                   aria-describedby="{{ feedbackId }}"
+                   {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
+                   {% if 'required' in validationRules %}aria-required="true"{% endif %}
+                   {% if checked === true %}checked="checked"{% endif %}
+                   {% if attributes is not empty %}{% for key, value in attributes %}{% if value is not empty %}{{ key ~ '=' ~ value ~ ' ' }}{% endif %}{% endfor %}{% endif %}
+                   {% if disabled === true %}disabled{% endif %}>
+        {% endblock %}
+
+        {% block component_form_checkbox_label %}
+            <label class="custom-control-label{% if additionalLabelClass is not empty %} {{ additionalLabelClass }}{% endif %}"
+                   for="{{ id }}">
+                {{ label|raw }}
+
+                {% if 'required' in validationRules %}
+                    <span class="form-required-label" aria-hidden="true">{{ "general.required"|trans|sw_sanitize }}</span>
+                {% endif %}
+            </label>
+        {% endblock %}
+
+        {% block component_form_checkbox_feedback %}
+            <div id="{{ feedbackId }}" class="form-field-feedback">
+
+                {% block component_form_checkbox_feedback_violations %}
+                    {% if violationPath is not empty and formViolations.getViolations(violationPath) is not empty %}
+                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

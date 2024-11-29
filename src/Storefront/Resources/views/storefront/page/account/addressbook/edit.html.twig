@@ -18,7 +18,10 @@
                     {% block page_account_address_form_edit %}
                         <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { addressId: page.address.id }) }}"
-                              data-form-validation="true">
+                              {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
+                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
+                              {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
+
                             {% block page_account_address_form_edit_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: page.address,

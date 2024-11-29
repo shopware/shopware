@@ -1,9 +1,94 @@
-{# Provides customer type, salutation, title, firstname, lastname and birthday fields for address forms (e.g. registering a user, creating or updating an address) #}
+{# Provides customer
+    type,
+    salutation,
+    title,
+    firstname,
+    lastname, and birthday fields for address forms (e.g. registering a user, creating or updating an address)
+#}
 {% block component_address_personal_fields %}
     {% block component_address_personal_account_type %}
         {% if (onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect)) and not hasSelectedBusiness %}
             <div class="row g-2">
+
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+
+                    {% set toggleTarget = ".js-field-toggle-contact-type-company" %}
+
+                    {% if customToggleTarget %}
+                        {% set toggleTarget = "#{toggleTarget}-#{prefix}" %}
+                    {% endif %}
+
+                    {% set isCompany = false %}
+
+                    {% if page.address.company or data.company is not empty %}
+                        {% set isCompany = true %}
+                    {% endif %}
+
+                    {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
+                        {% set isCompany = true %}
+                    {% endif %}
+
+                    {% set isLoginPage = false %}
+                    {% if activeRoute == 'frontend.account.login.page' %}
+                        {% set isLoginPage = true %}
+                    {% endif %}
+
+                    {% set privateType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %}
+                    {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+
+                    {% set accountTypeOptions %}
+                        {% if isLoginPage %}
+                            <option disabled="disabled"
+                                    selected="selected"
+                                    value="">
+                                {{ "account.personalTypePlaceholder"|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+
+                        {% if not onlyCompanyRegistration %}
+                            <option value="{{ privateType }}"
+                                {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
+                                {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+
+                        <option value="{{ businessType }}"
+                            {% if accountType === businessType || (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
+                            {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                        </option>
+                    {% endset %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'account.personalTypeLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-accountType',
+                        name: prefix ? prefix ~ '[accountType]' : 'accountType',
+                        options: accountTypeOptions,
+                        validationRules: 'required',
+                        disabled: (onlyCompanyRegistration) ? 'true',
+                        additionalClass: 'col-md-6 contact-type',
+                        additionalSelectClass: 'contact-select',
+                        attributes: {
+                            'data-form-field-toggle': 'true',
+                            'data-form-field-toggle-target': toggleTarget,
+                            'data-form-field-toggle-value': constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
+                            'data-form-field-toggle-scope': (scope == 'parent') ? 'parent' : 'all',
+                            'data-form-field-toggle-parent-selector': (scope == 'parent') ? parentSelector,
+                        },
+                    } %}
+
+                    {% if onlyCompanyRegistration %}
+                        {# This is rendered on the profile edit page if the customer registered via a custom commercial registration form. #}
+                        {# The selection field is then disabled and the account type is set to "business". #}
+                        <input type="hidden"
+                               name="accountType"
+                               value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                    {% endif %}
+
+                {% else %}
+
                 <div class="form-group col-md-3 col-sm-6 contact-type">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_account_type_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}accountType">
@@ -11,6 +96,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_account_type_select %}
                             {% if onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection') %}
                                 <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
@@ -67,11 +153,15 @@
                         {% if onlyCompanyRegistration %}<input type="hidden" name="accountType" value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">{% endif %}
                     {% endblock %}
 
-                    {% block component_address_personal_account_type_error %}
-                    {% endblock %}
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
+                    {% block component_address_personal_account_type_error %}{% endblock %}
                 </div>
+
+                {% endif %}
             </div>
         {% elseif not hideCustomerTypeSelect %}
+            {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
+            {# The registration is always of type "commercial" then. #}
             <input type="hidden" name="accountType">
         {% endif %}
     {% endblock %}
@@ -79,7 +169,32 @@
     {% block component_address_personal_fields_salutation_title %}
         <div class="row g-2">
             {% block component_address_personal_fields_salutation %}
+
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set salutationOptions %}
+                        {% for salutation in page.salutations %}
+                            <option {% if salutation.id == data.get('salutationId') %}
+                                selected="selected"
+                            {% endif %}
+                                value="{{ salutation.id }}">
+                                {{ salutation.translated.displayName }}
+                            </option>
+                        {% endfor %}
+                    {% endset %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'personalSalutation',
+                        name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
+                        options: salutationOptions,
+                        violationPath: '/salutationId',
+                        additionalClass: 'col-md-3 col-sm-6',
+                    } %}
+
+                {% else %}
                 <div class="form-group col-md-3 col-sm-6">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_salutation_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalSalutation">
@@ -87,21 +202,21 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_salutation_select %}
                         <select id="{{ idPrefix ~ prefix }}personalSalutation"
                                 class="form-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
                                 name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}">
                             {% for salutation in page.salutations %}
-                                <option {% if salutation.id == data.get('salutationId') %}
-                                    selected="selected"
-                                {% endif %}
-                                        value="{{ salutation.id }}">
+                                <option value="{{ salutation.id }}"
+                                        {% if salutation.id == data.get('salutationId') %}selected="selected"{% endif %}>
                                     {{ salutation.translated.displayName }}
                                 </option>
                             {% endfor %}
                         </select>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_salutation_select_error %}
                         {% if formViolations.getViolations('/salutationId') is not empty %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -110,6 +225,7 @@
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% endif %}
             {% endblock %}
 
             {% block component_address_personal_fields_title %}
@@ -121,7 +237,21 @@
                         {% set violationPath = "/title" %}
                     {% endif %}
 
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'account.personalTitleLabel'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'personalTitle',
+                            name: prefix ? prefix ~ '[title]' : 'title',
+                            value: data.get('title'),
+                            autocomplete: 'section-personal title',
+                            violationPath: violationPath,
+                            additionalClass: 'col-md-3 col-sm-6',
+                        } %}
+
+                    {% else %}
                     <div class="form-group col-md-3 col-sm-6">
+
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_personal_fields_title_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}personalTitle">
@@ -129,6 +259,7 @@
                             </label>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_personal_fields_title_input %}
                             <input type="text"
                                    class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
@@ -139,12 +270,14 @@
                                    value="{{ data.get('title') }}">
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_personal_fields_title_input_error %}
                             {% if violationPath %}
                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                             {% endif %}
                         {% endblock %}
                     </div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
         </div>
@@ -153,27 +286,39 @@
     {% block component_address_personal_fields_name %}
         <div class="row g-2">
             {% block component_address_personal_fields_first_name %}
+                {# @deprecated tag:v6.7.0 - firstName will have additional validation #}
+                {% if feature('v6.7.0.0') %}
+                    {# New implementation, setting of "violationPath" #}
+                    {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
+                        {% set violationPath = "/#{prefix}/firstName" %}
+                    {% elseif formViolations.getViolations("/firstName") is not empty and not prefix %}
+                        {% set violationPath = "/firstName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+                {% else %}
+                    {% if formViolations.getViolations("/firstName") is not empty %}
+                        {% set violationPath = "/firstName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+                {% endif %}
+
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalFirstNameLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-personalFirstName',
+                        name: prefix ? prefix ~ '[firstName]' : 'firstName',
+                        value: (prefix and feature('v6.7.0.0') and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
+                        autocomplete: 'section-personal given-name',
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-sm-6',
+                    } %}
+                {% else %}
                 <div class="form-group col-sm-6">
 
-                    {# @deprecated tag:v6.7.0 - firstName will have additional validation #}
-                    {% if feature('v6.7.0.0') %}
-                        {# New implementation, setting of "violationPath" #}
-                        {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
-                            {% set violationPath = "/#{prefix}/firstName" %}
-                        {% elseif formViolations.getViolations("/firstName") is not empty and not prefix %}
-                            {% set violationPath = "/firstName" %}
-                        {% else %}
-                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
-                        {% endif %}
-                    {% else %}
-                        {% if formViolations.getViolations("/firstName") is not empty %}
-                            {% set violationPath = "/firstName" %}
-                        {% else %}
-                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
-                        {% endif %}
-                    {% endif %}
-
-
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_first_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalFirstName">
@@ -181,53 +326,70 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_first_name_input %}
                         <input type="text"
                                class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal given-name"
                                id="{{ idPrefix ~ prefix }}personalFirstName"
-                                {# @deprecated tag:v6.7.0 - firstName will have prefix #}
-                               {% if feature('v6.7.0.0') %}
-                                   {# New implementation, name and value with prefix #}
-                                   name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
-                                   value="{% if prefix and feature('v6.7.0.0') and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
-                               {% else %}
-                                    name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
-                                    value="{{ data.get('firstName') }}"
-                               {% endif %}
+                            {# @deprecated tag:v6.7.0 - firstName will have prefix #}
+                            {% if feature('v6.7.0.0') %}
+                                {# New implementation, name and value with prefix #}
+                                name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
+                                value="{% if prefix and feature('v6.7.0.0') and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
+                            {% else %}
+                                name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
+                                value="{{ data.get('firstName') }}"
+                            {% endif %}
                                placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
                                data-form-validation-required
-                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
+                            {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_first_name_input_error %}
                         {% if violationPath %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% endif %}
             {% endblock %}
 
             {% block component_address_personal_fields_last_name %}
-                <div class="form-group col-sm-6">
-                    {# @deprecated tag:v6.7.0 - lastName will have additional validation #}
-                    {% if feature('v6.7.0.0') %}
-                        {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
-                            {% set violationPath = "/#{prefix}/lastName" %}
-                        {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
-                            {% set violationPath = "/lastName" %}
-                        {% else %}
-                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
-                        {% endif %}
+                {# @deprecated tag:v6.7.0 - lastName will have additional validation #}
+                {% if feature('v6.7.0.0') %}
+                    {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
+                        {% set violationPath = "/#{prefix}/lastName" %}
+                    {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
+                        {% set violationPath = "/lastName" %}
                     {% else %}
-                        {% if formViolations.getViolations("/lastName") is not empty %}
-                            {% set violationPath = "/lastName" %}
-                        {% else %}
-                            {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
-                        {% endif %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
                     {% endif %}
+                {% else %}
+                    {% if formViolations.getViolations("/lastName") is not empty %}
+                        {% set violationPath = "/lastName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+                {% endif %}
 
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalLastNameLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-personalLastName',
+                        name: prefix ? prefix ~ '[lastName]' : 'lastName',
+                        value: (prefix and feature('v6.7.0.0') and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
+                        autocomplete: 'section-personal family-name',
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-sm-6',
+                    } %}
+                {% else %}
+                <div class="form-group col-sm-6">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_last_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalLastName">
@@ -235,6 +397,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_last_name_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -254,12 +417,14 @@
                                required="required">
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_last_name_input_error %}
                         {% if violationPath %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% endif %}
             {% endblock %}
         </div>
     {% endblock %}
@@ -270,19 +435,35 @@
                 {% block component_address_personal_company_fields %}
                     <div class="row g-2">
                         {% block component_address_personal_company_name %}
-                            <div class="form-group col-12">
-                                {% if formViolations.getViolations("/company") is not empty %}
-                                    {% set violationPath = "/company" %}
-                                {% else %}
-                                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
-                                {% endif %}
+                            {% if formViolations.getViolations("/company") is not empty %}
+                                {% set violationPath = "/company" %}
+                            {% else %}
+                                {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
+                            {% endif %}
 
+                            {# This is only rendered on the customer profile edit page. #}
+                            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                    id: idPrefix ~ prefix ~ '-company',
+                                    name: 'company',
+                                    value: data.get('company'),
+                                    autocomplete: 'section-personal organization',
+                                    violationPath: violationPath,
+                                    validationRules: 'required',
+                                    additionalClass: 'col-sm-6',
+                                } %}
+                            {% else %}
+                            <div class="form-group col-12">
+
+                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                 {% block component_address_personal_company_name_label %}
                                     <label class="form-label" for="{{ idPrefix ~ prefix }}company">
                                         {{ "address.companyNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                     </label>
                                 {% endblock %}
 
+                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                 {% block component_address_personal_company_name_input %}
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -296,12 +477,14 @@
                                            required="required">
                                 {% endblock %}
 
+                                {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                 {% block component_address_personal_company_name_input_error %}
                                     {% if violationPath %}
                                         {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                                     {% endif %}
                                 {% endblock %}
                             </div>
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -315,12 +498,21 @@
                 <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} js-field-toggle-contact-type-vat-id">
                     {% block component_address_personal_vat_id_fields %}
                         <div class="row g-2">
-                            <div class="form-group col-12">
+                            {# This is only rendered on the customer profile edit page. #}
+                            {% if feature('ACCESSIBILITY_TWEAKS') %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                     'vatIds': data.get('vatIds'),
                                     'editMode': true
                                 } %}
-                            </div>
+                            {% else %}
+                                {# @deprecated tag:v6.7.0 - Component includes already the form-group wrapper. #}
+                                <div class="form-group col-12">
+                                    {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                        'vatIds': data.get('vatIds'),
+                                        'editMode': true
+                                    } %}
+                                </div>
+                            {% endif %}
                         </div>
                     {% endblock %}
                 </div>
@@ -330,14 +522,27 @@
 
     {% block component_address_personal_fields_birthday %}
         {% if showBirthdayField %}
+
+            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                {% sw_include '@Storefront/storefront/component/form/form-select-birthday.html.twig' with {
+                    label: 'account.personalBirthdayLabel'|trans|sw_sanitize,
+                    validationRules: config('core.loginRegistration.birthdayFieldRequired') ? 'required' : '',
+                    additionalClass: 'col-sm-6',
+                } %}
+            {% else %}
+
+            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
             {% block component_address_personal_fields_birthday_label %}
                 <label for="{{ idPrefix ~ prefix }}personalBirthday">
                     {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.birthdayFieldRequired') ? "general.required"|trans|sw_sanitize }}
                 </label>
             {% endblock %}
 
+            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
             {% block component_address_personal_fields_birthday_selects %}
                 <div class="row g-2">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_birthday_select_day %}
                         <div class="form-group col-md-2 col-4">
                             <select id="{{ idPrefix ~ prefix }}personalBirthday"
@@ -358,6 +563,7 @@
                                 {% endfor %}
                             </select>
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_personal_fields_birthday_select_day_error %}
                                 {% if formViolations.getViolations('/birthdayDay') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -368,6 +574,7 @@
                         </div>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_birthday_select_month %}
                         <div class="form-group col-md-2 col-4">
                             <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
@@ -387,6 +594,7 @@
                                 {% endfor %}
                             </select>
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_personal_fields_birthday_select_month_error %}
                                 {% if formViolations.getViolations('/birthdayMonth') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -397,6 +605,7 @@
                         </div>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_personal_fields_birthday_select_year %}
                         <div class="form-group col-md-2 col-4">
                             {% set currentYear = "now"|date('Y') %}
@@ -419,6 +628,7 @@
                                 {% endfor %}
                             </select>
 
+                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                             {% block component_address_personal_fields_birthday_select_year_error %}
                                 {% if formViolations.getViolations('/birthdayYear') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -430,6 +640,8 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+
+            {% endif %}
         {% endif %}
     {% endblock %}
 {% endblock %}

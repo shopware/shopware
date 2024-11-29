@@ -19,13 +19,29 @@
                     {% block component_address_form_company_fields %}
                         <div class="row g-2">
                             {% block component_address_form_company_name %}
-                                <div class="form-group col-6">
-                                    {% if formViolations.getViolations('/company') is not empty %}
-                                        {% set violationPath = '/company' %}
-                                    {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
-                                        {% set violationPath = "/#{prefix}/company" %}
-                                    {% endif %}
+                                {% if formViolations.getViolations('/company') is not empty %}
+                                    {% set violationPath = '/company' %}
+                                {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
+                                    {% set violationPath = "/#{prefix}/company" %}
+                                {% endif %}
 
+                                {# This field is only rendered in the account address editing, if the account type is "commercial". #}
+                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                    {% set companyValidationRules = (prefix != 'shippingAddress' and accountTypeRequired) ? 'required' : '' %}
+
+                                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                        label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                        id: idPrefix ~ prefix ~ '-company',
+                                        name: prefix ~ '[company]',
+                                        value: data.get('company'),
+                                        autocomplete: 'organization',
+                                        violationPath: violationPath,
+                                        validationRules: companyValidationRules,
+                                        additionalClass: 'col-sm-6',
+                                    } %}
+                                {% else %}
+                                <div class="form-group col-6">
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_address_form_company_name_label %}
                                         <label class="form-label"
                                                for="{{ idPrefix ~ prefix }}company">
@@ -33,6 +49,7 @@
                                         </label>
                                     {% endblock %}
 
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_address_form_company_name_input %}
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -44,22 +61,36 @@
                                                {% if prefix != 'shippingAddress' and accountTypeRequired %}required="required"{% endif %}>
                                     {% endblock %}
 
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_address_form_company_name_input_error %}
                                         {% if violationPath %}
                                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                                         {% endif %}
                                     {% endblock %}
                                 </div>
+                                {% endif %}
                             {% endblock %}
 
                             {% block component_address_form_company_department %}
-                                <div class="form-group col-md-6">
-                                    {% if formViolations.getViolations('/department') is not empty %}
-                                        {% set violationPath = '/department' %}
-                                    {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
-                                        {% set violationPath = "/#{prefix}/department" %}
-                                    {% endif %}
+                                {% if formViolations.getViolations('/department') is not empty %}
+                                    {% set violationPath = '/department' %}
+                                {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
+                                    {% set violationPath = "/#{prefix}/department" %}
+                                {% endif %}
 
+                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                        label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
+                                        id: idPrefix ~ prefix ~ '-department',
+                                        name: prefix ~ '[department]',
+                                        value: data.get('department'),
+                                        autocomplete: 'organization',
+                                        violationPath: violationPath,
+                                        additionalClass: 'col-sm-6',
+                                    } %}
+                                {% else %}
+                                <div class="form-group col-md-6">
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_address_form_company_department_label %}
                                         <label class="form-label"
                                                for="{{ idPrefix ~ prefix }}department">
@@ -67,6 +98,7 @@
                                         </label>
                                     {% endblock %}
 
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_address_form_company_department_input %}
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -76,22 +108,31 @@
                                                value="{{ data.get('department') }}">
                                     {% endblock %}
 
+                                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                                     {% block component_address_form_company_department_input_error %}
                                         {% if violationPath %}
                                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                                         {% endif %}
                                     {% endblock %}
                                 </div>
+                                {% endif %}
                             {% endblock %}
 
                             {# ludtwig-ignore twig-block-name-snake-case #}
                             {% block component_address_form_company_vatId %}
                                 {% if prefix == 'address' and showVatIdField %}
-                                    <div class="form-group col-md-6">
+                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
                                         {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                             vatIds: context.customer.vatIds
                                         } %}
-                                    </div>
+                                    {% else %}
+                                        {# @deprecated tag:v6.7.0 - Component already includes form-group wrapper. #}
+                                        <div class="form-group col-md-6">
+                                            {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                                vatIds: context.customer.vatIds
+                                            } %}
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
                             {% endblock %}
                         </div>
@@ -109,15 +150,36 @@
 
         <div class="row g-2">
             {% block component_address_form_street %}
-                <div class="form-group col-md-6">
-                    {% if formViolations.getViolations('/street') is not empty %}
-                        {% set violationPath = '/street' %}
-                    {% elseif formViolations.getViolations("/#{prefix}/street") is not empty %}
-                        {% set violationPath = "/#{prefix}/street" %}
-                    {% else %}
-                        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.streetLabel'|trans|sw_sanitize }) %}
+                {% if formViolations.getViolations('/street') is not empty %}
+                    {% set violationPath = '/street' %}
+                {% elseif formViolations.getViolations("/#{prefix}/street") is not empty %}
+                    {% set violationPath = "/#{prefix}/street" %}
+                {% else %}
+                    {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.streetLabel'|trans|sw_sanitize }) %}
+                {% endif %}
+
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set streetAutocomplete = 'address-line1' %}
+
+                    {% if prefix == 'shippingAddress' %}
+                        {% set streetAutocomplete = 'shipping address-line1' %}
+                    {% elseif prefix == 'billingAddress' %}
+                        {% set streetAutocomplete = 'billing address-line1' %}
                     {% endif %}
 
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'address.streetLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-AddressStreet',
+                        name: prefix ~ '[street]',
+                        value: data.get('street'),
+                        autocomplete: streetAutocomplete,
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-md-6',
+                    } %}
+                {% else %}
+                <div class="form-group col-md-6">
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_street_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressStreet">
@@ -125,6 +187,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_street_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -138,12 +201,14 @@
                                required="required">
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_street_input_error %}
                         {% if violationPath %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% endif %}
             {% endblock %}
 
             {% block component_address_form_zipcode_city %}
@@ -158,6 +223,30 @@
                         {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.zipcodeLabel'|trans|sw_sanitize }) %}
                     {% endif %}
 
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% set zipCodeAutocomplete = 'postal-code' %}
+
+                        {% if prefix == 'shippingAddress' %}
+                            {% set zipCodeAutocomplete = 'shipping postal-code' %}
+                        {% elseif prefix == 'billingAddress' %}
+                            {% set zipCodeAutocomplete = 'billing postal-code' %}
+                        {% endif %}
+
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'address.zipcodeLabel'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'AddressZipcode',
+                            name: prefix ~ '[zipcode]',
+                            value: zipcodeValue,
+                            autocomplete: zipCodeAutocomplete,
+                            violationPath: violationPath,
+                            additionalClass: 'col-md-3 col-4',
+                            attributes: {
+                                'data-input-name': 'zipcodeInput'
+                            }
+                        } %}
+                    {% else %}
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_zipcode_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressZipcode">
@@ -165,6 +254,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_zipcode_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -173,15 +263,16 @@
                                placeholder="{{ 'address.zipcodePlaceholder'|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
                                value="{{ zipcodeValue }}"
-                               data-input-name="zipcodeInput"
-                        >
+                               data-input-name="zipcodeInput">
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_zipcode_error %}
                         {% if violationPath %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
+                    {% endif %}
                 {% endset %}
 
                 {% set cityField %}
@@ -194,6 +285,28 @@
                         {% set violationPath = null %}
                     {% endif %}
 
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% set cityAutocomplete = 'address-level2' %}
+
+                        {% if prefix == 'shippingAddress' %}
+                            {% set cityAutocomplete = 'shipping address-level2' %}
+                        {% elseif prefix == 'billingAddress' %}
+                            {% set cityAutocomplete = 'billing address-level2' %}
+                        {% endif %}
+
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'address.cityLabel'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'AddressCity',
+                            name: prefix ~ '[city]',
+                            value: data.get('city'),
+                            autocomplete: cityAutocomplete,
+                            violationPath: violationPath,
+                            validationRules: 'required',
+                            additionalClass: 'col-md-3 col-8',
+                        } %}
+                    {% else %}
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_city_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressCity">
@@ -201,6 +314,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_city_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -214,36 +328,51 @@
                                required="required">
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_city_error %}
                         {% if violationPath %}
                             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
+                    {% endif %}
                 {% endset %}
 
-                {% set wrappedZipcodeField %}
-                    {% block component_address_form_zipcode_field %}
-                        <div class="form-group col-md-2 col-4">
-                            {{ zipcodeField }}
-                        </div>
-                    {% endblock %}
-                {% endset %}
+                {# @deprecated tag:v6.7.0 - Form field component already includes the form-group wrapper. #}
+                {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set wrappedZipcodeField %}
+                        {% block component_address_form_zipcode_field %}
+                            <div class="form-group col-md-2 col-4">
+                                {{ zipcodeField }}
+                            </div>
+                        {% endblock %}
+                    {% endset %}
 
-                {% set wrappedCityField %}
-                    {% block component_address_form_city_field %}
-                        <div class="form-group col-md-4 col-8">
-                            {{ cityField }}
-                        </div>
-                    {% endblock %}
-                {% endset %}
+                    {% set wrappedCityField %}
+                        {% block component_address_form_city_field %}
+                            <div class="form-group col-md-4 col-8">
+                                {{ cityField }}
+                            </div>
+                        {% endblock %}
+                    {% endset %}
+                {% endif %}
 
                 {% block component_address_form_zipcode_city_fields %}
-                    {% if config('core.loginRegistration.showZipcodeInFrontOfCity') %}
-                        {{ wrappedZipcodeField }}
-                        {{ wrappedCityField }}
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% if config('core.loginRegistration.showZipcodeInFrontOfCity') %}
+                            {{ zipcodeField }}
+                            {{ cityField }}
+                        {% else %}
+                            {{ cityField }}
+                            {{ zipcodeField }}
+                        {% endif %}
                     {% else %}
-                        {{ wrappedCityField }}
-                        {{ wrappedZipcodeField }}
+                        {% if config('core.loginRegistration.showZipcodeInFrontOfCity') %}
+                            {{ wrappedZipcodeField }}
+                            {{ wrappedCityField }}
+                        {% else %}
+                            {{ wrappedCityField }}
+                            {{ wrappedZipcodeField }}
+                        {% endif %}
                     {% endif %}
                 {% endblock %}
             {% endblock %}
@@ -256,7 +385,30 @@
                         {% set violationPath = "/#{prefix}/additionalAddressLine1" %}
                     {% endif %}
 
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% set additionalFieldOneAutocomplete = 'address-line2' %}
+
+                        {% if prefix == 'shippingAddress' %}
+                            {% set additionalFieldOneAutocomplete = 'shipping address-line2' %}
+                        {% elseif prefix == 'billingAddress' %}
+                            {% set additionalFieldOneAutocomplete = 'billing address-line2' %}
+                        {% endif %}
+
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'address.additionalField1Label'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'AdditionalField1',
+                            name: prefix ~ '[additionalAddressLine1]',
+                            value: data.get('additionalAddressLine1'),
+                            autocomplete: additionalFieldOneAutocomplete,
+                            violationPath: violationPath,
+                            validationRules: config('core.loginRegistration.additionalAddressField1Required') ? 'required',
+                            additionalClass: 'col-md-6',
+                        } %}
+
+                    {% else %}
                     <div class="form-group col-md-6">
+
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_additional_field1_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}AdditionalField1">
@@ -264,6 +416,7 @@
                             </label>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_additional_field1_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
@@ -272,15 +425,17 @@
                                    placeholder="{{ 'address.additionalField1Placeholder'|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
                                    value="{{ data.get('additionalAddressLine1') }}"
-                                    {{ config('core.loginRegistration.additionalAddressField1Required') ? 'required="true"' }}>
+                                   {% if config('core.loginRegistration.additionalAddressField1Required') %}required="required"{% endif %}>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_additional_field1_error %}
                             {% if violationPath %}
                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                             {% endif %}
                         {% endblock %}
                     </div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
 
@@ -291,7 +446,31 @@
                     {% elseif formViolations.getViolations("/#{prefix}/additionalAddressLine2") is not empty %}
                         {% set violationPath = "/#{prefix}/additionalAddressLine2" %}
                     {% endif %}
+
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% set additionalFieldTwoAutocomplete = 'address-line3' %}
+
+                        {% if prefix == 'shippingAddress' %}
+                            {% set additionalFieldTwoAutocomplete = 'shipping address-line3' %}
+                        {% elseif prefix == 'billingAddress' %}
+                            {% set additionalFieldTwoAutocomplete = 'billing address-line3' %}
+                        {% endif %}
+
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'address.additionalField2Label'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'AdditionalField2',
+                            name: prefix ~ '[additionalAddressLine2]',
+                            value: data.get('additionalAddressLine2'),
+                            autocomplete: additionalFieldTwoAutocomplete,
+                            violationPath: violationPath,
+                            validationRules: config('core.loginRegistration.additionalAddressField2Required') ? 'required',
+                            additionalClass: 'col-md-6',
+                        } %}
+
+                    {% else %}
                     <div class="form-group col-md-6">
+
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_additional_field2_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}AdditionalField2">
@@ -299,6 +478,7 @@
                             </label>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_additional_field2_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
@@ -307,36 +487,91 @@
                                    placeholder="{{ 'address.additionalField2Placeholder'|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
                                    value="{{ data.get('additionalAddressLine2') }}"
-                                    {{ config('core.loginRegistration.additionalAddressField2Required') ? 'required="true"' }}>
+                                   {% if config('core.loginRegistration.additionalAddressField2Required') %}required="required"{% endif %}>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_additional_field2_error %}
                             {% if violationPath %}
                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                             {% endif %}
                         {% endblock %}
                     </div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
         </div>
 
         <div class="row g-2 country-and-state-form-elements" data-country-state-select="true" data-country-state-select-options="{{ options|json_encode }}">
             {% block component_address_form_country %}
+
+                {% set initialCountryId = null %}
+
+                {% if data.get('countryId') %}
+                    {% set initialCountryId = data.get('countryId') %}
+                {% elseif page.countries|length == 1 and disableNonShippableCountries is not defined %}
+                    {% set initialCountryId = (page.countries|first).id %}
+                {% endif %}
+
+                {% if formViolations.getViolations('/countryId') is not empty %}
+                    {% set violationPath = '/countryId' %}
+                {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
+                    {% set violationPath = "/#{prefix}/countryId" %}
+                {% endif %}
+
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set countryAutocomplete = 'country-name' %}
+
+                    {% if prefix == 'shippingAddress' %}
+                        {% set countryAutocomplete = 'shipping country-name' %}
+                    {% elseif prefix == 'billingAddress' %}
+                        {% set countryAutocomplete = 'billing country-name' %}
+                    {% endif %}
+
+                    {% set countryOptions %}
+                        {% if not initialCountryId %}
+                            <option value=""
+                                    disabled="disabled"
+                                    selected="selected">
+                                {{ 'address.countryPlaceholder'|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+                        {% for country in page.countries %}
+                            <option value="{{ country.id }}"
+                                    {% if country.id == initialCountryId %}selected="selected"{% endif %}
+                                    data-zipcode-required="{{ country.postalCodeRequired }}"
+                                    data-vat-id-required="{{ country.vatIdRequired }}"
+                                    data-state-required="{{ country.forceStateInRegistration }}"
+                                    {% if not country.shippingAvailable and disableNonShippableCountries %}disabled="disabled"{% endif %}>
+
+                                {{ country.translated.name }}
+
+                                {% if showNoShippingPostfix and not country.shippingAvailable %}
+                                    {{ 'address.countryPostfixNoShipping'|trans|sw_sanitize }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    {% endset %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'address.countryLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'AddressCountry',
+                        name: prefix ~ '[countryId]',
+                        autocomplete: countryAutocomplete,
+                        options: countryOptions,
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-md-6',
+                        additionalSelectClass: 'country-select',
+                        attributes: {
+                            'data-initial-country-id': initialCountryId,
+                        }
+                    } %}
+                {% else %}
+
                 <div class="form-group col-md-6">
-                    {% set initialCountryId = null %}
 
-                    {% if data.get('countryId') %}
-                        {% set initialCountryId = data.get('countryId') %}
-                    {% elseif page.countries|length == 1 and disableNonShippableCountries is not defined %}
-                        {% set initialCountryId = (page.countries|first).id %}
-                    {% endif %}
-
-                    {% if formViolations.getViolations('/countryId') is not empty %}
-                        {% set violationPath = '/countryId' %}
-                    {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
-                        {% set violationPath = "/#{prefix}/countryId" %}
-                    {% endif %}
-
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_country_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressCountry">
@@ -344,6 +579,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_country_select %}
                         <select class="country-select form-select{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountry"
@@ -374,7 +610,7 @@
                         </select>
                     {% endblock %}
 
-                    {# @deprecated tag:v6.7.0 - will be renamed to component_address_form_country_error #}
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_country_violation_error %}
                         {% if violationPath %}
                             {% set violationLabel = 'address.countryLabel'|trans|sw_sanitize %}
@@ -382,14 +618,50 @@
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% endif %}
 
-                <div class="form-group col-md-6 d-none">
-                    {% if formViolations.getViolations('/countryStateId') is not empty %}
-                        {% set violationPath = '/countryStateId' %}
-                    {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
-                        {% set violationPath = "/#{prefix}/countryStateId" %}
+
+                {% if formViolations.getViolations('/countryStateId') is not empty %}
+                    {% set violationPath = '/countryStateId' %}
+                {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
+                    {% set violationPath = "/#{prefix}/countryStateId" %}
+                {% endif %}
+
+                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                    {% set countryStateAutocomplete = 'address-level1' %}
+
+                    {% if prefix == 'shippingAddress' %}
+                        {% set countryStateAutocomplete = 'shipping address-level1' %}
+                    {% elseif prefix == 'billingAddress' %}
+                        {% set countryStateAutocomplete = 'billing address-level1' %}
                     {% endif %}
 
+                    {% set countryStateOptions %}
+                        <option value=""
+                                selected="selected"
+                                data-placeholder-option="true">
+                            {{ 'address.countryStatePlaceholder'|trans|sw_sanitize }}
+                        </option>
+                    {% endset %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'address.countryStateLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'AddressCountryState',
+                        name: prefix ~ '[countryStateId]',
+                        autocomplete: countryStateAutocomplete,
+                        options: countryStateOptions,
+                        violationPath: violationPath,
+                        additionalClass: 'col-md-6 d-none',
+                        additionalSelectClass: 'country-state-select',
+                        attributes: {
+                            'data-initial-country-state-id': data.get('countryStateId'),
+                        }
+                    } %}
+
+                {% else %}
+                <div class="form-group col-md-6 d-none">
+
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_country_state_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressCountryState">
@@ -397,6 +669,7 @@
                         </label>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_country_state_select %}
                         <select class="country-state-select form-select{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountryState"
@@ -410,8 +683,9 @@
                         </select>
                     {% endblock %}
 
-                    {# @depecated tag:v6.7.0 - use component_address_form_country_state_error instead #}
+                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_address_form_country_error %}
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_country_state_error %}
                             {% if violationPath %}
                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
@@ -419,19 +693,44 @@
                         {% endblock %}
                     {% endblock %}
                 </div>
+                {% endif %}
             {% endblock %}
         </div>
 
         <div class="row g-2">
             {% block component_address_form_phone_number %}
                 {% if config('core.loginRegistration.showPhoneNumberField') %}
-                    <div class="form-group col-md-6">
-                        {% if formViolations.getViolations('/phoneNumber') is not empty %}
-                            {% set violationPath = '/phoneNumber' %}
-                        {% elseif formViolations.getViolations("/#{prefix}/phoneNumber") is not empty %}
-                            {% set violationPath = "/#{prefix}/phoneNumber" %}
+
+                    {% if formViolations.getViolations('/phoneNumber') is not empty %}
+                        {% set violationPath = '/phoneNumber' %}
+                    {% elseif formViolations.getViolations("/#{prefix}/phoneNumber") is not empty %}
+                        {% set violationPath = "/#{prefix}/phoneNumber" %}
+                    {% endif %}
+
+                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                        {% set phoneAutocomplete = 'tel' %}
+
+                        {% if prefix == 'shippingAddress' %}
+                            {% set phoneAutocomplete = 'shipping tel' %}
+                        {% elseif prefix == 'billingAddress' %}
+                            {% set phoneAutocomplete = 'billing tel' %}
                         {% endif %}
 
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'address.phoneNumberLabel'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'AddressPhoneNumber',
+                            name: prefix ~ '[phoneNumber]',
+                            value: data.get('phoneNumber'),
+                            autocomplete: phoneAutocomplete,
+                            violationPath: violationPath,
+                            validationRules: config('core.loginRegistration.phoneNumberFieldRequired') ? 'required',
+                            additionalClass: 'col-md-6',
+                        } %}
+
+                    {% else %}
+                    <div class="form-group col-md-6">
+
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_phone_number_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}AddressPhoneNumber">
@@ -439,6 +738,7 @@
                             </label>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_phone_number_input %}
                             <input type="tel"
                                    class="form-control {% if violationPath %}is-invalid{% endif %}"
@@ -447,15 +747,17 @@
                                    placeholder="{{ 'address.phoneNumberPlaceholder'|trans|striptags }}"
                                    name="{{ prefix }}[phoneNumber]"
                                    value="{{ data.get('phoneNumber') }}"
-                                {{ config('core.loginRegistration.phoneNumberFieldRequired') ? 'required="true"' }}>
+                                   {% if config('core.loginRegistration.phoneNumberFieldRequired') %}required="required"{% endif %}>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                         {% block component_address_form_phone_error %}
                             {% if violationPath %}
                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                             {% endif %}
                         {% endblock %}
                     </div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
         </div>

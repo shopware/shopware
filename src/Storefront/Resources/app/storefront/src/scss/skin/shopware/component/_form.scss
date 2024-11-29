@@ -9,3 +9,13 @@ https://getbootstrap.com/docs/5.2/forms/overview
 .form-group {
     margin-bottom: 20px;
 }
+
+.form-required-label {
+    color: $sw-color-danger;
+}
+
+.form-field-feedback {
+    .invalid-feedback {
+        display: block;
+    }
+}

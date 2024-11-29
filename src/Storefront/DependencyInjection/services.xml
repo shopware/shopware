@@ -169,7 +169,7 @@
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

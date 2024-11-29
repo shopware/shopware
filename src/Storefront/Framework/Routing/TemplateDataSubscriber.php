@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Theme\ConfigLoader\DatabaseRuntimeConfigLoader;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -24,7 +24,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         private readonly HreflangLoaderInterface $hreflangLoader,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly ActiveAppsLoader $activeAppsLoader,
-        private readonly DatabaseRuntimeConfigLoader $runtimeConfigLoader,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -85,20 +85,10 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $themeConfig = $this->runtimeConfigLoader->loadByTechnicalName($theme, $event->getContext());
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfigByName($theme);
+        // todo: check for what to do in case of a null config
+        // todo: validation required?
 
-        if (!$themeConfig) {
-            return;
-        }
-
-        $iconConfig = [];
-        foreach ($themeConfig->getIconSets() as $pack => $path) {
-            $iconConfig[$pack] = [
-                'path' => $path,
-                'namespace' => $theme,
-            ];
-        }
-
-        $event->setParameter('themeIconConfig', $iconConfig);
+        $event->setParameter('themeIconConfig', $runtimeConfig->iconSets);
     }
 }

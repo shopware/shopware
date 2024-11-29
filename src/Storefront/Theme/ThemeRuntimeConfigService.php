@@ -37,9 +37,35 @@ class ThemeRuntimeConfigService
         return $runtimeConfig;
     }
 
+    public function getRuntimeConfigByName(string $technicalName): ?ThemeRuntimeConfig
+    {
+        $record = $this->connection->fetchAssociative(
+            <<<'SQL'
+                SELECT
+                `theme_id`,
+                `technical_name`,
+                `resolved_config`,
+                `script_files`,
+                `icon_sets`,
+                `updated_at`
+                FROM `theme_runtime_config`
+                WHERE `technical_name` = :technicalName
+            SQL,
+            ['technicalName' => $technicalName],
+        );
+
+        if (!$record) {
+            return null;
+        }
+
+        return $this->hydrateRecord($record);
+
+    }
+
+    // todo: check if can switch all usages to the technical name
     public function getRuntimeConfig(string $themeId): ?ThemeRuntimeConfig
     {
-        $resolvedTheme = $this->connection->fetchAssociative(
+        $record = $this->connection->fetchAssociative(
             <<<'SQL'
                 SELECT
                 `theme_id`,
@@ -54,17 +80,22 @@ class ThemeRuntimeConfigService
             ['themeId' => Uuid::fromHexToBytes($themeId)],
         );
 
-        if (!$resolvedTheme) {
+        if (!$record) {
             return null;
         }
 
+        return $this->hydrateRecord($record);
+    }
+
+    private function hydrateRecord(array $record): ThemeRuntimeConfig
+    {
         return ThemeRuntimeConfig::fromArray([
-            'themeId' => Uuid::fromBytesToHex($resolvedTheme['theme_id']),
-            'technicalName' => $resolvedTheme['technical_name'],
-            'resolvedConfig' => json_decode($resolvedTheme['resolved_config'], true, 512, \JSON_THROW_ON_ERROR),
-            'scriptFiles' => json_decode($resolvedTheme['script_files'], true, 512, \JSON_THROW_ON_ERROR),
-            'iconSets' => json_decode($resolvedTheme['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
-            'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $resolvedTheme['updated_at']),
+            'themeId' => Uuid::fromBytesToHex($record['theme_id']),
+            'technicalName' => $record['technical_name'],
+            'resolvedConfig' => json_decode($record['resolved_config'], true, 512, \JSON_THROW_ON_ERROR),
+            'scriptFiles' => json_decode($record['script_files'], true, 512, \JSON_THROW_ON_ERROR),
+            'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
+            'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']),
         ]);
     }
 

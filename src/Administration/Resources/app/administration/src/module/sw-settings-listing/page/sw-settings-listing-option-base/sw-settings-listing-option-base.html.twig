@@ -32,6 +32,17 @@
     {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_listing_option_base_content` instead. #}
     {% block sw_settings_listing_option_base_smart_content %}
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_listing_option_base_content_locked_info %}
+        <sw-alert
+            v-if="productSortingEntity?.locked"
+            class="sw-settings-listing-base__locked-info"
+            variant="info"
+            :title="$tc('global.default.info')"
+        >
+            {{ $tc('sw-settings-listing.base.lockedInfo') }}
+        </sw-alert>
+        {% endblock %}
 
         {% block sw_settings_listing_option_base_content_general_info %}
         {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_listing_option_base_content_general_info` instead. #}

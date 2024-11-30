@@ -6,7 +6,13 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -90,6 +96,13 @@ class LockValidator implements EventSubscriberInterface
                 continue;
             }
 
+            /** @var LockedField $lockedField */
+            $lockedField = $definition->getField('locked');
+
+            if (!$lockedField->lockTranslation() && $this->isTranslationUpdate($command, $definition, $writeCommands)) {
+                continue;
+            }
+
             $ids[$command->getEntityName()][] = $command->getPrimaryKey()['id'];
         }
 
@@ -105,5 +118,47 @@ class LockValidator implements EventSubscriberInterface
         }
 
         return array_filter($locked);
+    }
+
+    /**
+     * @param WriteCommand[] $writeCommands
+     */
+    private function isTranslationUpdate(WriteCommand $command, EntityDefinition $definition, array $writeCommands): bool
+    {
+        if (!$command instanceof UpdateCommand) {
+            return false;
+        }
+
+        $payloadFields = array_keys($command->getPayload());
+
+        $allowedFields = $definition->getFields()
+            ->filter(fn (Field $field) => $field instanceof StorageAware && $field instanceof UpdatedAtField)
+            ->map(fn (StorageAware $field) => $field->getStorageName());
+
+        if (\count(array_diff($payloadFields, $allowedFields)) > 0) {
+            return false;
+        }
+
+        $translationDefinition = $definition->getTranslationDefinition();
+
+        if ($translationDefinition === null) {
+            return false;
+        }
+
+        $translationForeignKey = $definition->getEntityName() . '_id';
+
+        foreach ($writeCommands as $writeCommand) {
+            if ($writeCommand->getEntityName() !== $translationDefinition->getEntityName()) {
+                continue;
+            }
+
+            if ($writeCommand->getPrimaryKey()[$translationForeignKey] !== $command->getPrimaryKey()['id']) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

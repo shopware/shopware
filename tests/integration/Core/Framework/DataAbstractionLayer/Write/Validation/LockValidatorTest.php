@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\V
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
@@ -191,9 +193,72 @@ EOF;
         $this->assertLockException($exception);
     }
 
-    private function getWriteContext(): WriteContext
+    public function testUpdateOnLockedShouldBePreventedAndUpdateTranslationOnUnlockedShouldPass(): void
     {
-        return WriteContext::createFromContext(Context::createDefaultContext());
+        \assert($this->testDefinition instanceof TestDefinition);
+        $this->testDefinition->unlockTranslation();
+
+        $data = ['id' => Uuid::randomHex(), 'description' => 'foo', 'name' => 'shop'];
+        $r = $this->entityWriter->insert($this->testDefinition, [$data], $this->getWriteContext());
+        static::assertCount(2, $r);
+
+        $this->connection->executeStatement('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+
+        $exception = null;
+
+        try {
+            $data = ['id' => $data['id'], 'description' => 'bar', 'name' => 'ware'];
+            $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
+        } catch (WriteException $exception) {
+        }
+
+        $this->assertLockException($exception);
+
+        $data = ['id' => $data['id'], 'name' => 'ware'];
+        $r = $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
+        static::assertCount(2, $r);
+
+        $description = $this->connection->fetchOne('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $name = $this->connection->fetchOne('SELECT `name` FROM `_test_lock_translation` WHERE `_test_lock_id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+
+        static::assertEquals('foo', $description);
+        static::assertEquals('ware', $name);
+
+        $exception = null;
+
+        try {
+            $data = ['id' => $data['id'], 'description' => 'bar', 'name' => 'Ware'];
+            $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext($this->getDeDeLanguageId()));
+        } catch (WriteException $exception) {
+        }
+
+        $this->assertLockException($exception);
+
+        $data = ['id' => $data['id'], 'name' => 'Ware'];
+        $r = $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext($this->getDeDeLanguageId()));
+        static::assertCount(2, $r);
+
+        $name = $this->connection->fetchOne('SELECT `name` FROM `_test_lock_translation` WHERE `_test_lock_id` = :id AND `language_id` = :languageId', [
+            'id' => Uuid::fromHexToBytes($data['id']),
+            'languageId' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
+        ]);
+
+        static::assertEquals('Ware', $name);
+
+        \assert($this->testDefinition instanceof TestDefinition);
+        $this->testDefinition->lockTranslation();
+    }
+
+    private function getWriteContext(?string $languageId = null): WriteContext
+    {
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [$languageId ?? Defaults::LANGUAGE_SYSTEM],
+        );
+
+        return WriteContext::createFromContext($context);
     }
 
     private function assertLockException(?\Exception $exception): void

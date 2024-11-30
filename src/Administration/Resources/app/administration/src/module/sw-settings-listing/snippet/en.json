@@ -36,7 +36,7 @@
               "available": "Available"
             },
             "customField": "Custom field",
-            "_score": "_score"
+            "_score": "Score"
           }
         }
       }
@@ -60,6 +60,10 @@
             "name": "Name",
             "criteria": "Criteria",
             "priority": "Priority"
+          },
+          "deleteTooltip": {
+            "locked": "This sorting option is locked and therefore cannot be deleted.",
+            "default": "This sorting option is the default sorting and therefore cannot be deleted."
           }
         }
       },
@@ -73,6 +77,7 @@
     },
     "base": {
       "smartBarTitle": "Edit product sorting",
+      "lockedInfo": "This sorting option is locked and therefore only translation fields can be edited.",
       "general": {
         "title": "General",
         "labelName": "Name",

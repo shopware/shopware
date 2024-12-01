@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -555,6 +556,9 @@ class CriteriaParser
 
             $field = $this->getField($definition, $fieldName);
 
+            $originalDefinition = $definition;
+            $definition = $this->getDefinition($definition, $fieldName);
+
             if ($filter->getValue() === null) {
                 $query = new BoolQuery();
 
@@ -566,7 +570,7 @@ class CriteriaParser
                     $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
                 }
 
-                return $this->createNestedQuery($query, $definition, $filter->getField());
+                return $this->createNestedQuery($query, $originalDefinition, $filter->getField());
             }
 
             $value = $this->parseValue($definition, $filter, $filter->getValue());
@@ -584,7 +588,7 @@ class CriteriaParser
                 ]);
             }
 
-            return $this->createNestedQuery($query, $definition, $filter->getField());
+            return $this->createNestedQuery($query, $originalDefinition, $filter->getField());
         }
 
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
@@ -596,16 +600,22 @@ class CriteriaParser
             return $this->createNestedQuery($query, $definition, $filter->getField());
         }
 
+        $originalDefinition = $definition;
+        $definition = $this->getDefinition($definition, $fieldName);
+
         $value = $this->parseValue($definition, $filter, $filter->getValue());
 
         $query = new TermQuery($fieldName, $value);
 
-        return $this->createNestedQuery($query, $definition, $filter->getField());
+        return $this->createNestedQuery($query, $originalDefinition, $filter->getField());
     }
 
     private function parseEqualsAnyFilter(EqualsAnyFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
+
+        $originalDefinition = $definition;
+        $definition = $this->getDefinition($definition, $fieldName);
 
         if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $fieldName);
@@ -624,7 +634,7 @@ class CriteriaParser
 
             return $this->createNestedQuery(
                 $query,
-                $definition,
+                $originalDefinition,
                 $filter->getField()
             );
         }
@@ -633,7 +643,7 @@ class CriteriaParser
 
         return $this->createNestedQuery(
             new TermsQuery($fieldName, $value),
-            $definition,
+            $originalDefinition,
             $filter->getField()
         );
     }
@@ -771,6 +781,9 @@ class CriteriaParser
 
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
+        $originalDefinition = $definition;
+        $definition = $this->getDefinition($definition, $filter->getField());
+
         if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $filter->getField());
 
@@ -787,14 +800,14 @@ class CriteriaParser
 
             return $this->createNestedQuery(
                 $query,
-                $definition,
+                $originalDefinition,
                 $filter->getField()
             );
         }
 
         return $this->createNestedQuery(
             new RangeQuery($accessor, $this->parseValue($definition, $filter, $filter->getParameters())),
-            $definition,
+            $originalDefinition,
             $filter->getField()
         );
     }
@@ -940,6 +953,46 @@ class CriteriaParser
         }
 
         return $query;
+    }
+
+    private function getDefinition(EntityDefinition $definition, string $fieldName): EntityDefinition
+    {
+        $root = $definition->getEntityName();
+
+        $parts = explode('.', $fieldName);
+        if ($root === $parts[0]) {
+            array_shift($parts);
+        }
+
+        $prefix = $root . '.';
+
+        if (mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
+        }
+
+        $fields = $definition->getFields();
+
+        $isAssociation = mb_strpos($fieldName, '.') !== false;
+
+        if (!$isAssociation && $fields->has($fieldName)) {
+            return $definition;
+        }
+
+        $associationKey = explode('.', $fieldName);
+        $associationKey = array_shift($associationKey);
+
+        $field = $fields->get($associationKey);
+
+        if (!$field instanceof AssociationField) {
+            return $definition;
+        }
+
+        $referenceDefinition = $field->getReferenceDefinition();
+        if ($field instanceof ManyToManyAssociationField) {
+            $referenceDefinition = $field->getToManyReferenceDefinition();
+        }
+
+        return $this->getDefinition($referenceDefinition, $fieldName);
     }
 
     private function getField(EntityDefinition $definition, string $fieldName): ?Field

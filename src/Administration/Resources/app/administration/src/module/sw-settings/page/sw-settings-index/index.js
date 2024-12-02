@@ -110,8 +110,7 @@ export default {
         },
 
         getGroupLabel(settingsGroup) {
-            const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
-            return this.$tc(`sw-settings.index.tab${upper}`);
+            return this.$tc(`sw-settings.index.tabs.${settingsGroup}`);
         },
     },
 };

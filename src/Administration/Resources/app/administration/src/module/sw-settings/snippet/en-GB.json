@@ -5,15 +5,17 @@
     },
     "index": {
       "title": "Settings",
-      "tabShop": "Shop",
-      "tabSystem": "System",
-      "tabGeneral": "General",
-      "tabLocalization": "Localisation",
-      "tabCustomer": "Customer",
-      "tabCommerce": "Commerce",
-      "tabContent": "Content",
-      "tabAutomation": "Automation",
-      "tabPlugins": "Extensions"
+      "tabs": {
+        "shop": "Shop",
+        "system": "System",
+        "general": "General",
+        "localization": "Localisation",
+        "customer": "Customer",
+        "commerce": "Commerce",
+        "content": "Content",
+        "automation": "Automation",
+        "plugins": "Extensions"
+      }
     },
     "system-config": {
       "labelSalesChannelSelect": "Sales Channel",

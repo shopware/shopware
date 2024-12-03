@@ -53,8 +53,6 @@ Module.register('sw-settings-language', {
 
     settingsItem: {
         group: function () {
-            console.log(Feature.isActive('v6.7.0.0'));
-
             // @deprecated tag:v6.7.0 - Remove condition and function callback
             if (!Feature.isActive('v6.7.0.0')) {
                 return 'shop';

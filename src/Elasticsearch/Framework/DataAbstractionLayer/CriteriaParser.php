@@ -34,7 +34,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -910,7 +909,7 @@ class CriteriaParser
     private function parseValue(EntityDefinition $definition, SingleFieldFilter $filter, mixed $value): mixed
     {
         $field = $this->getField($definition, $filter->getField());
-        $definition = $this->getDefinition($definition, $filter->getField());
+        $definition = EntityDefinitionQueryHelper::getAssociatedDefinition($definition, $filter->getField());
 
         if ($field instanceof TranslatedField) {
             $field = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
@@ -958,46 +957,6 @@ class CriteriaParser
         }
 
         return $value;
-    }
-
-    private function getDefinition(EntityDefinition $definition, string $fieldName): EntityDefinition
-    {
-        $root = $definition->getEntityName();
-
-        $parts = explode('.', $fieldName);
-        if ($root === $parts[0]) {
-            array_shift($parts);
-        }
-
-        $prefix = $root . '.';
-
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
-        }
-
-        $fields = $definition->getFields();
-
-        $isAssociation = mb_strpos($fieldName, '.') !== false;
-
-        if (!$isAssociation && $fields->has($fieldName)) {
-            return $definition;
-        }
-
-        $associationKey = explode('.', $fieldName);
-        $associationKey = array_shift($associationKey);
-
-        $field = $fields->get($associationKey);
-
-        if (!$field instanceof AssociationField) {
-            return $definition;
-        }
-
-        $referenceDefinition = $field->getReferenceDefinition();
-        if ($field instanceof ManyToManyAssociationField) {
-            $referenceDefinition = $field->getToManyReferenceDefinition();
-        }
-
-        return $this->getDefinition($referenceDefinition, $fieldName);
     }
 
     private function createTranslatedSorting(string $root, FieldSorting $sorting, Context $context): FieldSort

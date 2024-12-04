@@ -4,7 +4,7 @@ issue: NEXT-37079
 flag: v6.7.0.0
 author: Sebastian Kalicki
 author_email: s.kalicki@shopware.com
-author_github: @Sebastian Kalicki
+author_github: @s.kalicki
 ---
 # Administration
 * Changed settings-item.store.js to extend the state for supporting the reorganized menu structure on the settings page.

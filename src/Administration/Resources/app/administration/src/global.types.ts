@@ -75,7 +75,6 @@ import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
-import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
@@ -104,6 +103,7 @@ import type { ModalsStore } from './app/store/modals.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
+import type { UsageData } from './app/store/usage-data.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -336,7 +336,6 @@ declare global {
         };
         swCategoryDetail: $TSFixMe;
         shopwareExtensions: ShopwareExtensionsState;
-        usageData: UsageDataModuleState;
     }
 
     interface PiniaRootState {
@@ -365,6 +364,7 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
+        usageData: UsageData;
     }
 
     /**

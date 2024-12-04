@@ -56,8 +56,8 @@ describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-bann
     let wrapper = null;
 
     beforeEach(async () => {
-        if (Shopware.State.get('usageData')) {
-            Shopware.State.commit('usageData/updateConsent', {
+        if (Shopware.Store.get('usageData')) {
+            Shopware.Store.get('usageData').updateConsent({
                 isConsentGiven: false,
                 isBannerHidden: false,
             });
@@ -105,7 +105,7 @@ describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-bann
     });
 
     it('should reject the consent when the reject button is clicked', async () => {
-        Shopware.State.commit('usageData/updateIsConsentGiven', true);
+        Shopware.Store.get('usageData').updateIsConsentGiven(true);
 
         const revokeConsentSpy = jest.spyOn(usageDataService, 'revokeConsent');
 

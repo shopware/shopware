@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -47,6 +48,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CriteriaParserTest extends TestCase
 {
     private const SECOND_LANGUAGE = 'd5da80fc94874ea988eac8abdea44e0a';
+
+    use EnvTestBehaviour;
 
     public function testAggregationWithSorting(): void
     {
@@ -925,6 +928,10 @@ class CriteriaParserTest extends TestCase
 
         // Unset the 'source' key before comparison.
         unset($sortedFilterArray['script']['script']['inline']);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            unset($sortedFilterArray['script']['script']['id']);
+        }
 
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }

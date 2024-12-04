@@ -33,6 +33,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
+use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -926,6 +928,10 @@ class CriteriaParserTest extends TestCase
         // Unset the 'source' key before comparison.
         unset($sortedFilterArray['script']['script']['inline']);
 
+        if (!Feature::isActive('v6.6.0.0')) {
+            unset($sortedFilterArray['script']['script']['id']);
+        }
+
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }
 
@@ -1090,12 +1096,36 @@ class CriteriaParserTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'translated property of related entity with a name that doesn\'t exist in the product definition' => [
+            new EqualsFilter('unit.shortCode', 'value'),
+            [
+                'nested' => [
+                    'path' => 'unit',
+                    'query' => [
+                        'multi_match' => [
+                            'query' => 'value',
+                            'fields' => [
+                                'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                            ],
+                            'type' => 'best_fields',
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function getDefinition(): EntityDefinition
     {
         $instanceRegistry = new StaticDefinitionInstanceRegistry(
-            [ProductDefinition::class, ProductManufacturerDefinition::class, ProductTranslationDefinition::class],
+            [
+                ProductDefinition::class,
+                ProductManufacturerDefinition::class,
+                UnitDefinition::class,
+                ProductTranslationDefinition::class,
+                UnitTranslationDefinition::class,
+            ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );

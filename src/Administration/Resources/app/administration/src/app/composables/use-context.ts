@@ -35,6 +35,7 @@ interface ContextState {
             };
             version: null | string;
             versionRevision: null | string;
+            inAppPurchases: Record<string, string[]>;
         };
         environment: null | 'development' | 'production' | 'testing';
         fallbackLocale: null | string;
@@ -76,6 +77,7 @@ const state: ContextState = reactive({
             bundles: null,
             version: null,
             versionRevision: null,
+            inAppPurchases: {},
         },
         environment: null,
         fallbackLocale: null,

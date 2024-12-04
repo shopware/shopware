@@ -9,7 +9,7 @@ export default function initUsageData(): Promise<void> {
         const usageDataApiService = Shopware.Service('usageDataService');
 
         if (!loginService.isLoggedIn()) {
-            Shopware.State.commit('usageData/resetConsent');
+            Shopware.Store.get('usageData').resetConsent();
 
             resolve();
 
@@ -19,10 +19,10 @@ export default function initUsageData(): Promise<void> {
         usageDataApiService
             .getConsent()
             .then((usageData) => {
-                Shopware.State.commit('usageData/updateConsent', usageData);
+                Shopware.Store.get('usageData').updateConsent(usageData);
             })
             .catch(() => {
-                Shopware.State.commit('usageData/resetConsent');
+                Shopware.Store.get('usageData').resetConsent();
             })
             .finally(() => {
                 resolve();

@@ -8,7 +8,7 @@ import 'src/app/store/in-app-purchase-checkout.store';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeInAppPurchaseCheckout(): void {
     Shopware.ExtensionAPI.handle('iapCheckout', (entry, { _event_ }) => {
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(_event_.origin),
         );
 

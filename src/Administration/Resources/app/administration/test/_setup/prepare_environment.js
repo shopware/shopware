@@ -75,6 +75,7 @@ import '../../src/app/store/modals.store';
 import '../../src/app/store/menu-item.store';
 import '../../src/app/store/notification.store';
 import '../../src/app/store/tabs.store';
+import '../../src/app/store/usage-data.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

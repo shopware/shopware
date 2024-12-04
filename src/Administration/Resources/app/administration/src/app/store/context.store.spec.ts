@@ -27,6 +27,7 @@ describe('context.store', () => {
                     bundles: null,
                     version: null,
                     versionRevision: null,
+                    inAppPurchases: {},
                 },
                 environment: null,
                 fallbackLocale: null,

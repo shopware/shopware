@@ -20,6 +20,7 @@ describe('use-context', () => {
                     bundles: null,
                     version: null,
                     versionRevision: null,
+                    inAppPurchases: {},
                 },
                 environment: null,
                 fallbackLocale: null,

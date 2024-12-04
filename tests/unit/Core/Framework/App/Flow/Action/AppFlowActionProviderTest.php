@@ -11,10 +11,10 @@ use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -62,7 +62,15 @@ class AppFlowActionProviderTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, 'testSalesChannelId');
+        $context = Generator::createSalesChannelContext();
+
+        $awareEvent = new CheckoutOrderPlacedEvent(
+            $context->getContext(),
+            $order,
+            $context->getSalesChannelId(),
+            null,
+            $context
+        );
 
         $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
 

@@ -90,7 +90,9 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $dispatcher->dispatch(new CheckoutOrderPlacedEvent(
             $this->salesChannelContext->getContext(),
             $order,
-            $this->salesChannelContext->getSalesChannelId()
+            $this->salesChannelContext->getSalesChannelId(),
+            null,
+            $this->salesChannelContext
         ));
 
         $this->assertUpdatedCounts();
@@ -122,9 +124,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNotNull($order);
 
         $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
+            $this->salesChannelContext->getContext(),
             $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
+            $this->salesChannelContext->getSalesChannelId(),
+            null,
+            $this->salesChannelContext
         );
 
         $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
@@ -165,9 +169,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNotNull($order);
 
         $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
+            $this->salesChannelContext->getContext(),
             $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
+            $this->salesChannelContext->getSalesChannelId(),
+            null,
+            $this->salesChannelContext
         );
 
         $updater = $this->getContainer()->get(PromotionIndividualCodeRedeemer::class);

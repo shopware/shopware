@@ -114,7 +114,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $event = new CheckoutOrderPlacedEvent(
             $context->getContext(),
             $orderEntity,
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId(),
+            null,
+            $context
         );
 
         Profiler::trace('checkout-order::event-listeners', function () use ($event): void {

@@ -49,6 +49,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
@@ -100,10 +101,10 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Context::createDefaultContext();
+        $context = Generator::createSalesChannelContext();
 
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
+        $customerId = $this->createCustomer($context->getContext());
+        $orderId = $this->createOrder($customerId, $context->getContext());
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -116,16 +117,22 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
         /** @var OrderEntity $order */
-        $order = $orderRepository->search($criteria, $context)->first();
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $order = $orderRepository->search($criteria, $context->getContext())->first();
+        $event = new CheckoutOrderPlacedEvent(
+            $context->getContext(),
+            $order,
+            $context->getSalesChannelId(),
+            null,
+            $context
+        );
 
         $documentIdOlder = null;
         $documentIdNewer = null;
         $documentIds = [];
 
         if ($documentTypeIds !== null && $documentTypeIds !== [] || $hasOrderSettingAttachment) {
-            $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
-            $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
+            $documentIdOlder = $this->createDocumentWithFile($orderId, $context->getContext());
+            $documentIdNewer = $this->createDocumentWithFile($orderId, $context->getContext());
             $documentIds[] = $documentIdNewer;
         }
 
@@ -166,7 +173,7 @@ class SendMailActionTest extends TestCase
         static::assertIsString($documentIdNewer);
         static::assertIsString($documentIdOlder);
         $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-        $documents = $documentRepository->search($criteria, $context);
+        $documents = $documentRepository->search($criteria, $context->getContext());
 
         $newDocument = $documents->get($documentIdNewer);
         static::assertNotNull($newDocument);
@@ -213,7 +220,7 @@ class SendMailActionTest extends TestCase
 
         if ($documentTypeIds !== null && $documentTypeIds !== []) {
             $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-            $documents = $documentRepository->search($criteria, $context);
+            $documents = $documentRepository->search($criteria, $context->getContext());
 
             $newDocument = $documents->get($documentIdNewer);
             static::assertNotNull($newDocument);
@@ -394,7 +401,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Context::createDefaultContext();
+        $context = Generator::createSalesChannelContext();
 
         $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
@@ -416,14 +423,20 @@ class SendMailActionTest extends TestCase
             ],
         ];
 
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
+        $customerId = $this->createCustomer($context->getContext());
+        $orderId = $this->createOrder($customerId, $context->getContext());
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
 
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $context->getContext())->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent(
+            $context->getContext(),
+            $order,
+            $context->getSalesChannelId(),
+            null,
+            $context
+        );
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(

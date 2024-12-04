@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
@@ -319,6 +320,8 @@ class InfoControllerTest extends TestCase
                 'aware' => [
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    CustomerGroupAware::class,
+                    lcfirst((new \ReflectionClass(CustomerGroupAware::class))->getShortName()),
                     MailAware::class,
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,

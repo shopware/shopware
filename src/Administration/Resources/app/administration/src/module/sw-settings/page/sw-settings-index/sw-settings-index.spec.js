@@ -397,4 +397,45 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         expect(systemTab.exists()).toBe(true);
         expect(shopTab.exists()).toBe(false);
     });
+
+    it('should correctly resolve dynamic group functions and add the item', async () => {
+        const settingsItemToAdd = {
+            group: () => 'dynamicGroup',
+            to: 'sw.dynamic.index',
+            icon: 'dynamic-icon',
+            id: 'sw-dynamic-setting',
+            name: 'settings-dynamic',
+            label: 'Dynamic Setting',
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const dynamicGroup = wrapper.vm.settingsGroups.dynamicGroup;
+        expect(dynamicGroup).toBeDefined();
+        expect(dynamicGroup).toHaveLength(1);
+        expect(dynamicGroup[0]).toEqual(settingsItemToAdd);
+    });
+
+    it('should display settings items based on user privileges', async () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar-icon',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'Bar Setting',
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = await createWrapper(['system.foo_bar']);
+        const shopGroup = wrapper.vm.settingsGroups.shop;
+
+        const barSetting = shopGroup.find((setting) => setting.id === 'sw-settings-bar');
+        expect(barSetting).toBeDefined();
+    });
 });

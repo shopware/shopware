@@ -34,6 +34,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
+use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -47,9 +49,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class CriteriaParserTest extends TestCase
 {
-    private const SECOND_LANGUAGE = 'd5da80fc94874ea988eac8abdea44e0a';
-
     use EnvTestBehaviour;
+    private const SECOND_LANGUAGE = 'd5da80fc94874ea988eac8abdea44e0a';
 
     public function testAggregationWithSorting(): void
     {
@@ -1097,12 +1098,37 @@ class CriteriaParserTest extends TestCase
                 ],
             ],
         ];
+
+        yield $featureFlagKeyPrefix . 'translated property of related entity with a name that doesn\'t exist in the product definition' => [
+            new EqualsFilter('unit.shortCode', 'value'),
+            [
+                'nested' => [
+                    'path' => 'unit',
+                    'query' => [
+                        'multi_match' => [
+                            'query' => 'value',
+                            'fields' => [
+                                'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                            ],
+                            'type' => 'best_fields',
+                        ],
+                    ],
+                ],
+            ],
+            $enable6660FeatureFlag
+        ];
     }
 
     public function getDefinition(): EntityDefinition
     {
         $instanceRegistry = new StaticDefinitionInstanceRegistry(
-            [ProductDefinition::class, ProductManufacturerDefinition::class, ProductTranslationDefinition::class],
+            [
+                ProductDefinition::class,
+                ProductManufacturerDefinition::class,
+                UnitDefinition::class,
+                ProductTranslationDefinition::class,
+                UnitTranslationDefinition::class,
+            ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );

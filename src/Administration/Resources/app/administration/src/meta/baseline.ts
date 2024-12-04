@@ -145,7 +145,6 @@ const missingTests = [
     'src/app/state/notification.store.js',
     'src/app/state/rule-conditions-config.store.js',
     'src/app/state/sdk-location.store.ts',
-    'src/app/state/settings-item.store.js',
     'src/app/state/shopware-apps.store.ts',
     'src/app/state/system.store.js',
     'src/app/state/tabs.store.ts',

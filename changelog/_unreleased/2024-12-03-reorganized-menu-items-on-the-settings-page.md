@@ -6,33 +6,6 @@ author: Sebastian Kalicki
 author_email: s.kalicki@shopware.com
 author_github: @Sebastian Kalicki
 ---
-# Core
-*
-___
-# API
-*
-___
 # Administration
-*
-___
-# Storefront
-*
-___
-# Upgrade Information
-## Topic 1
-### Topic 1a
-### Topic 1b
-## Topic 2
-___
-# Next Major Version Changes
-## Breaking Change 1:
-* Do this
-## Breaking Change 2:
-change
-```
-static
-```
-to
-```
-self
-```
+* Changed settings-item.store.js to extend the state for supporting the reorganized menu structure on the settings page.
+* Refactored sw-settings-document-detail.html.twig to implement the new groups and reflect the updated menu structure.

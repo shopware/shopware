@@ -11,6 +11,8 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * This plugin opens a modal
  * where an address can be edited or created
+ *
+ * @deprecated tag:v6.7.0 - will be removed use new-address-editor plugin
  */
 export default class AddressEditorPlugin extends Plugin {
 

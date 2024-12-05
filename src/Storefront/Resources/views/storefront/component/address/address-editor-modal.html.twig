@@ -1,3 +1,6 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+{# Extend `src/Storefront/Resources/views/storefront/component/address/address-manager-modal.html.twig` instead #}
+
 {% set defaultBillingAddressId = context.customer.defaultBillingAddressId %}
 {% set defaultShippingAddressId = context.customer.defaultShippingAddressId %}
 
@@ -18,8 +21,8 @@
 {% if feature('v6.7.0.0') %}
     {% block component_address_editor_modal %}
         <div
-            id="{{ typePrefix }}addressEditorAccordion"
-            class="js-address-editor"
+                id="{{ typePrefix }}addressEditorAccordion"
+                class="js-address-editor"
         >
             {% block component_address_editor_modal_title %}
                 <div class="address-editor-title js-pseudo-modal-template-title-element">
@@ -277,13 +280,13 @@
                         <div class="row pt-2">
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_edit` instead. #}
                             {% block component_address_address_editor_modal_accordion_action_edit %}
-                                    <div class="col-12 col-md-4">
-                                        <button class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
-                                             data-bs-toggle="collapse"
-                                             data-bs-target="#{{ typePrefix }}address-create-edit">
-                                            {{ 'account.addressEditBtn'|trans|sw_sanitize }}
-                                        </button>
-                                    </div>
+                                <div class="col-12 col-md-4">
+                                    <button class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#{{ typePrefix }}address-create-edit">
+                                        {{ 'account.addressEditBtn'|trans|sw_sanitize }}
+                                    </button>
+                                </div>
                             {% endblock %}
 
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_list` instead. #}
@@ -291,8 +294,8 @@
                                 {% if AvailableAddressCount > 0 %}
                                     <div class="col-12 col-md-4">
                                         <button class="btn btn-outline-primary btn-block address-editor-select"
-                                             data-bs-toggle="collapse"
-                                             data-bs-target="#{{ typePrefix }}address-list">
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#{{ typePrefix }}address-list">
                                             {{ 'account.selectAddress'|trans|sw_sanitize }}
                                         </button>
                                     </div>
@@ -303,8 +306,8 @@
                             {% block component_address_address_editor_modal_accordion_action_create %}
                                 <div class="col-12 col-md-4">
                                     <button class="btn btn-outline-primary btn-block address-editor-create collapsed"
-                                         data-bs-toggle="collapse"
-                                         data-bs-target="#{{ typePrefix }}address-create-new">
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#{{ typePrefix }}address-create-new">
                                         {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
                                     </button>
                                 </div>

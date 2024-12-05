@@ -136,6 +136,34 @@ class EntityDefinitionQueryHelper
     }
 
     /**
+     * Resolves the definition of the provided field name.
+     * For e.g:
+     * `product.name` => returns ProductDefinition
+     * `product.unit.shortCode` => returns UnitDefinition
+     */
+    public static function getAssociatedDefinition(EntityDefinition $rootDefinition, string $field): EntityDefinition
+    {
+        $fields = self::getFieldsOfAccessor($rootDefinition, $field, false);
+
+        array_pop($fields);
+        $field = array_pop($fields);
+
+        if ($field === null) {
+            return $rootDefinition;
+        }
+
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getToManyReferenceDefinition();
+        }
+
+        if ($field instanceof AssociationField) {
+            return $field->getReferenceDefinition();
+        }
+
+        return $rootDefinition;
+    }
+
+    /**
      * Returns the field instance of the provided fieldName.
      *
      * @example

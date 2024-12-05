@@ -13,6 +13,10 @@ shopware:
         default: false
         major: true
         toggleable: false
+      - name: FEATURE_NEXT_19776
+        default: false
+        major: true
+        toggleable: false
       - name: DISABLE_VUE_COMPAT
         default: false
         major: true

@@ -154,9 +154,8 @@
         <div class="row g-2">
             {% block component_address_personal_fields_first_name %}
                 <div class="form-group col-sm-6">
-
                     {# @deprecated tag:v6.7.0 - firstName will have additional validation #}
-                    {% if feature('v6.7.0.0') %}
+                    {% if feature('FEATURE_NEXT_19776') %}
                         {# New implementation, setting of "violationPath" #}
                         {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
                             {% set violationPath = "/#{prefix}/firstName" %}
@@ -173,7 +172,6 @@
                         {% endif %}
                     {% endif %}
 
-
                     {% block component_address_personal_fields_first_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalFirstName">
@@ -187,10 +185,10 @@
                                autocomplete="section-personal given-name"
                                id="{{ idPrefix ~ prefix }}personalFirstName"
                                 {# @deprecated tag:v6.7.0 - firstName will have prefix #}
-                               {% if feature('v6.7.0.0') %}
+                               {% if feature('FEATURE_NEXT_19776') %}
                                    {# New implementation, name and value with prefix #}
                                    name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
-                                   value="{% if prefix and feature('v6.7.0.0') and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
+                                   value="{% if prefix and data.has(prefix) %}{{ data.get(prefix).get('firstName') }}{% else %}{{data.get('firstName')}}{% endif %}"
                                {% else %}
                                     name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                                     value="{{ data.get('firstName') }}"
@@ -212,7 +210,7 @@
             {% block component_address_personal_fields_last_name %}
                 <div class="form-group col-sm-6">
                     {# @deprecated tag:v6.7.0 - lastName will have additional validation #}
-                    {% if feature('v6.7.0.0') %}
+                    {% if feature('FEATURE_NEXT_19776') %}
                         {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
                             {% set violationPath = "/#{prefix}/lastName" %}
                         {% elseif formViolations.getViolations("/lastName") is not empty and not prefix %}
@@ -242,7 +240,7 @@
                                id="{{ idPrefix ~ prefix }}personalLastName"
                                placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
                                {# New implementation, name and value with prefix #}
-                               {% if feature('v6.7.0.0') %}
+                               {% if feature('FEATURE_NEXT_19776') %}
                                    name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                                    value="{% if prefix and data.has(prefix) %}{{ data.get(prefix).get('lastName') }}{% else %}{{ data.get('lastName')}}{% endif %}"
                                {% else %}

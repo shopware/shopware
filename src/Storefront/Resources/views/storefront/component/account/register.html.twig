@@ -51,7 +51,7 @@
 
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
-                                    {% if feature('v6.7.0.0') %}
+                                    {% if feature('FEATURE_NEXT_19776') %}
                                         {% set prefix = 'billingAddress' %}
                                     {% endif %}
 

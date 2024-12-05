@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
-use horstoeko\zugferd\ZugferdDocumentBuilder;
-use horstoeko\zugferd\ZugferdProfiles;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -13,7 +11,6 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
-use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -40,7 +37,7 @@ class ZugferdRendererTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(ZugferdBuilder::class),
             $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class)),
+            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
             $this->createMock(NumberRangeValueGeneratorInterface::class)
         );
 
@@ -59,27 +56,26 @@ class ZugferdRendererTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => '0192b305fddb7347be83a311a82f0649']]);
 
-        $operations = [
-            '0192b305fddb7347be83a311a82f0649' => new DocumentGenerateOperation('0192b305fddb7347be83a311a82f0649'),
-        ];
-
-        $document = new ZugferdDocument($order, $operations['0192b305fddb7347be83a311a82f0649'], ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder
             ->expects(static::once())
             ->method('buildDocument')
-            ->willReturn($document);
+            ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
 
         $renderer = new ZugferdRenderer(
             new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition()),
             $connection,
             $builder,
             $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class)),
+            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
             $this->createMock(NumberRangeValueGeneratorInterface::class)
         );
 
-        $rendered = $renderer->render($operations, Context::createDefaultContext(), new DocumentRendererConfig())->getOrderSuccess('0192b305fddb7347be83a311a82f0649');
+        $rendered = $renderer->render(
+            ['0192b305fddb7347be83a311a82f0649' => new DocumentGenerateOperation('0192b305fddb7347be83a311a82f0649')],
+            Context::createDefaultContext(),
+            new DocumentRendererConfig()
+        )->getOrderSuccess('0192b305fddb7347be83a311a82f0649');
 
         static::assertNotNull($rendered);
         static::assertEquals(FileTypes::XML, $rendered->getFileExtension());

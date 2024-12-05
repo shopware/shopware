@@ -3,11 +3,11 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
-use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceGeneratedEvent;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -91,33 +91,36 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         }
 
         $config = clone $this->documentConfigLoader->load(static::TYPE, $order->getSalesChannelId(), $context);
-
         $config->merge($operation->getConfig());
 
-        $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+        $documentNumber = $config->getDocumentNumber();
+         if ($documentNumber === null) {
+             $config->setDocumentNumber($documentNumber = $this->getNumber($context, $order, $operation));
+         }
 
-        $document = $this->documentBuilder->buildDocument($order, $operation, $context);
-
-        $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $context));
-
-        $doc = new RenderedDocument(
-            '', // @deprecated tag:v6.7.0 - will be removed
-            $number,
-            $config->buildName(),
-            FileTypes::XML,
-            $config->jsonSerialize(),
-            'application/xml',
-            $document->zugferdBuilder->getContent()
-        );
-
-        $renderResult->addSuccess($order->getId(), $doc);
+        try {
+            $content = $this->documentBuilder->buildDocument($order, $operation, $config, $context);
+            $renderResult->addSuccess(
+                $order->getId(),
+                new RenderedDocument(
+                    '', // @deprecated tag:v6.7.0 - will be removed
+                    $documentNumber,
+                    $config->buildName(),
+                    FileTypes::XML,
+                    $config->jsonSerialize(),
+                    'application/xml',
+                    $content
+                )
+            );
+        } catch (DocumentException $e) {
+            $renderResult->addError($order->getId(), $e);
+        }
     }
 
     private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string
     {
-        // TODO: Need to be defined. Use number range from normal invoice?
         return $this->numberRangeValueGenerator->getValue(
-            'document_' . self::TYPE,
+            'document_' . InvoiceRenderer::TYPE,
             $context,
             $order->getSalesChannelId(),
             $operation->isPreview()

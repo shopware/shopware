@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Country\CountryEntity;
 
 #[\AllowDynamicProperties]
 #[Package('checkout')]
@@ -145,7 +146,7 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.7.0 - Will be splitted up into single fields. companyStreet, companyZipcode, companyCity, companyCountry
      */
     protected $companyAddress;
 
@@ -155,6 +156,18 @@ class DocumentConfiguration extends Struct
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $companyName;
+
+    protected ?string $companyStreet = null;
+
+    protected ?string $companyZipcode = null;
+
+    protected ?string $companyCity = null;
+
+    protected string $companyCountryId = '';
+
+    protected ?CountryEntity $companyCountry = null;
+
+    protected ?string $paymentDueDate = null;
 
     /**
      * @var string|null

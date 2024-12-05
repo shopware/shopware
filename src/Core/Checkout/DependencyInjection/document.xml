@@ -47,6 +47,7 @@
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader">
             <argument type="service" id="document_base_config.repository"/>
+            <argument type="service" id="country.repository"/>
 
             <tag name="kernel.event_subscriber" />
         </service>
@@ -131,8 +132,6 @@
             <tag name="document.renderer"/>
         </service>
         <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
-            <argument type="service" id="document_base_config.repository"/>
-            <argument type="service" id="country.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -39,6 +40,7 @@ class DocumentConfigLoaderTest extends TestCase
         $expectedCriteria->getAssociation('salesChannels')->addFilter(new EqualsFilter('salesChannelId', $this->ids->get('sales-channel-id')));
 
         $context = Context::createDefaultContext();
+        $countryId = Uuid::randomHex();
 
         $documentSalesChannel = new DocumentBaseConfigSalesChannelEntity();
         $documentSalesChannel->setUniqueIdentifier($this->ids->get('document-sales-channel'));
@@ -49,6 +51,7 @@ class DocumentConfigLoaderTest extends TestCase
         $document1->setUniqueIdentifier($this->ids->get('document-1'));
         $document1->setGlobal(true);
         $document1->setSalesChannels(new DocumentBaseConfigSalesChannelCollection([$documentSalesChannel]));
+        $document1->setConfig(['companyCountryId' => $countryId]);
 
         $document2 = new DocumentBaseConfigEntity();
         $document2->setId($this->ids->get('document-2'));
@@ -71,7 +74,12 @@ class DocumentConfigLoaderTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
-        $loader = new DocumentConfigLoader($repo);
+        $countryRepo = $this->createMock(EntityRepository::class);
+        $countryRepo->expects(static::once())
+            ->method('search')
+            ->with(static::equalTo(new Criteria([$countryId])), $context);
+
+        $loader = new DocumentConfigLoader($repo, $countryRepo);
         $config = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
 
         if (!isset($config->salesChannels)) {

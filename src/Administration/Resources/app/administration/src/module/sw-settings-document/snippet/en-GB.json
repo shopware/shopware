@@ -37,11 +37,16 @@
       "labelPageSize": "Page format",
       "labelItemsPerPage": "Items per page",
       "labelDisplayCompanyAddress": "Display company address",
-      "labelCompanyAddress": "Company address",
+      "labelCompanyAddress": "Company address (Deprecated v6.7.0)",
+      "labelCompanyCity": "City",
+      "labelCompanyCountry": "Country",
       "labelCompanyName": "Name",
       "labelCompanyEmail": "Email address",
       "labelCompanyPhone": "Phone number",
+      "labelCompanyStreet": "Street",
       "labelCompanyUrl": "Website",
+      "labelCompanyZipcode": "Postal code",
+      "labelPaymentDueDate": "Payment due date",
       "labelTaxNumber": "Tax number",
       "labelTaxOffice": "Tax office",
       "labelVatId": "VAT Reg.No.",
@@ -69,7 +74,8 @@
       "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
       "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries.",
-      "helpTextCompanyAddress": "Use hyphens (\"-\") to separate the different elements of the address. This helps to render the address in multiple places of the header simultaneously."
+      "helpTextCompanyAddress": "Deprecated for 6.7 - Use single address fields instead. Use hyphens (\"-\") to separate the different elements of the address. This helps to render the address in multiple places of the header simultaneously.",
+      "helpTextPaymentDueDate": "+30 day, +4 week, +1 week 2 day"
     }
   },
   "sw-privileges": {

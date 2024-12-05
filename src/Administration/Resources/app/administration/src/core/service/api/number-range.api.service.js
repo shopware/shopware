@@ -21,6 +21,10 @@ class NumberRangeApiService extends ApiService {
      * @returns {Promise<T>}
      */
     reserve(typeName, salesChannelId = '', preview = false, additionalHeaders = {}) {
+        if (typeName.startsWith('document_zugferd_')) {
+            typeName = 'document_invoice';
+        }
+
         const urlSuffix = salesChannelId ? `/${salesChannelId}` : '';
         const url = `_action/number-range/reserve/${typeName}${urlSuffix}`;
 

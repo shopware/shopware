@@ -184,7 +184,7 @@ export default {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.companyStreet'),
+                        label: this.$tc('sw-settings-document.detail.labelCompanyStreet'),
                     },
                 },
                 {
@@ -192,7 +192,7 @@ export default {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.companyZipcode'),
+                        label: this.$tc('sw-settings-document.detail.labelCompanyZipcode'),
                     },
                 },
                 {
@@ -200,7 +200,7 @@ export default {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.companyCity'),
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCity'),
                     },
                 },
                 {
@@ -209,7 +209,7 @@ export default {
                     config: {
                         entity: 'country',
                         componentName: 'sw-entity-single-select',
-                        label: this.$tc('sw-settings-document.detail.companyCountry'),
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCountry'),
                     },
                 },
                 {
@@ -314,6 +314,16 @@ export default {
                     config: {
                         type: 'text',
                         label: this.$tc('sw-settings-document.detail.labelExecutiveDirector'),
+                    },
+                },
+                {
+                    name: 'paymentDueDate',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelPaymentDueDate'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextPaymentDueDate'),
+                        placeholder: '+30 day'
                     },
                 },
             ],

@@ -127,4 +127,20 @@ class DocumentException extends HttpException
             $e
         );
     }
+
+    /**
+     * @param array<string, string[]> $violations
+     */
+    public static function electronicInvoiceViolation(int $count, array $violations): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::GENERATION_ERROR,
+            'Unable to generate document. {{counter}} violation(s) found',
+            [
+                'counter' => $count,
+                'violations' => $violations,
+            ]
+        );
+    }
 }

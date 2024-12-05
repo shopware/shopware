@@ -27,18 +27,8 @@ class Migration1730790665ElectronicInvoiceTest extends TestCase
 
     public function testMigration(): void
     {
-        $id = $this->connection->fetchOne('SELECT `id` FROM `number_range_type` WHERE `technical_name` = \'document_zugferd_invoice\'');
-
         $this->connection->delete('document_type', ['technical_name' => ZugferdRenderer::TYPE]);
         $this->connection->delete('document_type', ['technical_name' => ZugferdEmbeddedRenderer::TYPE]);
-        $this->connection->delete('number_range_type', ['technical_name' => 'document_zugferd_invoice']);
-
-        // TODO: number range must be clarified
-        if ($id) {
-            $this->connection->delete('number_range', ['type_id' => $id]);
-        }
-
-        $this->connection->fetchAllAssociative('SELECT count(*) FROM number_range');
 
         $migration = new Migration1730790665ElectronicInvoice();
         $migration->update($this->connection);
@@ -47,11 +37,7 @@ class Migration1730790665ElectronicInvoiceTest extends TestCase
         $documentTypes = $this->connection
             ->executeQuery('SELECT `id` FROM `document_type` WHERE `technical_name` LIKE \'%zugferd%\'')
             ->fetchAllAssociative();
-        $numberRange = $this->connection
-            ->executeQuery('SELECT `id` FROM `number_range_type` WHERE `technical_name` LIKE \'%zugferd%\'')
-            ->fetchAllAssociative();
 
         static::assertCount(2, $documentTypes);
-        static::assertCount(1, $numberRange);
     }
 }

@@ -36,12 +36,17 @@
       "labelPageOrientation": "Seitenausrichtung",
       "labelPageSize": "Seitenformat",
       "labelItemsPerPage": "Positionen pro Seite",
-      "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen",
+      "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen (Veraltet v6.7.0)",
       "labelCompanyAddress": "Geschäftsadresse",
+      "labelCompanyCity": "Stadt",
+      "labelCompanyCountry": "Land",
       "labelCompanyName": "Geschäftsname",
       "labelCompanyEmail": "Geschäfts-E-Mail-Adresse",
       "labelCompanyPhone": "Geschäfts-Telefon",
+      "labelCompanyStreet": "Straße",
       "labelCompanyUrl": "Geschäfts-Webseite",
+      "labelCompanyZipcode": "Postleitzahl",
+      "labelPaymentDueDate": "Fälligkeit der Zahlung",
       "labelTaxNumber": "Geschäfts-Steuernummer",
       "labelTaxOffice": "Finanzamt",
       "labelVatId": "Geschäfts-USt-Id",
@@ -69,7 +74,8 @@
       "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
-      "helpTextCompanyAddress": "Verwende Bindestriche (\"-\") um die einzelnen Elemente der Adresse voneinander abzugrenzen. Das hilft bei der gleichzeitigen Darstellung der Adresse an unterschiedlichen Stellen der Kopfzeile."
+      "helpTextCompanyAddress": "Veraltet für 6.7 - Benutze die neuen einzelnen Felder für die Adresse. Verwende Bindestriche (\"-\") um die einzelnen Elemente der Adresse voneinander abzugrenzen. Das hilft bei der gleichzeitigen Darstellung der Adresse an unterschiedlichen Stellen der Kopfzeile.",
+      "helpTextPaymentDueDate": "+30 day, +4 week, +1 week 2 day"
     }
   },
   "sw-privileges": {

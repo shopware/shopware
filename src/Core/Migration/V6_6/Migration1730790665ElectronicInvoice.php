@@ -35,15 +35,9 @@ class Migration1730790665ElectronicInvoice extends MigrationStep
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $electronicInvoiceId = Uuid::randomBytes();
         $embeddedInvoiceId = Uuid::randomBytes();
-        $rangeTypeId = Uuid::randomBytes();
-        $numberRangeId = Uuid::randomBytes();
 
         $connection->insert('document_type', ['id' => $electronicInvoiceId, 'technical_name' => ZugferdRenderer::TYPE, 'created_at' => $createdAt]);
         $connection->insert('document_type', ['id' => $embeddedInvoiceId, 'technical_name' => ZugferdEmbeddedRenderer::TYPE, 'created_at' => $createdAt]);
-
-        $connection->insert('number_range_type', ['id' => $rangeTypeId, 'global' => 0, 'technical_name' => 'document_zugferd_invoice', 'created_at' => $createdAt]);
-
-        $connection->insert('number_range', ['id' => $numberRangeId, 'global' => 1, 'type_id' => $rangeTypeId, 'pattern' => '{n}', 'start' => 1000, 'created_at' => $createdAt]);
 
         $zugferdTranslation = new Translations(
             ['document_type_id' => $electronicInvoiceId, 'name' => 'ZUGFeRD E-Rechnung'],
@@ -55,17 +49,5 @@ class Migration1730790665ElectronicInvoice extends MigrationStep
         );
         $this->importTranslation('document_type_translation', $zugferdTranslation, $connection);
         $this->importTranslation('document_type_translation', $embeddedTranslation, $connection);
-
-        $rangeTypeTranslation = new Translations(
-            ['number_range_type_id' => $rangeTypeId, 'type_name' => 'ZUGFeRD E-Rechnung'],
-            ['number_range_type_id' => $rangeTypeId, 'type_name' => 'ZUGFeRD e-invoice']
-        );
-        $this->importTranslation('number_range_type_translation', $rangeTypeTranslation, $connection);
-
-        $rangeTranslation = new Translations(
-            ['number_range_id' => $numberRangeId, 'name' => 'ZUGFeRD Rechnungen'],
-            ['number_range_id' => $numberRangeId, 'name' => 'ZUGFeRD invoices']
-        );
-        $this->importTranslation('number_range_translation', $rangeTranslation, $connection);
     }
 }

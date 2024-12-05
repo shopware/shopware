@@ -45,4 +45,12 @@
     .sw-field--checkbox {
         margin-bottom: 22px;
     }
+
+    .sw-settings-document-detail__company_card .sw-select {
+        margin-bottom: 32px;
+
+        .sw-field__label, .sw-select__selection {
+            color: var(--color-text-primary-default);
+        }
+    }
 }

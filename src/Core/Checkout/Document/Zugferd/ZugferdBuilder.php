@@ -2,57 +2,90 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
+use DateTimeInterface;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
-use horstoeko\zugferd\ZugferdDocumentValidator;
 use horstoeko\zugferd\ZugferdProfiles;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
 class ZugferdBuilder
 {
-    protected ZugferdDocument $document;
-
     /**
      * @internal
      */
     public function __construct(
-        protected EntityRepository $documentRepository,
-        protected EntityRepository $countryRepository,
         protected EventDispatcherInterface $eventDispatcher
     ) {
     }
 
-    public function buildDocument(OrderEntity $order, DocumentGenerateOperation $operation, Context $context): ZugferdDocument
+    public function buildDocument(OrderEntity $order, DocumentGenerateOperation $operation, DocumentConfiguration $config, Context $context): string
     {
-        $this->init($order, $operation);
+        $config->__set('isGross',  match ($order->getTaxStatus()) {
+            CartPrice::TAX_STATE_GROSS => true,
+            CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE => false,
+            default => throw DocumentException::generationError('Unsupported tax status'),
+        });
 
-        // WIP: will be done in next MR
+        /** @var OrderAddressEntity $billingAddress */
+        $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
+        /** @var OrderCustomerEntity $customer */
+        $customer = $order->getOrderCustomer();
 
-        $validation = (new ZugferdDocumentValidator($this->document->zugferdBuilder))->validateDocument();
-        if ($validation->count()) {
-            // WIP: will be done in next MR
+        /** @var DateTimeInterface $deliveryDate */
+        $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
+        if ($deliveryDate instanceof \DateTimeImmutable) {
+            $deliveryDate = \DateTime::createFromImmutable($deliveryDate);
         }
 
-        return $this->document;
+        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $config))
+            ->withBuyerInformation($customer, $billingAddress)
+            ->withSellerInformation($config)
+            ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
+            ->withTaxes($order->getPrice()->getCalculatedTaxes())
+            ->withGeneralOrderData($deliveryDate, $operation->getConfig()['documentDate'] ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '');
+
+        $this->addLineItems($document, $order->getLineItems());
+
+        $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $config, $context));
+
+        return $document->getContent($order);
     }
 
-    protected function init(OrderEntity $order, DocumentGenerateOperation $operation): self
+    protected function addLineItems(ZugferdDocument $document, ?OrderLineItemCollection $lineItems, string $parentPosition = ''): self
     {
-        $isGross = match ($order->getTaxStatus()) {
-            CartPrice::TAX_STATE_GROSS => true,
-            CartPrice::TAX_STATE_NET => false,
-            default => throw DocumentException::generationError('Unsupported tax status'),
-        };
+        if (!$lineItems) {
+            return $this;
+        }
 
-        $this->document = new ZugferdDocument($order, $operation, ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
+        foreach ($lineItems as $lineItem) {
+            $this->matchByType($document, $lineItem, $parentPosition);
+            $this->addLineItems($document, $lineItem->getChildren(), $lineItem->getPosition() . '-');
+        }
 
         return $this;
+    }
+
+    protected function matchByType(ZugferdDocument $document, OrderLineItemEntity $lineItem, string $parentPosition = ''): void
+    {
+        match ($lineItem->getType()) {
+            LineItem::PRODUCT_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
+            LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::CREDIT_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),
+            default => null,
+        };
+
+        $this->eventDispatcher->dispatch(new ZugferdInvoiceItemAddedEvent($document, $lineItem, $parentPosition), 'zugferd-item-added.' . $lineItem->getType());
     }
 }

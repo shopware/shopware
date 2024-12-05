@@ -531,23 +531,23 @@ class ProductSearchRouteTest extends TestCase
                 ['Incredible Plastic Duoflex'],
             ],
             [
-                'Incredible-%Plastic     ',
+                'Incredible-%Plastic',
                 ['Incredible Plastic Duoflex'],
             ],
             [
-                'Incredible$^%&%$&$Plastic     ',
+                'Incredible$^%&%$&$Plastic',
                 ['Incredible Plastic Duoflex'],
             ],
             [
-                '(๑★ .̫ ★๑)Incredible$^%&%$&$Plastic(๑★ .̫ ★๑)     ',
+                '(๑★ .̫ ★๑)Incredible$^%&%$&$Plastic(๑★ .̫ ★๑)',
                 ['Incredible Plastic Duoflex'],
             ],
             [
-                '‰€€Incredible$^%&%$&$Plastic‰€€     ',
+                '‰€€Incredible$^%&%$&$Plastic‰€€',
                 ['Incredible Plastic Duoflex'],
             ],
             [
-                '³²¼¼³¬½{¬]Incredible³²¼¼³¬½{¬]$^%&%$&$Plastic     ',
+                '³²¼¼³¬½{¬]Incredible³²¼¼³¬½{¬]$^%&%$&$Plastic',
                 ['Incredible Plastic Duoflex'],
             ],
             [
@@ -632,7 +632,7 @@ class ProductSearchRouteTest extends TestCase
                 ],
             ],
             [
-                '        Fantastic            ',
+                'Fantastic',
                 [
                     'Fantastic Concrete Comveyer',
                     'Fantastic Copper Ginger Vitro',

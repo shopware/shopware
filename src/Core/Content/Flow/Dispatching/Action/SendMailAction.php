@@ -225,10 +225,12 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $this->mailTemplateTypeRepository->update([[
-            'id' => $mailTemplate->getMailTemplateTypeId(),
-            'templateData' => $templateData,
-        ]], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mailTemplate, $templateData): void {
+            $this->mailTemplateTypeRepository->update([[
+                'id' => $mailTemplate->getMailTemplateTypeId(),
+                'templateData' => $templateData,
+            ]], $context);
+        });
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity

@@ -20,8 +20,9 @@ class Migration1733745893createTagStorageTable extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeStatement('
-            CREATE TABLE invalidation_tags (
-                tag VARCHAR(255) NOT NULL PRIMARY KEY
+            CREATE TABLE IF NOT EXISTS invalidation_tags (
+                id BINARY(16) NOT NULL PRIMARY KEY,
+                tag VARCHAR(255) NOT NULL UNIQUE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

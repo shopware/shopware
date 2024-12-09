@@ -70,6 +70,17 @@ class MultiInsertQueryQueue
         ];
     }
 
+    /**
+     * @param list<array<string, mixed>> $rows
+     * @param array<string, ParameterType::*>|null $types
+     */
+    public function addInserts(string $table, array $rows, ?array $types = null): void
+    {
+        foreach ($rows as $row) {
+            $this->addInsert($table, $row, $types);
+        }
+    }
+
     public function execute(): void
     {
         if (empty($this->inserts)) {

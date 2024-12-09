@@ -100,6 +100,7 @@ class DefinitionValidator
         'refresh_token',
         'usage_data_entity_deletion',
         'one_time_tasks',
+        'invalidation_tags',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

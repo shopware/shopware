@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Types;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorageTest
@@ -24,30 +25,38 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
             return;
         }
 
-        $this->connection->transactional(function (Connection $conn) use ($tags): void {
-            $placeholders = implode(',', array_fill(0, \count($tags), '(?)'));
-            $sql = 'INSERT IGNORE INTO ' . self::TABLE_NAME . ' (tag) VALUES ' . $placeholders;
+        $insertQueue = new MultiInsertQueryQueue($this->connection, chunkSize: 1000, ignoreErrors: true);
+        $insertQueue->addInserts(
+            self::TABLE_NAME,
+            array_map(
+                fn (string $tag) => ['id' => Uuid::randomBytes(), 'tag' => $tag],
+                array_values($tags)
+            )
+        );
 
-            $conn->executeStatement(
-                $sql,
-                $tags,
-                ['tag' => Types::STRING]
-            );
-        });
+        $this->connection->transactional(fn () => $insertQueue->execute());
     }
 
     public function loadAndDelete(): array
     {
         return $this->connection->transactional(function (Connection $conn) {
-            $tags = $conn->fetchFirstColumn(
-                'SELECT tag FROM ' . self::TABLE_NAME . ' FOR UPDATE'
+            $rows = $conn->fetchAllAssociative(
+                'SELECT id, tag FROM ' . self::TABLE_NAME . ' ORDER BY id FOR UPDATE'
             );
 
-            if (!empty($tags)) {
-                $conn->executeStatement('DELETE FROM ' . self::TABLE_NAME);
+            if (empty($rows)) {
+                return [];
             }
 
-            return $tags;
+            $firstTagId = $rows[0]['id'];
+            $lastTagId = $rows[array_key_last($rows)]['id'];
+
+            $conn->executeStatement(
+                'DELETE FROM ' . self::TABLE_NAME . ' WHERE id BETWEEN ? AND ?',
+                [$firstTagId, $lastTagId]
+            );
+
+            return array_column($rows, 'tag');
         });
     }
 }

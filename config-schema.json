@@ -587,7 +587,8 @@
                             "default": "cache",
                             "enum": [
                                 "cache",
-                                "redis"
+                                "redis",
+                                "mysql"
                             ]
                         },
                         "dsn": {

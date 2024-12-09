@@ -1,3 +1,8 @@
+/**
+ * @package storefront
+ * @file ArrowNavigationHelper
+ */
+
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 

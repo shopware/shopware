@@ -1,8 +1,15 @@
 /**
  * This class is used to make it easier to preserve the focus state.
  * It is used to set the focus back to a given element after displaying content in a modal.
- *
  * @package storefront
+ * @namespace window
+ * @module FocusHandler
+ * @example
+ * // 1. A button <button class="launch-overlay-el"> is clicked and gets focused.
+ * window.focusHandler.saveFocusState('custom-overlay', document.querySelector('.launch-overlay-el'));
+ * // 2. An overlay opens that moved away the focus from the previously clicked button.
+ * // 3. After the overlay is closed, the focus can be resumed on the previously clicked element.
+ * window.focusHandler.resumeFocusState('custom-overlay');
  */
 export default class FocusHandler {
 
@@ -24,8 +31,9 @@ export default class FocusHandler {
      * It is also possible to pass a selector (string) to search for a specific element during `resumeFocusState`.
      * This can be used when the original element reference is no longer available. E.g. due to DOM modifications.
      *
-     * @param {string} focusHistoryKey
-     * @param {HTMLElement|string} focusEl
+     * @param focusHistoryKey {string} - The key under which the focus should be saved in memory.
+     * @param focusEl {HTMLElement|string} - The element of which the focus should be saved. Can be an HTMLElement of selector string.
+     * @public
      */
     saveFocusState(focusHistoryKey = this._defaultHistoryKey, focusEl = document.activeElement) {
         this._focusMap.set(focusHistoryKey, focusEl);
@@ -39,8 +47,11 @@ export default class FocusHandler {
     /**
      * Resumes the focus to the element that was saved for the given key.
      *
-     * @param {string} focusHistoryKey
-     * @param {{preventScroll: boolean, focusVisible: boolean}} focusOptions
+     * @param focusHistoryKey {string} - The key under which the focus should be resumed.
+     * @param focusOptions
+     * @param focusOptions.preventScroll {boolean} - Should prevent the scroll
+     * @param focusOptions.focusVisible {boolean} - Visible focus
+     * @public
      */
     resumeFocusState(focusHistoryKey = this._defaultHistoryKey, focusOptions = {}) {
         let focusEl = this._focusMap.get(focusHistoryKey);
@@ -65,6 +76,7 @@ export default class FocusHandler {
      *
      * @param focusStorageKey
      * @param uniqueSelector
+     * @public
      */
     saveFocusStatePersistent(focusStorageKey, uniqueSelector) {
         if (!uniqueSelector || !focusStorageKey) {
@@ -92,6 +104,7 @@ export default class FocusHandler {
      *
      * @param focusStorageKey
      * @param focusOptions
+     * @public
      */
     resumeFocusStatePersistent(focusStorageKey, focusOptions) {
         try {
@@ -118,6 +131,7 @@ export default class FocusHandler {
      *
      * @param {HTMLElement} el
      * @param {{preventScroll: boolean, focusVisible: boolean}} focusOptions
+     * @public
      */
     setFocus(el, focusOptions) {
         if (!el) {

@@ -1,5 +1,8 @@
 /**
+ * Check for Feature flags
+ *
  * @package storefront
+ * @module Feature
  */
 class FeatureSingleton {
 

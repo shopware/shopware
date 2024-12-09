@@ -1,6 +1,7 @@
 /**
  * Debouncer
  * @package storefront
+ * @module Debouncer
  */
 export default class Debouncer {
 

@@ -1,5 +1,6 @@
 /**
  * @package storefront
+ * @module DateHelper
  */
 export default class DateFormatHelper {
     /**

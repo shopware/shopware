@@ -1,5 +1,6 @@
 /**
  * @package storefront
+ * @module Iterator
  */
 export default class Iterator {
 

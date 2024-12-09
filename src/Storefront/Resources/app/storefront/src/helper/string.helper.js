@@ -1,5 +1,6 @@
 /**
  * @package storefront
+ * @module StringHelper
  */
 export default class StringHelper {
 

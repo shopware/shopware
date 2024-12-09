@@ -1,4 +1,7 @@
 import Debouncer from 'src/helper/debouncer.helper';
+/**
+ * @module ViewportDetection
+ */
 
 /**
  * Viewport Detection

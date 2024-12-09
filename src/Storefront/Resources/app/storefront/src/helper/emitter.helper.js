@@ -1,5 +1,6 @@
 /**
  * @package storefront
+ * @module NativeEventEmitter
  */
 export default class NativeEventEmitter {
     /**

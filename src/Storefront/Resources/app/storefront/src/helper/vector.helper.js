@@ -1,3 +1,8 @@
+/**
+ * @package storefront
+ * @module Vector
+ */
+
 function argsToVector(args) {
     if (args[0] instanceof Vector) {
         return args[0];
@@ -12,7 +17,7 @@ function argsToVector(args) {
 
 class Vector {
     /**
-     * @param {Array<Number>}args
+     * @param args {Array<Number>}
      */
     constructor(args) {
         this.entries = args.map((arg, index) => {
@@ -133,7 +138,7 @@ class Vector {
     /**
      * compares dimension and entries of a vector
      *
-     * @param {Vector,Array<number>}args
+     * @param args
      * @returns {boolean}
      */
     equals(...args) {

@@ -2,6 +2,7 @@ import StringHelper from 'src/helper/string.helper';
 
 /**
  * @package storefront
+ * @module DomAccess
  */
 export default class DomAccess {
 

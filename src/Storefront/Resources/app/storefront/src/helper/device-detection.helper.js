@@ -1,5 +1,6 @@
 /**
  * @package storefront
+ * @module DeviceDetection
  */
 export default class DeviceDetection {
 

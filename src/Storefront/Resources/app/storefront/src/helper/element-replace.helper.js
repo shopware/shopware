@@ -3,6 +3,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * @package storefront
+ * @module ElementReplaceHelper
  */
 class ElementReplaceHelperSingleton {
 

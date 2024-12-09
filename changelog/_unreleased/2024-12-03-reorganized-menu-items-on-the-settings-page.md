@@ -8,4 +8,4 @@ author_github: @s.kalicki
 ---
 # Administration
 * Changed settings-item.store.js to extend the state for supporting the reorganized menu structure on the settings page.
-* Refactored sw-settings-document-detail.html.twig to implement the new groups and reflect the updated menu structure.
+* Changed sw-settings-document-detail.html.twig to implement the new groups and reflect the updated menu structure.

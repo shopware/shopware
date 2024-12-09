@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 
@@ -32,9 +33,7 @@ class MultiInsertQueryQueue
         private readonly bool $useReplace = false
     ) {
         if ($chunkSize < 1) {
-            throw new \InvalidArgumentException(
-                \sprintf('Parameter $chunkSize needs to be a positive integer starting with 1, "%d" given', $chunkSize)
-            );
+            throw DataAbstractionLayerException::invalidChunkSize($chunkSize);
         }
         $this->chunkSize = $chunkSize;
     }

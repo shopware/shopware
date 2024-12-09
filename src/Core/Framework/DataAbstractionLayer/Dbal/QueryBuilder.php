@@ -71,7 +71,7 @@ class QueryBuilder extends DBALQueryBuilder
     /**
      * @return string
      */
-    public function getSQL()
+    public function getSQL(): string
     {
         // Use a copy of this query builder to generate the SQL including the translation joins. This way calling this
         // getter does not have any side effects on the original instance.

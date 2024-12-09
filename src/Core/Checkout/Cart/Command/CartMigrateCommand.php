@@ -85,7 +85,7 @@ class CartMigrateCommand extends Command
     protected function createIterator(): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
-        $query->addSelect(['cart.auto_increment', 'cart.token']);
+        $query->addSelect('cart.auto_increment', 'cart.token');
         $query->from('cart');
         $query->andWhere('cart.auto_increment > :lastId');
         $query->addOrderBy('cart.auto_increment');

@@ -147,17 +147,7 @@ class IdSearchResult extends Struct
      */
     public function has(string|array $primaryKey): bool
     {
-        if (!\is_array($primaryKey)) {
-            return \in_array($primaryKey, $this->ids, true);
-        }
-
-        foreach ($this->ids as $id) {
-            if ($id === $primaryKey) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array($primaryKey, $this->ids, true);
     }
 
     public function getApiAlias(): string

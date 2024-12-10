@@ -68,7 +68,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-        Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', '');
+        Shopware.Store.get('swSeoUrl').currentSeoUrl = '';
     });
 
     it('should be a Vue.js component', async () => {

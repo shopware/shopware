@@ -855,11 +855,11 @@ export default {
         },
 
         updateSeoUrls() {
-            if (!Shopware.State.list().includes('swSeoUrl')) {
+            if (!Shopware.Store.list().includes('swSeoUrl')) {
                 return Promise.resolve();
             }
 
-            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
+            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
 
             return Promise.all(
                 seoUrls.map((seoUrl) => {

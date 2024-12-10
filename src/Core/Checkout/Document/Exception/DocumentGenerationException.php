@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Document\Exception;
 
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('after-sales')]
@@ -11,17 +11,13 @@ class DocumentGenerationException extends ShopwareHttpException
 {
     public function __construct(string $message = '')
     {
-        $message = 'Unable to generate document. ' . $message;
-        parent::__construct($message);
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'DOCUMENT__GENERATION_ERROR';
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_GENERATION_ERROR,
+            \sprintf('Unable to generate document. %s', $message),
+            [
+                '$message' => $message,
+            ],
+        );
     }
 }

@@ -58,32 +58,39 @@ merge 16.11.2020
             {% else %}
                 {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}
             {% endif %}
+
+            {% if config.fileType == constant('Shopware\\Core\\Checkout\\Document\\FileGenerator\\FileTypes::HTML') %}
+                {% sw_include '@Framework/documents/style_base_html.css.twig' %}
+            {% endif %}
         {% endblock %}
     </head>
 
     <body>
 
+    <main>
+        {% block document_body %}
+            {% set position = 1 %}
+            {% set prefix = '' %}
+            {% set level = 0 %}
+
+            {% for lineItem in nestedLineItems %}
+                {{ block('loop') }}
+
+                {% set position = position + 1 %}
+            {% endfor %}
+
+            {{ block('summary') }}
+
+            {{ block('payment_shipping')  }}
+
+            {{ block('comment')  }}
+
+            {{ block('shipping_address')  }}
+        {% endblock %}
+    </main>
+
     {{ block('footer') }}
 
-    {% block document_body %}
-        {% set position = 1 %}
-        {% set prefix = '' %}
-        {% set level = 0 %}
-
-        {% for lineItem in nestedLineItems %}
-            {{ block('loop') }}
-
-            {% set position = position + 1 %}
-        {% endfor %}
-
-        {{ block('summary') }}
-
-        {{ block('payment_shipping')  }}
-
-        {{ block('comment')  }}
-
-        {{ block('shipping_address')  }}
-    {% endblock %}
     </body>
     </html>
 {% endblock %}

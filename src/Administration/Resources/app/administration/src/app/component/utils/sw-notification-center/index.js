@@ -41,7 +41,7 @@ Component.register('sw-notification-center', {
     },
 
     created() {
-        this.unsubscribeFromStore = Shopware.State.subscribeAction(this.createNotificationFromSystemError);
+        this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
         if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
             this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
         } else {
@@ -50,9 +50,7 @@ Component.register('sw-notification-center', {
     },
 
     beforeDestroyed() {
-        if (typeof this.unsubscribeFromStore === 'function') {
-            this.unsubscribeFromStore();
-        }
+        this.unsubscribeFromStore?.();
 
         if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
             this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
@@ -93,14 +91,14 @@ Component.register('sw-notification-center', {
             this.$refs.notificationCenterContextButton.removeMenuFromBody();
             this.$refs.notificationCenterContextButton.$emit('context-menu-after-close');
         },
-        createNotificationFromSystemError({ type, payload }) {
-            if (type !== 'addSystemError') {
+        createNotificationFromSystemError({ name, args }) {
+            if (name !== 'addSystemError') {
                 return;
             }
 
             this.createSystemNotificationError({
-                id: payload.id,
-                message: payload.error.detail,
+                id: args.id,
+                message: args.error.detail,
             });
         },
     },

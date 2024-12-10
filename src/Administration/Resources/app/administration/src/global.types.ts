@@ -106,6 +106,7 @@ import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
 import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
+import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -366,6 +367,7 @@ declare global {
         tabs: TabsStore;
         usageData: UsageData;
         session: SessionStore;
+        swCategoryDetail: SwCategoryDetailStore;
     }
 
     /**

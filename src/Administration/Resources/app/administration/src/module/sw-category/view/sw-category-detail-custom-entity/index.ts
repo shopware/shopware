@@ -56,7 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         category(): Entity<'category'> | null {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.get('swCategoryDetail').category as Entity<'category'> | null;
+            return Shopware.Store.get('swCategoryDetail').category as Entity<'category'> | null;
         },
 
         customEntityCriteria(): Criteria {

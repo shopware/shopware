@@ -9,6 +9,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 
@@ -274,6 +275,26 @@ const coreConfig = {
             if (isProdMode) {
                 return [
                     new FilenameToChunkNamePlugin(),
+                ];
+            }
+
+            return [];
+        })(),
+        ...(() => {
+            if (fs.existsSync(path.resolve(__dirname, 'static'))) {
+                // copy custom static assets
+                return [
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {
+                                from: path.resolve(__dirname, 'static'),
+                                to: path.resolve(__dirname, '../../../Resources/public/assets'),
+                                globOptions: {
+                                    ignore: ['.*'],
+                                },
+                            },
+                        ],
+                    }),
                 ];
             }
 

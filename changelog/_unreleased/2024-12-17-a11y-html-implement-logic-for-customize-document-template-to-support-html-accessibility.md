@@ -1,21 +1,18 @@
 ---
-title: [A11y-HTML] Offer HTML alternative to our pdf standard documents
-issue: NEXT-40059
+title: [A11y-HTML] Implement Logic for customize Document Template to Support HTML Accessibility
+issue: NEXT-40063
 ---
 # Core
-* Changed some files to call `RenderedDocument::setTemplateOptions` to provide template options to render document template.
+* Changed some files to call `RenderedDocument::setHtmlA11y` to set the HTML accessibility content for the rendered document.
   * `Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer::render`
   * `Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer::render`
   * `Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer::render`
   * `Shopware\Core\Checkout\Document\Renderer\StornoRenderer::render`
-* Added parameter `templateOptions` in `Shopware\Core\Checkout\Document\Renderer\RenderedDocument` to the provide the config to render template.
+* Added parameter `htmlA11y` in `Shopware\Core\Checkout\Document\Renderer\RenderedDocument` to the provide The HTML accessibility content for the rendered document.
 * Changed `Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::download` to add the `fileType` configuration to the `DocumentGenerator`.
 * Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::readDocument` to load the media based on `fileType`.
-* Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate` to save `documentA11yMediaFileId` field.
+* Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate` to save `documentMediaFileIds`.
 * Changed `Shopware\Core\Checkout\Document\Service\DocumentGenerator::preview` to set the content based on `fileType`.
-* Added `Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry` to callable render by contentType.
-* Added `Shopware\Core\Checkout\Document\Service\HtmlRenderer` to render the document file.
-* Changed `Shopware\Core\Checkout\Document\Service\PdfRenderer` to add the function `templateRenderer` to add document template.
 ___
 # Administration
 * Changed method `getDocumentPreview` in `document.api.service` service to add the `fileType` like <html or pdf> attributes.

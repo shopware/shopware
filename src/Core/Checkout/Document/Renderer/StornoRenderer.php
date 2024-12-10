@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -147,28 +148,47 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
                 /** @var LocaleEntity $locale */
                 $locale = $language->getLocale();
+                $files = [];
 
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode()
-                );
+                foreach (self::FILE_TYPES as $type) {
+                    $configClone = clone $config;
+                    $configClone->merge([
+                        'fileType' => $type,
+                    ]);
+
+                    // HTML is only used to skip nested pages
+                    if ($type === FileTypes::HTML) {
+                        $configClone->merge([
+                            'itemsPerPage' => 1000,
+                        ]);
+                    }
+
+                    $files[$type] = $this->documentTemplateRenderer->render(
+                        $template,
+                        [
+                            'order' => $order,
+                            'config' => $configClone,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode()
+                    );
+                }
+
+                $contentType = $operation->getFileType() === FileTypes::HTML ? self::HTML_CONTENT_TYPE : self::PDF_CONTENT_TYPE;
 
                 $doc = new RenderedDocument(
-                    $html,
+                    $files[FileTypes::PDF],
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
+                    $contentType,
                 );
+                $doc->setFiles($files);
 
                 $doc->setHtmlA11y(
                     $this->htmlA11yRendered(

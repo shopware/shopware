@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -140,6 +141,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         $config->jsonSerialize(),
                         $order,
                     ),
+                    'fileType' => FileTypes::PDF,
                 ]);
 
                 if ($operation->isStatic()) {
@@ -183,6 +185,27 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
+                );
+
+                $doc->setHtmlA11y(
+                    $this->htmlA11yRendered(
+                        $this->documentTemplateRenderer,
+                        $template,
+                        $number,
+                        [
+                            'order' => $order,
+                            'creditItems' => $creditItems,
+                            'price' => $price->getTotalPrice() * -1,
+                            'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $order,
+                        $config,
+                        $locale,
+                        $context
+                    ),
                 );
 
                 $result->addSuccess($orderId, $doc);

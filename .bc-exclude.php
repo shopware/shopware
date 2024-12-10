@@ -54,5 +54,8 @@ return [
 
         // Class is marked as @final
         'Parameter clearHttp was added to Method clear\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer',
+
+        // Added new optional parameter to those classes
+        'Parameter fileType was added to Method readDocument\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator',
     ],
 ];

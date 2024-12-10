@@ -263,6 +263,71 @@ class InvoiceRendererTest extends TestCase
         static::assertCount(0, $successResults);
     }
 
+    public function testRenderMultipleContent(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+
+        $order = $this->createOrder([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'isCountryCompanyTaxFree' => true,
+            'setOrderDelivery' => true,
+            'setShippingCountry' => true,
+            'setEuCountry' => true,
+        ]);
+
+        $order->setDocuments(new DocumentCollection([$document]));
+
+        $orderId = $order->getId();
+        $orderCollection = new OrderCollection([$order]);
+        $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
+
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock->method('fetchAllAssociative')->willReturn([
+            [
+                'language_id' => Defaults::LANGUAGE_SYSTEM,
+                'ids' => $orderId,
+            ],
+        ]);
+
+        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
+
+        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
+        $documentTemplateRenderer->method('render')->willReturn('HTML');
+
+        $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class));
+
+        $invoiceRenderer = new InvoiceRenderer(
+            $orderRepositoryMock,
+            $documentConfigLoaderMock,
+            $this->createMock(EventDispatcherInterface::class),
+            $documentTemplateRenderer,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            '',
+            $connectionMock,
+        );
+
+        $operations = [
+            $orderId => new DocumentGenerateOperation(
+                $orderId,
+                FileTypes::PDF,
+                ['forceDocumentCreation' => true],
+            ),
+        ];
+
+        $result = $invoiceRenderer->render($operations, $context, new DocumentRendererConfig());
+
+        $successResults = $result->getSuccess();
+
+        static::assertNotEmpty($successResults[$orderId]);
+        static::assertInstanceOf(RenderedDocument::class, $successResults[$orderId]->getHtmlA11y());
+        static::assertSame('HTML', $successResults[$orderId]->getHtmlA11y()->getContent());
+        static::assertSame('HTML', $successResults[$orderId]->getHtml());
+    }
+
     public static function configDataProvider(): \Generator
     {
         yield 'will return true because all necessary configs are made' => [

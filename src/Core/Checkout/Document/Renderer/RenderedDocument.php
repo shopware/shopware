@@ -9,7 +9,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 final class RenderedDocument extends Struct
 {
+    final public const PDF_CONTENT_TYPE = 'application/pdf';
+
+    final public const HTML_CONTENT_TYPE = 'text/html';
+
     private string $content;
+
+    private ?RenderedDocument $htmlA11y = null;
 
     /**
      * @param array<string, mixed> $config
@@ -20,7 +26,7 @@ final class RenderedDocument extends Struct
         private string $name = '',
         private readonly string $fileExtension = FileTypes::PDF,
         private readonly array $config = [],
-        private ?string $contentType = 'application/pdf'
+        private ?string $contentType = self::PDF_CONTENT_TYPE,
     ) {
     }
 
@@ -51,7 +57,7 @@ final class RenderedDocument extends Struct
 
     public function getContentType(): string
     {
-        return $this->contentType ?? 'application/pdf';
+        return $this->contentType ?? self::PDF_CONTENT_TYPE;
     }
 
     public function setContentType(?string $contentType): void
@@ -85,5 +91,15 @@ final class RenderedDocument extends Struct
     public function getConfig(): array
     {
         return $this->config;
+    }
+
+    public function getHtmlA11y(): ?RenderedDocument
+    {
+        return $this->htmlA11y;
+    }
+
+    public function setHtmlA11y(?RenderedDocument $htmlA11y): void
+    {
+        $this->htmlA11y = $htmlA11y;
     }
 }

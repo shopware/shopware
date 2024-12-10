@@ -83,12 +83,12 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    getDocumentPreview(orderId, orderDeepLink, documentTypeName, params) {
+    getDocumentPreview(orderId, orderDeepLink, documentTypeName, params, additionalParams = {}) {
         const config = JSON.stringify(params);
 
         return this.httpClient
             .get(`/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview`, {
-                params: { config },
+                params: { config, ...additionalParams },
                 responseType: 'blob',
                 headers: this.getBasicHeaders(),
             })

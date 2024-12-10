@@ -139,11 +139,11 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
-        $expectedContentType = 'text/plain; charset=UTF-8';
+        $expectedContentType = 'application/pdf';
 
         $this->getBrowser()->request(
             'POST',
-            $baseResource . '_action/document/' . $item['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
+            $baseResource . '_action/document/' . $item['documentId'] . '/upload?fileName=' . $filename . '&extension=pdf',
             [],
             [],
             ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => mb_strlen($expectedFileContent)],

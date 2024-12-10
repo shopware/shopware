@@ -2,7 +2,12 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
+use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
+use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +22,12 @@ class DocumentException extends HttpException
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT__DOCUMENT_NOT_FOUND';
 
     public const GENERATION_ERROR = 'DOCUMENT__GENERATION_ERROR';
+
+    public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT__NUMBER_ALREADY_EXISTS';
+
+    public const DOCUMENT_GENERATION_ERROR = 'DOCUMENT__GENERATION_ERROR';
+
+    public const DOCUMENT_INVALID_RENDERER_TYPE = 'DOCUMENT__INVALID_RENDERER_TYPE';
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
@@ -65,5 +76,29 @@ class DocumentException extends HttpException
             ],
             $e
         );
+    }
+
+    public static function customerNotLoggedIn(): CustomerNotLoggedInException
+    {
+        return new CustomerNotLoggedInException(
+            Response::HTTP_FORBIDDEN,
+            CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'Customer is not logged in.'
+        );
+    }
+
+    public static function documentNumberAlreadyExistsException(string $number = ''): self|DocumentNumberAlreadyExistsException
+    {
+        return new DocumentNumberAlreadyExistsException($number);
+    }
+
+    public static function documentGenerationException(string $message = ''): self|DocumentGenerationException
+    {
+        return new DocumentGenerationException($message);
+    }
+
+    public static function invalidDocumentRenderer(string $type): self|InvalidDocumentRendererException
+    {
+        return new InvalidDocumentRendererException($type);
     }
 }

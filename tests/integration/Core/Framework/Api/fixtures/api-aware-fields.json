@@ -1188,6 +1188,7 @@
     "document.referencedDocument",
     "document.dependentDocuments",
     "document.documentMediaFile",
+    "document.documentMediaFileIds",
     "document.createdAt",
     "document.updatedAt",
     "document_type.id",

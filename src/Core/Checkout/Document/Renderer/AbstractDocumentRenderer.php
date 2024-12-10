@@ -5,11 +5,15 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleEntity;
 
 #[Package('checkout')]
 abstract class AbstractDocumentRenderer
@@ -72,5 +76,48 @@ abstract class AbstractDocumentRenderer
         $isPartOfEu = $country->getIsEu();
 
         return $isCompanyTaxFree && $isPartOfEu;
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function htmlA11yRendered(
+        DocumentTemplateRenderer $documentTemplateRenderer,
+        string $template,
+        string $number,
+        array $parameters,
+        OrderEntity $order,
+        DocumentConfiguration $config,
+        LocaleEntity $locale,
+        Context $context
+    ): RenderedDocument {
+        $configClone = clone $config;
+        $configClone->merge([
+            'fileType' => FileTypes::HTML,
+            'itemsPerPage' => 1000, // we need to render all items on one page
+        ]);
+
+        $parameters['config'] = $configClone;
+
+        $file = $documentTemplateRenderer->render(
+            $template,
+            $parameters,
+            $context,
+            $order->getSalesChannelId(),
+            $order->getLanguageId(),
+            $locale->getCode()
+        );
+
+        $rendered = new RenderedDocument(
+            '',
+            $number,
+            $configClone->buildName(),
+            FileTypes::HTML,
+            $configClone->jsonSerialize(),
+            RenderedDocument::HTML_CONTENT_TYPE
+        );
+        $rendered->setContent($file);
+
+        return $rendered;
     }
 }

@@ -117,7 +117,7 @@ class DocumentControllerTest extends TestCase
         $browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/account/order/document/' . $documentIdStruct->getId() . '/' . $documentIdStruct->getDeepLinkCode(),
-            $this->tokenize('frontend.account.order.single.document', [])
+            $this->tokenize('frontend.account.order.single.document', ['fileType' => 'txt'])
         );
 
         $response = $browser->getResponse();

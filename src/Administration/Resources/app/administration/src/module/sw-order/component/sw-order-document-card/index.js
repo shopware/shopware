@@ -409,11 +409,13 @@ export default {
             }
         },
 
-        onPreview(params) {
+        onPreview(params, fileType) {
             this.isLoadingPreview = true;
 
             return this.documentService
-                .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params)
+                .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params, {
+                    fileType,
+                })
                 .then((response) => {
                     if (response.data) {
                         const link = document.createElement('a');

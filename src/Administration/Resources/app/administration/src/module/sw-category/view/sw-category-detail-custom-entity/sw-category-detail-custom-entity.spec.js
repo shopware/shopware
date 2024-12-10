@@ -38,23 +38,16 @@ const customEntityRepositoryMock = {
 };
 
 async function createWrapper() {
-    if (Shopware.State.get('swCategoryDetail')) {
-        Shopware.State.unregisterModule('swCategoryDetail');
-    }
+    Shopware.Store.get('swCategoryDetail').$reset();
 
-    Shopware.State.registerModule('swCategoryDetail', {
-        namespaced: true,
-        state: {
-            category: {
-                isNew: () => false,
-                customEntityTypeId: customEntity1.id,
-                extensions: {
-                    customEntityName1SwCategories: customEntity1.instanceRepository,
-                    customEntityName2SwCategories: customEntity2.instanceRepository,
-                },
-            },
+    Shopware.Store.get('swCategoryDetail').category = {
+        isNew: () => false,
+        customEntityTypeId: customEntity1.id,
+        extensions: {
+            customEntityName1SwCategories: customEntity1.instanceRepository,
+            customEntityName2SwCategories: customEntity2.instanceRepository,
         },
-    });
+    };
 
     return mount(
         await wrapTestComponent('sw-category-detail-custom-entity', {

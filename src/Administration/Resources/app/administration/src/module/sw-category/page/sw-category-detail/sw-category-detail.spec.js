@@ -103,11 +103,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     it('should not allow to modify', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').category = {
+            slotConfig: '',
+        };
 
         await wrapper.setData({
             isLoading: false,
@@ -129,11 +127,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').category = {
+            slotConfig: '',
+        };
 
         await wrapper.setData({
             isLoading: false,
@@ -158,11 +154,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').category = {
+            slotConfig: '',
+        };
 
         await wrapper.setData({
             isLoading: false,
@@ -188,11 +182,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').category = {
+            slotConfig: '',
+        };
 
         await wrapper.setData({
             isLoading: false,
@@ -218,15 +210,13 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-                cmsPageId: 'foo',
-                navigationSalesChannels: [],
-                footerSalesChannels: [],
-                serviceSalesChannels: [],
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').category = {
+            slotConfig: '',
+            cmsPageId: 'foo',
+            navigationSalesChannels: [],
+            footerSalesChannels: [],
+            serviceSalesChannels: [],
+        };
 
         await wrapper.setData({
             isLoading: false,
@@ -239,6 +229,6 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         await wrapper.vm.onSave();
 
-        expect(wrapper.vm.categoryRepository.save.mock.calls[0][0].cmsPageId).toBeNull();
+        expect(wrapper.vm.categoryRepository.save.mock.calls[0][0].cmsPageId).toBeUndefined();
     });
 });

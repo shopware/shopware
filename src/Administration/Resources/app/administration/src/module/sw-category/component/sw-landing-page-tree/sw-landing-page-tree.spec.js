@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 async function createWrapper() {
     const routes = [
@@ -74,11 +73,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
             'landing_page.editor',
         ];
 
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', swCategoryState);
+        Shopware.Store.get('swCategoryDetail').$reset();
 
         // this is normally set by the shopware runtime
         // but needed for this unit tests because the component relies on this value.

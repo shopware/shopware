@@ -14,16 +14,8 @@ const categoryMock = {
 };
 
 async function createWrapper() {
-    if (Shopware.State.get('swCategoryDetail')) {
-        Shopware.State.unregisterModule('swCategoryDetail');
-    }
-
-    Shopware.State.registerModule('swCategoryDetail', {
-        namespaced: true,
-        state: {
-            category: categoryMock,
-        },
-    });
+    Shopware.Store.get('swCategoryDetail').$reset();
+    Shopware.Store.get('swCategoryDetail').category = categoryMock;
 
     return mount(await wrapTestComponent('sw-category-detail-base', { sync: true }), {
         global: {

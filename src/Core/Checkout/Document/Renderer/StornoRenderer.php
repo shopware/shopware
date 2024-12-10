@@ -170,6 +170,24 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     $config->jsonSerialize(),
                 );
 
+                $doc->setHtmlA11y(
+                    $this->htmlA11yRendered(
+                        $this->documentTemplateRenderer,
+                        $template,
+                        $number,
+                        [
+                            'order' => $order,
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $order,
+                        $config,
+                        $locale,
+                        $context,
+                    ),
+                );
+
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {
                 $result->addError($orderId, $exception);

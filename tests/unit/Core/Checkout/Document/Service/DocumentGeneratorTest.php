@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -68,5 +69,72 @@ class DocumentGeneratorTest extends TestCase
         $this->expectExceptionMessage('Unable to generate document. Some Error Message.');
 
         $generator->preview('invoice', $operation, 'deepLinkCode', $context);
+    }
+
+    public function testPreviewHtml(): void
+    {
+        $operation = new DocumentGenerateOperation(
+            'orderId',
+            FileTypes::HTML,
+            [],
+            null,
+            false,
+            true,
+        );
+
+        $context = Context::createDefaultContext();
+
+        $htmlA11y = new RenderedDocument(
+            '',
+            '',
+            'invoice',
+            'html',
+            [],
+            'text/html',
+        );
+        $htmlA11y->setContent('html');
+
+        $resultRenderer = new RenderedDocument(
+            '',
+            '',
+            'invoice',
+            'pdf',
+            [],
+            'application/pdf',
+        );
+
+        $resultRenderer->setHtmlA11y($htmlA11y);
+
+        $result = new RendererResult();
+        $result->addSuccess('orderId', $resultRenderer);
+
+        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer->method('supports')->willReturn('invoice');
+        $mockRenderer
+            ->expects(static::once())
+            ->method('render')
+            ->with(
+                ['orderId' => $operation],
+                $context,
+                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+            )
+            ->willReturn($result);
+
+        $registry = new DocumentRendererRegistry([$mockRenderer]);
+        $pdfRenderer = new PdfRenderer([], new ExtensionDispatcher(new EventDispatcher()));
+
+        $generator = new DocumentGenerator(
+            $registry,
+            $pdfRenderer,
+            $this->createMock(MediaService::class),
+            new StaticEntityRepository([]),
+            $this->createMock(Connection::class),
+        );
+
+        $document = $generator->preview('invoice', $operation, 'deepLinkCode', $context);
+
+        static::assertSame($document->getContent(), 'html');
+        static::assertSame($document->getFileExtension(), 'html');
+        static::assertSame($document->getContentType(), 'text/html');
     }
 }

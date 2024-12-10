@@ -955,9 +955,9 @@ export default {
         onSaveFinished(response) {
             const updatePromises = [];
 
-            if (Shopware.State.list().includes('swSeoUrl')) {
-                const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
-                const defaultSeoUrl = Shopware.State.get('swSeoUrl').defaultSeoUrl;
+            if (Shopware.Store.list().includes('swSeoUrl')) {
+                const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+                const defaultSeoUrl = Shopware.Store.get('swSeoUrl').defaultSeoUrl;
 
                 if (seoUrls) {
                     seoUrls.forEach((seoUrl) => {

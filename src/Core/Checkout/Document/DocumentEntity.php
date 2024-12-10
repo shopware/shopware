@@ -123,6 +123,11 @@ class DocumentEntity extends Entity
 
     protected ?string $documentNumber;
 
+    /**
+     * @var array<string>|null
+     */
+    protected ?array $documentMediaFileIds = [];
+
     public function getFileType(): string
     {
         return $this->fileType;
@@ -287,5 +292,21 @@ class DocumentEntity extends Entity
     public function getDocumentNumber(): ?string
     {
         return $this->documentNumber;
+    }
+
+    /**
+     * @return array<string>|null
+     */
+    public function getDocumentMediaFileIds(): ?array
+    {
+        return $this->documentMediaFileIds;
+    }
+
+    /**
+     * @param array<string> $mediaIds
+     */
+    public function setDocumentMediaFileIds(array $mediaIds): void
+    {
+        $this->documentMediaFileIds = $mediaIds;
     }
 }

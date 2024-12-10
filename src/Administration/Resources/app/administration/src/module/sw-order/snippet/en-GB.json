@@ -405,7 +405,8 @@
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
       "labelNoItems": "No credit shown",
-      "fileInputLabel": "Upload custom document"
+      "fileInputLabel": "Upload custom document",
+      "labelPreviewOnlyHtml": "Preview only for HTML documents"
     },
     "documentSendModal": {
       "labelNumber": "Number",

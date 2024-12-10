@@ -141,11 +141,11 @@ class DocumentControllerTest extends TestCase
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
-        $expectedContentType = 'text/plain; charset=UTF-8';
+        $expectedContentType = 'application/pdf';
 
         $this->getBrowser()->request(
             'POST',
-            $baseResource . '_action/document/' . $response['data'][0]['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
+            $baseResource . '_action/document/' . $response['data'][0]['documentId'] . '/upload?fileName=' . $filename . '&extension=pdf',
             [],
             [],
             ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => mb_strlen($expectedFileContent)],
@@ -156,6 +156,7 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
+
         static::assertEquals(200, $response->getStatusCode());
 
         static::assertEquals($expectedFileContent, $response->getContent());

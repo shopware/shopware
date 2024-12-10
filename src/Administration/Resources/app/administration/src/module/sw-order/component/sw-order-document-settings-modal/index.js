@@ -122,6 +122,10 @@ export default {
         },
 
         callDocumentCreate(additionalAction, referencedDocumentId = null) {
+            if (this.uploadDocument && this.selectedDocumentFile) {
+                this.documentConfig.isCustom = true;
+            }
+
             this.$emit(
                 'document-create',
                 this.documentConfig,
@@ -145,8 +149,8 @@ export default {
             // override in specific document-settings-modals to add additional data to your document
         },
 
-        onPreview() {
-            this.$emit('preview-show', this.documentConfig);
+        onPreview(fileType = 'pdf') {
+            this.$emit('preview-show', this.documentConfig, fileType);
         },
 
         onConfirm() {

@@ -33,8 +33,9 @@ class DocumentController extends AbstractController
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download');
+        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
 
-        $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode);
+        $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode, $fileType);
 
         if ($generatedDocument === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

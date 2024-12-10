@@ -2,22 +2,19 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -47,7 +44,7 @@ class DocumentGenerator
     ) {
     }
 
-    public function readDocument(string $documentId, Context $context, string $deepLinkCode = ''): ?RenderedDocument
+    public function readDocument(string $documentId, Context $context, string $deepLinkCode = '', string $fileType = FileTypes::PDF): ?RenderedDocument
     {
         $criteria = new Criteria([$documentId]);
 
@@ -67,25 +64,36 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $document = $this->ensureDocumentMediaFileGenerated($document, $context);
-        $documentMediaId = $document->getDocumentMediaFileId();
+        $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
 
-        if ($documentMediaId === null) {
+        $mediaIds = $document->getDocumentMediaFileIds();
+        if (empty($mediaIds)) {
             return null;
         }
 
-        /** @var MediaEntity $documentMedia */
-        $documentMedia = $document->getDocumentMediaFile();
+        /** @var array{fileExtension: string, fileName: string, id: string, mimeType: string} $documentMedia */
+        $documentMedia = $this->loadMediaByFileExtension($mediaIds, $fileType) ?? [
+            'fileExtension' => $document->getDocumentMediaFile()?->getFileExtension(),
+            'fileName' => $document->getDocumentMediaFile()?->getFileName(),
+            'id' => $document->getDocumentMediaFileId(),
+            'mimeType' => $document->getDocumentMediaFile()?->getMimeType(),
+        ];
 
-        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
+        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMedia['id'], $context));
 
-        $fileName = $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension();
-        $contentType = $documentMedia->getMimeType();
+        $fileName = $documentMedia['fileName'] . '.' . $documentMedia['fileExtension'];
 
-        $renderedDocument = new RenderedDocument();
+        $contentType = $documentMedia['mimeType'];
+
+        $renderedDocument = new RenderedDocument(
+            '',
+            '',
+            $fileName,
+            $documentMedia['fileExtension'],
+            [],
+            $contentType
+        );
         $renderedDocument->setContent($fileBlob);
-        $renderedDocument->setName($fileName);
-        $renderedDocument->setContentType($contentType);
 
         return $renderedDocument;
     }
@@ -107,7 +115,13 @@ class DocumentGenerator
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
         }
 
-        $document->setContent($this->pdfRenderer->render($document));
+        if ($operation->getFileType() === FileTypes::HTML && $document->getHtmlA11y() instanceof RenderedDocument) {
+            $document = $document->getHtmlA11y();
+        }
+
+        if ($operation->getFileType() === FileTypes::PDF) {
+            $document->setContent($this->pdfRenderer->render($document));
+        }
 
         return $document;
     }
@@ -120,7 +134,7 @@ class DocumentGenerator
         $documentTypeId = $this->getDocumentTypeByName($documentType);
 
         if ($documentTypeId === null) {
-            throw new InvalidDocumentRendererException($documentType);
+            throw DocumentException::invalidDocumentRenderer($documentType);
         }
 
         $rendered = $this->rendererRegistry->render($documentType, $operations, $context, new DocumentRendererConfig());
@@ -149,6 +163,7 @@ class DocumentGenerator
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
                 $mediaId = $this->resolveMediaId($operation, $context, $document);
+                $mediaIdForHtmlA11y = $this->resolveMediaId($operation, $context, $document->getHtmlA11y());
 
                 $records[] = [
                     'id' => $id,
@@ -161,6 +176,7 @@ class DocumentGenerator
                     'config' => $document->getConfig(),
                     'deepLinkCode' => $deepLinkCode,
                     'referencedDocumentId' => $operation->getReferencedDocumentId(),
+                    'documentMediaFileIds' => array_filter([$mediaId, $mediaIdForHtmlA11y]),
                 ];
 
                 $result->addSuccess(new DocumentIdStruct($id, $deepLinkCode, $mediaId));
@@ -184,11 +200,11 @@ class DocumentGenerator
         }
 
         if ($document->getDocumentMediaFileId() !== null) {
-            throw new DocumentGenerationException('Document already exists');
+            throw DocumentException::documentGenerationException('Document already exists');
         }
 
         if ($document->isStatic() === false) {
-            throw new DocumentGenerationException('This document is dynamically generated and cannot be overwritten');
+            throw DocumentException::documentGenerationException('This document is dynamically generated and cannot be overwritten');
         }
 
         $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
@@ -196,7 +212,7 @@ class DocumentGenerator
         $fileName = (string) $uploadedFileRequest->query->get('fileName');
 
         if ($fileName === '') {
-            throw new DocumentGenerationException('Parameter "fileName" is missing');
+            throw DocumentException::documentGenerationException('Parameter "fileName" is missing');
         }
 
         $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
@@ -205,6 +221,7 @@ class DocumentGenerator
             [
                 'id' => $documentId,
                 'documentMediaFileId' => $mediaId,
+                'documentMediaFileIds' => array_filter([$mediaId]),
                 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         ], $context);
@@ -267,12 +284,13 @@ class DocumentGenerator
         $result = (bool) $statement->fetchOne();
 
         if ($result) {
-            throw new DocumentNumberAlreadyExistsException($documentNumber);
+            throw DocumentException::documentNumberAlreadyExistsException($documentNumber);
         }
     }
 
-    private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): DocumentEntity
+    private function ensureDocumentMediaFileGenerated(DocumentEntity $document, string $fileType, Context $context): DocumentEntity
     {
+        // need to check the media file
         $documentMediaId = $document->getDocumentMediaFileId();
 
         if ($documentMediaId !== null || $document->isStatic()) {
@@ -283,7 +301,7 @@ class DocumentGenerator
 
         $operation = new DocumentGenerateOperation(
             $document->getOrderId(),
-            FileTypes::PDF,
+            $fileType,
             $document->getConfig(),
             $document->getReferencedDocumentId()
         );
@@ -315,16 +333,22 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, ?RenderedDocument $document): ?string
     {
-        if ($operation->isStatic()) {
+        if ($operation->isStatic() || $document === null) {
+            return null;
+        }
+
+        $blob = $document->getFileExtension() === FileTypes::HTML ? $document->getContent() : $this->pdfRenderer->render($document);
+
+        if ($blob === '') {
             return null;
         }
 
         return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveFile(
-            $this->pdfRenderer->render($document),
+            $blob,
             $document->getFileExtension(),
-            $this->pdfRenderer->getContentType(),
+            $document->getContentType(),
             $document->getName(),
             $context,
             'document'
@@ -345,5 +369,22 @@ class DocumentGenerator
             'invoiceNumber' => $invoiceNumber,
             'orderId' => Uuid::fromHexToBytes($orderId),
         ]);
+    }
+
+    /**
+     * @param array<string> $mediaIds
+     *
+     * @return array{fileExtension: string, fileName: string, id: string, mimeType: string}|null
+     */
+    private function loadMediaByFileExtension(array $mediaIds, string $fileExtension): ?array
+    {
+        /** @var array{fileExtension: string, fileName: string, id: string, mimeType: string}[] $data */
+        $data = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(id)) as id, file_name as fileName, file_extension as fileExtension, mime_type as mimeType FROM media WHERE id IN (:ids) AND file_extension = :fileExtension',
+            ['ids' => Uuid::fromHexToBytesList($mediaIds), 'fileExtension' => $fileExtension],
+            ['ids' => ArrayParameterType::STRING],
+        );
+
+        return empty($data) ? null : $data[0];
     }
 }

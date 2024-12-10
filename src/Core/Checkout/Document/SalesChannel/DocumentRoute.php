@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -33,12 +34,14 @@ final class DocumentRoute extends AbstractDocumentRoute
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response
     {
         if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {
-            throw CartException::customerNotLoggedIn();
+            throw DocumentException::customerNotLoggedIn();
         }
+
+        $fileType = $request->query->get('fileType', FileTypes::PDF);
 
         $download = $request->query->getBoolean('download');
 
-        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode);
+        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $fileType);
 
         if ($document === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

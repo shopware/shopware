@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -106,6 +107,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                             'deliveryDate' => $customConfig['deliveryDate'] ?? $now,
                             'deliveryNoteDate' => $customConfig['deliveryNoteDate'] ?? $now,
                         ],
+                        'fileType' => FileTypes::PDF,
                     ]);
 
                     if ($operation->isStatic()) {
@@ -150,6 +152,24 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         $config->buildName(),
                         $operation->getFileType(),
                         $config->jsonSerialize(),
+                    );
+
+                    $doc->setHtmlA11y(
+                        $this->htmlA11yRendered(
+                            $this->documentTemplateRenderer,
+                            $template,
+                            $number,
+                            [
+                                'order' => $order,
+                                'config' => $config,
+                                'rootDir' => $this->rootDir,
+                                'context' => $context,
+                            ],
+                            $order,
+                            $config,
+                            $locale,
+                            $context
+                        ),
                     );
 
                     $result->addSuccess($orderId, $doc);

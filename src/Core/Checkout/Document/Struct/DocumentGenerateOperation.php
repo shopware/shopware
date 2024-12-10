@@ -23,7 +23,7 @@ final class DocumentGenerateOperation extends Struct
         protected array $config = [],
         protected ?string $referencedDocumentId = null,
         protected bool $static = false,
-        protected bool $preview = false
+        protected bool $preview = false,
     ) {
     }
 

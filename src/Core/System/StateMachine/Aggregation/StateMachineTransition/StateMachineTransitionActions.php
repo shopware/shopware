@@ -13,7 +13,6 @@ final class StateMachineTransitionActions
     public const ACTION_FAIL = 'fail';
     public const ACTION_PAID = 'paid';
     public const ACTION_PAID_PARTIALLY = 'paid_partially';
-
     public const ACTION_PAY = 'pay';
     public const ACTION_PROCESS = 'process';
     public const ACTION_PROCESS_UNCONFIRMED = 'process_unconfirmed';

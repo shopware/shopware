@@ -6,6 +6,6 @@ issue: NEXT-40000
 # Core
 
 * Added constant `Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions::ACTION_PAY` with value `pay`
-* Added method `pay` to `Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler` to handle the following `order_transactions` state transitions:
+* Added method `pay` to `Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler` to handle the following `order_transaction` state transitions:
   * `paid_partially` => `paid`
   * `reminded` => `paid`

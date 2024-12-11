@@ -53,6 +53,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createSsoLoginSection())
             ->end();
 
         return $treeBuilder;
@@ -1041,6 +1042,36 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSsoLoginSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('admin_login');
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('use_default')->defaultFalse()->end()
+                ->arrayNode('sso_providers')
+                ->useAttributeAsKey('type')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('snippet_key')->isRequired()->end()
+                        ->scalarNode('icon')->isRequired()->end()
+                        ->scalarNode('client_id')->isRequired()->end()
+                        ->scalarNode('client_secret')->isRequired()->end()
+                        ->scalarNode('redirect_uri')->isRequired()->end()
+                        ->scalarNode('base_url')->isRequired()->end()
+                        ->scalarNode('class')->isRequired()->end()
+                        ->arrayNode('additional_data')
+                            ->defaultValue([])
+                            ->useAttributeAsKey('name')
+                            ->scalarPrototype()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

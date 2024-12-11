@@ -38,6 +38,8 @@ Component.register('sw-login-login', {
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
+            loginConfig: {},
+            loginConfigLoaded: false,
         };
     },
 
@@ -51,6 +53,11 @@ Component.register('sw-login-login', {
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
+
+        Shopware.Service('loginService').getLoginTemplateConfig().then((loginData) => {
+            this.loginConfig = loginData;
+            this.loginConfigLoaded = true;
+        });
     },
 
     methods: {

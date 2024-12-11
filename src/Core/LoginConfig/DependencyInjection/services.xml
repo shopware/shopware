@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\LoginConfig\Builder\LoginConfigBuilder">
+            <argument>%shopware.admin_login%</argument>
+            <argument type="tagged" tag="shopware.login.config.handler"/>
+        </service>
+
+        <service id="Shopware\Core\LoginConfig\Builder\Handler\SwSsoLogin">
+            <tag name="shopware.login.config.handler"/>
+        </service>
+    </services>
+</container>

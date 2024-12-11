@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
-use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,7 +39,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
-        /** @var array $groups */
+        /** @var array<mixed> $groups */
         $groups = $discount->getPayloadValue('setGroups');
 
         $groupDefinitions = $this->buildGroupDefinitionList($groups);
@@ -57,7 +57,11 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
 
         $definition = $this->getGroupDefinition($groupId, $groups);
 
-        $result = $this->groupBuilder->findGroupPackages([$definition], $cart, $context);
+        $result = $resultGroups->getResult($definition->getId());
+
+        if ($result === null) {
+            $result = $this->groupBuilder->findGroupPackages([$definition], $cart, $context);
+        }
 
         $units = [];
 
@@ -81,7 +85,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      * Gets the group definition for the provided groupId
      * within the list of available set groups from the payload.
      *
-     * @throws SetGroupNotFoundException
+     * @param array<mixed> $groups
      */
     private function getGroupDefinition(string $groupId, array $groups): LineItemGroupDefinition
     {
@@ -101,7 +105,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
             ++$index;
         }
 
-        throw new SetGroupNotFoundException($groupId);
+        throw PromotionException::promotionSetGroupNotFound($groupId);
     }
 
     /**
@@ -124,6 +128,8 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
     /**
      * Gets a list of in-memory group definitions
      * from the list of group settings from the payload
+     *
+     * @param array<mixed> $groups
      *
      * @return LineItemGroupDefinition[]
      */

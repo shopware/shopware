@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\LoginConfig\Builder\LoginConfigBuilder;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,6 +36,7 @@ class AuthController extends AbstractController
         private readonly EntityRepository $userRepository,
         private readonly ?LoginConfigService $loginConfigService,
         private readonly HttpClientInterface $client,
+        private readonly LoginConfigBuilder $loginConfigBuilder,
     ) {
     }
 

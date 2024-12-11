@@ -116,6 +116,24 @@ class OrderTransactionStateHandler
      * @throws StateMachineException
      * @throws IllegalTransitionException
      */
+    public function pay(string $transactionId, Context $context): void
+    {
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_PAY,
+                'stateId'
+            ),
+            $context
+        );
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineException
+     * @throws IllegalTransitionException
+     */
     public function payPartially(string $transactionId, Context $context): void
     {
         $this->stateMachineRegistry->transition(

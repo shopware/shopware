@@ -107,6 +107,14 @@ class OrderTransactionStateHandlerTest extends TestCase
                 'chargeback' => OrderTransactionStates::STATE_CHARGEBACK,
                 'cancel' => OrderTransactionStates::STATE_CANCELLED,
             ]],
+            'Partially Pay & Pay' => [[
+                'payPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
+                'pay' => OrderTransactionStates::STATE_PAID
+            ]],
+            'Remind & Pay' => [[
+                'remind' => OrderTransactionStates::STATE_REMINDED,
+                'pay' => OrderTransactionStates::STATE_PAID
+            ]]
         ];
     }
 

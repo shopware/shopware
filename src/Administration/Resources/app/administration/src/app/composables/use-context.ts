@@ -10,7 +10,10 @@ type ApiAuthToken = {
     refresh: string;
 };
 
-interface ContextState {
+/**
+ * @private
+ */
+export interface ContextState {
     app: {
         config: {
             adminWorker: null | {

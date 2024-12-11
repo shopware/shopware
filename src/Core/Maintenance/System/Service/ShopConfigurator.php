@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -270,9 +271,11 @@ class ShopConfigurator
 
             $langName = $connection->prepare('SELECT name FROM language WHERE id = :languageId');
 
-            $current = $langName->executeQuery(['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)])->fetchOne();
+            StatementHelper::bindParameters($langName, ['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+            $current = $langName->executeQuery()->fetchOne();
 
-            $new = $langName->executeQuery(['languageId' => $newDefaultLanguageId])->fetchOne();
+            StatementHelper::bindParameters($langName, ['languageId' => $newDefaultLanguageId]);
+            $new = $langName->executeQuery()->fetchOne();
 
             // swap name
             $updLang->executeStatement(['name' => $new, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);

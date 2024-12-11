@@ -115,6 +115,7 @@ import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
 import type { ShopwareExtensionsStore } from './module/sw-extension/store/extensions.store';
+import type { SwOrderDetailStore } from './module/sw-order/store/order-detail.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -376,6 +377,7 @@ declare global {
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
         shopwareExtensions: ShopwareExtensionsStore;
+        swOrderDetail: SwOrderDetailStore;
     }
 
     /**

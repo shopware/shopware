@@ -2,39 +2,33 @@
  * @package checkout
  */
 
-import orderDetailState from 'src/module/sw-order/state/order-detail.store';
-
 describe('src/module/sw-order/state/order-detail.store', () => {
-    let state;
-
-    beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', orderDetailState);
-    });
+    const state = Shopware.Store.get('swOrderDetail');
 
     beforeEach(() => {
-        state = Shopware.State.get('swOrderDetail');
+        state.$reset();
     });
 
     it('should be able to setOrder', () => {
         const newOrder = { id: 1, name: 'Test Order' };
 
-        Shopware.State.commit('swOrderDetail/setOrder', newOrder);
+        Shopware.Store.get('swOrderDetail').order = newOrder;
 
         expect(state.order).toEqual(newOrder);
     });
 
     it('should be able to setLoading', () => {
-        Shopware.State.commit('swOrderDetail/setLoading', [
+        Shopware.Store.get('swOrderDetail').setLoading([
             'order',
             true,
         ]);
 
         expect(state.loading.order).toBe(true);
-        expect(Shopware.State.getters['swOrderDetail/isLoading']).toBe(true);
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(true);
     });
 
     it('should be able to setSavedSuccessful', () => {
-        Shopware.State.commit('swOrderDetail/setSavedSuccessful', true);
+        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
 
         expect(state.savedSuccessful).toBe(true);
     });
@@ -42,16 +36,16 @@ describe('src/module/sw-order/state/order-detail.store', () => {
     it('should be able to setVersionContext', () => {
         const versionContext = { versionId: 1, versionDate: '2021-01-01' };
 
-        Shopware.State.commit('swOrderDetail/setVersionContext', versionContext);
+        Shopware.Store.get('swOrderDetail').versionContext = versionContext;
 
         expect(state.versionContext).toEqual(versionContext);
     });
 
     it('should be able to setEditing', () => {
-        Shopware.State.commit('swOrderDetail/setEditing', true);
+        Shopware.Store.get('swOrderDetail').editing = true;
 
         expect(state.editing).toBe(true);
-        expect(Shopware.State.getters['swOrderDetail/isEditing']).toBe(true);
+        expect(Shopware.Store.get('swOrderDetail').isEditing).toBe(true);
     });
 
     it('should set order address ids when provided valid address info', () => {
@@ -61,7 +55,7 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             type: 'billing',
         };
 
-        Shopware.State.commit('swOrderDetail/setOrderAddressIds', addressIdInfo);
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(addressIdInfo);
 
         expect(state.orderAddressIds).toEqual([addressIdInfo]);
     });
@@ -73,7 +67,7 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             type: 'billing',
         };
 
-        Shopware.State.commit('swOrderDetail/setOrderAddressIds', addressIdInfo);
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(addressIdInfo);
 
         expect(state.orderAddressIds).toEqual([]);
     });
@@ -91,8 +85,8 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             type: 'billing',
         };
 
-        Shopware.State.commit('swOrderDetail/setOrderAddressIds', initialAddressIdInfo);
-        Shopware.State.commit('swOrderDetail/setOrderAddressIds', updatedAddressIdInfo);
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(initialAddressIdInfo);
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(updatedAddressIdInfo);
 
         expect(state.orderAddressIds).toEqual([updatedAddressIdInfo]);
     });
@@ -110,9 +104,10 @@ describe('src/module/sw-order/state/order-detail.store', () => {
             type: 'billing',
         };
 
-        Shopware.State.commit('swOrderDetail/setOrderAddressIds', initialAddressIdInfo);
-        Shopware.State.commit('swOrderDetail/setOrderAddressIds', removalAddressIdInfo);
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(initialAddressIdInfo);
+        expect(state.orderAddressIds).toEqual([initialAddressIdInfo]);
 
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(removalAddressIdInfo);
         expect(state.orderAddressIds).toEqual([]);
     });
 });

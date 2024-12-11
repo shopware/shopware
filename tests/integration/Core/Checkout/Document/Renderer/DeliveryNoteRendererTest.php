@@ -56,7 +56,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -67,16 +67,16 @@ class DeliveryNoteRendererTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
         $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->cartService = static::getContainer()->get(CartService::class);
         $this->deliveryNoteRenderer = new DeliveryNoteRenderer(
-            $this->getContainer()->get('order.repository'),
-            $this->getContainer()->get(DocumentConfigLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('order.repository'),
+            static::getContainer()->get(DocumentConfigLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             $this->templateRendererMock,
-            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(PdfRenderer::class)
+            static::getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            static::getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(PdfRenderer::class)
         );
     }
 
@@ -94,7 +94,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(DeliveryNoteOrdersEvent::class, function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
@@ -183,7 +183,7 @@ class DeliveryNoteRendererTest extends TestCase
         $this->templateRendererMock
             ->method('render')
             ->willReturnCallback(function () use (&$html) {
-                $html = $this->getContainer()
+                $html = static::getContainer()
                     ->get(DocumentTemplateRenderer::class)
                     ->render(...\func_get_args());
 

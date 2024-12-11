@@ -81,7 +81,7 @@ class CreditNoteRendererTest extends TestCase
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
         $paymentMethodId = $this->createPaymentMethod($priceRuleId);
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -94,19 +94,19 @@ class CreditNoteRendererTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
         $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         $this->creditNoteRenderer = new CreditNoteRenderer(
-            $this->getContainer()->get('order.repository'),
-            $this->getContainer()->get(DocumentConfigLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('order.repository'),
+            static::getContainer()->get(DocumentConfigLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             $this->templateRendererMock,
-            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
-            $this->getContainer()->get(ReferenceInvoiceLoader::class),
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(PdfRenderer::class)
+            static::getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            static::getContainer()->get(ReferenceInvoiceLoader::class),
+            static::getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(PdfRenderer::class)
         );
     }
 
@@ -156,7 +156,7 @@ class CreditNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
@@ -361,7 +361,7 @@ class CreditNoteRendererTest extends TestCase
         $this->setSalesChannelContext($groupNet);
         static::assertNotNull($this->salesChannelContext->getCustomer());
 
-        $this->getContainer()->get('customer.repository')->update([
+        static::getContainer()->get('customer.repository')->update([
             [
                 'id' => $this->salesChannelContext->getCustomer()->getId(),
                 'groupId' => $groupNet ? $this->createNetCustomerGroup() : $this->createGrossCustomerGroup(),
@@ -398,7 +398,7 @@ class CreditNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
@@ -513,9 +513,9 @@ class CreditNoteRendererTest extends TestCase
     private function createShippingMethod(string $priceRuleId): string
     {
         $shippingMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('shipping_method.repository');
+        $repository = static::getContainer()->get('shipping_method.repository');
 
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
@@ -583,9 +583,9 @@ class CreditNoteRendererTest extends TestCase
     private function createPaymentMethod(string $ruleId): string
     {
         $paymentMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('payment_method.repository');
+        $repository = static::getContainer()->get('payment_method.repository');
 
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
@@ -634,7 +634,7 @@ class CreditNoteRendererTest extends TestCase
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
         $paymentMethodId = $this->createPaymentMethod($priceRuleId);
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -663,7 +663,7 @@ class CreditNoteRendererTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
 
         return $id;
     }
@@ -684,7 +684,7 @@ class CreditNoteRendererTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
 
         return $id;
     }
@@ -694,7 +694,7 @@ class CreditNoteRendererTest extends TestCase
         $this->templateRendererMock
             ->method('render')
             ->willReturnCallback(function () use (&$html) {
-                $html = $this->getContainer()
+                $html = static::getContainer()
                     ->get(DocumentTemplateRenderer::class)
                     ->render(...\func_get_args());
 

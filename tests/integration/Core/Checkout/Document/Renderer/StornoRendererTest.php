@@ -72,7 +72,7 @@ class StornoRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -83,19 +83,19 @@ class StornoRendererTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
         $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         $this->stornoRenderer = new StornoRenderer(
-            $this->getContainer()->get('order.repository'),
-            $this->getContainer()->get(DocumentConfigLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('order.repository'),
+            static::getContainer()->get(DocumentConfigLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             $this->templateRendererMock,
-            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
-            $this->getContainer()->get(ReferenceInvoiceLoader::class),
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(PdfRenderer::class)
+            static::getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            static::getContainer()->get(ReferenceInvoiceLoader::class),
+            static::getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(PdfRenderer::class)
         );
     }
 
@@ -137,7 +137,7 @@ class StornoRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
@@ -168,7 +168,7 @@ class StornoRendererTest extends TestCase
             static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $rendered->getContent());
         }
 
-        $formatter = $this->getContainer()->get(CurrencyFormatter::class);
+        $formatter = static::getContainer()->get(CurrencyFormatter::class);
         $orderCurrency = $order->getCurrency();
         if ($orderCurrency !== null) {
             $orderAmounts = [
@@ -317,7 +317,7 @@ class StornoRendererTest extends TestCase
         $this->templateRendererMock
             ->method('render')
             ->willReturnCallback(function () use (&$html) {
-                $html = $this->getContainer()
+                $html = static::getContainer()
                     ->get(DocumentTemplateRenderer::class)
                     ->render(...\func_get_args());
 

@@ -79,7 +79,7 @@ class InvoiceRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -90,26 +90,26 @@ class InvoiceRendererTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
         $this->templateRendererMock = $this->createMock(DocumentTemplateRenderer::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
         self::$deLanguageId = $this->getDeDeLanguageId();
 
         $this->invoiceRenderer = new InvoiceRenderer(
-            $this->getContainer()->get('order.repository'),
-            $this->getContainer()->get(DocumentConfigLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('order.repository'),
+            static::getContainer()->get(DocumentConfigLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             $this->templateRendererMock,
-            $this->getContainer()->get(NumberRangeValueGeneratorInterface::class),
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(PdfRenderer::class),
+            static::getContainer()->get(NumberRangeValueGeneratorInterface::class),
+            static::getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(PdfRenderer::class),
         );
     }
 
     protected function tearDown(): void
     {
         if (self::$callback instanceof \Closure) {
-            $this->getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
+            static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
     }
 
@@ -126,13 +126,13 @@ class InvoiceRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->addListener(InvoiceOrdersEvent::class, function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
         if ($beforeRenderHook instanceof \Closure) {
-            $beforeRenderHook($operationInvoice, $this->getContainer());
+            $beforeRenderHook($operationInvoice, static::getContainer());
         }
 
         $html = '';
@@ -170,7 +170,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertMatchesRegularExpression("/^%PDF-$pdfVersion/", $rendered->getContent());
             }
 
-            $assertionCallback($rendered, $html, $order, $this->getContainer());
+            $assertionCallback($rendered, $html, $order, static::getContainer());
         } else {
             $assertionCallback($order->getId(), $processedTemplate->getErrors());
         }
@@ -576,7 +576,7 @@ class InvoiceRendererTest extends TestCase
         static::assertEquals(Defaults::LIVE_VERSION, $operationInvoice->getOrderVersionId());
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
 
-        $this->getContainer()->get(InvoiceRenderer::class)
+        static::getContainer()->get(InvoiceRenderer::class)
             ->render([$orderId => $operationInvoice], $this->context, new DocumentRendererConfig());
 
         static::assertNotEquals(Defaults::LIVE_VERSION, $operationInvoice->getOrderVersionId());
@@ -600,7 +600,7 @@ class InvoiceRendererTest extends TestCase
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
-        $order = $this->getContainer()->get('order.repository')
+        $order = static::getContainer()->get('order.repository')
             ->search($criteria, Context::createDefaultContext())->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -727,7 +727,7 @@ class InvoiceRendererTest extends TestCase
      */
     private function updateCustomer(OrderEntity $order, array $config): void
     {
-        $this->getContainer()->get('customer.repository')->update([[
+        static::getContainer()->get('customer.repository')->update([[
             'id' => $order->getOrderCustomer()?->getCustomerId(),
             'accountType' => $config['accountType'],
         ]], Context::createDefaultContext());
@@ -747,7 +747,7 @@ class InvoiceRendererTest extends TestCase
 
     private function updateCountryMemberState(OrderEntity $order, bool $isEu): void
     {
-        $this->getContainer()->get('country.repository')->upsert([[
+        static::getContainer()->get('country.repository')->upsert([[
             'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
             'isEu' => $isEu,
         ]], Context::createDefaultContext());
@@ -755,7 +755,7 @@ class InvoiceRendererTest extends TestCase
 
     private function updateCountrySettings(OrderEntity $order): void
     {
-        $this->getContainer()->get('country.repository')->upsert([[
+        static::getContainer()->get('country.repository')->upsert([[
             'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
             'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
         ]], Context::createDefaultContext());
@@ -766,7 +766,7 @@ class InvoiceRendererTest extends TestCase
         $this->templateRendererMock
             ->method('render')
             ->willReturnCallback(function () use (&$html) {
-                $html = $this->getContainer()
+                $html = static::getContainer()
                     ->get(DocumentTemplateRenderer::class)
                     ->render(...\func_get_args());
 

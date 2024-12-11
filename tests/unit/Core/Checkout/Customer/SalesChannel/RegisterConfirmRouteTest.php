@@ -178,7 +178,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId('customer-1');
         $customer->setActive(false);
-        $customer->setEmail('test@tes.txt');
+        $customer->setEmail('test@test.test');
         $customer->setHash('hash');
         $customer->setGuest(false);
         $customer->setDoubleOptInRegistration(true);
@@ -191,7 +191,7 @@ class RegisterConfirmRouteTest extends TestCase
     {
         return new RequestDataBag([
             'hash' => 'hash',
-            'em' => Hasher::hash('test@tes.txt', 'sha1'),
+            'em' => Hasher::hash('test@test.test', 'sha1'),
         ]);
     }
 }

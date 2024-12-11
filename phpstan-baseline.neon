@@ -116,11 +116,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$package\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilderResult.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupServiceRegistry\\:\\:__construct\\(\\) has parameter \\$packagers with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupServiceRegistry.php
@@ -674,21 +669,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\Filter\\\\Applier\\\\Applier\\:\\:findIndexes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/Discount/Filter/Applier/Applier.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\ScopePackager\\\\SetGroupScopeDiscountPackager\\:\\:buildGroupDefinitionList\\(\\) has parameter \\$groups with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/ScopePackager/SetGroupScopeDiscountPackager.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\Discount\\\\ScopePackager\\\\SetGroupScopeDiscountPackager\\:\\:getGroupDefinition\\(\\) has parameter \\$groups with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/ScopePackager/SetGroupScopeDiscountPackager.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$groups has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/Discount/ScopePackager/SetGroupScopeDiscountPackager.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\PromotionCartAddedInformationError\\:\\:\\$name \\(string\\) does not accept string\\|null\\.$#"
@@ -10314,3 +10294,8 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Offcanvas\\\\\\\\OffcanvasCartPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Offcanvas\\\\OffcanvasCartPage will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php
+
+		-
+			message: "#^Expected domain exception class Shopware\\\\Core\\\\Framework\\\\Struct\\\\StructException, got Shopware\\\\Core\\\\Framework\\\\FrameworkException$#"
+			count: 1
+			path: src/Core/Framework/Struct/Collection.php

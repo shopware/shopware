@@ -4,11 +4,15 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-type ResultArray array<string, array{groups: array<LineItemGroup>, total: array<LineItemQuantity>}>
+ * @phpstan-type CountResultArray array<string, array{count: int}>
+ */
 #[Package('checkout')]
 class LineItemGroupBuilderResult
 {
     /**
-     * @var array<mixed>
+     * @var ResultArray
      */
     private array $results = [];
 
@@ -16,7 +20,7 @@ class LineItemGroupBuilderResult
      * added as additional requirement "on-top"
      * of the existing result list
      *
-     * @var array<mixed>
+     * @var CountResultArray
      */
     private array $countResults = [];
 
@@ -46,6 +50,15 @@ class LineItemGroupBuilderResult
 
         // add to total aggregation
         $this->addGroupAggregationTotal($key, $group);
+    }
+
+    /**
+     * add the result of another group definition builder result
+     */
+    public function addGroupResult(string $groupDefinitionId, LineItemGroupBuilderResult $groupResult): void
+    {
+        $this->results[$groupDefinitionId] = $groupResult->results[$groupDefinitionId];
+        $this->countResults[$groupDefinitionId] = $groupResult->countResults[$groupDefinitionId];
     }
 
     /**
@@ -80,6 +93,28 @@ class LineItemGroupBuilderResult
         }
 
         return $this->results[$key]['groups'];
+    }
+
+    /**
+     * Gets a result instance of the provided group definition
+     */
+    public function getResult(string $groupDefinitionId): ?self
+    {
+        if (!\array_key_exists($groupDefinitionId, $this->results)) {
+            return null;
+        }
+
+        $result = new self();
+
+        $result->setResults([
+            $groupDefinitionId => $this->results[$groupDefinitionId],
+        ]);
+
+        $result->setCountResults([
+            $groupDefinitionId => $this->countResults[$groupDefinitionId],
+        ]);
+
+        return $result;
     }
 
     /**
@@ -160,26 +195,38 @@ class LineItemGroupBuilderResult
 
     private function addGroupAggregationTotal(string $key, LineItemGroup $group): void
     {
-        /** @var array<mixed> $total */
         $total = $this->results[$key]['total'];
 
         foreach ($group->getItems() as $tuple) {
+            $lineItemId = $tuple->getLineItemId();
+
             // either create new entries
             // or just increase the quantity of an existing entry in
             // the result set of our group definition.
-            if (!\array_key_exists($tuple->getLineItemId(), $total)) {
-                // add as new entry to avoid pointer references
-                // to our single groups list
-                $total[$tuple->getLineItemId()] = new LineItemQuantity(
-                    $tuple->getLineItemId(),
-                    $tuple->getQuantity()
-                );
+            if (!\array_key_exists($lineItemId, $total)) {
+                $total[$lineItemId] = new LineItemQuantity($lineItemId, $tuple->getQuantity());
             } else {
-                $package = $total[$tuple->getLineItemId()];
+                $package = $total[$lineItemId];
                 $package->setQuantity($package->getQuantity() + $tuple->getQuantity());
             }
         }
 
         $this->results[$key]['total'] = $total;
+    }
+
+    /**
+     * @param ResultArray $results
+     */
+    private function setResults(array $results): void
+    {
+        $this->results = $results;
+    }
+
+    /**
+     * @param CountResultArray $countResults
+     */
+    private function setCountResults(array $countResults): void
+    {
+        $this->countResults = $countResults;
     }
 }

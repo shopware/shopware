@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Promotion;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
+use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('buyers-experience')]
@@ -24,6 +26,12 @@ class PromotionException extends HttpException
     public const PROMOTION_NOT_FOUND = 'CHECKOUT__PROMOTION__NOT_FOUND';
 
     public const PROMOTION_DISCOUNT_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND';
+
+    public const PROMOTION_CODE_NOT_FOUND = 'CHECKOUT__PROMOTION_CODE_NOT_FOUND';
+
+    public const CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE = 'CHECKOUT__UNKNOWN_PROMOTION_DISCOUNT_TYPE';
+
+    public const PROMOTION_SET_GROUP_NOT_FOUND = 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
 
     public static function codeAlreadyRedeemed(string $code): self
     {
@@ -90,6 +98,23 @@ class PromotionException extends HttpException
             self::PROMOTION_DISCOUNT_NOT_FOUND,
             'These promotion discounts "{{ ids }}" are not found',
             ['ids' => implode(', ', $ids)]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     */
+    public static function promotionSetGroupNotFound(string $groupId): self|ShopwareHttpException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new SetGroupNotFoundException($groupId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_SET_GROUP_NOT_FOUND,
+            'Promotion SetGroup "{{ id }}" has not been found!',
+            ['id' => $groupId],
         );
     }
 }

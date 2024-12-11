@@ -85,7 +85,7 @@ class TwigFieldVisibilityTest extends TestCase
         }
 
         // When the entity class don't have an explicit getter the magic methods will be called. As the isset/exists method returns false for protected fields the getter will not be called
-        if (\method_exists($entity, 'get' . \ucfirst($propertyName))) {
+        if (\method_exists($entity, 'get' . $propertyName)) {
             if (Feature::isActive('v6.7.0.0')) {
                 static::assertInstanceOf(
                     DataAbstractionLayerException::class,
@@ -124,7 +124,7 @@ class TwigFieldVisibilityTest extends TestCase
         }
 
         // When the entity class don't have an explicit getter the magic methods will be called. As the isset/exists method returns false for protected fields the getter will not be called
-        if (\method_exists($entity, 'get' . \ucfirst($propertyName))) {
+        if (\method_exists($entity, 'get' . $propertyName)) {
             if (Feature::isActive('v6.7.0.0')) {
                 static::assertInstanceOf(
                     DataAbstractionLayerException::class,
@@ -157,7 +157,7 @@ class TwigFieldVisibilityTest extends TestCase
 
     private function initTwig(string $propertyName): Environment
     {
-        $propertyGetter = 'get' . \ucfirst($propertyName);
+        $propertyGetter = 'get' . $propertyName;
 
         $implicitReplace = file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/implicit-get.twig');
         $explicitReplace = file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/explicit-get.twig');

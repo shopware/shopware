@@ -8,9 +8,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\LoginConfig\Builder\LoginConfigBuilder;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -25,9 +27,9 @@ class AuthController extends AbstractController
     public function __construct(
         private readonly AuthorizationServer $authorizationServer,
         private readonly PsrHttpFactory $psrHttpFactory,
-        private readonly RateLimiter $rateLimiter
-    ) {
-    }
+        private readonly RateLimiter $rateLimiter,
+        private readonly LoginConfigBuilder $loginConfigBuilder,
+    ) {}
 
     /**
      * @deprecated tag:v6.7.0 - Remove endpoint "/api/oauth/authorize"
@@ -59,5 +61,11 @@ class AuthController extends AbstractController
         $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
 
         return (new HttpFoundationFactory())->createResponse($response);
+    }
+
+    #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.url', defaults: ['auth_required' => false], methods: ['GET'])]
+    public function loginButtonConfig(): JsonResponse
+    {
+        return new JsonResponse($this->loginConfigBuilder->build());
     }
 }

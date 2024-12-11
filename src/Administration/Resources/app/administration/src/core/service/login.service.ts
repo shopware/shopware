@@ -22,6 +22,22 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
+interface SsoProvider {
+    type: string;
+    snippetKey: string;
+    icon: string;
+    class: string;
+    url: string;
+    additionalData: [];
+}
+
+interface LoginConfig {
+    useDefault: boolean;
+    ssoProviders: SsoProvider[];
+}
+
+const REMEMBER_ME_DURATION = 14;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
@@ -42,6 +58,7 @@ export interface LoginService {
     verifyUserToken: (password: string) => Promise<string>;
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
+    getLoginTemplateConfig: () => Promise<LoginConfig>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -77,6 +94,7 @@ export default function createLoginService(
         verifyUserToken,
         getStorage,
         setRememberMe,
+        getLoginTemplateConfig,
     };
 
     /**
@@ -501,5 +519,15 @@ export default function createLoginService(
      */
     function getStorage(): CookieStorage {
         return cookieStorage;
+    }
+
+    function getLoginTemplateConfig(): Promise<LoginConfig> {
+        return httpClient
+            .get<LoginConfig>('/oauth/sso/config', {
+                baseURL: context.apiPath!,
+            })
+            .then((response) => {
+                return response.data;
+            });
     }
 }

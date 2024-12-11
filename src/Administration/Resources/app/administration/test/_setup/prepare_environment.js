@@ -79,6 +79,7 @@ import '../../src/app/store/usage-data.store';
 import '../../src/app/store/session.store';
 import '../../src/module/sw-category/page/sw-category-detail/store';
 import '../../src/module/sw-extension/store/extensions.store';
+import '../../src/module/sw-order/store/order-detail.store';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;

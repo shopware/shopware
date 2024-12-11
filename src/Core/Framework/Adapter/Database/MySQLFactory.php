@@ -32,9 +32,8 @@ class MySQLFactory
 
         $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
 
-        $dsnParser  = new DsnParser(['mysql' => 'pdo_mysql']);
+        $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
         $parameters = $dsnParser->parse($url);
-
 
         $parameters = array_merge([
             'charset' => 'utf8mb4',

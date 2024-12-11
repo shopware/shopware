@@ -4,9 +4,14 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Util;
 
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class StatementHelper
 {
+    /**
+     * @param array<string|int, mixed> $parameters
+     */
     public static function executeStatement(Statement $stmt, array $parameters = []): int|string
     {
         self::bindParameters($stmt, $parameters);
@@ -14,6 +19,9 @@ class StatementHelper
         return $stmt->executeStatement();
     }
 
+    /**
+     * @param array<string|int, mixed> $parameters
+     */
     public static function executeQuery(Statement $stmt, array $parameters = []): Result
     {
         self::bindParameters($stmt, $parameters);
@@ -21,6 +29,9 @@ class StatementHelper
         return $stmt->executeQuery();
     }
 
+    /**
+     * @param array<string|int, mixed> $parameters
+     */
     public static function bindParameters(Statement $stmt, array $parameters): void
     {
         foreach ($parameters as $key => $value) {

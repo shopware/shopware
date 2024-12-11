@@ -68,9 +68,6 @@ class QueryBuilder extends DBALQueryBuilder
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
     public function getSQL(): string
     {
         // Use a copy of this query builder to generate the SQL including the translation joins. This way calling this

@@ -526,10 +526,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileSize.message', 0, {
-                    name: file.name || file.fileName,
-                    limit: fileSize(this.maxFileSize),
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileSize.message',
+                    {
+                        name: file.name || file.fileName,
+                        limit: fileSize(this.maxFileSize),
+                    },
+                    0,
+                ),
             });
             return false;
         },
@@ -561,10 +565,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
-                    name: file.name,
-                    supportedTypes: this.extensionAccept || this.fileAccept,
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileType.message',
+                    {
+                        name: file.name,
+                        supportedTypes: this.extensionAccept || this.fileAccept,
+                    },
+                    0,
+                ),
             });
 
             return false;

@@ -306,10 +306,10 @@ export default {
                 const config = {
                     message: this.$tc(
                         this.stateText?.[log.activity]?.[log.state] ?? '',
-                        log.state === 'failed' && log.invalidRecordsLog ? 2 : 1,
                         {
                             profile: log.profileName,
                         },
+                        log.state === 'failed' && log.invalidRecordsLog ? 2 : 1,
                     ),
                 };
 

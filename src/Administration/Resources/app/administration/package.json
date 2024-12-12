@@ -48,7 +48,7 @@
   ],
   "dependencies": {
     "@shopware-ag/meteor-admin-sdk": "5.6.2",
-    "@shopware-ag/meteor-component-library": "3.11.0",
+    "@shopware-ag/meteor-component-library": "^4.0.1",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "^11.0.4",
@@ -104,7 +104,7 @@
     "vite-plugin-symfony": "^7.1.0",
     "vite-svg-loader": "^5.1.0",
     "vue": "3.5.13",
-    "vue-i18n": "9.2.2",
+    "vue-i18n": "10.0.5",
     "vue-router": "4.5.0",
     "vue3-apexcharts": "^1.8.0",
     "vuex": "4.1.0"

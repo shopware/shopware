@@ -817,7 +817,7 @@ const createWrapper = async (options = {}) => {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (key, pluralization) => {
+                $tc: (key, _, pluralization) => {
                     if (!pluralization) return key;
 
                     switch (key) {

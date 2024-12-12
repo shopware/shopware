@@ -88,7 +88,7 @@
             variant="small"
             @modal-close="onCloseModalConfirm"
         >
-            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessage',0, { title: action.app }) }}</p>
+            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessage', { title: action.app }, 0) }}</p>
             <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessageDescription') }}</p>
 
             {% block sw_app_action_modal_confirm_footer %}

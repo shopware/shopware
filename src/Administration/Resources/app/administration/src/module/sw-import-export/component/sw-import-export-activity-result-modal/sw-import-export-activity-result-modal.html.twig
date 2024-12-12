@@ -11,7 +11,7 @@
         <sw-card
             class="sw-import-export-activity-result-modal__main-activity"
             position-identifier="sw-import-export-activity-result-modal-main-activity"
-            :title="$tc('sw-import-export.activity.result.mainEntity.title', 0, { entity: mainEntity })"
+            :title="$tc('sw-import-export.activity.result.mainEntity.title', { entity: mainEntity }, 0)"
         >
             {% block sw_import_export_activity_result_modal_info_mainEntity_list %}
             <dl class="sw-import-export-activity-result-modal__main-activity-content">
@@ -180,7 +180,7 @@
 
         {% block sw_import_export_activity_result_modal_activity_description %}
         <p class="sw-import-export-activity-result-modal__acitvity-description">
-            {{ $tc('sw-import-export.activity.result.activityDescription', 0, { entity: mainEntity }) }}
+            {{ $tc('sw-import-export.activity.result.activityDescription', { entity: mainEntity }, 0) }}
         </p>
         {% endblock %}
 

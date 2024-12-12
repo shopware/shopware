@@ -28,7 +28,7 @@
             :popover-resize-width="false"
             :options="results"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', { term: searchTerm }, 0)"
             @paginate="$emit('paginate')"
             @item-select="setValue"
             @outside-click="closeResultList"

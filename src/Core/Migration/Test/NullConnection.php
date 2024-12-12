@@ -4,7 +4,9 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Log\Package;
@@ -50,11 +52,6 @@ class NullConnection extends Connection
         return $this->originalConnection->prepare($statement);
     }
 
-    public function executeUpdate(string $sql, array $params = [], array $types = []): int
-    {
-        return 0;
-    }
-
     public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
         return 0;
@@ -93,7 +90,7 @@ class NullConnection extends Connection
         $this->originalConnection = $originalConnection;
     }
 
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): MySQLPlatform
     {
         return new MySQL80Platform();
     }

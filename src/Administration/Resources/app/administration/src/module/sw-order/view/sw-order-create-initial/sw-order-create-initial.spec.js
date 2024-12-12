@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import orderStore from 'src/module/sw-order/state/order.store';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -47,11 +46,7 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
 
-        if (Shopware.State.get('swOrder')) {
-            Shopware.State.unregisterModule('swOrder');
-        }
-
-        Shopware.State.registerModule('swOrder', orderStore);
+        Shopware.Store.get('swOrder').$reset();
 
         await flushPromises();
     });
@@ -80,7 +75,7 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
         wrapper = await createWrapper('9876');
         await flushPromises();
 
-        const customer = Shopware.State.get('swOrder').customer;
+        const customer = Shopware.Store.get('swOrder').customer;
         expect(customer).toBeNull();
     });
 
@@ -88,7 +83,7 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
         wrapper = await createWrapper('1234');
         await flushPromises();
 
-        const customer = Shopware.State.get('swOrder').customer;
+        const customer = Shopware.Store.get('swOrder').customer;
         expect(customer).toEqual(
             expect.objectContaining({
                 id: '1234',

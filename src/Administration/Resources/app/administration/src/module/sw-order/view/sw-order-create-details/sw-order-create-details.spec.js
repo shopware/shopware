@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
  * @package customer-order
@@ -53,8 +52,7 @@ async function createWrapper() {
 
 describe('src/module/sw-order/view/sw-order-create-details', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('swOrder', orderStore);
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
         });
@@ -71,7 +69,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -97,7 +95,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -123,7 +121,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {

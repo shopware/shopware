@@ -30,8 +30,12 @@ class NullConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
-    {
+    public function executeQuery(
+        string $sql,
+        array $params = [],
+        array $types = [],
+        ?QueryCacheProfile $qcp = null,
+    ): Result {
         $matches = preg_match_all('/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i', $sql);
 
         if ($matches) {
@@ -51,7 +55,7 @@ class NullConnection extends Connection
         return 0;
     }
 
-    public function executeStatement($sql, array $params = [], array $types = [])
+    public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
         return 0;
     }

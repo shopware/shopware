@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -75,10 +76,11 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
         try {
             foreach ($preparedModules as $prepared) {
-                $statement->executeStatement([
+                StatementHelper::bindParameters($statement, [
                     'id' => $prepared['id'],
                     'modules' => $prepared['modules'],
                 ]);
+                $statement->executeStatement();
             }
 
             $connection->commit();

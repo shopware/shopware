@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -40,12 +41,13 @@ trait EnsureThumbnailSizesTrait
             }
 
             $id = Uuid::randomBytes();
-            $insertStatement->executeStatement([
+            StatementHelper::bindParameters($insertStatement, [
                 'id' => $id,
                 'width' => $thumbnailSize['width'],
                 'height' => $thumbnailSize['height'],
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
+            $insertStatement->executeStatement();
 
             $sizes[] = $id;
         }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -82,21 +83,24 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
         ');
 
         if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
-            $insertNamesAsLabelsStatement->executeStatement([
+            StatementHelper::bindParameters($insertNamesAsLabelsStatement, [
                 'languageId' => $defaultLanguageId,
             ]);
+            $insertNamesAsLabelsStatement->executeStatement();
         }
 
         if ($englishLanguageId) {
-            $insertNamesAsLabelsStatement->executeStatement([
+            StatementHelper::bindParameters($insertNamesAsLabelsStatement, [
                 'languageId' => $englishLanguageId,
             ]);
+            $insertNamesAsLabelsStatement->executeStatement();
         }
 
         if ($germanLanguageId) {
-            $insertGermanLabelsStatement->executeStatement([
+            StatementHelper::bindParameters($insertGermanLabelsStatement, [
                 'languageId' => $germanLanguageId,
             ]);
+            $insertGermanLabelsStatement->executeStatement();
         }
     }
 

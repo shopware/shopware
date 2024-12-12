@@ -4,10 +4,16 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     ShopCustomer,
     StorefrontHome,
     TestDataService,
-    DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (InstanceMeta.isSaaS) {
+        // cache invalidation does not happen immediately on saas
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip();
+    }
 
-    await TestDataService.createSystemConfigEntry('core.basicInformation.acceptAllCookies', true, DefaultSalesChannel.salesChannel.id);
+    await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });
     const product = await TestDataService.createBasicProduct();
     const category = await TestDataService.createCategory();
     await TestDataService.assignProductCategory(product.id, category.id);

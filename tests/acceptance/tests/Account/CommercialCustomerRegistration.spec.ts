@@ -6,12 +6,17 @@ test('As a new customer, I must be able to register as a commercial customer in 
     StorefrontAccount,
     IdProvider,
     Register,
-    SetSystemConfigValues,
+    TestDataService,
+    InstanceMeta,
 }) => {
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (InstanceMeta.isSaaS) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip();
+    }
     const uuid = IdProvider.getIdPair().uuid;
     const customer = { email: uuid + '@test.com', vatRegNo: uuid + '-VatId' };
-    const setAccountType = 'core.loginRegistration.showAccountTypeSelection';
-    await ShopCustomer.attemptsTo(SetSystemConfigValues({ [setAccountType]: true }, { [setAccountType]: false }));
+    await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
 
     await ShopCustomer.goesTo(StorefrontAccountLogin.url());
     await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');

@@ -73,17 +73,17 @@ class NullConnection extends Connection
         return $this->originalConnection->executeQuery($sql);
     }
 
-    public function insert($table, array $data, array $types = [])
+    public function insert(string $table, array $data, array $types = []): int
     {
         return 0;
     }
 
-    public function update($table, array $data, array $criteria, array $types = [])
+    public function update(string $table, array $data, array $criteria = [], array $types = []): int
     {
         return 0;
     }
 
-    public function delete($table, array $criteria, array $types = [])
+    public function delete(string $table, array $criteria = [], array $types = []): int|string
     {
         return $this->originalConnection->delete($table, $criteria, $types);
     }

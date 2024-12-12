@@ -100,10 +100,10 @@ class SchemaUpdater
         $translation->setPrimaryKey([$name . '_id', 'language_id']);
 
         $fk = substr('fk_ce_' . $translation->getName() . '_root', 0, 64);
-        $translation->addForeignKeyConstraint($table, [$name . '_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
+        $translation->addForeignKeyConstraint($table->getName(), [$name . '_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
 
         $fk = substr('fk_ce_' . $translation->getName() . '_language_id', 0, 64);
-        $translation->addForeignKeyConstraint($languageTable, ['language_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
+        $translation->addForeignKeyConstraint($languageTable->getName(), ['language_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
 
         $this->addColumns($schema, $translation, $translated);
     }
@@ -210,11 +210,11 @@ class SchemaUpdater
 
                         // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both
                         $fkName = substr('fk_ce_' . $mapping->getName() . '_' . $name, 0, 64);
-                        $mapping->addForeignKeyConstraint($table, [self::id($name)], ['id'], $onDelete['cascade'], $fkName);
+                        $mapping->addForeignKeyConstraint($table->getName(), [self::id($name)], ['id'], $onDelete['cascade'], $fkName);
 
                         // add foreign key to reference table (product.id <=> custom_entity_blog_products.product_id), add cascade delete for both
                         $fkName = substr('fk_ce_' . $mapping->getName() . '_' . $referenceName, 0, 64);
-                        $mapping->addForeignKeyConstraint($reference, [self::id($referenceName)], ['id'], $onDelete['cascade'], $fkName);
+                        $mapping->addForeignKeyConstraint($reference->getName(), [self::id($referenceName)], ['id'], $onDelete['cascade'], $fkName);
 
                         break;
                     }
@@ -226,11 +226,11 @@ class SchemaUpdater
 
                     // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both
                     $fkName = substr('fk_ce_' . $mapping->getName() . '_' . $name, 0, 64);
-                    $mapping->addForeignKeyConstraint($table, [self::id($name)], ['id'], $onDelete['cascade'], $fkName);
+                    $mapping->addForeignKeyConstraint($table->getName(), [self::id($name)], ['id'], $onDelete['cascade'], $fkName);
 
                     // add foreign key to reference table (product.id <=> custom_entity_blog_products.product_id), add cascade delete for both
                     $fkName = substr('fk_ce_' . $mapping->getName() . '_' . $referenceName, 0, 64);
-                    $mapping->addForeignKeyConstraint($reference, [self::id($referenceName), $referenceName . '_version_id'], ['id', 'version_id'], $onDelete['cascade'], $fkName);
+                    $mapping->addForeignKeyConstraint($reference->getName(), [self::id($referenceName), $referenceName . '_version_id'], ['id', 'version_id'], $onDelete['cascade'], $fkName);
 
                     break;
                 case 'many-to-one':
@@ -251,14 +251,14 @@ class SchemaUpdater
                     if ($reference->hasColumn('version_id')) {
                         $table->addColumn($field['name'] . '_version_id', Types::BINARY, $nullable + $binary);
                         $fkName = substr('fk_ce_' . $table->getName() . '_' . $field['name'], 0, 64);
-                        $table->addForeignKeyConstraint($reference, [self::id($field['name']), $field['name'] . '_version_id'], ['id', 'version_id'], $options, $fkName);
+                        $table->addForeignKeyConstraint($reference->getName(), [self::id($field['name']), $field['name'] . '_version_id'], ['id', 'version_id'], $options, $fkName);
 
                         break;
                     }
 
                     // add foreign key to reference table
                     $fkName = substr('fk_ce_' . $table->getName() . '_' . $field['name'], 0, 64);
-                    $table->addForeignKeyConstraint($reference, [self::id($field['name'])], ['id'], $options, $fkName);
+                    $table->addForeignKeyConstraint($reference->getName(), [self::id($field['name'])], ['id'], $options, $fkName);
 
                     break;
 
@@ -279,7 +279,7 @@ class SchemaUpdater
 
                     // build foreign key with special naming. This allows us to identify the custom entity modification in sw-core tables when run the cleanup
                     $fk = substr('fk_ce_' . $reference->getName() . '_' . $foreignKey, 0, 64);
-                    $reference->addForeignKeyConstraint($table, [$foreignKey], ['id'], $options, $fk);
+                    $reference->addForeignKeyConstraint($table->getName(), [$foreignKey], ['id'], $options, $fk);
 
                     // add inheritance column which matches the association name: `product.customEntityBlogTopSeller`
                     $this->addInheritanceColumn($schema, $name, $field);

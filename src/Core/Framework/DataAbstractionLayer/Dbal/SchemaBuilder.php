@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -64,6 +65,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeBreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TypeVariant;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
@@ -125,6 +127,7 @@ class SchemaBuilder
         BoolField::class => Types::BOOLEAN,
         LockedField::class => Types::BOOLEAN,
 
+        EnumField::class => 'defined-by-field',
         PasswordField::class => Types::STRING,
         StringField::class => Types::STRING,
         TimeZoneField::class => Types::STRING,
@@ -180,7 +183,11 @@ class SchemaBuilder
                 continue;
             }
 
-            $fieldType = $this->getFieldType($field);
+            if ($field instanceof TypeVariant) {
+                $fieldType = $field->getType();
+            }
+
+            $fieldType ??= $this->getFieldType($field);
 
             $table->addColumn(
                 $field->getStorageName(),

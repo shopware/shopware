@@ -11,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
+use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
  * @internal
@@ -20,15 +22,15 @@ class ShopConfiguratorTest extends TestCase
 {
     private ShopConfigurator $shopConfigurator;
 
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
+
+    private CollectingEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->shopConfigurator = new ShopConfigurator($this->connection);
+        $this->eventDispatcher = new CollectingEventDispatcher();
+        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher);
     }
 
     public function testUpdateBasicInformation(): void
@@ -79,6 +81,9 @@ class ShopConfiguratorTest extends TestCase
         });
 
         $this->shopConfigurator->setDefaultLanguage('vi-VN');
+
+        static::assertCount(1, $this->eventDispatcher->getEvents());
+        static::assertInstanceOf(SystemLanguageChangeEvent::class, $this->eventDispatcher->getEvents()[0]);
     }
 
     public function testSetDefaultLanguageMatchCurrentLocale(): void

@@ -3,12 +3,22 @@
 namespace Shopware\Core\LoginConfig;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class LoginConfig extends Bundle
 {
+    /**
+     * {@inheritdoc}
+     */
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

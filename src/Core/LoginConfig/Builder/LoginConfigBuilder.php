@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\LoginConfig\Builder;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\LoginConfig\Builder\Handler\AbstractLoginConfigHandler;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @internal
  */
+#[Package('core')]
 class LoginConfigBuilder
 {
     public function __construct(

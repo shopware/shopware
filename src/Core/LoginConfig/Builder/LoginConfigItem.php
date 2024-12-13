@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\LoginConfig\Builder;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
+#[Package('core')]
 class LoginConfigItem
 {
     /**

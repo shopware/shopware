@@ -4,7 +4,7 @@ import './sw-flow-detail-flow.scss';
 const { Component, State } = Shopware;
 const utils = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapGetters, mapState } = Component.getComponentHelper();
+const { mapVuexGetters, mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -79,11 +79,11 @@ export default {
             });
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'flow',
             'triggerActions',
         ]),
-        ...mapGetters('swFlowState', [
+        ...mapVuexGetters('swFlowState', [
             'sequences',
             'availableActions',
             'hasAvailableAction',

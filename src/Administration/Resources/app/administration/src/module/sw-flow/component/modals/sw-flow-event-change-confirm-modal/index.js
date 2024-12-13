@@ -3,7 +3,7 @@ import './sw-flow-event-change-confirm-modal.scss';
 
 const { Component, State } = Shopware;
 const { EntityCollection } = Shopware.Data;
-const { mapGetters } = Component.getComponentHelper();
+const { mapVuexGetters } = Component.getComponentHelper();
 
 /**
  * @private
@@ -20,7 +20,7 @@ export default {
     compatConfig: Shopware.compatConfig,
 
     computed: {
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapVuexGetters('swFlowState', ['sequences']),
     },
 
     methods: {

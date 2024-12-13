@@ -4,7 +4,7 @@ import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
 
 const { Mixin, Context } = Shopware;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -62,13 +62,13 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
+        ...mapVuexState('swShippingDetail', [
             'shippingMethod',
             'currencies',
             'restrictedRuleIds',
         ]),
 
-        ...mapGetters('swShippingDetail', [
+        ...mapVuexGetters('swShippingDetail', [
             'usedRules',
         ]),
 

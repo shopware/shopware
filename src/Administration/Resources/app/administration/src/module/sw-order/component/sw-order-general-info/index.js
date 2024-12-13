@@ -7,7 +7,7 @@ import template from './sw-order-general-info.html.twig';
 
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { mapVuexGetters, mapVuexState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -71,11 +71,11 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
+        ...mapVuexGetters('swOrderDetail', [
             'isLoading',
         ]),
 
-        ...mapState('swOrderDetail', [
+        ...mapVuexState('swOrderDetail', [
             'savedSuccessful',
         ]),
 

@@ -2,7 +2,7 @@ import template from './sw-flow-change-customer-group-modal.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 /**
@@ -47,7 +47,7 @@ export default {
             return criteria;
         },
 
-        ...mapState('swFlowState', ['customerGroups']),
+        ...mapVuexState('swFlowState', ['customerGroups']),
     },
 
     watch: {

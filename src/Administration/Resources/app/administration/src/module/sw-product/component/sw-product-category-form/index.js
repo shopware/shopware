@@ -7,7 +7,7 @@ import './sw-product-category-form.scss';
 
 const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -44,14 +44,14 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'parentProduct',
             'localMode',
             'loading',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isChild',
             'showModeSetting',
         ]),

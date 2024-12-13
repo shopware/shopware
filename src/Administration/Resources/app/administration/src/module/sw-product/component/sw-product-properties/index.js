@@ -7,7 +7,7 @@ import './sw-product-properties.scss';
 
 const { Component, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -95,12 +95,12 @@ export default {
             ];
         },
 
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'parentProduct',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
             'isChild',
         ]),

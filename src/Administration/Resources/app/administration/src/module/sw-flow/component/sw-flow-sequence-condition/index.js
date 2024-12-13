@@ -5,7 +5,7 @@ const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 
 /**
  * @private
@@ -46,7 +46,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'restrictedRules',
             'flow',
         ]),
@@ -89,11 +89,11 @@ export default {
             };
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'invalidSequences',
             'flow',
         ]),
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapVuexGetters('swFlowState', ['sequences']),
     },
 
     watch: {

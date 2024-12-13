@@ -5,7 +5,7 @@
 import template from './sw-product-cross-selling-assignment.html.twig';
 import './sw-product-cross-selling-assignment.scss';
 
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { mapVuexGetters, mapVuexState } = Shopware.Component.getComponentHelper();
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -43,11 +43,11 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
         ]),
 

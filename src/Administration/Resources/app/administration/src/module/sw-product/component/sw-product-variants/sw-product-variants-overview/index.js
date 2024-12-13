@@ -7,7 +7,7 @@ import './sw-products-variants-overview.scss';
 
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -69,14 +69,14 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'currencies',
             'taxes',
             'variants',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
             'defaultPrice',
             'defaultCurrency',

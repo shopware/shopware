@@ -7,7 +7,7 @@ const {
     Context,
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 /**
  * @package checkout
@@ -38,11 +38,11 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
+        ...mapVuexState('swShippingDetail', [
             'shippingMethod',
         ]),
 
-        ...mapGetters('swShippingDetail', [
+        ...mapVuexGetters('swShippingDetail', [
             'shippingPriceGroups',
             'usedRules',
             'unrestrictedPriceMatrixExists',

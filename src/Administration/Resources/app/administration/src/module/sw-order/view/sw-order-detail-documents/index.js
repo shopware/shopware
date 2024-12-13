@@ -4,7 +4,7 @@ import template from './sw-order-detail-documents.html.twig';
  * @package checkout
  */
 
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { mapVuexGetters, mapVuexState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -29,11 +29,11 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
+        ...mapVuexGetters('swOrderDetail', [
             'isLoading',
         ]),
 
-        ...mapState('swOrderDetail', [
+        ...mapVuexState('swOrderDetail', [
             'order',
             'versionContext',
         ]),

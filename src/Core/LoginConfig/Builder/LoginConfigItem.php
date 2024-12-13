@@ -13,15 +13,15 @@ class LoginConfigItem
      * @param array<string, mixed> $additionalData
      */
     public function __construct(
-        private readonly string $key,
-        private readonly ?string $snippetKey = null,
-        private readonly ?string $icon = null,
-        private readonly ?string $class = null,
-        private readonly ?string $clientId = null,
-        private readonly ?string $clientSecret = null,
-        private readonly ?string $redirectUri = null,
-        private readonly ?string $baseUrl = null,
-        private readonly ?array $additionalData = [],
+        public readonly string $key,
+        public readonly ?string $snippetKey = null,
+        public readonly ?string $icon = null,
+        public readonly ?string $class = null,
+        public readonly ?string $clientId = null,
+        public readonly ?string $clientSecret = null,
+        public readonly ?string $redirectUri = null,
+        public readonly ?string $baseUrl = null,
+        public readonly ?array $additionalData = [],
     ) {}
 
     /**
@@ -59,54 +59,4 @@ class LoginConfigItem
             $array['additional_data'] ?? [],
         );
     }
-
-    public function getKey(): string
-    {
-        return $this->key;
-    }
-
-    public function getSnippetKey(): ?string
-    {
-        return $this->snippetKey;
-    }
-
-    public function getIcon(): ?string
-    {
-        return $this->icon;
-    }
-
-    public function getClass(): ?string
-    {
-        return $this->class;
-    }
-
-    public function getClientId(): ?string
-    {
-        return $this->clientId;
-    }
-
-    public function getClientSecret(): ?string
-    {
-        return $this->clientSecret;
-    }
-
-    public function getRedirectUri(): ?string
-    {
-        return $this->redirectUri;
-    }
-
-    public function getBaseUrl(): ?string
-    {
-        return $this->baseUrl;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getAdditionalData(): array
-    {
-        return $this->additionalData;
-    }
-
-
 }

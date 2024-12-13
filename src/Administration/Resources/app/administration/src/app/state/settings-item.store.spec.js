@@ -87,6 +87,6 @@ describe('src/app/state/settings.store.js', () => {
             name: 'orphanSetting',
         };
 
-        expect(() => store.commit('addItem', settingsItem)).toThrowError('Group is undefined or invalid');
+        expect(() => store.commit('addItem', settingsItem)).toThrow('Group is undefined or invalid');
     });
 });

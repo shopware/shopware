@@ -4,8 +4,6 @@
 import { mount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
 
-const { State } = Shopware;
-
 const classes = {
     cardSeoAdditional: 'sw-seo-url__card-seo-additional',
     inheritanceWrapper: 'sw-inherit-wrapper',
@@ -165,28 +163,7 @@ function createEntityCollection(entities = []) {
 
 describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     beforeEach(() => {
-        if (Shopware.State.get('swProductDetail')) {
-            Shopware.State.unregisterModule('swProductDetail');
-        }
-
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: {},
-                parentProduct: {},
-            },
-            getters: {
-                isLoading: () => false,
-            },
-            mutations: {
-                setProduct(state, newProduct) {
-                    state.product = newProduct;
-                },
-                setParentProduct(state, newProduct) {
-                    state.parentProduct = newProduct;
-                },
-            },
-        });
+        Shopware.Store.get('swProductDetail').$reset();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -196,9 +173,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     });
 
     it('should update product main categories correctly', async () => {
-        Shopware.State.commit('swProductDetail/setProduct', {
-            mainCategories: [],
-        });
+        Shopware.Store.get('swProductDetail').product = { mainCategories: [] };
         const wrapper = await createWrapper();
         await wrapper.vm.onAddMainCategory({
             _isNew: true,
@@ -223,14 +198,12 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
 
     it('should update main category when restore inheritance of Seo Category from variant', async () => {
         const wrapper = await createWrapper(['product.editor']);
-        Shopware.State.commit('swProductDetail/setProduct', {
-            ...productInheritedCategoryDataMock.product,
-        });
+        Shopware.Store.get('swProductDetail').product = { ...productInheritedCategoryDataMock.product };
 
-        Shopware.State.commit('swProductDetail/setParentProduct', {
+        Shopware.Store.get('swProductDetail').parentProduct = {
             id: '123',
             mainCategories: productNotInheritedCategoryDataMock.product.mainCategories,
-        });
+        };
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.product.mainCategories).toHaveLength(1);
@@ -255,7 +228,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(inheritanceSwitch).toBeTruthy();
 
         expect(inheritanceSwitch.classes()).toContain(classes.notInherited);
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             mainCategories: [
                 {
                     _isNew: true,
@@ -273,7 +246,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
                 },
             ],
             categories: [],
-        });
+        };
         await flushPromises();
         await inheritanceSwitch.find('.sw-icon').trigger('click');
 
@@ -285,7 +258,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     it("should not exist inheritance symbol when variant's category did not inherit parents category", async () => {
         const wrapper = await createWrapper('product.editor');
 
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             seoUrls: [
                 {
                     apiAlias: null,
@@ -303,7 +276,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
                 },
             ],
             categories: [{ id: uuid.get('category A') }],
-        });
+        };
         await flushPromises();
 
         expect(wrapper.vm.product.categories).toHaveLength(1);
@@ -332,7 +305,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     it("should exist inheritance symbol when variant's Seo Category does not have main category", async () => {
         const wrapper = await createWrapper('product.editor');
 
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             seoUrls: [
                 {
                     apiAlias: null,
@@ -350,12 +323,12 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
                 },
             ],
             categories: [{ id: uuid.get('category A') }],
-        });
+        };
 
-        Shopware.State.commit('swProductDetail/setParentProduct', {
+        Shopware.Store.get('swProductDetail').parentProduct = {
             id: '123',
             categories: [{ id: uuid.get('category A') }],
-        });
+        };
         await flushPromises();
 
         expect(wrapper.vm.categories).toEqual(expect.arrayContaining(wrapper.vm.parentProduct.categories));
@@ -377,7 +350,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('Headless');
         expect(wrapper.vm.currentSalesChannelId).toEqual(uuid.get('headless'));
 
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             mainCategories: [
                 {
                     _isNew: true,
@@ -395,12 +368,12 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
                 },
             ],
             categories: [],
-        });
+        };
 
-        Shopware.State.commit('swProductDetail/setParentProduct', {
+        Shopware.Store.get('swProductDetail').parentProduct = {
             id: '123',
             mainCategories: productNotInheritedCategoryDataMock.product.mainCategories,
-        });
+        };
         await flushPromises();
         const inheritanceSwitch = wrapper.find(`.${classes.cardSeoAdditional} .${classes.inheritanceSwitch}`);
         expect(inheritanceSwitch).toBeTruthy();
@@ -411,7 +384,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     it("should exist non-inheritance symbol when variant's Seo Category have main category", async () => {
         const wrapper = await createWrapper(['product.editor']);
 
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             seoUrls: [
                 {
                     apiAlias: null,
@@ -429,12 +402,12 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
                 },
             ],
             categories: [],
-        });
+        };
 
-        Shopware.State.commit('swProductDetail/setParentProduct', {
+        Shopware.Store.get('swProductDetail').parentProduct = {
             id: '123',
             categories: [{ id: uuid.get('category A') }],
-        });
+        };
         await flushPromises();
 
         expect(wrapper.vm.product.mainCategories).toHaveLength(1);

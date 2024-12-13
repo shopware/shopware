@@ -7,7 +7,7 @@ import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
 const { Component, Context, Utils, Mixin } = Shopware;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -41,21 +41,19 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'customFieldSets',
-            'loading',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-            'showModeSetting',
-            'showProductCard',
-            'productStates',
-        ]),
-
-        ...mapVuexState('swProductDetail', {}),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'customFieldSets',
+                'loading',
+                'isLoading',
+                'showModeSetting',
+                'showProductCard',
+                'productStates',
+            ],
+        ),
 
         mediaFormVisible() {
             return (

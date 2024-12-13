@@ -44,24 +44,17 @@ describe('sw-bulk-edit-product-visibility', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: () => {
-                return {
-                    product: {
-                        visibilities: [
-                            {
-                                productId: 'productId',
-                                productVersionId: 'productVersionId',
-                                salesChannel: {},
-                                salesChannelId: 'salesChannelId',
-                                visibility: 30,
-                            },
-                        ],
-                    },
-                };
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = {
+            visibilities: [
+                {
+                    productId: 'productId',
+                    productVersionId: 'productVersionId',
+                    salesChannel: {},
+                    salesChannelId: 'salesChannelId',
+                    visibility: 30,
+                },
+            ],
+        };
     });
 
     beforeEach(async () => {

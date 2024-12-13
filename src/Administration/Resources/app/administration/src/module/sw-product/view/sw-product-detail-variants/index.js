@@ -7,7 +7,7 @@ import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 const { uniqBy } = Shopware.Utils.array;
-const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -38,16 +38,19 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'variants',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'variants',
+            ],
+        ),
 
         contextLanguageId() {
             return Shopware.Store.get('context').api.languageId;
         },
 
-        ...mapVuexGetters('swProductDetail', {
+        ...mapState(() => Shopware.Store.get('swProductDetail'), {
             isStoreLoading: 'isLoading',
         }),
 

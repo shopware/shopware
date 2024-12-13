@@ -7,7 +7,7 @@ import './sw-product-basic-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Context, Mixin } = Shopware;
-const { mapPropertyErrors, mapVuexState } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -44,11 +44,14 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'loading',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'loading',
+            ],
+        ),
 
         ...mapPropertyErrors('product', [
             'name',

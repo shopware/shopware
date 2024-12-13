@@ -5,9 +5,9 @@
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 
-const { Component, State, Context, Utils } = Shopware;
+const { Component, Store, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -43,13 +43,13 @@ export default {
             return (!this.isLoading || !this.isConfigLoading) && !this.currentPage.locked;
         },
 
-        ...mapVuexState('swProductDetail', [
-            'product',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        ...mapState(
+            () => Store.get('swProductDetail'),
+            [
+                'product',
+                'isLoading',
+            ],
+        ),
 
         cmsPageCriteria() {
             const criteria = new Criteria(1, 25);
@@ -145,7 +145,7 @@ export default {
 
             this.product.cmsPageId = cmsPageId;
             this.product.slotConfig = null;
-            State.commit('swProductDetail/setProduct', this.product);
+            Shopware.Store.get('swProductDetail').product = this.product;
         },
 
         handleGetCmsPage() {

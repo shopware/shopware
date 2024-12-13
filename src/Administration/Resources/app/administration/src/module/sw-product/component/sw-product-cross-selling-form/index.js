@@ -3,7 +3,7 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
-const { mapPropertyErrors, mapVuexGetters, mapVuexState } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -62,13 +62,13 @@ export default {
             'position',
         ]),
 
-        ...mapVuexState('swProductDetail', [
-            'product',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'isLoading',
+            ],
+        ),
 
         productCrossSellingRepository() {
             return this.repositoryFactory.create('product_cross_selling');

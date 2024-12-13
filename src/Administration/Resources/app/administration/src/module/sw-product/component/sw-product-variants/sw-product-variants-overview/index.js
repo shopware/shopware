@@ -7,7 +7,7 @@ import './sw-products-variants-overview.scss';
 
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -69,19 +69,19 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'currencies',
-            'taxes',
-            'variants',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-            'defaultPrice',
-            'defaultCurrency',
-            'productTaxRate',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'currencies',
+                'taxes',
+                'variants',
+                'isLoading',
+                'defaultPrice',
+                'defaultCurrency',
+                'productTaxRate',
+            ],
+        ),
 
         productRepository() {
             return this.repositoryFactory.create('product');
@@ -248,16 +248,13 @@ export default {
                 newDownload.productId = item.id;
                 newDownload.media = media;
 
-                Shopware.State.commit(
-                    'swProductDetail/setVariants',
-                    this.variants.map((variant) => {
-                        if (variant.id === item.id) {
-                            variant.downloads.push(newDownload);
-                            this.productRepository.save(variant);
-                        }
-                        return variant;
-                    }),
-                );
+                Shopware.Store.get('swProductDetail').variants = this.variants.map((variant) => {
+                    if (variant.id === item.id) {
+                        variant.downloads.push(newDownload);
+                        this.productRepository.save(variant);
+                    }
+                    return variant;
+                });
             });
         },
 
@@ -278,7 +275,7 @@ export default {
                     return;
                 }
 
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'variants',
                     true,
                 ]);
@@ -335,8 +332,8 @@ export default {
                 // Start search
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
-                    Shopware.State.commit('swProductDetail/setVariants', res);
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').variants = res;
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'variants',
                         false,
                     ]);

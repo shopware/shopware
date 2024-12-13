@@ -99,12 +99,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
         };
         product.getEntityName = () => 'product';
 
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: product,
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = product;
     });
 
     beforeEach(() => {

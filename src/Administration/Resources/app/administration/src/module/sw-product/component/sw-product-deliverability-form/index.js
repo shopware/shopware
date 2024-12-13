@@ -5,7 +5,7 @@
 import template from './sw-product-deliverability-form.html.twig';
 
 const { Mixin } = Shopware;
-const { mapVuexState, mapPropertyErrors, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -27,15 +27,15 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'loading',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'showModeSetting',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'loading',
+                'showModeSetting',
+            ],
+        ),
 
         ...mapPropertyErrors('product', [
             'stock',

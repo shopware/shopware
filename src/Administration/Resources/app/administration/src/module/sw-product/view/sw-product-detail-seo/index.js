@@ -5,7 +5,7 @@
 import template from './sw-product-detail-seo.html.twig';
 
 const { Component } = Shopware;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -25,14 +25,14 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'isLoading',
+            ],
+        ),
 
         categories() {
             if (this.product.categories.length > 0) {

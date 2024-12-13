@@ -6,7 +6,7 @@ import template from './sw-product-seo-form.html.twig';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors, mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -94,14 +94,14 @@ export default {
             return variants;
         },
 
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
-
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'isLoading',
+                'product',
+                'parentProduct',
+            ],
+        ),
 
         ...mapPropertyErrors('product', [
             'keywords',

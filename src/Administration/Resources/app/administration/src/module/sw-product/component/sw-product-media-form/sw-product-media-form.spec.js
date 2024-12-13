@@ -3,32 +3,16 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { createStore } from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 async function createWrapper() {
-    const store = createStore({
-        modules: {
-            swProductDetail: {
-                namespaced: true,
-                getters: {
-                    isLoading: () => false,
-                },
-            },
-        },
-    });
-
     return mount(await wrapTestComponent('sw-product-media-form', { sync: true }), {
         attachTo: document.body,
         global: {
-            plugins: [store],
             directives: {
                 draggable: {},
                 droppable: {},
                 popover: {},
-            },
-            mocks: {
-                $store: store,
             },
             provide: {
                 repositoryFactory: {
@@ -120,12 +104,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         };
         product.getEntityName = () => 'T-Shirt';
 
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: product,
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = product;
     });
 
     it('should be a Vue.JS component', async () => {

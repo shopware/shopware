@@ -26,29 +26,19 @@ const productFixture = {
 };
 
 function createStateMapper(customProduct = {}) {
-    if (Shopware.State.list().includes('swProductDetail')) {
-        Shopware.State.unregisterModule('swProductDetail');
-    }
-
-    const newModule = {
-        state: {
-            product: {
-                ...productFixture,
-                ...customProduct,
-            },
-        },
-    };
-
-    Shopware.State.registerModule('swProductDetail', {
+    Shopware.Store.unregister('swProductDetail');
+    Shopware.Store.register({
         ...{
-            namespaced: true,
-            state: {
+            id: 'swProductDetail',
+            state: () => ({
                 isLoading: false,
                 isSavedSuccessful: false,
-                product: productFixture,
-            },
+                product: {
+                    ...productFixture,
+                    ...customProduct,
+                },
+            }),
         },
-        ...newModule,
     });
 }
 

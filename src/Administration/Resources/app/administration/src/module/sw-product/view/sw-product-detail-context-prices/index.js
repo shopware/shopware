@@ -7,7 +7,7 @@ import './sw-product-detail-context-prices.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
+const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -49,20 +49,20 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-            'currencies',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-            'defaultCurrency',
-            'defaultPrice',
-            'productTaxRate',
-            'isChild',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'taxes',
+                'currencies',
+                'isLoading',
+                'defaultCurrency',
+                'defaultPrice',
+                'productTaxRate',
+                'isChild',
+            ],
+        ),
 
         priceRepository() {
             if (this.product && this.product.prices) {
@@ -223,7 +223,7 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'rules',
                     true,
                 ]);
@@ -232,7 +232,7 @@ export default {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'rules',
                     false,
                 ]);

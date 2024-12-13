@@ -4,7 +4,7 @@
 import template from './sw-bulk-edit-product-visibility.html.twig';
 
 const { Context } = Shopware;
-const { mapVuexState } = Shopware.Component.getComponentHelper();
+const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -33,9 +33,12 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+            ],
+        ),
 
         productVisibilityRepository() {
             return this.repositoryFactory.create(this.product.visibilities.entity);

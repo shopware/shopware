@@ -5,7 +5,7 @@
 import template from './sw-product-detail-specifications.html.twig';
 
 const { Component } = Shopware;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -26,19 +26,19 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'customFieldSets',
-            'loading',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-            'showModeSetting',
-            'showProductCard',
-            'productStates',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'customFieldSets',
+                'loading',
+                'isLoading',
+                'showModeSetting',
+                'showProductCard',
+                'productStates',
+            ],
+        ),
 
         customFieldsExists() {
             return !this.customFieldSets.length <= 0;

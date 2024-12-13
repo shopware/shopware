@@ -7,7 +7,7 @@ import './sw-product-detail-reviews.scss';
 
 const { Component, Data, Context } = Shopware;
 const { Criteria } = Data;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -32,13 +32,13 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'isLoading',
+            ],
+        ),
 
         cardTitle() {
             return this.total ? this.$tc('sw-product.reviews.cardTitleReviews') : null;

@@ -1,12 +1,12 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
-import swProductDetailState from '../../../sw-product/page/sw-product-detail/state';
+import '../../../sw-product/page/sw-product-detail/store';
 
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
-const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
@@ -51,16 +51,16 @@ export default {
     },
 
     computed: {
-        ...mapVuexState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-        ]),
-
-        ...mapVuexGetters('swProductDetail', [
-            'defaultCurrency',
-            'defaultPrice',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swProductDetail'),
+            [
+                'product',
+                'parentProduct',
+                'taxes',
+                'defaultCurrency',
+                'defaultPrice',
+            ],
+        ),
 
         selectedIds() {
             return Shopware.Store.get('shopwareApps').selectedIds;
@@ -894,14 +894,6 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swProductDetail', swProductDetailState);
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swProductDetail');
-    },
-
     created() {
         this.createdComponent();
     },
@@ -927,7 +919,7 @@ export default {
                 this.loadBulkEditData();
 
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
-                Shopware.State.commit('swProductDetail/setProduct', product);
+                Shopware.Store.get('swProductDetail').product = product;
                 this.definePricesBulkEdit();
 
                 if (this.isChild) {
@@ -968,11 +960,11 @@ export default {
                 .get(this.$route.params.parentId, Shopware.Context.api, this.productCriteria)
                 .then((parentProduct) => {
                     parentProduct.stock = null;
-                    Shopware.State.commit('swProductDetail/setParentProduct', parentProduct);
+                    Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
                     this.parentProductFrozen = JSON.stringify(parentProduct);
                 })
                 .catch(() => {
-                    Shopware.State.commit('swProductDetail/setParentProduct', {});
+                    Shopware.Store.get('swProductDetail').parentProduct = {};
                 });
         },
 
@@ -1054,7 +1046,7 @@ export default {
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
                 this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
-                Shopware.State.commit('swProductDetail/setTaxes', taxes);
+                Shopware.Store.get('swProductDetail').setTaxes(taxes);
             });
         },
 
@@ -1070,7 +1062,7 @@ export default {
 
         loadCurrencies() {
             return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
-                Shopware.State.commit('swProductDetail/setCurrencies', res);
+                Shopware.Store.get('swProductDetail').currencies = res;
             });
         },
 

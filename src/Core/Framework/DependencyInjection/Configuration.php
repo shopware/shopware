@@ -1051,11 +1051,16 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('admin_login');
         $rootNode = $treeBuilder->getRootNode();
+        $rootNode->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('use_default')->defaultTrue()->end()
+                ->arrayNode('sso_providers')->defaultValue([])->end();
+
         $rootNode
             ->children()
                 ->booleanNode('use_default')->defaultFalse()->end()
                 ->arrayNode('sso_providers')
-                ->useAttributeAsKey('type')
+                ->useAttributeAsKey('provider')
                 ->arrayPrototype()
                     ->children()
                         ->scalarNode('snippet_key')->isRequired()->end()
@@ -1067,7 +1072,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('class')->isRequired()->end()
                         ->arrayNode('additional_data')
                             ->defaultValue([])
-                            ->useAttributeAsKey('name')
+                            ->useAttributeAsKey('key')
                             ->scalarPrototype()
                         ->end()
                     ->end()

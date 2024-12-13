@@ -81,15 +81,12 @@ describe('src/app/state/settings.store.js', () => {
         });
     });
 
-    it('does not throw an error if the group is undefined', () => {
+    it('throws an error if the group is undefined', () => {
         const settingsItem = {
             group: undefined,
             name: 'orphanSetting',
         };
 
-        expect(() => store.commit('addItem', settingsItem)).not.toThrow();
-        expect(store.state.settingsGroups.undefined).toBeDefined();
-        expect(store.state.settingsGroups.undefined).toHaveLength(1);
-        expect(store.state.settingsGroups.undefined[0]).toEqual(settingsItem);
+        expect(() => store.commit('addItem', settingsItem)).toThrowError('Group is undefined or invalid');
     });
 });

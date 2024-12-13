@@ -5,8 +5,15 @@ declare(strict_types=1);
 namespace Shopware\Core\LoginConfig;
 
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('core')]
 class LoginConfigException extends HttpException
 {
     final public const LOGIN_CONFIG_SESSION_NOT_SET = 'LOGIN_CONFIG__SESSION_IS_NOT_SET';

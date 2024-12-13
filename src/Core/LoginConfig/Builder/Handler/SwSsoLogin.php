@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\LoginConfig\Builder\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\LoginConfig\Builder\LoginConfigItem;
 use Symfony\Component\String\ByteString;
 
 /**
  * @internal
  */
+#[Package('core')]
 class SwSsoLogin extends AbstractLoginConfigHandler
 {
     public function __construct(

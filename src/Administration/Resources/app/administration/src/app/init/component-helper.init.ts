@@ -3,15 +3,23 @@
  */
 
 // Vue 3 imports
-import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
+import {
+    mapState as mapVuexState,
+    mapMutations as mapVuexMutations,
+    mapGetters as mapVuexGetters,
+    mapActions as mapVuexActions,
+} from 'vuex';
+import { mapState, mapActions } from 'pinia';
 
 import * as mapErrors from 'src/app/service/map-errors.service';
 
 const componentHelper: ComponentHelper = {
     mapState,
-    mapMutations,
-    mapGetters,
     mapActions,
+    mapVuexState,
+    mapVuexMutations,
+    mapVuexGetters,
+    mapVuexActions,
     ...mapErrors,
 };
 

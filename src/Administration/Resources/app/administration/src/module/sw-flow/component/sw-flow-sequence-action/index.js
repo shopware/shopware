@@ -7,7 +7,7 @@ const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
 
 /**
@@ -149,7 +149,7 @@ export default {
             return Shopware.Store.get('session').currentLocale;
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'invalidSequences',
             'stateMachineState',
             'documentTypes',
@@ -160,7 +160,7 @@ export default {
             'triggerEvent',
             'triggerActions',
         ]),
-        ...mapGetters('swFlowState', [
+        ...mapVuexGetters('swFlowState', [
             'availableActions',
             'actionGroups',
             'sequences',

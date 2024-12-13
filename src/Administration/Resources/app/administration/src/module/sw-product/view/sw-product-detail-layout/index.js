@@ -7,7 +7,7 @@ import './sw-product-detail-layout.scss';
 
 const { Component, State, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -43,11 +43,11 @@ export default {
             return (!this.isLoading || !this.isConfigLoading) && !this.currentPage.locked;
         },
 
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
         ]),
 

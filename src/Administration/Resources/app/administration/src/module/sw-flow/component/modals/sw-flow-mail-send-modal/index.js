@@ -8,7 +8,7 @@ const {
     Classes: { ShopwareError },
 } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -219,7 +219,7 @@ export default {
             return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'mailTemplates',
             'triggerEvent',
             'triggerActions',

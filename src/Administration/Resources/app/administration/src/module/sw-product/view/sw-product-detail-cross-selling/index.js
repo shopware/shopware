@@ -6,7 +6,7 @@ import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -37,16 +37,16 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
             'isChild',
         ]),
 
-        ...mapGetters('context', [
+        ...mapVuexGetters('context', [
             'isSystemDefaultLanguage',
         ]),
 

@@ -6,7 +6,7 @@ const {
     Data: { Criteria },
     Component,
 } = Shopware;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -120,7 +120,7 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
-        ...mapState('swFlowState', ['triggerEvents']),
+        ...mapVuexState('swFlowState', ['triggerEvents']),
     },
 
     watch: {

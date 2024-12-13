@@ -6,7 +6,7 @@ import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
 const { Mixin } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapVuexState, mapVuexGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -34,7 +34,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'isLoading',
             'defaultPrice',
             'defaultCurrency',
@@ -42,7 +42,7 @@ export default {
             'showModeSetting',
         ]),
 
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'parentProduct',
             'taxes',

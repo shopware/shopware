@@ -2,7 +2,7 @@ import template from './sw-extension-adding-failed.html.twig';
 import './sw-extension-adding-failed.scss';
 
 const { Component } = Shopware;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 
 /**
  * @package checkout
@@ -45,7 +45,7 @@ export default {
     },
 
     computed: {
-        ...mapState('shopwareExtensions', ['myExtensions']),
+        ...mapVuexState('shopwareExtensions', ['myExtensions']),
 
         extension() {
             return this.myExtensions.data.find((extension) => {

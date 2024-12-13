@@ -2,7 +2,7 @@ import template from './sw-flow-generate-document-modal.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
+const { mapVuexState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 /**
@@ -49,7 +49,7 @@ export default {
             return criteria;
         },
 
-        ...mapState('swFlowState', ['documentTypes']),
+        ...mapVuexState('swFlowState', ['documentTypes']),
     },
 
     watch: {

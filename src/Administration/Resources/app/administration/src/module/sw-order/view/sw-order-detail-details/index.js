@@ -7,7 +7,7 @@ import './sw-order-detail-details.scss';
 
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters, mapState, mapPropertyErrors } = Component.getComponentHelper();
+const { mapVuexGetters, mapVuexState, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -79,11 +79,11 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
+        ...mapVuexGetters('swOrderDetail', [
             'isLoading',
         ]),
 
-        ...mapState('swOrderDetail', [
+        ...mapVuexState('swOrderDetail', [
             'order',
             'versionContext',
             'orderAddressIds',

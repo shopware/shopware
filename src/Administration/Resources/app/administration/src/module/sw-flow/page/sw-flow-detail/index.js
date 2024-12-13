@@ -4,7 +4,7 @@ import './sw-flow-detail.scss';
 const { Component, Mixin, Context, State, Utils, Service } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters, mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
@@ -187,11 +187,11 @@ export default {
             });
         },
 
-        ...mapState('swFlowState', [
+        ...mapVuexState('swFlowState', [
             'flow',
             'triggerEvents',
         ]),
-        ...mapGetters('swFlowState', [
+        ...mapVuexGetters('swFlowState', [
             'sequences',
             'mailTemplateIds',
             'customFieldSetIds',

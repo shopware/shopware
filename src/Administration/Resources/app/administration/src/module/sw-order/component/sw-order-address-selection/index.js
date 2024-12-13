@@ -8,7 +8,7 @@ import './sw-order-address-selection.scss';
 
 const { EntityDefinition, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
+const { mapVuexState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -67,7 +67,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swOrderDetail', [
+        ...mapVuexState('swOrderDetail', [
             'order',
             'versionContext',
         ]),

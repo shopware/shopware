@@ -4,7 +4,7 @@
 
 import template from './sw-product-settings-form.html.twig';
 
-const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapVuexState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,7 +22,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'parentProduct',
         ]),

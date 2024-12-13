@@ -6,7 +6,7 @@ const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapVuexState, mapVuexGetters } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
@@ -51,13 +51,13 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
+        ...mapVuexState('swProductDetail', [
             'product',
             'parentProduct',
             'taxes',
         ]),
 
-        ...mapGetters('swProductDetail', [
+        ...mapVuexGetters('swProductDetail', [
             'defaultCurrency',
             'defaultPrice',
         ]),

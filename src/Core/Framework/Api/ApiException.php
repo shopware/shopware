@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Controller\Exception\AuthThrottledException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssocia
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,6 +64,8 @@ class ApiException extends HttpException
     public const API_INVALID_SCOPE_ACCESS_TOKEN = 'FRAMEWORK__INVALID_SCOPE_ACCESS_TOKEN';
 
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
+
+    public const API_FRAMEWORK__AUTH_THROTTLED = 'FRAMEWORK__AUTH_THROTTLED';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -430,6 +434,24 @@ class ApiException extends HttpException
             self::API_INVALID_SCOPE_ACCESS_TOKEN,
             'This access token does not have the scope "{{ scope }}" to process this Request',
             ['scope' => $identifier]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function onRateLimitExceeded(RateLimitExceededException $rateLimitExceededException): self|AuthThrottledException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new AuthThrottledException($rateLimitExceededException->getWaitTime(), $rateLimitExceededException);
+        }
+
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::API_FRAMEWORK__AUTH_THROTTLED,
+            'Auth throttled for {{ seconds }} seconds.',
+            ['seconds' => $rateLimitExceededException->getWaitTime()],
+            $rateLimitExceededException
         );
     }
 }

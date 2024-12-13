@@ -10,10 +10,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal Use SalesChannelContext for extensions
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class BaseContext
@@ -28,7 +31,8 @@ class BaseContext
         protected ShippingMethodEntity $shippingMethod,
         protected ShippingLocation $shippingLocation,
         private readonly CashRoundingConfig $itemRounding,
-        private readonly CashRoundingConfig $totalRounding
+        private readonly CashRoundingConfig $totalRounding,
+        private readonly LanguageInfo $languageInfo
     ) {
     }
 
@@ -77,22 +81,11 @@ class BaseContext
         return $this->context->getTaxState();
     }
 
-    public function getApiAlias(): string
-    {
-        return 'base_channel_context';
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
     public function getTotalRounding(): CashRoundingConfig
     {
         return $this->totalRounding;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getItemRounding(): CashRoundingConfig
     {
         return $this->itemRounding;
@@ -101,5 +94,15 @@ class BaseContext
     public function getCurrencyId(): string
     {
         return $this->getCurrency()->getId();
+    }
+
+    public function getLanguageInfo(): LanguageInfo
+    {
+        return $this->languageInfo;
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'base_channel_context';
     }
 }

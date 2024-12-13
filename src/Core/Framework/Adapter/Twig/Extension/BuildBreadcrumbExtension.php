@@ -18,6 +18,8 @@ class BuildBreadcrumbExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
@@ -29,6 +31,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     {
         return [
             new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_full_by_id', $this->getFullBreadcrumbById(...), ['needs_context' => true]),
         ];
     }
 
@@ -45,12 +48,10 @@ class BuildBreadcrumbExtension extends AbstractExtension
         }
 
         $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build($category, $salesChannel);
-
         if ($seoBreadcrumb === null) {
             return [];
         }
 
-        /** @var list<string> $categoryIds */
         $categoryIds = array_keys($seoBreadcrumb);
         if (empty($categoryIds)) {
             return [];
@@ -58,7 +59,6 @@ class BuildBreadcrumbExtension extends AbstractExtension
 
         $criteria = new Criteria($categoryIds);
         $criteria->setTitle('breadcrumb-extension');
-        /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         $breadcrumb = [];
@@ -71,5 +71,20 @@ class BuildBreadcrumbExtension extends AbstractExtension
         }
 
         return $breadcrumb;
+    }
+
+    /**
+     * @param array<string, mixed> $twigContext
+     *
+     * @return array<string, CategoryEntity>
+     */
+    public function getFullBreadcrumbById(array $twigContext, string $categoryId, Context $context): array
+    {
+        $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
+        if (!$category instanceof CategoryEntity) {
+            return [];
+        }
+
+        return $this->getFullBreadcrumb($twigContext, $category, $context);
     }
 }
